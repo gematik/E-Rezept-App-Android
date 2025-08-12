@@ -25,13 +25,11 @@ package de.gematik.ti.erp.app.digas.presentation
 import app.cash.turbine.test
 import de.gematik.ti.erp.app.digas.domain.usecase.FetchInsuranceListUseCase
 import de.gematik.ti.erp.app.digas.ui.preview.mockInsuranceUiModelList
-import de.gematik.ti.erp.app.utils.uistate.UiState
 import io.mockk.MockKAnnotations
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -57,10 +55,9 @@ class InsuranceSearchListControllerTest {
         MockKAnnotations.init(this)
         Dispatchers.setMain(testDispatcher)
 
-        every { fetchInsuranceListUseCase(any()) } returns flowOf(UiState.Data(mockInsuranceUiModelList))
+        coEvery { fetchInsuranceListUseCase(any()) } returns mockInsuranceUiModelList
 
         insuranceController = InsuranceSearchListController(
-            searchTerm = "",
             fetchInsuranceListUseCase = fetchInsuranceListUseCase
         )
     }
@@ -73,12 +70,11 @@ class InsuranceSearchListControllerTest {
     @Test
     fun shouldReturnFullListWhenSearchTermIsBlank() = testScope.runTest {
         // When
-        insuranceController.onSearchFieldValue("")
+        insuranceController.onSearchFieldValueChange("")
         advanceUntilIdle()
 
         // Then
-        insuranceController.insuranceList.test {
-            skipItems(1) // skip initial load
+        insuranceController.healthInsuranceList.test {
             val result = awaitItem()
             result.data?.let {
                 assertEquals<Any>(mockInsuranceUiModelList, it)

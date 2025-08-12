@@ -22,11 +22,11 @@
 
 package de.gematik.ti.erp.app.messages.domain.usecase
 
-import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
-import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.messages.model.Communication
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

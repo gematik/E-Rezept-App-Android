@@ -25,8 +25,8 @@ package de.gematik.ti.erp.app.profiles.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.base.Controller
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.model.ProfileCombinedData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.AddProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetSelectedProfileUseCase

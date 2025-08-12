@@ -24,21 +24,17 @@ package de.gematik.ti.erp.app.digas.ui.model
 
 import androidx.compose.runtime.Composable
 import de.gematik.ti.erp.app.datetime.timeStateParser
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
+import de.gematik.ti.erp.app.diga.model.DigaStatus
+import de.gematik.ti.erp.app.digas.data.model.AdditionalDeviceStatus
 import de.gematik.ti.erp.app.timestate.TimeState
 import de.gematik.ti.erp.app.timestate.getTimeState
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlin.ranges.step
 
 data class DigaMainScreenUiModel(
     val name: String? = null,
     val canBeRedeemedAgain: Boolean,
-    val languages: List<String>? = null,
-    val supportedPlatforms: List<String>? = null,
-    val medicalServicesRequired: Boolean = false,
-    val additionalDevices: String? = null,
-    val fee: String? = null,
-    val cost: String? = null,
     val insuredPerson: String? = null,
     val prescribingPerson: String? = null,
     val institution: String? = null,
@@ -47,11 +43,29 @@ data class DigaMainScreenUiModel(
     val deepLink: String? = null,
     val status: DigaStatus,
     val isArchived: Boolean = false,
-    val logoUrl: String? = null,
     val lifeCycleTimestamps: DigaTimestamps,
-    // Bfarm information
-    val url: String? = "",
-    val title: String? = null,
+    val url: String? = ""
+) {
+    val isArchiveRevertable = isArchived
+
+    fun isArchivable() = when {
+        isArchived -> false
+        (status.step ?: 0) >= DigaStatus.CompletedSuccessfully.step && !isArchiveRevertable -> true
+        status is DigaStatus.CompletedWithRejection -> true
+        else -> false
+    }
+}
+
+data class DigaBfarmUiModel(
+    val iconUrl: String? = "",
+    val iconId: String? = "",
+    val contractMedicalServicesRequired: Boolean = false,
+    val additionalDevicesRequired: List<AdditionalDeviceStatus>? = null,
+    val maxCost: String? = "",
+    val handbookUrl: String? = "",
+    val helpUrl: String? = "",
+    val supportedPlatforms: String? = null,
+    val languages: List<String>? = null,
     val description: String? = null
 )
 

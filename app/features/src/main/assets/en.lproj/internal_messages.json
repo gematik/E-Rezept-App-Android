@@ -19,7 +19,7 @@
     },
     {
         "id": "5",
-        "text": "**📲 Redeem prescribed DiGAs** \nYou can now redeem prescriptions for digital health applications (DiGAs) directly via the e-prescription app. You can find your activation code and the link to the prescribed DiGA right here in the e-prescription app. \n \n **🏥 New pharmacy database** \nWe have introduced a new, future-proof database for pharmacy searches.",
+        "text": "**📲 Redeem prescribed DiGAs** \nYou can now redeem prescriptions for digital health applications (DiGAs) directly via the e-prescription app. The prescriptions will be issued by specialists in Hamburg as part of a pilot project. You can find your activation code and the link to the DiGA right here in the e-prescription app. \n \n **🏥 New pharmacy database** \nWe have introduced a new, future-proof database for pharmacy searches.",
         "timestamp": "2025-05-14T08:00:00.000Z",
         "version": "1.30"
     },
@@ -28,5 +28,11 @@
         "text": "**🌐 New translation function** \nIf you use the app in another language, you can now translate the pharmacy's answers directly. \n \n **♿️ Accessibility** \nOur accessibility statement is now available in the settings. The onboarding process has also been made more accessible. \n \n **📲 Redeem DiGAs with insurance companies** \nPrescriptions for digital health applications (DiGAs) can now also be redeemed with other insurance companies.",
         "timestamp": "2025-06-26T08:00:00.000Z",
         "version": "1.31"
+    },
+    {
+        "id": "7",
+        "text": "**🙌 Registration for privately insured people** \nRegistration for privately insured people has been optimized. You can log in conveniently with your Health ID in just a few clicks. \n \n **⏰ Medication reminders** \nYou can now set reminders to take your medication. \n \n **🛒 Improved ordering flow** \nThe ordering process is now simpler and faster. \n \n **♿️ Accessibility** \nThe access number for the health card can now also be scanned with the camera. \n \n **📲 More information for DiGAs** \nFrom now on you will receive more detailed information about your DiGA prescriptions, such as the sales price or the logo.",
+        "timestamp": "2025-08-06T08:00:00.000Z",
+        "version": "1.32"
     }
 ]

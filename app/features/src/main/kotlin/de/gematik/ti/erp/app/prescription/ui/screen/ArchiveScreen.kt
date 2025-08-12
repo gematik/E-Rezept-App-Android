@@ -45,7 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.digas.navigation.DigasRoutes
 import de.gematik.ti.erp.app.digas.ui.component.CustomSegmentedButton
 import de.gematik.ti.erp.app.navigation.Screen
@@ -120,6 +120,8 @@ private fun PrescriptionsArchiveScreenScaffold(
     val options = listOf(stringResource(R.string.pres_bottombar_prescriptions), stringResource(R.string.digas_name))
     AnimatedElevationScaffold(
         topBarTitle = stringResource(R.string.archive_screen_title),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         listState = listState,
         onBack = onBack,
         navigationMode = NavigationBarMode.Back

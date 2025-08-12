@@ -47,6 +47,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,15 +61,15 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.authentication.presentation.deviceSecurityStatus
 import de.gematik.ti.erp.app.authentication.ui.components.EnrollBiometricDialog
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallScreen
-import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
+import de.gematik.ti.erp.app.cardwall.presentation.CardWallSharedViewModel
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallScaffold
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallSaveCredentialsPreviewParameterProvider
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallSaveCredentialsScreenPreviewData
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -92,7 +93,7 @@ enum class AuthenticationMethod {
 class CardWallSaveCredentialsScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry,
-    override val graphController: CardWallGraphController
+    override val sharedViewModel: CardWallSharedViewModel
 ) : CardWallScreen() {
     @Composable
     override fun Content() {
@@ -102,6 +103,7 @@ class CardWallSaveCredentialsScreen(
         var selectedAuthMode by remember { mutableStateOf(AuthenticationMethod.None) }
         var showFutureLogOutHint by remember { mutableStateOf(false) }
         val lazyListState = rememberLazyListState()
+        val onBack by rememberUpdatedState { navController.popBackStack() }
         CardWallScaffold(
             modifier = Modifier
                 .testTag("cardWall/authenticationSelection"),
@@ -112,14 +114,11 @@ class CardWallSaveCredentialsScreen(
                     CardWallRoutes.CardWallReadCardScreen.path()
                 )
             },
-            onBack = {
-                navController.popBackStack()
-            },
+            onBack = { onBack() },
             listState = lazyListState,
             nextText = stringResource(R.string.cdw_next),
             actions = {
                 TextButton(onClick = {
-                    graphController.reset()
                     navController.popBackStack(CardWallRoutes.subGraphName(), inclusive = true)
                 }) {
                     Text(stringResource(R.string.cancel))

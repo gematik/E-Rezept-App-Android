@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.cardwall.ui.screens
 
+import de.gematik.ti.erp.app.screenshot.BaseAccessibilityTest
 import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
 import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
 import de.gematik.ti.erp.app.utils.compose.preview.CanPreviewParameterProvider
@@ -34,6 +35,19 @@ class CardWallCanScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(confi
         CanPreviewParameterProvider().values.forEach { can ->
             paparazzi.snapshot("can_$can") {
                 CardWallCanScreenPreview(can)
+            }
+        }
+    }
+}
+
+class CardWallCanScreenAccessibilityTest(val config: ScreenshotConfig) : BaseAccessibilityTest(config = config) {
+
+    @Test
+    fun screenShotTest() {
+        val params = CanPreviewParameterProvider().values.toList()
+        params.forEach {
+            paparazzi.accessibilitySnapshot(it) {
+                CardWallCanScreenPreview(it)
             }
         }
     }

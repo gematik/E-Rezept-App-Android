@@ -22,25 +22,46 @@
 
 package de.gematik.ti.erp.app.medicationplan.di
 
+import de.gematik.ti.erp.app.medicationplan.alarm.MedicationPlanNotificationScheduler
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanLocalDataSource
+import de.gematik.ti.erp.app.medicationplan.repository.DefaultMedicationPlanRepository
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
+import de.gematik.ti.erp.app.medicationplan.usecase.DeactivateMedicationScheduleUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.DeleteMedicationScheduleNotificationUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.DeleteMedicationScheduleUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.GetDosageInstructionByTaskIdUseCase
-import de.gematik.ti.erp.app.medicationplan.usecase.LoadAllMedicationSchedulesUseCase
-import de.gematik.ti.erp.app.medicationplan.usecase.LoadMedicationScheduleByTaskIdUseCase
-import de.gematik.ti.erp.app.medicationplan.usecase.LoadProfilesWithSchedulesUseCase
-import de.gematik.ti.erp.app.medicationplan.usecase.PlanMedicationScheduleUseCase
-import de.gematik.ti.erp.app.medicationplan.usecase.ScheduleReminderWorker
+import de.gematik.ti.erp.app.medicationplan.usecase.GetAllMedicationSchedulesUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.GetMedicationScheduleByTaskIdUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.GetActiveProfileWithSchedulesUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.GetAllProfileWithSchedulesUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.ScheduleMedicationScheduleUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleDurationUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleIntervalUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleNotificationDosageUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleNotificationTimeUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.SetOrCreateActiveMedicationScheduleUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.SetOrCreateMedicationScheduleNotificationUseCase
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
 val medicationPlanModule = DI.Module("medicationPlanModule") {
     bindProvider { MedicationPlanLocalDataSource(instance()) }
-    bindProvider { MedicationPlanRepository(instance()) }
-    bindProvider { LoadAllMedicationSchedulesUseCase(instance()) }
-    bindProvider { LoadMedicationScheduleByTaskIdUseCase(instance()) }
+    bindProvider<MedicationPlanRepository> { DefaultMedicationPlanRepository(instance(), instance()) }
+    bindProvider { GetAllMedicationSchedulesUseCase(instance()) }
+    bindProvider { GetMedicationScheduleByTaskIdUseCase(instance()) }
+    bindProvider { SetMedicationScheduleDurationUseCase(instance()) }
+    bindProvider { SetMedicationScheduleIntervalUseCase(instance()) }
+    bindProvider { SetMedicationScheduleNotificationTimeUseCase(instance()) }
+    bindProvider { SetMedicationScheduleNotificationDosageUseCase(instance()) }
+    bindProvider { DeleteMedicationScheduleNotificationUseCase(instance()) }
+    bindProvider { DeactivateMedicationScheduleUseCase(instance()) }
+    bindProvider { SetOrCreateActiveMedicationScheduleUseCase(instance()) }
+    bindProvider { SetOrCreateMedicationScheduleNotificationUseCase(instance()) }
     bindProvider { GetDosageInstructionByTaskIdUseCase(instance()) }
-    bindProvider { LoadProfilesWithSchedulesUseCase(instance(), instance()) }
-    bindProvider { ScheduleReminderWorker(instance()) }
-    bindProvider { PlanMedicationScheduleUseCase(instance(), instance()) }
+    bindProvider { GetActiveProfileWithSchedulesUseCase(instance(), instance()) }
+    bindProvider { GetAllProfileWithSchedulesUseCase(instance(), instance()) }
+    bindProvider { MedicationPlanNotificationScheduler(instance()) }
+    bindProvider { ScheduleMedicationScheduleUseCase(instance()) }
+    bindProvider { DeleteMedicationScheduleUseCase(instance()) }
 }

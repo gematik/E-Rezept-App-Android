@@ -10,10 +10,10 @@ import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import java.io.ByteArrayOutputStream
 
 plugins {
-    id("base-multiplatform-library")
-    id("com.codingfeline.buildkonfig")
-    id("de.gematik.ti.erp.dependency-overrides")
+    alias(libs.plugins.base.kmp.library)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.dependency.overrides)
 }
 fun getGitHash(): String {
     val gitDir = File("${rootDir.path}/.git")
@@ -59,17 +59,19 @@ val PHARMACY_SERVICE_URI: String by overrides()
 val PHARMACY_SERVICE_URI_TEST: String by overrides()
 val FHIRVZD_PHARMACY_SERVICE_URI_RU: String by overrides()
 val FHIRVZD_PHARMACY_SERVICE_URI_PU: String by overrides()
-val FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU: String by overrides()
-val FHIRVZD_SEARCH_ACCESS_TOKEN_URI_PU: String by overrides()
+val EREZEPT_BACKEND_URI_RU: String by overrides()
+val EREZEPT_BACKEND_URI_PU: String by overrides()
+val EREZEPT_BACKEND_URI_TU: String by overrides()
 val FHIR_VZD_API_KEY_RU: String by overrides()
 val FHIR_VZD_API_KEY_PU: String by overrides()
+val FHIR_VZD_API_KEY_TU: String by overrides()
 val PHARMACY_API_KEY: String by overrides()
 val PHARMACY_API_KEY_TEST: String by overrides()
 
 // organ donation
-val ORGAN_DONATION_REGISTER_RU : String by overrides()
-val ORGAN_DONATION_REGISTER_PU : String by overrides()
-val ORGAN_DONATION_INFO : String by overrides()
+val ORGAN_DONATION_REGISTER_RU: String by overrides()
+val ORGAN_DONATION_REGISTER_PU: String by overrides()
+val ORGAN_DONATION_INFO: String by overrides()
 
 // base service URIs
 val BASE_SERVICE_URI_PU: String by overrides()
@@ -135,6 +137,7 @@ kotlin {
                 implementation(compose.ui)
                 implementation(project(":utils"))
                 implementation(project(":fhir-parser"))
+                implementation(project(":database"))
             }
         }
         val androidMain by getting {
@@ -201,7 +204,7 @@ buildkonfig {
         erpApiKey: String,
         pharmacyServiceUri: String,
         pharmacyFhirVzdServiceUri: String,
-        pharmacyFhirVzdSearchAccessTokenUri: String,
+        erezeptBackendUri: String,
         pharmacyFhirVzdApiKey: String,
         pharmacyServiceApiKey: String,
         trustAnchor: String,
@@ -235,10 +238,12 @@ buildkonfig {
                 // fhir-vzd
                 buildConfigField(STRING, "FHIRVZD_PHARMACY_SERVICE_URI_RU", FHIRVZD_PHARMACY_SERVICE_URI_RU)
                 buildConfigField(STRING, "FHIRVZD_PHARMACY_SERVICE_URI_PU", FHIRVZD_PHARMACY_SERVICE_URI_PU)
-                buildConfigField(STRING, "FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU", FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU)
-                buildConfigField(STRING, "FHIRVZD_SEARCH_ACCESS_TOKEN_URI_PU", FHIRVZD_SEARCH_ACCESS_TOKEN_URI_PU)
+                buildConfigField(STRING, "EREZEPT_BACKEND_URI_RU", EREZEPT_BACKEND_URI_RU)
+                buildConfigField(STRING, "EREZEPT_BACKEND_URI_PU", EREZEPT_BACKEND_URI_PU)
+                buildConfigField(STRING, "EREZEPT_BACKEND_URI_TU", EREZEPT_BACKEND_URI_TU)
                 buildConfigField(STRING, "FHIR_VZD_API_KEY_RU", FHIR_VZD_API_KEY_RU)
                 buildConfigField(STRING, "FHIR_VZD_API_KEY_PU", FHIR_VZD_API_KEY_PU)
+                buildConfigField(STRING, "FHIR_VZD_API_KEY_TU", FHIR_VZD_API_KEY_TU)
                 // erp api keys
                 buildConfigField(STRING, "ERP_API_KEY_GOOGLE_PU", ERP_API_KEY_GOOGLE_PU)
                 buildConfigField(STRING, "ERP_API_KEY_GOOGLE_RU", ERP_API_KEY_GOOGLE_RU)
@@ -261,7 +266,7 @@ buildkonfig {
             buildConfigField(STRING, "PHARMACY_SERVICE_URI", pharmacyServiceUri)
             // fhir-vzd
             buildConfigField(STRING, "FHIRVZD_PHARMACY_SERVICE_URI", pharmacyFhirVzdServiceUri)
-            buildConfigField(STRING, "FHIRVZD_SEARCH_ACCESS_TOKEN_URI", pharmacyFhirVzdSearchAccessTokenUri)
+            buildConfigField(STRING, "FHIRVZD_SEARCH_ACCESS_TOKEN_URI", erezeptBackendUri)
             buildConfigField(STRING, "FHIRVZD_API_KEY", pharmacyFhirVzdApiKey)
             // base service
             buildConfigField(STRING, "BASE_SERVICE_URI", baseServiceUri)
@@ -352,6 +357,7 @@ buildkonfig {
                         Environments.RU,
                         Environments.DEVRU,
                         Environments.TR -> PHARMACY_SERVICE_URI_TEST
+
                         Environments.NONE -> ""
                     },
                     pharmacyServiceApiKey = when (environment) {
@@ -359,6 +365,7 @@ buildkonfig {
                         Environments.TU,
                         Environments.RU,
                         Environments.DEVRU, Environments.TR -> PHARMACY_API_KEY_TEST
+
                         Environments.NONE -> ""
                     },
                     pharmacyFhirVzdServiceUri = when (environment) {
@@ -366,20 +373,21 @@ buildkonfig {
                         Environments.TU,
                         Environments.RU,
                         Environments.DEVRU, Environments.TR -> FHIRVZD_PHARMACY_SERVICE_URI_RU
+
                         Environments.NONE -> ""
                     },
-                    pharmacyFhirVzdSearchAccessTokenUri = when (environment) {
-                        Environments.PU -> FHIRVZD_SEARCH_ACCESS_TOKEN_URI_PU
-                        Environments.TU,
-                        Environments.RU,
-                        Environments.DEVRU, Environments.TR -> FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU
+                    erezeptBackendUri = when (environment) {
+                        Environments.PU -> EREZEPT_BACKEND_URI_PU
+                        Environments.TU -> EREZEPT_BACKEND_URI_TU
+                        Environments.RU, Environments.DEVRU, Environments.TR -> EREZEPT_BACKEND_URI_RU
                         Environments.NONE -> ""
                     },
                     pharmacyFhirVzdApiKey = when (environment) {
                         Environments.PU -> FHIR_VZD_API_KEY_PU
-                        Environments.TU,
+                        Environments.TU -> FHIR_VZD_API_KEY_TU
                         Environments.RU,
                         Environments.DEVRU, Environments.TR -> FHIR_VZD_API_KEY_RU
+
                         Environments.NONE -> ""
                     },
                     trustAnchor = when (environment) {
@@ -387,6 +395,7 @@ buildkonfig {
                         Environments.TU,
                         Environments.RU,
                         Environments.DEVRU, Environments.TR -> APP_TRUST_ANCHOR_BASE64_TEST
+
                         Environments.NONE -> ""
                     },
                     clientId = when (environment) {

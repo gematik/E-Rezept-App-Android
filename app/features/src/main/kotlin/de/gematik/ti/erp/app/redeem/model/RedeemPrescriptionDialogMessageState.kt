@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.redeem.model
 import androidx.annotation.StringRes
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.HttpErrorState
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 
 @Requirement(
     "A_20085#3",

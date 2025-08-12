@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.protocol.repository
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.audit.parser.AuditEventsParser
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 
 class DefaultAuditEventsRepository(
     private val remoteDataSource: AuditEventRemoteDataSource,

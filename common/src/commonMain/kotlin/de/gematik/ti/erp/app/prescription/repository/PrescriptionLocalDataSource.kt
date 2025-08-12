@@ -23,24 +23,25 @@
 package de.gematik.ti.erp.app.prescription.repository
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.db.entities.deleteAll
-import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationProfileV1
-import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
-import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.db.safeWrite
-import de.gematik.ti.erp.app.db.toRealmInstant
-import de.gematik.ti.erp.app.db.tryWrite
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirCommunicationBundleErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirDispenseCommunicationEntryErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirReplyCommunicationEntryErpModel
+import de.gematik.ti.erp.app.database.realm.utils.deleteAll
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.utils.safeWrite
+import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
+import de.gematik.ti.erp.app.database.realm.utils.tryWrite
+import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationProfileV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.ScannedTaskEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.SyncedTaskEntityV1
+import de.gematik.ti.erp.app.fhir.FhirCommunicationBundleErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.temporal.toStartOfDayInUTC
 import de.gematik.ti.erp.app.messages.mapper.CommunicationDatabaseMappers.toDatabaseModel
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.utils.toStartOfDayInUTC
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import io.github.aakira.napier.Napier
 import io.realm.kotlin.MutableRealm
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
@@ -227,6 +228,22 @@ class PrescriptionLocalDataSource(
             taskIds.forEach { taskId ->
                 queryFirst<ScannedTaskEntityV1>("taskId = $0", taskId)?.let {
                     it.redeemedOn = Clock.System.now().toRealmInstant()
+                }
+            }
+        }
+    }
+
+    @Deprecated(
+        message = "FOR TESTING ONLY: Will be removed when real backend EU-flag is available",
+        level = DeprecationLevel.WARNING
+    )
+    suspend fun updateEuRedeemableStatus(taskId: String, isEuRedeemable: Boolean) {
+        realm.tryWrite {
+            queryFirst<SyncedTaskEntityV1>("taskId = $0", taskId)?.let { task ->
+                val oldValue = task.isEuRedeemable
+                task.isEuRedeemable = isEuRedeemable
+                Napier.i(tag = "EuRedeemable") {
+                    "Database updated for taskId: $taskId, EuRedeemable status changed from [$oldValue] to [$isEuRedeemable]"
                 }
             }
         }

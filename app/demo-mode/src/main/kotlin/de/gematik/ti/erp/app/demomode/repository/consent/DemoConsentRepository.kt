@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.demomode.repository.consent
 
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConsentInfo.JSON_RESPONSE_CONSENT
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 

@@ -28,11 +28,11 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.app_core.R
-import de.gematik.ti.erp.app.db.appSchemas
-import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
-import de.gematik.ti.erp.app.db.openRealmWith
-import de.gematik.ti.erp.app.db.queryFirst
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.database.realm.schema.openRealmWith
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.migrations.appSchemas
 import de.gematik.ti.erp.app.secureRandomInstance
 import io.realm.kotlin.exceptions.RealmException
 import kotlinx.coroutines.Dispatchers

@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.prescription.ui.model
 
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 
 data class PrescriptionsScreenContentClickAction(
@@ -30,7 +30,7 @@ data class PrescriptionsScreenContentClickAction(
     val onClickAvatar: (ProfilesUseCaseData.Profile) -> Unit,
     val onClickArchive: () -> Unit,
     val onClickPrescription: (String, Boolean, Boolean) -> Unit,
-    val onChooseAuthenticationMethod: (ProfileIdentifier) -> Unit,
+    val onChooseAuthenticationMethod: (ProfilesUseCaseData.Profile) -> Unit,
     val onClickRedeem: () -> Unit,
     val onClickRefresh: () -> Unit
 )

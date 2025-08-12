@@ -24,16 +24,16 @@
 
 package de.gematik.ti.erp.app.messages.repository
 
-import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationProfileV1
-import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.db.toInstant
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.utils.toInstant
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationProfileV1
 import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import de.gematik.ti.erp.app.prescription.repository.toCommunication
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.mapper.toProfileData
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.Sort

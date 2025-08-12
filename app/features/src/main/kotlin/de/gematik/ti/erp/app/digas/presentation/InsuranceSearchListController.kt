@@ -23,50 +23,69 @@
 package de.gematik.ti.erp.app.digas.presentation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.digas.domain.usecase.FetchInsuranceListUseCase
 import de.gematik.ti.erp.app.digas.ui.model.InsuranceUiModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
 class InsuranceSearchListController(
-    searchTerm: String,
-    fetchInsuranceListUseCase: FetchInsuranceListUseCase
+    private val fetchInsuranceListUseCase: FetchInsuranceListUseCase
 ) : Controller() {
-    private val searchFieldValue = MutableStateFlow(searchTerm)
+    private val _searchFieldValue = MutableStateFlow("")
+    private val _healthInsuranceList = MutableStateFlow<UiState<List<InsuranceUiModel>>>(
+        UiState.Loading()
+    )
 
-    val insuranceList: StateFlow<UiState<List<InsuranceUiModel>>> =
-        fetchInsuranceListUseCase(searchFieldValue.value).stateIn(
-            controllerScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = UiState.Loading()
-        )
+    val searchFieldValue: StateFlow<String> = _searchFieldValue
+    val healthInsuranceList: StateFlow<UiState<List<InsuranceUiModel>>> = _healthInsuranceList
 
-    fun onSearchFieldValue(value: String) {
-        searchFieldValue.value = value
+    init {
+        getHealthInsuranceList()
     }
 
-    val insurancesState: State<UiState<List<InsuranceUiModel>>>
-        @Composable
-        get() = insuranceList.collectAsStateWithLifecycle(initialValue = UiState.Loading())
+    private fun getHealthInsuranceList() {
+        controllerScope.launch {
+            _searchFieldValue.collect { search ->
+                _healthInsuranceList.update { UiState.Loading() }
+                runCatching {
+                    fetchInsuranceListUseCase.invoke(search)
+                }.fold(
+                    onSuccess = { insuranceList ->
+                        if (insuranceList.isEmpty()) {
+                            _healthInsuranceList.update { UiState.Empty() }
+                        } else {
+                            _healthInsuranceList.update { UiState.Data(insuranceList) }
+                        }
+                    },
+                    onFailure = { error ->
+                        _healthInsuranceList.update { UiState.Error(error) }
+                    }
+                )
+            }
+        }
+    }
+
+    fun onSearchFieldValueChange(value: String) {
+        _searchFieldValue.update { value }
+    }
+
+    fun onRemoveSearchFieldValue() {
+        _searchFieldValue.update { "" }
+    }
 }
 
 @Composable
-fun rememberInsuranceListController(
-    searchFieldValue: String = ""
-): InsuranceSearchListController {
+fun rememberInsuranceListController(): InsuranceSearchListController {
     val fetchInsuranceListUseCase by rememberInstance<FetchInsuranceListUseCase>()
 
-    return remember(searchFieldValue) {
+    return remember {
         InsuranceSearchListController(
-            searchTerm = searchFieldValue,
             fetchInsuranceListUseCase = fetchInsuranceListUseCase
         )
     }

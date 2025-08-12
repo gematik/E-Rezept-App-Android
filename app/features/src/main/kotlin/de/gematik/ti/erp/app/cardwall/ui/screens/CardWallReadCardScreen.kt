@@ -29,6 +29,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -40,7 +41,7 @@ import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.cardunlock.navigation.CardUnlockRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallScreen
-import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
+import de.gematik.ti.erp.app.cardwall.presentation.CardWallSharedViewModel
 import de.gematik.ti.erp.app.cardwall.presentation.SaveCredentialsController
 import de.gematik.ti.erp.app.cardwall.presentation.rememberCardWallController
 import de.gematik.ti.erp.app.cardwall.presentation.rememberCardWallNfcPositionState
@@ -60,7 +61,7 @@ import kotlinx.coroutines.launch
 class CardWallReadCardScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry,
-    override val graphController: CardWallGraphController
+    override val sharedViewModel: CardWallSharedViewModel
 ) : CardWallScreen() {
     @Composable
     override fun Content() {
@@ -88,10 +89,10 @@ class CardWallReadCardScreen(
             }
         }
 
-        val profileId by graphController.profileId.collectAsStateWithLifecycle()
-        val saveCredentials by graphController.saveCredentials.collectAsStateWithLifecycle()
-        val can by graphController.can.collectAsStateWithLifecycle()
-        val pin by graphController.pin.collectAsStateWithLifecycle()
+        val profileId by sharedViewModel.profileId.collectAsStateWithLifecycle()
+        val saveCredentials by sharedViewModel.saveCredentials.collectAsStateWithLifecycle()
+        val can by sharedViewModel.can.collectAsStateWithLifecycle()
+        val pin by sharedViewModel.pin.collectAsStateWithLifecycle()
 
         val authenticationData by remember(saveCredentials) {
             derivedStateOf {
@@ -108,11 +109,11 @@ class CardWallReadCardScreen(
             }
         }
 
-        BackHandler {
-            navController.navigateUp()
-        }
+        val onBack by rememberUpdatedState { navController.popBackStack() }
+
+        BackHandler { onBack() }
         ReadCardScreenScaffold(
-            onBack = navController::navigateUp,
+            onBack = { onBack() },
             onClickTroubleshooting = {
                 navController.navigate(
                     TroubleShootingRoutes.TroubleShootingIntroScreen.path()
@@ -121,9 +122,7 @@ class CardWallReadCardScreen(
             nfcPosition = nfcPos
         )
         if (!cardWallController.isNfcEnabled()) {
-            EnableNfcDialog {
-                navController.popBackStack()
-            }
+            EnableNfcDialog { onBack() }
         } else {
             CardWallAuthenticationDialog(
                 dialogState = dialogState,
@@ -133,11 +132,9 @@ class CardWallReadCardScreen(
                 troubleShootingEnabled = true,
                 allowUserCancellation = true,
                 onFinal = {
-                    graphController.reset()
                     navController.popBackStack(CardWallRoutes.subGraphName(), inclusive = true)
                 },
                 onUnlockEgk = {
-                    graphController.reset()
                     navController.navigate(
                         CardUnlockRoutes.CardUnlockIntroScreen.path(unlockMethod = UnlockMethod.ResetRetryCounter.name),
                         navOptions = navOptions {

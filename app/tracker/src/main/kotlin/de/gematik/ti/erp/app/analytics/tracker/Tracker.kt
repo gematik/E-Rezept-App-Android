@@ -28,6 +28,7 @@ import androidx.compose.runtime.NonRestartableComposable
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.analytics.mapper.ContentSquareScreenMapper
 import de.gematik.ti.erp.app.analytics.model.TrackedEvent
+import de.gematik.ti.erp.app.analytics.model.TrackedParameter
 import de.gematik.ti.erp.app.analytics.usecase.IsAnalyticsAllowedUseCase
 import de.gematik.ti.erp.app.navigation.NavigationRouteNames
 import io.github.aakira.napier.Napier
@@ -44,15 +45,6 @@ class Tracker(
     private val isNonReleaseMode: Boolean,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    @NonRestartableComposable
-    @Composable
-    @Suppress("ComposableNaming")
-    fun computeScreenTrackingProperty(
-        routeEnum: String
-    ): String? {
-        val mapper: ContentSquareScreenMapper by rememberInstance()
-        return mapper.map(NavigationRouteNames.valueOf(routeEnum))
-    }
 
     @Requirement(
         "O.Data_6#5",
@@ -70,44 +62,77 @@ class Tracker(
         sourceSpecification = "gemSpec_eRp_FdV",
         rationale = "Tracking of screen names after the user has given their consent"
     )
-    @NonRestartableComposable
-    @Composable
-    @Suppress("ComposableNaming")
-    fun trackScreen(
-        screenName: String
+    private suspend fun trackAnalytics(
+        parameter: TrackedParameter,
+        dispatcher: CoroutineDispatcher,
+        contentSquareTracker: ContentSquareTracker,
+        debugTracker: DebugTracker,
+        isAnalyticsAllowedUseCase: IsAnalyticsAllowedUseCase,
+        isNonReleaseMode: Boolean
     ) {
-        LaunchedEffect(screenName) {
-            withContext(dispatcher) {
-                try {
-                    if (isAnalyticsAllowedUseCase.invoke().first()) {
-                        contentSquareTracker.track(screenName)
-                        if (isNonReleaseMode) {
-                            debugTracker.track(screenName)
-                        }
-                    } else {
-                        Napier.d { "Analytics not allowed for screens" }
+        withContext(dispatcher) {
+            try {
+                if (isAnalyticsAllowedUseCase.invoke().first()) {
+                    contentSquareTracker.track(parameter)
+                    if (isNonReleaseMode) {
+                        debugTracker.track(parameter)
                     }
-                } catch (e: Throwable) {
-                    Napier.e { "error on tracking ${e.stackTraceToString()}" }
+                } else {
+                    Napier.d { "Analytics not allowed for $parameter" }
                 }
+            } catch (e: Throwable) {
+                Napier.e { "Error tracking $parameter: ${e.stackTraceToString()}" }
             }
         }
     }
 
-    suspend fun trackEvent(event: TrackedEvent) {
+    @NonRestartableComposable
+    @Composable
+    @Suppress("ComposableNaming")
+    fun routeToScreenTrackingName(routeEnum: String): String? {
+        val mapper: ContentSquareScreenMapper by rememberInstance()
+        return mapper.map(NavigationRouteNames.valueOf(routeEnum))
+    }
+
+    @NonRestartableComposable
+    @Composable
+    @Suppress("ComposableNaming")
+    fun trackScreen(screenName: String) {
+        LaunchedEffect(screenName) {
+            trackAnalytics(
+                parameter = TrackedParameter.Screen(screenName),
+                dispatcher = dispatcher,
+                contentSquareTracker = contentSquareTracker,
+                debugTracker = debugTracker,
+                isAnalyticsAllowedUseCase = isAnalyticsAllowedUseCase,
+                isNonReleaseMode = isNonReleaseMode
+            )
+        }
+    }
+
+    suspend fun trackEvent(screenEvent: String) {
         withContext(dispatcher) {
-            try {
-                if (isAnalyticsAllowedUseCase.invoke().first()) {
-                    contentSquareTracker.send(event.key to event.value)
-                    if (isNonReleaseMode) {
-                        debugTracker.send(event.key to event.value)
-                    }
-                } else {
-                    Napier.d { "Analytics not allowed for events" }
-                }
-            } catch (e: Throwable) {
-                Napier.e { "error on tracking ${e.stackTraceToString()}" }
-            }
+            trackAnalytics(
+                parameter = TrackedParameter.Screen(screenEvent),
+                dispatcher = dispatcher,
+                contentSquareTracker = contentSquareTracker,
+                debugTracker = debugTracker,
+                isAnalyticsAllowedUseCase = isAnalyticsAllowedUseCase,
+                isNonReleaseMode = isNonReleaseMode
+            )
+        }
+    }
+
+    suspend fun trackMetric(event: TrackedEvent) {
+        withContext(dispatcher) {
+            trackAnalytics(
+                parameter = TrackedParameter.Metric(event),
+                dispatcher = dispatcher,
+                contentSquareTracker = contentSquareTracker,
+                debugTracker = debugTracker,
+                isAnalyticsAllowedUseCase = isAnalyticsAllowedUseCase,
+                isNonReleaseMode = isNonReleaseMode
+            )
         }
     }
 }

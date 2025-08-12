@@ -22,7 +22,6 @@
 
 package de.gematik.ti.erp.app.medicationplan.ui.preview.mocks
 
-import de.gematik.ti.erp.app.medicationplan.ui.preview.medicationPlanPreviewCurrentTime
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 
 val SCANNED_TASK = ScannedTaskData.ScannedTask(

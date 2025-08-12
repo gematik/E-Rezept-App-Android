@@ -19,7 +19,7 @@
     },
     {
         "id": "5",
-        "text": "**📲 Indløs ordinerede DiGA'er** \nDu kan nu indløse recepter til digitale sundhedsapplikationer (DiGA'er) direkte via e-receptappen. Du kan finde din aktiveringskode og linket til den ordinerede DiGA lige her i e-receptappen. \n \n **🏥 Ny apoteksdatabase** \nVi har introduceret en ny, fremtidssikret database til apotekssøgninger.",
+        "text": "**📲 Indløs ordinerede DiGA'er** \nDu kan nu indløse recepter til digitale sundhedsapplikationer (DiGA'er) direkte via e-receptappen. Recepterne vil blive udstedt af specialister i Hamborg som en del af et pilotprojekt. Du kan finde din aktiveringskode og linket til DiGA lige her i e-receptappen. \n \n **🏥 Ny apoteksdatabase** \nVi har introduceret en ny, fremtidssikret database til apotekssøgninger.",
         "timestamp": "2025-05-14T08:00:00.000Z",
         "version": "1.30"
     },
@@ -28,5 +28,11 @@
         "text": "**🌐 Ny oversættelsesfunktion** \nHvis du bruger appen på et andet sprog, kan du nu oversætte apotekets svar direkte. \n \n **♿️ Tilgængelighed** \nVores tilgængelighedserklæring er nu tilgængelig i indstillingerne. Onboarding-processen er også blevet gjort mere tilgængelig. \n \n **📲 Indløs DiGA'er hos forsikringsselskaber** \nRecepter til digitale sundhedsapplikationer (DiGA'er) kan nu også indløses hos andre forsikringsselskaber.",
         "timestamp": "2025-06-26T08:00:00.000Z",
         "version": "1.31"
+    },
+    {
+        "id": "7",
+        "text": "**🙌 Tilmelding for privatforsikrede** \nTilmeldingen for privatforsikrede er blevet optimeret. Du kan nemt logge ind med dit sundheds-ID med blot et par klik. \n \n **⏰ Medicinpåmindelser** \nDu kan nu indstille påmindelser om at tage din medicin. \n \n **🛒 Forbedret bestillingsflow** \nBestillingsprocessen er nu enklere og hurtigere. \n \n **♿️ Tilgængelighed** \nAdgangsnummeret til sundhedskortet kan nu også scannes med kameraet. \n \n **📲 Mere information om DiGA'er** \nFra nu af modtager du mere detaljerede oplysninger om dine DiGA-recepter, f.eks. salgspris eller logo.",
+        "timestamp": "2025-08-06T08:00:00.000Z",
+        "version": "1.32"
     }
 ]

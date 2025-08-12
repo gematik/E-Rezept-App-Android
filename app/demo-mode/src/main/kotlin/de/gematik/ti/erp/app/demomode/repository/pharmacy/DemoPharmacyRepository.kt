@@ -24,8 +24,8 @@ package de.gematik.ti.erp.app.demomode.repository.pharmacy
 
 import android.content.res.AssetManager
 import de.gematik.ti.erp.app.demomode.util.pharmacyFhirBundle
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirInsuranceProvider
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
+import de.gematik.ti.erp.app.fhir.FhirInsuranceProvider
+import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.messages.repository.CachedPharmacy

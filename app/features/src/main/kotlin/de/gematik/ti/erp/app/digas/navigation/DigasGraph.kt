@@ -25,30 +25,26 @@ package de.gematik.ti.erp.app.digas.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
-import de.gematik.ti.erp.app.digas.presentation.DigasGraphController
+import de.gematik.ti.erp.app.digas.presentation.digasSharedViewModel
 import de.gematik.ti.erp.app.digas.ui.model.ErrorScreenDataWithoutRetry
+import de.gematik.ti.erp.app.digas.ui.screen.DigaContributionInfoBottomSheetScreen
 import de.gematik.ti.erp.app.digas.ui.screen.DigaDescriptionScreen
 import de.gematik.ti.erp.app.digas.ui.screen.DigaFeedbackPromptScreen
 import de.gematik.ti.erp.app.digas.ui.screen.DigaHelpAndSupportBottomSheetScreen
 import de.gematik.ti.erp.app.digas.ui.screen.DigasMainScreen
 import de.gematik.ti.erp.app.digas.ui.screen.HowLongDigaValidBottomSheetScreen
-import de.gematik.ti.erp.app.digas.ui.screen.InsuranceSearchListScreen
+import de.gematik.ti.erp.app.digas.ui.screen.DigaInsuranceSearchListScreen
 import de.gematik.ti.erp.app.navigation.renderBottomSheet
 import de.gematik.ti.erp.app.navigation.renderComposable
 import de.gematik.ti.erp.app.navigation.slideInDown
 import de.gematik.ti.erp.app.navigation.slideInRight
 import de.gematik.ti.erp.app.navigation.slideOutLeft
 import de.gematik.ti.erp.app.navigation.slideOutUp
-import org.kodein.di.DI
-import org.kodein.di.instance
 
 fun NavGraphBuilder.digasGraph(
-    dependencyInjector: DI,
     startDestination: String = DigasRoutes.DigasMainScreen.route,
     navController: NavController
 ) {
-    val digaGraphController by dependencyInjector.instance<DigasGraphController>()
-
     navigation(
         startDestination = startDestination,
         route = DigasRoutes.subGraphName()
@@ -63,7 +59,7 @@ fun NavGraphBuilder.digasGraph(
             DigasMainScreen(
                 navController = navController,
                 navBackStackEntry = navEntry,
-                graphController = digaGraphController,
+                sharedViewModel = digasSharedViewModel(navController, navEntry),
                 errorScreenData = ErrorScreenDataWithoutRetry()
             )
         }
@@ -99,7 +95,15 @@ fun NavGraphBuilder.digasGraph(
                 navBackStackEntry = navEntry
             )
         }
-
+        renderBottomSheet(
+            route = DigasRoutes.DigaContributionInfoBottomSheetScreen.route,
+            arguments = DigasRoutes.DigaContributionInfoBottomSheetScreen.arguments
+        ) { navEntry ->
+            DigaContributionInfoBottomSheetScreen(
+                navController = navController,
+                navBackStackEntry = navEntry
+            )
+        }
         renderBottomSheet(
             route = DigasRoutes.DigaFeedbackPromptScreen.route,
             arguments = DigasRoutes.DigaFeedbackPromptScreen.arguments
@@ -117,10 +121,10 @@ fun NavGraphBuilder.digasGraph(
             route = DigasRoutes.InsuranceSearchListScreen.route,
             arguments = DigasRoutes.InsuranceSearchListScreen.arguments
         ) { navEntry ->
-            InsuranceSearchListScreen(
+            DigaInsuranceSearchListScreen(
                 navController = navController,
                 navBackStackEntry = navEntry,
-                graphController = digaGraphController,
+                sharedViewModel = digasSharedViewModel(navController, navEntry),
                 errorScreenData = ErrorScreenDataWithoutRetry()
             )
         }

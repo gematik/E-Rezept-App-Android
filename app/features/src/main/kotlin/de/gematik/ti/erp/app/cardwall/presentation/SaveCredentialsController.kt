@@ -26,6 +26,7 @@ import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,11 +36,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.authentication.model.BiometricMethod
-import de.gematik.ti.erp.app.base.BaseActivity
+import de.gematik.ti.erp.app.authentication.observer.BiometricPromptBuilder
+import de.gematik.ti.erp.app.authentication.observer.BiometricStateProviderHolder
 import de.gematik.ti.erp.app.secureRandomInstance
-import de.gematik.ti.erp.app.userauthentication.observer.BiometricPromptBuilder
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.bouncycastle.util.encoders.Base64
@@ -175,7 +176,7 @@ class SaveCredentialsController(
 @Composable
 fun rememberSaveCredentialsScreenController(): SaveCredentialsController {
     val context = LocalContext.current
-    val activity = context as BaseActivity
+    val activity = context as AppCompatActivity
     val biometricPromptBuilder = remember { BiometricPromptBuilder(activity) }
 
     val title = stringResource(R.string.auth_prompt_headline)
@@ -186,9 +187,9 @@ fun rememberSaveCredentialsScreenController(): SaveCredentialsController {
     val biometricMethod = remember { mutableStateOf(BiometricMethod.None) }
 
     LaunchedEffect(Unit) {
-        activity.biometricStateChangedFlow.collect {
-            Napier.i(tag = "Biometric") { "Biometric state changed, refreshing authenticator: $it" }
-            biometricMethod.value = it
+        BiometricStateProviderHolder.provider.biometricStateChangedFlow.collect { state ->
+            Napier.i(tag = "Biometric") { "Biometric state changed, refreshing authenticator: $state" }
+            biometricMethod.value = state
         }
     }
 

@@ -22,44 +22,49 @@
 
 package de.gematik.ti.erp.app.profiles.ui.components
 
-import androidx.compose.foundation.border
+import android.content.ClipData
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material3.ListItem
+import androidx.compose.material.TextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.listitem.GemListItemDefaults
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.semantics.semanticsHeading
-import de.gematik.ti.erp.app.semantics.semanticsMergeDescendants
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.SpacerLarge
-import de.gematik.ti.erp.app.utils.SpacerMedium
-import de.gematik.ti.erp.app.utils.SpacerSmall
+import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonLarge
-import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
+import de.gematik.ti.erp.app.utils.compose.PrimaryOutlinedButton
 
 @Composable
 fun ProfileInsuranceInformationSection(
     selectedProfile: ProfilesUseCaseData.Profile,
-    onClickLogIn: () -> Unit
+    isKVNRCopied: Boolean,
+    onClickLogIn: () -> Unit,
+    onClickLogOut: () -> Unit,
+    onClickChangeInsuranceType: () -> Unit,
+    onClickCopy: (ClipData) -> Unit
 ) {
-    SpacerLarge()
     val ssoTokenScope = selectedProfile.ssoTokenScope
     val insuranceInformation = selectedProfile.insurance
     val lastAuthenticated = selectedProfile.lastAuthenticated
-
     val cardAccessNumber =
         if (ssoTokenScope is IdpData.TokenWithHealthCardScope) {
             ssoTokenScope.cardAccessNumber
@@ -67,7 +72,7 @@ fun ProfileInsuranceInformationSection(
             null
         }
 
-    Column {
+    Column(verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)) {
         Text(
             stringResource(
                 id = R.string.insurance_information_header
@@ -77,114 +82,215 @@ fun ProfileInsuranceInformationSection(
                 .semanticsHeading(),
             style = AppTheme.typography.h6
         )
-        SpacerSmall()
-
         if (lastAuthenticated != null) {
-            LabeledText(
-                stringResource(R.string.insurance_information_insurant_name),
-                insuranceInformation.insurantName
+            ProfileWasAuthenticatedBeforeSection(
+                insuranceInformation,
+                selectedProfile,
+                isKVNRCopied,
+                cardAccessNumber,
+                ssoTokenScope,
+                onClickChangeInsuranceType,
+                onClickCopy
             )
-            LabeledText(
-                stringResource(R.string.insurance_information_insurance_name),
-                insuranceInformation.insuranceName
-            )
-            cardAccessNumber?.let {
-                LabeledText(stringResource(R.string.insurance_information_insurant_can), it)
-            }
-            LabeledText(
-                stringResource(R.string.insurance_information_insurance_identifier),
-                insuranceInformation.insuranceIdentifier,
-                Modifier.testTag(TestTag.Profile.InsuranceId)
-            )
-
-            LabeledText(
-                stringResource(R.string.profile_insurance_information_connected_label),
-                when {
-                    ssoTokenScope is IdpData.DefaultToken -> stringResource(
-                        R.string.profile_insurance_information_connected_health_card
-                    )
-                    ssoTokenScope is IdpData.ExternalAuthenticationToken -> ssoTokenScope.authenticatorName
-                    ssoTokenScope is IdpData.AlternateAuthenticationToken || ssoTokenScope is IdpData.AlternateAuthenticationWithoutToken -> stringResource(
-                        R.string.profile_insurance_information_connected_biometrics
-                    )
-                    !selectedProfile.isSSOTokenValid() -> stringResource(R.string.profile_insurance_information_not_connected)
-                    else -> "" // can't be reached
-                }
-            )
-
             if (!selectedProfile.isSSOTokenValid()) {
                 PrimaryButtonLarge(
                     modifier = Modifier
-                        .padding(
-                            top = PaddingDefaults.Medium,
-                            start = PaddingDefaults.Medium,
-                            end = PaddingDefaults.Medium
-                        )
-                        .fillMaxWidth(),
+                        .fillMaxWidth().padding(horizontal = PaddingDefaults.Medium),
                     onClick = { onClickLogIn() }
                 ) {
                     Text(text = stringResource(id = R.string.profile_screen_login_button))
                 }
+            } else {
+                PrimaryOutlinedButton(
+                    modifier = Modifier
+                        .fillMaxWidth().padding(horizontal = PaddingDefaults.Medium),
+                    onClick = { onClickLogOut() },
+                    border = BorderStroke(SizeDefaults.eighth, color = AppTheme.colors.red700)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.profile_screen_logout_button),
+                        color = AppTheme.colors.red700
+                    )
+                }
             }
         } else {
-            LoginHintCard {
-                onClickLogIn()
-            }
+            ProfileWasNeverAuthenticatedSection(
+                insuranceInformation = insuranceInformation,
+                onClickChangeInsuranceType = onClickChangeInsuranceType,
+                onClickLogIn = onClickLogIn
+            )
         }
-        SpacerLarge()
-        Divider()
-        SpacerLarge()
     }
 }
 
-/**
- * Shows the given content if != null labeled with a description as described in design guide for ProfileScreen.
- */
 @Composable
-private fun LabeledText(
-    description: String,
-    content: String,
-    modifier: Modifier = Modifier
+private fun ProfileWasAuthenticatedBeforeSection(
+    insuranceInformation: ProfileInsuranceInformation,
+    selectedProfile: ProfilesUseCaseData.Profile,
+    isKVNRCopied: Boolean,
+    cardAccessNumber: String?,
+    ssoTokenScope: IdpData.SingleSignOnTokenScope?,
+    onClickChangeInsuranceType: () -> Unit,
+    onClickCopy: (ClipData) -> Unit
 ) {
-    Column(
-        modifier
-            .padding(PaddingDefaults.Medium)
-            .semanticsMergeDescendants { }
-    ) {
-        Text(description, style = AppTheme.typography.body2l)
-        Text(content, style = AppTheme.typography.body1)
+    Column {
+        ListItem(
+            colors = GemListItemDefaults.gemListItemColors(),
+            overlineContent = {
+                Text(
+                    stringResource(R.string.insurance_information_insurant_name),
+                    style = AppTheme.typography.body2l
+                )
+            },
+            headlineContent = {
+                Text(
+                    insuranceInformation.insurantName,
+                    style = AppTheme.typography.body1
+                )
+            }
+        )
+        InsuranceNameListItem(
+            insuranceInformation = insuranceInformation,
+            onClickChangeInsuranceType = onClickChangeInsuranceType
+        )
+        val kvnrString = stringResource(R.string.insurance_information_insurance_identifier)
+        val clipData = ClipData.newPlainText(kvnrString, insuranceInformation.insuranceIdentifier)
+        ListItem(
+            colors = GemListItemDefaults.gemListItemColors(),
+            overlineContent = {
+                Text(
+                    kvnrString,
+                    style = AppTheme.typography.body2l
+                )
+            },
+            headlineContent = {
+                Text(
+                    insuranceInformation.insuranceIdentifier,
+                    style = AppTheme.typography.body1
+                )
+            },
+            trailingContent = {
+                TextButton(
+                    modifier = Modifier.fillMaxHeight(),
+                    onClick = {
+                        onClickCopy(
+                            clipData
+                        )
+                    }
+                ) {
+                    if (!isKVNRCopied) {
+                        Icon(Icons.Rounded.ContentCopy, null)
+                        SpacerTiny()
+                        Text(stringResource(R.string.profile_copy_kvnr))
+                    } else {
+                        Icon(Icons.Rounded.Check, null)
+                        SpacerTiny()
+                        Text(stringResource(R.string.profile_copied_kvnr))
+                    }
+                }
+            }
+        )
+        cardAccessNumber?.let {
+            ListItem(
+                colors = GemListItemDefaults.gemListItemColors(),
+                overlineContent = {
+                    Text(
+                        stringResource(R.string.insurance_information_insurant_can),
+                        style = AppTheme.typography.body2l
+                    )
+                },
+                headlineContent = {
+                    Text(
+                        it,
+                        style = AppTheme.typography.body1
+                    )
+                }
+            )
+        }
+        ListItem(
+            colors = GemListItemDefaults.gemListItemColors(),
+            overlineContent = {
+                Text(
+                    stringResource(R.string.profile_insurance_information_connected_label),
+                    style = AppTheme.typography.body2l
+                )
+            },
+            headlineContent = {
+                Text(
+                    when {
+                        ssoTokenScope is IdpData.DefaultToken -> stringResource(
+                            R.string.profile_insurance_information_connected_health_card
+                        )
+                        ssoTokenScope is IdpData.ExternalAuthenticationToken -> ssoTokenScope.authenticatorName
+                        ssoTokenScope is IdpData.AlternateAuthenticationToken || ssoTokenScope is IdpData.AlternateAuthenticationWithoutToken ->
+                            stringResource(
+                                R.string.profile_insurance_information_connected_biometrics
+                            )
+                        !selectedProfile.isSSOTokenValid() -> stringResource(R.string.profile_insurance_information_not_connected)
+                        else -> "" // can't be reached
+                    },
+                    style = AppTheme.typography.body1
+                )
+            }
+        )
     }
 }
 
 @Composable
-private fun LoginHintCard(
+private fun ProfileWasNeverAuthenticatedSection(
+    insuranceInformation: ProfileInsuranceInformation,
+    onClickChangeInsuranceType: () -> Unit,
     onClickLogIn: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .padding(
-                top = PaddingDefaults.Small,
-                start = PaddingDefaults.Medium,
-                end = PaddingDefaults.Medium
-            )
-            .clip(RoundedCornerShape(SizeDefaults.double))
-            .border(
-                SizeDefaults.eighth,
-                AppTheme.colors.neutral300,
-                RoundedCornerShape(SizeDefaults.double)
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = stringResource(id = R.string.profile_screen_login_hint),
-            style = AppTheme.typography.body1,
-            modifier = Modifier.padding(PaddingDefaults.Medium)
+    Column(verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)) {
+        InsuranceNameListItem(
+            insuranceInformation = insuranceInformation,
+            onClickChangeInsuranceType = onClickChangeInsuranceType
         )
-        PrimaryButtonSmall(
+        PrimaryButtonLarge(
+            modifier = Modifier
+                .fillMaxWidth().padding(horizontal = PaddingDefaults.Medium),
             onClick = { onClickLogIn() }
         ) {
             Text(text = stringResource(id = R.string.profile_screen_login_button))
         }
-        SpacerMedium()
     }
+}
+
+@Composable
+private fun InsuranceNameListItem(
+    insuranceInformation: ProfileInsuranceInformation,
+    onClickChangeInsuranceType: () -> Unit
+) {
+    ListItem(
+        colors = GemListItemDefaults.gemListItemColors(),
+        overlineContent = {
+            Text(
+                stringResource(R.string.insurance_information_insurance_name),
+                style = AppTheme.typography.body2l
+            )
+        },
+        headlineContent = {
+            Text(
+                when {
+                    insuranceInformation.insuranceName.isNotBlank() -> insuranceInformation.insuranceName
+                    insuranceInformation.insuranceType == ProfilesUseCaseData.InsuranceType.GKV -> stringResource(
+                        R.string.profile_change_insurance_type_drawer_public_insurance_button
+                    )
+                    insuranceInformation.insuranceType == ProfilesUseCaseData.InsuranceType.PKV -> stringResource(
+                        R.string.profile_change_insurance_type_drawer_private_insurance_button
+                    )
+                    else -> stringResource(R.string.profile_change_insurance_type_drawer_no_insurance_selected_button)
+                },
+                style = AppTheme.typography.body1
+            )
+        },
+        trailingContent = {
+            TextButton(onClick = onClickChangeInsuranceType) {
+                Icon(Icons.Rounded.Edit, null)
+                SpacerTiny()
+                Text(stringResource(R.string.edit_profile_insurance_type))
+            }
+        }
+    )
 }

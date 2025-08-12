@@ -22,12 +22,12 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirQuantityErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirRatioErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMedicationIdentifierErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMedicationIngredientErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvMedicationErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskMedicationCategoryErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskMedicationCategoryErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirMedicationIdentifierErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirMedicationIngredientErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirQuantityErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirRatioErpModel
 
 object FhirMedicationErpTestData {
     val erpMedicationPznModelV102 = FhirTaskKbvMedicationErpModel(

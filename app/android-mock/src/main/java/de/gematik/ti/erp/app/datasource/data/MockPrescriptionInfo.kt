@@ -30,10 +30,11 @@ import de.gematik.ti.erp.app.datasource.data.MockConstants.fixedTime
 import de.gematik.ti.erp.app.datasource.data.MockConstants.longerRandomTimeToday
 import de.gematik.ti.erp.app.datasource.data.MockProfileInfo.mockProfile01
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoPrescriptionInfo
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskAccidentType
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.RequestIntent
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.RequestIntent
+import de.gematik.ti.erp.app.fhir.support.FhirAccidentInformationErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
@@ -43,8 +44,7 @@ import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationRequest
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Organization
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Patient
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Practitioner
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import java.util.UUID
@@ -191,6 +191,7 @@ object MockPrescriptionInfo {
             communications = emptyList()
         )
     }
+
     internal val DEMO_DIGA = FhirTaskKbvDeviceRequestErpModel(
         id = "1",
         intent = RequestIntent.Order,
@@ -207,6 +208,7 @@ object MockPrescriptionInfo {
         isNew = false,
         isArchived = false
     )
+
     internal object MockSyncedPrescription {
         internal fun syncedTask(
             profileIdentifier: ProfileIdentifier,
@@ -238,7 +240,8 @@ object MockPrescriptionInfo {
             communications = emptyList(),
             lastMedicationDispense = null,
             failureToReport = "",
-            deviceRequest = DEMO_DIGA
+            deviceRequest = DEMO_DIGA,
+            isEuRedeemable = false
         )
     }
 }

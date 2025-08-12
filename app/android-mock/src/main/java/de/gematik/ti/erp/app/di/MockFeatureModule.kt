@@ -27,6 +27,7 @@ import de.gematik.ti.erp.app.appsecurity.appSecurityModule
 import de.gematik.ti.erp.app.appupdate.di.appUpdateModule
 import de.gematik.ti.erp.app.cardunlock.di.cardUnlockModule
 import de.gematik.ti.erp.app.cardwall.cardWallModule
+import de.gematik.ti.erp.app.database.di.databaseModule
 import de.gematik.ti.erp.app.debugsettings.di.debugSettingsModule
 import de.gematik.ti.erp.app.di.datasource.mockDataSourceModule
 import de.gematik.ti.erp.app.di.pharmacy.mockPharmacyRepositoryModule
@@ -42,6 +43,7 @@ import de.gematik.ti.erp.app.logger.di.loggerModule
 import de.gematik.ti.erp.app.messages.di.messageRepositoryModule
 import de.gematik.ti.erp.app.messages.di.messagesModule
 import de.gematik.ti.erp.app.mlkit.mlKitModule
+import de.gematik.ti.erp.app.mock.BuildConfig
 import de.gematik.ti.erp.app.onboarding.di.onboardingModule
 import de.gematik.ti.erp.app.orderhealthcard.di.orderHealthCardModule
 import de.gematik.ti.erp.app.pharmacy.di.pharmacyModule
@@ -102,6 +104,8 @@ val mockFeatureModule = DI.Module("featureModule", allowSilentOverride = true) {
         auditEventsRepositoryModule,
         messageRepositoryModule,
         digaRepositoryModule,
+        // data sources
+        databaseModule(BuildConfig.DEBUG),
         // mocked modules
         mockPharmacyRepositoryModule,
         mockTaskRepositoryModule,

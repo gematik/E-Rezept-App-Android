@@ -22,12 +22,18 @@
 
 package de.gematik.ti.erp.app.digas.di
 
+import android.content.Context
+import coil.ImageLoader
+import coil.util.DebugLogger
 import de.gematik.ti.erp.app.base.usecase.MarkNavigationTriggerConsumedUseCase
 import de.gematik.ti.erp.app.base.usecase.ObserveNavigationTriggerUseCase
 import de.gematik.ti.erp.app.base.usecase.TriggerNavigationUseCase
 import de.gematik.ti.erp.app.diga.local.DigaLocalDataSource
 import de.gematik.ti.erp.app.diga.repository.DefaultDigaRepository
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
+import de.gematik.ti.erp.app.digas.data.repository.DefaultDigaInformationRepository
+import de.gematik.ti.erp.app.digas.data.repository.DigaInformationRepository
+import de.gematik.ti.erp.app.digas.domain.usecase.FetchDigaByPznUseCase
 import de.gematik.ti.erp.app.digas.domain.usecase.FetchInsuranceListUseCase
 import de.gematik.ti.erp.app.digas.domain.usecase.GetDigaByTaskIdUseCase
 import de.gematik.ti.erp.app.digas.domain.usecase.GetIknrUseCase
@@ -39,11 +45,15 @@ import de.gematik.ti.erp.app.digas.presentation.DefaultDigasGraphController
 import de.gematik.ti.erp.app.digas.presentation.DigasGraphController
 import de.gematik.ti.erp.app.fhir.communication.DigaDispenseRequestBuilder
 import de.gematik.ti.erp.app.insurance.usecase.FetchInsuranceProviderUseCase
+import de.gematik.ti.erp.app.interceptor.ERezeptBackendTokenApiKeyInterceptor
 import de.gematik.ti.erp.app.redeem.usecase.RedeemDigaUseCase
+import okhttp3.OkHttpClient
 import org.kodein.di.DI
+import org.kodein.di.bind
 import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
+import org.kodein.di.singleton
 
 val digaModule = DI.Module("digaModule", allowSilentOverride = true) {
     bindProvider { DigaDispenseRequestBuilder() }
@@ -64,6 +74,18 @@ val digaModule = DI.Module("digaModule", allowSilentOverride = true) {
         )
     }
 
+    bind<ImageLoader>(tag = "backend-image-loader") with singleton {
+        val client = OkHttpClient.Builder()
+            .addInterceptor(ERezeptBackendTokenApiKeyInterceptor(instance()))
+            .build()
+
+        ImageLoader.Builder(instance<Context>())
+            .okHttpClient(client)
+            .crossfade(true)
+            .logger(DebugLogger())
+            .build()
+    }
+
     bindProvider { GetDigaByTaskIdUseCase(instance(), instance()) }
     bindProvider { UpdateDigaStatusUseCase(instance(), instance()) }
     bindProvider { UpdateDigaIsNewUseCase(instance(), instance()) }
@@ -74,9 +96,11 @@ val digaModule = DI.Module("digaModule", allowSilentOverride = true) {
     bindProvider { UpdateIknrUseCase(instance()) }
     bindProvider { GetIknrUseCase(instance()) }
     bindProvider { FetchInsuranceListUseCase(instance(), instance()) }
+    bindProvider { FetchDigaByPznUseCase(instance(), instance()) }
 
     bindSingleton<DigasGraphController> {
         DefaultDigasGraphController(
+            instance(),
             instance(),
             instance(),
             instance(),
@@ -92,5 +116,6 @@ val digaModule = DI.Module("digaModule", allowSilentOverride = true) {
 
 val digaRepositoryModule = DI.Module("digaRepositoryModule", allowSilentOverride = true) {
     bindProvider { DigaLocalDataSource(instance()) }
+    bindProvider<DigaInformationRepository> { DefaultDigaInformationRepository(instance()) }
     bindProvider<DigaRepository> { DefaultDigaRepository(instance()) }
 }

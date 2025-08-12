@@ -37,7 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -57,6 +57,8 @@ fun TroubleShootingScaffold(
     AnimatedElevationScaffold(
         modifier = Modifier.testTag("cardWall/intro"),
         topBarTitle = stringResource(R.string.cdw_troubleshooting_title),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         topBarColor = MaterialTheme.colors.surface,
         listState = listState,
         actions = {},

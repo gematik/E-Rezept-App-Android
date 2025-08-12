@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.invoice.usecase
 
-import de.gematik.ti.erp.app.fhir.parser.Year
+import de.gematik.ti.erp.app.fhir.temporal.Year
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import kotlinx.coroutines.CoroutineDispatcher

@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.profiles.model
 
 import de.gematik.ti.erp.app.idp.model.IdpData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 

@@ -29,7 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError.Companion.prettyErrorCode
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError.Companion.prettyErrorText

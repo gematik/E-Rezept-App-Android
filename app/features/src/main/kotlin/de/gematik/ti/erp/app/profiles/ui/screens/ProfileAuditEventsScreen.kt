@@ -62,13 +62,13 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.authentication.ui.components.AuthenticationFailureDialog
 import de.gematik.ti.erp.app.base.ClipBoardCopy.copyToClipboardWithHaptic
-import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
-import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallIntroScreen
 import de.gematik.ti.erp.app.core.LocalIntentHandler
-import de.gematik.ti.erp.app.fhir.audit.model.erp.FhirAuditEventErpModel
+import de.gematik.ti.erp.app.fhir.audit.model.FhirAuditEventErpModel
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.onReturnAction
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
@@ -78,7 +78,6 @@ import de.gematik.ti.erp.app.pulltorefresh.PullToRefresh
 import de.gematik.ti.erp.app.pulltorefresh.extensions.trigger
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.Center
@@ -116,7 +115,7 @@ class ProfileAuditEventsScreen(
         val profileId = remember { ProfileRoutes.getProfileId(navBackStackEntry) }
 
         val auditController = rememberAuditEventsController(profileId)
-
+        val activeProfile by auditController.activeProfile.collectAsStateWithLifecycle()
         val auditEvents = auditController.auditEvents.collectAsLazyPagingItems()
         val isSsoTokenValid by auditController.isSsoTokenValidForSelectedProfile.collectAsStateWithLifecycle()
 
@@ -124,27 +123,10 @@ class ProfileAuditEventsScreen(
             auditController.refreshCombinedProfile()
         }
 
+        ChooseAuthenticationNavigationEventsListener(auditController, navController)
         with(auditController) {
             refreshStartedEvent.listen {
                 pullToRefreshState.endRefresh()
-            }
-            showCardWallEvent.listen { id ->
-                navController.navigate(CardWallIntroScreen.path(id))
-            }
-            showCardWallWithFilledCanEvent.listen { cardWallData ->
-                navController.navigate(
-                    CardWallRoutes.CardWallPinScreen.path(
-                        profileIdentifier = cardWallData.profileId,
-                        can = cardWallData.can
-                    )
-                )
-            }
-            showGidEvent.listen { gidData ->
-                navController.navigate(
-                    CardWallIntroScreen.pathWithGid(
-                        gidNavigationData = gidData
-                    )
-                )
             }
         }
 
@@ -175,7 +157,7 @@ class ProfileAuditEventsScreen(
                 },
                 onNavigation = {
                     if (!isSsoTokenValid) {
-                        auditController.chooseAuthenticationMethod(profileId)
+                        activeProfile.data?.let { auditController.chooseAuthenticationMethod(it) }
                     }
                 }
 
@@ -188,7 +170,7 @@ class ProfileAuditEventsScreen(
             isSsoTokenValid = isSsoTokenValid,
             auditEvents = auditEvents,
             onBack = { navController.popBackStack() },
-            onInvalidSsoToken = { auditController.chooseAuthenticationMethod(profileId) }
+            onInvalidSsoToken = { activeProfile.data?.let { auditController.chooseAuthenticationMethod(it) } }
         )
     }
 }
@@ -207,6 +189,8 @@ private fun AuditEventsScaffold(
         modifier = Modifier.testTag(TestTag.Profile.AuditEvents.AuditEventsScreen),
         listState = listState,
         topBarTitle = stringResource(R.string.autitEvents_headline),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         onBack = onBack,
         bottomBar = {
             if (!isSsoTokenValid) {

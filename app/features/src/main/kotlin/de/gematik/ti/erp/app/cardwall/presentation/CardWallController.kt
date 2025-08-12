@@ -37,7 +37,7 @@ import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

@@ -1,0 +1,37 @@
+[
+  {
+    "coding": [
+      {
+        "system": "https://gematik.de/fhir/directory/CodeSystem/PharmacyHealthcareSpecialtyCS",
+        "code": "10",
+        "display": "Handverkauf"
+      }
+    ],
+    "text": "ldap"
+  },
+  {
+    "coding": [
+      {
+        "system": "https://gematik.de/fhir/directory/CodeSystem/PharmacyHealthcareSpecialtyCS",
+        "code": "30",
+        "display": "Botendienst"
+      },
+      {
+        "system": "https://gematik.de/fhir/directory/CodeSystem/HealthcareServiceSpecialtyCS",
+        "code": "koerperwerte",
+        "display": "Körperwerte"
+      }
+    ],
+    "text": "owner"
+  },
+  {
+    "coding": [
+      {
+        "system": "https://gematik.de/fhir/directory/CodeSystem/PharmacyHealthcareSpecialtyCS",
+        "code": "40",
+        "display": "Versand"
+      }
+    ],
+    "text": "apo-vzd"
+  }
+]

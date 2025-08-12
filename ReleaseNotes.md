@@ -1,3 +1,31 @@
+# Release 1.32.0
+
+### fixed (3 changes)
+
+- Password lockout align with ios app
+- Fix 3-dot menu for archived digas
+- Talkback adjustments
+
+### ⚡ enhancements (4 changes):
+
+- Blur background on showing dialogs
+- Help GID PKV Screen information
+- PKV Onboarding Drawer is cleaner
+- Profile screen has been updated
+
+### ✨ features (3 changes):
+
+- Redeem process made easy, access to redeem screen is faster than before
+- Redeem screen with reworked design
+- Digas show information from Bfarm
+
+### improvements (2 changes)
+
+- Add database module for next version of database
+- Add new module for eu-rezept feature
+
+---
+
 # Release 1.31.0
 
 ### fixed (4 changes)
@@ -20,6 +48,8 @@
 - Add password timeout
 - Fallback when insurer information missing
 - Offline language translations
+
+---
 
 # Release 1.30.0
 
@@ -44,6 +74,8 @@
 
 - Parsing FHIR data for Medication dispense and Audit events
 - Add new base module app-core to handle all base functionality of the app
+
+---
 
 # Release 1.29.0
 
@@ -70,6 +102,8 @@
 ### pre-work (1 change)
 
 - Added FHIR VZD and DiGA download groundwork
+
+---
 
 # Release 1.28.0
 

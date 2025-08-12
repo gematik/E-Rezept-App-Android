@@ -49,7 +49,7 @@ import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.analytics.navigation.TrackingScreenRoutes
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.cardunlock.navigation.CardUnlockRoutes
 import de.gematik.ti.erp.app.core.LocalActivity
@@ -120,7 +120,6 @@ class SettingsScreen(
         val settingsController = rememberSettingsController()
         val listState = rememberLazyListState()
         val scaffoldState = rememberScaffoldState()
-        val isMedicationPlanEnabled by settingsController.isMedicationPlanEnabled.collectAsStateWithLifecycle()
         val hasValidDigas by settingsController.hasValidDigas.collectAsStateWithLifecycle()
 
         AllowScreenshotDialogWithListener(
@@ -190,7 +189,7 @@ class SettingsScreen(
                     navController.navigate(SettingsRoutes.SettingsAppSecurityScreen.path())
                 },
                 onClickMedicationPlan = {
-                    navController.navigate(MedicationPlanRoutes.MedicationPlanList.path())
+                    navController.navigate(MedicationPlanRoutes.MedicationPlanScheduleListScreen.path())
                 }
             ),
             exploreClickActions = ExploreClickActions(
@@ -265,7 +264,6 @@ class SettingsScreen(
             profilesState = settingsController.profiles.collectAsStateWithLifecycle().value,
             zoomState = settingsController.zoomState.collectAsStateWithLifecycle(),
             screenShotsState = settingsController.screenShotsState.collectAsStateWithLifecycle(),
-            isMedicationPlanEnabled = isMedicationPlanEnabled,
             settingsActions = settingsActions,
             hasValidDigas = hasValidDigas
         )
@@ -283,7 +281,6 @@ private fun SettingsScreenScaffold(
     zoomState: State<SettingStatesData.ZoomState>,
     screenShotsState: State<Boolean>,
     settingsActions: SettingsActions,
-    isMedicationPlanEnabled: Boolean,
     hasValidDigas: Boolean
 ) {
     val padding = (localActivity as? BaseActivity)?.applicationInnerPadding
@@ -302,7 +299,6 @@ private fun SettingsScreenScaffold(
             listState = listState,
             isDemoMode = isDemoMode,
             buildConfig = buildConfig,
-            isMedicationPlanEnabled = isMedicationPlanEnabled,
             zoomState = zoomState,
             screenShotsState = screenShotsState,
             settingsActions = settingsActions,
@@ -320,7 +316,6 @@ private fun SettingsScreenContent(
     isDebug: Boolean = BuildConfigExtension.isInternalDebug,
     buildConfig: BuildConfigInformation,
     zoomState: State<SettingStatesData.ZoomState>,
-    isMedicationPlanEnabled: Boolean,
     screenShotsState: State<Boolean>,
     settingsActions: SettingsActions,
     hasValidDigas: Boolean
@@ -358,7 +353,7 @@ private fun SettingsScreenContent(
             PersonalSettingsSection(
                 zoomState = zoomState,
                 screenShotState = screenShotsState,
-                isMedicationPlanEnabled = isMedicationPlanEnabled,
+                isDemoMode = isDemoMode,
                 personalSettingsClickActions = settingsActions.personalSettingsClickActions
             )
             SpacerLarge()
@@ -453,7 +448,6 @@ fun SettingsScreenPreview(
                 zoomState = previewData.zoomState,
                 screenShotsState = previewData.screenShotsState,
                 settingsActions = settingsActions,
-                isMedicationPlanEnabled = false,
                 hasValidDigas = false
             )
         }

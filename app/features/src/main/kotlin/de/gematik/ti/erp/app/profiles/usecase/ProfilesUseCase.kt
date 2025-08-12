@@ -23,8 +23,8 @@
 package de.gematik.ti.erp.app.profiles.usecase
 
 import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData

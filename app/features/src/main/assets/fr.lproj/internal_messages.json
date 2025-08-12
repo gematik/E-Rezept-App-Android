@@ -19,7 +19,7 @@
     },
     {
         "id": "5",
-        "text": "**📲 Échanger des DiGAs prescrits** \nVous pouvez désormais échanger des ordonnances pour des applications de santé numériques (DiGAs) directement via l'application d'ordonnance électronique. Vous trouverez votre code d'activation et le lien vers le DiGA prescrit ici même dans l'application d'ordonnance électronique. \n \n **🏥 Nouvelle base de données des pharmacies** \nNous avons introduit une nouvelle base de données évolutive pour les recherches en pharmacie.",
+        "text": "**📲 Échanger des DiGAs prescrits** \nVous pouvez désormais échanger des ordonnances pour les applications de santé numériques (DiGAs) directement via l'application d'ordonnance électronique. Les ordonnances seront délivrées par des spécialistes à Hambourg dans le cadre d'un projet pilote. Vous trouverez votre code d'activation et le lien vers le DiGA ici même dans l'application d'ordonnance électronique. \n \n **🏥 Nouvelle base de données des pharmacies** \nNous avons introduit une nouvelle base de données évolutive pour les recherches en pharmacie.",
         "timestamp": "2025-05-14T08:00:00.000Z",
         "version": "1.30"
     },
@@ -28,5 +28,11 @@
         "text": "**🌐 Nouvelle fonction de traduction** \nSi vous utilisez l'application dans une autre langue, vous pouvez désormais traduire directement les réponses de la pharmacie. \n \n **♿️ Accessibilité** \nNotre déclaration d'accessibilité est désormais disponible dans les paramètres. Le processus d'intégration a également été rendu plus accessible. \n \n **📲 Échanger des DiGAs auprès des compagnies d'assurance** \nLes ordonnances pour les applications de santé numériques (DiGAs) peuvent désormais également être échangées auprès d'autres compagnies d'assurance.",
         "timestamp": "2025-06-26T08:00:00.000Z",
         "version": "1.31"
+    },
+    {
+        "id": "7",
+        "text": "**🙌 Inscription pour les assurés privés** \nL'inscription pour les assurés privés a été optimisée. Vous pouvez vous connecter facilement avec votre identifiant santé en quelques clics. \n \n **⏰ Rappels de médicaments** \nVous pouvez désormais définir des rappels pour la prise de vos médicaments. \n \n **🛒 Flux de commande amélioré** \nLe processus de commande est désormais plus simple et plus rapide. \n \n **♿️ Accessibilité** \nLe numéro d'accès de la carte santé peut désormais également être scanné avec l'appareil photo. \n \n **📲 Plus d'informations pour les DiGA** \nVous recevrez désormais des informations plus détaillées sur vos ordonnances DiGA, telles que le prix de vente ou le logo.",
+        "timestamp": "2025-08-06T08:00:00.000Z",
+        "version": "1.32"
     }
 ]

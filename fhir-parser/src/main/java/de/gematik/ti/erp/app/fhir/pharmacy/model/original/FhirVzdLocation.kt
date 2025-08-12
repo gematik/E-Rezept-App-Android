@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.fhir.pharmacy.model.original
 
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPositionErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPositionErpModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement

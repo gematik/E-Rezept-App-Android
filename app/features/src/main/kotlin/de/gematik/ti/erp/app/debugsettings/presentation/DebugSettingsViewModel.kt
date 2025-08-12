@@ -60,7 +60,7 @@ import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyDirectRedeemUseCase
 import de.gematik.ti.erp.app.prescription.usecase.DeletePrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetTaskIdsUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger

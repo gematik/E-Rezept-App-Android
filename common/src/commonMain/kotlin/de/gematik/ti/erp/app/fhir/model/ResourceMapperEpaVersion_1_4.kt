@@ -30,7 +30,7 @@ import de.gematik.ti.erp.app.fhir.parser.containedStringOrNull
 import de.gematik.ti.erp.app.fhir.parser.filterWith
 import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.stringValue
-import de.gematik.ti.erp.app.utils.toFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 

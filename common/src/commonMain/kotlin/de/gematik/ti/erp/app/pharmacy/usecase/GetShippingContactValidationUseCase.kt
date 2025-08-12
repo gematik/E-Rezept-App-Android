@@ -52,6 +52,8 @@ sealed interface ShippingContactState {
         data object InvalidDeliveryInformation : ShippingContactError
     }
 }
+
+@Deprecated("Use ValidateContactUseCase")
 class GetShippingContactValidationUseCase {
     @Suppress("TooManyFunctions")
     companion object {
@@ -138,7 +140,7 @@ class GetShippingContactValidationUseCase {
         selectedOrderOption: PharmacyScreenData.OrderOption?
     ): ShippingContactState {
         val errors = mutableListOf<ShippingContactState.ShippingContactError>()
-        if (selectedOrderOption == PharmacyScreenData.OrderOption.PickupService &&
+        if (selectedOrderOption == PharmacyScreenData.OrderOption.Pickup &&
             contact.isEmpty()
         ) {
             return ShippingContactState.ValidShippingContactState.OK
@@ -166,14 +168,14 @@ class GetShippingContactValidationUseCase {
             )
             checkPhoneNumber(
                 contact.telephoneNumber,
-                selectedOrderOption == PharmacyScreenData.OrderOption.PickupService,
+                selectedOrderOption == PharmacyScreenData.OrderOption.Pickup,
                 onPhoneNumberIsEmpty = { errors.add(it) },
                 onPhoneNumberIsInvalid = { errors.add(it) }
             )
 
             checkMailAddress(
                 contact.mail,
-                selectedOrderOption == PharmacyScreenData.OrderOption.PickupService,
+                selectedOrderOption == PharmacyScreenData.OrderOption.Pickup,
                 onMailIsEmpty = {
                     if (contact.telephoneNumber.isEmpty()) {
                         errors.add(it)
@@ -258,6 +260,7 @@ class GetShippingContactValidationUseCase {
             phoneNumber.isEmpty() && !isPickupServiceSelected -> onPhoneNumberIsEmpty(
                 ShippingContactState.ShippingContactError.EmptyPhoneNumber
             )
+
             phoneNumber.isNotEmpty() &&
                 !phoneNumber.matches(phoneNumberRegex) -> onPhoneNumberIsInvalid(
                 ShippingContactState.ShippingContactError.InvalidPhoneNumber
@@ -275,6 +278,7 @@ class GetShippingContactValidationUseCase {
             mail.isEmpty() && !isPickupServiceSelected -> onMailIsEmpty(
                 ShippingContactState.ShippingContactError.EmptyMail
             )
+
             mail.isNotEmpty() && !mail.matches(mailRegex) -> onMailIsInvalid(
                 ShippingContactState.ShippingContactError.InvalidMail
             )

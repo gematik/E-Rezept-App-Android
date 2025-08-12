@@ -22,6 +22,9 @@
 
 package de.gematik.ti.erp.app.medicationplan.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class MedicationNotificationMessage(
     val title: String,
     val body: String

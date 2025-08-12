@@ -50,8 +50,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.ui.CompletedStatusChip
 import de.gematik.ti.erp.app.prescription.ui.DeletedStatusChip
@@ -98,7 +98,7 @@ fun FullDetailMedication(
         }
     }
 
-    Box() {
+    Box {
         Card(
             modifier =
             modifier

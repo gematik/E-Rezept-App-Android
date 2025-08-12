@@ -30,7 +30,7 @@ import de.gematik.ti.erp.app.navigation.NavigationRoutes
 import de.gematik.ti.erp.app.navigation.Routes
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes.getPkvNavigationProfileId
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes.getPkvNavigationTaskId
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 
 object PkvRoutes : NavigationRoutes {
     override fun subGraphName() = "invoices"

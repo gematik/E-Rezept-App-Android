@@ -22,12 +22,12 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository.datasource.remote
 
-import de.gematik.ti.erp.app.pharmacy.api.FhirVzdPharmacySearchAccessTokenService
+import de.gematik.ti.erp.app.pharmacy.api.ERezeptBackendService
 import de.gematik.ti.erp.app.pharmacy.api.model.SearchAccessTokenResponse
 import retrofit2.Response
 
 class PharmacySearchAccessTokenRemoteDataSource(
-    private val tokenService: FhirVzdPharmacySearchAccessTokenService
+    private val tokenService: ERezeptBackendService
 ) {
     fun fetchNewToken(): Response<SearchAccessTokenResponse> {
         return tokenService.getSearchAccessToken().execute()

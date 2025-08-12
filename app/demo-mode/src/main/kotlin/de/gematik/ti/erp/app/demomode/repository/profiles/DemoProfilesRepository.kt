@@ -32,8 +32,8 @@ import de.gematik.ti.erp.app.demomode.model.toProfiles
 import de.gematik.ti.erp.app.demomode.repository.profiles.DemoProfilesRepository.ImageActions.Add
 import de.gematik.ti.erp.app.demomode.repository.profiles.DemoProfilesRepository.ImageActions.NoAction
 import de.gematik.ti.erp.app.demomode.repository.profiles.DemoProfilesRepository.ImageActions.Remove
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -181,8 +181,7 @@ class DemoProfilesRepository(
 
     override fun getProfileById(profileId: ProfileIdentifier): Flow<ProfilesData.Profile> =
         demoModeProfiles().mapNotNull {
-            it.find {
-                    profile ->
+            it.find { profile ->
                 profile.id == profileId
             }?.toProfile()
         }

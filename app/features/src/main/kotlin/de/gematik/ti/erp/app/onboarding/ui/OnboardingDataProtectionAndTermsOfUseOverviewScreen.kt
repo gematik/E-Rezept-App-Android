@@ -45,13 +45,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.navigation.OnboardingRoutes
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
@@ -207,7 +206,7 @@ private fun LazyListScope.dataProtectionAndTermsOfUseOverviewScreenContent(
                     backgroundColor = AppTheme.colors.neutral000,
                     contentColor = AppTheme.colors.primary700
                 ),
-                border = BorderStroke(1.dp, AppTheme.colors.primary700),
+                border = BorderStroke(SizeDefaults.eighth, AppTheme.colors.primary700),
                 contentPadding = PaddingValues(PaddingDefaults.Medium)
             ) {
                 Text(stringResource(R.string.onboarding_data_button))
@@ -232,10 +231,10 @@ private fun LazyListScope.dataProtectionAndTermsOfUseOverviewScreenContent(
                     backgroundColor = AppTheme.colors.neutral000,
                     contentColor = AppTheme.colors.primary700
                 ),
-                border = BorderStroke(1.dp, AppTheme.colors.primary700),
+                border = BorderStroke(SizeDefaults.eighth, AppTheme.colors.primary700),
                 contentPadding = PaddingValues(
                     horizontal = PaddingDefaults.Medium,
-                    vertical = 16.dp
+                    vertical = SizeDefaults.double
                 )
             ) {
                 Text(stringResource(R.string.onboarding_terms_button))

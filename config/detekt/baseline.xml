@@ -29,13 +29,21 @@
     <ID>EmptyFunctionBlock:DebugScreenWrapper.kt${}</ID>
     <ID>FunctionNaming:MapsSection.kt$internal fun LazyListScope.MapsSection( previewCoordinates: Coordinates, previewMap: PharmacyMap, onClick: () -&gt; Unit )</ID>
     <ID>LongParameterList:MessageDetailController.kt$MessageDetailController$( private val application: Application, private val orderId: String, private val isLocalMessage: Boolean = false, private val getRepliedMessagesUseCase: GetRepliedMessagesUseCase, private val getMessageUsingOrderIdUseCase: GetMessageUsingOrderIdUseCase, private val getInternalMessagesUseCase: GetInternalMessagesUseCase, private val setInternalMessageIsReadUseCase: SetInternalMessagesAsReadUseCase, private val updateCommunicationConsumedStatusUseCase: UpdateCommunicationConsumedStatusUseCase, private val updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase, private val getPharmacyByTelematikIdUseCase: GetPharmacyByTelematikIdUseCase, private val getProfileByOrderIdUseCase: GetProfileByOrderIdUseCase, private val getTranslationConsentUseCase: GetTranslationConsentUseCase, private val isTargetLanguageSetUseCase: IsTargetLanguageSetUseCase, private val toggleTranslationConsentUseCase: ToggleTranslationConsentUseCase, private val downloadedLanguagesUseCase: DownloadLanguageModelUseCase, private val translateTextUseCase: TranslateTextUseCase )</ID>
+    <ID>MagicNumber:CardWallScannerScreen.kt$1f</ID>
+    <ID>MagicNumber:ClickableText.kt$1</ID>
     <ID>MagicNumber:CrashCollector.kt$1</ID>
+    <ID>MagicNumber:DefaultIdpUseCase.kt$DefaultIdpUseCase$400</ID>
+    <ID>MagicNumber:DefaultIdpUseCase.kt$DefaultIdpUseCase$401</ID>
+    <ID>MagicNumber:DefaultIdpUseCase.kt$DefaultIdpUseCase$403</ID>
+    <ID>MagicNumber:OnboardingAnalyticsPreviewScreen.kt$OnboardingAnalyticsPreviewScreen$3</ID>
     <ID>MagicNumber:TranslationRemoteDataSource.kt$TranslationRemoteDataSource$10</ID>
     <ID>MagicNumber:TranslationRemoteDataSource.kt$TranslationRemoteDataSource$300</ID>
     <ID>MagicNumber:UncaughtException.kt$UncaughtException$1</ID>
     <ID>MagicNumber:UncaughtException.kt$UncaughtException$20</ID>
     <ID>ModifierReused:CardWallSaveCredentialsScreen.kt$Card( border = cardBorderStroke, backgroundColor = AppTheme.colors.neutral000, modifier = modifier .padding(horizontal = PaddingDefaults.Medium) .fillMaxWidth(), shape = RoundedCornerShape(SizeDefaults.one) ) { Row( modifier = Modifier .fillMaxWidth() .clickable( enabled = true, onClick = onCardSelected ) .padding(PaddingDefaults.Medium), verticalAlignment = Alignment.CenterVertically ) { Icon( startIcon, null, tint = AppTheme.colors.primary700 ) Text( text, style = AppTheme.typography.subtitle1, modifier = modifier .weight(1f) .padding(start = PaddingDefaults.Medium) ) Icon( checkIcon, null, tint = checkIconTint ) } }</ID>
     <ID>ModifierReused:CardWallSaveCredentialsScreen.kt$Text( text, style = AppTheme.typography.subtitle1, modifier = modifier .weight(1f) .padding(start = PaddingDefaults.Medium) )</ID>
+    <ID>ModifierReused:CardWallScannerScreen.kt$Box(modifier = modifier) { AndroidView( modifier = Modifier.fillMaxSize(), factory = { context -&gt; PreviewView(context).also { preview -&gt; previewView = preview } } ) LaunchedEffect(previewView) { previewView?.let { preview -&gt; onSetupCamera( CameraSetupParams( context = context, lifecycleOwner = lifecycleOwner, previewView = preview, cameraExecutor = cameraExecutor, onImageAnalysis = { imageProxy -&gt; if (!isPaused) { onImageAnalyzed( imageProxy, preview, density, screenDimensions.first, screenDimensions.second ) } else { imageProxy.close() } } ) ) } } capturedBitmap?.let { bitmap -&gt; if (isPaused) { Image( bitmap = bitmap.asImageBitmap(), contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop ) } } }</ID>
+    <ID>ModifierReused:CardWallScannerScreen.kt$MockCameraPreview(modifier = modifier)</ID>
     <ID>ModifierReused:Common.kt$Text( text = text, modifier = modifier, color = color, fontSize = fontSize, fontStyle = fontStyle, fontWeight = fontWeight, fontFamily = fontFamily, letterSpacing = letterSpacing, textDecoration = textDecoration, textAlign = textAlign, lineHeight = lineHeight, overflow = overflow, softWrap = softWrap, maxLines = maxLines, inlineContent = with(LocalDensity.current) { contentPlaceables.mapValues { (_, value) -&gt; val (content, maxSize) = value InlineTextContent( placeholder = content.placeholder.copy( width = maxSize.width.toSp(), height = maxSize.height.toSp() ), children = content.children ) } }, onTextLayout = onTextLayout, style = style )</ID>
     <ID>ModifierReused:Common.kt$layout(main.measuredWidth, main.measuredHeight) { main.placeRelative(0, 0) }</ID>
     <ID>ModifierReused:OrderHealthCardSelectMethodScreen.kt$Card( modifier = modifier, onClick = onClick, shape = RoundedCornerShape(SizeDefaults.one), contentColor = AppTheme.colors.primary700, border = BorderStroke(SizeDefaults.eighth, AppTheme.colors.neutral300), backgroundColor = AppTheme.colors.neutral050, elevation = SizeDefaults.zero ) { Column(Modifier.padding(PaddingDefaults.Medium), horizontalAlignment = Alignment.CenterHorizontally) { Icon(icon, null) SpacerSmall() Text( name, modifier = modifier.widthIn(SizeDefaults.ninefold), textAlign = TextAlign.Center, style = AppTheme.typography.subtitle2 ) } }</ID>
@@ -105,6 +113,7 @@
     <ID>MultipleEmitters:SettingsLegalNoticeScreen.kt$IssuerSection</ID>
     <ID>MultipleEmitters:SettingsLegalNoticeScreen.kt$ResponsibilitySection</ID>
     <ID>MultipleEmitters:TranslationSettingsDropDownMenu.kt$TranslationSettingsDropDownMenu</ID>
+    <ID>MultipleEmitters:UserAuthenticationBottomSection.kt$UserAuthenticationBottomErrorSection</ID>
     <ID>MutableParams:Hints.kt$initiallyVisible</ID>
     <ID>MutableParams:PrescriptionScanScreen.kt$scanPrescriptionVibration</ID>
     <ID>PreviewNaming:LightDarkPreview.kt$BigFontPreview$BigFontPreview</ID>
@@ -124,8 +133,10 @@
     <ID>PreviewPublic:CardWallReadCardScreen.kt$CardWallReadCardScreenPreview</ID>
     <ID>PreviewPublic:CardWallSaveCredentialsInfoScreen.kt$CardWallSaveCredentialsInfoScreenPreview</ID>
     <ID>PreviewPublic:CardWallSaveCredentialsScreen.kt$CardWallSaveCredentialsScreenPreview</ID>
+    <ID>PreviewPublic:CardWallScannerScreen.kt$ScannerScreenContentPreview</ID>
     <ID>PreviewPublic:ErrorOnRedeemablePrescriptionDialog.kt$ErrorOnRedeemablePrescriptionDialogPreview</ID>
     <ID>PreviewPublic:InsecureDeviceScreen.kt$InsecureDeviceScreenPreview</ID>
+    <ID>PreviewPublic:InsuranceSearchListScreen.kt$InsuranceSearchListScreenPreview</ID>
     <ID>PreviewPublic:IntegrityWarningScreen.kt$IntegrityWarningScreenPreview</ID>
     <ID>PreviewPublic:InvoiceDetailsScreen.kt$InvoiceDetailsScreenPreview</ID>
     <ID>PreviewPublic:InvoiceExpandedDetailsScreen.kt$invoiceExpandedDetailsScreenContentPreview</ID>
@@ -141,7 +152,6 @@
     <ID>PreviewPublic:MessageDetailScreen.kt$MessageDetailScreenInAppWithPharmacyPreview</ID>
     <ID>PreviewPublic:MessageDetailScreen.kt$MessageDetailScreenWithPharmacyPreview</ID>
     <ID>PreviewPublic:MessageListScreen.kt$MessageScreenContentPreview</ID>
-    <ID>PreviewPublic:OnboardingAnalyticsPreviewScreen.kt$OnboardingAnalyticsPreviewContentPreview</ID>
     <ID>PreviewPublic:OnboardingPasswordAuthenticationScreen.kt$PasswordAuthenticationPreview</ID>
     <ID>PreviewPublic:OnboardingSelectAppLoginScreen.kt$OnboardingSelectAppLoginPreview</ID>
     <ID>PreviewPublic:OnlineRedeemPreferencesScreen.kt$OnlineRedeemPreferencesScreenPreview</ID>
@@ -169,10 +179,10 @@
     <ID>PreviewPublic:SettingsSetAppPasswordScreen.kt$SettingsSetAppPasswordScreenPreview</ID>
     <ID>PreviewPublic:TroubleShootingNoSuccessScreen.kt$TroubleShootingNoSuccessScreenPreview</ID>
     <ID>PreviewPublic:UserAuthenticationScreen.kt$UserAuthenticationScreenPreview</ID>
+    <ID>ThrowsCount:DefaultIdpUseCase.kt$DefaultIdpUseCase$@Suppress("CyclomaticComplexMethod", "NestedBlockDepth") private suspend fun loadAccessToken( refresh: Boolean = false, profileId: ProfileIdentifier, scope: IdpScope, singleSignOnTokenScope: suspend () -&gt; IdpData.SingleSignOnTokenScope?, decryptedAccessToken: suspend () -&gt; AccessToken?, invalidateDecryptedAccessToken: suspend () -&gt; Unit, invalidateSingleSignOnTokenRetainingScope: suspend () -&gt; Unit, saveDecryptedAccessToken: suspend (decryptedAccessToken: String, expiresOn: Instant) -&gt; Unit ): String</ID>
     <ID>UnstableCollections:ColumnItems.kt$List&lt;T&gt;</ID>
     <ID>UnstableCollections:Common.kt$Map&lt;String, InlineTextContent&gt;</ID>
     <ID>UnstableCollections:CustomSegmentedButton.kt$List&lt;String&gt;</ID>
-    <ID>UnstableCollections:DebugCommon.kt$Map&lt;String, MainActivity.ElementForTest&gt;</ID>
     <ID>UnstableCollections:DebugTrackerScreen.kt$List&lt;DebugTrackerScreenEvent&gt;</ID>
     <ID>UnstableCollections:ErrorOnRedeemablePrescriptionDialog.kt$List&lt;RedeemablePrescriptionInfo&gt;</ID>
     <ID>UnstableCollections:InvoiceExpandedDetailsScreen.kt$List&lt;String?&gt;</ID>
@@ -201,24 +211,25 @@
     <ID>UnstableCollections:ProfilePairedDevicesScreen.kt$List&lt;PairedDevice&gt;</ID>
     <ID>UnstableCollections:ProfileSection.kt$List&lt;ProfilesUseCaseData.Profile&gt;</ID>
     <ID>UnstableCollections:RedeemOrderOverviewScreen.kt$List&lt;PharmacyUseCaseData.PrescriptionInOrder&gt;</ID>
-    <ID>UnstableCollections:ReleaseCommon.kt$Map&lt;String, MainActivity.ElementForTest&gt;</ID>
     <ID>UnstableCollections:SelfPayerPrescriptionWarning.kt$List&lt;String&gt;</ID>
     <ID>UnstableCollections:SelfPayerPrescriptionWarning.kt$List&lt;String?&gt;</ID>
     <ID>UnstableCollections:SettingsLanguageScreen.kt$List&lt;LanguageCode&gt;</ID>
     <ID>UnstableCollections:SettingsScreen.kt$List&lt;Profile&gt;</ID>
     <ID>UnstableCollections:TopBars.kt$List&lt;String&gt;</ID>
     <ID>UnstableCollections:TopBars.kt$List&lt;TabPosition&gt;</ID>
-    <ID>UnusedParameter:Buttons.kt$text: String? = null</ID>
     <ID>UnusedParameter:CardWallGidListScreen.kt$onClickHealthInsuranceWithGidNotSupported: () -&gt; Unit</ID>
     <ID>UnusedParameter:DebugScreenWrapper.kt$navigation: NavController</ID>
     <ID>UnusedParameter:EndpointHelper.kt$EndpointHelper$context: Context</ID>
-    <ID>UnusedParameter:ReleaseCommon.kt$elements: Map&lt;String, MainActivity.ElementForTest&gt;</ID>
+    <ID>UnusedParameter:NoElevationScaffold.kt$listState: LazyListState</ID>
+    <ID>UnusedParameter:ProfileEditNameBottomSheetScreen.kt$existingProfiles: List&lt;ProfilesUseCaseData.Profile&gt;</ID>
     <ID>UnusedParameter:ReleaseCommon.kt$modifier: Modifier = Modifier</ID>
     <ID>UnusedParameter:ReleaseCommon.kt$onClick: () -&gt; Unit</ID>
     <ID>UnusedParameter:ReleaseCommon.kt$text: String</ID>
+    <ID>UnusedParameter:SearchInputField.kt$onBack: () -&gt; Unit</ID>
     <ID>UnusedPrivateMember:DownloadedLanguageItem.kt$@LightDarkPreview @Composable private fun ClickableTextFieldDeletablePreview()</ID>
     <ID>UnusedPrivateMember:DownloadedLanguageItem.kt$@LightDarkPreview @Composable private fun ClickableTextFieldNonDeletablePreview()</ID>
     <ID>UnusedPrivateMember:GemDropdownMenuItem.kt$@LightDarkPreview @Composable private fun GemDropdownMenuItemPreview()</ID>
+    <ID>UnusedPrivateMember:InsuranceListLoadingSection.kt$@LightDarkPreview @Composable private fun OverviewLoadingSectionPreview()</ID>
     <ID>UnusedPrivateMember:TranslateChip.kt$@LightDarkPreview @Composable private fun TranslateChipPreview()</ID>
     <ID>UnusedPrivateMember:TranslationFailure.kt$TranslationFailure.LanguageNotDownloaded$private fun readResolve(): Any</ID>
     <ID>UnusedPrivateMember:TranslationFailure.kt$TranslationFailure.SourceLanguageNotSupported$private fun readResolve(): Any</ID>
@@ -226,12 +237,12 @@
     <ID>UnusedPrivateProperty:CommunicationMocks.kt$private const val MOCK_COMMUNICATION_ID_01 = "CID-123-001"</ID>
     <ID>UnusedPrivateProperty:DefaultProfilesRepository.kt$private const val DEBUG_ORGANIZATION_IDENTIFIER = "104212505"</ID>
     <ID>UnusedPrivateProperty:LoadHealthInsuranceListUseCaseTest.kt$LoadHealthInsuranceListUseCaseTest.Companion$private val mockInputStream = ByteArrayInputStream(contacts.toByteArray())</ID>
-    <ID>UnusedPrivateProperty:OnboardingGraphController.kt$private const val PASSWORD_SCORE = 9</ID>
     <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_1 = OrderUseCaseData.Order( orderId = "2", sentOn = Instant.parse("2023-07-03T15:20:00Z"), hasUnreadMessages = true, pharmacy = OrderUseCaseData.Pharmacy("123", "Apotheke"), prescriptions = emptyList(), latestCommunicationMessage = mockLastMessage )</ID>
     <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_2 = OrderUseCaseData.Order( orderId = "2", sentOn = Instant.parse("2023-07-04T15:20:00Z"), hasUnreadMessages = true, pharmacy = OrderUseCaseData.Pharmacy("123", "Flughafen"), prescriptions = emptyList(), latestCommunicationMessage = mockLastMessageLong )</ID>
     <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_3 = OrderUseCaseData.Order( orderId = "3", sentOn = Instant.parse("2023-07-05T15:20:00Z"), hasUnreadMessages = false, pharmacy = OrderUseCaseData.Pharmacy("123", "TaxiStand"), prescriptions = listOf(PREVIEW_PRESCRIPTION), latestCommunicationMessage = null )</ID>
     <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_4 = OrderUseCaseData.Order( orderId = "4", sentOn = Instant.parse("2023-07-06T15:20:00Z"), hasUnreadMessages = true, pharmacy = OrderUseCaseData.Pharmacy("123", "HauptBahnhof"), prescriptions = listOf(PREVIEW_PRESCRIPTION), latestCommunicationMessage = mockLastMessage )</ID>
     <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_5 = OrderUseCaseData.Order( orderId = "5", sentOn = Instant.parse("2023-07-08T15:20:00Z"), hasUnreadMessages = false, pharmacy = OrderUseCaseData.Pharmacy("123", "BusStation"), prescriptions = listOf( PREVIEW_PRESCRIPTION, PREVIEW_PRESCRIPTION.copy(index = 1), PREVIEW_PRESCRIPTION.copy(index = 2) ), latestCommunicationMessage = mockLastMessageLong )</ID>
+    <ID>UnusedPrivateProperty:RedeemDigaUseCaseTest.kt$RedeemDigaUseCaseTest.Companion$private const val iknr = "123456789"</ID>
     <ID>UnusedPrivateProperty:RedeemPrescriptionsOnLoggedInUseCase.kt$private val json = Json { encodeDefaults = true prettyPrint = false }</ID>
     <ID>UtilityClassWithPublicConstructor:FhirMarkdownGenerator.kt$FhirMarkdownGenerator</ID>
     <ID>VariableNaming:FhirMedicationDispenseReference.kt$FhirMedicationDispenseReference$private val DECLINE_EXTENSION_URL = "http://hl7.org/fhir/StructureDefinition/data-absent-reason"</ID>

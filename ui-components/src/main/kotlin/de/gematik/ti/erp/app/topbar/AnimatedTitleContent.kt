@@ -66,18 +66,19 @@ fun AnimatedTitleContent(
     listState: LazyListState,
     title: String,
     label: String = "AnimatedTitleContent",
+    indexOfTitleItemInList: Int = 0,
     transitionSpec: AnimatedContentTransitionScope<Boolean>.() -> ContentTransform = {
         if (targetState) {
-            slideInVertically(initialOffsetY = { -it }) + fadeIn() togetherWith
-                slideOutVertically(targetOffsetY = { it }) + fadeOut()
-        } else {
             slideInVertically(initialOffsetY = { it }) + fadeIn() togetherWith
                 slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+        } else {
+            slideInVertically(initialOffsetY = { -it }) + fadeIn() togetherWith
+                slideOutVertically(targetOffsetY = { it }) + fadeOut()
         }.using(sizeTransform = SizeTransform(clip = false))
     }
 ) {
     val isElevated by remember {
-        derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 }
+        derivedStateOf { listState.firstVisibleItemIndex > indexOfTitleItemInList }
     }
     AnimatedContent(
         targetState = isElevated,
@@ -85,9 +86,8 @@ fun AnimatedTitleContent(
         transitionSpec = transitionSpec
     ) { elevated ->
         val animatedTitle = if (elevated) title else ""
-        Text(animatedTitle, overflow = TextOverflow.Ellipsis)
         Text(
-            text = animatedTitle,
+            animatedTitle,
             overflow = TextOverflow.Ellipsis
         )
     }

@@ -30,7 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import com.valentinilk.shimmer.shimmer
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.shimmer.ConditionRowShimmer

@@ -32,12 +32,14 @@ import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.SYNCED_TASK_
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.longerRandomTimeToday
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.randomTimeToday
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoProfileInfo.demoProfile01
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskAccidentType
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirDispenseDeviceRequestErpModel
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.RequestIntent
+import de.gematik.ti.erp.app.diga.model.DigaStatus
+import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispenseDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.RequestIntent
+import de.gematik.ti.erp.app.fhir.support.FhirAccidentInformationErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
@@ -48,9 +50,7 @@ import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationRequest
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Organization
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Patient
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Practitioner
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.utils.FhirTemporal
-import de.gematik.ti.erp.app.utils.asFhirTemporal
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
@@ -229,13 +229,13 @@ object DemoPrescriptionInfo {
     )
 
     /**
-     * Copied from [de.gematik.ti.erp.app.prescription.repository.KBVCodeMapping.normSizeMapping]
+     * Copied from [KBVCodeMapping.normSizeMapping]
      * in feature module
      */
     private val normSizeMappings = listOf("KA", "KTP", "N1", "N2", "N3", "NB", "Sonstiges")
 
     /**
-     * Copied from [de.gematik.ti.erp.app.prescription.repository.KBVCodeMapping.codeToFormMapping]
+     * Copied from [KBVCodeMapping.codeToFormMapping]
      * in feature module
      */
     private val codeToFormMapping = listOf("AEO", "AUB", "TAB", "TKA", "TLE", "VKA", "XHA")
@@ -313,7 +313,10 @@ object DemoPrescriptionInfo {
     private fun medication(index: Int) = Medication(
         category = SyncedTaskData.MedicationCategory.entries.toTypedArray().random(),
         vaccine = Random.nextBoolean(),
-        text = SYNCED_MEDICATION_NAMES.elementAtOrElse(index) { SYNCED_MEDICATION_NAMES.random() },
+        text = when (index) {
+            0 -> "\uD83C\uDDEA\uD83C\uDDFA EU Medikament Prescription"
+            else -> SYNCED_MEDICATION_NAMES.elementAtOrElse(index) { SYNCED_MEDICATION_NAMES.random() }
+        },
         form = codeToFormMapping.random(),
         lotNumber = DEMO_MODE_IDENTIFIER,
         expirationDate = FhirTemporal.Instant(EXPIRY_DATE),
@@ -479,7 +482,8 @@ object DemoPrescriptionInfo {
             isDeviceRequestCompleted: Boolean = false,
             deviceRequestStatusIndex: Int? = null,
             medicationNamesIndex: Int,
-            appName: String? = null
+            appName: String? = null,
+            isEuRedeemable: Boolean = false
         ): SyncedTaskData.SyncedTask {
             val taskId =
                 when {
@@ -512,7 +516,8 @@ object DemoPrescriptionInfo {
                 ),
                 communications = emptyList(),
                 failureToReport = "",
-                deviceRequest = if (isDeviceRequest) demoDiga(deviceRequestStatusIndex, appName) else null
+                deviceRequest = if (isDeviceRequest) demoDiga(deviceRequestStatusIndex, appName) else null,
+                isEuRedeemable = isEuRedeemable
             )
         }
     }

@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.debugsettings.data
 
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.parcelize.Parcelize
 
 @Immutable

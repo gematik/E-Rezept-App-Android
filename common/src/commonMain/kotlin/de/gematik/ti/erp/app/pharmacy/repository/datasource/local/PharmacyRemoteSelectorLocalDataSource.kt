@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository.datasource.local
 
-import de.gematik.ti.erp.app.db.entities.v1.pharmacy.PharmacyRemoteDataSourceSelectionEntityV1
-import de.gematik.ti.erp.app.db.updateOrCreate
+import de.gematik.ti.erp.app.database.realm.utils.updateOrCreate
+import de.gematik.ti.erp.app.database.realm.v1.pharmacy.PharmacyRemoteDataSourceSelectionEntityV1
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query

@@ -26,7 +26,7 @@ import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
 import de.gematik.ti.erp.app.demomode.datasource.INDEX_OUT_OF_BOUNDS
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfileLinkedCommunication
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

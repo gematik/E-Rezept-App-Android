@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskKbvAddressErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskOrganizationErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskOrganizationErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirTaskKbvAddressErpModel
 
 object FhirOrganizationErpTestData {
     val erpOrganization1_v103 = FhirTaskOrganizationErpModel(

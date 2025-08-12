@@ -19,7 +19,7 @@
     },
     {
         "id": "5",
-        "text": "**📲 Verordnete DiGAs einlösen**\nAb sofort können Sie Verordnungen für digitale Gesundheitsanwendungen (DiGAs) direkt über die E-Rezept App einlösen. Ihren Freischaltcode und den Link zur verschriebenen DiGA finden Sie direkt hier in der E-Rezept App.\n\n**🏥 Neue Apothekendatenbank**\nWir haben eine neue, zukunftssichere Datenbank für die Apothekensuche eingeführt.",
+        "text": "**📲 Verordnete DiGAs einlösen**\nAb sofort können Sie Verordnungen für digitale Gesundheitsanwendungen (DiGAs) direkt über die E-Rezept App einlösen. Die Rezepte werden im Rahmen eines Pilotprojekts von Fachkräften in Hamburg ausgestellt. Ihren Freischaltcode und den Link zur DiGA finden Sie direkt hier in der E-Rezept App.\n\n**🏥 Neue Apothekendatenbank**\nWir haben eine neue, zukunftssichere Datenbank für die Apothekensuche eingeführt.",
         "timestamp": "2025-05-14T08:00:00.000Z",
         "version": "1.30"
     },
@@ -28,5 +28,11 @@
         "text": "**🌐 Neue Übersetzungsfunktion**\nWenn Sie die App in einer anderen Sprache nutzen, können Sie die Antworten der Apotheken jetzt direkt übersetzen.\n\n**♿️ Barrierefreiheit**\nUnsere Barrierefreiheitserklärung ist ab sofort in den Einstellungen verfügbar. Außerdem wurde der Onboarding-Prozess barrierefreundlicher gestaltet.\n\n**📲 DiGAs bei Versicherungen einlösen**\nVerordnungen für digitale Gesundheitsanwendungen (DiGAs) können jetzt auch bei anderen Versicherungen eingelöst werden.",
         "timestamp": "2025-06-26T08:00:00.000Z",
         "version": "1.31"
+    },
+    {
+        "id": "7",
+        "text": "**🙌 Anmelden für Privatversicherte**\nDas Anmelden für Privatversicherte ist jetzt optimiert. Mit wenigen Klicks können Sie sich bequem mit Ihrer GesundheitsID anmelden.\n\n**⏰ Einnahmeerinnerungen**\nSie können jetzt Einnahmeerinnerungen für Ihre Medikamente einrichten.\n\n**🛒 Verbesserter Bestellflow**\nDer Bestellprozess ist jetzt einfacher und schneller.\n\n**♿️ Barrierefreiheit**\nDie Zugangsnummer für die Gesundheitskarte kann ab jetzt auch mit der Kamera eingelesen werden.\n\n**📲 Mehr Informationen für DiGAs**\nAb jetzt erhalten Sie ausführlichere Informationen zu Ihren DiGA-Verordnungen, wie den Verkaufspreis oder das Logo.",
+        "timestamp": "2025-08-06T08:00:00.000Z",
+        "version": "1.32"
     }
 ]

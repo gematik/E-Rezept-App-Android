@@ -37,7 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
 import de.gematik.ti.erp.app.pharmacy.ui.preview.mockDetailedInfoText
 import de.gematik.ti.erp.app.pharmacy.ui.preview.mockOpeningHours

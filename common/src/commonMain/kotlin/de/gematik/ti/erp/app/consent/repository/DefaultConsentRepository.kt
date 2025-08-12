@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.consent.repository
 
 import de.gematik.ti.erp.app.consent.model.ConsentType
 import de.gematik.ti.erp.app.consent.model.extractConsentBundle
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.serialization.json.JsonElement
 
 class DefaultConsentRepository(

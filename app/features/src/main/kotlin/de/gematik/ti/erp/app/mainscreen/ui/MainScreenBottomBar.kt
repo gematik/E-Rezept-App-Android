@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.mainscreen.navigation.MainScreenBottomNavigationItems
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
 import de.gematik.ti.erp.app.navigation.navigateAndClearStack

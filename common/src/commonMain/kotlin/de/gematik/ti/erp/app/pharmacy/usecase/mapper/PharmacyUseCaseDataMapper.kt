@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.pharmacy.usecase.mapper
 
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirVzdSpecialtyType
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.APOVZD
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.FHIRVZD
@@ -86,6 +86,7 @@ private fun FhirPharmacyErpModel.extractServices(type: PharmacyVzdService): List
                     name = name,
                     openingHours = if (isOpeningHoursPresent) availableTime.toModel() else OpeningHours(emptyMap())
                 )
+
                 FhirVzdSpecialtyType.Shipment -> OnlinePharmacyService(name)
                 else -> null
             }

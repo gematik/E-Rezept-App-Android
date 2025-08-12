@@ -29,7 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.prescription.ui.ScannedCode
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeProcessor
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeScanner

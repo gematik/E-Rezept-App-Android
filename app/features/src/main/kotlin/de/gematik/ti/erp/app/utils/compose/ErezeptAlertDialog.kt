@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,8 +46,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AddTask
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.rounded.Coronavirus
+import androidx.compose.material.icons.rounded.Keyboard
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,7 +58,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -608,6 +612,125 @@ fun ErezeptAlertDialogWithComposableBodyTwoButtonsPreview() {
 
 //endregion
 
+//region Alert dialog with two buttons and composable extra actions and composable body
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ErezeptAlertDialog(
+    modifier: Modifier = Modifier,
+    title: @Composable ColumnScope.() -> Unit,
+    body: @Composable ColumnScope.() -> Unit,
+    actions: @Composable RowScope.() -> Unit = {},
+    confirmButtonTestTag: String = TestTag.AlertDialog.ConfirmButton,
+    dismissButtonTestTag: String = TestTag.AlertDialog.CancelButton,
+    cancelText: String = stringResource(R.string.cancel),
+    okText: String = stringResource(R.string.ok),
+    onDismissRequest: () -> Unit,
+    onConfirmRequest: () -> Unit
+) {
+    BasicAlertDialog(
+        onDismissRequest = onDismissRequest,
+        modifier = modifier
+    ) {
+        Surface(
+            color = MaterialTheme.colors.surface,
+            shape = RoundedCornerShape(SizeDefaults.triple),
+            border = BorderStroke(
+                width = SizeDefaults.eighth,
+                color = AppTheme.colors.neutral400
+            ),
+            contentColor = contentColorFor(MaterialTheme.colors.surface)
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = PaddingDefaults.Large),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                SpacerMedium()
+                title()
+                SpacerMedium()
+                body()
+                SpacerMedium()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    actions()
+                    TextButton(
+                        modifier = Modifier.testTag(dismissButtonTestTag),
+                        onClick = onDismissRequest
+                    ) {
+                        Text(cancelText)
+                    }
+                    TextButton(
+                        modifier = Modifier.testTag(confirmButtonTestTag),
+                        onClick = onConfirmRequest
+                    ) {
+                        Text(okText)
+                    }
+                }
+                SpacerMedium()
+            }
+        }
+    }
+}
+
+@LightDarkPreview
+@Composable
+private fun ErezeptAlertDialogWithNoComposableBodyTwoButtonsWithActionsPreview() {
+    PreviewAppTheme {
+        ErezeptAlertDialog(
+            title = {
+                Text(
+                    "Alert dialog with no composable body and two buttons and extra action"
+                )
+            },
+            body = {},
+            okText = stringResource(R.string.ok),
+            actions = {
+                IconButton({}) {
+                    Icon(Icons.Rounded.Keyboard, null)
+                }
+                Spacer(Modifier.weight(1f))
+            },
+            onDismissRequest = {},
+            onConfirmRequest = {}
+        )
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun ErezeptAlertDialogWithComposableBodyTwoButtonsWithActionsPreview() {
+    PreviewAppTheme {
+        ErezeptAlertDialog(
+            title = {
+                Text("Alert dialog with composable body and two buttons and extra action")
+            },
+            body = {
+                Text(
+                    modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+                    text = "BeispielText"
+                )
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Rounded.Coronavirus, null)
+                }
+            },
+            actions = {
+                IconButton({}) {
+                    Icon(Icons.Rounded.Keyboard, null)
+                }
+                Spacer(Modifier.weight(1f))
+            },
+            onDismissRequest = {},
+            onConfirmRequest = {}
+        )
+    }
+}
+
+//endregion
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun InternalErezeptAlertDialog(

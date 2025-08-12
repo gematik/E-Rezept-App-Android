@@ -33,6 +33,8 @@ import de.gematik.ti.erp.app.fhir.communication.model.CommunicationValueCodingEx
 import de.gematik.ti.erp.app.fhir.communication.model.PayloadForCommunication
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions
 import kotlinx.serialization.json.JsonElement
 
 object CommunicationDispenseRequest {

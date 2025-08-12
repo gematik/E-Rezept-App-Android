@@ -55,8 +55,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.base.ClipBoardCopy
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutesBackStackEntryArguments

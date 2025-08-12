@@ -34,8 +34,9 @@ import de.gematik.ti.erp.app.api.HTTP_UNAUTHORIZED
 import de.gematik.ti.erp.app.idp.usecase.RefreshFlowException
 import de.gematik.ti.erp.app.invoice.mapper.mapUnitToInvoiceError
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
+import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -52,6 +53,7 @@ import java.net.UnknownHostException
 class DeletePrescriptionUseCase(
     private val prescriptionRepository: PrescriptionRepository,
     private val invoiceRepository: InvoiceRepository,
+    private val medicationPlanRepository: MedicationPlanRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     sealed interface DeletePrescriptionState : ErpServiceState {
@@ -91,12 +93,14 @@ class DeletePrescriptionUseCase(
                 // (profile was never connected and has imported/scanned task)
                 prescriptionRepository.deleteLocalTaskById(taskId)
                 invoiceRepository.deleteLocalInvoiceById(taskId)
+                medicationPlanRepository.deleteMedicationSchedule(taskId)
                 DeletePrescriptionState.ValidState.Deleted
             } else {
                 prescriptionRepository
                     .deleteRemoteTaskById(profileId = profileId, taskId = taskId)
                     .fold(
                         onSuccess = {
+                            medicationPlanRepository.deleteMedicationSchedule(taskId)
                             prescriptionRepository.deleteLocalTaskById(taskId)
                             invoiceRepository.deleteRemoteInvoiceById(taskId = taskId, profileId = profileId)
                                 .mapUnitToInvoiceError { invoiceRepository.deleteLocalInvoiceById(taskId) }
@@ -109,6 +113,7 @@ class DeletePrescriptionUseCase(
                                         HttpURLConnection.HTTP_GONE,
                                         HttpURLConnection.HTTP_NOT_FOUND
                                         -> {
+                                            medicationPlanRepository.deleteMedicationSchedule(taskId)
                                             prescriptionRepository.deleteLocalTaskById(taskId)
                                             invoiceRepository.deleteLocalInvoiceById(taskId)
                                             DeletePrescriptionState.ValidState.Deleted

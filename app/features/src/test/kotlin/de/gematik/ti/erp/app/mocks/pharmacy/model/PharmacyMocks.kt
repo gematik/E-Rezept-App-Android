@@ -22,10 +22,10 @@
 
 package de.gematik.ti.erp.app.mocks.pharmacy.model
 
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirContactInformationErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyAddressErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningHoursErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirContactInformationErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyAddressErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
 import de.gematik.ti.erp.app.mocks.order.model.PHARMACY_ID
 import de.gematik.ti.erp.app.mocks.order.model.PHARMACY_NAME
 import de.gematik.ti.erp.app.mocks.order.model.TELEMATIK_ID

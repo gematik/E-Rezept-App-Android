@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.fhir.model
 
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
+import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.parser.containedArray
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedDouble
@@ -39,13 +39,13 @@ import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.not
 import de.gematik.ti.erp.app.fhir.parser.or
 import de.gematik.ti.erp.app.fhir.parser.stringValue
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirContactInformationErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyAddressErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPositionErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirVzdSpecialtyType
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningHoursErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningTimeErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirContactInformationErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyAddressErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPositionErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType
+import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningTimeErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import kotlinx.datetime.DayOfWeek
 import kotlinx.serialization.json.JsonArray
@@ -117,6 +117,7 @@ fun extractPharmacyServices(
                 "MOBL" -> {
                     specialities.add(FhirVzdSpecialtyType.Shipment)
                 }
+
                 "OUTPHARM" -> {
                     specialities.add(FhirVzdSpecialtyType.Pickup)
                 }

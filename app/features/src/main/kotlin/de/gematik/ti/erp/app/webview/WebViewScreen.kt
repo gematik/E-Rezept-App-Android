@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
@@ -54,6 +55,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.updateLayoutParams
 import androidx.webkit.WebViewAssetLoader
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffoldWithScrollState
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 
@@ -77,6 +79,8 @@ fun WebViewScreen(
     AnimatedElevationScaffoldWithScrollState(
         modifier = modifier,
         topBarTitle = title,
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         elevated = scrollState > 0,
         navigationMode = navigationMode,
         bottomBar = {},

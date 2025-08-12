@@ -92,7 +92,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.chuckerteam.chucker.api.Chucker
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.debugsettings.logger.ui.screens.LoggerScreen.LoggerScreen
 import de.gematik.ti.erp.app.debugsettings.navigation.DebugScreenNavigation
 import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.ui.screens.PharmacyServiceSelectionScreen
@@ -351,6 +351,8 @@ fun DebugScreenDirectRedeem(
     AnimatedElevationScaffold(
         navigationMode = NavigationBarMode.Back,
         listState = listState,
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         topBarTitle = "Debug Redeem",
         onBack = onBack
     ) { innerPadding ->
@@ -516,6 +518,8 @@ fun DebugScreenMain(
         AnimatedElevationScaffold(
             modifier = Modifier.testTag(TestTag.DebugMenu.DebugMenuScreen),
             navigationMode = NavigationBarMode.Close,
+            backLabel = stringResource(R.string.back),
+            closeLabel = stringResource(R.string.cancel),
             listState = listState,
             topBarTitle = "Debug Settings",
             snackbarHost = { SnackbarHost(snackbarHostState) },

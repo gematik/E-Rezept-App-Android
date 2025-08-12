@@ -31,7 +31,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.analytics.model.TrackedEvent
 import de.gematik.ti.erp.app.analytics.tracker.Tracker
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.provideWebIntentAsNewTask
 import kotlinx.coroutines.Dispatchers
@@ -51,7 +51,7 @@ class DigaFeedbackPromptScreenController(
 
     private fun trackEvent() {
         viewModelScope.launch(Dispatchers.IO) {
-            tracker.trackEvent(TrackedEvent.DigaFeedbackAccepted)
+            tracker.trackMetric(TrackedEvent.DigaFeedbackAccepted)
         }
     }
 

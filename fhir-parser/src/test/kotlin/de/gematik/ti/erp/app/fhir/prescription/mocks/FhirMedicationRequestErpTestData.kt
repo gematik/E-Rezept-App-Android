@@ -22,12 +22,12 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirQuantityErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirRatioErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskAccidentType
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMultiplePrescriptionInfoErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvMedicationRequestErpModel
-import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirMultiplePrescriptionInfoErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationRequestErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirQuantityErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirRatioErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.datetime.LocalDate
 
 object FhirMedicationRequestErpTestData {

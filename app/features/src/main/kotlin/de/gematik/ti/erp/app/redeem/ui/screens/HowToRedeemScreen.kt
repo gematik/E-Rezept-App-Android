@@ -34,7 +34,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -42,17 +41,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
-import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
-import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemGraphController
+import de.gematik.ti.erp.app.redeem.presentation.rememberHowToRedeemController
 import de.gematik.ti.erp.app.redeem.ui.components.TextFlatButton
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
+import de.gematik.ti.erp.app.utils.SpacerXLarge
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ErezeptText
@@ -61,53 +60,56 @@ import de.gematik.ti.erp.app.utils.compose.ErezeptText.TextAlignment
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
+import androidx.compose.runtime.getValue
 
 class HowToRedeemScreen(
     override val navController: NavController,
-    override val navBackStackEntry: NavBackStackEntry,
-    private val controller: OnlineRedeemGraphController
+    override val navBackStackEntry: NavBackStackEntry
 ) : Screen() {
 
     @Composable
     override fun Content() {
-        val prescriptions by controller.redeemableOrderState
         val listState = rememberLazyListState()
+        val howToRedeemController = rememberHowToRedeemController()
+        val hasEuRedeemablePrescriptions by howToRedeemController.hasEuRedeemablePrescriptions
+
         HowToRedeemScreenScaffold(
             listState = listState,
+            hasEuRedeemablePrescriptions = hasEuRedeemablePrescriptions,
             onLocalClick = { navController.navigate(RedeemRoutes.RedeemLocal.path(taskId = "")) },
-            onOnlineClick = { navController.navigateBasedOnPrescriptionSize(prescriptions.size) },
+            onOnlineClick = {
+                navController.navigate(
+                    RedeemRoutes.RedeemOrderOverviewScreen.path(
+                        pharmacy = null,
+                        orderOption = null,
+                        taskId = null
+                    )
+                )
+            },
             onBack = { navController.popBackStack() }
         )
-    }
-
-    companion object {
-        fun NavController.navigateBasedOnPrescriptionSize(
-            prescriptionSize: Int
-        ) = if (prescriptionSize == 1) {
-            navigate(
-                PharmacyRoutes.PharmacyStartScreenModal.path(taskId = "")
-            )
-        } else {
-            navigate(RedeemRoutes.RedeemOnlinePreferences.route)
-        }
     }
 }
 
 @Composable
 fun HowToRedeemScreenScaffold(
     listState: LazyListState,
+    hasEuRedeemablePrescriptions: Boolean,
     onLocalClick: () -> Unit,
     onOnlineClick: () -> Unit,
     onBack: () -> Unit
 ) {
     AnimatedElevationScaffold(
         topBarTitle = "",
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         navigationMode = NavigationBarMode.Close,
         listState = listState,
         onBack = onBack
     ) {
         HowToRedeemScreenContent(
             listState = listState,
+            hasEuRedeemablePrescriptions = hasEuRedeemablePrescriptions,
             onLocalClick = onLocalClick,
             onOnlineClick = onOnlineClick
         )
@@ -117,6 +119,7 @@ fun HowToRedeemScreenScaffold(
 @Composable
 fun HowToRedeemScreenContent(
     listState: LazyListState,
+    hasEuRedeemablePrescriptions: Boolean,
     onLocalClick: () -> Unit,
     onOnlineClick: () -> Unit
 ) {
@@ -164,9 +167,24 @@ fun HowToRedeemScreenContent(
                 description = stringResource(R.string.order_onb_how_to_online_desc),
                 onClick = onOnlineClick
             )
+
             Spacer(Modifier.navigationBarsPadding())
         }
+
+        if (hasEuRedeemablePrescriptions) {
+            item {
+                SpacerXLarge()
+                Text(
+                    text = stringResource(R.string.eu_prescription_available),
+                    style = AppTheme.typography.subtitle2l,
+                    textAlign = TextAlign.Center,
+                    color = AppTheme.colors.primary700
+                )
+                Spacer(Modifier.navigationBarsPadding())
+            }
+        }
     }
+    SpacerMedium()
 }
 
 @LightDarkPreview
@@ -176,6 +194,7 @@ fun HowToRedeemScaffoldScreenPreview() {
     PreviewAppTheme {
         HowToRedeemScreenScaffold(
             listState = listState,
+            hasEuRedeemablePrescriptions = false,
             onLocalClick = {},
             onOnlineClick = {},
             onBack = {}

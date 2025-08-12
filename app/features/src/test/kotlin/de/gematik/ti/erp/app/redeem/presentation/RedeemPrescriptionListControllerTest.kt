@@ -502,7 +502,7 @@ class RedeemPrescriptionListControllerTest {
         private val directRedeemArguments = PrescriptionRedeemArguments.DirectRedemptionArguments(
             orderId = orderId,
             prescriptionOrderInfos = prescriptionsForOrders,
-            redeemOption = PharmacyScreenData.OrderOption.PickupService,
+            redeemOption = PharmacyScreenData.OrderOption.Pickup,
             pharmacy = pharmacy,
             contact = contact
         )
@@ -511,7 +511,7 @@ class RedeemPrescriptionListControllerTest {
             profile = MODEL_PROFILE,
             orderId = orderId,
             prescriptionOrderInfos = prescriptionsForOrders,
-            redeemOption = PharmacyScreenData.OrderOption.PickupService,
+            redeemOption = PharmacyScreenData.OrderOption.Pickup,
             pharmacy = pharmacy,
             contact = contact
         )

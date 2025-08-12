@@ -32,10 +32,10 @@ fun TaskContainer.generateSchemaMigrationsFile() {
         description = "Generates a markdown file with schema migration history and commits it to the repo."
 
         val schemaSourceFile = project.rootProject
-            .file("common/src/commonMain/kotlin/de/gematik/ti/erp/app/db/SchemaVersion.kt")
+            .file("database/src/commonMain/kotlin/de/gematik/ti/erp/app/database/realm/v1/migrations/SchemaVersion.kt")
 
         val outputFile = project.rootProject
-            .file("common/build/schema/schema_migrations.md")
+            .file("database/build/schema/schema_migrations.md")
 
         doLast {
             println("✅ Running schema migration generator")

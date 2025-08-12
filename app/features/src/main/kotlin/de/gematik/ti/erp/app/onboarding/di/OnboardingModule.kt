@@ -44,7 +44,6 @@ val onboardingModule = DI.Module("onboardingModule") {
             instance(),
             instance(),
             instance(),
-            instance(),
             instance()
         )
     }

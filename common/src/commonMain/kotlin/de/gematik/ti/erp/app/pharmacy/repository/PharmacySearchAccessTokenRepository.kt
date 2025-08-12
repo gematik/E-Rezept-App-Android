@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
-import de.gematik.ti.erp.app.db.entities.v1.pharmacy.SearchAccessTokenEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.pharmacy.SearchAccessTokenEntityV1
 import de.gematik.ti.erp.app.pharmacy.api.model.SearchAccessTokenResponse
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.flow.Flow

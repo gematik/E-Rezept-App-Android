@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.messages.repository
 
-import de.gematik.ti.erp.app.db.entities.v1.InternalMessageEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.InternalMessageEntityV1
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.Sort
@@ -44,8 +44,7 @@ class InternalMessagesLocalDataSource(
                 Sort.DESCENDING
             )
             .asFlow()
-            .map {
-                    internalMessages ->
+            .map { internalMessages ->
                 internalMessages.list
             }
             .flowOn(dispatchers)
@@ -64,8 +63,7 @@ class InternalMessagesLocalDataSource(
                 Sort.DESCENDING
             )
             .asFlow()
-            .map {
-                    internalMessages ->
+            .map { internalMessages ->
                 internalMessages.list.firstOrNull()?.version
             }
             .flowOn(dispatchers)

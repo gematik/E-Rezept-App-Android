@@ -63,7 +63,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.orderhealthcard.navigation.OrderHealthCardRoutes
 import de.gematik.ti.erp.app.orderhealthcard.navigation.OrderHealthCardScreen
 import de.gematik.ti.erp.app.orderhealthcard.presentation.HealthInsuranceCompany
@@ -146,6 +146,8 @@ private fun OrderHealthCardSelectInsuranceCompanyScreenScaffold(
 ) {
     AnimatedElevationScaffold(
         listState = listState,
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         modifier = Modifier.testTag(TestTag.Settings.OrderEgk.OrderEgkScreen),
         topBarTitle = stringResource(R.string.health_insurance_search_page_title),
         navigationMode = NavigationBarMode.Back,

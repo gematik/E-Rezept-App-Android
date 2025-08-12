@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.profiles.usecase
 
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.model.PairedDevice
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

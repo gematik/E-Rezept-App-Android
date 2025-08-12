@@ -37,16 +37,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.redeem.model.RedeemEventModel
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.SpacerMedium
-import de.gematik.ti.erp.app.utils.SpacerXLarge
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonLarge
 
 // A composable button that can handle the redemption process and gives the user feedback about the process
 @Composable
 fun RedeemButton(
+    modifier: Modifier = Modifier,
     isEnabled: Boolean,
     processStateEvent: RedeemEventModel.ProcessStateEvent,
     onClickRedeem: () -> Unit
@@ -67,8 +66,7 @@ fun RedeemButton(
         modifier = Modifier.fillMaxWidth(),
         elevation = SizeDefaults.half
     ) {
-        Column(Modifier.navigationBarsPadding()) {
-            SpacerMedium()
+        Column(modifier.navigationBarsPadding()) {
             PrimaryButtonLarge(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
@@ -78,7 +76,6 @@ fun RedeemButton(
             ) {
                 Text(stringResource(R.string.pharmacy_order_send))
             }
-            SpacerXLarge()
         }
     }
 }

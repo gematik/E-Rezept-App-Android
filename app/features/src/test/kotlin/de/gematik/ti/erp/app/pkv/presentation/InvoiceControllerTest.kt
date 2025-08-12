@@ -25,9 +25,10 @@ package de.gematik.ti.erp.app.pkv.presentation
 import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
+import de.gematik.ti.erp.app.fhir.temporal.Year
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
-import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.invoice.model.InvoiceResult.InvoiceError
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.invoice.usecase.DeleteAllLocalInvoices
@@ -41,7 +42,7 @@ import de.gematik.ti.erp.app.mocks.invoice.model.mockPkvInvoiceRecord
 import de.gematik.ti.erp.app.mocks.invoice.model.mockedInvoiceChargeItemBundle
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
 import de.gematik.ti.erp.app.pkv.usecase.ShareInvoiceUseCase
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
@@ -169,7 +170,7 @@ class InvoiceControllerTest : TestWatcher() {
         coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPkvInvoiceRecord()))
         coEvery { invoiceRepository.deleteLocalInvoiceById(TASK_ID) } returns Unit
 
-        val result = mapOf(de.gematik.ti.erp.app.fhir.parser.Year(2024) to listOf(mockPkvInvoiceRecord()))
+        val result = mapOf(Year(2024) to listOf(mockPkvInvoiceRecord()))
         testScope.runTest {
             advanceUntilIdle()
             val item = controllerUnderTest.invoices.first()

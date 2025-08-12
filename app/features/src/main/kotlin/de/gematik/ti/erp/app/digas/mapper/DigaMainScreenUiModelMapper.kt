@@ -22,9 +22,9 @@
 
 package de.gematik.ti.erp.app.digas.mapper
 
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.digas.ui.model.DigaMainScreenUiModel
 import de.gematik.ti.erp.app.digas.ui.model.DigaTimestamps
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import kotlinx.datetime.TimeZone
 

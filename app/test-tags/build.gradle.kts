@@ -1,8 +1,8 @@
 import de.gematik.ti.erp.app.plugins.names.AppDependencyNamesPlugin
 
 plugins {
-    id("base-android-library")
-    id("de.gematik.ti.erp.names")
+    alias(libs.plugins.base.android.library)
+    alias(libs.plugins.module.names)
     alias(libs.plugins.compose.compiler)
 }
 

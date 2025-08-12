@@ -24,13 +24,13 @@ package de.gematik.ti.erp.app.fhir.communication.parser
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.BundleParser
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirCommunicationBundleErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.FhirCommunicationBundleErpModel
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundle.Companion.getBundleEntries
-import de.gematik.ti.erp.app.fhir.communication.FhirCommunicationVersions
+import de.gematik.ti.erp.app.fhir.communication.model.FhirCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.original.CommunicationProfileType
 import de.gematik.ti.erp.app.fhir.communication.model.original.FhirCommunicationResourceType.FhirCommunication
 import de.gematik.ti.erp.app.fhir.communication.model.original.FhirCommunicationResourceType.FhirCommunication.Companion.getCommunication
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement
 

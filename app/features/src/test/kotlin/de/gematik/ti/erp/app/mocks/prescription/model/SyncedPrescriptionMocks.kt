@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.mocks.prescription.model
 
-import de.gematik.ti.erp.app.db.entities.v1.task.TaskStatusV1
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.TaskStatusV1
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
 import de.gematik.ti.erp.app.mocks.DATE_3024_01_01
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData

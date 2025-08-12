@@ -43,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -57,13 +58,13 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.authentication.presentation.deviceStrongBoxStatus
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallScreen
-import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
+import de.gematik.ti.erp.app.cardwall.presentation.CardWallSharedViewModel
 import de.gematik.ti.erp.app.cardwall.presentation.SaveCredentialsController
 import de.gematik.ti.erp.app.cardwall.presentation.rememberSaveCredentialsScreenController
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallSaveCredentialsInfoPreviewParameterProvider
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallSaveCredentialsInfoScreenPreviewData
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -85,14 +86,14 @@ import kotlinx.coroutines.launch
 class CardWallSaveCredentialsInfoScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry,
-    override val graphController: CardWallGraphController
+    override val sharedViewModel: CardWallSharedViewModel
 ) : CardWallScreen() {
     @Composable
     override fun Content() {
         val saveCredentialsController = rememberSaveCredentialsScreenController()
         val scope = rememberCoroutineScope()
         val listState = rememberLazyListState()
-        val saveCredentials by graphController.saveCredentials.collectAsStateWithLifecycle()
+        val saveCredentials by sharedViewModel.saveCredentials.collectAsStateWithLifecycle()
         val context = LocalContext.current
         val activity = LocalActivity.current
         val biometricManager = BiometricManager.from(activity)
@@ -108,22 +109,19 @@ class CardWallSaveCredentialsInfoScreen(
                         aliasToByteArray(it.aliasOfSecureElementEntry)
                     )
                 }
-                graphController.setSaveCredentials(null)
+                sharedViewModel.setSaveCredentials(null)
             }
         }
-        BackHandler {
-            navController.popBackStack()
-        }
+        val onBack by rememberUpdatedState { navController.popBackStack() }
+        BackHandler { onBack() }
         CardWallSaveCredentialsInfoScreenScaffold(
-            onBack = {
-                navController.popBackStack()
-            },
+            onBack = { onBack() },
             onAccept = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     scope.launch {
                         when (val r = saveCredentialsController.initializeAndPrompt(useStrongBox = useStrongBox)) {
                             is SaveCredentialsController.AuthResult.Initialized -> {
-                                graphController.setSaveCredentials(r)
+                                sharedViewModel.setSaveCredentials(r)
                                 navController.navigate(
                                     CardWallRoutes.CardWallReadCardScreen.path(),
                                     navOptions = navOptions {
@@ -133,12 +131,12 @@ class CardWallSaveCredentialsInfoScreen(
                             }
 
                             else -> {
-                                navController.popBackStack()
+                                onBack()
                             }
                         }
                     }
                 } else {
-                    navController.popBackStack()
+                    onBack()
                 }
             },
             listState = listState
@@ -220,6 +218,8 @@ fun CardWallSaveCredentialsInfoScreenScaffold(
         topBarColor = MaterialTheme.colors.background,
         listState = listState,
         navigationMode = NavigationBarMode.Close,
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         bottomBar = {
             CardWallSaveCredentialsInfoScreenBottomBar(
                 onNext = onAccept

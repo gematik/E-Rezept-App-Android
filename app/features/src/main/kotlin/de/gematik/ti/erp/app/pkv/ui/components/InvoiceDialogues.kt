@@ -26,7 +26,7 @@ package de.gematik.ti.erp.app.pkv.ui.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog

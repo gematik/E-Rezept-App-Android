@@ -73,7 +73,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.cardwall.usecase.model.NfcPositionUseCaseData
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerTiny
@@ -118,7 +118,12 @@ fun ReadCardScreenScaffold(
                     title = {},
                     backgroundColor = MaterialTheme.colors.background,
                     modifier = Modifier,
-                    navigationIcon = { NavigateBackButton { onBack() } },
+                    navigationIcon = {
+                        NavigateBackButton(
+                            contentDescription = stringResource(R.string.back),
+                            onClick = onBack
+                        )
+                    },
                     actions = { TroubleShootingButton(onTroubleshooting = onClickTroubleshooting) }
                 )
             }
@@ -213,30 +218,39 @@ private fun ReadCardScreenContent(
                 nfcXPos < LowerPos && nfcYPos < LowerPos -> stringResource(
                     R.string.nfc_instruction_chip_location_top_left
                 )
+
                 nfcXPos < LowerPos && nfcYPos in PosRange -> stringResource(
                     R.string.nfc_instruction_chip_location_middle_left
                 )
+
                 nfcXPos < LowerPos && nfcYPos > HigherPos -> stringResource(
                     R.string.nfc_instruction_chip_location_bot_left
                 )
+
                 nfcXPos in PosRange && nfcYPos < LowerPos -> stringResource(
                     R.string.nfc_instruction_chip_location_top_central
                 )
+
                 nfcXPos in PosRange && nfcYPos in PosRange -> stringResource(
                     R.string.nfc_instruction_chip_location_middle
                 )
+
                 nfcXPos in PosRange && nfcYPos > HigherPos -> stringResource(
                     R.string.nfc_instruction_chip_location_bot_central
                 )
+
                 nfcXPos > HigherPos && nfcYPos < LowerPos -> stringResource(
                     R.string.nfc_instruction_chip_location_top_right
                 )
+
                 nfcXPos > HigherPos && nfcYPos in PosRange -> stringResource(
                     R.string.nfc_instruction_chip_location_middle_right
                 )
+
                 nfcXPos > HigherPos && nfcYPos > HigherPos -> stringResource(
                     R.string.nfc_instruction_chip_location_bot_right
                 )
+
                 else -> ""
             }
             AnimatedVisibility(

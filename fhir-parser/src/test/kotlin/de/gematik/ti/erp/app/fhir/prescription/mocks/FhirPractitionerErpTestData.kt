@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvPractitionerErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvPractitionerErpModel
 
 object FhirPractitionerErpTestData {
     val erpPractitioner1_v103 = FhirTaskKbvPractitionerErpModel(

@@ -43,13 +43,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.debugsettings.timeout.intent.restartApp
 import de.gematik.ti.erp.app.debugsettings.timeout.ui.MetricChangeDialog
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.timeouts.presentation.TimeoutsError
@@ -85,6 +86,8 @@ object DebugTimeoutScreen {
 
         AnimatedElevationScaffold(
             topBarTitle = "Timeout settings",
+            backLabel = stringResource(R.string.back),
+            closeLabel = stringResource(R.string.cancel),
             actions = {},
             listState = listState,
             onBack = onBack

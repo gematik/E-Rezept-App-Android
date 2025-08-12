@@ -25,17 +25,16 @@ package de.gematik.ti.erp.app.prescription.detail.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import de.gematik.ti.erp.app.base.presentation.GetActiveProfileController
-import de.gematik.ti.erp.app.featuretoggle.datasource.FeatureToggleDataStore
-import de.gematik.ti.erp.app.featuretoggle.datasource.Features
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
-import de.gematik.ti.erp.app.medicationplan.usecase.LoadMedicationScheduleByTaskIdUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.GetMedicationScheduleByTaskIdUseCase
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.usecase.DeletePrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetPrescriptionByTaskIdUseCase
 import de.gematik.ti.erp.app.prescription.usecase.RedeemScannedTaskUseCase
+import de.gematik.ti.erp.app.prescription.usecase.UpdateEuRedeemableStatusUseCase
 import de.gematik.ti.erp.app.prescription.usecase.UpdateScannedTaskNameUseCase
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profiles.presentation.GetActiveProfileController
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.utils.uistate.UiState
@@ -51,13 +50,13 @@ import org.kodein.di.compose.rememberInstance
 @Stable
 class PrescriptionDetailController(
     getActiveProfileUseCase: GetActiveProfileUseCase,
-    featureToggleDataStore: FeatureToggleDataStore,
     private val taskId: String,
     private val redeemScannedTaskUseCase: RedeemScannedTaskUseCase,
     private val deletePrescriptionUseCase: DeletePrescriptionUseCase,
-    private val loadMedicationScheduleByTaskIdUseCase: LoadMedicationScheduleByTaskIdUseCase,
+    private val loadMedicationScheduleByTaskIdUseCase: GetMedicationScheduleByTaskIdUseCase,
     private val getPrescriptionByTaskIdUseCase: GetPrescriptionByTaskIdUseCase,
     private val updateScannedTaskNameUseCase: UpdateScannedTaskNameUseCase,
+    private val updateEuRedeemableStatusUseCase: UpdateEuRedeemableStatusUseCase,
     private val _profilePrescription:
         MutableStateFlow<UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>> =
             MutableStateFlow(UiState.Loading()),
@@ -97,13 +96,16 @@ class PrescriptionDetailController(
         _prescriptionDeleted
     }
 
-    val isMedicationPlanEnabled: StateFlow<Boolean> =
-        featureToggleDataStore.isFeatureEnabled(Features.MEDICATION_PLAN)
-            .stateIn(
-                controllerScope,
-                SharingStarted.WhileSubscribed(),
-                false
-            )
+    @Deprecated(
+        message = "FOR TESTING ONLY: Will be removed when real backend EU-flag is available",
+        level = DeprecationLevel.WARNING
+    )
+    fun updateEuRedeemableStatus(taskId: String, isEuRedeemable: Boolean) {
+        controllerScope.launch {
+            updateEuRedeemableStatusUseCase(taskId, isEuRedeemable)
+            refreshActiveProfile()
+        }
+    }
 
     fun redeemScannedTask(
         taskId: String,
@@ -155,10 +157,10 @@ fun rememberPrescriptionDetailController(taskId: String): PrescriptionDetailCont
     val getPrescriptionByTaskIdUseCase by rememberInstance<GetPrescriptionByTaskIdUseCase>()
     val redeemScannedTaskUseCase by rememberInstance<RedeemScannedTaskUseCase>()
     val deletePrescriptionUseCase by rememberInstance<DeletePrescriptionUseCase>()
-    val loadMedicationScheduleByTaskIdUseCase by rememberInstance<LoadMedicationScheduleByTaskIdUseCase>()
+    val loadMedicationScheduleByTaskIdUseCase by rememberInstance<GetMedicationScheduleByTaskIdUseCase>()
     val updateScannedTaskNameUseCase by rememberInstance<UpdateScannedTaskNameUseCase>()
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
-    val featureToggleDataStore by rememberInstance<FeatureToggleDataStore>()
+    val updateEuRedeemableStatusUseCase by rememberInstance<UpdateEuRedeemableStatusUseCase>()
     return remember {
         PrescriptionDetailController(
             taskId = taskId,
@@ -168,7 +170,7 @@ fun rememberPrescriptionDetailController(taskId: String): PrescriptionDetailCont
             loadMedicationScheduleByTaskIdUseCase = loadMedicationScheduleByTaskIdUseCase,
             updateScannedTaskNameUseCase = updateScannedTaskNameUseCase,
             getActiveProfileUseCase = getActiveProfileUseCase,
-            featureToggleDataStore = featureToggleDataStore
+            updateEuRedeemableStatusUseCase = updateEuRedeemableStatusUseCase
         )
     }
 }

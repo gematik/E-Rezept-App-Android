@@ -24,8 +24,8 @@ package de.gematik.ti.erp.app.protocol.usecase
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import de.gematik.ti.erp.app.fhir.audit.model.erp.FhirAuditEventErpModel
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.fhir.audit.model.FhirAuditEventErpModel
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.protocol.model.AuditEventPagingKey
 import de.gematik.ti.erp.app.protocol.repository.AuditEventsRepository
 import kotlin.math.max

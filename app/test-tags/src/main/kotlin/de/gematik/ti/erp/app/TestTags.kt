@@ -213,6 +213,8 @@ object TestTag {
             val Screen by tagName()
 
             val PrescriptionSelectionButton by tagName()
+            val PharmacySelectionButton by tagName()
+            val ContactSelectionButton by tagName()
 
             val SendOrderButton by tagName()
         }
@@ -456,6 +458,7 @@ object TestTag {
             val CANScreen by tagName()
             val CANField by tagName()
             val OrderEgkButton by tagName()
+            val ScanCardButton by tagName()
         }
 
         object PIN {

@@ -23,12 +23,12 @@
 package de.gematik.ti.erp.app.pkv.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.pkv.ui.preview.InvoiceLocalCorrectionScreenPreviewData.pkvInvoiceRecord
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.utils.asFhirTemporal
 import kotlinx.datetime.Instant
 
 class InvoiceLocalCorrectionScreenPreviewParameterProvider : PreviewParameterProvider<InvoiceData.PKVInvoiceRecord?> {

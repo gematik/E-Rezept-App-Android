@@ -24,8 +24,7 @@ package de.gematik.ti.erp.app.fhir.prescription.parser
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.BundleParser
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskEntryParserResultErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskEntryDataErpModel
+import de.gematik.ti.erp.app.fhir.FhirTaskEntryParserResultErpModel
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundle.Companion.getBundleEntries
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundle.Companion.getBundleLinks
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundleLink.Companion.firstPage
@@ -36,8 +35,9 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundleMetaProfile.Co
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundleTaskData.Companion.getTaskData
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier.Companion.findPrescriptionId
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirTaskResource.Companion.getResourceIdentifiers
-import de.gematik.ti.erp.app.fhir.model.TaskStatus
-import de.gematik.ti.erp.app.utils.toFhirTemporal
+import de.gematik.ti.erp.app.fhir.support.FhirTaskEntryDataErpModel
+import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
+import de.gematik.ti.erp.app.task.model.TaskStatus
 import kotlinx.serialization.json.JsonElement
 
 /**

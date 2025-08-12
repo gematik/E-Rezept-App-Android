@@ -40,6 +40,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
@@ -63,7 +64,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.toSize
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.material.BottomSheetNavigator
@@ -71,9 +71,10 @@ import com.google.accompanist.navigation.material.ExperimentalMaterialNavigation
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.analytics.CardCommunicationAnalytics
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
 import de.gematik.ti.erp.app.base.BaseActivity
+import de.gematik.ti.erp.app.base.dialog.observer.LocalDialogVisibilityObserver
+import de.gematik.ti.erp.app.base.dialog.provider.DialogVisibilityProviderHolder
 import de.gematik.ti.erp.app.base.falseStateFlow
 import de.gematik.ti.erp.app.demomode.DemoModeIntent
 import de.gematik.ti.erp.app.demomode.startAppWithNormalMode
@@ -119,65 +120,54 @@ val LocalNavController =
 fun AppContent(
     content: @Composable () -> Unit
 ) {
-    var isAppInBackground by remember { mutableStateOf(false) }
     val settingsController = rememberSettingsController()
     val zoomState by settingsController.zoomState.collectAsStateWithLifecycle()
 
-    AppTheme {
-        val systemUiController = rememberSystemUiController()
-        val useDarkIcons = MaterialTheme.colors.isLight
-        val activity = LocalActivity.current as? BaseActivity
-        val isZoomDisabledTemporarily by activity?.disableZoomTemporarily?.collectAsState() ?: falseStateFlow
+    CompositionLocalProvider(
+        LocalDialogVisibilityObserver provides DialogVisibilityProviderHolder.provider
+    ) {
+        AppTheme {
+            val systemUiController = rememberSystemUiController()
+            val useDarkIcons = MaterialTheme.colors.isLight
+            val activity = LocalActivity.current as? BaseActivity
+            val isZoomDisabledTemporarily by activity?.disableZoomTemporarily?.collectAsState() ?: falseStateFlow
 
-        SideEffect {
-            systemUiController.setSystemBarsColor(Color.Transparent, darkIcons = useDarkIcons)
-        }
-        LifecycleEventObserver { event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME, Lifecycle.Event.ON_START -> {
-                    isAppInBackground = false
-                }
+            val isDialogVisible by LocalDialogVisibilityObserver.current.isVisible().collectAsState()
 
-                Lifecycle.Event.ON_PAUSE, Lifecycle.Event.ON_STOP -> {
-                    isAppInBackground = true
-                }
-
-                else -> {
-                    // do nothing
-                }
+            SideEffect {
+                systemUiController.setSystemBarsColor(Color.Transparent, darkIcons = useDarkIcons)
             }
-        }
-        checkForDemoMode(
-            demoModeStatusBarColor = AppTheme.colors.yellow500,
-            demoModeContent = {
-                DemoModeStatusBar(
-                    modifier = Modifier.fillMaxWidth(),
-                    backgroundColor = AppTheme.colors.yellow500,
-                    textColor = AppTheme.colors.neutral900,
-                    demoModeActiveText = stringResource(R.string.demo_mode_text),
-                    demoModeEndText = stringResource(R.string.demo_mode_cancel_button_text),
-                    onClickDemoModeEnd = { activity?.let { DemoModeIntent.startAppWithNormalMode<MainActivity>(it) } }
-                )
-            },
-            appContent = {
-                Box(
-                    modifier = Modifier
-                        .switchBlur(isAppInBackground)
-                        .zoomable(enabled = zoomState.zoomEnabled && !isZoomDisabledTemporarily)
-                ) {
-                    content()
+            checkForDemoMode(
+                demoModeStatusBarColor = AppTheme.colors.yellow500,
+                demoModeContent = {
+                    DemoModeStatusBar(
+                        modifier = Modifier.fillMaxWidth(),
+                        backgroundColor = AppTheme.colors.yellow500,
+                        textColor = AppTheme.colors.neutral900,
+                        demoModeActiveText = stringResource(R.string.demo_mode_text),
+                        demoModeEndText = stringResource(R.string.demo_mode_cancel_button_text),
+                        onClickDemoModeEnd = { activity?.let { DemoModeIntent.startAppWithNormalMode<MainActivity>(it) } }
+                    )
+                },
+                appContent = {
+                    Box(
+                        modifier = Modifier
+                            .switchBlur(isDialogVisible)
+                            .zoomable(enabled = zoomState.zoomEnabled && !isZoomDisabledTemporarily)
+                    ) {
+                        content()
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }
 
 @Suppress("MagicNumber", "UnusedPrivateMember")
-private fun Modifier.switchBlur(isAppInBackground: Boolean) = this.then(
+private fun Modifier.switchBlur(isBlurToBeEnabled: Boolean) = this.then(
     Modifier
-        .blur(if (isAppInBackground) SizeDefaults.sixfoldAndQuarter else SizeDefaults.zero)
-        .graphicsLayer { alpha = if (isAppInBackground) 0.5f else 1f }
-        .background(if (isAppInBackground) Color.Gray.copy(alpha = 0.5f) else Color.Transparent)
+        .blur(if (isBlurToBeEnabled) SizeDefaults.quarter else SizeDefaults.zero)
+        .background(if (isBlurToBeEnabled) Color.Gray.copy(alpha = 0.5f) else Color.Transparent)
 )
 
 private fun Modifier.zoomable(

@@ -22,11 +22,11 @@
 
 package de.gematik.ti.erp.app.fhir.dispense.model.original
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirMedicationBatch
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirCodeableConcept
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirCodeableConcept.Companion.getCodingByUrl
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension.Companion.findExtensionByUrl
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirMedicationBatch
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatio.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants
@@ -43,23 +43,24 @@ import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicatio
 import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicationConstants.getEpaVaccine
 import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicationConstants.getNormSizeCode
 import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicationConstants.getVaccine
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.CompoundingContextualData
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.DispensedEpaMedicationErpModel
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.DispensedIngredientMedicationErpModel
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.DispensedMedicationErpModel
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.DispensedPznMedicationErpModel
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.EpaContextualData
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirDispensedCompoundingMedicationErpModel
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirDispensedFreeTextMedicationErpModel
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.IngredientContextualData
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.PznContextualData
+import de.gematik.ti.erp.app.fhir.dispense.model.CompoundingContextualData
+import de.gematik.ti.erp.app.fhir.dispense.model.DispensedEpaMedicationErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.DispensedIngredientMedicationErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.DispensedMedicationErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.DispensedPznMedicationErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.EpaContextualData
+import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispensedCompoundingMedicationErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispensedFreeTextMedicationErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.IngredientContextualData
+import de.gematik.ti.erp.app.fhir.dispense.model.PznContextualData
 import de.gematik.ti.erp.app.fhir.dispense.model.erp.toCategoryVersionMapper
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMedicationIdentifierErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMedicationIngredientErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseMedicationModel.Companion.inferMedicationTypeOnUnknown
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationAmount
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationAmount.Companion.getRatio102
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationAmount.Companion.getRatio110
 import de.gematik.ti.erp.app.fhir.serializer.SafeFhirIngredientListSerializer
+import de.gematik.ti.erp.app.fhir.support.FhirMedicationIdentifierErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirMedicationIngredientErpModel
 import de.gematik.ti.erp.app.utils.ParserUtil.asFhirTemporal
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -122,6 +123,7 @@ internal data class FhirMedicationDispenseMedicationModel(
                 FhirMedicationDispenseConstants.DispenseMedicationReducedVersion.V_1_1_0 -> amount?.getRatio110()
                 FhirMedicationDispenseConstants.DispenseMedicationReducedVersion.V_1_0_2,
                 FhirMedicationDispenseConstants.DispenseMedicationReducedVersion.V_1_4 -> amount?.getRatio102()
+
                 null -> null
             }
 
@@ -153,23 +155,23 @@ internal data class FhirMedicationDispenseMedicationModel(
 
         private fun FhirMedicationDispenseMedicationModel.getMedicationType(): DispenseMedicationType {
             val types = meta?.profiles?.getOrNull(0)?.split("|")
-            return types?.getOrNull(0)?.toDispenseMedicationType() ?: FhirMedicationDispenseConstants.DispenseMedicationType.Unknown
+            return types?.getOrNull(0)?.toDispenseMedicationType() ?: DispenseMedicationType.Unknown
         }
 
         private fun FhirMedicationDispenseMedicationModel.inferMedicationTypeOnUnknown(): DispenseMedicationType? {
             return when {
-                code?.getCodingByUrl(FhirConstants.PZN_IDENTIFIER) != null -> FhirMedicationDispenseConstants.DispenseMedicationType.Pzn
+                code?.getCodingByUrl(FhirConstants.PZN_IDENTIFIER) != null -> DispenseMedicationType.Pzn
 
                 ingredients.any { it is FhirCodeableIngredient } &&
-                    extensions.getCompoundingInstructions() != null -> FhirMedicationDispenseConstants.DispenseMedicationType.Compounding
+                    extensions.getCompoundingInstructions() != null -> DispenseMedicationType.Compounding
 
-                ingredients.any { it is FhirCodeableIngredient } -> FhirMedicationDispenseConstants.DispenseMedicationType.Ingredient
+                ingredients.any { it is FhirCodeableIngredient } -> DispenseMedicationType.Ingredient
 
                 code?.text != null &&
                     code.coding.isNullOrEmpty() &&
-                    ingredients.isEmpty() -> FhirMedicationDispenseConstants.DispenseMedicationType.FreeText
+                    ingredients.isEmpty() -> DispenseMedicationType.FreeText
 
-                medications.any { it.resourceType == "Medication" } -> FhirMedicationDispenseConstants.DispenseMedicationType.EpaTypeI
+                medications.any { it.resourceType == "Medication" } -> DispenseMedicationType.EpaTypeI
 
                 else -> null
             }

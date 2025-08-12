@@ -32,10 +32,11 @@ import de.gematik.ti.erp.app.fhir.parser.filterWith
 import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.parser.stringValue
-import de.gematik.ti.erp.app.utils.FhirTemporal
-import de.gematik.ti.erp.app.utils.asFhirInstant
-import de.gematik.ti.erp.app.utils.asFhirLocalDate
-import de.gematik.ti.erp.app.utils.toFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.asFhirInstant
+import de.gematik.ti.erp.app.fhir.temporal.asFhirLocalDate
+import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
+import de.gematik.ti.erp.app.task.model.TaskStatus
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive

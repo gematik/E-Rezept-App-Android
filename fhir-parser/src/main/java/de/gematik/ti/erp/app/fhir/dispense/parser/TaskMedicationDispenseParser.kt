@@ -24,16 +24,16 @@ package de.gematik.ti.erp.app.fhir.dispense.parser
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.BundleParser
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirMedicationDispenseErpModelCollection
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirMedicationDispenseErpModelCollection.Companion.toCollection
+import de.gematik.ti.erp.app.fhir.FhirMedicationDispenseErpModelCollection
+import de.gematik.ti.erp.app.fhir.FhirMedicationDispenseErpModelCollection.Companion.toCollection
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension.Companion.findExtensionByUrl
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirResourceBundle.Companion.parseResourceBundle
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirResourceEntry
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.DIGA_DEEP_LINK
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.DIGA_REDEEM_CODE
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirDispenseDeviceRequestErpModel
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirMedicationDispenseErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispenseDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.FhirMedicationDispenseErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMediationDispenseResourceType.Medication
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMediationDispenseResourceType.MedicationDispense
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseLegacyModel.Companion.getMedicationDispenseLegacy

@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.digas.domain.usecase
 
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher

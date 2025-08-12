@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.cardwall.ui.screens
 
+import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallGidHelpScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
 import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
 import org.junit.Test
@@ -29,8 +30,11 @@ import org.junit.Test
 class CardWallGidHelpScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(config) {
     @Test
     fun screenShotTest() {
-        paparazzi.snapshot {
-            CardWallGidHelpScreenScaffoldPreview()
+        val parameters = CardWallGidHelpScreenPreviewParameterProvider().values.toList()
+        parameters.forEach { previewData ->
+            paparazzi.snapshot(previewData.name) {
+                CardWallGidHelpScreenPreview(previewData)
+            }
         }
     }
 }

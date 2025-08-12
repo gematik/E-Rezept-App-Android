@@ -34,7 +34,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingBottomBar
 import de.gematik.ti.erp.app.settings.presentation.rememberAnalyticsSettingsController
@@ -75,6 +75,8 @@ class SettingsAllowAnalyticsScreen(
             modifier = Modifier.navigationBarsPadding(),
             navigationMode = NavigationBarMode.Back,
             topBarTitle = topBarTitle,
+            backLabel = stringResource(R.string.back),
+            closeLabel = stringResource(R.string.cancel),
             onBack = {
                 settingsController.changeAnalyticsAllowedState(false)
                 context.shortToast(disallowText)

@@ -48,8 +48,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.appsecurity.presentation.rememberInsecureDeviceController
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
 import de.gematik.ti.erp.app.onboarding.presentation.rememberOnboardingController
@@ -89,6 +89,8 @@ class InsecureDeviceScreen(
         AnimatedElevationScaffold(
             listState = listState,
             navigationMode = NavigationBarMode.Close,
+            backLabel = stringResource(R.string.back),
+            closeLabel = stringResource(R.string.cancel),
             bottomBar = {
                 BottomAppBar(backgroundColor = MaterialTheme.colors.surface) {
                     Spacer(modifier = Modifier.weight(1f))

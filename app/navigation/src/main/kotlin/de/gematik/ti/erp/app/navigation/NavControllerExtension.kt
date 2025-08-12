@@ -52,27 +52,3 @@ fun NavController.navigateAndClearStack(
         }
     }
 }
-
-/**
- * [navigateAsSingleScreen] navigates to the given [route]
- * @param route The route to be navigated to.
- * restoreState If true, the state of the destination will be restored
- * launchSingleTop If true, and the destination is on the top of the back stack, this destination
- */
-fun NavController.navigateAsSingleScreen(route: String) {
-    navigate(route = route) {
-        launchSingleTop = true
-        restoreState = true
-    }
-}
-
-fun NavController.replaceRoute(currentRoute: String, newRoute: String) {
-    // Pop up to the current route if it exists
-    if (this.currentDestination?.route == currentRoute) {
-        this.popBackStack()
-    } else {
-        this.popBackStack(currentRoute, inclusive = true)
-    }
-    // Navigate to the new route
-    this.navigate(newRoute)
-}

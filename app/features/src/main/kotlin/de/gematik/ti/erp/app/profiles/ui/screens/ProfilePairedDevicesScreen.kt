@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.profiles.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,6 +49,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
@@ -59,11 +61,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
 import de.gematik.ti.erp.app.authentication.ui.components.AuthenticationFailureDialog
-import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
-import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallIntroScreen
 import de.gematik.ti.erp.app.core.LocalIntentHandler
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.onReturnAction
 import de.gematik.ti.erp.app.profiles.model.ProfilePairedDevicesErrorState
@@ -105,31 +106,14 @@ class ProfilePairedDevicesScreen(
         val deleteDeviceEvent = ComposableEvent<PairedDevice>()
 
         val controller = rememberProfilePairedDevicesScreenController(profileId)
-
+        val activeProfile by controller.activeProfile.collectAsStateWithLifecycle()
         val pairedDevicesState by controller.pairedDevices.collectAsStateWithLifecycle()
-
+        val onBack by rememberUpdatedState { navController.popBackStack() }
         navBackStackEntry.onReturnAction(ProfileRoutes.ProfilePairedDevicesScreen) {
             controller.refreshPairedDevices()
         }
 
-        with(controller) {
-            showCardWallEvent.listen { id ->
-                navController.navigate(CardWallIntroScreen.path(id))
-            }
-            showCardWallWithFilledCanEvent.listen { cardWallData ->
-                navController.navigate(
-                    CardWallRoutes.CardWallPinScreen.path(
-                        profileIdentifier = cardWallData.profileId,
-                        can = cardWallData.can
-                    )
-                )
-            }
-            showGidEvent.listen { gidData ->
-                navController.navigate(
-                    CardWallIntroScreen.pathWithGid(gidData)
-                )
-            }
-        }
+        ChooseAuthenticationNavigationEventsListener(controller, navController)
 
         LaunchedEffect(Unit) {
             intentHandler.gidSuccessfulIntent.collectLatest {
@@ -150,16 +134,19 @@ class ProfilePairedDevicesScreen(
             }
         )
 
+        BackHandler { onBack() }
         ProfilePairedDevicesScreenScaffold(
             state = pairedDevicesState,
             listState = listState,
-            onBack = { navController.popBackStack() },
+            onBack = { onBack() },
             onDeleteDevice = { device -> deleteDeviceEvent.trigger(device) },
             onAuthenticate = {
-                controller.chooseAuthenticationMethod(
-                    profileId = profileId,
-                    useBiometricPairingScope = true
-                )
+                activeProfile.data?.let {
+                    controller.chooseAuthenticationMethod(
+                        profile = it,
+                        useBiometricPairingScope = true
+                    )
+                }
             },
             onRefresh = { controller.refreshPairedDevices() }
         )
@@ -177,6 +164,8 @@ private fun ProfilePairedDevicesScreenScaffold(
 ) {
     AnimatedElevationScaffold(
         topBarTitle = stringResource(R.string.paired_devices_title),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         navigationMode = NavigationBarMode.Back,
         listState = listState,
         onBack = onBack

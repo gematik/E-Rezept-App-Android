@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.digas.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,11 +35,12 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.digas.ui.component.CustomSegmentedButton
 import de.gematik.ti.erp.app.digas.ui.component.HeaderSection
 import de.gematik.ti.erp.app.digas.ui.component.detailSection
 import de.gematik.ti.erp.app.digas.ui.component.overviewSection
+import de.gematik.ti.erp.app.digas.ui.model.DigaBfarmUiModel
 import de.gematik.ti.erp.app.digas.ui.model.DigaMainScreenUiModel
 import de.gematik.ti.erp.app.digas.ui.model.DigaSegmentedControllerTap
 import de.gematik.ti.erp.app.digas.ui.model.DigasActions
@@ -51,11 +53,12 @@ import kotlinx.datetime.Instant
 @Composable
 fun DigaContent(
     listState: LazyListState = rememberLazyListState(),
-    isBfarmReachable: Boolean,
     errorTitle: String,
     errorBody: String,
     isDownloading: Boolean,
     uiState: UiState<DigaMainScreenUiModel>,
+    uiStateBfarm: UiState<DigaBfarmUiModel>,
+    logo: @Composable ColumnScope.() -> Unit,
     lastRefreshedTime: Instant,
     selectedTab: DigaSegmentedControllerTap,
     actions: DigasActions,
@@ -68,7 +71,7 @@ fun DigaContent(
         verticalArrangement = Arrangement.Top
     ) {
         item {
-            HeaderSection(data = uiState)
+            HeaderSection(uiState = uiState, logo = logo)
         }
         item {
             SpacerLarge()
@@ -94,8 +97,8 @@ fun DigaContent(
         when (selectedTab) {
             DigaSegmentedControllerTap.OVERVIEW -> overviewSection(
                 uiState = uiState,
+                uiStateBfarm = uiStateBfarm,
                 isDownloading = isDownloading,
-                isBframReachable = isBfarmReachable,
                 errorTitle = errorTitle,
                 errorBody = errorBody,
                 lastRefreshedTime = lastRefreshedTime,
@@ -104,14 +107,15 @@ fun DigaContent(
 
             DigaSegmentedControllerTap.DETAIL -> detailSection(
                 uiState = uiState,
-                isBframReachable = isBfarmReachable,
+                uiStateBfarm = uiStateBfarm,
                 errorTitle = errorTitle,
                 errorBody = errorBody,
                 onNavigateToPatient = actions.onNavigateToPatient,
                 onNavigateTopPractitioner = actions.onNavigateToPractitioner,
                 onNavigateTopOrganization = actions.onNavigateToOrganization,
                 onNavigateToTechnicalInformation = actions.onNavigateToTechnicalInformation,
-                onNavigateToBafim = actions.onNavigatetoBfarm
+                onNavigateToBafim = actions.onNavigatetoBfarm,
+                navigateToContributionInfo = actions.onShowContributionInfoBottomSheet
             )
         }
     }

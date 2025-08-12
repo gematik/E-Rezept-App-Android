@@ -28,50 +28,30 @@ import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.SearchData.Companion.toPharmacyFilter
-import de.gematik.ti.erp.app.utils.uistate.UiState
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 
 class FetchInsuranceListUseCase(
     private val repository: PharmacyRepository,
-    private val dispatchers: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(term: String = ""): Flow<UiState<List<InsuranceUiModel>>> {
+    suspend operator fun invoke(term: String = ""): List<InsuranceUiModel> {
         val defaultSearchData = PharmacyUseCaseData.SearchData(
             name = term,
             filter = PharmacyUseCaseData.Filter(),
             locationMode = PharmacyUseCaseData.LocationMode.Disabled
         )
-        return flow {
-            repository.searchInsurances(defaultSearchData.toPharmacyFilter())
-                .fold(
-                    onSuccess = { result ->
-                        if (result.entries.isEmpty()) {
-                            emit(UiState.Empty())
-                        }
-                        val sortedInsuranceList =
-                            result.entries.toModel(defaultSearchData.locationMode, result.type).sortedBy { it.name }.distinctBy { it.telematikId }
-                        emit(
-                            UiState.Data(
-                                sortedInsuranceList.map { insurance ->
-                                    InsuranceUiModel(
-                                        pharmacy = insurance,
-                                        drawableResourceId = insurance.getDrawableResourceId()
-                                    )
-                                }
-                            )
-                        )
-                    },
-                    onFailure = { exception ->
-                        Napier.e("Failed to fetch insurance list: ${exception.message}", exception)
-                        emit(UiState.Error(exception))
-                    }
+        return withContext(dispatcher) {
+            val sortedResult = repository.searchInsurances(defaultSearchData.toPharmacyFilter()).map {
+                it.entries.toModel(defaultSearchData.locationMode, it.type).sortedBy { it.name }.distinctBy { it.telematikId }
+            }.getOrThrow()
+            sortedResult.map { insurance ->
+                InsuranceUiModel(
+                    pharmacy = insurance,
+                    drawableResourceId = insurance.getDrawableResourceId()
                 )
+            }
         }
-            .flowOn(dispatchers)
     }
 }

@@ -61,14 +61,14 @@ import de.gematik.ti.erp.app.analytics.presentation.DebugTrackerScreenEvent
 import de.gematik.ti.erp.app.analytics.presentation.DebugTrackerScreenEvent.DynamicEvent
 import de.gematik.ti.erp.app.analytics.presentation.DebugTrackerScreenEvent.ScreenEvent
 import de.gematik.ti.erp.app.analytics.presentation.DebugTrackerScreenViewModel
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
-import de.gematik.ti.erp.app.utils.compose.BigFontPreview
+import de.gematik.ti.erp.app.utils.compose.LightDarkBigFontPreview
 import de.gematik.ti.erp.app.utils.compose.Center
 import de.gematik.ti.erp.app.utils.compose.ErezeptText
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
@@ -140,7 +140,10 @@ fun DebugTrackerScaffold(
                     }
                 },
                 navigationIcon = {
-                    NavigateBackButton { onBack() }
+                    NavigateBackButton(
+                        contentDescription = stringResource(R.string.back),
+                        onClick = onBack
+                    )
                 }
             )
         }
@@ -301,7 +304,7 @@ fun RightwardArrowLine(
 }
 
 @LightDarkPreview
-@BigFontPreview
+@LightDarkBigFontPreview
 @Composable
 fun DemoTrackerScreenContentPreview() {
     PreviewAppTheme {

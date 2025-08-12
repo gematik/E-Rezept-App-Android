@@ -35,12 +35,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.base.presentation.rememberGetActiveProfileController
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
 import de.gematik.ti.erp.app.pkv.presentation.rememberConsentController
-import de.gematik.ti.erp.app.prescription.ui.components.CommonDrawerScreenContent
+import de.gematik.ti.erp.app.prescription.ui.components.DefaultDrawerScreenContent
+import de.gematik.ti.erp.app.profiles.presentation.rememberGetActiveProfileController
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
@@ -103,17 +103,17 @@ private fun GrantConsentScreenContent(
     onClickGrantConsent: () -> Unit,
     onCancel: () -> Unit
 ) {
-    CommonDrawerScreenContent(
-        modifierPrimary = Modifier
+    DefaultDrawerScreenContent(
+        modifierPrimaryButton = Modifier
             .testTag(TestTag.Main.MainScreenBottomSheet.GetConsentButton)
             .wrapContentSize(),
         header = stringResource(R.string.give_consent_bottom_sheet_header),
         info = stringResource(R.string.give_consent_bottom_sheet_info),
         image = painterResource(R.drawable.pharmacist_circle_blue),
-        connectButtonText = stringResource(R.string.give_consent_bottom_sheet_activate),
-        cancelButtonText = stringResource(R.string.give_consent_bottom_sheet_activate_later),
-        onClickConnect = onClickGrantConsent,
-        onCancel = onCancel
+        primaryButtonText = stringResource(R.string.give_consent_bottom_sheet_activate),
+        outlinedButtonText = stringResource(R.string.give_consent_bottom_sheet_activate_later),
+        onClickPrimary = onClickGrantConsent,
+        onClickOutlined = onCancel
     )
 }
 

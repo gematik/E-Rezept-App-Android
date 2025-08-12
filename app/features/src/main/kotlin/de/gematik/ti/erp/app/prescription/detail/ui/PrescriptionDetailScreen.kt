@@ -42,12 +42,13 @@ import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.consent.model.ConsentContext
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isConsentGranted
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.demomode.DemoModeObserver
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.toNavigationString
-import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
 import de.gematik.ti.erp.app.pkv.presentation.model.InvoiceCardUiState
 import de.gematik.ti.erp.app.pkv.presentation.rememberConsentController
@@ -59,6 +60,7 @@ import de.gematik.ti.erp.app.prescription.detail.presentation.rememberSharePresc
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailBottomSheetNavigationData
 import de.gematik.ti.erp.app.prescription.detail.ui.preview.PrescriptionDetailPreview
 import de.gematik.ti.erp.app.prescription.detail.ui.preview.PrescriptionDetailPreviewParameter
+import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
@@ -72,6 +74,7 @@ import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
+import de.gematik.ti.erp.app.utils.compose.shortToast
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
@@ -94,10 +97,10 @@ class PrescriptionDetailScreen(
         val snackbar = LocalSnackbarScaffold.current
         val dialog = LocalDialog.current
         val context = LocalContext.current
-
+        val demoModeObserver = LocalActivity.current as? DemoModeObserver
+        val isDemoMode = demoModeObserver?.isDemoMode() ?: false
         val prescriptionDetailsController = rememberPrescriptionDetailController(taskId)
         val profilePrescriptionData by prescriptionDetailsController.profilePrescription.collectAsStateWithLifecycle()
-        val isMedicationPlanEnabled by prescriptionDetailsController.isMedicationPlanEnabled.collectAsStateWithLifecycle()
 
         UiStateMachine(
             state = profilePrescriptionData,
@@ -162,8 +165,7 @@ class PrescriptionDetailScreen(
                     onShowCardWall = {
                         navController.navigate(CardWallRoutes.CardWallIntroScreen.path(profile.id))
                     },
-                    onConfirmDialogRequest = {
-                            (sendFeedBackMessage, errorMessage): Pair<Boolean, String>,
+                    onConfirmDialogRequest = { (sendFeedBackMessage, errorMessage): Pair<Boolean, String>,
                             deletePrescriptionLocally: Boolean
                         ->
                         if (deletePrescriptionLocally) {
@@ -253,8 +255,8 @@ class PrescriptionDetailScreen(
                 DeletePrescriptionDialog(
                     dialog = dialog,
                     event = onClickDeletePrescriptionEvent,
-                    isPKVProfile = activeProfileIsPKVProfile,
-                    isPrescriptionRedeemed = prescription.redeemedOn != null
+                    hasMedicationSchedule = medicationSchedule != null,
+                    hasInvoice = invoice != null
                 ) {
                     prescriptionDetailsController.deletePrescription(
                         profile.id,
@@ -268,7 +270,7 @@ class PrescriptionDetailScreen(
                     invoiceCardState = invoiceState,
                     scaffoldState = scaffoldState,
                     listState = listState,
-                    isMedicationPlanEnabled = isMedicationPlanEnabled,
+                    isDemoMode = isDemoMode,
                     onClickMedication = { medication ->
                         navController.navigate(
                             PrescriptionDetailRoutes.PrescriptionDetailMedicationScreen.path(
@@ -308,12 +310,16 @@ class PrescriptionDetailScreen(
                     },
                     onClickRedeemOnline = {
                         navController.navigate(
-                            PharmacyRoutes.PharmacyStartScreenModal.path(taskId = prescription.taskId)
+                            RedeemRoutes.RedeemOrderOverviewScreen.path(
+                                pharmacy = null,
+                                orderOption = null,
+                                taskId = prescription.taskId
+                            )
                         )
                     },
                     onClickMedicationPlan = {
                         navController.navigate(
-                            MedicationPlanRoutes.MedicationPlanPerPrescription.path(
+                            MedicationPlanRoutes.MedicationPlanScheduleDetailScreen.path(
                                 taskId = taskId
                             )
                         )
@@ -328,8 +334,7 @@ class PrescriptionDetailScreen(
                             )
                         )
                     },
-                    onShowInfoBottomSheet =
-                    PrescriptionDetailBottomSheetNavigationData(
+                    onShowInfoBottomSheet = PrescriptionDetailBottomSheetNavigationData(
                         selPayerPrescriptionBottomSheet = {
                             navController.navigate(
                                 PrescriptionDetailRoutes.SelPayerPrescriptionBottomSheetScreen.path(
@@ -419,6 +424,18 @@ class PrescriptionDetailScreen(
                             )
                         )
                     },
+                    onToggleEuRedeemable = {
+                        if (prescription is PrescriptionData.Synced) {
+                            prescriptionDetailsController.updateEuRedeemableStatus(
+                                prescription.taskId,
+                                !prescription.isEuRedeemable
+                            )
+                        }
+                    },
+                    onClickRedeemInEuAbroad = {
+                        // TODO: Navigate to EU abroad redemption screen
+                        context.shortToast("EU Rezept is coming soon!")
+                    },
                     onBack = navController::popBackStack
                 )
             }
@@ -430,19 +447,21 @@ class PrescriptionDetailScreen(
 private fun DeletePrescriptionDialog(
     dialog: DialogScaffold,
     event: ComposableEvent<Unit>,
-    isPrescriptionRedeemed: Boolean = false,
-    isPKVProfile: Boolean = false,
+    hasMedicationSchedule: Boolean = false,
+    hasInvoice: Boolean = false,
     onConfirmRequest: () -> Unit
 ) {
-    val title = if (isPKVProfile && isPrescriptionRedeemed) {
-        stringResource(R.string.pres_detail_delete_prescription_and_recipe)
-    } else {
-        stringResource(R.string.pres_detail_delete_prescription)
+    val title = when {
+        hasInvoice && hasMedicationSchedule -> stringResource(R.string.pres_detail_delete_prescription_and_plan_and_invoice_title)
+        hasInvoice -> stringResource(R.string.pres_detail_delete_prescription_and_recipe)
+        hasMedicationSchedule -> stringResource(R.string.pres_detail_delete_prescription_and_plan_title)
+        else -> stringResource(R.string.pres_detail_delete_prescription)
     }
-    val info = if (isPKVProfile) {
-        stringResource(R.string.pres_detail_delete_and_recipe_msg)
-    } else {
-        stringResource(R.string.pres_detail_delete_msg)
+    val info = when {
+        hasInvoice && hasMedicationSchedule -> stringResource(R.string.pres_detail_delete_prescription_and_plan_and_invoice_body)
+        hasInvoice -> stringResource(R.string.pres_detail_delete_and_recipe_msg)
+        hasMedicationSchedule -> stringResource(R.string.pres_detail_delete_prescription_and_plan_body)
+        else -> stringResource(R.string.pres_detail_delete_msg)
     }
     event.listen {
         dialog.show { dialog ->
@@ -490,6 +509,7 @@ fun PrescriptionDetailScreenPreview(
             ),
             scaffoldState = scaffoldState,
             listState = listState,
+            isDemoMode = false,
             prescription = previewData.prescription,
             medicationSchedule = null,
             invoiceCardState = InvoiceCardUiState.NoInvoice,
@@ -509,7 +529,8 @@ fun PrescriptionDetailScreenPreview(
             onShowHowLongValidBottomSheet = {},
             onClickInvoice = {},
             onBack = {},
-            isMedicationPlanEnabled = false
+            onToggleEuRedeemable = {},
+            onClickRedeemInEuAbroad = {}
         )
     }
 }

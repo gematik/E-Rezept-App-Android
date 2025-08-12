@@ -51,11 +51,12 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.authentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.authentication.presentation.enrollBiometricsIntent
 import de.gematik.ti.erp.app.authentication.presentation.enrollDeviceSecurityIntent
 import de.gematik.ti.erp.app.button.SelectionCard
 import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.model.OnboardingAuthScenario
 import de.gematik.ti.erp.app.onboarding.navigation.OnboardingRoutes
@@ -69,7 +70,6 @@ import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.userauthentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger

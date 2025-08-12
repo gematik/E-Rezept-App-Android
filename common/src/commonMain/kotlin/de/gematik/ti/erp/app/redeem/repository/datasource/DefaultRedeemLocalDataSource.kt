@@ -22,10 +22,10 @@
 
 package de.gematik.ti.erp.app.redeem.repository.datasource
 
-import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
-import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.db.toRealmInstant
-import de.gematik.ti.erp.app.db.tryWrite
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
+import de.gematik.ti.erp.app.database.realm.utils.tryWrite
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.ScannedTaskEntityV1
 import io.realm.kotlin.Realm
 import kotlinx.datetime.Clock
 

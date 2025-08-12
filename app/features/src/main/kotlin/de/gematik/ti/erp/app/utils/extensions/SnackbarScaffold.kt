@@ -32,7 +32,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.material.snackbar.Snackbar
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

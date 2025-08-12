@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.pkv.model
 
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 
 sealed class InvoiceAction {
     data class Submit(val taskId: String, val profileIdentifier: ProfileIdentifier) : InvoiceAction()

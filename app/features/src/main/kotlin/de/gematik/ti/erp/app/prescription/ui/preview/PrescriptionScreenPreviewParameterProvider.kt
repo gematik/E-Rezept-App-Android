@@ -24,10 +24,10 @@ package de.gematik.ti.erp.app.prescription.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.LayoutDirection
-import de.gematik.ti.erp.app.app.ApplicationInnerPadding
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarWrapper
 import de.gematik.ti.erp.app.mainscreen.model.ProfileLifecycleState
+import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
 import de.gematik.ti.erp.app.prescription.ui.model.ConsentClickAction
 import de.gematik.ti.erp.app.prescription.ui.model.MultiProfileTopAppBarClickAction
 import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionsScreenContentClickAction

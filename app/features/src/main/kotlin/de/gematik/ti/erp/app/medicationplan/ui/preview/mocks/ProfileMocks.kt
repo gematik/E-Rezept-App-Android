@@ -22,7 +22,6 @@
 
 package de.gematik.ti.erp.app.medicationplan.ui.preview.mocks
 
-import de.gematik.ti.erp.app.medicationplan.ui.preview.medicationPlanPreviewCurrentTime
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 
 val PROFILE1 = ProfilesData.Profile(

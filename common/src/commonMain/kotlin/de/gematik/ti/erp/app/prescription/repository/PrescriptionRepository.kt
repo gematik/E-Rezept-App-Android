@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.prescription.repository
 
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonElement
@@ -69,4 +69,10 @@ interface PrescriptionRepository {
     suspend fun redeemScannedTasks(taskIds: List<String>)
 
     fun loadAllTaskIds(profileId: ProfileIdentifier): Flow<List<String>>
+
+    @Deprecated(
+        message = "FOR TESTING ONLY: Will be removed when real backend EU-flag is available",
+        level = DeprecationLevel.WARNING
+    )
+    suspend fun updateEuRedeemableStatus(taskId: String, isEuRedeemable: Boolean)
 }

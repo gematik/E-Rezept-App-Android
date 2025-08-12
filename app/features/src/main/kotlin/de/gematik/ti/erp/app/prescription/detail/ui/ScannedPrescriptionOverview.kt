@@ -44,9 +44,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.digas.ui.component.Label
-import de.gematik.ti.erp.app.medicationplan.components.MedicationPlanLineItem
+import de.gematik.ti.erp.app.medicationplan.ui.components.MedicationPlanLineItem
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.ui.SentStatusChip
@@ -65,7 +65,7 @@ fun ScannedPrescriptionOverview(
     listState: LazyListState,
     prescription: PrescriptionData.Scanned,
     medicationSchedule: MedicationSchedule?,
-    isMedicationPlanEnabled: Boolean,
+    isDemoMode: Boolean,
     onSwitchRedeemed: (redeemed: Boolean) -> Unit,
     onChangePrescriptionName: (String) -> Unit,
     onClickTechnicalInformation: () -> Unit,
@@ -136,7 +136,7 @@ fun ScannedPrescriptionOverview(
                 SpacerXXLarge()
             }
         }
-        if (isMedicationPlanEnabled) {
+        if (!isDemoMode) {
             item {
                 MedicationPlanLineItem(medicationSchedule, onClickMedicationPlan)
             }

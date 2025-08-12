@@ -39,8 +39,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextOverflow
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -51,11 +53,18 @@ internal fun LazyListScope.PharmacySearchButton(
     onStartSearch: () -> Unit
 ) {
     item {
+        val onClickDescription = stringResource(R.string.a11y_pharmacy_start_search_on_click_description)
+        val description = stringResource(R.string.pharmacy_search_searchbar)
         Row(
             modifier = modifier
                 .clip(RoundedCornerShape(SizeDefaults.double))
                 .background(color = AppTheme.colors.neutral100, shape = RoundedCornerShape(SizeDefaults.double))
-                .clickable(role = Role.Button) { onStartSearch() }
+                .clickable(
+                    role = Role.Button,
+                    onClickLabel = onClickDescription
+                ) {
+                    onStartSearch()
+                }
                 .padding(horizontal = PaddingDefaults.Medium, vertical = PaddingDefaults.ShortMedium),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -66,7 +75,7 @@ internal fun LazyListScope.PharmacySearchButton(
             )
             SpacerSmall()
             Text(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).clearAndSetSemantics { contentDescription = description },
                 text = stringResource(R.string.pharmacy_start_search_text),
                 overflow = TextOverflow.Ellipsis,
                 style = AppTheme.typography.body1,

@@ -22,9 +22,9 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskMetaDataErpModel
-import de.gematik.ti.erp.app.fhir.model.TaskStatus
-import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.fhir.FhirTaskMetaDataErpModel
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.task.model.TaskStatus
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 

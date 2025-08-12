@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirCoverageErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirCoverageErpModel
 
 object FhirCoverageErpTestData {
 

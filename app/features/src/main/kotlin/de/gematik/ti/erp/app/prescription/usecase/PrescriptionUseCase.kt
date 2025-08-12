@@ -30,7 +30,7 @@ import de.gematik.ti.erp.app.prescription.repository.TaskRepository
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeValidator
 import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine

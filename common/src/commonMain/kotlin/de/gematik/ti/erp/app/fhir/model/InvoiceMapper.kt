@@ -35,10 +35,10 @@ import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.parser.or
 import de.gematik.ti.erp.app.fhir.parser.stringValue
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.toFormattedDateTime
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
-import de.gematik.ti.erp.app.utils.FhirTemporal
-import de.gematik.ti.erp.app.utils.toFhirTemporal
-import de.gematik.ti.erp.app.utils.toFormattedDateTime
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonElement
 
@@ -147,6 +147,7 @@ fun extractInvoiceKBVAndErpPrBundle(
     }
     process(taskId, accessCode, invoiceBundle, kbvBundle, erpPrBundle)
 }
+
 fun extractBinary(bundle: JsonElement): ByteArray? {
     return bundle.contained("signature").containedString("data").toByteArray()
 }
@@ -451,8 +452,10 @@ fun <Invoice> extractInvoice(
     when (items[0].description) {
         InvoiceData.ChargeableItem.Description.TA1("02567053") -> // separation
             additionalDispenses = chargeableItems(additionalDispensesJson)
+
         InvoiceData.ChargeableItem.Description.TA1("09999092") -> // parentale Zytostatica
             additionalInformation = joinZytostaticaProductionSteps(additionalDispensesJson, additionalDispenseDataJson)
+
         else -> // must be compounding
             additionalInformation = listOf(joinComponents(additionalDispensesJson))
     }

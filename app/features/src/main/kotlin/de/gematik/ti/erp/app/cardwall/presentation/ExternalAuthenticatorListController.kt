@@ -24,87 +24,91 @@ package de.gematik.ti.erp.app.cardwall.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.idp.model.HealthInsuranceData
 import de.gematik.ti.erp.app.idp.model.UniversalLinkIdp.Companion.toUniversalLinkIdp
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError
 import de.gematik.ti.erp.app.idp.usecase.GetHealthInsuranceAppIdpsUseCase
 import de.gematik.ti.erp.app.idp.usecase.GetUniversalLinkForHealthInsuranceAppsUseCase
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.usecase.SwitchProfileToGKVUseCase
-import de.gematik.ti.erp.app.profiles.usecase.SwitchProfileToPKVUseCase
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profiles.usecase.IsProfilePKVUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.uistate.UiState
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 import java.net.URI
 
-private fun whiteSpaceRegex(): Regex = "\\s+".toRegex()
+internal fun whiteSpaceRegex(): Regex = "\\s+".toRegex()
 
 interface ExternalAuthenticatorListController {
-    val healthInsuranceDataList: StateFlow<UiState<List<HealthInsuranceData>>>
-
     val authorizationWithExternalAppInBackgroundEvent: ComposableEvent<Boolean>
-
     val redirectUriEvent: ComposableEvent<Pair<URI, HealthInsuranceData>>
-
     val redirectUriGematikErrorEvent: ComposableEvent<GematikResponseError>
-
     val redirectUriErrorEvent: ComposableEvent<String?>
-    fun getHealthInsuranceAppList()
+
+    val healthInsuranceDataList: StateFlow<UiState<List<HealthInsuranceData>>>
+    val searchValue: StateFlow<String>
+
+    fun getHealthInsuranceAppList(profileIsPkv: Boolean)
     fun startAuthorizationWithExternal(
         profileId: ProfileIdentifier,
         healthInsuranceData: HealthInsuranceData
     )
-    fun switchToGKV(profileId: ProfileIdentifier)
-    fun switchToPKV(profileId: ProfileIdentifier)
-    fun filterList(searchWord: String)
-    fun unFilterList()
+    fun onFilterList(searchWord: String)
+    fun onRemoveFilterList()
 }
 
 class DefaultExternalAuthenticatorListController(
     private val getHealthInsuranceAppIdpsUseCase: GetHealthInsuranceAppIdpsUseCase,
     private val getUniversalLinkUseCase: GetUniversalLinkForHealthInsuranceAppsUseCase,
-    private val switchProfileToPKVUseCase: SwitchProfileToPKVUseCase,
-    private val switchProfileToGKVUseCase: SwitchProfileToGKVUseCase,
-    private val scope: CoroutineScope
-) : ExternalAuthenticatorListController {
+    private val isProfilePKVUseCase: IsProfilePKVUseCase,
+    private val profileId: ProfileIdentifier
+) : ExternalAuthenticatorListController, Controller() {
+    override val authorizationWithExternalAppInBackgroundEvent = ComposableEvent<Boolean>()
+    override val redirectUriEvent = ComposableEvent<Pair<URI, HealthInsuranceData>>()
+    override val redirectUriGematikErrorEvent = ComposableEvent<GematikResponseError>()
+    override val redirectUriErrorEvent = ComposableEvent<String?>()
 
-    private val originalHealthInsuranceDataList = mutableListOf<HealthInsuranceData>()
+    private val _originalHealthInsuranceDataList = mutableListOf<HealthInsuranceData>()
+    private val _searchValue: MutableStateFlow<String> = MutableStateFlow("")
 
+    override val searchValue: StateFlow<String> = _searchValue
     override val healthInsuranceDataList = MutableStateFlow<UiState<List<HealthInsuranceData>>>(
         UiState.Loading()
     )
 
-    override val authorizationWithExternalAppInBackgroundEvent = ComposableEvent<Boolean>()
-
-    override val redirectUriEvent = ComposableEvent<Pair<URI, HealthInsuranceData>>()
-
-    override val redirectUriGematikErrorEvent = ComposableEvent<GematikResponseError>()
-
-    override val redirectUriErrorEvent = ComposableEvent<String?>()
+    init {
+        controllerScope.launch {
+            getHealthInsuranceAppList(isProfilePKVUseCase.invoke(profileId))
+        }
+    }
 
     @Requirement(
         "O.Auth_4#2",
         sourceSpecification = "BSI-eRp-ePA",
         rationale = "Business logic to get the list of health insurance companies."
     )
-    override fun getHealthInsuranceAppList() {
-        healthInsuranceDataList.value = UiState.Loading()
-        scope.launch {
+    override fun getHealthInsuranceAppList(profileIsPkv: Boolean) {
+        healthInsuranceDataList.update { UiState.Loading() }
+        controllerScope.launch {
             runCatching {
                 getHealthInsuranceAppIdpsUseCase.invoke()
             }.fold(
-                onSuccess = {
-                    originalHealthInsuranceDataList.addAll(it)
-                    healthInsuranceDataList.value = UiState.Data(it)
+                onSuccess = { healthInsuranceList ->
+                    val filteredList = healthInsuranceList.filter { it.isPKV == profileIsPkv }
+                    _originalHealthInsuranceDataList.addAll(filteredList)
+                    if (filteredList.isEmpty()) {
+                        healthInsuranceDataList.update { UiState.Empty() }
+                    } else {
+                        healthInsuranceDataList.update { UiState.Data(filteredList) }
+                    }
                 },
-                onFailure = {
-                    healthInsuranceDataList.value = UiState.Error(it)
+                onFailure = { error ->
+                    healthInsuranceDataList.update { UiState.Error(error) }
                 }
             )
         }
@@ -114,7 +118,7 @@ class DefaultExternalAuthenticatorListController(
         profileId: ProfileIdentifier,
         healthInsuranceData: HealthInsuranceData
     ) {
-        scope.launch {
+        controllerScope.launch {
             authorizationWithExternalAppInBackgroundEvent.trigger(true)
             @Requirement(
                 "O.Auth_4#5",
@@ -139,46 +143,36 @@ class DefaultExternalAuthenticatorListController(
         }
     }
 
-    override fun switchToPKV(profileId: ProfileIdentifier) {
-        scope.launch {
-            switchProfileToPKVUseCase.invoke(profileId)
-        }
-    }
-
-    override fun switchToGKV(profileId: ProfileIdentifier) {
-        scope.launch {
-            switchProfileToGKVUseCase.invoke(profileId)
-        }
-    }
-
-    override fun filterList(searchWord: String) {
-        searchWord.split(whiteSpaceRegex())
+    override fun onFilterList(searchWord: String) {
+        _searchValue.update { searchWord }
         val stringList = searchWord.split(whiteSpaceRegex())
-        val filteredList = originalHealthInsuranceDataList.filter { src ->
+        val filteredList = _originalHealthInsuranceDataList.filter { src ->
             stringList.all { src.name.contains(it, ignoreCase = true) }
         }.toMutableList()
-        healthInsuranceDataList.value = UiState.Data(filteredList)
+        if (filteredList.isEmpty()) {
+            healthInsuranceDataList.update { UiState.Empty() }
+        } else {
+            healthInsuranceDataList.update { UiState.Data(filteredList) }
+        }
     }
 
-    override fun unFilterList() {
-        healthInsuranceDataList.value = UiState.Data(originalHealthInsuranceDataList)
+    override fun onRemoveFilterList() {
+        _searchValue.update { "" }
+        healthInsuranceDataList.update { UiState.Data(_originalHealthInsuranceDataList) }
     }
 }
 
 @Composable
-fun rememberExternalAuthenticatorListController(): ExternalAuthenticatorListController {
+fun rememberExternalAuthenticatorListController(profileId: ProfileIdentifier): ExternalAuthenticatorListController {
     val getHealthInsuranceAppIdpsUseCase: GetHealthInsuranceAppIdpsUseCase by rememberInstance()
     val getUniversalLinkUseCase: GetUniversalLinkForHealthInsuranceAppsUseCase by rememberInstance()
-    val switchProfileToPKVUseCase: SwitchProfileToPKVUseCase by rememberInstance()
-    val switchProfileToGKVUseCase: SwitchProfileToGKVUseCase by rememberInstance()
-    val scope = rememberCoroutineScope()
+    val isProfilePKVUseCase by rememberInstance<IsProfilePKVUseCase>()
     return remember {
         DefaultExternalAuthenticatorListController(
             getHealthInsuranceAppIdpsUseCase = getHealthInsuranceAppIdpsUseCase,
             getUniversalLinkUseCase = getUniversalLinkUseCase,
-            switchProfileToPKVUseCase = switchProfileToPKVUseCase,
-            switchProfileToGKVUseCase = switchProfileToGKVUseCase,
-            scope = scope
+            isProfilePKVUseCase = isProfilePKVUseCase,
+            profileId = profileId
         )
     }
 }

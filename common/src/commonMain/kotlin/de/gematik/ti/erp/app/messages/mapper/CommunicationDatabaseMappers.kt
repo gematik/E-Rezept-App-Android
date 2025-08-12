@@ -22,11 +22,11 @@
 
 package de.gematik.ti.erp.app.messages.mapper
 
-import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationProfileV1
-import de.gematik.ti.erp.app.db.toRealmInstant
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirDispenseCommunicationEntryErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirReplyCommunicationEntryErpModel
+import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationProfileV1
+import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
 import kotlinx.datetime.Clock
 
 object CommunicationDatabaseMappers {

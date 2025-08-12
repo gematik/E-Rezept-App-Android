@@ -23,12 +23,12 @@
 package de.gematik.ti.erp.app.messages.usecase
 
 import de.gematik.ti.erp.app.CoroutineTestRule
-import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.domain.usecase.GetUnreadMessagesCountUseCase
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import io.mockk.coEvery
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.mockk
@@ -60,7 +60,7 @@ class GetUnreadMessagesCountUseCaseTest {
 
     @Before
     fun setup() {
-        coEvery { communicationRepository.unreadMessagesCount() } returns flowOf(Companion.COUNTER_NUMBER)
+        coEvery { communicationRepository.unreadMessagesCount() } returns flowOf(COUNTER_NUMBER)
         coEvery {
             invoiceRepository.getInvoiceTaskIdAndConsumedStatus(any())
         } returns flowOf(listOf(InvoiceData.InvoiceStatus(taskId = "taskId1", consumed = false)))

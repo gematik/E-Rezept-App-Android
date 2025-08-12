@@ -35,7 +35,7 @@ import de.gematik.ti.erp.app.logger.model.LogEntry
 import de.gematik.ti.erp.app.logger.model.RequestLog
 import de.gematik.ti.erp.app.logger.model.ResponseLog
 import de.gematik.ti.erp.app.logger.model.TimingsLog
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.secureRandomInstance
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import de.gematik.ti.erp.app.vau.VauChannelSpec

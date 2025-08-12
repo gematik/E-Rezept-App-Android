@@ -22,19 +22,19 @@
 
 package de.gematik.ti.erp.app.fhir.communication.mocks
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirCommunicationBundleErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirDispenseCommunicationEntryErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirReplyCommunicationEntryErpModel
-import de.gematik.ti.erp.app.fhir.communication.FhirCommunicationVersions.COMMUNICATION_VERSION_1_2
-import de.gematik.ti.erp.app.fhir.communication.FhirCommunicationVersions.COMMUNICATION_VERSION_1_3
-import de.gematik.ti.erp.app.fhir.communication.FhirCommunicationVersions.COMMUNICATION_VERSION_1_4
-import de.gematik.ti.erp.app.fhir.communication.model.erp.CommunicationParticipantErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.erp.DispenseCommunicationPayloadContentErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.erp.DispensePrescriptionTypeErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.erp.DispenseSupplyOptionsType
-import de.gematik.ti.erp.app.fhir.communication.model.erp.ReplyCommunicationPayloadContentErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.erp.ReplyCommunicationSupplyOptionsErpModel
-import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.fhir.FhirCommunicationBundleErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.support.CommunicationParticipantErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.support.DispenseCommunicationPayloadContentErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.support.DispensePrescriptionTypeErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.support.DispenseSupplyOptionsType
+import de.gematik.ti.erp.app.fhir.communication.model.support.ReplyCommunicationPayloadContentErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.support.ReplyCommunicationSupplyOptionsErpModel
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.COMMUNICATION_VERSION_1_2
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.COMMUNICATION_VERSION_1_3
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.COMMUNICATION_VERSION_1_4
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.datetime.Instant
 
 /**

@@ -68,15 +68,15 @@ class GetShippingContactValidationUseCaseTest {
     fun `validate empty shipping contact on direct redeem should contain OK`() = runTest {
         val validationState = getShippingContactValidationUseCase(
             contact = emptyShippingContact,
-            selectedOrderOption = PharmacyScreenData.OrderOption.PickupService
+            selectedOrderOption = PharmacyScreenData.OrderOption.Pickup
         )
         assertTrue { validationState == ShippingContactState.ValidShippingContactState.OK }
     }
 
     @Test
     fun `validate empty shipping contact on CourierDelivery and MailDelivery should return several Errors`() = runTest {
-        validateEmptyShippingContactWith(PharmacyScreenData.OrderOption.CourierDelivery)
-        validateEmptyShippingContactWith(PharmacyScreenData.OrderOption.MailDelivery)
+        validateEmptyShippingContactWith(PharmacyScreenData.OrderOption.Delivery)
+        validateEmptyShippingContactWith(PharmacyScreenData.OrderOption.Online)
     }
 
     private fun validateEmptyShippingContactWith(option: PharmacyScreenData.OrderOption) = runTest {
@@ -110,7 +110,7 @@ class GetShippingContactValidationUseCaseTest {
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
-                selectedOrderOption = PharmacyScreenData.OrderOption.MailDelivery
+                selectedOrderOption = PharmacyScreenData.OrderOption.Online
             )
             assertFalse {
                 validationState.isEmptyMail() ||
@@ -135,7 +135,7 @@ class GetShippingContactValidationUseCaseTest {
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
-                selectedOrderOption = PharmacyScreenData.OrderOption.MailDelivery
+                selectedOrderOption = PharmacyScreenData.OrderOption.Online
             )
 
             assertTrue {
@@ -161,7 +161,7 @@ class GetShippingContactValidationUseCaseTest {
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
-                selectedOrderOption = PharmacyScreenData.OrderOption.MailDelivery
+                selectedOrderOption = PharmacyScreenData.OrderOption.Online
             )
             assertFalse {
                 validationState.isEmptyName() || validationState.isInvalidName() ||
@@ -189,7 +189,7 @@ class GetShippingContactValidationUseCaseTest {
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
-                selectedOrderOption = PharmacyScreenData.OrderOption.MailDelivery
+                selectedOrderOption = PharmacyScreenData.OrderOption.Online
             )
 
             assertTrue {
@@ -205,7 +205,7 @@ class GetShippingContactValidationUseCaseTest {
 
         val validationState = getShippingContactValidationUseCase(
             contact = shippingContact,
-            selectedOrderOption = PharmacyScreenData.OrderOption.MailDelivery
+            selectedOrderOption = PharmacyScreenData.OrderOption.Online
         )
 
         assertFalse {
@@ -228,7 +228,7 @@ class GetShippingContactValidationUseCaseTest {
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
-                selectedOrderOption = PharmacyScreenData.OrderOption.MailDelivery
+                selectedOrderOption = PharmacyScreenData.OrderOption.Online
             )
 
             assertTrue {
@@ -253,7 +253,7 @@ class GetShippingContactValidationUseCaseTest {
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
-                selectedOrderOption = PharmacyScreenData.OrderOption.MailDelivery
+                selectedOrderOption = PharmacyScreenData.OrderOption.Online
             )
 
             assertFalse {
@@ -277,7 +277,7 @@ class GetShippingContactValidationUseCaseTest {
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
-                selectedOrderOption = PharmacyScreenData.OrderOption.MailDelivery
+                selectedOrderOption = PharmacyScreenData.OrderOption.Online
             )
 
             assertTrue {
@@ -304,7 +304,7 @@ class GetShippingContactValidationUseCaseTest {
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
-                selectedOrderOption = PharmacyScreenData.OrderOption.MailDelivery
+                selectedOrderOption = PharmacyScreenData.OrderOption.Online
             )
 
             assertFalse {
@@ -329,7 +329,7 @@ class GetShippingContactValidationUseCaseTest {
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
-                selectedOrderOption = PharmacyScreenData.OrderOption.MailDelivery
+                selectedOrderOption = PharmacyScreenData.OrderOption.Online
             )
 
             assertTrue {

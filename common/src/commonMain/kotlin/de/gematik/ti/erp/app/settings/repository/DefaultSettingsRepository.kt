@@ -23,13 +23,13 @@
 package de.gematik.ti.erp.app.settings.repository
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.db.entities.v1.AuthenticationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.AuthenticationPasswordEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
-import de.gematik.ti.erp.app.db.toInstant
-import de.gematik.ti.erp.app.db.toRealmInstant
-import de.gematik.ti.erp.app.db.writeToRealm
+import de.gematik.ti.erp.app.database.realm.utils.toInstant
+import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
+import de.gematik.ti.erp.app.database.realm.utils.writeToRealm
+import de.gematik.ti.erp.app.database.realm.v1.AuthenticationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.AuthenticationPasswordEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query

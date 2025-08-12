@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.debugsettings.data.repository.local
 
-import de.gematik.ti.erp.app.db.entities.v1.debugsettings.DebugSettingsEntityV1
-import de.gematik.ti.erp.app.db.updateOrCreate
+import de.gematik.ti.erp.app.database.realm.utils.updateOrCreate
+import de.gematik.ti.erp.app.database.realm.v1.debugsettings.DebugSettingsEntityV1
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import kotlinx.coroutines.flow.Flow

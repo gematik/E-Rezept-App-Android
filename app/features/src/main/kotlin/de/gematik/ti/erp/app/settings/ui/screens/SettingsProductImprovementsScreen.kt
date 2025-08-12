@@ -41,7 +41,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.settings.navigation.SettingsRoutes
 import de.gematik.ti.erp.app.settings.presentation.rememberProductsImprovementsSettingsController
@@ -96,6 +96,8 @@ fun SettingsProductImprovementsScaffold(
 ) {
     AnimatedElevationScaffold(
         topBarTitle = stringResource(R.string.settings_product_improvement_headline),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         navigationMode = NavigationBarMode.Back,
         listState = listState,
         onBack = onNavigateBack

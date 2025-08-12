@@ -25,62 +25,51 @@ package de.gematik.ti.erp.app.cardwall.ui.screens
 import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.base.openSettingsAsNewActivity
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallScreen
-import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
-import de.gematik.ti.erp.app.app_core.R
-import de.gematik.ti.erp.app.theme.AppTheme
-import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.SpacerMedium
-import de.gematik.ti.erp.app.utils.SpacerSmall
-import de.gematik.ti.erp.app.utils.SpacerXXLargeMedium
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.cardwall.presentation.CardWallSharedViewModel
+import de.gematik.ti.erp.app.cardwall.ui.components.CardWallGidGKVHelpScreenContent
+import de.gematik.ti.erp.app.cardwall.ui.components.CardWallGidPKVHelpScreenContent
+import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallGidHelpScreenPreviewData
+import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallGidHelpScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
-import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
+import de.gematik.ti.erp.app.utils.compose.LightDarkLongPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
-import de.gematik.ti.erp.app.utils.compose.preview.TestScaffold
-import de.gematik.ti.erp.app.utils.compose.toAnnotatedString
 
 class CardWallGidHelpScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry,
-    override val graphController: CardWallGraphController
+    override val sharedViewModel: CardWallSharedViewModel
 ) : CardWallScreen() {
     @Composable
     override fun Content() {
         val listState = rememberLazyListState()
         val context = LocalContext.current
+        val profileIsPkv by sharedViewModel.profileIsPkv.collectAsStateWithLifecycle(false)
+        val onBack by rememberUpdatedState {
+            navController.popBackStack()
+        }
 
         BackHandler {
-            navController.popBackStack()
+            onBack()
         }
         CardWallGidHelpScreenScaffold(
             listState = listState,
-            onBack = {
-                navController.popBackStack()
-            },
+            profileIsPkv = profileIsPkv,
+            onBack = { onBack() },
             onClickOpenSettings = {
                 context.openSettingsAsNewActivity(
                     when {
@@ -98,130 +87,44 @@ class CardWallGidHelpScreen(
 @Composable
 private fun CardWallGidHelpScreenScaffold(
     listState: LazyListState,
+    profileIsPkv: Boolean,
     onBack: () -> Unit,
     onClickOpenSettings: () -> Unit
 ) {
     AnimatedElevationScaffold(
         navigationMode = NavigationBarMode.Back,
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         topBarTitle = stringResource(R.string.cardwall_gid_help_title),
         onBack = onBack,
         listState = listState
     ) {
-        CardWallGidHelpScreenContent(
-            listState = listState,
-            onClickOpenSettings = onClickOpenSettings
-        )
-    }
-}
-
-@Composable
-private fun CardWallGidHelpScreenContent(
-    listState: LazyListState,
-    onClickOpenSettings: () -> Unit
-) {
-    LazyColumn(
-        state = listState,
-        modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        CardWallGidHelpScreenHeaderSection()
-        CardWallGidHelpScreenTipSection(
-            onClickOpenSettings = onClickOpenSettings
-        )
-        item { SpacerXXLargeMedium() }
-    }
-}
-
-@Suppress("FunctionName")
-private fun LazyListScope.CardWallGidHelpScreenHeaderSection() {
-    item {
-        Column(
-            modifier = Modifier.padding(bottom = PaddingDefaults.Medium)
-        ) {
-            Text(
-                text = stringResource(R.string.cardwall_gid_help_header),
-                style = AppTheme.typography.h5
+        if (profileIsPkv) {
+            CardWallGidPKVHelpScreenContent(
+                listState = listState,
+                onClickOpenSettings = onClickOpenSettings
             )
-            SpacerSmall()
-            Text(
-                text = stringResource(R.string.cardwall_gid_help_body),
-                style = AppTheme.typography.body2
+        } else {
+            CardWallGidGKVHelpScreenContent(
+                listState = listState,
+                onClickOpenSettings = onClickOpenSettings
             )
         }
     }
 }
 
-@Suppress("FunctionName")
-private fun LazyListScope.CardWallGidHelpScreenTipSection(
-    onClickOpenSettings: () -> Unit
-) {
-    val tips = listOf(
-        R.string.cardwall_gid_help_tip_1,
-        R.string.cardwall_gid_help_tip_2,
-        R.string.cardwall_gid_help_tip_3,
-        R.string.cardwall_gid_help_tip_4,
-        R.string.cardwall_gid_help_tip_5,
-        R.string.cardwall_gid_help_tip_6
-    )
-    items(tips) {
-        CardWallGidHelpScreenTip(stringResource(it))
-    }
-    item {
-        CardWallGidHelpScreenTip(
-            text = stringResource(R.string.cardwall_gid_help_tip_7),
-            onClick = onClickOpenSettings,
-            buttonText = stringResource(R.string.cardwall_gid_help_settings_button).toAnnotatedString()
-        )
-    }
-}
-
+@LightDarkLongPreview
 @Composable
-private fun CardWallGidHelpScreenTip(
-    text: String,
-    onClick: () -> Unit = {},
-    buttonText: AnnotatedString? = null
+fun CardWallGidHelpScreenPreview(
+    @PreviewParameter(CardWallGidHelpScreenPreviewParameterProvider::class) previewData:
+        CardWallGidHelpScreenPreviewData
 ) {
-    Column(modifier = Modifier.padding(vertical = PaddingDefaults.Small)) {
-        Row(Modifier.fillMaxWidth()) {
-            Icon(Icons.Rounded.CheckCircle, null, tint = AppTheme.colors.green600)
-            SpacerMedium()
-            Text(
-                text = text,
-                style = AppTheme.typography.body1
-            )
-        }
-        buttonText?.let {
-            TextButton(
-                onClick = { onClick() }
-            ) { Text(text = buttonText, style = AppTheme.typography.body2) }
-        }
-    }
-}
-
-@LightDarkPreview
-@Composable
-fun CardWallGidHelpScreenPreview() {
     PreviewAppTheme {
         CardWallGidHelpScreenScaffold(
+            profileIsPkv = previewData.profileIsPkv,
             listState = rememberLazyListState(),
             onClickOpenSettings = { },
             onBack = { }
         )
-    }
-}
-
-@LightDarkPreview
-@Composable
-fun CardWallGidHelpScreenScaffoldPreview() {
-    val listState = rememberLazyListState()
-    PreviewAppTheme {
-        TestScaffold(
-            topBarTitle = stringResource(R.string.cardwall_gid_help_title),
-            navigationMode = NavigationBarMode.Back
-        ) {
-            CardWallGidHelpScreenContent(
-                listState = listState
-            ) { }
-        }
     }
 }

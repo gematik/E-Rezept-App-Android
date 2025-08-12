@@ -3,12 +3,10 @@ import de.gematik.ti.erp.app.plugins.names.AppDependencyNamesPlugin
 import java.util.Properties
 
 plugins {
-    id("base-android-application")
-    id("de.gematik.ti.erp.dependency-overrides")
-    id("de.gematik.ti.erp.names")
-    // Release app into play-store
-    id("com.github.triplet.play") version "3.8.6" apply true
+    alias(libs.plugins.base.android.app)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.module.names)
+    alias(libs.plugins.dependency.overrides)
 }
 
 // these two need to be in uppercase since it is declared that way in gradle.properties
@@ -17,19 +15,19 @@ val VERSION_CODE: String by overrides()
 
 @Suppress("VariableNaming", "PropertyName")
 val VERSION_NAME: String by overrides()
-val gematik = AppDependencyNamesPlugin()
+val namesPlugin = AppDependencyNamesPlugin()
 val isRunningOnJenkins = System.getenv("JENKINS_HOME") != null // Check if running on Jenkins
 val googleRelease = "googleRelease"
 val huaweiRelease = "huaweiRelease"
 
 android {
-    namespace = gematik.appNameSpace
+    namespace = namesPlugin.appNameSpace
     defaultConfig {
-        applicationId = gematik.appId
+        applicationId = namesPlugin.appId
         versionCode = VERSION_CODE.toInt()
         versionName = VERSION_NAME
 
-        testApplicationId = gematik.moduleName("test.test")
+        testApplicationId = namesPlugin.moduleName("test.test")
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
         testOptions.execution = "ANDROID_TEST_ORCHESTRATOR"
         // Check if MAPS_API_KEY is defined, otherwise provide a default value
@@ -186,24 +184,29 @@ android {
 }
 
 dependencies {
-    implementation(project(gematik.utils))
-    implementation(project(gematik.core))
-    implementation(project(gematik.feature))
-    implementation(project(gematik.demoMode))
-    implementation(project(gematik.uiComponents))
-    androidTestImplementation(project(gematik.testActions))
-    androidTestImplementation(project(gematik.testTags))
-    implementation(project(gematik.multiplatform))
-    testImplementation(project(gematik.multiplatform))
-    testImplementation(project(gematik.fhirParser))
-    androidTestImplementation(project(gematik.fhirParser))
+    implementation(project(namesPlugin.utils))
+    implementation(project(namesPlugin.core))
+    implementation(project(namesPlugin.feature))
+    implementation(project(namesPlugin.demoMode))
+    implementation(project(namesPlugin.uiComponents))
+    implementation(project(namesPlugin.multiplatform))
+    androidTestImplementation(project(namesPlugin.testActions))
+    androidTestImplementation(project(namesPlugin.testTags))
+    testImplementation(project(namesPlugin.multiplatform))
+    testImplementation(project(namesPlugin.fhirParser))
+    androidTestImplementation(project(namesPlugin.fhirParser))
     implementation(libs.play.app.update)
-    implementation(libs.tracing)
-    debugImplementation(libs.tracing)
 
+    // E2E Testing
     androidTestImplementation(libs.kodeon.core)
     androidTestImplementation(libs.kodeon.android)
-    androidTestImplementation(libs.primsys.client)
+    androidTestImplementation(libs.primsys.client) {
+        exclude(module = "io.ktor:ktor-network-tls")
+        exclude(module = "io.ktor:ktor-client-cio-jvm")
+        because("SNYK-JAVA-IOKTOR-9460810")
+    }
+    androidTestImplementation(libs.ktor.network.tls)
+    androidTestImplementation(libs.ktor.client.jvm)
 }
 
 /**

@@ -22,7 +22,8 @@
 
 package de.gematik.ti.erp.app.demomode.datasource
 
-import de.gematik.ti.erp.app.db.entities.v1.InternalMessageEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.InternalMessageEntityV1
+import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource.Companion.requestCommunication
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoAuditEventInfo
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoPharmacyInfo.demoFavouritePharmacy
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoPrescriptionInfo.DemoScannedPrescription.demoScannedTask01
@@ -34,7 +35,7 @@ import de.gematik.ti.erp.app.demomode.datasource.data.FunnyAppNameProvider
 import de.gematik.ti.erp.app.demomode.datasource.data.internalMessageEntityV1
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfile
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfileLinkedCommunication
-import de.gematik.ti.erp.app.fhir.audit.model.erp.FhirAuditEventErpModel
+import de.gematik.ti.erp.app.fhir.audit.model.FhirAuditEventErpModel
 import de.gematik.ti.erp.app.idp.api.models.PairingData
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile.ErxCommunicationDispReq
@@ -62,6 +63,12 @@ class DemoModeDataSource(
         MutableStateFlow(mutableListOf(demoProfile01, demoProfile02))
 
     private val syncedTasksList = listOf(
+        syncedTask(
+            profileIdentifier = demoProfile01.id,
+            status = SyncedTaskData.TaskStatus.Ready,
+            medicationNamesIndex = 0,
+            isEuRedeemable = true
+        ),
         syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Completed, medicationNamesIndex = 1),
         syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Completed, medicationNamesIndex = 2),
 
@@ -217,6 +224,7 @@ class DemoModeDataSource(
     val communications: MutableStateFlow<MutableList<DemoModeProfileLinkedCommunication>> =
         MutableStateFlow(mutableListOf())
 
+    // TODO: Wrong to expose database values directly
     val internalMessages: MutableStateFlow<MutableList<InternalMessageEntityV1>> =
         MutableStateFlow(mutableListOf(internalMessageEntityV1))
 

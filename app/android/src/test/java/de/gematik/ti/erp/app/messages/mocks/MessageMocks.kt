@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.messages.mocks
 
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.model.Communication
@@ -310,7 +310,8 @@ object MessageMocks {
         medicationRequest = MOCK_MEDICATION_REQ,
         lastMedicationDispense = null,
         medicationDispenses = emptyList(),
-        communications = emptyList()
+        communications = emptyList(),
+        isEuRedeemable = false
     )
 
     internal val MOCK_SYNCED_TASK_DATA_02 = SyncedTaskData.SyncedTask(
@@ -336,7 +337,8 @@ object MessageMocks {
         medicationRequest = MOCK_MEDICATION_REQ,
         lastMedicationDispense = null,
         medicationDispenses = emptyList(),
-        communications = emptyList()
+        communications = emptyList(),
+        isEuRedeemable = false
     )
 
     internal val MOCK_MESSAGE_01 = OrderUseCaseData.Message(

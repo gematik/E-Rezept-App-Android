@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.prescription.repository
 
 import de.gematik.ti.erp.app.api.ErpService
 import de.gematik.ti.erp.app.api.safeApiCall
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 
 class TaskRemoteDataSource(
     private val service: ErpService

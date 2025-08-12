@@ -1,32 +1,22 @@
-@file:Suppress("UnusedPrivateProperty")
+@file:Suppress("UnusedPrivateProperty", "unused")
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 import extensions.BuildNames.targetDesktop
 import extensions.BuildNames.versionCatalogLibrary
-import extensions.RealmPaparazziFix
 import extensions.Versions.BUILD_TOOLS_VERSION
 import extensions.Versions.JavaVersion.KOTLIN_OPTIONS_JVM_TARGET
 import extensions.Versions.JavaVersion.PROJECT_JAVA_VERSION
 import extensions.Versions.SdkVersions.COMPILE_SDK_VERSION
 import extensions.Versions.SdkVersions.MIN_SDK_VERSION
-import extensions.coroutinesCoreLibrary
-import extensions.coroutinesTestBundle
-import extensions.cryptoBundle
-import extensions.databaseBundle
-import extensions.datetimeBundle
-import extensions.diKotlinBundle
-import extensions.junitBundle
-import extensions.kotlinTestBundle
-import extensions.multiplatformPagingLibrary
-import extensions.napierLibrary
-import extensions.networkBundle
-import extensions.networkOkhttpMockWebServerLibrary
-import extensions.networkRetrofitLibrary
-import extensions.serializationBundle
+import extensions.commonMainDependencies
+import extensions.commonTestDependencies
+import generated.cryptoBundle
+import generated.datetimeBundle
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
     id("com.android.library")
     id("kotlin-multiplatform")
-    id("com.codingfeline.buildkonfig")
     kotlin("plugin.serialization")
     id("quality-detekt")
     id("io.realm.kotlin")
@@ -37,46 +27,28 @@ val versionCatalog: VersionCatalog = extensions.getByType<VersionCatalogsExtensi
     .named(versionCatalogLibrary)
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll(listOf("-Xopt-in=kotlin.RequiresOptIn"))
+    }
     androidTarget {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = KOTLIN_OPTIONS_JVM_TARGET
-            }
+        java {
+            toolchain.languageVersion.set(JavaLanguageVersion.of(KOTLIN_OPTIONS_JVM_TARGET))
         }
     }
     jvm(targetDesktop)
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(kotlin("reflect"))
-                implementation(versionCatalog.multiplatformPagingLibrary)
-                implementation(versionCatalog.coroutinesCoreLibrary)
-                implementation(versionCatalog.datetimeBundle)
-                implementation(versionCatalog.databaseBundle)
-                implementation(versionCatalog.cryptoBundle)
-                implementation(versionCatalog.serializationBundle)
-                implementation(versionCatalog.napierLibrary)
-                implementation(versionCatalog.networkBundle)
-                implementation(versionCatalog.diKotlinBundle)
-                implementation(RealmPaparazziFix.realmKotlinV3)
+                implementation(project(":erp-model"))
+                commonMainDependencies(versionCatalog)
             }
         }
         val commonTest by getting {
-            dependencies {
-                implementation(versionCatalog.databaseBundle)
-                implementation(versionCatalog.coroutinesTestBundle)
-                implementation(versionCatalog.serializationBundle)
-                implementation(versionCatalog.kotlinTestBundle)
-                implementation(versionCatalog.junitBundle)
-                implementation(versionCatalog.cryptoBundle)
-                implementation(versionCatalog.datetimeBundle)
-                implementation(versionCatalog.networkRetrofitLibrary)
-                implementation(versionCatalog.networkOkhttpMockWebServerLibrary)
-            }
+            dependencies { commonTestDependencies(versionCatalog) }
         }
         val desktopTest by getting {
+            dependsOn(commonTest)
             dependencies {
-                dependsOn(commonTest)
                 implementation(versionCatalog.cryptoBundle)
                 implementation(versionCatalog.datetimeBundle)
             }

@@ -28,7 +28,6 @@ import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.featuretoggle.datasource.FeatureToggleDataStore
-import de.gematik.ti.erp.app.featuretoggle.datasource.Features
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
@@ -54,7 +53,6 @@ class SettingsController(
     getProfilesUseCase: GetProfilesUseCase,
     getScreenShotsAllowedUseCase: GetScreenShotsAllowedUseCase,
     getZoomStateUseCase: GetZoomStateUseCase,
-    featureToggleDataStore: FeatureToggleDataStore,
     private val allowScreenshotsUseCase: AllowScreenshotsUseCase,
     private val saveZoomPreferenceUseCase: SaveZoomPreferenceUseCase,
     private val getActiveProfileUseCase: GetActiveProfileUseCase,
@@ -85,14 +83,6 @@ class SettingsController(
     val hasValidDigas: StateFlow<Boolean> = _hasValidDigas
 
     val allowScreenshotsEvent = ComposableEvent<Unit>()
-
-    val isMedicationPlanEnabled: StateFlow<Boolean> =
-        featureToggleDataStore.isFeatureEnabled(Features.MEDICATION_PLAN)
-            .stateIn(
-                controllerScope,
-                SharingStarted.WhileSubscribed(),
-                false
-            )
 
     init {
         hasValidDigas()
@@ -170,7 +160,6 @@ fun rememberSettingsController(): SettingsController {
             getZoomStateUseCase = getZoomStateUseCase,
             getActiveProfileUseCase = getActiveProfileUseCase,
             endpointHelper = endpointHelper,
-            featureToggleDataStore = featureToggleDataStore,
             hasValidDigasUseCase = hasValidDigasUseCase
         )
     }

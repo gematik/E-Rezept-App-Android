@@ -217,6 +217,7 @@ class EndpointHelper(
         return if (BuildKonfig.INTERNAL) {
             when (getCurrentEnvironment()) {
                 Environment.PU -> BuildKonfig.FHIR_VZD_API_KEY_PU
+                Environment.TU -> BuildKonfig.FHIR_VZD_API_KEY_TU
                 else -> BuildKonfig.FHIR_VZD_API_KEY_RU
             }
         } else {

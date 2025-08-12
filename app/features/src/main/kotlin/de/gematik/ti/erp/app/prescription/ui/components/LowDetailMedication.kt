@@ -40,7 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.prescription.ui.SentStatusChip
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.ScannedPrescription
 import de.gematik.ti.erp.app.theme.AppTheme

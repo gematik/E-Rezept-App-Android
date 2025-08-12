@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.protocol.model
 
-import de.gematik.ti.erp.app.fhir.audit.model.erp.FhirAuditEventErpModel
+import de.gematik.ti.erp.app.fhir.audit.model.FhirAuditEventErpModel
 
 data class AuditEventPagingKey(val offset: Int) {
     companion object {

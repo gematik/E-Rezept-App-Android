@@ -6,17 +6,18 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-val gematik = AppDependencyNamesPlugin()
+val namesPlugin = AppDependencyNamesPlugin()
 
 android {
-    namespace = gematik.moduleName("ui_components")
+    namespace = namesPlugin.moduleName("ui_components")
     defaultConfig {
-        testApplicationId = gematik.moduleName("ui_components.test")
+        testApplicationId = namesPlugin.moduleName("ui_components.test")
     }
 }
 
 dependencies {
     implementation(libs.compose.ui)
     implementation(libs.androidx.work)
-    implementation(project(":utils"))
+    implementation(project(namesPlugin.testTags))
+    implementation(project(namesPlugin.utils))
 }

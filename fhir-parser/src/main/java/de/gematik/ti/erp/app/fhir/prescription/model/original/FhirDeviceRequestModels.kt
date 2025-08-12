@@ -22,16 +22,16 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.model.original
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel.Companion.AccidentTypeRequestFrom.DeviceRequest
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel.Companion.accidentInformationExtension
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel.Companion.toAccidentInformation
+import de.gematik.ti.erp.app.fhir.common.model.erp.accidentInformationExtension
+import de.gematik.ti.erp.app.fhir.common.model.erp.toAccidentInformation
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirCodeableConcept
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.RequestIntent
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.RequestIntent
+import de.gematik.ti.erp.app.fhir.support.AccidentTypeRequestFrom
 import de.gematik.ti.erp.app.utils.ParserUtil.asFhirTemporal
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName
@@ -71,7 +71,7 @@ internal data class FhirDeviceRequestModel(
 
         // note: accidentInformation is an extension inside an extension
         private fun FhirDeviceRequestModel.accidentData() = extension.accidentInformationExtension()?.extensions
-            ?.toAccidentInformation(from = DeviceRequest)
+            ?.toAccidentInformation(from = AccidentTypeRequestFrom.DeviceRequest)
 
         fun FhirDeviceRequestModel.toErpModel() = FhirTaskKbvDeviceRequestErpModel(
             id = id,

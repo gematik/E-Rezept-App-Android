@@ -22,9 +22,9 @@
 
 package de.gematik.ti.erp.app.invoice.usecase
 
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.utils.asFhirTemporal
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus

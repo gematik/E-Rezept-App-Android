@@ -22,11 +22,10 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.model.original
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel.Companion.accidentInformationExtension
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel.Companion.findAccidentDate
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel.Companion.findAccidentLocation
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel.Companion.findAccidentType
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.common.model.erp.accidentInformationExtension
+import de.gematik.ti.erp.app.fhir.common.model.erp.findAccidentDate
+import de.gematik.ti.erp.app.fhir.common.model.erp.findAccidentLocation
+import de.gematik.ti.erp.app.fhir.common.model.erp.findAccidentType
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension.Companion.findExtensionByUrl
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
@@ -35,8 +34,8 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatio
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatio.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMultiplePrescriptionInfoErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvMedicationRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirMultiplePrescriptionInfoErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationRequestErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequest.FhirMedicationRequestConstants.CO_PAYMENT_EXTENSION_URL_102
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequest.FhirMedicationRequestConstants.CO_PAYMENT_EXTENSION_URL_110
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequest.FhirMedicationRequestConstants.EMERGENCY_FEE_EXTENSION_URL
@@ -46,7 +45,8 @@ import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequ
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequestExtension.findPrescriptionIndicator
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequestExtension.findPrescriptionPeriod
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequestExtension.findPrescriptionRatio
-import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.fhir.support.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName

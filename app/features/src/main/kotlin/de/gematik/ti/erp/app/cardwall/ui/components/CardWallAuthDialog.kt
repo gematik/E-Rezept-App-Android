@@ -68,14 +68,14 @@ import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.analytics.trackCardCommunication
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.base.onNfcNotEnabled
 import de.gematik.ti.erp.app.base.retryOnNfcEnabled
 import de.gematik.ti.erp.app.cardwall.presentation.CardWallController
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalCardCommunicationAnalytics
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.troubleshooting.ui.components.TroubleShootingInfo
@@ -84,6 +84,7 @@ import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.toAnnotatedString
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -197,8 +198,7 @@ fun CardWallAuthenticationDialog(
         }.collect {
             errorCount += if (it == AuthenticationState.HealthCardCommunicationInterrupted) 1 else 0
             value = it
-
-            tracker.trackCardCommunication(it)
+            launch(Dispatchers.IO) { tracker.trackCardCommunication(it) }
         }
     }
 

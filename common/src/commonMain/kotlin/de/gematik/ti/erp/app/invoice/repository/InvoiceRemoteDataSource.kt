@@ -26,7 +26,7 @@ import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.ErpService
 import de.gematik.ti.erp.app.api.safeApiCall
 import de.gematik.ti.erp.app.api.safeApiCallRaw
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import java.net.HttpURLConnection
 
 class InvoiceRemoteDataSource(

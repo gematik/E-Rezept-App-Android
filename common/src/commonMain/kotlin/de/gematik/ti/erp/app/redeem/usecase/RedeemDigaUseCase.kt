@@ -25,9 +25,9 @@ package de.gematik.ti.erp.app.redeem.usecase
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.api.httpErrorState
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
 import de.gematik.ti.erp.app.fhir.communication.DigaDispenseRequestBuilder
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.DigaRedeemedPrescriptionState

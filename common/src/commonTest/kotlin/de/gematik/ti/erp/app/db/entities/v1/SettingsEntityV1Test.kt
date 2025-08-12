@@ -22,14 +22,20 @@
 
 package de.gematik.ti.erp.app.db.entities.v1
 
+import de.gematik.ti.erp.app.database.realm.utils.deleteAll
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.v1.AddressEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.AuthenticationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.AuthenticationPasswordEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.PasswordEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.PharmacySearchEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.ShippingContactEntityV1
 import de.gematik.ti.erp.app.db.TestDB
-import de.gematik.ti.erp.app.db.entities.deleteAll
-import de.gematik.ti.erp.app.db.queryFirst
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
 import org.junit.Test
-
 import kotlin.test.assertEquals
 
 class SettingsEntityV1Test : TestDB() {

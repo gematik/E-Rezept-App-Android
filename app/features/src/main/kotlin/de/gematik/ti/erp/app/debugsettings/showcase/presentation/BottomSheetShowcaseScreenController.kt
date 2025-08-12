@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.debugsettings.showcase.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import de.gematik.ti.erp.app.base.presentation.GetActiveProfileController
+import de.gematik.ti.erp.app.profiles.presentation.GetActiveProfileController
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import io.github.aakira.napier.Napier
 import org.kodein.di.compose.rememberInstance

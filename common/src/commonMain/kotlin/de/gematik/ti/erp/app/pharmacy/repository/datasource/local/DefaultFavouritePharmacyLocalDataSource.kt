@@ -22,11 +22,11 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository.datasource.local
 
-import de.gematik.ti.erp.app.db.entities.v1.pharmacy.FavoritePharmacyEntityV1
-import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.db.toInstant
-import de.gematik.ti.erp.app.db.toRealmInstant
-import de.gematik.ti.erp.app.db.tryWrite
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.utils.toInstant
+import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
+import de.gematik.ti.erp.app.database.realm.utils.tryWrite
+import de.gematik.ti.erp.app.database.realm.v1.pharmacy.FavoritePharmacyEntityV1
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData.OverviewPharmacy
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
 import io.realm.kotlin.Realm

@@ -28,7 +28,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.digas.ui.model.DigaMainScreenUiModel
 import de.gematik.ti.erp.app.digas.ui.preview.digaMainScreenUiModel
 import de.gematik.ti.erp.app.preview.LightDarkPreview

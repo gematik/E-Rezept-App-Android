@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.mocks.prescription.api
 
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
 import de.gematik.ti.erp.app.mocks.DATE_3024_01_01
 import de.gematik.ti.erp.app.mocks.PROFILE_ID
@@ -56,7 +57,7 @@ private val MEDICATION = Medication(
     text = "Medication",
     form = "AEO",
     lotNumber = "123456",
-    expirationDate = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(Clock.System.now().plus(30.days)),
+    expirationDate = FhirTemporal.Instant(Clock.System.now().plus(30.days)),
     identifier = SyncedTaskData.Identifier("1234567890"),
     normSizeCode = "KA",
     amount = Ratio(
@@ -78,7 +79,7 @@ private val MEDICATION_10_TAB = Medication(
     text = "Medication",
     form = "TAB",
     lotNumber = "123456",
-    expirationDate = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(Clock.System.now().plus(30.days)),
+    expirationDate = FhirTemporal.Instant(Clock.System.now().plus(30.days)),
     identifier = SyncedTaskData.Identifier("1234567890"),
     normSizeCode = "KA",
     amount = Ratio(
@@ -105,7 +106,7 @@ internal var MEDICATION_REQUEST = MedicationRequest(
     substitutionAllowed = true
 )
 
-internal var MEDICATION_REQUEST_DOSAGE_STRUCTURED_AMOUNT_20 = MedicationRequest(
+internal var MEDICATION_REQUEST_DOSAGE_STRUCTURED_AMOUNT_10 = MedicationRequest(
     medication = MEDICATION_10_TAB,
     dateOfAccident = null,
     location = "Location",
@@ -156,7 +157,8 @@ val API_ACTIVE_SYNCED_TASK = SyncedTaskData.SyncedTask(
     medicationRequest = MEDICATION_REQUEST,
     medicationDispenses = emptyList(),
     lastMedicationDispense = null,
-    communications = emptyList()
+    communications = emptyList(),
+    isEuRedeemable = false
 )
 
 val API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE = SyncedTaskData.SyncedTask(
@@ -175,10 +177,11 @@ val API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE = SyncedTaskData.SyncedTask(
     isIncomplete = false,
     pvsIdentifier = "pvsIdentifier",
     failureToReport = "failureToReport",
-    medicationRequest = MEDICATION_REQUEST_DOSAGE_STRUCTURED_AMOUNT_20,
+    medicationRequest = MEDICATION_REQUEST_DOSAGE_STRUCTURED_AMOUNT_10,
     medicationDispenses = emptyList(),
     lastMedicationDispense = null,
-    communications = emptyList()
+    communications = emptyList(),
+    isEuRedeemable = false
 )
 
 val API_ARCHIVE_SYNCED_TASK = SyncedTaskData.SyncedTask(
@@ -200,5 +203,6 @@ val API_ARCHIVE_SYNCED_TASK = SyncedTaskData.SyncedTask(
     medicationRequest = MEDICATION_REQUEST,
     medicationDispenses = emptyList(),
     lastMedicationDispense = null,
-    communications = emptyList()
+    communications = emptyList(),
+    isEuRedeemable = false
 )

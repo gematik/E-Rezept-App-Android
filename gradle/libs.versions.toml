@@ -1,19 +1,22 @@
+# README
+# Before removing any libs please check using the Libs.kt in scripts module if its being used in any of the base gradle files
+
 [versions]
 
 # BOMs
 androidx-compose-bom = "2024.08.00"
 
 # android
-agp-build = "8.10.0-beta01"
-agp-app = "8.8.2"
+agp-build = "8.11.1"
+agp-app = "8.11.1"
 certificatetransparency-android = "2.5.42"
 desugar = "2.1.3"
 
 # androidx
 gradle-license-plugin = "0.9.8"
-legacy-support-v4 = "1.0.0"
 lifecycle = "2.8.7"
-accompanist = "0.32.0"
+accompanist = "0.36.0"
+accompanist-permission = "0.37.3"
 activity-compose = "1.10.0"
 markdown = "0.5.4"
 appcompat = "1.7.0"
@@ -51,13 +54,10 @@ compose = "1.7.7"
 compiler = "1.5.15"
 navigation-compose = "2.8.6"
 paging-compose = "3.3.5"
-material3 = "1.2.1"
 
 # kotlin
 kotlin = "2.0.21"
-atomicfu = "0.22.0"
 kotlinx-datetime = "0.6.0-RC.2"
-kotlinx-html = "0.11.0"
 kotlin-reflect = "2.0.21"
 kotlin-test = "2.0.21"
 
@@ -83,10 +83,11 @@ material = "1.12.0"
 # di
 di = "7.20.2"
 
-# documentation
-dokka = "2.0.0"
-jackson-core = "2.18.3"
-woodstox-core = "7.1.0"
+# security fixes
+protobuf = "4.28.2"
+netty-codec-http2 = "4.1.108.Final"
+netty-handler = "4.1.118.Final"
+guava = "33.2.0-jre"
 
 # serialization
 kotlinx-serialization = "2.0.21"
@@ -95,9 +96,10 @@ kotlinx-serialization-json = "1.8.0"
 # image
 # todo: remove as image-cropper is not maintained anymore
 image-cropper = "4.3.2"
-coil = "2.6.0"
+coil = "2.7.0"
 barcode-scanning = "17.3.0"
 text-translation = "17.0.3"
+text-recognition = "16.0.1"
 zxing-core = "3.5.2"
 
 jetbrains-kotlin-jvm = "2.0.21"
@@ -141,7 +143,7 @@ mockk = "1.13.10"
 yaml = "2.3"
 
 # e2e testing
-primsys = "0.9.1-SNAPSHOT"
+primsys = "0.13.1"
 kodeon = "0.1.1-SNAPSHOT"
 
 # Quality
@@ -155,7 +157,8 @@ rules = "1.0"
 
 # Plugins
 kotlin-multiplatform = "2.0.21"
-uiautomator-v18 = "2.2.0-alpha1"
+kotlin-stdlib = "2.1.21"
+kotlin-test-version = "2.2.0"
 
 [libraries]
 
@@ -191,7 +194,7 @@ quality-detekt = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", 
 quality-composerules = { module = "com.twitter.compose.rules:detekt", version.ref = "composerules" }
 quality-rules = { module = "de.gematik.ti.erp.app:rules", version.ref = "rules" }
 
-# material
+# material (used in scripts)
 material = { module = "com.google.android.material:material", version.ref = "material" }
 
 # accompanist
@@ -201,12 +204,11 @@ accompanist-flowlayout = { module = "com.google.accompanist:accompanist-flowlayo
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanist" }
 accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "accompanist" }
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
-accompanist-permission = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
+accompanist-permission = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist-permission" }
 compose-markdown = { module = "com.github.jeziellago:compose-markdown", version.ref = "markdown" }
 
 # androidx
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
-androidx-legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacy-support-v4" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore-preferences" }
 androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
@@ -220,9 +222,6 @@ androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-
 androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-test-junit" }
 androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
 androidx-test-orchestrator = { module = "androidx.test:orchestrator", version.ref = "androidx-test-services" }
-androidx-test-services = { module = "androidx.test.services:test-services", version.ref = "androidx-test-services" }
-androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-test-espresso-core" }
-androidx-test-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "androidx-test-espresso-core" }
 androidx-test-arch-core = { module = "androidx.arch.core:core-testing", version.ref = "androidx-test-arch-core" }
 
 # bouncy castle
@@ -257,12 +256,10 @@ di-savedstate = { module = "org.kodein.di:kodein-di-framework-android-x-viewmode
 di-androidx = { module = "org.kodein.di:kodein-di-framework-android-x", version.ref = "di" }
 di = { module = "org.kodein.di:kodein-di", version.ref = "di" }
 
-# documentation
-classgraph = { module = "io.github.classgraph:classgraph", version = "4.8.162" }
-
 # google
 barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcode-scanning" }
 text-translation = { module = "com.google.mlkit:translate", version.ref = "text-translation" }
+text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "text-recognition" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secrets-gradle-plugin" }
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing-core" }
 
@@ -324,8 +321,18 @@ play-app-update = { module = "com.google.android.play:app-update-ktx", version.r
 database-realm = { module = "io.realm.kotlin:library-base", version.ref = "realm" }
 database-realm-plugin = { module = "io.realm.kotlin:gradle-plugin", version.ref = "realm-plugin" }
 
+# kmp shared prefs
+multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version = "1.3.0" }
+
 # reactive-state
 reactive-state = { module = "com.ensody.reactivestate:reactivestate", version.ref = "reactive-state" }
+
+# security-fixes
+protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
+protobuf-java-util = { module = "com.google.protobuf:protobuf-java-util", version.ref = "protobuf" }
+netty-codec-http2 = { module = "io.netty:netty-codec-http2", version.ref = "netty-codec-http2" }
+netty-handler = { module = "io.netty:netty-handler", version.ref = "netty-handler" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
 
 # serialization
 json = { module = "org.json:json", version.ref = "json" }
@@ -340,7 +347,7 @@ tracking-library = { module = "com.contentsquare.android:library", version.ref =
 tracking-compose = { module = "com.contentsquare.android:compose", version.ref = "tracking" }
 
 # others
-desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar" }
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar" }
 process-phoenix = { module = "com.jakewharton:process-phoenix", version.ref = "process-phoenix" }
 image-cropper = { module = "com.github.CanHub:Android-Image-Cropper", version.ref = "image-cropper" }
 pdf-box = { module = "com.tom-roush:pdfbox-android", version = "2.0.27.0" }
@@ -357,6 +364,8 @@ primsys-client = { module = "de.gematik.test.erezept:primsys-rest-client", versi
 primsys-data = { module = "de.gematik.test.erezept:primsys-rest-data", version.ref = "primsys" }
 kodeon-core = { module = "de.gematik.kodeon:kodeon-core", version.ref = "kodeon" }
 kodeon-android = { module = "de.gematik.kodeon:kodeon-android", version.ref = "kodeon" }
+ktor-network-tls = { module = "io.ktor:ktor-network-tls", version = "3.2.2" }
+ktor-client-jvm = { module = "io.ktor:ktor-client-cio-jvm", version = "3.2.2" }
 
 # debug testing
 chucker = { module = "com.github.chuckerteam.chucker:library", version = "4.1.0" }
@@ -369,13 +378,9 @@ kotlin_gradle_plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", v
 kotlin-serilization-plugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin-serilization" }
 dependency-check-gradle = { module = "org.owasp:dependency-check-gradle", version.ref = "dependency-check-gradle" }
 gradle-license-plugin = { module = "com.jaredsburrows:gradle-license-plugin", version.ref = "gradle-license-plugin" }
-
-# tracing
-tracing = { module = "androidx.tracing:tracing", version = "1.2.0" }
-androidx-uiautomator-v18 = { group = "androidx.test.uiautomator", name = "uiautomator-v18", version.ref = "uiautomator-v18" }
-
-jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson-core" }
-woodstox-core = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox-core" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin-stdlib" }
+kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin-stdlib" }
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin-test-version" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp-app" }
@@ -391,96 +396,65 @@ jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = 
 jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig-gradle-plugin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot" }
 paparazzi = { id = "app.cash.paparazzi", version.ref = "paparazzi" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp-app" }
+
+# plugins generated from scripts module
+base-android-app = { id = "base-android-application" }
+base-android-library = { id = "base-android-library" }
+base-kmp-library = { id = "base-multiplatform-library" }
+base-java-library = { id = "base-java-library" }
+forced-dependencies = { id = "de.gematik.forced-dependencies" }
+
+# custom gematik plugins
+technical-requirements = { id = "de.gematik.ti.erp.technical-requirements" }
+task-versions = { id = "de.gematik.ti.erp.versioning" }
+task-properties = { id = "de.gematik.ti.erp.properties" }
+task-flavours = { id = "de.gematik.ti.erp.flavours" }
+teams-communication = { id = "de.gematik.ti.erp.teams" }
+module-names = { id = "de.gematik.ti.erp.names" }
+dependency-overrides = { id = "de.gematik.ti.erp.dependency-overrides" }
 
 # Bundles are used in VersionCatalogBundles file as a way to group dependencies together
 [bundles]
-accompanist = ["accompanist-swiperefresh", "accompanist-flowlayout", "accompanist-pager",
-    "accompanist-pager-indicators", "accompanist-systemuicontroller", "accompanist-navigation-material",
-    "accompanist-permission", "compose-markdown"]
-
+accompanist = ["accompanist-swiperefresh", "accompanist-flowlayout", "accompanist-pager", "accompanist-pager-indicators", "accompanist-systemuicontroller", "accompanist-navigation-material", "accompanist-permission", "compose-markdown"]
 androidx-app = ["androidx-appcompat", "androidx-security-crypto"]
-
-androidx = ["androidx-appcompat", "androidx-legacy-support-v4", "androidx-core-ktx", "androidx-datastore-preferences",
-    "androidx-biometric", "androidx-webkit", "androidx-security-crypto", "androidx-activity-compose", "androidx-window"]
-
+androidx = ["androidx-appcompat", "androidx-core-ktx", "androidx-datastore-preferences", "androidx-biometric", "androidx-webkit", "androidx-security-crypto", "androidx-activity-compose", "androidx-window"]
 androidx-test-arch-core = ["androidx-test-arch-core"]
-
-androidxtest = ["androidx-test-core", "androidx-test-rules", "androidx-test-junit", "androidx-test-runner",
-    "androidx-test-espresso-core", "androidx-test-espresso-intents"]
-
-androidxtestutils = ["androidx-test-orchestrator", "androidx-test-services"]
-
+androidxtest = ["androidx-test-core", "androidx-test-rules", "androidx-test-junit", "androidx-test-runner"]
+androidxtestutils = ["androidx-test-orchestrator"]
 animation = ["lottie", "shimmer"]
-
-composeLibsWithBom = ["compose-ui", "compose-ui-tooling", "compose-ui-tooling-preview", "compose-material",
-    "compose-material3", "compose-material-icons-core", "compose-material-icons-extended", "compose-runtime",
-    "compose-animation"]
-
+composeLibsWithBom = ["compose-ui", "compose-ui-tooling", "compose-ui-tooling-preview", "compose-material", "compose-material3", "compose-material-icons-core", "compose-material-icons-extended", "compose-runtime", "compose-animation"]
 composeLibsWithoutBom = ["compose-plugin", "compose-compiler", "compose-foundation", "paging-compose", "paging-common-ktx", "navigation-compose"]
-
 composetest = ["compose-ui-test", "compose-ui-test-manifest", "compose-ui-test-junit4"]
-
 camera = ["camera-camera2", "camera-lifecycle", "camera-view"]
-
 coroutines = ["kotlinx-coroutines-core", "kotlinx-coroutines-android", "kotlinx-coroutines-play-services"]
-
 corutinestest = ["kotlinx-coroutines-test"]
-
 crypto = ["bouncycastle-jose4j", "bouncycastle-bcprov", "bouncycastle-bcpkix"]
-
 cryptotest = ["bouncycastle-bcprov", "bouncycastle-bcpkix"]
-
 datetime = ["kotlinx-datetime"]
-
 datamatrix = ["barcode-scanning", "zxing-core"]
-
 database = ["database-realm"]
-
 di = ["di-compose", "di-viewmodel", "di-savedstate", "di-androidx", "di"]
-
 di-kotlin = ["di-compose", "di"]
-
 di-viewmodel = ["di-viewmodel", "di-savedstate"]
-
 image = ["coil-compose", "coil-gif"]
-
 kotlin = ["kotlin-reflect"]
-
 kotlintest = ["test-kotlin-test", "test-kotlin-test-common", "kotlin-reflect"]
-
 lifecycle = ["lifecycle-viewmodel-ktx", "lifecycle-process", "lifecycle-runtime-compose"]
-
 logging = ["logging-napier", "logging-slf4j-nop"]
-
 maps = ["maps-compose", "maps-ktx", "maps-utils", "maps", "maps-location"]
-
 network = ["network-okhttp", "network-okhttp-logging", "network-okhttp-mockwebserver", "network-retrofit", "network-retrofit-kotlinx-serialization-converter"]
-
 networktest = ["network-okhttp-mockwebserver", "network-okhttp"]
-
 others = ["image-cropper", "reactive-state", "password-strength"]
-
 pdfbox = ["pdf-box"]
-
 processphoenix = ["process-phoenix"]
-
 play = ["play-intergrity", "play-review", "play-app-update"]
-
 quality = ["quality-ktlint", "quality-detekt", "quality-composerules"]
-
 qualitydetektcomposerules = ["quality-composerules"]
-
 serialization = ["kotlinx-serialization-json", "kotlinx-serialization-core"]
-
 tracking = ["tracking-library", "tracking-compose"]
-
-testing = ["test-junit", "test-kotlin-test", "test-kotlin-test-common",
-    "test-yaml", "androidx-test-junit", "androidx-test-espresso-core", "json", "test-mockk-android"]
-
+testing = ["test-junit", "test-kotlin-test", "test-kotlin-test-common", "test-yaml", "androidx-test-junit", "json", "test-mockk-android"]
 testjunit = ["test-junit", "test-yaml", "json", "test-mockk"]
-
 mockandroid = ["test-mockk-android"]

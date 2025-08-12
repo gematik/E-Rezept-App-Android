@@ -57,14 +57,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.pharmacy.ui.preview.mockPharmacy
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerTiny
-import de.gematik.ti.erp.app.utils.compose.BigFontDarkPreview
+import de.gematik.ti.erp.app.utils.compose.DarkBigFontPreview
 import de.gematik.ti.erp.app.utils.compose.DarkPreview
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.gotoCoordinates
@@ -180,7 +180,7 @@ private fun RowScope.PharmacyContactButton(
     }
 }
 
-@BigFontDarkPreview
+@DarkBigFontPreview
 @Composable
 fun PreviewContactSelectionBigFont() {
     PreviewAppTheme {

@@ -22,32 +22,25 @@
 
 package de.gematik.ti.erp.app.redeem
 
-import de.gematik.ti.erp.app.redeem.presentation.DefaultOnlineRedeemGraphController
-import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemGraphController
 import de.gematik.ti.erp.app.redeem.usecase.GetDMCodesForLocalRedeemUseCase
 import de.gematik.ti.erp.app.redeem.usecase.GetRedeemableTasksForDmCodesUseCase
+import de.gematik.ti.erp.app.redeem.usecase.HasEuRedeemablePrescriptionsUseCase
 import de.gematik.ti.erp.app.redeem.usecase.HasRedeemableTasksUseCase
 import de.gematik.ti.erp.app.redeem.usecase.RedeemPrescriptionsOnDirectUseCase
 import de.gematik.ti.erp.app.redeem.usecase.RedeemPrescriptionsOnLoggedInUseCase
 import de.gematik.ti.erp.app.redeem.usecase.RedeemScannedTasksUseCase
+import de.gematik.ti.erp.app.redeem.usecase.ValidateContactUseCase
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
-import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
 val redeemModule = DI.Module("redeemModule") {
     bindProvider { HasRedeemableTasksUseCase(instance()) }
     bindProvider { GetDMCodesForLocalRedeemUseCase() }
+    bindProvider { ValidateContactUseCase() }
     bindProvider { RedeemScannedTasksUseCase(instance()) }
     bindProvider { GetRedeemableTasksForDmCodesUseCase(instance()) }
     bindProvider { RedeemPrescriptionsOnLoggedInUseCase(instance(), instance()) }
     bindProvider { RedeemPrescriptionsOnDirectUseCase(instance(), instance()) }
-    bindSingleton<OnlineRedeemGraphController> {
-        DefaultOnlineRedeemGraphController(
-            instance(),
-            instance(),
-            instance(),
-            instance()
-        )
-    }
+    bindProvider { HasEuRedeemablePrescriptionsUseCase(instance()) }
 }

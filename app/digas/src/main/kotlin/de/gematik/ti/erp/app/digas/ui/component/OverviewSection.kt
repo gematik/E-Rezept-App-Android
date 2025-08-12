@@ -28,10 +28,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.Divider
 import androidx.compose.ui.Modifier
+import de.gematik.ti.erp.app.diga.model.DigaStatus
+import de.gematik.ti.erp.app.digas.ui.model.DigaBfarmUiModel
 import de.gematik.ti.erp.app.digas.ui.model.DigaMainScreenUiModel
 import de.gematik.ti.erp.app.digas.ui.model.DigasActions
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -39,14 +40,15 @@ import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.uistate.UiState
+import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isEmptyState
 import kotlinx.datetime.Instant
 
 fun LazyListScope.overviewSection(
     modifier: Modifier = Modifier,
     uiState: UiState<DigaMainScreenUiModel>,
+    uiStateBfarm: UiState<DigaBfarmUiModel>,
     lastRefreshedTime: Instant,
     isDownloading: Boolean,
-    isBframReachable: Boolean,
     errorTitle: String,
     errorBody: String,
     actions: DigasActions
@@ -101,7 +103,7 @@ fun LazyListScope.overviewSection(
                     SpacerLarge()
                     Divider(color = AppTheme.colors.neutral400, thickness = SizeDefaults.eighth)
                     SpacerMedium()
-                    if (isBframReachable) {
+                    if (!uiStateBfarm.isEmptyState) {
                         OverviewDescriptionRow(actions.onNavigateToDescriptionScreen)
                         SpacerMedium()
                         if ((current.step) >= DigaStatus.CompletedSuccessfully.step || current is DigaStatus.CompletedWithRejection) {

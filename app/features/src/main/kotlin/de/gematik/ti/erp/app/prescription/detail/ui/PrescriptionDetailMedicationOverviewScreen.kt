@@ -47,7 +47,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.digas.ui.component.Label
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.toNavigationString
@@ -114,6 +114,8 @@ private fun PrescriptionDetailMedicationOverviewScreenScaffold(
         listState = listState,
         onBack = onBack,
         topBarTitle = stringResource(R.string.synced_medication_detail_header),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         navigationMode = NavigationBarMode.Back,
         snackbarHost = { SnackbarHost(it, modifier = Modifier.navigationBarsPadding()) },
         actions = {}

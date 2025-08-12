@@ -29,7 +29,7 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirTaskResource.Compani
 import de.gematik.ti.erp.app.fhir.common.model.original.isResourceType
 import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvPractitionerErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvPractitionerErpModel
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

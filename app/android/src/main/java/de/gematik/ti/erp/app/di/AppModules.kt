@@ -69,7 +69,7 @@ val appModules = DI.Module("appModules") {
     }
     // A scope for the whole application
     bindSingleton<CoroutineScope>(applicationScope) {
-        CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }
     bindSingleton(ApplicationPreferencesTag) {
         val context = instance<Context>()

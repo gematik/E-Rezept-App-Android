@@ -119,7 +119,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.navigateAndClearStack
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
@@ -236,7 +236,7 @@ class PrescriptionScanScreen(
                     },
                     onClickRedeem = {
                         scanPrescriptionController.saveToDatabase()
-                        navController.navigate(RedeemRoutes.RedeemMethodSelection.path())
+                        navController.navigate(RedeemRoutes.HowToRedeemScreen.path())
                     }
                 )
             }

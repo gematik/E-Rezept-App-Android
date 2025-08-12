@@ -23,8 +23,8 @@
 package de.gematik.ti.erp.app.digas.domain.usecase
 
 import app.cash.turbine.test
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
+import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import io.mockk.MockKAnnotations
@@ -32,6 +32,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.resetMain
@@ -90,7 +91,7 @@ class FetchInsuranceListUseCaseTest {
 
         fetchInsuranceListUseCase = FetchInsuranceListUseCase(
             repository = repository,
-            dispatchers = testDispatcher
+            dispatcher = testDispatcher
         )
     }
 
@@ -105,12 +106,12 @@ class FetchInsuranceListUseCaseTest {
         coEvery { repository.searchInsurances(any()) } returns Result.success(mockCollection)
 
         // When
-        fetchInsuranceListUseCase().test {
+        flowOf(fetchInsuranceListUseCase()).test {
             // Then
             val result = awaitItem()
-            assertEquals(2, result.data?.size)
-            result.data?.get(0)?.let { assertEquals("AOK Nordost - Die Gesundheitskasse", it.name) }
-            result.data?.get(1)?.let { assertEquals("BARMER", it.name) }
+            assertEquals(2, result.size)
+            assertEquals("AOK Nordost - Die Gesundheitskasse", result[0].name)
+            assertEquals("BARMER", result[1].name)
             awaitComplete()
         }
     }
@@ -151,12 +152,12 @@ class FetchInsuranceListUseCaseTest {
         coEvery { repository.searchInsurances(any()) } returns Result.success(unsortedCollection)
 
         // When
-        fetchInsuranceListUseCase().test {
+        flowOf(fetchInsuranceListUseCase()).test {
             // Then
             val result = awaitItem()
-            assertEquals(2, result.data?.size)
-            result.data?.get(0)?.let { assertEquals("AOK Nordost - Die Gesundheitskasse", it.name) }
-            result.data?.get(1)?.let { assertEquals("BARMER", it.name) }
+            assertEquals(2, result.size)
+            assertEquals("AOK Nordost - Die Gesundheitskasse", result[0].name)
+            assertEquals("BARMER", result[1].name)
             awaitComplete()
         }
     }

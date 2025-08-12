@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.settings.usecase
 
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

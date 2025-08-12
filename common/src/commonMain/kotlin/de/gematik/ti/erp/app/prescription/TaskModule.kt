@@ -30,7 +30,7 @@ import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEPrescriptionMetadataP
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEPrescriptionParsers
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEntryParser
 import de.gematik.ti.erp.app.prescription.repository.DefaultTaskRepository
-import de.gematik.ti.erp.app.prescription.repository.TaskLocalDataSource
+import de.gematik.ti.erp.app.prescription.repository.RealmLegacyTaskLocalDataSource
 import de.gematik.ti.erp.app.prescription.repository.TaskRemoteDataSource
 import de.gematik.ti.erp.app.prescription.repository.TaskRepository
 import org.kodein.di.DI
@@ -39,7 +39,7 @@ import org.kodein.di.instance
 
 val taskModule = DI.Module("taskModule") {
     bindProvider { TaskRemoteDataSource(instance()) }
-    bindProvider { TaskLocalDataSource(instance()) }
+    bindProvider { RealmLegacyTaskLocalDataSource(instance()) }
     bindProvider { TaskEntryParser() }
     bindProvider { TaskBundleSeparationParser() }
     bindProvider { TaskEPrescriptionMetadataParser() }

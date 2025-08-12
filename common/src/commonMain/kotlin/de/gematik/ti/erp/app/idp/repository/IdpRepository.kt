@@ -33,7 +33,7 @@ import de.gematik.ti.erp.app.idp.api.models.RemoteFederationIdp
 import de.gematik.ti.erp.app.idp.api.models.TokenResponse
 import de.gematik.ti.erp.app.idp.api.models.UniversalLinkToken
 import de.gematik.ti.erp.app.idp.model.IdpData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
 import java.net.URI
 import java.security.PublicKey

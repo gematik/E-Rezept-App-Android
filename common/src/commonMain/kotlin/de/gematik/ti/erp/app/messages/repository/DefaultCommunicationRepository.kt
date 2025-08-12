@@ -25,15 +25,15 @@ package de.gematik.ti.erp.app.messages.repository
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.ResourcePaging
 import de.gematik.ti.erp.app.diga.local.DigaLocalDataSource
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.FhirCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationParser
 import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionLocalDataSource
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRemoteDataSource
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first

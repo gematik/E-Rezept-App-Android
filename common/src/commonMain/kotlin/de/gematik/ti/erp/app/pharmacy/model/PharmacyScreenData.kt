@@ -25,13 +25,10 @@ package de.gematik.ti.erp.app.pharmacy.model
 import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 
-// TODO: Poor naming we need to change
 object PharmacyScreenData {
     @Serializable
     @Immutable
     enum class OrderOption {
-        PickupService,
-        CourierDelivery,
-        MailDelivery
+        Pickup, Delivery, Online;
     }
 }

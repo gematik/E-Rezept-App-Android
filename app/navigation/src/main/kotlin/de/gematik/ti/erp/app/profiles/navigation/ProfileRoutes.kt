@@ -100,6 +100,13 @@ object ProfileRoutes : NavigationRoutes {
         NavigationRouteNames.ProfileAddNameBottomSheetScreen.name
     )
 
+    object ProfileChangeInsuranceTypeBottomSheetScreen : Routes(
+        NavigationRouteNames.ProfileChangeInsuranceTypeBottomSheetScreen.name,
+        navArgument(PROFILE_NAV_PROFILE_ID) { type = NavType.StringType }
+    ) {
+        fun path(profileId: String) = path(PROFILE_NAV_PROFILE_ID to profileId)
+    }
+
     fun getProfileId(entry: NavBackStackEntry): String =
         requireNotNull(entry.arguments?.getString(PROFILE_NAV_PROFILE_ID)) { "profile-id cannot be null for this navigation" }
 }

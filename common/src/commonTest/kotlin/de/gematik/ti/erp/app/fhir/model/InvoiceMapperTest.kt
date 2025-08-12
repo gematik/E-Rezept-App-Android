@@ -24,7 +24,7 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.utils.asFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json

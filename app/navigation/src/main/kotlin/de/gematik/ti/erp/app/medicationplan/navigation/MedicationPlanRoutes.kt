@@ -32,20 +32,20 @@ object MedicationPlanRoutes : NavigationRoutes {
     internal const val TASK_ID = "taskId"
     override fun subGraphName() = "MedicationPlan"
 
-    object MedicationPlanNotificationSuccess : Routes(NavigationRouteNames.SuccessScreen.name)
+    object MedicationPlanNotificationScreen : Routes(NavigationRouteNames.MedicationPlanNotificationScreen.name)
 
-    object MedicationPlanList : Routes(NavigationRouteNames.ScheduleListScreen.name)
+    object MedicationPlanScheduleListScreen : Routes(NavigationRouteNames.MedicationPlanScheduleListScreen.name)
 
-    object MedicationPlanPerPrescription : Routes(
-        NavigationRouteNames.ScheduleScreen.name,
+    object MedicationPlanScheduleDetailScreen : Routes(
+        NavigationRouteNames.MedicationPlanScheduleDetailScreen.name,
         navArgument(TASK_ID) { type = NavType.StringType }
     ) {
         fun path(taskId: String) = path(
             TASK_ID to taskId
         )
     }
-    object MedicationPlanDosageInfo : Routes(
-        NavigationRouteNames.DosageInfoScreen.name,
+    object MedicationPlanDosageInstructionBottomSheetScreen : Routes(
+        NavigationRouteNames.MedicationPlanDosageInstructionBottomSheetScreen.name,
         navArgument(TASK_ID) { type = NavType.StringType }
     ) {
         fun path(taskId: String) = path(
@@ -53,8 +53,8 @@ object MedicationPlanRoutes : NavigationRoutes {
         )
     }
 
-    object ScheduleDateRange : Routes(
-        NavigationRouteNames.ScheduleDateRangeScreen.name,
+    object MedicationPlanScheduleDurationAndIntervalScreen : Routes(
+        NavigationRouteNames.MedicationPlanScheduleDurationAndIntervalScreen.name,
         navArgument(TASK_ID) { type = NavType.StringType }
     ) {
         fun path(taskId: String) = path(

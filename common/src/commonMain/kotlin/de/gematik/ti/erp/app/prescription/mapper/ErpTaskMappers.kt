@@ -22,18 +22,18 @@
 
 package de.gematik.ti.erp.app.prescription.mapper
 
-import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestDispenseEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestEntityV1.Companion.getDigaStatusForUserAction
-import de.gematik.ti.erp.app.db.toInstant
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskAccidentType
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirDispenseDeviceRequestErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.RequestIntent
-import de.gematik.ti.erp.app.utils.FhirTemporal
-import de.gematik.ti.erp.app.utils.asFhirTemporal
-import de.gematik.ti.erp.app.utils.toLocalDate
+import de.gematik.ti.erp.app.database.realm.utils.toInstant
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.DeviceRequestDispenseEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.DeviceRequestEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.DeviceRequestEntityV1.Companion.getDigaStatusForUserAction
+import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispenseDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.RequestIntent
+import de.gematik.ti.erp.app.fhir.support.FhirAccidentInformationErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.toLocalDate
 
 object ErpTaskMappers {
     fun DeviceRequestEntityV1.toErpModel() = FhirTaskKbvDeviceRequestErpModel(

@@ -22,15 +22,15 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirContactInformationErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyAddressErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPositionErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirVzdSpecialtyType.Delivery
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirVzdSpecialtyType.Pickup
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirVzdSpecialtyType.Shipment
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningHoursErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningTimeErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirContactInformationErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyAddressErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPositionErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType.Delivery
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType.Pickup
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType.Shipment
+import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningTimeErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData

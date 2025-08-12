@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.settings.repository
 
-import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
-import de.gematik.ti.erp.app.db.writeToRealm
+import de.gematik.ti.erp.app.database.realm.utils.writeToRealm
+import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
 import de.gematik.ti.erp.app.settings.AnalyticsSettings
 import de.gematik.ti.erp.app.settings.AuthenticationSettings
 import de.gematik.ti.erp.app.settings.GeneralSettings

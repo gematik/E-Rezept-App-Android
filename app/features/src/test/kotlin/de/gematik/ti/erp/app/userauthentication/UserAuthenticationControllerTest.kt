@@ -24,10 +24,10 @@ package de.gematik.ti.erp.app.userauthentication
 
 import androidx.biometric.BiometricPrompt.PromptInfo
 import app.cash.turbine.test
+import de.gematik.ti.erp.app.authentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
-import de.gematik.ti.erp.app.userauthentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.userauthentication.observer.InactivityTimeoutObserver
 import de.gematik.ti.erp.app.userauthentication.presentation.UserAuthenticationController
 import de.gematik.ti.erp.app.userauthentication.usecase.ResetAuthenticationTimeOutSystemUptimeUseCase
@@ -120,7 +120,7 @@ class UserAuthenticationControllerTest {
                 SettingsData.Authentication(
                     password = SettingsData.Authentication.Password(""),
                     deviceSecurity = false,
-                    failedAuthenticationAttempts = 5,
+                    failedAuthenticationAttempts = 6,
                     authenticationTimeOutSystemUptime = 0
                 )
             )
@@ -138,6 +138,30 @@ class UserAuthenticationControllerTest {
         }
     }
 
+    @Test
+    fun `40 sec timeout -loading from db- test `() {
+        coEvery { inactivityTimeoutObserver.authenticationModeAndMethod } returns flowOf(
+            AuthenticationModeAndMethod.AuthenticationRequired(
+                SettingsData.Authentication(
+                    password = SettingsData.Authentication.Password(""),
+                    deviceSecurity = false,
+                    failedAuthenticationAttempts = 36,
+                    authenticationTimeOutSystemUptime = 0
+                )
+            )
+        )
+        coEvery { settingsRepository.setAuthenticationTimeOutSystemUptime(any()) } returns Unit
+        coEvery { settingsRepository.resetAuthenticationTimeOutSystemUptime() } returns Unit
+
+        testScope.runTest {
+            controllerUnderTest.authenticationState.test {
+                val state = awaitItem()
+                val result = controllerUnderTest.calculateAuthenticationTimeOut(state)
+                assertEquals(40, result)
+            }
+        }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `timeout already completed -loading from db- test `() {
@@ -146,7 +170,7 @@ class UserAuthenticationControllerTest {
                 SettingsData.Authentication(
                     password = SettingsData.Authentication.Password(""),
                     deviceSecurity = false,
-                    failedAuthenticationAttempts = 5,
+                    failedAuthenticationAttempts = 6,
                     authenticationTimeOutSystemUptime = -5000
                 )
             )

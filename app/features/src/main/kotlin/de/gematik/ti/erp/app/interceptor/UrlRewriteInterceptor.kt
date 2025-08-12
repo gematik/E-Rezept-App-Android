@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.interceptor
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import io.github.aakira.napier.Napier
 import okhttp3.HttpUrl
 import okhttp3.Interceptor

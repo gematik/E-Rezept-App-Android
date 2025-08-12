@@ -26,7 +26,7 @@ import de.gematik.ti.erp.app.idp.model.IdpData
 import java.io.IOException
 
 /**
- * Exception thrown by [IdpUseCase.loadAccessToken].
+ * Exception thrown by [de.gematik.ti.erp.app.idp.IdpUseCase.loadAccessToken].
  */
 class RefreshFlowException : IOException {
     /**

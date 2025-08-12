@@ -80,7 +80,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
 import de.gematik.ti.erp.app.pharmacy.presentation.FilterType
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyGraphController
@@ -284,7 +284,7 @@ fun PharmacySearchInput(
     onBack: () -> Unit
 ) {
     var isLoadingStable by remember { mutableStateOf(isLoading) }
-    val description = stringResource(id = R.string.pharmacy_search_searchbar)
+    val description = stringResource(id = R.string.a11y_pharmacy_search_searchbar_with_click_description)
     LaunchedEffect(isLoading) {
         delay(timeMillis = 330)
         isLoadingStable = isLoading

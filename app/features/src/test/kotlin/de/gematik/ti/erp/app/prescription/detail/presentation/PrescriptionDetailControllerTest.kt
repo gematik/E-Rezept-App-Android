@@ -26,8 +26,9 @@ import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.featuretoggle.datasource.FeatureToggleDataStore
 import de.gematik.ti.erp.app.fhir.model.json
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
+import de.gematik.ti.erp.app.medicationplan.repository.DefaultMedicationPlanRepository
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
-import de.gematik.ti.erp.app.medicationplan.usecase.LoadMedicationScheduleByTaskIdUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.GetMedicationScheduleByTaskIdUseCase
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SCANNED_TASK
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
@@ -36,6 +37,7 @@ import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.usecase.DeletePrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetPrescriptionByTaskIdUseCase
 import de.gematik.ti.erp.app.prescription.usecase.RedeemScannedTaskUseCase
+import de.gematik.ti.erp.app.prescription.usecase.UpdateEuRedeemableStatusUseCase
 import de.gematik.ti.erp.app.prescription.usecase.UpdateScannedTaskNameUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
@@ -70,10 +72,11 @@ import java.net.HttpURLConnection
 
 class PrescriptionDetailControllerTest : TestWatcher() {
 
+    private val medicationPlanRepository: MedicationPlanRepository = mockk()
     private val prescriptionRepository: PrescriptionRepository = mockk()
     private val invoiceRepository: InvoiceRepository = mockk()
     private val featureToggleDataStore: FeatureToggleDataStore = mockk()
-    private val medicationPlanRepository: MedicationPlanRepository = mockk()
+    private val defaultMedicationPlanRepository: DefaultMedicationPlanRepository = mockk()
     private val profileRepository: ProfileRepository = mockk()
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
@@ -84,7 +87,8 @@ class PrescriptionDetailControllerTest : TestWatcher() {
     private lateinit var deletePrescriptionUseCase: DeletePrescriptionUseCase
     private lateinit var updateScannedTaskNameUseCase: UpdateScannedTaskNameUseCase
     private lateinit var getActiveProfileUseCase: GetActiveProfileUseCase
-    private lateinit var loadMedicationScheduleByTaskIdUseCase: LoadMedicationScheduleByTaskIdUseCase
+    private lateinit var loadMedicationScheduleByTaskIdUseCase: GetMedicationScheduleByTaskIdUseCase
+    private lateinit var updateEuRedeemableStatusUseCase: UpdateEuRedeemableStatusUseCase
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
@@ -97,9 +101,8 @@ class PrescriptionDetailControllerTest : TestWatcher() {
             dispatcher = dispatcher
         )
         loadMedicationScheduleByTaskIdUseCase = spyk(
-            LoadMedicationScheduleByTaskIdUseCase(
-                medicationPlanRepository = medicationPlanRepository,
-                dispatcher = dispatcher
+            GetMedicationScheduleByTaskIdUseCase(
+                medicationPlanRepository = defaultMedicationPlanRepository
             )
         )
         redeemScannedTaskUseCase = spyk(
@@ -111,6 +114,7 @@ class PrescriptionDetailControllerTest : TestWatcher() {
         deletePrescriptionUseCase = DeletePrescriptionUseCase(
             prescriptionRepository = prescriptionRepository,
             invoiceRepository = invoiceRepository,
+            medicationPlanRepository = medicationPlanRepository,
             dispatcher = dispatcher
         )
         updateScannedTaskNameUseCase = spyk(
@@ -125,7 +129,13 @@ class PrescriptionDetailControllerTest : TestWatcher() {
                 dispatcher = dispatcher
             )
         )
-        every { medicationPlanRepository.loadMedicationSchedule(any()) } returns flowOf(null)
+        every { defaultMedicationPlanRepository.getMedicationSchedule(any()) } returns flowOf(null)
+        updateEuRedeemableStatusUseCase = spyk(
+            UpdateEuRedeemableStatusUseCase(
+                repository = prescriptionRepository,
+                dispatcher = dispatcher
+            )
+        )
         every { featureToggleDataStore.isFeatureEnabled(any()) } returns flowOf(true)
         controllerUnderTest = PrescriptionDetailController(
             getActiveProfileUseCase = getActiveProfileUseCase,
@@ -135,7 +145,7 @@ class PrescriptionDetailControllerTest : TestWatcher() {
             loadMedicationScheduleByTaskIdUseCase = loadMedicationScheduleByTaskIdUseCase,
             getPrescriptionByTaskIdUseCase = getPrescriptionByTaskIdUseCase,
             updateScannedTaskNameUseCase = updateScannedTaskNameUseCase,
-            featureToggleDataStore = featureToggleDataStore
+            updateEuRedeemableStatusUseCase = updateEuRedeemableStatusUseCase
         )
     }
 
@@ -257,6 +267,7 @@ class PrescriptionDetailControllerTest : TestWatcher() {
             prescriptionRepository.deleteRemoteTaskById(any(), any())
         } returns Result.success(json.parseToJsonElement("{}"))
         coEvery { prescriptionRepository.deleteLocalTaskById(any()) } returns Unit
+        coEvery { medicationPlanRepository.deleteMedicationSchedule(any()) } returns Unit
         coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.success(Unit)
         coEvery { prescriptionRepository.wasProfileEverAuthenticated(any()) } returns true
 
@@ -280,6 +291,7 @@ class PrescriptionDetailControllerTest : TestWatcher() {
         } returns Result.success(json.parseToJsonElement("{}"))
         coEvery { prescriptionRepository.deleteLocalTaskById(any()) } returns Unit
         coEvery { invoiceRepository.deleteLocalInvoiceById(any()) } returns Unit
+        coEvery { medicationPlanRepository.deleteMedicationSchedule(any()) } returns Unit
         coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.success(Unit)
         coEvery { prescriptionRepository.wasProfileEverAuthenticated(any()) } returns false
 
@@ -301,6 +313,7 @@ class PrescriptionDetailControllerTest : TestWatcher() {
     fun `Delete prescription locally should only remove local prescription and invoices`() {
         coEvery { prescriptionRepository.deleteLocalTaskById(any()) } returns Unit
         coEvery { invoiceRepository.deleteLocalInvoiceById(any()) } returns Unit
+        coEvery { medicationPlanRepository.deleteMedicationSchedule(any()) } returns Unit
         coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.success(Unit)
         coEvery { prescriptionRepository.wasProfileEverAuthenticated(any()) } returns true
 
@@ -330,6 +343,7 @@ class PrescriptionDetailControllerTest : TestWatcher() {
         )
         coEvery { prescriptionRepository.deleteLocalTaskById(any()) } returns Unit
         coEvery { invoiceRepository.deleteLocalInvoiceById(any()) } returns Unit
+        coEvery { medicationPlanRepository.deleteMedicationSchedule(any()) } returns Unit
         coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.success(Unit)
         coEvery { prescriptionRepository.wasProfileEverAuthenticated(any()) } returns true
 
@@ -354,6 +368,7 @@ class PrescriptionDetailControllerTest : TestWatcher() {
         } returns Result.success(json.parseToJsonElement("{}"))
         coEvery { prescriptionRepository.deleteLocalTaskById(any()) } returns Unit
         coEvery { invoiceRepository.deleteLocalInvoiceById(any()) } returns Unit
+        coEvery { medicationPlanRepository.deleteMedicationSchedule(any()) } returns Unit
         coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.failure(
             ApiCallException(
                 message = "Error executing safe api call",

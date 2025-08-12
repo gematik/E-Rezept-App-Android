@@ -26,7 +26,7 @@ package de.gematik.ti.erp.app.interceptor
 
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.di.EndpointHelper
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
@@ -44,7 +44,7 @@ class PharmacySearchApiKeyInterceptor(private val endpointHelper: EndpointHelper
     }
 }
 
-class PharmacySearchAccessTokenApiKeyInterceptor(private val endpointHelper: EndpointHelper) : Interceptor {
+class ERezeptBackendTokenApiKeyInterceptor(private val endpointHelper: EndpointHelper) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val original: Request = chain.request()
         val request: Request = original.newBuilder()

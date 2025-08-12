@@ -52,9 +52,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.digas.ui.component.Label
-import de.gematik.ti.erp.app.medicationplan.components.MedicationPlanLineItem
+import de.gematik.ti.erp.app.medicationplan.ui.components.MedicationPlanLineItem
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
 import de.gematik.ti.erp.app.pkv.presentation.model.InvoiceCardUiState
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
@@ -90,7 +90,7 @@ fun SyncedPrescriptionOverview(
     activeProfile: ProfilesUseCaseData.Profile,
     prescription: PrescriptionData.Synced,
     now: Instant = Clock.System.now(),
-    isMedicationPlanEnabled: Boolean,
+    isDemoMode: Boolean,
     onClickMedication: (PrescriptionData.Medication) -> Unit,
     onGrantConsent: () -> Unit,
     onClickInvoice: () -> Unit,
@@ -200,7 +200,7 @@ fun SyncedPrescriptionOverview(
             }
         }
 
-        if (isMedicationPlanEnabled) {
+        if (!isDemoMode) {
             item {
                 MedicationPlanLineItem(medicationSchedule, onClickMedicationPlan)
             }

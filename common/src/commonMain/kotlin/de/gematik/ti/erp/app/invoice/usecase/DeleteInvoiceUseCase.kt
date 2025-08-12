@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.invoice.usecase
 import de.gematik.ti.erp.app.invoice.mapper.mapUnitToInvoiceError
 import de.gematik.ti.erp.app.invoice.model.InvoiceResult
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

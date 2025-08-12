@@ -19,7 +19,7 @@
     },
     {
         "id": "5",
-        "text": "**📲 Reçeteli DiGA'ları kullanın** \nArtık dijital sağlık uygulamaları (DiGA'lar) için reçeteleri doğrudan e-reçete uygulaması üzerinden kullanabilirsiniz. Aktivasyon kodunuzu ve reçeteli DiGA'ya giden bağlantıyı tam burada, e-reçete uygulamasında bulabilirsiniz. \n \n **🏥 Yeni eczane veritabanı** \nEczane aramaları için yeni, geleceğe yönelik bir veritabanı tanıttık.",
+        "text": "**📲 Reçeteli DiGA'ları kullanın** \nArtık dijital sağlık uygulamaları (DiGA'lar) için reçeteleri doğrudan e-reçete uygulaması üzerinden kullanabilirsiniz. Reçeteler, pilot proje kapsamında Hamburg'daki uzmanlar tarafından düzenlenecektir. Aktivasyon kodunuzu ve DiGA bağlantısını tam burada e-reçete uygulamasında bulabilirsiniz. \n \n **🏥 Yeni eczane veritabanı** \nEczane aramaları için yeni, geleceğe yönelik bir veritabanı tanıttık.",
         "timestamp": "2025-05-14T08:00:00.000Z",
         "version": "1.30"
     },
@@ -28,5 +28,11 @@
         "text": "**🌐 Yeni çeviri işlevi** \nUygulamayı başka bir dilde kullanıyorsanız artık eczanenin cevaplarını doğrudan çevirebilirsiniz. \n \n **♿️ Erişilebilirlik** \nErişilebilirlik bildirimimiz artık ayarlarda mevcut. Yerleştirme süreci de daha erişilebilir hale getirildi. \n \n **📲 DiGA'ları sigorta şirketlerinde kullanın** \nDijital sağlık uygulamaları (DiGA'lar) için reçeteler artık diğer sigorta şirketlerinde de kullanılabilir.",
         "timestamp": "2025-06-26T08:00:00.000Z",
         "version": "1.31"
+    },
+    {
+        "id": "7",
+        "text": "**🙌 Özel sigortalılar için kayıt** \nÖzel sigortalılar için kayıt optimize edildi. Sağlık Kimliğinizle sadece birkaç tıklamayla rahatça giriş yapabilirsiniz. \n \n **⏰ İlaç hatırlatıcıları** \nArtık ilaçlarınızı almanız için hatırlatıcı ayarlayabilirsiniz. \n \n **🛒 İyileştirilmiş sipariş akışı** \nSipariş süreci artık daha basit ve hızlı. \n \n **♿️ Erişilebilirlik** \nSağlık kartı erişim numarası artık kamerayla da taranabilir. \n \n **📲 DiGA'lar için daha fazla bilgi** \nArtık satış fiyatı veya logo gibi DiGA reçeteleriniz hakkında daha ayrıntılı bilgi alacaksınız.",
+        "timestamp": "2025-08-06T08:00:00.000Z",
+        "version": "1.32"
     }
 ]

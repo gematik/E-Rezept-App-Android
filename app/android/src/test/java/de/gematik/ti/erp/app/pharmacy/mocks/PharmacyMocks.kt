@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.pharmacy.mocks
 
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_SYNCED_TASK_DATA_01
 import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_SYNCED_TASK_DATA_02
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
@@ -30,7 +31,6 @@ import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.utils.FhirTemporal
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
@@ -96,7 +96,7 @@ internal val MEDICATION = SyncedTaskData.Medication(
     text = "MedicationName",
     form = "AEO",
     lotNumber = "1234567890",
-    expirationDate = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(Instant.DISTANT_PAST),
+    expirationDate = FhirTemporal.Instant(Instant.DISTANT_PAST),
     identifier = SyncedTaskData.Identifier("1234567890"),
     normSizeCode = "N1",
     ingredientMedications = emptyList(),

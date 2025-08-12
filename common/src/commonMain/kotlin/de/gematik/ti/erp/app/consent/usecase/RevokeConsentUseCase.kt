@@ -27,7 +27,7 @@ import de.gematik.ti.erp.app.consent.model.ConsentContext
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.model.mapConsentErrorStates
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

@@ -44,13 +44,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.ui.preview.OnlineRedeemPreferencesScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
-import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemGraphController
+import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemSharedViewModel
 import de.gematik.ti.erp.app.redeem.ui.components.TextFlatButton
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -66,14 +66,16 @@ import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 class OnlineRedeemPreferencesScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry,
-    val controller: OnlineRedeemGraphController
+    val sharedViewModel: OnlineRedeemSharedViewModel
 ) : Screen() {
     @Composable
     override fun Content() {
-        val prescriptions by controller.redeemableOrderState
+        val prescriptions by sharedViewModel.redeemableOrderState
         val listState = rememberLazyListState()
         AnimatedElevationScaffold(
             topBarTitle = "",
+            backLabel = stringResource(R.string.back),
+            closeLabel = stringResource(R.string.cancel),
             navigationMode = NavigationBarMode.Back,
             listState = listState,
             onBack = { navController.popBackStack() },
@@ -90,7 +92,7 @@ class OnlineRedeemPreferencesScreen(
                 onNavigateToPharmacyStart = {
                     navController.navigate(PharmacyRoutes.PharmacyStartScreenModal.path(taskId = ""))
                 },
-                onResetPrescriptionSelection = { controller.onResetPrescriptionSelection() }
+                onResetPrescriptionSelection = { sharedViewModel.onResetPrescriptionSelection() }
             )
         }
     }

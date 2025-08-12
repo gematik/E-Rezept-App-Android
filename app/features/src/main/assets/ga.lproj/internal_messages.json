@@ -19,7 +19,7 @@
     },
     {
         "id": "5",
-        "text": "**📲 Fuascail oidis le haghaidh cógais leighis dhigiteacha** \nIs féidir leat oidis a fhuascailt anois le haghaidh feidhmchlár sláinte digiteach (DiGAanna) go díreach tríd an aip ríomh-oideas. Is féidir leat do chód gníomhachtaithe agus an nasc chuig an DiGA forordaithe a fháil anseo san aip ríomh-oideas. \n \n **🏥 Bunachar sonraí nua cógaslainne** \nTá bunachar sonraí nua atá réidh don todhchaí tugtha isteach againn le haghaidh cuardaigh cógaslainne.",
+        "text": "**📲 Fuascail oidis DiGAanna forordaithe** \nIs féidir leat oidis a fhuascailt anois le haghaidh feidhmchlár sláinte digiteach (DiGAanna) go díreach tríd an aip ríomh-oidis. Eiseoidh speisialtóirí i Hamburg na hoidis mar chuid de thionscadal píolótach. Is féidir leat do chód gníomhachtaithe agus an nasc chuig an DiGA a fháil anseo san aip ríomh-oidis. \n \n **🏥 Bunachar sonraí nua cógaslainne** \nTá bunachar sonraí nua atá réidh don todhchaí tugtha isteach againn le haghaidh cuardaigh cógaslainne.",
         "timestamp": "2025-05-14T08:00:00.000Z",
         "version": "1.30"
     },
@@ -28,5 +28,11 @@
         "text": "**🌐 Feidhm aistriúcháin nua** \nMá úsáideann tú an aip i dteanga eile, is féidir leat freagraí na cógaisíochta a aistriú go díreach anois. \n \n **♿️ Inrochtaineacht** \nTá ár ráiteas inrochtaineachta ar fáil anois sna socruithe. Tá an próiseas ionduchtaithe déanta níos inrochtana freisin. \n \n **📲 Fuascail DiGAanna le cuideachtaí árachais** \nIs féidir oidis d'fheidhmchláir sláinte digiteacha (DiGAanna) a fhuascailt anois le cuideachtaí árachais eile freisin.",
         "timestamp": "2025-06-26T08:00:00.000Z",
         "version": "1.31"
+    },
+    {
+        "id": "7",
+        "text": "**🙌 Clárú do dhaoine atá árachaithe go príobháideach** \nTá clárú do dhaoine atá árachaithe go príobháideach optamaithe. Is féidir leat logáil isteach go háisiúil le d’Aitheantas Sláinte le cúpla cad a tharlaíonn. \n \n **⏰ Meabhrúcháin chógais** \nIs féidir leat meabhrúcháin a shocrú anois chun do chógas a ghlacadh. \n \n **🛒 Sreabhadh ordaithe feabhsaithe** \nTá an próiseas ordaithe níos simplí agus níos tapúla anois. \n \n **♿️ Inrochtaineacht** \nIs féidir uimhir rochtana an chárta sláinte a scanadh leis an gceamara anois freisin. \n \n **📲 Tuilleadh eolais do DiGAanna** \nAs seo amach gheobhaidh tú faisnéis níos mionsonraithe faoi d’oidis DiGA, amhail an praghas díola nó an lógó.",
+        "timestamp": "2025-08-06T08:00:00.000Z",
+        "version": "1.32"
     }
 ]

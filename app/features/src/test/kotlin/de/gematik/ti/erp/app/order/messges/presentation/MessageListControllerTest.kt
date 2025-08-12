@@ -117,7 +117,7 @@ class MessageListControllerTest {
         every { pharmacyRepository.loadCachedPharmacies() } returns flowOf(emptyList())
         every { mockContext.getString(any()) } returns IN_APP_MESSAGE_TEXT
         every { mockContext.resources.configuration.locales[0].language } returns "de"
-        coEvery { tracker.trackEvent(any()) } just Runs
+        coEvery { tracker.trackMetric(any()) } just Runs
 
         getMessagesUseCase = GetMessagesUseCase(communicationRepository, invoiceRepository, profileRepository, pharmacyRepository, dispatcher)
         getInternalMessagesUseCase = GetInternalMessagesUseCase(

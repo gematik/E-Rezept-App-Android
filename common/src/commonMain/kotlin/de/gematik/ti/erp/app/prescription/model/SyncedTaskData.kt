@@ -22,13 +22,14 @@
 
 package de.gematik.ti.erp.app.prescription.model
 
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirDispenseDeviceRequestErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispenseDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.toLocalDate
+import de.gematik.ti.erp.app.fhir.temporal.toStartOfDayInUTC
 import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
-import de.gematik.ti.erp.app.utils.FhirTemporal
-import de.gematik.ti.erp.app.utils.toLocalDate
-import de.gematik.ti.erp.app.utils.toStartOfDayInUTC
+import io.github.aakira.napier.Napier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.daysUntil
@@ -82,6 +83,7 @@ object SyncedTaskData {
                 try {
                     valueOf(value ?: UNKNOWN.toString())
                 } catch (e: Throwable) {
+                    Napier.e { "error on parsing ${e.message}" }
                     UNKNOWN
                 }
         }
@@ -92,6 +94,7 @@ object SyncedTaskData {
         val taskId: String,
         val accessCode: String,
         val lastModified: Instant,
+        val isEuRedeemable: Boolean,
         val organization: Organization,
         val practitioner: Practitioner,
         val patient: Patient,
@@ -186,20 +189,20 @@ object SyncedTaskData {
             TaskState::class
         ) {
             override fun selectDeserializer(element: JsonElement): KSerializer<out TaskState> {
-                element.jsonObject["type"]?.jsonPrimitive?.content?.let { classType ->
-                    return when (TaskStateSerializationType.valueOf(classType)) {
-                        TaskStateSerializationType.Ready -> Ready.serializer()
-                        TaskStateSerializationType.Deleted -> Deleted.serializer()
-                        TaskStateSerializationType.LaterRedeemable -> LaterRedeemable.serializer()
-                        TaskStateSerializationType.Pending -> Pending.serializer()
-                        TaskStateSerializationType.InProgress -> InProgress.serializer()
-                        TaskStateSerializationType.Expired -> Expired.serializer()
-                        TaskStateSerializationType.Provided -> Provided.serializer()
-                        TaskStateSerializationType.Other -> Other.serializer()
-                    }
-                } ?: throw SerializationException(
-                    "TaskStateSyncedTaskDataSerializer: key 'type' not found or does not match any task state type"
-                )
+                val classType = element.jsonObject["type"]?.jsonPrimitive?.content
+                    ?: throw SerializationException(
+                        "TaskStateSyncedTaskDataSerializer: key 'type' not found or does not match any task state type"
+                    )
+                return when (TaskStateSerializationType.valueOf(classType)) {
+                    TaskStateSerializationType.Ready -> Ready.serializer()
+                    TaskStateSerializationType.Deleted -> Deleted.serializer()
+                    TaskStateSerializationType.LaterRedeemable -> LaterRedeemable.serializer()
+                    TaskStateSerializationType.Pending -> Pending.serializer()
+                    TaskStateSerializationType.InProgress -> InProgress.serializer()
+                    TaskStateSerializationType.Expired -> Expired.serializer()
+                    TaskStateSerializationType.Provided -> Provided.serializer()
+                    TaskStateSerializationType.Other -> Other.serializer()
+                }
             }
         }
 

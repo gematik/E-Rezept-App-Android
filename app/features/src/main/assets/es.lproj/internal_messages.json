@@ -19,7 +19,7 @@
     },
     {
         "id": "5",
-        "text": "**📲 Canjea tus DiGAs recetadas** \nAhora puedes canjear recetas para aplicaciones de salud digital (DiGAs) directamente a través de la app de recetas electrónicas. Encuentra tu código de activación y el enlace a la DiGA recetada aquí mismo, en la app de recetas electrónicas. \n \n **🏥 Nueva base de datos de farmacias** \nHemos presentado una nueva base de datos con visión de futuro para búsquedas en farmacias.",
+        "text": "**📲 Canjea tus recetas DiGA** \nAhora puedes canjear recetas para aplicaciones de salud digital (DiGA) directamente a través de la app de receta electrónica. Las recetas serán emitidas por especialistas en Hamburgo como parte de un proyecto piloto. Puedes encontrar tu código de activación y el enlace a la DiGA aquí mismo, en la app de receta electrónica. \n \n **🏥 Nueva base de datos de farmacias** \nHemos presentado una nueva base de datos con visión de futuro para las búsquedas en farmacias.",
         "timestamp": "2025-05-14T08:00:00.000Z",
         "version": "1.30"
     },
@@ -28,5 +28,11 @@
         "text": "**🌐 Nueva función de traducción** \nSi usas la app en otro idioma, ahora puedes traducir las respuestas de la farmacia directamente. \n \n **♿️ Accesibilidad** \nNuestra declaración de accesibilidad ya está disponible en la configuración. El proceso de incorporación también es más accesible. \n \n **📲 Canjea DiGAs con aseguradoras** \nLas recetas para aplicaciones de salud digital (DiGAs) ahora también se pueden canjear con otras aseguradoras.",
         "timestamp": "2025-06-26T08:00:00.000Z",
         "version": "1.31"
+    },
+    {
+        "id": "7",
+        "text": "**🙌 Registro para personas con seguro privado** \nEl registro para personas con seguro privado ha sido optimizado. Puedes iniciar sesión cómodamente con tu ID de salud en solo unos clics. \n \n **⏰ Recordatorios de medicamentos** \nAhora puedes configurar recordatorios para tomar tu medicamento. \n \n **🛒 Flujo de pedidos mejorado** \nEl proceso de pedido ahora es más simple y rápido. \n \n **♿️ Accesibilidad** \nEl número de acceso para la tarjeta de salud ahora también se puede escanear con la cámara. \n \n **📲 Más información para DiGAs** \nA partir de ahora recibirás información más detallada sobre tus recetas de DiGA, como el precio de venta o el logotipo.",
+        "timestamp": "2025-08-06T08:00:00.000Z",
+        "version": "1.32"
     }
 ]

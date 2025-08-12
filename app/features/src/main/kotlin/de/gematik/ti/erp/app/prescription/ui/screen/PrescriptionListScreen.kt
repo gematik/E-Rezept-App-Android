@@ -24,6 +24,7 @@
 
 package de.gematik.ti.erp.app.prescription.ui.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,6 +44,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,8 +54,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.app.ApplicationInnerPadding
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState.Companion.isFinished
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState.NotStarted
@@ -70,12 +72,12 @@ import de.gematik.ti.erp.app.mainscreen.ui.RedeemFloatingActionButton
 import de.gematik.ti.erp.app.mlkit.navigation.MlKitRoutes
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.onReturnAction
+import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
 import de.gematik.ti.erp.app.pkv.presentation.rememberConsentController
 import de.gematik.ti.erp.app.pkv.ui.screens.HandleConsentState
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
-import de.gematik.ti.erp.app.prescription.presentation.PrescriptionListController
 import de.gematik.ti.erp.app.prescription.presentation.rememberPrescriptionListController
 import de.gematik.ti.erp.app.prescription.ui.components.PrescriptionsSection
 import de.gematik.ti.erp.app.prescription.ui.components.ProfileLoadingSection
@@ -137,23 +139,38 @@ class PrescriptionListScreen(
         val mlKitAccepted by controller.isMLKitAccepted.collectAsStateWithLifecycle()
         val consentState by consentController.consentState.collectAsStateWithLifecycle()
         var topBarElevated by remember { mutableStateOf(true) }
+        val onBack by rememberUpdatedState {
+            navController.popBackStack()
+        }
 
         DisposableEffect(Unit) {
             onDispose { controller.trackPrescriptionCounts() }
         }
 
-        listenForAuthenticationEvents(
-            controller = controller,
-            pullToRefreshState = pullToRefreshState
-        )
+        val intentHandler = LocalIntentHandler.current
+        LaunchedEffect(Unit) {
+            intentHandler.gidSuccessfulIntent.collectLatest {
+                controller.refreshDownload()
+            }
+        }
+
+        ChooseAuthenticationNavigationEventsListener(controller, navController)
+        with(controller) {
+            refreshEvent.listen { state ->
+                when {
+                    state -> pullToRefreshState.triggerStart()
+                    else -> pullToRefreshState.triggerEnd()
+                }
+            }
+        }
 
         navBackStackEntry.onReturnAction(PrescriptionRoutes.PrescriptionListScreen) {
             controller.refreshDownload()
         }
 
-        LaunchedEffect(true) {
+        LaunchedEffect(profileData) {
             if (controller.shouldShowWelcomeDrawer.first()) {
-                navController.navigate(PrescriptionRoutes.WelcomeDrawerBottomSheetScreen.path())
+                profileData.data?.let { navController.navigate(CardWallRoutes.CardWallSelectInsuranceTypeBottomSheetScreen.path(it.id)) }
             }
             if (controller.shouldShowGrantConsentDrawer.first()) {
                 navController.navigate(PrescriptionRoutes.GrantConsentBottomSheetScreen.path())
@@ -226,6 +243,7 @@ class PrescriptionListScreen(
             }
         )
 
+        BackHandler { onBack() }
         PrescriptionListScreenScaffold(
             pullToRefreshState = pullToRefreshState,
             listState = listState,
@@ -256,7 +274,7 @@ class PrescriptionListScreen(
                 onGetChargeConsent = { profileId -> consentController.getChargeConsent(profileId) }
             ),
             prescriptionClickAction = PrescriptionsScreenContentClickAction(
-                onClickLogin = { profile -> controller.chooseAuthenticationMethod(profile.id) },
+                onClickLogin = { profile -> controller.chooseAuthenticationMethod(profile) },
                 onClickAvatar = { profile -> navController.navigate(ProfileRoutes.ProfileEditPictureBottomSheetScreen.path(profile.id)) },
                 onClickArchive = { navController.navigate(PrescriptionRoutes.PrescriptionsArchiveScreen.path()) },
                 onChooseAuthenticationMethod = controller::chooseAuthenticationMethod,
@@ -270,52 +288,11 @@ class PrescriptionListScreen(
                 },
                 onClickRedeem = {
                     if (hasRedeemableTasks) {
-                        navController.navigate(RedeemRoutes.RedeemMethodSelection.path())
+                        navController.navigate(RedeemRoutes.HowToRedeemScreen.path())
                     }
                 }
             )
         )
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Suppress("ComposableNaming")
-    @Composable
-    private fun listenForAuthenticationEvents(
-        controller: PrescriptionListController,
-        pullToRefreshState: PullToRefreshState
-    ) {
-        val intentHandler = LocalIntentHandler.current
-        LaunchedEffect(Unit) {
-            intentHandler.gidSuccessfulIntent.collectLatest {
-                controller.refreshDownload()
-            }
-        }
-        with(controller) {
-            refreshEvent.listen { state ->
-                when {
-                    state -> pullToRefreshState.triggerStart()
-                    else -> pullToRefreshState.triggerEnd()
-                }
-            }
-            showCardWallEvent.listen { profileId ->
-                navController.navigate(CardWallIntroScreen.path(profileId))
-            }
-            showCardWallWithFilledCanEvent.listen { cardWallData ->
-                navController.navigate(
-                    CardWallRoutes.CardWallPinScreen.path(
-                        profileIdentifier = cardWallData.profileId,
-                        can = cardWallData.can
-                    )
-                )
-            }
-            showGidEvent.listen { gidData ->
-                navController.navigate(
-                    CardWallIntroScreen.pathWithGid(
-                        gidNavigationData = gidData
-                    )
-                )
-            }
-        }
     }
 }
 

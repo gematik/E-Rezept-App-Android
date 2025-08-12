@@ -26,8 +26,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.model.IdpData.AlternateAuthenticationWithoutToken
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
@@ -126,7 +126,7 @@ object ProfilesUseCaseData {
                 when (ssoTokenScope) {
                     is IdpData.ExternalAuthenticationToken,
                     is IdpData.AlternateAuthenticationToken,
-                    is IdpData.AlternateAuthenticationWithoutToken,
+                    is AlternateAuthenticationWithoutToken,
                     is IdpData.DefaultToken -> ssoTokenScope.token == null
 
                     null -> true
@@ -134,7 +134,7 @@ object ProfilesUseCaseData {
 
             private fun Profile.ssoTokenWithoutScope() =
                 when (ssoTokenScope) {
-                    is IdpData.AlternateAuthenticationWithoutToken -> true
+                    is AlternateAuthenticationWithoutToken -> true
                     else -> false
                 }
 

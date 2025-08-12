@@ -1,7 +1,6 @@
-@file:Suppress("SpreadOperator")
+@file:Suppress("SpreadOperator", "unused")
 
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import java.util.Properties
 
 private val ktlintMain: Configuration by configurations.creating
 private val ktlintRules: Configuration by configurations.creating
@@ -13,66 +12,34 @@ plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.multiplatform) apply false
 
-    // extra plugins
-    alias(libs.plugins.github.ben.manes.version) apply false
-    /** todo issue to be fixed:
-     *
-     *    > Could not resolve all task dependencies for configuration ':classpath'.
-     *       > Could not find org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2.
-     *         Required by:
-     *             project : > com.jaredsburrows.license:com.jaredsburrows.license.gradle.plugin:0.8.90 > com.jaredsburrows:gradle-license-plugin:0.8.90
-     */
-    // alias(libs.plugins.jaredburrows.license) apply false
-    alias(libs.plugins.gradle.secrets) apply false
-    alias(libs.plugins.realm.kotlin) apply false
-    alias(libs.plugins.jetbrains.kotlin.android) apply false
+    // required
+    alias(libs.plugins.android.kotlin.multiplatform.library) apply false
     alias(libs.plugins.jetbrains.compose) apply false
-    alias(libs.plugins.buildkonfig) apply false
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.serialization) apply false
-    alias(libs.plugins.detekt)
-
     alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.jetbrains.kotlin.android) apply false
+
+    // extra plugins
+    alias(libs.plugins.github.ben.manes.version) apply false
+    alias(libs.plugins.gradle.secrets) apply false
+    alias(libs.plugins.realm.kotlin) apply false
+    alias(libs.plugins.buildkonfig) apply false
+    alias(libs.plugins.detekt)
 
     // test
     alias(libs.plugins.paparazzi) apply false
     id("jacoco")
 
     // custom gematik plugins
-    id("de.gematik.ti.erp.technical-requirements")
-    id("de.gematik.ti.erp.versioning")
-    id("de.gematik.ti.erp.properties")
-    id("de.gematik.ti.erp.flavours")
-    id("de.gematik.ti.erp.teams")
-    id("de.gematik.ti.erp.names")
+    alias(libs.plugins.forced.dependencies)
+    alias(libs.plugins.technical.requirements)
+    alias(libs.plugins.task.versions)
+    alias(libs.plugins.task.properties)
+    alias(libs.plugins.task.flavours)
+    alias(libs.plugins.teams.communication)
+    alias(libs.plugins.module.names)
 }
-
-// obtain libs from nexus
-try {
-    val properties = Properties()
-    properties.load(File("ci-overrides.properties").inputStream())
-    val nexusUsername: String? = properties.getProperty("NEXUS_USERNAME")
-    val nexusPassword: String? = properties.getProperty("NEXUS_PASSWORD")
-    val nexusUrl: String? = properties.getProperty("NEXUS_URL")
-
-    allprojects {
-        repositories {
-            if (!nexusUsername.isNullOrEmpty() && !nexusPassword.isNullOrEmpty() && !nexusUrl.isNullOrEmpty()) {
-                maven {
-                    name = "nexus"
-                    setUrl(nexusUrl)
-                    credentials {
-                        username = nexusUsername
-                        password = nexusPassword
-                    }
-                }
-            }
-        }
-    }
-} catch (e: Throwable) {
-    println("No ci-overrides.properties found")
-}
-
 
 val sourcesKt: List<String> by lazy {
     rootProject.fileTree(rootProject.projectDir) {
@@ -131,16 +98,4 @@ tasks.withType<DependencyUpdatesTask> {
 tasks.withType<Test> {
     ignoreFailures = false
     maxParallelForks = 1 // Optional
-}
-
-// config changes for security vulnerabilities
-allprojects {
-    configurations.all {
-        resolutionStrategy {
-            force("io.netty:netty-codec-http2:4.1.108.Final")
-            force("io.netty:netty-handler:4.1.118.Final")
-            force("com.google.protobuf:protobuf-java:4.28.2")
-            force("com.google.guava:guava:33.2.0-jre")
-        }
-    }
 }

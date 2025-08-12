@@ -25,11 +25,11 @@ package de.gematik.ti.erp.app.redeem.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
-import de.gematik.ti.erp.app.authentication.model.ChooseAuthenticationController
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.authentication.presentation.ChooseAuthenticationController
+import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
-import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
@@ -88,13 +88,21 @@ class RedeemOrderOverviewScreenController(
         }
     }
 
-    fun toggleOrderHasError(state: Boolean) { _orderHasError.value = state }
+    fun toggleOrderHasError(state: Boolean) {
+        _orderHasError.value = state
+    }
 
-    fun disableLoadingIndicator() { _isLoadingIndicatorShown.value = false }
+    fun disableLoadingIndicator() {
+        _isLoadingIndicatorShown.value = false
+    }
 
-    fun enableLoadingIndicator() { _isLoadingIndicatorShown.value = true }
+    fun enableLoadingIndicator() {
+        _isLoadingIndicatorShown.value = true
+    }
 
-    fun toggleLoadingIndicator(state: Boolean) { _isLoadingIndicatorShown.value = state }
+    fun toggleLoadingIndicator(state: Boolean) {
+        _isLoadingIndicatorShown.value = state
+    }
 }
 
 @Composable

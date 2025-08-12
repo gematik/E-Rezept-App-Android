@@ -39,7 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Dp
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.extensions.accessibility
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -62,7 +62,7 @@ fun OnboardingProgressIndicator(
     val cornerRadius = indicatorHeight / 2
 
     val progressDescription = currentStep?.let { step ->
-        stringResource(R.string.onboarding_progress_description, step, totalSteps)
+        stringResource(R.string.a11y_onboarding_progress_description, step, totalSteps)
     }
 
     Row(

@@ -44,7 +44,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
 import de.gematik.ti.erp.app.pkv.presentation.model.InvoiceCardUiState
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailBottomSheetNavigationData
@@ -55,6 +55,7 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension.isDebug
 import de.gematik.ti.erp.app.utils.letNotNull
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -65,12 +66,12 @@ fun PrescriptionDetailScreenScaffold(
     activeProfile: ProfilesUseCaseData.Profile,
     scaffoldState: ScaffoldState,
     listState: LazyListState,
+    isDemoMode: Boolean,
     prescription: PrescriptionData.Prescription?,
     medicationSchedule: MedicationSchedule?,
     invoiceCardState: InvoiceCardUiState,
     onShowInfoBottomSheet: PrescriptionDetailBottomSheetNavigationData,
     now: Instant = Clock.System.now(),
-    isMedicationPlanEnabled: Boolean,
     onSwitchRedeemed: (Boolean) -> Unit,
     onNavigateToRoute: (String) -> Unit,
     onClickMedication: (PrescriptionData.Medication) -> Unit,
@@ -84,6 +85,8 @@ fun PrescriptionDetailScreenScaffold(
     onSharePrescription: () -> Unit,
     onShowHowLongValidBottomSheet: () -> Unit,
     onClickInvoice: () -> Unit,
+    onToggleEuRedeemable: () -> Unit,
+    onClickRedeemInEuAbroad: () -> Unit,
     onBack: () -> Unit
 ) {
     AnimatedElevationScaffold(
@@ -91,6 +94,8 @@ fun PrescriptionDetailScreenScaffold(
         listState = listState,
         onBack = onBack,
         topBarTitle = stringResource(R.string.prescription_details),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         navigationMode = NavigationBarMode.Close,
         snackbarHost = { SnackbarHost(it, modifier = Modifier.navigationBarsPadding()) },
         actions = {
@@ -109,7 +114,11 @@ fun PrescriptionDetailScreenScaffold(
 
                 PrescriptionDetailsDropdownMenu(
                     isDeletable = (actualPrescription as? PrescriptionData.Synced)?.isDeletable ?: true,
-                    onClickDelete = onClickDeletePrescription
+                    isEuRedeemable = (actualPrescription as? PrescriptionData.Synced)?.isEuRedeemable ?: false,
+                    isDemoMode = isDemoMode,
+                    onClickDelete = onClickDeletePrescription,
+                    onToggleEuRedeemable = onToggleEuRedeemable,
+                    onClickRedeemInEuAbroad = onClickRedeemInEuAbroad
                 )
             }
         }
@@ -123,7 +132,7 @@ fun PrescriptionDetailScreenScaffold(
                     listState = listState,
                     prescription = prescription,
                     now = now,
-                    isMedicationPlanEnabled = isMedicationPlanEnabled,
+                    isDemoMode = isDemoMode,
                     onClickInvoice = onClickInvoice,
                     medicationSchedule = medicationSchedule,
                     onClickMedication = onClickMedication,
@@ -140,7 +149,7 @@ fun PrescriptionDetailScreenScaffold(
                     listState = listState,
                     prescription = prescription,
                     medicationSchedule = medicationSchedule,
-                    isMedicationPlanEnabled = isMedicationPlanEnabled,
+                    isDemoMode = isDemoMode,
                     onSwitchRedeemed = {
                         onSwitchRedeemed(it)
                     },
@@ -162,7 +171,11 @@ fun PrescriptionDetailScreenScaffold(
 @Composable
 private fun PrescriptionDetailsDropdownMenu(
     isDeletable: Boolean,
-    onClickDelete: () -> Unit
+    isEuRedeemable: Boolean,
+    isDemoMode: Boolean,
+    onClickDelete: () -> Unit,
+    onToggleEuRedeemable: () -> Unit,
+    onClickRedeemInEuAbroad: () -> Unit
 ) {
     var dropdownExpanded by remember { mutableStateOf(false) }
 
@@ -177,6 +190,40 @@ private fun PrescriptionDetailsDropdownMenu(
         onDismissRequest = { dropdownExpanded = false },
         offset = DpOffset(SizeDefaults.triple, SizeDefaults.zero)
     ) {
+        // FOR TESTING ONLY: This menu item be removed when real backend EU-flag is available (works only in debug builds)
+        if (isDebug && !isDemoMode) {
+            DropdownMenuItem(
+                onClick = {
+                    dropdownExpanded = false
+                    onToggleEuRedeemable()
+                }
+            ) {
+                Text(
+                    text = if (isEuRedeemable) {
+                        stringResource(R.string.pres_detail_dropdown_unmark_eu_redeemable)
+                    } else {
+                        stringResource(R.string.pres_detail_dropdown_mark_eu_redeemable)
+                    },
+                    color = AppTheme.colors.primary700
+                )
+            }
+        }
+        // EU Redemption menu item (only show when prescription is EU redeemable)
+        if (isEuRedeemable) {
+            DropdownMenuItem(
+                onClick = {
+                    dropdownExpanded = false
+                    onClickRedeemInEuAbroad()
+                }
+            ) {
+                Text(
+                    text = stringResource(R.string.pres_detail_dropdown_redeem_in_eu_abroad),
+                    color = AppTheme.colors.primary700
+                )
+            }
+        }
+
+        // Delete menu item
         DropdownMenuItem(
             modifier = Modifier.testTag(TestTag.Prescriptions.Details.DeleteButton),
             enabled = isDeletable,

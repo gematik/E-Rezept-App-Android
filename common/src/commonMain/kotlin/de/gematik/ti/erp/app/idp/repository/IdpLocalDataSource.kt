@@ -23,17 +23,17 @@
 package de.gematik.ti.erp.app.idp.repository
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.db.entities.v1.IdpAuthenticationDataEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.IdpConfigurationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.SingleSignOnTokenScopeV1
-import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.db.toInstant
-import de.gematik.ti.erp.app.db.toRealmInstant
-import de.gematik.ti.erp.app.db.writeOrCopyToRealm
-import de.gematik.ti.erp.app.db.writeToRealm
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.utils.toInstant
+import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
+import de.gematik.ti.erp.app.database.realm.utils.writeOrCopyToRealm
+import de.gematik.ti.erp.app.database.realm.utils.writeToRealm
+import de.gematik.ti.erp.app.database.realm.v1.IdpAuthenticationDataEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.IdpConfigurationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.SingleSignOnTokenScopeV1
 import de.gematik.ti.erp.app.idp.model.IdpData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import io.github.aakira.napier.Napier
 import io.realm.kotlin.MutableRealm
 import io.realm.kotlin.Realm
@@ -157,6 +157,7 @@ class IdpLocalDataSource(private val realm: Realm) {
             }
         }
     }
+
     suspend fun invalidateAuthenticationData(profileId: ProfileIdentifier) {
         writeToRealm(profileId) { profile ->
             getOrInsertAuthData(profile)?.apply {
@@ -210,6 +211,7 @@ fun IdpAuthenticationDataEntityV1.toSingleSignOnTokenScope(): IdpData.SingleSign
                     cardAccessNumber = this.cardAccessNumber,
                     healthCardCertificate = requireNotNull(this.healthCardCertificate)
                 )
+
             SingleSignOnTokenScopeV1.AlternateAuthentication ->
                 this.singleSignOnToken?.let { token ->
                     IdpData.AlternateAuthenticationToken(
@@ -223,6 +225,7 @@ fun IdpAuthenticationDataEntityV1.toSingleSignOnTokenScope(): IdpData.SingleSign
                     aliasOfSecureElementEntry = requireNotNull(this.aliasOfSecureElementEntry),
                     healthCardCertificate = requireNotNull(this.healthCardCertificate)
                 )
+
             SingleSignOnTokenScopeV1.ExternalAuthentication ->
                 IdpData.ExternalAuthenticationToken(
                     token = this.singleSignOnToken?.let { token -> IdpData.SingleSignOnToken(token) },

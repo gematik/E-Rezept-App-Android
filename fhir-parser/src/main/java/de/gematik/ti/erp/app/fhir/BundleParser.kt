@@ -22,7 +22,6 @@
 
 package de.gematik.ti.erp.app.fhir
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirErpModel
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement

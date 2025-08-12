@@ -22,9 +22,9 @@
 
 package de.gematik.ti.erp.app.cardwall.navigation
 
-import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
+import de.gematik.ti.erp.app.cardwall.presentation.CardWallSharedViewModel
 import de.gematik.ti.erp.app.navigation.Screen
 
 abstract class CardWallScreen : Screen() {
-    abstract val graphController: CardWallGraphController
+    abstract val sharedViewModel: CardWallSharedViewModel
 }

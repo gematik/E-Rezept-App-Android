@@ -36,7 +36,6 @@ private val Context.dataStore by preferencesDataStore("featureToggles")
 
 enum class Features(val featureName: String) {
     // REDEEM_WITHOUT_TI("RedeemWithoutTI"),
-    MEDICATION_PLAN("MedicationPlan"),
 }
 
 class FeatureToggleDataStore(val context: Context) {

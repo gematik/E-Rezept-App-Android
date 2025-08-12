@@ -52,11 +52,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes.PharmacyStartScreenModal
@@ -64,11 +63,12 @@ import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescriptionId
 import de.gematik.ti.erp.app.prescriptionIds
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
-import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemGraphController
+import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemSharedViewModel
 import de.gematik.ti.erp.app.redeem.ui.preview.PrescriptionSelectionPreview
 import de.gematik.ti.erp.app.redeem.ui.preview.PrescriptionSelectionPreviewParameter
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
@@ -82,14 +82,14 @@ import de.gematik.ti.erp.app.utils.extensions.showWithDismissButton
 class PrescriptionSelectionScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry,
-    val controller: OnlineRedeemGraphController
+    val sharedViewModel: OnlineRedeemSharedViewModel
 ) : Screen() {
     @Composable
     override fun Content() {
         val snackbar = LocalSnackbarScaffold.current
         val isOrderOverviewMode = navBackStackEntry.arguments?.getBoolean(RedeemRoutes.REDEEM_NAV_MODAL_BEHAVIOUR) == true
-        val selectedOrderState by controller.selectedOrderState
-        val orderState by controller.redeemableOrderState
+        val selectedOrderState by sharedViewModel.selectedOrderState
+        val orderState by sharedViewModel.redeemableOrderState
         val scope = LocalUiScopeScaffold.current
         val closeText = stringResource(R.string.cdw_troubleshooting_close_button)
 
@@ -99,13 +99,13 @@ class PrescriptionSelectionScreen(
         val isEmptySelectionStateOnOrderOverview = isOrderOverviewMode && selectedOrderState.prescriptionsInOrder.isEmpty()
 
         val orderOverviewModeOnEmptyNavigation: () -> Unit = {
-            controller.updatePrescriptionSelectionFailureFlag()
+            sharedViewModel.updatePrescriptionSelectionFailureFlag()
             snackbar.showWithDismissButton(message = snackbarText, scope = scope, actionLabel = closeText)
             navController.popBackStack()
         }
 
         val normalBackNavigation: () -> Unit = {
-            controller.onResetPrescriptionSelection()
+            sharedViewModel.onResetPrescriptionSelection()
             navController.popBackStack()
         }
 
@@ -122,7 +122,22 @@ class PrescriptionSelectionScreen(
         PrescriptionSelectionScreenScaffold(
             topBarTitle = stringResource(R.string.pharmacy_order_select_prescriptions),
             listState = listState,
-            onBack = onBack
+            onBack = onBack,
+            bottomContent = {
+                NextButton(
+                    enabled = when {
+                        isOrderOverviewMode -> true
+                        else -> selectedOrderState.prescriptionsInOrder.isNotEmpty()
+                    },
+                    onNext = {
+                        when {
+                            isEmptySelectionStateOnOrderOverview -> orderOverviewModeOnEmptyNavigation()
+                            isOrderOverviewMode -> navController.popBackStack()
+                            else -> navController.navigate(PharmacyStartScreenModal.path(taskId = ""))
+                        }
+                    }
+                )
+            }
         ) {
             Column(Modifier.fillMaxSize()) {
                 LazyColumn(
@@ -141,25 +156,12 @@ class PrescriptionSelectionScreen(
                                 prescription = prescriptionInOrder,
                                 checked = prescriptionInOrder in selectedOrderState.prescriptionsInOrder,
                                 onCheckedChange = { isChanged ->
-                                    controller.onPrescriptionSelectionChanged(prescriptionInOrder, isChanged)
+                                    sharedViewModel.onPrescriptionSelectionChanged(prescriptionInOrder, isChanged)
                                 }
                             )
                         }
                     }
                 }
-                NextButton(
-                    enabled = when {
-                        isOrderOverviewMode -> true
-                        else -> selectedOrderState.prescriptionsInOrder.isNotEmpty()
-                    },
-                    onNext = {
-                        when {
-                            isEmptySelectionStateOnOrderOverview -> orderOverviewModeOnEmptyNavigation()
-                            isOrderOverviewMode -> navController.popBackStack()
-                            else -> navController.navigate(PharmacyStartScreenModal.path(taskId = ""))
-                        }
-                    }
-                )
             }
         }
     }
@@ -170,14 +172,18 @@ fun PrescriptionSelectionScreenScaffold(
     topBarTitle: String,
     listState: LazyListState,
     onBack: () -> Unit,
+    bottomContent: @Composable () -> Unit,
     content: @Composable () -> Unit
 ) {
     AnimatedElevationScaffold(
         modifier = Modifier.testTag(TestTag.PharmacySearch.OrderPrescriptionSelection.Screen),
         topBarTitle = topBarTitle,
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         navigationMode = NavigationBarMode.Back,
         listState = listState,
-        onBack = onBack
+        onBack = onBack,
+        bottomBar = bottomContent
     ) {
         content()
     }
@@ -247,11 +253,15 @@ private fun NextButton(
     onNext: () -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = 4.dp
+        modifier = Modifier
+            .fillMaxWidth(),
+        elevation = SizeDefaults.half
     ) {
-        Column(Modifier.navigationBarsPadding()) {
-            SpacerMedium()
+        Column(
+            Modifier
+                .navigationBarsPadding()
+                .padding(vertical = SizeDefaults.double)
+        ) {
             PrimaryButtonLarge(
                 enabled = enabled,
                 modifier = Modifier
@@ -289,6 +299,12 @@ fun PrescriptionSelectionScreenPreview(
         PrescriptionSelectionScreenScaffold(
             topBarTitle = stringResource(R.string.pharmacy_order_select_prescriptions),
             listState = mockListState,
+            bottomContent = {
+                NextButton(
+                    enabled = selectedOrders.isNotEmpty(),
+                    onNext = {}
+                )
+            },
             onBack = { }
         ) {
             Column(Modifier.fillMaxSize()) {
@@ -310,10 +326,6 @@ fun PrescriptionSelectionScreenPreview(
                         }
                     }
                 }
-                NextButton(
-                    enabled = selectedOrders.isNotEmpty(),
-                    onNext = {}
-                )
             }
         }
     }

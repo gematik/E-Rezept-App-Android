@@ -24,104 +24,126 @@ package de.gematik.ti.erp.app.cardwall.ui.screens
 
 import android.app.Dialog
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material.ListItem
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.valentinilk.shimmer.shimmer
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
+import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.processGidEventData
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallScreen
-import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
+import de.gematik.ti.erp.app.cardwall.presentation.CardWallSharedViewModel
 import de.gematik.ti.erp.app.cardwall.presentation.rememberExternalAuthenticatorListController
 import de.gematik.ti.erp.app.cardwall.ui.components.GematikErrorDialog
-import de.gematik.ti.erp.app.cardwall.ui.components.GidItem
-import de.gematik.ti.erp.app.cardwall.ui.components.GidScreenHeaderSection
 import de.gematik.ti.erp.app.cardwall.ui.preview.HealthInsuranceDataPreviewParameterProvider
-import de.gematik.ti.erp.app.column.ColumnItems
 import de.gematik.ti.erp.app.core.LocalIntentHandler
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.idp.model.HealthInsuranceData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.semantics.semanticsHeading
+import de.gematik.ti.erp.app.shimmer.RowTextShimmer
+import de.gematik.ti.erp.app.shimmer.SquareShapeShimmer
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.SpacerSmall
-import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.topbar.AnimatedTitleContent
+import de.gematik.ti.erp.app.utils.SpacerTiny
+import de.gematik.ti.erp.app.utils.compose.EmptyScreenComponent
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
+import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.LoadingDialog
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
+import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
+import de.gematik.ti.erp.app.utils.compose.animatedElevationStickySearchField
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
-import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
-import de.gematik.ti.erp.app.utils.extensions.imeHeight
+import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
+import de.gematik.ti.erp.app.utils.letNotNullOnCondition
 import de.gematik.ti.erp.app.utils.uistate.UiState
-import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isErrorState
-import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isLoadingState
-import kotlinx.coroutines.launch
 
 class CardWallGidListScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry,
-    override val graphController: CardWallGraphController
+    override val sharedViewModel: CardWallSharedViewModel
 ) : CardWallScreen() {
     @Composable
     override fun Content() {
-        val profileId by graphController.profileId.collectAsStateWithLifecycle()
+        val navProfileId = navBackStackEntry.arguments?.getString(CardWallRoutes.CARD_WALL_NAV_PROFILE_ID)
+        letNotNullOnCondition(
+            first = navProfileId,
+            condition = {
+                navProfileId.isNotNullOrEmpty()
+            }
+        ) { id ->
+            sharedViewModel.setProfileId(id)
+        }
+
+        val profileId by sharedViewModel.profileId.collectAsStateWithLifecycle()
+        val profileIsPKV by sharedViewModel.profileIsPkv.collectAsStateWithLifecycle()
         val intentHandler = LocalIntentHandler.current
         val dialog = LocalDialog.current
-        val snackbar = LocalSnackbarScaffold.current
-        val scope = rememberCoroutineScope()
+        val focusManager = LocalFocusManager.current
         var loadingDialog: Dialog? = remember { null }
 
         val listState = rememberLazyListState()
 
-        val fastTrackClosedString = stringResource(R.string.gid_fast_track_closed_error)
+        val controller = rememberExternalAuthenticatorListController(profileId)
+        val healthInsuranceList by controller.healthInsuranceDataList.collectAsStateWithLifecycle()
+        val searchValue by controller.searchValue.collectAsStateWithLifecycle()
 
-        val controller = rememberExternalAuthenticatorListController()
-        val healthInsuranceAppIdps by controller.healthInsuranceDataList.collectAsStateWithLifecycle()
+        val gidEventData = navBackStackEntry.processGidEventData()
+        letNotNullOnCondition(
+            first = gidEventData,
+            condition = { gidEventData?.authenticatorName.isNotNullOrEmpty() }
+        ) { gidData ->
+            controller.onFilterList(gidData.authenticatorName)
+        }
+
+        val onBack by rememberUpdatedState { navController.popBackStack() }
+
         val authorizationWithExternalAppEvent = controller.authorizationWithExternalAppInBackgroundEvent
         val redirectUriEvent = controller.redirectUriEvent
         val redirectErrorEvent = controller.redirectUriErrorEvent
         val redirectGematikErrorEvent = controller.redirectUriGematikErrorEvent
-
-        LaunchedEffect(Unit) {
-            controller.getHealthInsuranceAppList()
-        }
 
         authorizationWithExternalAppEvent.listen { isStarted ->
             if (isStarted) {
@@ -134,16 +156,11 @@ class CardWallGidListScreen(
             }
         }
 
-        redirectUriEvent.listen { (redirectUri, healthInsuranceData) ->
+        redirectUriEvent.listen { (redirectUri) ->
             intentHandler.tryStartingExternalHealthInsuranceAuthenticationApp(
                 redirect = redirectUri,
                 onSuccess = {
-                    if (healthInsuranceData.isPKV) {
-                        controller.switchToPKV(profileId)
-                    } else {
-                        controller.switchToGKV(profileId)
-                    }
-                    navController.popBackStack(CardWallRoutes.CardWallIntroScreen.route, inclusive = true)
+                    navController.popBackStack(CardWallRoutes.subGraphName(), inclusive = true)
                 },
                 onFailure = {
                     dialog.show {
@@ -178,26 +195,22 @@ class CardWallGidListScreen(
         }
 
         BackHandler {
-            navController.navigateUp()
+            onBack()
         }
-        GidListScreenScaffold(
+        CardWallGidListScreenScaffold(
             profileId = profileId,
             listState = listState,
-            healthInsuranceAppIdps = healthInsuranceAppIdps,
-            filterList = controller::filterList,
-            unFilterList = controller::unFilterList,
-            reloadHealthInsuranceAppList = controller::getHealthInsuranceAppList,
+            focusManager = focusManager,
+            healthInsuranceAppIdps = healthInsuranceList,
+            onFilterList = controller::onFilterList,
+            onRemoveFilterList = controller::onRemoveFilterList,
+            searchValue = searchValue,
+            reloadHealthInsuranceAppList = { controller.getHealthInsuranceAppList(profileIsPKV) },
             startAuthorizationWithExternal = controller::startAuthorizationWithExternal,
-            onClickHealthInsuranceWithGidNotSupported = {
-                scope.launch {
-                    snackbar.showSnackbar(fastTrackClosedString)
-                }
-            },
             onCancel = {
-                graphController.reset()
                 navController.popBackStack(CardWallRoutes.subGraphName(), inclusive = true)
             },
-            onBack = navController::navigateUp,
+            onBack = { onBack() },
             onNavigateToHelp = {
                 navController.navigate(CardWallRoutes.CardWallGidHelpScreen.route)
             }
@@ -206,141 +219,238 @@ class CardWallGidListScreen(
 }
 
 @Composable
-private fun GidListScreenScaffold(
+private fun CardWallGidListScreenScaffold(
     profileId: ProfileIdentifier,
     listState: LazyListState,
+    focusManager: FocusManager,
     healthInsuranceAppIdps: UiState<List<HealthInsuranceData>>,
-    filterList: (String) -> Unit,
-    unFilterList: () -> Unit,
+    searchValue: String,
+    onFilterList: (String) -> Unit,
+    onRemoveFilterList: () -> Unit,
     reloadHealthInsuranceAppList: () -> Unit,
     startAuthorizationWithExternal: (ProfileIdentifier, HealthInsuranceData) -> Unit,
-    onClickHealthInsuranceWithGidNotSupported: () -> Unit,
     onCancel: () -> Unit,
     onBack: () -> Unit,
     onNavigateToHelp: () -> Unit
 ) {
-    AnimatedElevationScaffold(
-        navigationMode = NavigationBarMode.Back,
-        topBarTitle = stringResource(R.string.cardwall_gid_title),
-        onBack = onBack,
-        listState = listState,
-        actions = {
-            TextButton(onClick = onCancel) {
-                Text(stringResource(R.string.cancel))
-            }
-        }
-    ) {
-        GidListScreenContent(
-            profileId = profileId,
-            healthInsuranceAppIdps = healthInsuranceAppIdps,
-            onSearch = { searchWord ->
-                if (searchWord.isNotEmpty()) {
-                    filterList(searchWord)
-                } else {
-                    unFilterList()
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            NavigationTopAppBar(
+                modifier = Modifier,
+                navigationMode = NavigationBarMode.Back,
+                title = {
+                    AnimatedTitleContent(
+                        listState = listState,
+                        indexOfTitleItemInList = 0,
+                        title = stringResource(R.string.cardwall_gid_list_header)
+                    )
+                },
+                elevation = 0.dp,
+                backLabel = stringResource(R.string.back),
+                closeLabel = stringResource(R.string.cancel),
+                onBack = onBack,
+                actions = {
+                    TextButton(onClick = onCancel) {
+                        Text(stringResource(R.string.cancel))
+                    }
                 }
-            },
-            onClickRetry = {
-                reloadHealthInsuranceAppList()
-            },
-            onClickHealthInsuranceIdp = { profileId, heathInsuranceIdp ->
-                startAuthorizationWithExternal(
-                    profileId,
-                    heathInsuranceIdp
-                )
-            },
-            onNavigateToHelp = onNavigateToHelp
-        )
+            )
+        }
+    ) { innerPadding ->
+        val searchBarDescription = stringResource(R.string.cardwall_gid_list_insurance_searchbar)
+        LazyColumn(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+            state = listState
+        ) {
+            cardWallGidListScreenTitleSection { onNavigateToHelp() }
+            cardWallGidListScreenSearchBar(
+                focusManager = focusManager,
+                value = searchValue,
+                onValueChange = onFilterList,
+                onRemoveValue = onRemoveFilterList,
+                listState = listState,
+                indexOfPreviousItemInList = 1,
+                searchBarDescription = searchBarDescription
+            )
+            gidListScreenContent(
+                profileId = profileId,
+                reloadHealthInsuranceAppList = reloadHealthInsuranceAppList,
+                healthInsuranceAppIdps = healthInsuranceAppIdps,
+                onClickHealthInsuranceIdp = startAuthorizationWithExternal
+            )
+        }
     }
 }
 
-@Composable
-fun GidListScreenContent(
+private fun LazyListScope.gidListScreenContent(
     profileId: ProfileIdentifier,
-    onSearch: (String) -> Unit,
+    reloadHealthInsuranceAppList: () -> Unit,
     healthInsuranceAppIdps: UiState<List<HealthInsuranceData>>,
     @Requirement(
         "O.Auth_4#4",
         sourceSpecification = "BSI-eRp-ePA",
         rationale = "The user selects the insurance company and the authentication process starts"
     )
-    onClickHealthInsuranceIdp: (ProfileIdentifier, HealthInsuranceData) -> Unit,
-    onClickRetry: () -> Unit,
+    onClickHealthInsuranceIdp: (ProfileIdentifier, HealthInsuranceData) -> Unit
+) {
+    item {
+        val onClickLabel = stringResource(R.string.cardwall_gid_list_insurance_click_description)
+        UiStateMachine(
+            state = healthInsuranceAppIdps,
+            onLoading = {
+                CardWallGidListScreenInsuranceListLoadingComponent()
+            },
+            onEmpty = {
+                EmptyScreenComponent(
+                    modifier = Modifier.padding(top = PaddingDefaults.XXLarge),
+                    title = stringResource(R.string.cardwall_gid_list_insurance_search_empty_title),
+                    body = stringResource(R.string.cardwall_gid_list_insurance_search_empty_body),
+                    button = {}
+                )
+            },
+            onError = {
+                ErrorScreenComponent(
+                    modifier = Modifier.padding(top = PaddingDefaults.XXLarge),
+                    title = stringResource(R.string.cdw_fasttrack_error_title),
+                    body = stringResource(R.string.cdw_fasttrack_error_info),
+                    onClickRetry = reloadHealthInsuranceAppList
+                )
+            },
+            onContent = {
+                CardWallGidListScreenInsuranceListContentComponent(
+                    healthInsuranceAppIdps = healthInsuranceAppIdps,
+                    profileId = profileId,
+                    onClickHealthInsuranceIdp = onClickHealthInsuranceIdp,
+                    onClickLabel = onClickLabel
+                )
+            }
+        )
+    }
+}
+
+private fun LazyListScope.cardWallGidListScreenTitleSection(
     onNavigateToHelp: () -> Unit
 ) {
-    val scrollState = rememberScrollState()
-    val focusRequester = remember { FocusRequester() }
-
-    var search by remember { mutableStateOf(TextFieldValue("")) }
-
-    val columnArrangement by remember(healthInsuranceAppIdps) {
-        derivedStateOf {
-            when {
-                healthInsuranceAppIdps.isLoadingState || healthInsuranceAppIdps.isErrorState -> Arrangement.Center
-                else -> Arrangement.Top
-            }
-        }
-    }
-
-    // column in a column to make the sticky header behaviour like a lazy column
-    Column {
-        GidScreenHeaderSection(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = PaddingDefaults.Medium),
-            searchValue = search,
-            focusRequester = focusRequester,
-            onValueChange = {
-                onSearch(it.text)
-                search = it.copy(selection = TextRange(it.text.length))
-            },
-            onNavigateToHelp = onNavigateToHelp
-        )
+    item {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(vertical = PaddingDefaults.Medium),
-            verticalArrangement = columnArrangement,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(MaterialTheme.colors.surface)
+                .padding(top = PaddingDefaults.Medium)
+                .padding(horizontal = PaddingDefaults.Medium)
         ) {
-            UiStateMachine(
-                state = healthInsuranceAppIdps,
-                onLoading = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(PaddingDefaults.Large),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .size(PaddingDefaults.XLarge)
-                                .align(Alignment.Center)
-                        )
-                    }
-                },
-                onError = {
-                    ErrorScreen(
-                        modifier = Modifier.fillMaxSize(),
-                        onClickRetry = onClickRetry
+            Text(
+                modifier = Modifier.semanticsHeading(),
+                text = stringResource(R.string.cardwall_gid_list_header),
+                style = AppTheme.typography.h6,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+    item { // two items to allow the functionality of the animated title and searchbar
+        Column(
+            modifier = Modifier
+                .background(MaterialTheme.colors.surface)
+                .padding(
+                    start = PaddingDefaults.Medium,
+                    end = PaddingDefaults.Medium,
+                    top = PaddingDefaults.Small
+                )
+        ) {
+            Text(
+                stringResource(R.string.cardwall_gid_list_body),
+                style = AppTheme.typography.body2,
+                color = AppTheme.colors.neutral600
+            )
+            TextButton(
+                modifier = Modifier.align(Alignment.End),
+                onClick = onNavigateToHelp,
+                content = {
+                    Text(
+                        stringResource(R.string.cardwall_gid_help_button),
+                        style = AppTheme.typography.body1
+                    )
+                    SpacerTiny()
+                    Icon(
+                        Icons.AutoMirrored.Rounded.ArrowForward,
+                        contentDescription = null,
+                        tint = AppTheme.colors.primary700
                     )
                 }
-            ) {
-                ColumnItems(
-                    items = it,
-                    itemContent = { _, healthInsuranceAppData ->
-                        GidItem(
-                            profileId = profileId,
-                            healthInsuranceData = healthInsuranceAppData,
-                            onClickHealthInsuranceIdp = onClickHealthInsuranceIdp
+            )
+        }
+    }
+}
+
+private fun LazyListScope.cardWallGidListScreenSearchBar(
+    listState: LazyListState,
+    focusManager: FocusManager,
+    value: String,
+    indexOfPreviousItemInList: Int = 0,
+    onValueChange: (String) -> Unit,
+    onRemoveValue: () -> Unit,
+    searchBarDescription: String
+) {
+    animatedElevationStickySearchField(
+        lazyListState = listState,
+        focusManager = focusManager,
+        value = value,
+        onValueChange = onValueChange,
+        onRemoveValue = onRemoveValue,
+        description = searchBarDescription,
+        indexOfPreviousItemInList = indexOfPreviousItemInList
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun CardWallGidListScreenInsuranceListContentComponent(
+    healthInsuranceAppIdps: UiState<List<HealthInsuranceData>>,
+    profileId: ProfileIdentifier,
+    onClickHealthInsuranceIdp: (ProfileIdentifier, HealthInsuranceData) -> Unit,
+    onClickLabel: String
+) {
+    healthInsuranceAppIdps.data?.let {
+        val placerHolderPainter = painterResource(R.drawable.ic_insurance_placeholder)
+        val loadingInsurancePainter = painterResource(R.drawable.loading_insurance)
+        Column {
+            it.forEach { healthInsuranceCompany ->
+                ListItem(
+                    modifier = Modifier
+                        .clickable(
+                            role = Role.Button,
+                            onClickLabel = onClickLabel
+                        ) {
+                            onClickHealthInsuranceIdp(profileId, healthInsuranceCompany)
+                        }
+                        .padding(vertical = PaddingDefaults.Small),
+                    icon = {
+                        AsyncImage(
+                            modifier = Modifier
+                                .size(SizeDefaults.fivefold),
+                            model = ImageRequest
+                                .Builder(LocalContext.current)
+                                .data(healthInsuranceCompany.logo)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = null,
+                            placeholder = loadingInsurancePainter,
+                            error = placerHolderPainter
                         )
                     },
-                    lastItemExtraContent = { _, _ ->
-                        Spacer(
-                            modifier = Modifier
-                                .size(PaddingDefaults.XXXLarge)
-                                .imeHeight()
+                    text = {
+                        Text(
+                            text = healthInsuranceCompany.name,
+                            style = AppTheme.typography.body1
+                        )
+                    },
+                    trailing = {
+                        Icon(
+                            Icons.Rounded.ChevronRight,
+                            null,
+                            tint = AppTheme.colors.neutral600
                         )
                     }
                 )
@@ -349,41 +459,33 @@ fun GidListScreenContent(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun ErrorScreen(
-    modifier: Modifier = Modifier,
-    onClickRetry: () -> Unit
-) =
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(PaddingDefaults.Medium),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            modifier = Modifier.align(BiasAlignment(horizontalBias = 0f, verticalBias = -0.33f)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
-        ) {
-            Text(
-                stringResource(R.string.cdw_fasttrack_error_title),
-                style = AppTheme.typography.subtitle1,
-                textAlign = TextAlign.Center
+private fun CardWallGidListScreenInsuranceListLoadingComponent() {
+    val loadingItemList = List(10) { it }
+    Column {
+        loadingItemList.forEach {
+            ListItem(
+                modifier = Modifier
+                    .shimmer()
+                    .padding(vertical = PaddingDefaults.Small),
+                icon = {
+                    SquareShapeShimmer()
+                },
+                text = {
+                    RowTextShimmer()
+                },
+                trailing = {
+                    Icon(
+                        Icons.Rounded.ChevronRight,
+                        null,
+                        tint = AppTheme.colors.neutral600
+                    )
+                }
             )
-            Text(
-                stringResource(R.string.cdw_fasttrack_error_info),
-                style = AppTheme.typography.body2l,
-                textAlign = TextAlign.Center
-            )
-            TextButton(
-                onClick = onClickRetry
-            ) {
-                Icon(Icons.Rounded.Refresh, null)
-                SpacerSmall()
-                Text(stringResource(R.string.cdw_fasttrack_try_again))
-            }
         }
     }
+}
 
 @LightDarkPreview
 @Composable
@@ -392,13 +494,20 @@ fun GidListScreenScaffoldPreview(
         UiState<List<HealthInsuranceData>>
 ) {
     PreviewAppTheme {
-        GidListScreenContent(
-            profileId = "profile-id",
+        val focusManager = LocalFocusManager.current
+        CardWallGidListScreenScaffold(
+            profileId = "123",
+            listState = rememberLazyListState(),
             healthInsuranceAppIdps = healthInsuranceAppIds,
-            onNavigateToHelp = {},
-            onClickHealthInsuranceIdp = { _, _ -> },
-            onClickRetry = {},
-            onSearch = {}
+            searchValue = "",
+            onFilterList = {},
+            focusManager = focusManager,
+            onRemoveFilterList = {},
+            reloadHealthInsuranceAppList = {},
+            startAuthorizationWithExternal = { _, _ -> },
+            onCancel = {},
+            onBack = {},
+            onNavigateToHelp = {}
         )
     }
 }

@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -43,8 +44,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.base.openSettingsAsNewActivity
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.loading.LoadingIndicator
 import de.gematik.ti.erp.app.permissions.getLocationPermissionLauncher
 import de.gematik.ti.erp.app.permissions.isLocationPermissionAndServiceEnabled
@@ -335,8 +338,11 @@ private fun PharmacyStartScreenContent(
     onBack: () -> Unit
 ) {
     AnimatedElevationScaffold(
+        modifier = Modifier.imePadding(),
         isModalFlow = isModalFlow,
         topBarTitle = stringResource(R.string.redeem_header).capitalizeFirstChar(),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         listState = listState,
         onBack = onBack,
         content = { contentPadding ->
@@ -371,10 +377,13 @@ private fun PharmacyStartScreenBody(
     onClickFilter: () -> Unit,
     onClickFavouritePharmacy: (OverviewPharmacy) -> Unit
 ) {
+    val activity = LocalActivity.current
+    val padding = (activity as? BaseActivity)?.applicationInnerPadding
+
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         state = listState,
-        contentPadding = contentPadding
+        contentPadding = padding?.combineWithInnerScaffold(contentPadding) ?: contentPadding,
     ) {
         item {
             SpacerLarge()

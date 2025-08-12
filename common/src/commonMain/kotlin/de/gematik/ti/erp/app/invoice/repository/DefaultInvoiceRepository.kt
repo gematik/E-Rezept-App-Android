@@ -26,7 +26,7 @@ import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.ResourcePaging
 import de.gematik.ti.erp.app.fhir.model.extractTaskIdsFromChargeItemBundle
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow

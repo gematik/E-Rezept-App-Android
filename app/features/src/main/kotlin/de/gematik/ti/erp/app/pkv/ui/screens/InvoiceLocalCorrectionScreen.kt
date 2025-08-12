@@ -50,7 +50,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.google.zxing.common.BitMatrix
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pkv.navigation.PkvNavigationArguments
@@ -122,6 +122,8 @@ fun InvoiceLocalCorrectionScreenScaffold(
     AnimatedElevationScaffold(
         modifier = Modifier.imePadding(),
         topBarTitle = "",
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         navigationMode = null,
         scaffoldState = scaffoldState,
         listState = listState,

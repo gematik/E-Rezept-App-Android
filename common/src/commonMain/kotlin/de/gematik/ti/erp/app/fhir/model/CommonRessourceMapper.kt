@@ -32,7 +32,7 @@ import de.gematik.ti.erp.app.fhir.parser.containedStringOrNull
 import de.gematik.ti.erp.app.fhir.parser.filterWith
 import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.stringValue
-import de.gematik.ti.erp.app.utils.toFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -160,6 +160,7 @@ private fun JsonElement.getLineAddressFromExtensions(): List<String>? {
         null
     }
 }
+
 fun JsonElement.extractHumanName(): String? {
     return this
         .findAll("name")
@@ -206,6 +207,7 @@ fun <MultiplePrescriptionInfo, Ratio, Quantity> JsonElement.extractMultiplePresc
         end
     )
 }
+
 fun <Ingredient, Ratio, Quantity> JsonElement.extractIngredient(
     ingredientFn: IngredientFn<Ingredient, Ratio>,
     ratioFn: RatioFn<Ratio, Quantity>,

@@ -30,9 +30,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.base.ClipBoardCopy
 import de.gematik.ti.erp.app.core.LocalIntentHandler
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.idp.usecase.AuthenticateWithExternalHealthInsuranceAppUseCase
 import de.gematik.ti.erp.app.mainscreen.presentation.AuthenticationHandlerState
 import de.gematik.ti.erp.app.mainscreen.presentation.ExternalAuthenticationHandler

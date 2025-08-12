@@ -33,7 +33,7 @@ fun LazyListScope.prescriptionContentSection(
     onClickPrescription: (String, Boolean, Boolean) -> Unit
 ) {
     activePrescriptions.forEach { prescription ->
-        item(key = "prescription-${prescription.taskId}") {
+        item(key = "prescription-${prescription.uuid}") {
             when (prescription) {
                 is SyncedPrescription ->
                     if (prescription.isDiga) {

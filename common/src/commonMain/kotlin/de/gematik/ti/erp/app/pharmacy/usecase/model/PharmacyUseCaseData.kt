@@ -27,10 +27,10 @@ package de.gematik.ti.erp.app.pharmacy.usecase.model
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirContactInformationErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPositionErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningHoursErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningTimeErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirContactInformationErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPositionErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningTimeErpModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningTime.Companion.toModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyServiceSerializationType.DeliveryPharmacyServiceType
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyServiceSerializationType.EmergencyPharmacyServiceType
@@ -177,18 +177,17 @@ object PharmacyUseCaseData {
 
     object PharmacyServiceSerializer : JsonContentPolymorphicSerializer<PharmacyService>(PharmacyService::class) {
         override fun selectDeserializer(element: JsonElement): KSerializer<out PharmacyService> {
-            element.jsonObject["type"]?.jsonPrimitive?.content?.let { classType ->
-                return when (PharmacyServiceSerializationType.valueOf(classType)) {
-                    OnlinePharmacyServiceType -> PharmacyService.OnlinePharmacyService.serializer()
-                    PickUpPharmacyServiceType -> PharmacyService.PickUpPharmacyService.serializer()
-                    DeliveryPharmacyServiceType -> PharmacyService.DeliveryPharmacyService.serializer()
-                    EmergencyPharmacyServiceType -> PharmacyService.EmergencyPharmacyService.serializer()
-                    LocalPharmacyServiceType -> PharmacyService.LocalPharmacyService.serializer()
-                }
+            val classType = element.jsonObject["type"]?.jsonPrimitive?.content
+            if (classType == null || classType.isEmpty()) throw SerializationException(
+                "PharmacyServiceSerializer: key 'type' not found or does not matches any module type"
+            )
+            return when (PharmacyServiceSerializationType.valueOf(classType)) {
+                OnlinePharmacyServiceType -> PharmacyService.OnlinePharmacyService.serializer()
+                PickUpPharmacyServiceType -> PharmacyService.PickUpPharmacyService.serializer()
+                DeliveryPharmacyServiceType -> PharmacyService.DeliveryPharmacyService.serializer()
+                EmergencyPharmacyServiceType -> PharmacyService.EmergencyPharmacyService.serializer()
+                LocalPharmacyServiceType -> PharmacyService.LocalPharmacyService.serializer()
             }
-                ?: throw SerializationException(
-                    "PharmacyServiceSerializer: key 'type' not found or does not matches any module type"
-                )
         }
     }
 

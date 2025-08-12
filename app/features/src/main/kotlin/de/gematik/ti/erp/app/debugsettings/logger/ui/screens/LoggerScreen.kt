@@ -54,11 +54,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.base.ClipBoardCopy
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.debugsettings.logger.presentation.rememberLoggerScreenController
 import de.gematik.ti.erp.app.debugsettings.logger.ui.screens.LoggerScreen.LoggerContent
 import de.gematik.ti.erp.app.logger.mapper.toHar
@@ -157,6 +159,8 @@ object LoggerScreen {
         AnimatedElevationScaffold(
             topBarTitle = "Logger",
             navigationMode = NavigationBarMode.Back,
+            backLabel = stringResource(R.string.back),
+            closeLabel = stringResource(R.string.cancel),
             listState = listState,
             actions = {
                 Row {

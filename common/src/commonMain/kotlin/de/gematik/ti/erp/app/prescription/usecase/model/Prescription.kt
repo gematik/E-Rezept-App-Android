@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.prescription.usecase.model
 
 import androidx.compose.runtime.Immutable
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import kotlinx.datetime.Instant
@@ -37,6 +37,9 @@ sealed interface Prescription {
     val redeemedOn: Instant?
     val startedOn: Instant?
     val expiresOn: Instant?
+
+    val uuid: String
+        get() = "${taskId}-${name}-${hashCode()}"
 
     /**
      * Represents a single [Task] synchronized with the backend.

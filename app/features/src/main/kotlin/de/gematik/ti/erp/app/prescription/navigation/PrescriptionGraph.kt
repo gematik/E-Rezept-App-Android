@@ -33,7 +33,6 @@ import de.gematik.ti.erp.app.prescription.ui.PrescriptionScanScreen
 import de.gematik.ti.erp.app.prescription.ui.screen.GrantConsentBottomSheetScreen
 import de.gematik.ti.erp.app.prescription.ui.screen.PrescriptionListScreen
 import de.gematik.ti.erp.app.prescription.ui.screen.PrescriptionsArchiveScreen
-import de.gematik.ti.erp.app.prescription.ui.screen.WelcomeDrawerBottomSheetScreen
 
 @Suppress("LongMethod")
 fun NavGraphBuilder.prescriptionGraph(
@@ -67,15 +66,6 @@ fun NavGraphBuilder.prescriptionGraph(
             arguments = PrescriptionRoutes.PrescriptionScanScreen.arguments
         ) { navEntry ->
             PrescriptionScanScreen(
-                navController = navController,
-                navBackStackEntry = navEntry
-            )
-        }
-        renderBottomSheet(
-            route = PrescriptionRoutes.WelcomeDrawerBottomSheetScreen.route,
-            arguments = PrescriptionRoutes.WelcomeDrawerBottomSheetScreen.arguments
-        ) { navEntry ->
-            WelcomeDrawerBottomSheetScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )
