@@ -25,8 +25,9 @@ package de.gematik.ti.erp.app.redeem.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import de.gematik.ti.erp.app.pharmacy.mapper.calculateServiceState
@@ -49,12 +50,13 @@ internal fun OrderSelectedServicesRow(
 
     Row(
         modifier = Modifier
-            .height(IntrinsicSize.Min)
-            .fillMaxSize(),
+            .wrapContentSize()
+            .height(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)
     ) {
         if (serviceState?.pickup?.visible == true) {
             PharmacyOrderOptionCard(
+                modifier = Modifier.fillMaxHeight(),
                 isSelected = selectedOption == PharmacyScreenData.OrderOption.Pickup,
                 isServiceEnabled = serviceState.pickup.enabled,
                 type = PharmacyOrderOptionCardType.Flat,
@@ -67,6 +69,7 @@ internal fun OrderSelectedServicesRow(
         }
         if (serviceState?.delivery?.visible == true) {
             PharmacyOrderOptionCard(
+                modifier = Modifier.fillMaxHeight(),
                 isSelected = selectedOption == PharmacyScreenData.OrderOption.Delivery,
                 isServiceEnabled = serviceState.delivery.enabled,
                 type = PharmacyOrderOptionCardType.Flat,
@@ -79,6 +82,7 @@ internal fun OrderSelectedServicesRow(
         }
         if (serviceState?.online?.visible == true) {
             PharmacyOrderOptionCard(
+                modifier = Modifier.fillMaxHeight(),
                 isSelected = selectedOption == PharmacyScreenData.OrderOption.Online,
                 isServiceEnabled = serviceState.online.enabled,
                 type = PharmacyOrderOptionCardType.Flat,

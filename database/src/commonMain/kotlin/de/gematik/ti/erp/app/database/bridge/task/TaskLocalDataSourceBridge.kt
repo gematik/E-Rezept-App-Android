@@ -57,8 +57,19 @@ internal class TaskLocalDataSourceBridge(
     private val isDebug: Boolean,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : TaskLocalDataSource {
-
     private val scope = CoroutineScope(dispatcher)
+    // get Version 1
+    // convert to ErpModel
 
-    // to follow
+    // try
+    // if debug
+    // get Version 2
+    // convert to ErpModel
+    // log Success
+    // catch
+    // log Failure
+    // if featureFlag
+    // return v2
+
+    // return v1
 }

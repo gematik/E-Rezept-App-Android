@@ -28,8 +28,6 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
-import de.gematik.ti.erp.app.TestTag
 
 @Composable
 fun OnboardingLazyColumn(
@@ -40,7 +38,7 @@ fun OnboardingLazyColumn(
 ) {
     LazyColumn(
         state = state,
-        modifier = modifier.testTag(TestTag.Onboarding.ScreenContent),
+        modifier = modifier,
         contentPadding = contentPadding,
         content = content
     )

@@ -192,5 +192,12 @@ enum class NavigationRouteNames(
     // Translations
     TranslationConsentBottomSheetScreen,
     TranslationSettingsScreen,
-    TranslationPickLanguageScreen
+    TranslationPickLanguageScreen,
+
+    // EuRezept
+    EuConsentScreen,
+    EuRedeemScreen,
+    EuCountrySelectionScreen,
+    EuPrescriptionSelectionScreen,
+    EUAvailabilityScreen
 }

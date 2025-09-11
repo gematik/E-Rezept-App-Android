@@ -28,24 +28,48 @@ object FhirPractitionerErpTestData {
     val erpPractitioner1_v103 = FhirTaskKbvPractitionerErpModel(
         name = "Dr. med. Emma Schneider",
         qualification = "Fachärztin für Innere Medizin",
-        practitionerIdentifier = "987654423"
+        doctorIdentifier = "987654423",
+        dentistIdentifier = null,
+        telematikId = null
     )
 
     val erpPractitioner2_v103 = FhirTaskKbvPractitionerErpModel(
         name = "Dr. med. Hans Topp-Glücklich",
         qualification = "Hausarzt",
-        practitionerIdentifier = "838382202"
+        doctorIdentifier = "838382202",
+        dentistIdentifier = null,
+        telematikId = null
     )
 
     val erpPractitioner1_v110 = FhirTaskKbvPractitionerErpModel(
         name = "Alexander Fischer",
         qualification = "Facharzt für Innere Medizin",
-        practitionerIdentifier = null
+        doctorIdentifier = null,
+        dentistIdentifier = null,
+        telematikId = null
     )
 
     val erpPractitioner2_v110 = FhirTaskKbvPractitionerErpModel(
         name = "Dr. med. Hans Topp-Glücklich",
         qualification = "Hausarzt",
-        practitionerIdentifier = "838382202"
+        doctorIdentifier = "838382202",
+        dentistIdentifier = null,
+        telematikId = "1-838382202"
+    )
+
+    val erpPractitioner3_v12 = FhirTaskKbvPractitionerErpModel(
+        name = "Dr. med. Paul Freiherr von Müller",
+        qualification = "Facharzt für Innere Medizin: Kardiologie",
+        doctorIdentifier = "123456628",
+        dentistIdentifier = null,
+        telematikId = null
+    )
+
+    val erpPractitioner4_v12 = FhirTaskKbvPractitionerErpModel(
+        name = "Dr. med. Paul Freiherr von Müller",
+        qualification = "Facharzt für Innere Medizin: Kardiologie",
+        doctorIdentifier = null,
+        dentistIdentifier = "123456",
+        telematikId = "3BB-98z349"
     )
 }

@@ -22,10 +22,12 @@
 
 package de.gematik.ti.erp.app.logger.di
 
+import de.gematik.ti.erp.app.logger.DbMigrationLogHolder
 import de.gematik.ti.erp.app.logger.SessionLogHolder
 import org.kodein.di.DI
 import org.kodein.di.bindSingleton
 
 val loggerModule = DI.Module("Logger Module") {
     bindSingleton { SessionLogHolder() }
+    bindSingleton { DbMigrationLogHolder() }
 }

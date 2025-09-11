@@ -25,6 +25,7 @@ kotlin {
                 implementation(project(":utils"))
                 implementation(libs.kotlin.stdlib)
                 implementation(libs.multiplatform.settings)
+                implementation(libs.androidx.datastore.preferences)
                 implementation(compose.runtime)
                 // Add KMP dependencies here
             }

@@ -144,22 +144,6 @@ class ErpTimeFormatterTests {
         assertEquals("12:30:00 م توقيت وسط أوروبا الصيفي", time(TWELVE_THIRTY, Style.FULL))
         assertEquals("1 يونيو 2012 في 12:30:00 م CEST", timestamp(TWELVE_THIRTY, Style.LONG))
     }
-
-    @Test
-    fun `show erp locale`() {
-        ErpLanguageCode.entries.map { Locale.forLanguageTag(it.code) }.forEach { locale ->
-            val formatter = ErpTimeFormatter(locale)
-            println("$locale  \t ${formatter.timestamp(TWELVE_THIRTY, style = Style.FULL)}")
-        }
-    }
-
-    @Test
-    fun `show all locale`() {
-        Locale.getAvailableLocales().forEachIndexed { idx, locale ->
-            val formatter = ErpTimeFormatter(locale)
-            println("$idx: $locale  \t ->  ${formatter.timestamp(TWELVE_THIRTY, style = Style.FULL)}")
-        }
-    }
 }
 
 enum class ErpLanguageCode(val code: String) {

@@ -22,6 +22,8 @@
 
 package de.gematik.ti.erp.app.fhir.constant
 
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemConstant
+
 /**
  * **FHIR Constants for GEMATIK and KBV Bundles**
  *
@@ -81,6 +83,8 @@ object FhirConstants {
 
     const val VALUE_CODING = "valueCoding"
 
+    const val VALUE_BOOLEAN = "valueBoolean"
+
     /**
      * **FHIR Extension Date Types**
      *
@@ -138,7 +142,9 @@ object FhirConstants {
         PRESCRIPTION_TYPE_EXTENSION(
             "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
             VALUE_CODING
-        );
+        ),
+        EU_REDEEM_POSSIBLE_BY_PROPERTIES(FhirEuRedeemConstant.IS_EU_REDEEMABLE_FLAG_BY_FACHDIENST, VALUE_BOOLEAN),
+        EU_REDEEM_ALLOWED_BY_PATIENT_AUTHORIZATION(FhirEuRedeemConstant.EU_REDEEM__FLAG_BY_PATIENT, VALUE_BOOLEAN);
     }
 
     /**
@@ -152,11 +158,6 @@ object FhirConstants {
         ITEM_KEY("system"),
         ITEM_VALUE("value");
     }
-
-    /**
-     * Naming system for identifying practitioners using the Arztnummer (ANR).
-     */
-    const val PRACTITIONER_IDENTIFIER_NAME = "https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR"
 
     /**
      * Naming system for GKV (gesetzliche Krankenversicherung) patient identifier (KVNR).
@@ -187,24 +188,6 @@ object FhirConstants {
      * Telematik ID system used to identify organizations and practitioners in the German healthcare system.
      */
     const val TELEMATIK_ID_IDENTIFIER = "https://gematik.de/fhir/sid/telematik-id"
-
-    /**
-     * Identifier for organizations using Betriebsstättennummer (BSNR).
-     */
-    const val ORGANIZATION_IDENTIFIER_BSNR_NAME = "https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR"
-
-    /**
-     * Identifier for organizations using Institutionskennzeichen (IKNR).
-     */
-    const val ORGANIZATION_IDENTIFIER_IKNR_NAME = "http://fhir.de/sid/arge-ik/iknr"
-
-    /**
-     * Code system for health insurance status used in the KBV FHIR profiles.
-     */
-    const val COVERAGE_KBV_STATUS_CODE_SYSTEM = "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS"
-
-    const val TELECOM_PHONE = "phone"
-    const val TELECOM_EMAIL = "email"
 
     /**
      * Identifier system for pharmaceutical central numbers (PZN) used in Germany.

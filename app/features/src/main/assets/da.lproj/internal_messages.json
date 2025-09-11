@@ -34,5 +34,11 @@
         "text": "**🙌 Tilmelding for privatforsikrede** \nTilmeldingen for privatforsikrede er blevet optimeret. Du kan nemt logge ind med dit sundheds-ID med blot et par klik. \n \n **⏰ Medicinpåmindelser** \nDu kan nu indstille påmindelser om at tage din medicin. \n \n **🛒 Forbedret bestillingsflow** \nBestillingsprocessen er nu enklere og hurtigere. \n \n **♿️ Tilgængelighed** \nAdgangsnummeret til sundhedskortet kan nu også scannes med kameraet. \n \n **📲 Mere information om DiGA'er** \nFra nu af modtager du mere detaljerede oplysninger om dine DiGA-recepter, f.eks. salgspris eller logo.",
         "timestamp": "2025-08-06T08:00:00.000Z",
         "version": "1.32"
+    },
+    {
+        "id": "8",
+        "text": "**📝 Fleksibelt felt til leveringsinstruktioner** \n Feltet til leveringsinstruktioner justerer sig nu automatisk til tekstens længde. \n \n **🎨 Mere moderne knapper med Material 3** \n Knapperne er blevet tilpasset Android's nye Material 3-design og har nu et mere moderne og afrundet udseende. \n \n **📤 Del opskrifter** \nOpskrifter kan nu deles med andre direkte fra appen.",
+        "timestamp": "2025-09-09T08:00:00.000Z",
+        "version": "1.33"
     }
 ]

@@ -72,11 +72,10 @@ object PharmacyUseCaseData {
         val nearBy: Boolean = false,
         val deliveryService: Boolean = false,
         val onlineService: Boolean = false,
-        val openNow: Boolean = false,
-        val directRedeem: Boolean = false
+        val openNow: Boolean = false
     ) {
         fun isAnySet(): Boolean =
-            nearBy || deliveryService || onlineService || openNow || directRedeem
+            nearBy || deliveryService || onlineService || openNow
     }
 
     @Serializable
@@ -218,21 +217,14 @@ object PharmacyUseCaseData {
     data class PharmacyContact(
         val phone: String,
         val mail: String,
-        val url: String,
-        // required only for zuweisung-ohne-ti
-        val pickUpUrl: String,
-        val deliveryUrl: String,
-        val onlineServiceUrl: String
+        val url: String
     ) {
         companion object {
             fun FhirContactInformationErpModel.toModel() =
                 PharmacyContact(
                     phone = phone,
                     mail = mail,
-                    url = url,
-                    pickUpUrl = pickUpUrl ?: "",
-                    deliveryUrl = deliveryUrl ?: "",
-                    onlineServiceUrl = onlineServiceUrl ?: ""
+                    url = url
                 )
         }
     }
@@ -300,18 +292,6 @@ object PharmacyUseCaseData {
 
         val isOnlineService
             get() = provides.any { it is PharmacyService.OnlinePharmacyService }
-
-        val directRedeemUrlsNotPresent: Boolean
-            get() {
-                val hasNoPickupContact = contact.pickUpUrl.isEmpty()
-                val hasNoDeliveryContact = contact.deliveryUrl.isEmpty()
-                val hasNoOnlineServiceContact = contact.onlineServiceUrl.isEmpty()
-                return listOf(
-                    hasNoPickupContact,
-                    hasNoDeliveryContact,
-                    hasNoOnlineServiceContact
-                ).all { it }
-            }
 
         @Stable
         fun singleLineAddress(): String =

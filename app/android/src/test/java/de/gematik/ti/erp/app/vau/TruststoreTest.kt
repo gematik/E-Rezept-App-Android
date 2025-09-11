@@ -90,7 +90,7 @@ class TruststoreTest {
     fun setup() {
         MockKAnnotations.init(this)
 
-        every { config.maxOCSPResponseAge } returns 12.hours
+        every { config.getOcspMaxAge() } returns 12.hours
         every { config.trustAnchor } returns TestCertificates.RCA3.X509Certificate
         every { timeSource() } returns ocspProducedAt + 2.hours
         every { trustedTruststore.vauPublicKey } returns vauPublicKey
@@ -193,20 +193,6 @@ class TruststoreTest {
     }
 
     @Test
-    fun `create trusted truststore`() {
-        val truststore = TrustedTruststore.create(
-            TestCertificates.OCSP.OCSPList,
-            TestCertificates.Vau.CertList,
-            TestCertificates.RCA3.X509Certificate,
-            12.hours,
-            TestCertificates.OCSP2.ProducedAt
-        )
-
-        assertEquals(vauPublicKey, truststore.vauPublicKey)
-        truststore.checkValidity(12.hours, TestCertificates.OCSP2.ProducedAt)
-    }
-
-    @Test
     fun `create trusted truststore with outdated ocsp responses`() {
         assertTrue(
             try {
@@ -227,7 +213,7 @@ class TruststoreTest {
 
     // use case tests
 
-   /* @Test
+    @Test
     fun `new instance of truststore contains no cached store - fetches and creates store from repository`() =
         runTest {
             coEvery { repository.withUntrusted<Boolean>(any()) } coAnswers {
@@ -253,7 +239,7 @@ class TruststoreTest {
             coVerify(exactly = 1) { repository.withUntrusted(any()) }
             coVerify(exactly = 0) { repository.invalidate() }
             verify(exactly = 1) { trustedTruststore.vauPublicKey }
-            coVerify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
+            verify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
         }
 
     @Test
@@ -295,7 +281,7 @@ class TruststoreTest {
             coVerify(exactly = 2) { repository.withUntrusted(any()) }
             coVerify(exactly = 1) { repository.invalidate() }
             verify(exactly = 1) { trustedTruststore.vauPublicKey }
-            coVerify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
+            verify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
         }
 
     @Test
@@ -351,8 +337,8 @@ class TruststoreTest {
             coVerify(exactly = 2) { repository.withUntrusted(any()) }
             coVerify(exactly = 1) { repository.invalidate() }
             verify(exactly = 2) { trustedTruststore.vauPublicKey }
-            coVerify(exactly = 1) { trustedTruststore.checkValidity(any(), any()) }
-        }*/
+            verify(exactly = 1) { trustedTruststore.checkValidity(any(), any()) }
+        }
 
     @Test(expected = Exception::class)
     fun `truststore creation finally fails`() =
@@ -394,48 +380,6 @@ class TruststoreTest {
             }
         }
 
-  /*  @Test(expected = Exception::class)
-    fun `truststore creation succeeds - block throws exception`() =
-        runTest {
-            coEvery {
-                repository.withUntrusted<Boolean>(any())
-            } coAnswers {
-                firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
-                    TestCertificates.Vau.CertList,
-                    TestCertificates.OCSP.OCSPList
-                )
-            }
-
-            every {
-                trustedTruststoreProvider(
-                    TestCertificates.OCSP.OCSPList,
-                    TestCertificates.Vau.CertList,
-                    TestCertificates.RCA3.X509Certificate,
-                    12.hours,
-                    any()
-                )
-            } answers {
-                trustedTruststore
-            }
-
-            try {
-                truststore.withValidVauPublicKey {
-                    assertEquals(vauPublicKey, it)
-                    error("")
-                }
-            } finally {
-                coVerifyOrder {
-                    repository.withUntrusted<Boolean>(any())
-                    trustedTruststore.vauPublicKey
-                    repository.invalidate()
-                }
-                coVerify(exactly = 1) { repository.withUntrusted(any()) }
-                coVerify(exactly = 1) { repository.invalidate() }
-                verify(exactly = 1) { trustedTruststore.vauPublicKey }
-                coVerify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
-            }
-        }
-
     @Test
     fun `truststore creation succeeds - idp certificate found`() =
         runTest {
@@ -470,7 +414,7 @@ class TruststoreTest {
             coVerify(exactly = 0) { repository.invalidate() }
             verify(exactly = 0) { trustedTruststore.caCertificates }
             verify(exactly = 0) { trustedTruststore.vauPublicKey }
-            coVerify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
+            verify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
         }
 
     @Test(expected = IllegalArgumentException::class)
@@ -508,7 +452,7 @@ class TruststoreTest {
                 coVerify(exactly = 0) { repository.invalidate() }
                 verify(exactly = 0) { trustedTruststore.caCertificates }
                 verify(exactly = 0) { trustedTruststore.vauPublicKey }
-                coVerify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
+                verify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
             }
         }
 
@@ -548,7 +492,7 @@ class TruststoreTest {
                 coVerify(exactly = 1) { repository.invalidate() }
                 verify(exactly = 0) { trustedTruststore.caCertificates }
                 verify(exactly = 0) { trustedTruststore.vauPublicKey }
-                coVerify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
+                verify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
             }
-        }*/
+        }
 }

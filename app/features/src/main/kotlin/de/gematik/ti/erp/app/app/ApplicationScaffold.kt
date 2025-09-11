@@ -51,6 +51,7 @@ import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.settings.navigation.SettingsRoutes
 import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
+
 import de.gematik.ti.erp.app.utils.extensions.LocalUiScopeScaffold
 
 @Composable

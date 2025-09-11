@@ -37,8 +37,14 @@ object FhirCommunicationConstants {
     internal const val SUPPLY_OPTIONS_TYPE_EXTENSION = "$STRUCTURE_DEFINITION_ERP_FHIR_URL/GEM_ERP_EX_SupplyOptionsType"
 
     // Profile URLs without versions
-    internal const val COMMUNICATION_REPLY_PROFILE_BASE = "$STRUCTURE_DEFINITION_ERP_FHIR_URL/GEM_ERP_PR_Communication_Reply"
-    internal const val COMMUNICATION_DISPENSE_PROFILE_BASE = "$STRUCTURE_DEFINITION_ERP_FHIR_URL/GEM_ERP_PR_Communication_DispReq"
+    internal const val COMMUNICATION_REPLY_REPLY_WORKFLOW_PROFILE = "$STRUCTURE_DEFINITION_ERP_FHIR_URL/GEM_ERP_PR_Communication_Reply"
+
+    // https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.5
+    internal const val COMMUNICATION_DISPENSE_WORKFLOW_PROFILE = "$STRUCTURE_DEFINITION_ERP_FHIR_URL/GEM_ERP_PR_Communication_DispReq"
+
+    // https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DiGA|1.5
+    // https://simplifier.net/erezept-workflow/gem_erp_pr_communication_diga
+    internal const val COMMUNICATION_DISPENSE_DIGA_WORKFLOW_PROFILE = "$STRUCTURE_DEFINITION_ERP_FHIR_URL/GEM_ERP_PR_Communication_DiGA"
 
     internal const val EXT_ON_PREMISE = "onPremise"
     internal const val EXT_SHIPMENT = "shipment"

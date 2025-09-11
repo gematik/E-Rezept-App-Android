@@ -27,6 +27,7 @@ import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.TranslateRemoteModel
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.TranslatorOptions
+import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.translation.domain.model.TRANSLATION_TAG
 import de.gematik.ti.erp.app.translation.domain.model.TranslationFailure
 import de.gematik.ti.erp.app.translation.domain.model.TranslationState
@@ -42,7 +43,8 @@ import kotlinx.coroutines.tasks.await
 
 class TranslateTextUseCase(
     private val remoteModelManager: RemoteModelManager,
-    private val repository: TranslationRepository
+    private val repository: TranslationRepository,
+    private val networkStatusTracker: NetworkStatusTracker
 ) {
 
     private fun mapToMlKitLangCode(): String? {
@@ -79,9 +81,19 @@ class TranslateTextUseCase(
 
                         val translator = Translation.getClient(options)
 
+                        // 1) Quick pre-check
+                        val online = networkStatusTracker.isNetworkAvailable()
+                        Napier.d(tag = TRANSLATION_TAG) { "Network available: $online" }
+                        if (!online) {
+                            Napier.e(tag = TRANSLATION_TAG) { "No internet connection" }
+                            emit(TranslationState.Error(TranslationFailure.LanguageNotDownloaded))
+                        }
+
                         if (isDownloaded) {
                             translator.downloadModelIfNeeded().await() // ensures model is usable
+                            Napier.e(tag = TRANSLATION_TAG) { "waiting for translator" }
                             val translatedText = translator.translate(text).await()
+                            Napier.e(tag = TRANSLATION_TAG) { "waiting for text" }
                             emit(TranslationState.Success(translatedText ?: ""))
                         } else {
                             emit(TranslationState.Error(TranslationFailure.LanguageNotDownloaded))

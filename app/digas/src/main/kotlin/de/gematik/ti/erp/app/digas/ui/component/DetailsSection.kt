@@ -48,7 +48,6 @@ import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
-import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.Banner
 import de.gematik.ti.erp.app.utils.compose.BannerClickableIcon
 import de.gematik.ti.erp.app.utils.compose.BannerIcon
@@ -73,7 +72,7 @@ fun LazyListScope.detailSection(
 ) {
     item {
         Column(
-            modifier = Modifier.padding(bottom = PaddingDefaults.XXLargeMedium)
+            modifier = Modifier
         ) {
             UiStateMachine(
                 state = uiState,
@@ -169,7 +168,6 @@ fun LazyListScope.detailSection(
                         setHorizontalPadding = false,
                         onClick = onNavigateToTechnicalInformation
                     )
-                    SpacerXXLarge()
                 }
             }
         }

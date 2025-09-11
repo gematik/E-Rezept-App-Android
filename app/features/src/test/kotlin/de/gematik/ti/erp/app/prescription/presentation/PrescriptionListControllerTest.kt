@@ -281,7 +281,6 @@ class PrescriptionListControllerTest : TestWatcher() {
         testScope.runTest {
             controllerUnderTest.activeProfile.test {
                 val profile = awaitItem()
-                println(profile)
                 assert(profile.isLoadingState)
             }
         }

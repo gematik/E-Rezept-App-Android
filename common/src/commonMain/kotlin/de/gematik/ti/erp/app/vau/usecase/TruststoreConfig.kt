@@ -22,7 +22,6 @@
 
 package de.gematik.ti.erp.app.vau.usecase
 
-import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.Requirement
 import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.util.encoders.Base64
@@ -40,9 +39,7 @@ import kotlin.time.Duration.Companion.hours
     rationale = "Gematik Root CA 3 as trust anchor has to be setup in the program code."
 )
 class TruststoreConfig(getTrustAnchor: () -> String) {
-    val maxOCSPResponseAge: Duration by lazy {
-        BuildKonfig.VAU_OCSP_RESPONSE_MAX_AGE.hours
-    }
+    fun getOcspMaxAge(): Duration = 12.hours
 
     val trustAnchor by lazy {
         X509CertificateHolder(Base64.decode(getTrustAnchor()))

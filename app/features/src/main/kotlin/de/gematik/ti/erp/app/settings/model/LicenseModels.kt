@@ -25,7 +25,6 @@ package de.gematik.ti.erp.app.settings.model
 import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 @Immutable
@@ -49,5 +48,7 @@ data class License(
     val licenseUrl: String
 )
 
-fun parseLicenses(json: String): List<LicenseEntry> =
-    Json.decodeFromString(json)
+fun parseLicenses(json: String): List<LicenseEntry> {
+    val list: List<LicenseEntry> = Json.decodeFromString(json)
+    return list.sortedBy { it.dependency }
+}

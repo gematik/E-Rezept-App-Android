@@ -109,7 +109,7 @@ private fun InvoiceExpandedDetailsScreenScaffold(
         ) {
             invoice?.let {
                 item {
-                    InvoiceMedicationHeader(it)
+                    InvoiceMedicationHeader(invoice = it)
                 }
                 item {
                     LabeledText(description = stringResource(R.string.invoice_task_id), content = it.taskId)
@@ -187,9 +187,11 @@ private fun PriceData(invoice: InvoiceData.Invoice) {
                 InvoiceData.SpecialPZN.ProvisioningCosts -> stringResource(R.string.invoice_details_provisioning_costs)
                 InvoiceData.SpecialPZN.DeliveryServiceCosts ->
                     stringResource(R.string.invoice_details_delivery_service_costs)
+
                 InvoiceData.SpecialPZN.SupplyShortageFee -> stringResource(
                     R.string.invoice_details_supply_shortage_fee
                 )
+
                 null -> error("wrong mapping")
             }
 

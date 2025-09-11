@@ -64,7 +64,7 @@ class GetShippingContactValidationUseCase {
 
         // allows letters from any language, numbers and some restricted symbols
         val textRegex = Regex("[\\p{L}0-9\\-.,:!@_%+'/\"\\s]{1,$MAX_TEXT_LENGTH}")
-        private val hintRegex = Regex("[\\p{L}0-9\\-.,:!@_%+'/\"\\s]{1,$MAX_HINT_TEXT_LENGTH}")
+        private val hintRegex = Regex("[\\p{L}0-9\\-.,:!@_%+?'/\"\\s]{1,$MAX_HINT_TEXT_LENGTH}")
 
         val postalCodeRegex = Regex("^\\d{5}$")
         val phoneNumberRegex = Regex("[0-9\\-+'/\"\\s]{$MIN_PHONE_LENGTH,$MAX_PHONE_LENGTH}")

@@ -56,9 +56,9 @@ val prescriptionModule =
         bindProvider { TwoDCodeProcessor() }
         bindProvider { TwoDCodeScanner(instance()) }
         bindProvider { TwoDCodeValidator() }
-        bindSingleton { PrescriptionLocalDataSource(instance()) }
-        bindSingleton { PrescriptionRemoteDataSource(instance()) }
-        bindSingleton { PrescriptionUseCase(instance(), instance(), instance()) }
+        bindProvider { PrescriptionLocalDataSource(instance()) }
+        bindProvider { PrescriptionRemoteDataSource(instance()) }
+        bindProvider { PrescriptionUseCase(instance(), instance(), instance()) }
         bindProvider { GetLastSuccessfulRefreshedTimeUseCase(instance()) }
         bindProvider {
             DownloadAllResourcesUseCase(

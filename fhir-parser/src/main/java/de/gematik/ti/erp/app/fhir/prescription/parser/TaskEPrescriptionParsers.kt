@@ -27,7 +27,7 @@ import de.gematik.ti.erp.app.fhir.dispense.parser.TaskMedicationDispenseParser
 data class TaskEPrescriptionParsers(
     val taskEntryParser: TaskEntryParser,
     val taskBundleSeparationParser: TaskBundleSeparationParser,
-    val taskEPrescriptionMetadataParser: TaskEPrescriptionMetadataParser,
-    val taskEPrescriptionMedicalDataParser: TaskEPrescriptionMedicalDataParser,
+    val taskMetadataParser: TaskMetadataParser,
+    val taskMedicalDataParser: TaskMedicalDataParser,
     val taskDispenseParser: TaskMedicationDispenseParser
 )

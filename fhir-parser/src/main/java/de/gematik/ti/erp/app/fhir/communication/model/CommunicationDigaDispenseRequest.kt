@@ -46,7 +46,7 @@ internal data class CommunicationDigaDispenseRequest(
     @SerialName("extension") val extensions: List<CommunicationDigaDispenseRequestExtension>,
     @SerialName("basedOn") val basedOn: List<CommunicationReference>,
     @SerialName("recipient") val recipient: List<CommunicationRecipient>,
-    @SerialName("sender") val sender: List<CommunicationRecipient>,
+    @SerialName("sender") val sender: CommunicationRecipient,
     @SerialName("sent") val sent: String
 ) {
     companion object {
@@ -64,12 +64,10 @@ internal data class CommunicationDigaDispenseRequest(
         )
 
         // DiGA not enabled for PKV
-        internal fun getSender(kvnrNumber: String) = listOf(
-            CommunicationRecipient(
-                identifier = FhirIdentifier(
-                    system = PATIENT_KVNR_CODE_GKV,
-                    value = kvnrNumber
-                )
+        internal fun getSender(kvnrNumber: String) = CommunicationRecipient(
+            identifier = FhirIdentifier(
+                system = PATIENT_KVNR_CODE_GKV,
+                value = kvnrNumber
             )
         )
 
@@ -90,7 +88,7 @@ internal data class CommunicationDigaDispenseRequest(
             )
         )
 
-        fun Instant.toFormattedDateTime(): String {
+        internal fun Instant.toFormattedDateTime(): String {
             val datetime = toLocalDateTime(TimeZone.UTC)
 
             @Suppress("MagicNumber")
@@ -116,7 +114,7 @@ internal data class FhirDigaMeta(
 ) {
     companion object {
         internal fun getDigaMeta() = FhirDigaMeta(
-            profiles = listOf(CommunicationDigaConstants.COMMUNICATION_DIGA_DISP_REQUEST_VERSION)
+            profiles = listOf(CommunicationDigaConstants.COMMUNICATION_DIGA_DISP_REQUEST_VERSION_1_4)
         )
     }
 }

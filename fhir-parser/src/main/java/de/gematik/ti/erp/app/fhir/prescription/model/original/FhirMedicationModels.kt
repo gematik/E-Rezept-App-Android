@@ -23,8 +23,10 @@
 package de.gematik.ti.erp.app.fhir.prescription.model.original
 
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirCodeableConcept
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirCodeableConcept.Companion.getCodingByUrl
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtensionReduced.Companion.findExtensionByUrl
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMedicationBatch
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatio
@@ -33,20 +35,25 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatioValue
 import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
-import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicationConstants.findMedicationCategory102
-import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicationConstants.findMedicationCategory110
+import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicationConstants.findMedicationCategory
+import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicationConstants.findMedicationCategorySpecialVersion102
 import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicationConstants.getCompoundingInstructions
 import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicationConstants.getCompoundingPackaging
 import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicationConstants.getNormSizeCode
 import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicationConstants.getVaccine
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskMedicationCategoryErpModel.Companion.fromCode
-import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationAmount.Companion.getRatio102
-import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationAmount.Companion.getRatio110
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationAmount.Companion.getRatio
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationAmount.Companion.getRatioSpecialVersion102
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationIngredient.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationProfile.Companion.getMedicationProfile
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationProfileType.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationProfileType.FreeText
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationProfileType.PZN
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationVersion.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirMedicationIdentifierErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirMedicationIngredientErpModel
 import de.gematik.ti.erp.app.utils.ParserUtil.asFhirTemporal
@@ -59,6 +66,7 @@ import kotlinx.serialization.json.JsonElement
 internal data class FhirMedication(
     @SerialName("meta") val resourceType: FhirMeta? = null,
     @SerialName("extension") val extensions: List<FhirExtension>? = emptyList(),
+    @SerialName("identifier") val identifier: List<FhirIdentifier>? = emptyList(), // from pkv
     @SerialName("code") val code: FhirCodeableConcept? = null,
     @SerialName("form") val form: FhirCodeableConcept? = null,
     @SerialName("amount") val amount: FhirMedicationAmount? = null,
@@ -71,22 +79,31 @@ internal data class FhirMedication(
     val formText: String?
         get() =
             when (profile?.profileType) {
-                PZN -> form?.coding?.find { it.system == MEDICATION_PZN_FORM_TEXT_SYSTEM }?.code
+                PZN -> form?.getCodingByUrl(MEDICATION_PZN_FORM_TEXT_SYSTEM)?.code
                 else -> form?.text
             }
 
     val amountRatio: FhirRatio?
-        get() = when {
-            profile?.profileType == FreeText -> null
-            profile?.version == FhirMedicationVersion.V_102 -> amount?.getRatio102()
-            profile?.version == FhirMedicationVersion.V_110 -> amount?.getRatio110()
-            else -> null
+        get() {
+            if (profile?.profileType == FreeText) return null
+            return when (profile?.version) {
+                FhirMedicationVersion.V_102 -> amount?.getRatioSpecialVersion102()
+                FhirMedicationVersion.V_110,
+                FhirMedicationVersion.V_12,
+                FhirMedicationVersion.V_13 -> amount?.getRatio()
+
+                else -> null
+            }
         }
 
     val medicationCategory: String?
         get() = when (profile?.version) {
-            FhirMedicationVersion.V_102 -> extensions?.findMedicationCategory102()
-            FhirMedicationVersion.V_110 -> extensions?.findMedicationCategory110()
+            FhirMedicationVersion.V_102 -> extensions?.findMedicationCategorySpecialVersion102()
+            FhirMedicationVersion.V_110,
+            FhirMedicationVersion.V_12,
+            FhirMedicationVersion.V_13
+            -> extensions?.findMedicationCategory()
+
             else -> null
         }
 
@@ -130,10 +147,12 @@ internal data class FhirMedication(
         fun FhirMedication.toErpModel() =
             FhirTaskKbvMedicationErpModel(
                 text = code?.text,
-                type = profile?.profileType?.type ?: "",
-                version = profile?.version?.version ?: "",
                 form = formText,
                 medicationCategory = fromCode(medicationCategory),
+                medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+                    type = profile?.profileType?.toErpModel() ?: ErpMedicationProfileType.Unknown,
+                    version = profile?.version?.toErpModel() ?: ErpMedicationProfileVersion.Unknown
+                ),
                 amount = amountRatio?.toErpModel(),
                 isVaccine = vaccine,
                 normSizeCode = normSizeCode,
@@ -152,6 +171,7 @@ internal data class FhirMedication(
     }
 }
 
+// NOTE: When modifying this please change ErpMedicationProfileType too
 enum class FhirMedicationProfileType(val type: String) {
     PZN("Medication_PZN"),
     FreeText("Medication_FreeText"),
@@ -161,16 +181,25 @@ enum class FhirMedicationProfileType(val type: String) {
 
     companion object {
         fun fromString(value: String): FhirMedicationProfileType = entries.find { it.type == value } ?: Unknown
+
+        fun FhirMedicationProfileType.toErpModel(): ErpMedicationProfileType =
+            ErpMedicationProfileType.entries.find { it.name == this.name } ?: ErpMedicationProfileType.Unknown
     }
 }
 
+// NOTE: When modifying this please change ErpMedicationVersion too
 enum class FhirMedicationVersion(val version: String) {
     V_102("1.0.2"),
     V_110("1.1.0"),
+    V_12("1.2"),
+    V_13("1.3"),
     Unknown("");
 
     companion object {
         fun fromString(value: String) = entries.find { it.version == value } ?: Unknown
+
+        fun FhirMedicationVersion.toErpModel(): ErpMedicationProfileVersion =
+            ErpMedicationProfileVersion.entries.find { it.name == this.name } ?: ErpMedicationProfileVersion.Unknown
     }
 }
 
@@ -181,8 +210,8 @@ internal data class FhirMedicationProfile(
 ) {
     companion object {
         private fun extractMedicationProfile(url: String): FhirMedicationProfile? {
-            val regex = Regex(""".*KBV_PR_ERP_([A-Za-z_]+)\|(\d+\.\d+\.\d+)""")
-            val match = regex.find(url) ?: return null
+            val regex = Regex(""".*KBV_PR_ERP_([A-Za-z_]+)\|(\d+(?:\.\d+)+)""")
+            val match = regex.find(url) ?: return null.also { Napier.e { "FhirMedicationProfile $url regex failed match" } }
 
             val (type, version) = match.destructured
             return FhirMedicationProfile(
@@ -212,7 +241,7 @@ internal data class FhirMedicationAmount(
         /**
          * A specific mapper specialized to medication for version 1.0.2 in KBV, dispense
          */
-        fun FhirMedicationAmount.getRatio102() = FhirRatio(
+        fun FhirMedicationAmount.getRatioSpecialVersion102() = FhirRatio(
             numerator = FhirRatioValue(
                 value = numerator?.valueDirect,
                 unit = numerator?.unit
@@ -226,7 +255,7 @@ internal data class FhirMedicationAmount(
         /**
          * A specific mapper specialized to medication for version 1.1.0 in KBV, dispense
          */
-        fun FhirMedicationAmount.getRatio110(): FhirRatio {
+        fun FhirMedicationAmount.getRatio(): FhirRatio {
             val numeratorExtension = numerator?.valueFromExtension
                 ?.find { it.url == MEDICATION_PACKAGING_SIZE_EXTENSION_URL }
 

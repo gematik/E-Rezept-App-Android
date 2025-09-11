@@ -36,8 +36,9 @@ class PharmacyPreviewParameterProvider : PreviewParameterProvider<PharmacyUseCas
     override val values = sequenceOf(
         PharmacyPreviewData.ALL_PRESENT_DATA,
         PharmacyPreviewData.PICK_UP_ONLY_DATA,
+        PharmacyPreviewData.PICK_UP_AND_DELIVERY_DATA,
         PharmacyPreviewData.DELIVERY_PICKUP_ONLY_DATA,
-        PharmacyPreviewData.LOCAL_PICKUP_ONLY_DATA
+        PharmacyPreviewData.ONLINE_ONLY_DATA
     )
 }
 
@@ -132,10 +133,7 @@ object PharmacyPreviewData {
         contact = PharmacyContact(
             phone = "0123456789",
             mail = "mpq@nrw.de",
-            url = "www.apotheke-am-markt.de",
-            deliveryUrl = "www.apotheke-am-markt.de/lieferung",
-            onlineServiceUrl = "www.apotheke-am-markt.de/online",
-            pickUpUrl = "www.apotheke-am-markt.de/abholung"
+            url = "www.apotheke-am-markt.de"
         )
     )
 
@@ -146,10 +144,22 @@ object PharmacyPreviewData {
         contact = PharmacyContact(
             phone = "0123456789",
             mail = "",
-            url = "",
-            deliveryUrl = "",
-            onlineServiceUrl = "",
-            pickUpUrl = ""
+            url = ""
+        )
+    )
+
+    val PICK_UP_AND_DELIVERY_DATA = ALL_PRESENT_DATA.copy(
+        provides = listOf(
+            PharmacyService.PickUpPharmacyService(name = "PickUp"),
+            PharmacyService.DeliveryPharmacyService(
+                name = "Delivery",
+                openingHours = openingHoursSample
+            )
+        ),
+        contact = PharmacyContact(
+            phone = "0123456789",
+            mail = "",
+            url = ""
         )
     )
 
@@ -163,97 +173,52 @@ object PharmacyPreviewData {
         contact = PharmacyContact(
             phone = "0123456789",
             mail = "",
-            url = "",
-            deliveryUrl = "www.apotheke-am-markt.de/lieferung",
-            onlineServiceUrl = "",
-            pickUpUrl = "www.apotheke-am-markt.de/abholung"
+            url = ""
         )
     )
 
-    val LOCAL_PICKUP_ONLY_DATA = ALL_PRESENT_DATA.copy(
+    val ONLINE_ONLY_DATA = ALL_PRESENT_DATA.copy(
         provides = listOf(
-            PharmacyService.LocalPharmacyService(
-                name = "Local",
-                openingHours = openingHoursSample
-            )
+            PharmacyService.OnlinePharmacyService(name = "Online")
         ),
         contact = PharmacyContact(
             phone = "0123456789",
             mail = "",
-            url = "",
-            deliveryUrl = "www.apotheke-am-markt.de/lieferung",
-            onlineServiceUrl = "",
-            pickUpUrl = "www.apotheke-am-markt.de/abholung"
+            url = ""
         )
     )
 
     val PHONE_CONTACT_ONLY = ALL_PRESENT_DATA.copy(
-        provides = listOf(
-            PharmacyService.LocalPharmacyService(
-                name = "Local",
-                openingHours = openingHoursSample
-            )
-        ),
         coordinates = null,
         contact = PharmacyContact(
             phone = "0123456789",
             mail = "",
-            url = "",
-            deliveryUrl = "",
-            onlineServiceUrl = "",
-            pickUpUrl = ""
+            url = ""
         )
     )
 
     val MAIL_CONTACT_ONLY = ALL_PRESENT_DATA.copy(
-        provides = listOf(
-            PharmacyService.LocalPharmacyService(
-                name = "Local",
-                openingHours = openingHoursSample
-            )
-        ),
         coordinates = null,
         contact = PharmacyContact(
             phone = "",
             mail = "pharm@pharm.de",
-            url = "",
-            deliveryUrl = "",
-            onlineServiceUrl = "",
-            pickUpUrl = ""
+            url = ""
         )
     )
 
     val LOCATION_CONTACT_ONLY = ALL_PRESENT_DATA.copy(
-        provides = listOf(
-            PharmacyService.LocalPharmacyService(
-                name = "Local",
-                openingHours = openingHoursSample
-            )
-        ),
         contact = PharmacyContact(
             phone = "",
             mail = "",
-            url = "",
-            deliveryUrl = "",
-            onlineServiceUrl = "",
-            pickUpUrl = ""
+            url = ""
         )
     )
 
     val LOCATION_PHONE_CONTACT = ALL_PRESENT_DATA.copy(
-        provides = listOf(
-            PharmacyService.LocalPharmacyService(
-                name = "Local",
-                openingHours = openingHoursSample
-            )
-        ),
         contact = PharmacyContact(
             phone = "123",
             mail = "",
-            url = "",
-            deliveryUrl = "",
-            onlineServiceUrl = "",
-            pickUpUrl = ""
+            url = ""
         )
     )
 

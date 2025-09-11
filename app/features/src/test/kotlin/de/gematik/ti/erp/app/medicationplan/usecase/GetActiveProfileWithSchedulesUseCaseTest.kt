@@ -27,17 +27,16 @@ import de.gematik.ti.erp.app.medicationplan.medicationSchedule1
 import de.gematik.ti.erp.app.medicationplan.medicationSchedule2
 import de.gematik.ti.erp.app.medicationplan.profile1
 import de.gematik.ti.erp.app.medicationplan.profile2
-
-import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanLocalDataSource
 import de.gematik.ti.erp.app.medicationplan.repository.DefaultMedicationPlanRepository
+import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanLocalDataSource
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import io.mockk.MockKAnnotations
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.StandardTestDispatcher
 import io.mockk.coEvery
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDateTime
 import kotlin.test.BeforeTest
@@ -79,7 +78,6 @@ class GetActiveProfileWithSchedulesUseCaseTest {
             val firstNotifications = firstProfileWithSchedules.medicationSchedules[0].notifications
             assertEquals("3", firstNotifications[0].id)
             assertEquals("4", firstNotifications[1].id)
-            println("firstNotifications: $firstNotifications")
 
             val secondProfileWithSchedules = result[1]
             assertEquals("PROFILE_ID1", secondProfileWithSchedules.profile.id)

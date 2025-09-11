@@ -95,6 +95,7 @@ class MessageDetailScreen(
         val inAppMessages by messageController.localMessages.collectAsStateWithLifecycle()
         val isTranslationInProgress by messageController.translationInProgress.collectAsStateWithLifecycle()
         val isTranslationsAllowed by messageController.isTranslationsAllowed.collectAsStateWithLifecycle()
+        val showTranslationFeature by messageController.showTranslationFeature.collectAsStateWithLifecycle()
 
         val handleTranslationClick: (String, String) -> Unit = remember(isTranslationsAllowed, snackbarScaffold, uiScope, view) {
             { communicationId, message ->
@@ -176,6 +177,7 @@ class MessageDetailScreen(
             messages = messages.data ?: emptyList(),
             inAppMessage = inAppMessages,
             isTranslationsAllowed = isTranslationsAllowed,
+            showTranslationFeature = showTranslationFeature,
             isTranslationInProgress = isTranslationInProgress,
             onClickTranslation = handleTranslationClick,
             onClickReplyMessage = onClickReplyMessage,
@@ -200,6 +202,7 @@ fun MessageDetailScreenScaffold(
     hasReplyMessages: Boolean,
     isLocalMessage: Boolean,
     isTranslationsAllowed: Boolean,
+    showTranslationFeature: Boolean,
     isTranslationInProgress: Map<String, Boolean>,
     onClickReplyMessage: (OrderUseCaseData.Message) -> Unit,
     onClickPrescription: (String) -> Unit,
@@ -218,7 +221,7 @@ fun MessageDetailScreenScaffold(
         },
         listState = listState,
         actions = {
-            if (hasReplyMessages) {
+            if (hasReplyMessages && showTranslationFeature) {
                 MessageDetailDropdownMenu(
                     isTranslationAllowed = isTranslationsAllowed
                 ) {
@@ -236,6 +239,7 @@ fun MessageDetailScreenScaffold(
             messages = messages,
             inAppMessages = inAppMessage,
             isTranslationsAllowed = isTranslationsAllowed,
+            showTranslationFeature = showTranslationFeature,
             isTranslationInProgress = isTranslationInProgress,
             onClickReplyMessage = onClickReplyMessage,
             onClickPrescription = onClickPrescription,
@@ -266,6 +270,7 @@ fun MessageDetailScreenWithPharmacyPreview(
             onClickPrescription = {},
             onClickInvoiceMessage = {},
             onClickPharmacy = {},
+            showTranslationFeature = true,
             hasReplyMessages = true
         )
     }
@@ -291,6 +296,7 @@ fun MessageDetailScreenInAppWithPharmacyPreview(
             onClickPrescription = {},
             onClickInvoiceMessage = {},
             onClickPharmacy = {},
+            showTranslationFeature = false,
             hasReplyMessages = false
         )
     }

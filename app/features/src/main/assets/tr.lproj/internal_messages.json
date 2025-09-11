@@ -34,5 +34,11 @@
         "text": "**🙌 Özel sigortalılar için kayıt** \nÖzel sigortalılar için kayıt optimize edildi. Sağlık Kimliğinizle sadece birkaç tıklamayla rahatça giriş yapabilirsiniz. \n \n **⏰ İlaç hatırlatıcıları** \nArtık ilaçlarınızı almanız için hatırlatıcı ayarlayabilirsiniz. \n \n **🛒 İyileştirilmiş sipariş akışı** \nSipariş süreci artık daha basit ve hızlı. \n \n **♿️ Erişilebilirlik** \nSağlık kartı erişim numarası artık kamerayla da taranabilir. \n \n **📲 DiGA'lar için daha fazla bilgi** \nArtık satış fiyatı veya logo gibi DiGA reçeteleriniz hakkında daha ayrıntılı bilgi alacaksınız.",
         "timestamp": "2025-08-06T08:00:00.000Z",
         "version": "1.32"
+    },
+    {
+        "id": "8",
+        "text": "**📝 Teslimat talimatları için esnek alan** \n Teslimat talimatları alanı artık metnin uzunluğuna göre otomatik olarak ayarlanıyor. \n \n **🎨 Material 3 ile daha modern butonlar** \n Butonlar, Android'in yeni Material 3 tasarımına uyarlandı ve artık daha modern ve yuvarlak bir görünüme sahip. \n \n **📤 Tarifleri paylaş** \n Tarifler artık doğrudan uygulama üzerinden başkalarıyla paylaşılabilir.",
+        "timestamp": "2025-09-09T08:00:00.000Z",
+        "version": "1.33"
     }
 ]

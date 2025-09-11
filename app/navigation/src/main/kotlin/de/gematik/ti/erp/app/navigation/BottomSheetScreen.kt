@@ -32,6 +32,10 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -70,7 +74,7 @@ abstract class BottomSheetScreen(
 Adding a bottom sheet inside the bottom-sheet navigation to allow forced full screen for smaller screens to allow
 more than the allowed default height of the bottom sheet
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun Content(
     navController: NavController,
@@ -82,6 +86,7 @@ private fun Content(
 
     ModalBottomSheet(
         sheetState = modalBottomSheetState,
+        modifier = Modifier.semantics { testTagsAsResourceId = true },
         onDismissRequest = navController::navigateUp,
         containerColor = AppTheme.colors.neutral000,
         contentColor = AppTheme.colors.neutral000,

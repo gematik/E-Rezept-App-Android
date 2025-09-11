@@ -23,12 +23,14 @@
 package de.gematik.ti.erp.app.medicationplan.ui
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -43,6 +45,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
@@ -62,6 +65,7 @@ import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.EmptyScreenComponent
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
@@ -128,6 +132,13 @@ private fun MedicationPlanScheduleListScreenScaffold(
                     EmptyScreenComponent(
                         title = stringResource(R.string.empty_medication_plan_title),
                         body = stringResource(R.string.empty_medication_plan_info),
+                        image = {
+                            Image(
+                                painter = painterResource(id = R.drawable.girl_red_oh_no),
+                                contentDescription = null,
+                                modifier = Modifier.size(SizeDefaults.twentyfold)
+                            )
+                        },
                         button = {}
                     )
                 },

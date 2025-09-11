@@ -22,12 +22,14 @@
 
 package de.gematik.ti.erp.app.medicationplan.ui
 
+//noinspection UsingMaterialAndMaterial3Libraries
 import android.Manifest
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -41,13 +43,12 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.sharp.Alarm
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.sharp.Alarm
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -74,18 +76,18 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
 import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
-import de.gematik.ti.erp.app.medicationplan.presentation.checkNotificationPermission
 import de.gematik.ti.erp.app.medicationplan.presentation.canScheduleExactAlarms
-import de.gematik.ti.erp.app.medicationplan.presentation.rememberMedicationPlanScheduleDetailScreenController
+import de.gematik.ti.erp.app.medicationplan.presentation.checkNotificationPermission
 import de.gematik.ti.erp.app.medicationplan.presentation.openExactAlarmsPermission
+import de.gematik.ti.erp.app.medicationplan.presentation.rememberMedicationPlanScheduleDetailScreenController
 import de.gematik.ti.erp.app.medicationplan.ui.components.AddMedicationNotificationTimeDialog
 import de.gematik.ti.erp.app.medicationplan.ui.components.ChangeMedicationDosageDialog
-import de.gematik.ti.erp.app.medicationplan.ui.components.ScheduleExactAlarmsDialog
 import de.gematik.ti.erp.app.medicationplan.ui.components.ChangeMedicationNotificationTimeDialog
 import de.gematik.ti.erp.app.medicationplan.ui.components.DeleteMedicationScheduleDialog
+import de.gematik.ti.erp.app.medicationplan.ui.components.ScheduleExactAlarmsDialog
 import de.gematik.ti.erp.app.medicationplan.ui.components.activateScheduleAndDosageInstructionCard
 import de.gematik.ti.erp.app.medicationplan.ui.components.scheduleTimeSelectionSection
 import de.gematik.ti.erp.app.medicationplan.ui.preview.MedicationPlanScheduleDetailScreenPreview
@@ -295,6 +297,13 @@ fun MedicationPlanScheduleDetailScreenScaffold(
                 EmptyScreenComponent(
                     title = stringResource(R.string.empty_medication_plan_title),
                     body = stringResource(R.string.empty_medication_plan_info),
+                    image = {
+                        Image(
+                            painter = painterResource(id = R.drawable.girl_red_oh_no),
+                            contentDescription = null,
+                            modifier = Modifier.size(SizeDefaults.twentyfold)
+                        )
+                    },
                     button = {}
                 )
             },

@@ -25,12 +25,10 @@ package de.gematik.ti.erp.app.redeem.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.base.usecase.DownloadAllResourcesUseCase
 import de.gematik.ti.erp.app.pharmacy.model.PrescriptionRedeemArguments
-import de.gematik.ti.erp.app.pharmacy.model.PrescriptionRedeemArguments.DirectRedemptionArguments
 import de.gematik.ti.erp.app.pharmacy.model.PrescriptionRedeemArguments.LoggedInUserRedemptionArguments
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
@@ -43,7 +41,6 @@ import de.gematik.ti.erp.app.redeem.model.RedeemablePrescriptionInfo.Companion.t
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState.IncompleteOrder
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState.InvalidOrder
 import de.gematik.ti.erp.app.redeem.usecase.GetReadyPrescriptionsByTaskIdsUseCase
-import de.gematik.ti.erp.app.redeem.usecase.RedeemPrescriptionsOnDirectUseCase
 import de.gematik.ti.erp.app.redeem.usecase.RedeemPrescriptionsOnLoggedInUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
@@ -60,7 +57,6 @@ import org.kodein.di.compose.rememberInstance
 @Stable
 class RedeemPrescriptionsController(
     private val redeemPrescriptionsOnLoggedInUseCase: RedeemPrescriptionsOnLoggedInUseCase,
-    private val redeemPrescriptionsOnDirectUseCase: RedeemPrescriptionsOnDirectUseCase,
     private val downloadAllResourcesUseCase: DownloadAllResourcesUseCase,
     private val getReadyPrescriptionsByTaskIdsUseCase: GetReadyPrescriptionsByTaskIdsUseCase
 ) : Controller() {
@@ -78,11 +74,6 @@ class RedeemPrescriptionsController(
         arguments: PrescriptionRedeemArguments
     ) {
         arguments.onRedemptionState(
-            directRedemptionBlock = {
-                controllerScope.launch {
-                    processPrescriptionForDirectRedemption(it)
-                }
-            },
             loggedInUserRedemptionBlock = { loggedInArguments ->
                 controllerScope.launch {
                     downloadAllResourcesForProfile(
@@ -164,41 +155,17 @@ class RedeemPrescriptionsController(
             _redeemedState.value = value
         }
     }
-
-    @Requirement(
-        "A_22778-01#1",
-        "A_22779-01#1",
-        sourceSpecification = "gemSpec_eRp_FdV",
-        rationale = "Start Redeem without TI (Controller)."
-    )
-    private suspend fun processPrescriptionForDirectRedemption(
-        arguments: DirectRedemptionArguments
-    ) {
-        redeemPrescriptionsOnDirectUseCase.invoke(
-            orderId = arguments.orderId,
-            redeemOption = arguments.redeemOption,
-            prescriptionOrderInfos = arguments.prescriptionOrderInfos,
-            contact = arguments.contact,
-            pharmacy = arguments.pharmacy,
-            onRedeemProcessStart = { onProcessStartEvent.trigger() },
-            onRedeemProcessEnd = { onProcessEndEvent.trigger() }
-        ).collectLatest {
-            _redeemedState.value = it
-        }
-    }
 }
 
 @Composable
 fun rememberRedeemPrescriptionsController(): RedeemPrescriptionsController {
     val redeemPrescriptionsOnLoggedInUseCase by rememberInstance<RedeemPrescriptionsOnLoggedInUseCase>()
-    val redeemPrescriptionsOnDirectUseCase by rememberInstance<RedeemPrescriptionsOnDirectUseCase>()
     val downloadAllResourcesUseCase by rememberInstance<DownloadAllResourcesUseCase>()
     val getReadyPrescriptionsByTaskIdsUseCase by rememberInstance<GetReadyPrescriptionsByTaskIdsUseCase>()
 
     return remember {
         RedeemPrescriptionsController(
             redeemPrescriptionsOnLoggedInUseCase = redeemPrescriptionsOnLoggedInUseCase,
-            redeemPrescriptionsOnDirectUseCase = redeemPrescriptionsOnDirectUseCase,
             downloadAllResourcesUseCase = downloadAllResourcesUseCase,
             getReadyPrescriptionsByTaskIdsUseCase = getReadyPrescriptionsByTaskIdsUseCase
         )

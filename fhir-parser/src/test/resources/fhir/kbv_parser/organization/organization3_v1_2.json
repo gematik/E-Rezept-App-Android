@@ -1,0 +1,60 @@
+{
+  "resourceType": "Organization",
+  "id": "2a555cd3-0543-483c-88b3-f68647620962",
+  "meta": {
+    "profile": [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.2"
+    ]
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "BSNR"
+          }
+        ]
+      },
+      "system": "https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR",
+      "value": "724444400"
+    }
+  ],
+  "name": "Hausarztpraxis",
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "030321654987"
+    },
+    {
+      "system": "email",
+      "value": "hausarztpraxis@e-mail.de"
+    }
+  ],
+  "address": [
+    {
+      "type": "both",
+      "line": [
+        "Herbert-Lewin-Platz 2",
+        "Erdgeschoss"
+      ],
+      "_line": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
+              "valueString": "2"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+              "valueString": "Herbert-Lewin-Platz"
+            }
+          ]
+        }
+      ],
+      "city": "Berlin",
+      "postalCode": "10623",
+      "country": "D"
+    }
+  ]
+}

@@ -26,6 +26,7 @@ package de.gematik.ti.erp.app.prescription.ui
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import de.gematik.ti.erp.app.CoroutineTestRule
+import de.gematik.ti.erp.app.prescription.model.ParserScannedDataMatrix
 import kotlinx.datetime.Clock
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -42,7 +43,7 @@ class TwoDCodeValidatorTest {
 
     private lateinit var validator: TwoDCodeValidator
 
-    private val scannedTask1 = ScannedCode(
+    private val scannedTask1 = RawScannedCode(
         "{\n" +
             "  \"urls\": [\n" +
             "    \"Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea\"\n" +
@@ -51,7 +52,7 @@ class TwoDCodeValidatorTest {
         Clock.System.now()
     )
 
-    private val scannedTask3 = ScannedCode(
+    private val scannedTask3 = RawScannedCode(
         "{\n" +
             "  \"urls\": [\n" +
             "    \"Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea\",\n" +
@@ -62,7 +63,7 @@ class TwoDCodeValidatorTest {
         Clock.System.now()
     )
 
-    private val scannedTask4 = ScannedCode(
+    private val scannedTask4 = RawScannedCode(
         "{\n" +
             "  \"urls\": [\n" +
             "    \"Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea\",\n" +
@@ -74,7 +75,7 @@ class TwoDCodeValidatorTest {
         Clock.System.now()
     )
 
-    private val notWellFormatted = ScannedCode(
+    private val notWellFormatted = RawScannedCode(
         "{\n" +
             "  \"urls\": [\n" +
             "    \"Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea\",\n" +
@@ -84,7 +85,7 @@ class TwoDCodeValidatorTest {
         Clock.System.now()
     )
 
-    private val emptyUrls = ScannedCode(
+    private val emptyUrls = RawScannedCode(
         "{\n" +
             "  \"urls\": [\n" +
             "  ]\n" +
@@ -93,7 +94,7 @@ class TwoDCodeValidatorTest {
     )
 
     private val checkedTask1 = ValidScannedCode(
-        ScannedCode(
+        raw = RawScannedCode(
             "{\n" +
                 "  \"urls\": [\n" +
                 "    \"Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea\"\n" +
@@ -101,13 +102,15 @@ class TwoDCodeValidatorTest {
                 "}",
             Clock.System.now()
         ),
-        mutableListOf(
-            "Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea"
+        codes = mutableListOf(
+            ParserScannedDataMatrix(
+                taskUrl = "Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea"
+            )
         )
     )
 
     private val checkedTask3 = ValidScannedCode(
-        ScannedCode(
+        RawScannedCode(
             "{\n" +
                 "  \"urls\": [\n" +
                 "    \"Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea\",\n" +
@@ -118,9 +121,15 @@ class TwoDCodeValidatorTest {
             Clock.System.now()
         ),
         mutableListOf(
-            "Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea",
-            "Task/2aef43b8c5e8f2d3d7aef64598b3c40e1d9e348f75d62fd39fe4a7bc5c923de8/\$accept?ac=0936cfa582b447144b71ac89eb7bb83a77c67c99d4054f91ee3703acf5d6a629",
-            "Task/5e78f21cd6abc35edf4f1726c3d451ea2736d547a263f45726bc13a47e65d189/\$accept?ac=d3e6092ae3af14b5225e2ddbe5a4f59b3939a907d6fdd5ce6a760ca71f45d8e5"
+            ParserScannedDataMatrix(
+                "Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea"
+            ),
+            ParserScannedDataMatrix(
+                "Task/2aef43b8c5e8f2d3d7aef64598b3c40e1d9e348f75d62fd39fe4a7bc5c923de8/\$accept?ac=0936cfa582b447144b71ac89eb7bb83a77c67c99d4054f91ee3703acf5d6a629"
+            ),
+            ParserScannedDataMatrix(
+                "Task/5e78f21cd6abc35edf4f1726c3d451ea2736d547a263f45726bc13a47e65d189/\$accept?ac=d3e6092ae3af14b5225e2ddbe5a4f59b3939a907d6fdd5ce6a760ca71f45d8e5"
+            )
         )
     )
 
@@ -132,13 +141,13 @@ class TwoDCodeValidatorTest {
     @Test
     fun `validate 1 task json - returns checked bundle with 1 task`() {
         val checkedBundle = validator.validate(scannedTask1)
-        assertEquals(checkedTask1.urls, checkedBundle!!.urls)
+        assertEquals(checkedTask1.codes, checkedBundle!!.codes)
     }
 
     @Test
     fun `validate 3 task json - returns checked bundle with 3 tasks`() {
         val checkedBundle = validator.validate(scannedTask3)
-        assertEquals(checkedTask3.urls, checkedBundle!!.urls)
+        assertEquals(checkedTask3.codes, checkedBundle!!.codes)
     }
 
     @Test

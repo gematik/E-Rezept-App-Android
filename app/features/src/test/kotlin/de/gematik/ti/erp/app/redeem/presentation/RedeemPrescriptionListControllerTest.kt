@@ -26,7 +26,6 @@ import app.cash.turbine.test
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.HTTP_INTERNAL_ERROR
 import de.gematik.ti.erp.app.base.usecase.DownloadAllResourcesUseCase
-import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK
 import de.gematik.ti.erp.app.mocks.profile.model.MODEL_PROFILE
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
@@ -34,11 +33,9 @@ import de.gematik.ti.erp.app.pharmacy.model.PrescriptionRedeemArguments
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
-import de.gematik.ti.erp.app.redeem.mocks.RedeemMocks.testCertificate
 import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
 import de.gematik.ti.erp.app.redeem.usecase.GetReadyPrescriptionsByTaskIdsUseCase
-import de.gematik.ti.erp.app.redeem.usecase.RedeemPrescriptionsOnDirectUseCase
 import de.gematik.ti.erp.app.redeem.usecase.RedeemPrescriptionsOnLoggedInUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -72,7 +69,6 @@ import kotlin.test.assertEquals
 class RedeemPrescriptionListControllerTest {
 
     private val prescriptionRepository: PrescriptionRepository = mockk()
-    private val communicationRepository: CommunicationRepository = mockk()
     private val pharmacyRepository: PharmacyRepository = mockk()
     private val downloadAllResourcesUseCase: DownloadAllResourcesUseCase = mockk()
 
@@ -80,7 +76,6 @@ class RedeemPrescriptionListControllerTest {
     private val testScope = TestScope(dispatcher)
 
     private lateinit var redeemPrescriptionsOnLoggedInUseCase: RedeemPrescriptionsOnLoggedInUseCase
-    private lateinit var redeemPrescriptionsOnDirectUseCase: RedeemPrescriptionsOnDirectUseCase
     private lateinit var getReadyPrescriptionsByTaskIdsUseCase: GetReadyPrescriptionsByTaskIdsUseCase
 
     private lateinit var controllerUnderTest: RedeemPrescriptionsController
@@ -97,11 +92,9 @@ class RedeemPrescriptionListControllerTest {
         coEvery { prescriptionRepository.loadScannedTasksByTaskIds(any()) } returns flowOf(emptyList())
 
         redeemPrescriptionsOnLoggedInUseCase = spyk(RedeemPrescriptionsOnLoggedInUseCase(prescriptionRepository, pharmacyRepository, dispatcher))
-        redeemPrescriptionsOnDirectUseCase = spyk(RedeemPrescriptionsOnDirectUseCase(communicationRepository, pharmacyRepository, dispatcher))
         getReadyPrescriptionsByTaskIdsUseCase = spyk(GetReadyPrescriptionsByTaskIdsUseCase(prescriptionRepository, dispatcher))
         controllerUnderTest = RedeemPrescriptionsController(
             redeemPrescriptionsOnLoggedInUseCase,
-            redeemPrescriptionsOnDirectUseCase,
             downloadAllResourcesUseCase,
             getReadyPrescriptionsByTaskIdsUseCase
         )
@@ -111,76 +104,6 @@ class RedeemPrescriptionListControllerTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
-    fun `success - direct redemption`() {
-        coEvery { pharmacyRepository.searchBinaryCerts(any()) } returns Result.success(listOf(testCertificate))
-
-        coEvery {
-            pharmacyRepository.redeemPrescriptionDirectly(
-                url = any(),
-                message = any(),
-                pharmacyTelematikId = telematikId,
-                transactionId = orderId.toString()
-            )
-        } returns Result.success(Unit)
-
-        coEvery {
-            communicationRepository.saveLocalCommunication(
-                taskId = taskId,
-                pharmacyId = pharmacyId,
-                transactionId = orderId.toString()
-            )
-        } returns Unit
-
-        testScope.runTest {
-            advanceUntilIdle()
-
-            controllerUnderTest.processPrescriptionRedemptions(directRedeemArguments)
-
-            controllerUnderTest.redeemedState.test {
-                // initial state
-                assertEquals(BaseRedeemState.Init, awaitItem())
-
-                // state after processing
-                val emittedState = awaitItem()
-                assert(emittedState is RedeemedPrescriptionState.OrderCompleted)
-
-                // results within the state
-                val prescriptionResultState = (emittedState as RedeemedPrescriptionState.OrderCompleted).results.values.first()
-                assert(prescriptionResultState is BaseRedeemState.Success)
-                assertEquals(orderId.toString(), emittedState.orderId)
-
-                cancelAndIgnoreRemainingEvents()
-            }
-
-            coVerify(exactly = 1) {
-                redeemPrescriptionsOnDirectUseCase.invoke(
-                    orderId = directRedeemArguments.orderId,
-                    redeemOption = directRedeemArguments.redeemOption,
-                    prescriptionOrderInfos = directRedeemArguments.prescriptionOrderInfos,
-                    contact = directRedeemArguments.contact,
-                    pharmacy = directRedeemArguments.pharmacy,
-                    onRedeemProcessStart = any(),
-                    onRedeemProcessEnd = any()
-                )
-            }
-
-            coVerify(exactly = 0) {
-                redeemPrescriptionsOnLoggedInUseCase.invoke(
-                    profileId = any(),
-                    orderId = any(),
-                    redeemOption = any(),
-                    prescriptionOrderInfos = any(),
-                    contact = any(),
-                    pharmacy = any(),
-                    onRedeemProcessStart = any(),
-                    onRedeemProcessEnd = any()
-                )
-            }
-        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -204,7 +127,6 @@ class RedeemPrescriptionListControllerTest {
 
                 // state after processing
                 val emittedState = awaitItem()
-                println(emittedState)
                 assert(emittedState is RedeemedPrescriptionState.OrderCompleted)
 
                 // results within the state
@@ -213,18 +135,6 @@ class RedeemPrescriptionListControllerTest {
                 assertEquals(orderId.toString(), emittedState.orderId)
 
                 cancelAndIgnoreRemainingEvents()
-            }
-
-            coVerify(exactly = 0) {
-                redeemPrescriptionsOnDirectUseCase.invoke(
-                    orderId = any(),
-                    redeemOption = any(),
-                    prescriptionOrderInfos = any(),
-                    contact = any(),
-                    pharmacy = any(),
-                    onRedeemProcessStart = any(),
-                    onRedeemProcessEnd = any()
-                )
             }
 
             coVerify(exactly = 1) {
@@ -479,10 +389,7 @@ class RedeemPrescriptionListControllerTest {
             contact = PharmacyUseCaseData.PharmacyContact(
                 phone = "pharmacy-phone",
                 mail = "pharmacy-mail",
-                url = "pharmacy-url",
-                pickUpUrl = "pharmacy-pickup-url",
-                deliveryUrl = "pharmacy-delivery-url",
-                onlineServiceUrl = "pharmacy-online-service-url"
+                url = "pharmacy-url"
             ),
             provides = emptyList(),
             openingHours = null,
@@ -497,14 +404,6 @@ class RedeemPrescriptionListControllerTest {
             telephoneNumber = "contact-telephone-number",
             mail = "contact-mail",
             deliveryInformation = "contact-delivery-information"
-        )
-
-        private val directRedeemArguments = PrescriptionRedeemArguments.DirectRedemptionArguments(
-            orderId = orderId,
-            prescriptionOrderInfos = prescriptionsForOrders,
-            redeemOption = PharmacyScreenData.OrderOption.Pickup,
-            pharmacy = pharmacy,
-            contact = contact
         )
 
         private val loggedInRedeemArguments = PrescriptionRedeemArguments.LoggedInUserRedemptionArguments(

@@ -102,7 +102,6 @@ internal fun OnboardingWelcomeScreenContent(
 ) {
     Box(
         modifier = Modifier
-            .testTag(TestTag.Onboarding.WelcomeScreen)
             .systemBarsPadding()
     ) {
         FlaggedGematikLogo()
@@ -182,7 +181,9 @@ private fun WelcomeMessage(
                 )
         )
         PrimaryButtonSmall(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .testTag(TestTag.Onboarding.WelcomeScreen.StartButton),
             shape = RoundedCornerShape(SizeDefaults.triple),
             onClick = onStartClick
         ) {

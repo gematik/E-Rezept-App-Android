@@ -23,6 +23,22 @@
 package de.gematik.ti.erp.app.fhir.dispense.mocks
 
 import de.gematik.ti.erp.app.data.getResourceAsString
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirCodeableConcept
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirCoding
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatio
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatioValue
+import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirCodeableIngredient
+import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseActor
+import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseIdentifier
+import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseMedicationModel
+import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseV14V15DispenseModel
+import de.gematik.ti.erp.app.fhir.dispense.model.original.MedicationReferenceByExtension
+import de.gematik.ti.erp.app.fhir.dispense.model.original.MedicationReferenceByIdentifier
+import de.gematik.ti.erp.app.fhir.dispense.model.original.MedicationReferenceByReference
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequestText
 
 /**
  * These JSON objects represent encoded FHIR models.
@@ -40,68 +56,507 @@ import de.gematik.ti.erp.app.data.getResourceAsString
  * the FHIR specification or server implementation changes.
  */
 
-val fhir_model_medication_dispense by lazy { getResourceAsString("/fhir/dispense_parser/mocks/fhir_model_medication_dispense_legacy.json") }
-val fhir_model_medication_dispense_unknown_medication_profile by lazy {
+internal val fhir_model_medication_dispense by lazy { getResourceAsString("/fhir/dispense_parser/mocks/fhir_model_medication_dispense_legacy.json") }
+internal val fhir_model_medication_dispense_unknown_medication_profile by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/fhir_model_medication_dispense_legacy_unknown_medication_profile.json"
     )
 }
-val fhir_model_medication_dispense_without_category by lazy {
+internal val fhir_model_medication_dispense_without_category by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/fhir_model_medication_dispense_legacy_without_category.json"
     )
 }
 
-val fhir_model_medication_dispense_compounding by lazy {
+internal val fhir_model_medication_dispense_compounding by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/fhir_model_medication_dispense_compounding.json"
     )
 }
 
-val fhir_model_medication_dispense_free_text by lazy {
+internal val fhir_model_medication_dispense_free_text by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/fhir_model_medication_dispense_free_text.json"
     )
 }
 
-val fhir_model_medication_dispense_simple by lazy {
+internal val fhir_model_medication_dispense_simple by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/fhir_model_medication_dispense_simple.json"
     )
 }
 
-val fhir_model_medication_1_4_complex by lazy {
+internal val fhir_model_medication_1_4_complex by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/fhir_model_medication_1_4_complex.json"
     )
 }
 
-val fhir_model_medication_1_4_pharma_product by lazy {
+internal val fhir_model_medication_1_4_pharma_product by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/fhir_model_medication_1_4_pharma_product.json"
     )
 }
 
-val fhir_model_medication_1_4_simple by lazy {
+internal val fhir_model_medication_1_4_simple by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/fhir_model_medication_1_4_simple.json"
     )
 }
 
-val fhir_model_medication_dispense_diga_deeplink by lazy {
+internal val fhir_model_medication_dispense_diga_deeplink by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/fhir_model_medication_dispense_diga_deeplink.json"
     )
 }
 
-val fhir_model_medication_dispense_diga_name_and_pzn by lazy {
+internal val fhir_model_medication_dispense_diga_name_and_pzn by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/fhir_model_medication_dispense_diga_name_and_pzn.json"
     )
 }
 
-val fhir_model_medication_dispense_diga_no_redeem_code by lazy {
+internal val fhir_model_medication_dispense_diga_no_redeem_code by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/fhir_model_medication_dispense_diga_no_redeem_code.json"
     )
 }
+
+internal val fhirMedicationDispenseV14ExampleWithoutMedication = FhirMedicationDispenseV14V15DispenseModel(
+    id = "Example-MedicationDispense-Without-Medication",
+    meta = FhirMeta(
+        profiles = listOf(
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense|1.4"
+        )
+    ),
+    identifier = listOf(
+        FhirIdentifier(
+            system = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            value = "160.000.033.491.280.78",
+            type = null
+        )
+    ),
+    status = "completed",
+    subject = FhirMedicationDispenseIdentifier(
+        identifier = FhirIdentifier(
+            system = "http://fhir.de/sid/gkv/kvid-10",
+            value = "X123456789",
+            type = null
+        )
+    ),
+    performer = listOf(
+        FhirMedicationDispenseActor(
+            actor = FhirMedicationDispenseIdentifier(
+                identifier = FhirIdentifier(
+                    system = "https://gematik.de/fhir/sid/telematik-id",
+                    value = "3-SMC-B-Testkarte-883110000095957",
+                    type = null
+                )
+            )
+        )
+    ),
+    whenHandedOver = "2024-04-03",
+    dosageInstruction = emptyList(),
+    whenPrepared = null,
+    medicationReference = MedicationReferenceByReference(
+        reference = "Medication/SumatripanMedication"
+    ),
+    substitution = null,
+    extension = emptyList(),
+    note = emptyList()
+)
+
+internal val fhirMedicationDispenseDiGADeepLinkV15 = FhirMedicationDispenseV14V15DispenseModel(
+    id = "Example-MedicationDispense-DiGA-DeepLink",
+    meta = FhirMeta(
+        profiles = listOf(
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense_DiGA|1.5"
+        )
+    ),
+    identifier = listOf(
+        FhirIdentifier(
+            system = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            value = "162.000.033.491.280.78",
+            type = null
+        )
+    ),
+    status = "completed",
+    subject = FhirMedicationDispenseIdentifier(
+        identifier = FhirIdentifier(
+            system = "http://fhir.de/sid/gkv/kvid-10",
+            value = "X123456789",
+            type = null
+        )
+    ),
+    performer = listOf(
+        FhirMedicationDispenseActor(
+            actor = FhirMedicationDispenseIdentifier(
+                identifier = FhirIdentifier(
+                    system = "https://gematik.de/fhir/sid/telematik-id",
+                    value = "8-SMC-B-Testkarte-883110000095957",
+                    type = null
+                )
+            )
+        )
+    ),
+    whenHandedOver = "2025-10-01",
+    dosageInstruction = emptyList(),
+    whenPrepared = null,
+    medicationReference = MedicationReferenceByIdentifier(
+        identifier = FhirIdentifier(
+            system = "http://fhir.de/CodeSystem/ifa/pzn",
+            value = "12345678",
+            type = null
+        ),
+        display = "Gematico Diabetestherapie"
+    ),
+    substitution = null,
+    extension = listOf(
+        FhirExtension(
+            url = "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_RedeemCode",
+            valueCoding = null,
+            valueCodeableConcept = null,
+            valueCode = null,
+            valueString = "DE12345678901234",
+            valueUrl = null,
+            valueDate = null,
+            valueBoolean = null,
+            valueRatio = null,
+            valuePeriod = null,
+            valueIdentifier = null,
+            extensions = emptyList()
+        ),
+        FhirExtension(
+            url = "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_DeepLink",
+            valueCoding = null,
+            valueCodeableConcept = null,
+            valueCode = null,
+            valueString = null,
+            valueUrl = "https://gematico.de?redeemCode=DE12345678901234",
+            valueDate = null,
+            valueBoolean = null,
+            valueRatio = null,
+            valuePeriod = null,
+            valueIdentifier = null,
+            extensions = emptyList()
+        )
+    ),
+    note = emptyList()
+)
+
+internal val fhirMedicationDispenseDiGANameAndPznV15 = FhirMedicationDispenseV14V15DispenseModel(
+    id = "Example-MedicationDispense-DiGA-Name-And-PZN",
+    meta = FhirMeta(
+        profiles = listOf(
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense_DiGA|1.5"
+        )
+    ),
+    identifier = listOf(
+        FhirIdentifier(
+            system = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            value = "162.000.033.491.280.78",
+            type = null
+        )
+    ),
+    status = "completed",
+    subject = FhirMedicationDispenseIdentifier(
+        identifier = FhirIdentifier(
+            system = "http://fhir.de/sid/gkv/kvid-10",
+            value = "X123456789",
+            type = null
+        )
+    ),
+    performer = listOf(
+        FhirMedicationDispenseActor(
+            actor = FhirMedicationDispenseIdentifier(
+                identifier = FhirIdentifier(
+                    system = "https://gematik.de/fhir/sid/telematik-id",
+                    value = "8-SMC-B-Testkarte-883110000095957",
+                    type = null
+                )
+            )
+        )
+    ),
+    whenHandedOver = "2025-10-01",
+    dosageInstruction = emptyList(),
+    whenPrepared = null,
+    medicationReference = MedicationReferenceByIdentifier(
+        identifier = FhirIdentifier(
+            system = "http://fhir.de/CodeSystem/ifa/pzn",
+            value = "12345678",
+            type = null
+        ),
+        display = "Gematico Diabetestherapie"
+    ),
+    substitution = null,
+    extension = listOf(
+        FhirExtension(
+            url = "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_RedeemCode",
+            valueCoding = null,
+            valueCodeableConcept = null,
+            valueCode = null,
+            valueString = "DE12345678901234",
+            valueUrl = null,
+            valueDate = null,
+            valueBoolean = null,
+            valueRatio = null,
+            valuePeriod = null,
+            valueIdentifier = null,
+            extensions = emptyList()
+        )
+    ),
+    note = emptyList()
+)
+
+internal val fhirMedicationDispenseDiGANoRedeemCodeV15 = FhirMedicationDispenseV14V15DispenseModel(
+    id = "Example-MedicationDispense-DiGA-NoRedeemCode",
+    meta = FhirMeta(
+        profiles = listOf(
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense_DiGA|1.5"
+        )
+    ),
+    identifier = listOf(
+        FhirIdentifier(
+            system = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            value = "162.000.033.491.280.78",
+            type = null
+        )
+    ),
+    status = "completed",
+    subject = FhirMedicationDispenseIdentifier(
+        identifier = FhirIdentifier(
+            system = "http://fhir.de/sid/gkv/kvid-10",
+            value = "X123456789",
+            type = null
+        )
+    ),
+    performer = listOf(
+        FhirMedicationDispenseActor(
+            actor = FhirMedicationDispenseIdentifier(
+                identifier = FhirIdentifier(
+                    system = "https://gematik.de/fhir/sid/telematik-id",
+                    value = "8-SMC-B-Testkarte-883110000095957",
+                    type = null
+                )
+            )
+        )
+    ),
+    whenHandedOver = "2025-10-01",
+    dosageInstruction = emptyList(),
+    whenPrepared = null,
+    medicationReference = MedicationReferenceByExtension(
+        extension = listOf(
+            FhirExtension(
+                url = "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                valueCoding = null,
+                valueCodeableConcept = null,
+                valueCode = "asked-declined",
+                valueString = null,
+                valueUrl = null,
+                valueDate = null,
+                valueBoolean = null,
+                valueRatio = null,
+                valuePeriod = null,
+                valueIdentifier = null,
+                extensions = emptyList()
+            )
+        )
+    ),
+    substitution = null,
+    extension = emptyList(),
+    note = listOf(
+        FhirMedicationRequestText(
+            text = "Freischaltcode für DiGA konnte nicht erstellt werden"
+        )
+    )
+)
+
+internal val fhirMedicationDispenseKombipackungV15 = FhirMedicationDispenseV14V15DispenseModel(
+    id = "Example-MedicationDispense-Kombipackung",
+    meta = FhirMeta(
+        profiles = listOf(
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense|1.5"
+        )
+    ),
+    identifier = listOf(
+        FhirIdentifier(
+            system = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            value = "160.000.033.491.280.78",
+            type = null
+        )
+    ),
+    status = "completed",
+    subject = FhirMedicationDispenseIdentifier(
+        identifier = FhirIdentifier(
+            system = "http://fhir.de/sid/gkv/kvid-10",
+            value = "X123456789",
+            type = null
+        )
+    ),
+    performer = listOf(
+        FhirMedicationDispenseActor(
+            actor = FhirMedicationDispenseIdentifier(
+                identifier = FhirIdentifier(
+                    system = "https://gematik.de/fhir/sid/telematik-id",
+                    value = "3-SMC-B-Testkarte-883110000095957",
+                    type = null
+                )
+            )
+        )
+    ),
+    whenHandedOver = "2025-10-01",
+    dosageInstruction = emptyList(),
+    whenPrepared = null,
+    medicationReference = MedicationReferenceByReference(
+        reference = "Medication/Medication-Kombipackung"
+    ),
+    substitution = null,
+    extension = emptyList(),
+    note = emptyList()
+)
+
+internal val fhirMedicationDispenseRezepturV15 = FhirMedicationDispenseV14V15DispenseModel(
+    id = "Example-MedicationDispense-Rezeptur",
+    meta = FhirMeta(
+        profiles = listOf(
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense|1.5"
+        )
+    ),
+    identifier = listOf(
+        FhirIdentifier(
+            system = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            value = "160.000.033.491.280.78",
+            type = null
+        )
+    ),
+    status = "completed",
+    subject = FhirMedicationDispenseIdentifier(
+        identifier = FhirIdentifier(
+            system = "http://fhir.de/sid/gkv/kvid-10",
+            value = "X123456789",
+            type = null
+        )
+    ),
+    performer = listOf(
+        FhirMedicationDispenseActor(
+            actor = FhirMedicationDispenseIdentifier(
+                identifier = FhirIdentifier(
+                    system = "https://gematik.de/fhir/sid/telematik-id",
+                    value = "3-SMC-B-Testkarte-883110000095957",
+                    type = null
+                )
+            )
+        )
+    ),
+    whenHandedOver = "2025-10-01",
+    dosageInstruction = emptyList(),
+    whenPrepared = null,
+    medicationReference = MedicationReferenceByReference(
+        reference = "Medication/Medication-Rezeptur"
+    ),
+    substitution = null,
+    extension = emptyList(),
+    note = emptyList()
+)
+
+internal val fhirMedicationDispenseWithoutMedicationV15 = FhirMedicationDispenseV14V15DispenseModel(
+    id = "Example-MedicationDispense-Without-Medication",
+    meta = FhirMeta(
+        profiles = listOf(
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense|1.5"
+        )
+    ),
+    identifier = listOf(
+        FhirIdentifier(
+            system = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            value = "160.000.033.491.280.78",
+            type = null
+        )
+    ),
+    status = "completed", // Replace with enum if applicable
+    subject = FhirMedicationDispenseIdentifier(
+        identifier = FhirIdentifier(
+            system = "http://fhir.de/sid/gkv/kvid-10",
+            value = "X123456789",
+            type = null
+        )
+    ),
+    performer = listOf(
+        FhirMedicationDispenseActor(
+            actor = FhirMedicationDispenseIdentifier(
+                identifier = FhirIdentifier(
+                    system = "https://gematik.de/fhir/sid/telematik-id",
+                    value = "3-SMC-B-Testkarte-883110000095957",
+                    type = null
+                )
+            )
+        )
+    ),
+    whenHandedOver = "2025-10-01", // Or LocalDate.parse("2025-10-01")
+    dosageInstruction = emptyList(),
+    whenPrepared = null,
+    medicationReference = MedicationReferenceByReference(
+        reference = "Medication/SumatripanMedication"
+    ),
+    substitution = null,
+    extension = emptyList(),
+    note = emptyList()
+)
+
+internal val fhirMedicationDispenseMedicationV15WithoutStrengthNumerator = FhirMedicationDispenseMedicationModel(
+    resourceType = "Medication",
+    id = "Medication-Without-Strength-Numerator",
+    meta = FhirMeta(
+        profiles = listOf(
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Medication|1.5"
+        )
+    ),
+    extensions = emptyList(),
+    code = FhirCodeableConcept(
+        coding = emptyList(),
+        text = "Infusion bestehend aus 85mg Doxorubicin aufgeloest zur Verabreichung in 250ml 5-%iger (50 mg/ml) Glucose-Infusionsloesung"
+    ),
+    itemCodeableConcept = null,
+    form = FhirCodeableConcept(
+        coding = listOf(
+            FhirCoding(
+                coding = emptyList(),
+                system = "http://standardterms.edqm.eu",
+                code = "11210000",
+                version = null,
+                display = "Solution for infusion"
+            )
+        ),
+        text = null
+    ),
+    amount = null,
+    ingredients = listOf(
+        FhirCodeableIngredient(
+            itemCodeableConcept = FhirCodeableConcept(
+                coding = listOf(
+                    FhirCoding(
+                        coding = emptyList(),
+                        system = "http://fhir.de/CodeSystem/bfarm/atc",
+                        code = "L01DB01",
+                        version = null,
+                        display = "Doxorubicin"
+                    )
+                ),
+                text = null
+            ),
+            strength = FhirRatio(
+                extensions = emptyList(),
+                numerator = FhirRatioValue(
+                    value = null,
+                    unit = null
+                ),
+                denominator = FhirRatioValue(
+                    value = "1",
+                    unit = null
+                )
+            )
+        )
+    ),
+    batch = null,
+    medications = emptyList()
+)

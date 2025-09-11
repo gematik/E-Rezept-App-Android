@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.invoice.usecase
 
+import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemEPrescriptionParsers
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
@@ -31,6 +32,7 @@ import kotlinx.serialization.json.JsonElement
 
 class SaveInvoiceUseCase(
     private val repository: InvoiceRepository,
+    private val parsers: ChargeItemEPrescriptionParsers,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend operator fun invoke(
@@ -38,7 +40,8 @@ class SaveInvoiceUseCase(
         bundle: JsonElement
     ) {
         withContext(dispatcher) {
-            repository.saveInvoice(profileId, bundle)
+            val parser = parsers.bundleParser
+            repository.saveInvoice(profileId, parser.extract(bundle))
         }
     }
 }

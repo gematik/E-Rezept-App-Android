@@ -22,10 +22,12 @@
 
 package de.gematik.ti.erp.app.digas.ui.screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -39,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -170,6 +173,8 @@ private fun InsuranceSearchSection(
     focusManager: FocusManager
 ) {
     val description = stringResource(id = R.string.diga_insurance_searchbar)
+    val placeholderText = stringResource(id = R.string.search_pharmacies_start_search)
+    val contentDescriptionText = stringResource(id = R.string.a11y_deleted_text)
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -203,7 +208,9 @@ private fun InsuranceSearchSection(
             onValueChange = onSearchInputChange,
             onRemoveValue = onRemoveSearchInput,
             focusManager = focusManager,
-            description = description
+            description = description,
+            placeholderText = placeholderText,
+            contentDescriptionText = contentDescriptionText
         )
         item {
             UiStateMachine(
@@ -214,6 +221,13 @@ private fun InsuranceSearchSection(
                         modifier = Modifier.padding(top = PaddingDefaults.XXLarge),
                         title = stringResource(R.string.diga_insurance_search_empty_title),
                         body = stringResource(R.string.diga_insurance_search_empty_text),
+                        image = {
+                            Image(
+                                painter = painterResource(id = R.drawable.girl_red_oh_no),
+                                contentDescription = null,
+                                modifier = Modifier.size(SizeDefaults.twentyfold)
+                            )
+                        },
                         button = {}
                     )
                 },
@@ -254,8 +268,7 @@ fun InsuranceSearchListScreenPreview(
                 focusManager = focusManager,
                 lazyListState = lazyListState,
                 uiState = previewData.uiState,
-                onSearchInputChange = {
-                        _ ->
+                onSearchInputChange = { _ ->
                 },
                 onSelectInsuranceProvider = {},
                 errorScreenData = ErrorScreenDataWithoutRetry(),

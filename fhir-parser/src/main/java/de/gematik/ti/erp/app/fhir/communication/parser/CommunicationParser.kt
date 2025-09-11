@@ -30,7 +30,10 @@ import de.gematik.ti.erp.app.fhir.communication.model.FhirCommunicationEntryErpM
 import de.gematik.ti.erp.app.fhir.communication.model.original.CommunicationProfileType
 import de.gematik.ti.erp.app.fhir.communication.model.original.FhirCommunicationResourceType.FhirCommunication
 import de.gematik.ti.erp.app.fhir.communication.model.original.FhirCommunicationResourceType.FhirCommunication.Companion.getCommunication
-import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions
+import de.gematik.ti.erp.app.fhir.communication.model.original.FhirCommunicationResourceType.FhirCommunication.Companion.getCommunicationProfileType
+import de.gematik.ti.erp.app.fhir.communication.model.original.FhirCommunicationResourceType.FhirCommunication.Companion.getCommunicationProfileVersion
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.SupportedCommunicationDispenseVersions
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.SupportedCommunicationReplyVersions
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement
 
@@ -70,8 +73,8 @@ class CommunicationParser : BundleParser {
     }
 
     private fun mapCommunicationToErpModel(communication: FhirCommunication): FhirCommunicationEntryErpModel? {
-        val profileType = communication.getProfileType()
-        val profileVersion = communication.getProfileVersion()
+        val profileType = communication.getCommunicationProfileType()
+        val profileVersion = communication.getCommunicationProfileVersion()
 
         return when (profileType) {
             CommunicationProfileType.REPLY -> {
@@ -83,6 +86,7 @@ class CommunicationParser : BundleParser {
                 }
             }
 
+            // dispense messages from pharmacy and diga based on the flow type
             CommunicationProfileType.DISPENSE -> {
                 if (isSupportedDispenseVersion(profileVersion)) {
                     communication.toDispenseErpModel()
@@ -92,7 +96,17 @@ class CommunicationParser : BundleParser {
                 }
             }
 
-            else -> {
+            CommunicationProfileType.DIGA_DISPENSE -> {
+                if (isSupportedDispenseVersion(profileVersion)) {
+                    // this type is always diga, so forcing it even if the flow type is not matching
+                    communication.toDispenseErpModel().copy(isDiga = true)
+                } else {
+                    Napier.w("Unsupported Dispense Communication version: $profileVersion")
+                    null
+                }
+            }
+
+            CommunicationProfileType.UNKNOWN -> {
                 Napier.w("Unknown communication profile type: ${communication.meta?.profiles}")
                 null
             }
@@ -100,10 +114,10 @@ class CommunicationParser : BundleParser {
     }
 
     private fun isSupportedReplyVersion(version: String): Boolean {
-        return FhirCommunicationVersions.SupportedCommunicationReplyVersions.entries.any { it.version == version }
+        return SupportedCommunicationReplyVersions.entries.any { it.version == version }
     }
 
     private fun isSupportedDispenseVersion(version: String): Boolean {
-        return FhirCommunicationVersions.SupportedCommunicationDispenseVersions.entries.any { it.version == version }
+        return SupportedCommunicationDispenseVersions.entries.any { it.version == version }
     }
 }

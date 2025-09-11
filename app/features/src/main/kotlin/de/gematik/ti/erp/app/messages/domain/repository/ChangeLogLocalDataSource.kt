@@ -24,6 +24,8 @@ package de.gematik.ti.erp.app.messages.domain.repository
 
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.messages.domain.model.InternalMessageResources
+import de.gematik.ti.erp.app.messages.domain.model.SECURITY_WARNING_MESSAGE_ID
+import de.gematik.ti.erp.app.messages.domain.model.WELCOME_MESSAGE_ID
 import de.gematik.ti.erp.app.messages.mapper.toInternalMessage
 import de.gematik.ti.erp.app.messages.model.ChangeLogMessage
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
@@ -36,7 +38,6 @@ import kotlinx.datetime.Instant
 
 private const val IN_APP_MESSAGE_FILE_NAME = "internal_messages.json"
 private const val IN_APP_MESSAGE_FOLDER_NAME = "lproj"
-const val WELCOME_MESSAGE_ID = "0"
 
 class ChangeLogLocalDataSource(
     private val messageResources: InternalMessageResources
@@ -72,9 +73,32 @@ class ChangeLogLocalDataSource(
             languageCode = messageResources.language
         )
 
+    fun shouldShowSecurityWarningMessage() = messageResources.shouldShowSecurityWarningMessage
+
+    fun createSecurityWarningMessage(
+        currentVersion: String,
+        time: TimeState = getTimeState(Clock.System.now()),
+        isUnread: Boolean = true
+    ) = InternalMessage(
+        id = SECURITY_WARNING_MESSAGE_ID,
+        version = currentVersion,
+        time = time,
+        sender = messageResources.messageFrom,
+        tag = messageResources.securityWarningTag,
+        text = messageResources.securityWarningMessage,
+        isUnread = isUnread,
+        messageProfile = CommunicationProfile.InApp,
+        languageCode = messageResources.language
+    )
+
     fun getInternalMessageInCurrentLanguage(internalMessage: InternalMessage): InternalMessage? =
-        when {
-            internalMessage.id == WELCOME_MESSAGE_ID -> createWelcomeMessage(
+        when (internalMessage.id) {
+            WELCOME_MESSAGE_ID -> createWelcomeMessage(
+                internalMessage.version,
+                internalMessage.time,
+                internalMessage.isUnread
+            )
+            SECURITY_WARNING_MESSAGE_ID -> createSecurityWarningMessage(
                 internalMessage.version,
                 internalMessage.time,
                 internalMessage.isUnread

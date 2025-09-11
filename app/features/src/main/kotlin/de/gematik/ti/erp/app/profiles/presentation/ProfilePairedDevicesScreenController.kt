@@ -174,7 +174,6 @@ class ProfilePairedDevicesScreenController(
     fun refreshPairedDevices() {
         controllerScope.launch {
             observePairedDevices()
-            refreshCombinedProfile() // refreshing the profiles triggers the onSuccess lambda inside which we have the refreshTrigger that emits the profile
         }
     }
 

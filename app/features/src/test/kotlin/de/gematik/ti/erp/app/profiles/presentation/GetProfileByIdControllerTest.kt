@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.profiles.presentation
 
+import app.cash.turbine.test
 import de.gematik.ti.erp.app.mocks.PROFILE_ID
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
@@ -37,7 +38,6 @@ import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -89,9 +89,12 @@ class GetProfileByIdControllerTest {
         every { profileRepository.profiles() } returns flowOf(listOf())
 
         testScope.runTest {
-            advanceUntilIdle()
-            val combinedProfile = controllerUnderTest.combinedProfile.first()
-            assert(combinedProfile.isErrorState)
+            controllerUnderTest.combinedProfile.test {
+                advanceUntilIdle()
+                awaitItem()
+                val result = awaitItem()
+                assert(result.isErrorState)
+            }
         }
     }
 
@@ -102,20 +105,28 @@ class GetProfileByIdControllerTest {
         every { profileRepository.profiles() } returns emptyFlow()
 
         testScope.runTest {
-            advanceUntilIdle()
-            val combinedProfile = controllerUnderTest.combinedProfile.first()
-            assert(combinedProfile.isErrorState)
+            controllerUnderTest.combinedProfile.test {
+                advanceUntilIdle()
+                awaitItem()
+                val result = awaitItem()
+                assert(result.isErrorState)
+            }
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `combined profile is loading and screen in loading state`() {
-        every { profileRepository.getProfileById(PROFILE_ID) } returns emptyFlow()
-        every { profileRepository.profiles() } returns emptyFlow()
+        every { profileRepository.getProfileById(PROFILE_ID) } returns flowOf(API_MOCK_PROFILE)
+        every { profileRepository.profiles() } returns flowOf(listOf(API_MOCK_PROFILE))
 
         testScope.runTest {
-            val profile = controllerUnderTest.combinedProfile.value
-            assert(profile.isLoadingState)
+            controllerUnderTest.combinedProfile.test {
+                advanceUntilIdle()
+                val result = awaitItem()
+                awaitItem()
+                assert(result.isLoadingState)
+            }
         }
     }
 
@@ -126,9 +137,12 @@ class GetProfileByIdControllerTest {
         every { profileRepository.profiles() } returns flowOf(listOf(API_MOCK_PROFILE))
 
         testScope.runTest {
-            advanceUntilIdle()
-            val profile = controllerUnderTest.combinedProfile.first()
-            assert(profile.isDataState)
+            controllerUnderTest.combinedProfile.test {
+                advanceUntilIdle()
+                awaitItem()
+                val result = awaitItem()
+                assert(result.isDataState)
+            }
         }
     }
 }

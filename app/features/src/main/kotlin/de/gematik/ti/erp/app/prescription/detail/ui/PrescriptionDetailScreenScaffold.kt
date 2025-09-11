@@ -55,7 +55,6 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension.isDebug
 import de.gematik.ti.erp.app.utils.letNotNull
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -85,7 +84,6 @@ fun PrescriptionDetailScreenScaffold(
     onSharePrescription: () -> Unit,
     onShowHowLongValidBottomSheet: () -> Unit,
     onClickInvoice: () -> Unit,
-    onToggleEuRedeemable: () -> Unit,
     onClickRedeemInEuAbroad: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -117,7 +115,6 @@ fun PrescriptionDetailScreenScaffold(
                     isEuRedeemable = (actualPrescription as? PrescriptionData.Synced)?.isEuRedeemable ?: false,
                     isDemoMode = isDemoMode,
                     onClickDelete = onClickDeletePrescription,
-                    onToggleEuRedeemable = onToggleEuRedeemable,
                     onClickRedeemInEuAbroad = onClickRedeemInEuAbroad
                 )
             }
@@ -174,7 +171,6 @@ private fun PrescriptionDetailsDropdownMenu(
     isEuRedeemable: Boolean,
     isDemoMode: Boolean,
     onClickDelete: () -> Unit,
-    onToggleEuRedeemable: () -> Unit,
     onClickRedeemInEuAbroad: () -> Unit
 ) {
     var dropdownExpanded by remember { mutableStateOf(false) }
@@ -190,24 +186,6 @@ private fun PrescriptionDetailsDropdownMenu(
         onDismissRequest = { dropdownExpanded = false },
         offset = DpOffset(SizeDefaults.triple, SizeDefaults.zero)
     ) {
-        // FOR TESTING ONLY: This menu item be removed when real backend EU-flag is available (works only in debug builds)
-        if (isDebug && !isDemoMode) {
-            DropdownMenuItem(
-                onClick = {
-                    dropdownExpanded = false
-                    onToggleEuRedeemable()
-                }
-            ) {
-                Text(
-                    text = if (isEuRedeemable) {
-                        stringResource(R.string.pres_detail_dropdown_unmark_eu_redeemable)
-                    } else {
-                        stringResource(R.string.pres_detail_dropdown_mark_eu_redeemable)
-                    },
-                    color = AppTheme.colors.primary700
-                )
-            }
-        }
         // EU Redemption menu item (only show when prescription is EU redeemable)
         if (isEuRedeemable) {
             DropdownMenuItem(

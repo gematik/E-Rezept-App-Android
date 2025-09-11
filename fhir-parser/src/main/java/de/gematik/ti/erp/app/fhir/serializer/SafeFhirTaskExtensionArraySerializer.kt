@@ -23,6 +23,8 @@
 package de.gematik.ti.erp.app.fhir.serializer
 
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants.TaskMetaDataExtensionDates.ACCEPT_DATE_EXTENSION
+import de.gematik.ti.erp.app.fhir.constant.FhirConstants.TaskMetaDataExtensionDates.EU_REDEEM_ALLOWED_BY_PATIENT_AUTHORIZATION
+import de.gematik.ti.erp.app.fhir.constant.FhirConstants.TaskMetaDataExtensionDates.EU_REDEEM_POSSIBLE_BY_PROPERTIES
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants.TaskMetaDataExtensionDates.EXPIRY_DATE_EXTENSION
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants.TaskMetaDataExtensionDates.LAST_MEDICATION_DISPENSE_EXTENSION
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants.TaskMetaDataExtensionDates.PRESCRIPTION_TYPE_EXTENSION
@@ -40,6 +42,7 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -102,6 +105,8 @@ internal object SafeFhirTaskExtensionArraySerializer : KSerializer<FhirTaskExten
             element("expiryDate", PrimitiveSerialDescriptor("expiryDate", PrimitiveKind.STRING).nullable)
             element("lastMedicationDispense", PrimitiveSerialDescriptor("lastMedicationDispense", PrimitiveKind.STRING).nullable)
             element("prescriptionType", PrimitiveSerialDescriptor("prescriptionType", PrimitiveKind.STRING).nullable)
+            element("isEuRedeemableByProperties", PrimitiveSerialDescriptor("isEuRedeemableByProperties", PrimitiveKind.BOOLEAN).nullable)
+            element("isEuRedeemableByPatientAuthorization", PrimitiveSerialDescriptor("isEuRedeemableByPatientAuthorization", PrimitiveKind.BOOLEAN).nullable)
         }
 
     /**
@@ -149,12 +154,18 @@ internal object SafeFhirTaskExtensionArraySerializer : KSerializer<FhirTaskExten
         var expiryDate: String? = null
         var prescriptionType: String? = null
         var lastMedicationDispense: String? = null
+        var isEuRedeemableByProperties: Boolean? = null
+        var isEuRedeemableByPatientAuthorization: Boolean? = null
 
         val extensionMappings = mapOf(
             with(ACCEPT_DATE_EXTENSION) { url to { json: JsonObject -> json[valueString]?.jsonPrimitive?.content } },
             with(EXPIRY_DATE_EXTENSION) { url to { json: JsonObject -> json[valueString]?.jsonPrimitive?.content } },
             with(LAST_MEDICATION_DISPENSE_EXTENSION) { url to { json: JsonObject -> json[valueString]?.jsonPrimitive?.content } },
             with(PRESCRIPTION_TYPE_EXTENSION) { url to { json: JsonObject -> json[valueString]?.jsonObject?.get("code")?.jsonPrimitive?.content } }
+        )
+        val euRedeemExtensionMappings = mapOf(
+            with(EU_REDEEM_POSSIBLE_BY_PROPERTIES) { url to { json: JsonObject -> json[valueString]?.jsonPrimitive?.booleanOrNull } },
+            with(EU_REDEEM_ALLOWED_BY_PATIENT_AUTHORIZATION) { url to { json: JsonObject -> json[valueString]?.jsonPrimitive?.booleanOrNull } }
         )
 
         // Iterate through the JSON array and extract values based on `url`
@@ -171,13 +182,22 @@ internal object SafeFhirTaskExtensionArraySerializer : KSerializer<FhirTaskExten
                     PRESCRIPTION_TYPE_EXTENSION.url -> prescriptionType = extractedValue
                 }
             }
+
+            euRedeemExtensionMappings[url]?.invoke(jsonObject)?.let { extractedValue ->
+                when (url) {
+                    EU_REDEEM_POSSIBLE_BY_PROPERTIES.url -> isEuRedeemableByProperties = extractedValue
+                    EU_REDEEM_ALLOWED_BY_PATIENT_AUTHORIZATION.url -> isEuRedeemableByPatientAuthorization = extractedValue
+                }
+            }
         }
 
         return FhirTaskExtensionValues(
             acceptDate = acceptDate,
             expiryDate = expiryDate,
             lastMedicationDispense = lastMedicationDispense,
-            prescriptionType = prescriptionType
+            prescriptionType = prescriptionType,
+            isEuRedeemableByProperties = isEuRedeemableByProperties ?: false,
+            isEuRedeemableByPatientAuthorization = isEuRedeemableByPatientAuthorization ?: false
         )
     }
 }

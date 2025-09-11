@@ -61,15 +61,6 @@ class MockPharmacyRepository(
         return Result.success(emptyList())
     }
 
-    override suspend fun redeemPrescriptionDirectly(
-        url: String,
-        message: ByteArray,
-        pharmacyTelematikId: String,
-        transactionId: String
-    ): Result<Unit> {
-        return Result.success(Unit)
-    }
-
     override fun loadOftenUsedPharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>> = oftenUsedLocalDataSource.loadOftenUsedPharmacies()
 
     override fun loadFavoritePharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>> = favouriteLocalDataSource.loadFavoritePharmacies()

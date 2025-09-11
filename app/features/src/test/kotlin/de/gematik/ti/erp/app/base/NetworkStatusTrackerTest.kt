@@ -129,6 +129,7 @@ class NetworkStatusTrackerTest {
         every { connectivityManager.activeNetwork } returns mockNetwork
         every { connectivityManager.getNetworkCapabilities(mockNetwork) } returns mockNetworkCapabilities
         every { mockNetworkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) } returns true
+        every { mockNetworkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) } returns true
 
         every {
             connectivityManager.registerDefaultNetworkCallback(capture(networkCallbackSlot))

@@ -81,6 +81,82 @@ var SemanticsPropertyReceiver.medicationCategory by MedicationCategory
 object TestTag {
     // ...Screen = Scaffold
     // ...Content = LazyColumn
+    object Onboarding {
+        object Debug {
+            val SkipOnboardingButton by tagName()
+        }
+        object WelcomeScreen {
+            val StartButton = "onb_btn_start"
+        }
+        object DataProtectionAndTermsOfUseScreen {
+            val PrivacyButton = "onb_txt_terms_of_privacy"
+            val TermsOfUseButton = "onb_txt_terms_of_use"
+            val NextButton = "onb_btn_next"
+        }
+        object SelectAppLoginScreen {
+            val DeviceSecurityButton = "onb_auth_btn_face_id"
+            val PasswordButton = "onb_auth_btn_password"
+        }
+        object PasswordAuthenticationScreen {
+            val PasswordFieldA = "onb_auth_inp_passwordA"
+            val PasswordFieldB = "onb_auth_inp_passwordB"
+            val SaveButton = "onb_auth_btn_password"
+            val BackButton = "onb_auth_btn_back"
+        }
+        object AnalyticsPreviewScreen {
+            val AllowButton = "onb_ana_btn_allow"
+            val DenyButton = "onb_ana_btn_deny"
+        }
+        object AnalyticsAllowScreen {
+            val AllowButton = "onb_ana_btn_allow"
+            val DenyButton = "onb_ana_btn_deny"
+        }
+        object DataProtectionScreen
+        object TermsOfUseScreen
+    }
+    object CardWall {
+        val ContinueButton by tagName()
+        object SelectInsuranceTypeBottomSheet {
+            val GkvButton = "wlcd_btn_gkv_user"
+            val PkvButton = "wlcd_btn_pkv_user"
+        }
+
+        object Login {
+            val LoginScreen by tagName()
+        }
+
+        object Intro {
+            val IntroScreen by tagName()
+            val OrderEgkButton by tagName()
+        }
+
+        object CAN {
+            val CANScreen by tagName()
+            val CANField by tagName()
+            val OrderEgkButton by tagName()
+            val ScanCardButton by tagName()
+        }
+
+        object PIN {
+            val PinScreen by tagName()
+            val PINField by tagName()
+            val OrderEgkButton by tagName()
+        }
+
+        object StoreCredentials {
+            val Save by tagName()
+            val DontSave by tagName()
+        }
+
+        object SecurityAcceptance {
+            val AcceptButton by tagName()
+        }
+
+        object Nfc {
+            val NfcScreen by tagName()
+            val CardReadingDialog by tagName()
+        }
+    }
 
     object TopNavigation {
         val BackButton by tagName()
@@ -326,45 +402,6 @@ object TestTag {
         val SettingsButton by tagName()
     }
 
-    object Onboarding {
-        val Pager by tagName()
-        val SkipOnboardingButton by tagName()
-        val NextButton by tagName()
-        val RejectButton by tagName()
-        val ScreenContent by tagName()
-
-        val WelcomeScreen by tagName()
-
-        val CredentialsScreen by tagName()
-
-        object Credentials {
-            val BiometricTab by tagName()
-            val PasswordTab by tagName()
-            val PasswordFieldA by tagName()
-            val PasswordFieldB by tagName()
-            val PasswordStrengthCheck by tagName()
-        }
-
-        val AnalyticsScreen by tagName()
-        val DataTermsScreen by tagName()
-
-        object DataTerms {
-            val AcceptDataTermsSwitch by tagName()
-            val OpenTermsOfUseButton by tagName()
-            val OpenDataProtectionButton by tagName()
-        }
-
-        val DataProtectionScreen by tagName()
-        val TermsOfUseScreen by tagName()
-
-        val AnalyticsSwitch by tagName()
-
-        object Analytics {
-            val ScreenContent by tagName()
-            val AcceptAnalyticsButton by tagName()
-        }
-    }
-
     object Main {
         val MainScreen by tagName()
         val LoginButton by tagName()
@@ -439,46 +476,6 @@ object TestTag {
             val NoAuditEventHeader by tagName()
             val NoAuditEventInfo by tagName()
             val AuditEvent by tagName()
-        }
-    }
-
-    object CardWall {
-        val ContinueButton by tagName()
-
-        object Login {
-            val LoginScreen by tagName()
-        }
-
-        object Intro {
-            val IntroScreen by tagName()
-            val OrderEgkButton by tagName()
-        }
-
-        object CAN {
-            val CANScreen by tagName()
-            val CANField by tagName()
-            val OrderEgkButton by tagName()
-            val ScanCardButton by tagName()
-        }
-
-        object PIN {
-            val PinScreen by tagName()
-            val PINField by tagName()
-            val OrderEgkButton by tagName()
-        }
-
-        object StoreCredentials {
-            val Save by tagName()
-            val DontSave by tagName()
-        }
-
-        object SecurityAcceptance {
-            val AcceptButton by tagName()
-        }
-
-        object Nfc {
-            val NfcScreen by tagName()
-            val CardReadingDialog by tagName()
         }
     }
 }

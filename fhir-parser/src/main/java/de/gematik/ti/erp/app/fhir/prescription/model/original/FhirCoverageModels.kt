@@ -26,9 +26,10 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirCoding
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
-import de.gematik.ti.erp.app.fhir.constant.FhirConstants
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
+import de.gematik.ti.erp.app.fhir.constant.prescription.coverage.FhirCoverageConstants
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirCoverageErpModel
+import de.gematik.ti.erp.app.utils.Reference
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -54,10 +55,14 @@ internal data class FhirCoverageModel(
             }
         }
 
+        @Reference(
+            info = "Coverage 1.2",
+            url = "https://simplifier.net/packages/kbv.ita.for/1.2.0/files/2777635/~overview"
+        )
         fun FhirCoverageModel.toErpModel(): FhirCoverageErpModel =
             FhirCoverageErpModel(
                 name = payer?.firstOrNull()?.name,
-                statusCode = extensions?.firstOrNull { it.coding?.system == FhirConstants.COVERAGE_KBV_STATUS_CODE_SYSTEM }?.coding?.code,
+                statusCode = extensions?.firstOrNull { it.url == FhirCoverageConstants.TYPE_OF_INSURANCE_URL }?.coding?.code,
                 insuranceIdentifier = payer?.firstOrNull()?.identifier?.value,
                 coverageType = type?.coding?.firstOrNull()?.code
             )

@@ -31,6 +31,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+// TODO: UiState needs to be extracted to controller
 class FetchDigaByPznUseCase(
     private val repository: DigaInformationRepository,
     private val dispatchers: CoroutineDispatcher = Dispatchers.IO

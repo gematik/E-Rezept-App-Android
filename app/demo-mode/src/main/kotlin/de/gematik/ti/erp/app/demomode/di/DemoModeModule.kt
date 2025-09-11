@@ -28,6 +28,7 @@ import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
 import de.gematik.ti.erp.app.demomode.datasource.data.FunnyAppNameProvider
 import de.gematik.ti.erp.app.demomode.repository.consent.DemoConsentRepository
 import de.gematik.ti.erp.app.demomode.repository.diga.DemoDigaRepository
+import de.gematik.ti.erp.app.demomode.repository.eurezept.DemoEuRepository
 import de.gematik.ti.erp.app.demomode.repository.orders.DemoCommunicationRepository
 import de.gematik.ti.erp.app.demomode.repository.orders.DemoDownloadCommunicationResource
 import de.gematik.ti.erp.app.demomode.repository.orders.DemoInternalMessagesRepository
@@ -42,6 +43,7 @@ import de.gematik.ti.erp.app.demomode.repository.profiles.DemoProfilesRepository
 import de.gematik.ti.erp.app.demomode.repository.protocol.DemoAuditEventsRepository
 import de.gematik.ti.erp.app.demomode.usecase.idp.DemoIdpUseCase
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
+import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
@@ -71,6 +73,7 @@ fun DI.MainBuilder.demoModeOverrides() {
     bindProvider<ConsentRepository>(overrides = true) { DemoConsentRepository() }
     bindProvider<PrescriptionRepository>(overrides = true) { DemoPrescriptionsRepository(instance()) }
     bindProvider<DigaRepository>(overrides = true) { DemoDigaRepository(instance()) }
+    bindProvider<EuRepository>(overrides = true) { DemoEuRepository(instance()) }
     bindProvider<AuditEventsRepository>(overrides = true) { DemoAuditEventsRepository(instance()) }
     bindProvider<RedeemLocalDataSource>(overrides = true) { DemoRedeemLocalDataSource(instance()) }
     bindProvider<FavouritePharmacyLocalDataSource>(overrides = true) { DemoFavouritePharmacyLocalDataSource(instance()) }

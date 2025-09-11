@@ -29,6 +29,7 @@ import de.gematik.ti.erp.app.fhir.constant.FhirVersions.SupportedFhirKbvMetaProf
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions.TASK_KBV_META_PROFILE_ERP_REGEX
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions.TASK_KBV_META_PROFILE_EVDGA_REGEX
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
+import de.gematik.ti.erp.app.fhir.constant.prescription.practitioner.FhirPractitionerConstants
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirKbvResourceType
 import de.gematik.ti.erp.app.fhir.serializer.SafeFhirAddressLineSerializer
 import de.gematik.ti.erp.app.fhir.support.FhirQuantityErpModel
@@ -69,6 +70,7 @@ internal data class FhirBundleMetaProfile(
 
         fun JsonElement.containsExpectedProfileVersionForTaskEntryPhase(): Boolean {
             return this.getProfilesFromJson().any { profile ->
+                Napier.i(tag = "fhir-parser") { "profile version on entry $profile" }
                 FhirVersions.TASK_ENTRY_PROFILE_REGEX.matchEntire(profile)
                     ?.groupValues?.get(1) in FhirVersions.SUPPORTED_TASK_ENTRY_PROFILE_VERSIONS
             }
@@ -120,6 +122,25 @@ internal data class FhirMeta(
     companion object {
         fun JsonElement.getProfile() =
             SafeJson.value.decodeFromJsonElement(serializer(), this).profiles
+
+        /**
+         * Splits a profile string into its canonical URL and optional version component.
+         *
+         * Expected format: `url|version`. If no version is present, the second value will be `null`.
+         *
+         * @return a [Pair] of (url, version).
+         */
+        internal fun String.toProfile(): Pair<String, String?> {
+            val parts = split('|', limit = 2)
+            return parts[0] to parts.getOrNull(1) // url to optional version
+        }
+
+        internal fun (FhirMeta?).byProfile(
+            url: String,
+            version: String? = null
+        ): Boolean = this?.profiles.orEmpty()
+            .map { it.toProfile() }
+            .any { (u, v) -> u == url && (version == null || v == version) }
     }
 }
 
@@ -177,7 +198,7 @@ internal data class FhirIdentifier(
          * @param system The identifier system URI to match.
          * @return The corresponding identifier value, or `null` if not found or blank.
          */
-        private fun List<FhirIdentifier>.findIdentifierValue(system: String): String? {
+        internal fun List<FhirIdentifier>.findIdentifierFromSystemUrl(system: String): String? {
             return this.firstOrNull { it.system == system }?.value?.takeIf { it.isNotBlank() }
         }
 
@@ -188,7 +209,7 @@ internal data class FhirIdentifier(
          * @return The Prescription ID value, or `null` if not present.
          */
         fun List<FhirIdentifier>.findPrescriptionId(): String? {
-            return findIdentifierValue(FhirConstants.PRESCRIPTION_ID_SYSTEM)
+            return findIdentifierFromSystemUrl(FhirConstants.PRESCRIPTION_ID_SYSTEM)
         }
 
         /**
@@ -198,17 +219,37 @@ internal data class FhirIdentifier(
          * @return The Access Code value, or `null` if not present.
          */
         fun List<FhirIdentifier>.findAccessCode(): String? {
-            return findIdentifierValue(FhirConstants.ACCESS_CODE_SYSTEM)
+            return findIdentifierFromSystemUrl(FhirConstants.ACCESS_CODE_SYSTEM)
         }
 
         /**
-         * Searches for the identifier that represents a Practitioner Identifier.
+         * Searches for the identifier that represents a Lifelong doctor number.
          *
          * @receiver List of [FhirIdentifier] objects.
-         * @return The Practitioner Identifier value, or `null` if not present.
+         * @return The Lifelong doctor number, or `null` if not present.
          */
-        fun List<FhirIdentifier>.findPractitionerIdentifierValue(): String? {
-            return findIdentifierValue(FhirConstants.PRACTITIONER_IDENTIFIER_NAME)
+        fun List<FhirIdentifier>.findPractitionerLanr(): String? {
+            return findIdentifierFromSystemUrl(FhirPractitionerConstants.PRACTITIONER_IDENTIFIER_LANR)
+        }
+
+        /**
+         * Searches for the identifier that represents a dentist number.
+         *
+         * @receiver List of [FhirIdentifier] objects.
+         * @return The dentist number, or `null` if not present.
+         */
+        fun List<FhirIdentifier>.findPractitionerZanr(): String? {
+            return findIdentifierFromSystemUrl(FhirPractitionerConstants.PRACTITIONER_IDENTIFIER_ZANR)
+        }
+
+        /**
+         * Searches for the identifier that represents a doctor's office.
+         *
+         * @receiver List of [FhirIdentifier] objects.
+         * @return The telematik id, or `null` if not present.
+         */
+        fun List<FhirIdentifier>.findPractitionerTelematikId(): String? {
+            return findIdentifierFromSystemUrl(FhirPractitionerConstants.PRACTITIONER_TELEMATIK_ID)
         }
     }
 }
@@ -220,7 +261,12 @@ internal data class FhirCoding(
     @SerialName("code") val code: String? = null,
     @SerialName("version") val version: String? = null,
     @SerialName("display") val display: String? = null
-)
+) {
+    companion object {
+        internal fun List<FhirCoding>.firstBySystem(systems: Collection<String>): FhirCoding? =
+            firstOrNull { it.system in systems }
+    }
+}
 
 @Serializable
 internal data class FhirCodeableConcept(
@@ -245,11 +291,18 @@ internal data class FhirAddress(
     companion object {
         fun FhirAddress.toErpModel(): FhirTaskKbvAddressErpModel {
             return FhirTaskKbvAddressErpModel(
-                streetName = extractedLine["streetName"],
-                houseNumber = extractedLine["houseNumber"],
+                streetName = extractedLine.value("streetName"),
+                houseNumber = extractedLine.value("houseNumber"),
+                additionalAddressInformation = extractedLine.value("additionalLocator"),
                 postalCode = this@toErpModel.postalCode,
                 city = city
             )
+        }
+
+        private fun Map<String, String>.value(key: String): String? {
+            return this[key] ?: this.entries
+                .firstOrNull { it.key.contains(key, ignoreCase = true) }
+                ?.value
         }
     }
 }
@@ -296,12 +349,16 @@ internal data class FhirExtension(
     @SerialName("valueCodeableConcept") val valueCodeableConcept: FhirCoding? = null,
     @SerialName("valueCode") val valueCode: String? = null,
     @SerialName("valueString") val valueString: String? = null,
+    @SerialName("valuePositiveInt") val valuePositiveInt: String? = null,
     @SerialName("valueUrl") val valueUrl: String? = null,
     @SerialName("valueDate") val valueDate: String? = null,
+    @SerialName("valueMoney") val valueMoney: FhirMoney? = null,
+    @SerialName("valueDecimal") val valueDecimal: String? = null,
     @SerialName("valueBoolean") val valueBoolean: Boolean? = null,
     @SerialName("valueRatio") val valueRatio: FhirRatio? = null,
     @SerialName("valuePeriod") val valuePeriod: FhirPeriod? = null,
     @SerialName("valueIdentifier") val valueIdentifier: FhirIdentifier? = null,
+    @SerialName("valueReference") val valueReference: FhirReference? = null,
     @SerialName("extension") val extensions: List<FhirExtension> = emptyList()
 ) {
     companion object {
@@ -310,6 +367,17 @@ internal data class FhirExtension(
         }
     }
 }
+
+@Serializable
+internal data class FhirMoney(
+    @SerialName("value") val value: String? = null,
+    @SerialName("currency") val unit: String? = null
+)
+
+@Serializable
+internal data class FhirReference(
+    @SerialName("reference") val value: String? = null
+)
 
 @Serializable
 internal data class FhirRatio(

@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.redeem.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.expandVertically
@@ -34,17 +35,22 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
+import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -96,6 +102,7 @@ import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
 import de.gematik.ti.erp.app.pharmacy.ui.components.TopBarColor
 import de.gematik.ti.erp.app.pharmacy.ui.components.VideoContent
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PrescriptionInOrder
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
@@ -141,6 +148,7 @@ import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.letNotNull
+import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.flow.collectLatest
 
 private const val OrderSuccessVideoAspectRatio = 1.69f
@@ -180,7 +188,8 @@ class RedeemOrderOverviewScreen(
 
         val redeemPrescriptionState by redeemController.redeemedState.collectAsStateWithLifecycle()
         val isProfileRefreshing by orderOverviewController.isProfileRefreshing.collectAsStateWithLifecycle()
-
+        val listState = rememberLazyListState()
+        val scaffoldState = rememberScaffoldState()
         val contactValidationState = remember(selectedOrderState, orderOption, hasAttemptedRedeem) {
             val option = orderOption // to allow smart-casting
             when {
@@ -207,9 +216,9 @@ class RedeemOrderOverviewScreen(
                 !hasAttemptedRedeem -> true
                 else ->
                     pharmacy != null &&
-                            orderOption != null &&
-                            contactValidationState.isValid() &&
-                            selectedOrderState.prescriptionsInOrder.isNotEmpty()
+                        orderOption != null &&
+                        contactValidationState.isValid() &&
+                        selectedOrderState.prescriptionsInOrder.isNotEmpty()
             }
         }
         val intentHandler = LocalIntentHandler.current
@@ -273,6 +282,14 @@ class RedeemOrderOverviewScreen(
                 selectedOrderOption = orderOption,
                 selectedPharmacy = pharmacy,
                 isRedemptionAllowed = isRedemptionAllowed,
+                attemptRedeemValidation = { contact, selectedOrderOption, prescriptions, pharmacy ->
+                    sharedViewModel.attemptRedeemValidation(
+                        contact = contact,
+                        selectedOrderOption = selectedOrderOption,
+                        prescriptions = prescriptions,
+                        pharmacy = pharmacy
+                    )
+                },
                 onNotRedeemable = {
                     orderOverviewController.disableLoadingIndicator()
                     orderOverviewController.chooseAuthenticationMethod(it)
@@ -304,206 +321,214 @@ class RedeemOrderOverviewScreen(
             }
         }
 
-        Box {
-            UiStateMachine(
-                state = activeProfile,
-                onLoading = {
-                    Center {
-                        CircularProgressIndicator()
-                    }
+        val redeemClickEvent = RedeemClickEvent(
+            onSelectPrescriptions = {
+                orderOverviewController.disableLoadingIndicator()
+                navController.navigate(RedeemRoutes.RedeemPrescriptionSelection.path(isModal = true))
+            },
+            onChangePharmacy = {
+                orderOverviewController.disableLoadingIndicator()
+                navController.navigate(
+                    PharmacyRoutes.PharmacyStartScreenModal.path(taskId = "")
+                )
+            },
+            onClickContacts = {
+                orderOverviewController.disableLoadingIndicator()
+                orderOption?.let {
+                    navController.navigate(RedeemRoutes.RedeemEditShippingContactScreen.path(it))
                 }
-            ) { profile ->
-                val redeemClickEvent = RedeemClickEvent(
-                    onSelectPrescriptions = {
-                        orderOverviewController.disableLoadingIndicator()
-                        navController.navigate(RedeemRoutes.RedeemPrescriptionSelection.path(isModal = true))
-                    },
-                    onChangePharmacy = {
-                        orderOverviewController.disableLoadingIndicator()
-                        navController.navigate(
-                            PharmacyRoutes.PharmacyStartScreenModal.path(taskId = "")
-                        )
-                    },
-                    onClickContacts = {
-                        orderOverviewController.disableLoadingIndicator()
-                        orderOption?.let {
-                            navController.navigate(RedeemRoutes.RedeemEditShippingContactScreen.path(it))
-                        }
-                    },
-                    onChangeService = { selectedOrderOption ->
-                        sharedViewModel.updateSelectedOrderOption(selectedOrderOption)
-                    },
-                    onBack = {
-                        orderOverviewController.disableLoadingIndicator()
-                        sharedViewModel.onResetPrescriptionSelection()
-                        navController.popBackStack()
-                    }
-                )
-
-                val processStateEvent = ProcessStateEvent(
-                    processStartedEvent = redeemController.onProcessStartEvent,
-                    processEndEvent = redeemController.onProcessEndEvent,
-                    onNotRedeemable = { orderOverviewController.chooseAuthenticationMethod(profile) },
-                    onProcessStarted = orderOverviewController::enableLoadingIndicator,
-                    onProcessEnded = orderOverviewController::disableLoadingIndicator
-                )
-
-                RedeemOrderOverviewScreenContent(
-                    profile = profile,
-                    selectedOrderState = selectedOrderState,
-                    selectedOrderOption = orderOption,
-                    contactValidationState = contactValidationState,
-                    selectedPharmacy = pharmacy,
-                    redeemClickEvent = redeemClickEvent,
-                    processStateEvent = processStateEvent,
-                    isRedeemEnabled = isRedeemEnabled,
-                    isPrescriptionError = isPrescriptionError,
-                    isPharmacyError = isPharmacyError,
-                    isContactError = isContactError,
-                    videoContent = {
-                        val videoHeightPx = remember { mutableFloatStateOf(0f) }
-                        val shape = RoundedCornerShape(bottomStart = SizeDefaults.fourfold, bottomEnd = SizeDefaults.fourfold)
-                        Crossfade(targetState = orderOption, label = "VideoCrossfade") { targetOrderOption ->
-                            val currentSource by remember(targetOrderOption) {
-                                mutableIntStateOf(targetOrderOption.selectVideoSource())
-                            }
-
-                            val description = targetOrderOption?.getText()
-
-                            VideoContent(
-                                modifier = Modifier
-                                    .onPlaced { videoHeightPx.floatValue = it.size.height.toFloat() }
-                                    .semantics { contentDescription = description ?: "" }
-                                    .clip(shape)
-                                    .background(TopBarColor)
-                                    .statusBarsPadding()
-                                    .fillMaxWidth(),
-                                source = currentSource,
-                                aspectRatioOverwrite = OrderSuccessVideoAspectRatio
-                            )
-                        }
-                    },
-                    onClickRedeem = {
-                        redeemOrder(
-                            redeemController = redeemController,
-                            profile = profile,
-                            selectedOrderState = selectedOrderState,
-                            isRedemptionAllowed = isRedemptionAllowed,
-                            selectedOrderOption = orderOption,
-                            selectedPharmacy = pharmacy,
-                            onNotRedeemable = {
-                                orderOverviewController.disableLoadingIndicator()
-                                orderOverviewController.chooseAuthenticationMethod(profile)
-                            }
-                        )
-                    }
-                )
+            },
+            onChangeService = { selectedOrderOption ->
+                sharedViewModel.updateSelectedOrderOption(selectedOrderOption)
+            },
+            onBack = {
+                orderOverviewController.disableLoadingIndicator()
+                sharedViewModel.onResetPrescriptionSelection()
+                navController.popBackStack()
             }
-
-            if (isLoadingIndicatorShown) {
-                LoadingIndicator()
-            }
-        }
-    }
-
-    /**
-     * Attempts to redeem the selected prescriptions after validating the input state.
-     *
-     * This function first validates whether the redemption attempt is eligible based on the selected
-     * prescriptions, pharmacy, contact information, and order option. If the validation fails or
-     * redemption is not allowed, the fallback callback [onNotRedeemable] is invoked.
-     *
-     * If validation passes and redemption is allowed, the redemption process is triggered using
-     * [redeemController], provided that both [selectedOrderOption] and [selectedPharmacy] are not null.
-     *
-     * @param redeemController The controller responsible for processing the redemption request.
-     * @param profile The active user profile for whom the redemption is being performed.
-     * @param selectedOrderState The current order state including prescriptions and contact information.
-     * @param selectedOrderOption The selected order option (e.g., delivery or pickup); must be non-null to proceed.
-     * @param selectedPharmacy The selected pharmacy for redemption; must be non-null to proceed.
-     * @param isRedemptionAllowed Flag indicating whether the redemption can proceed at this point.
-     * @param onNotRedeemable Callback to be invoked if redemption cannot proceed due to failed validation
-     *                        or disallowed conditions.
-     */
-    private fun redeemOrder(
-        redeemController: RedeemPrescriptionsController,
-        profile: Profile,
-        selectedOrderState: PharmacyUseCaseData.OrderState,
-        selectedOrderOption: PharmacyScreenData.OrderOption?,
-        selectedPharmacy: PharmacyUseCaseData.Pharmacy?,
-        isRedemptionAllowed: Boolean,
-        onNotRedeemable: () -> Unit
-    ) {
-        val hasSuccessfullyValidated = sharedViewModel.attemptRedeemValidation(
-            prescriptions = selectedOrderState.prescriptionsInOrder,
-            pharmacy = selectedPharmacy,
-            selectedOrderOption = selectedOrderOption,
-            contact = selectedOrderState.contact
         )
 
-        if (!hasSuccessfullyValidated) return
+        val processStateEvent = ProcessStateEvent(
+            processStartedEvent = redeemController.onProcessStartEvent,
+            processEndEvent = redeemController.onProcessEndEvent,
+            onNotRedeemable = { activeProfile.data?.let { orderOverviewController.chooseAuthenticationMethod(it) } },
+            onProcessStarted = orderOverviewController::enableLoadingIndicator,
+            onProcessEnded = orderOverviewController::disableLoadingIndicator
+        )
 
-        if (!isRedemptionAllowed) {
-            onNotRedeemable()
-            return
-        }
-
-        letNotNull(selectedOrderOption, selectedPharmacy, { orderOption, pharmacy ->
-            redeemController.processPrescriptionRedemptions(
-                arguments = orderID().from(
-                    profile = profile,
-                    order = selectedOrderState,
-                    redeemOption = orderOption,
-                    pharmacy = pharmacy
-                )
-            )
-        }, elseBlock = onNotRedeemable)
-    }
-
-    @Suppress("ComposableNaming")
-    @Composable
-    private fun observeRedeemState(
-        redeemPrescriptionState: BaseRedeemState,
-        orderOverviewController: RedeemOrderOverviewScreenController
-    ) {
-        with(orderOverviewController) {
-            LaunchedEffect(redeemPrescriptionState) {
-                redeemPrescriptionState.handleRedeemedState(
-                    onShowPrescriptionRedeemAlertDialog = { showPrescriptionRedeemAlertDialogEvent.trigger(it) },
-                    onOrderHasError = { toggleOrderHasError(it) },
-                    // hide the loading indicator when the  dialog is to be shown
-                    onIncompleteOrder = {
-                        disableLoadingIndicator()
-                        showErrorOnRedeemAlertDialogEvent.trigger(it)
-                    },
-                    onInvalidOrder = {
-                        disableLoadingIndicator()
-                        showErrorOnRedeemAlertDialogEvent.trigger(it)
+        BackHandler { redeemClickEvent.onBack() }
+        RedeemOrderOverviewScreenScaffold(
+            activeProfile = activeProfile,
+            listState = listState,
+            scaffoldState = scaffoldState,
+            selectedOrderState = selectedOrderState,
+            selectedOrderOption = orderOption,
+            contactValidationState = contactValidationState,
+            selectedPharmacy = pharmacy,
+            redeemClickEvent = redeemClickEvent,
+            processStateEvent = processStateEvent,
+            isLoadingIndicatorShown = isLoadingIndicatorShown,
+            isRedeemEnabled = isRedeemEnabled,
+            isPrescriptionError = isPrescriptionError,
+            isPharmacyError = isPharmacyError,
+            isContactError = isContactError,
+            videoContent = {
+                val videoHeightPx = remember { mutableFloatStateOf(0f) }
+                val shape = RoundedCornerShape(bottomStart = SizeDefaults.fourfold, bottomEnd = SizeDefaults.fourfold)
+                Crossfade(targetState = orderOption, label = "VideoCrossfade") { targetOrderOption ->
+                    val currentSource by remember(targetOrderOption) {
+                        mutableIntStateOf(targetOrderOption.selectVideoSource())
                     }
-                )
+
+                    val description = targetOrderOption?.getText()
+
+                    VideoContent(
+                        modifier = Modifier
+                            .onPlaced { videoHeightPx.floatValue = it.size.height.toFloat() }
+                            .semantics { contentDescription = description ?: "" }
+                            .clip(shape)
+                            .background(TopBarColor)
+                            .statusBarsPadding()
+                            .fillMaxWidth(),
+                        source = currentSource,
+                        aspectRatioOverwrite = OrderSuccessVideoAspectRatio
+                    )
+                }
+            },
+            onClickRedeem = {
+                activeProfile.data?.let {
+                    redeemOrder(
+                        redeemController = redeemController,
+                        profile = it,
+                        selectedOrderState = selectedOrderState,
+                        isRedemptionAllowed = isRedemptionAllowed,
+                        selectedOrderOption = orderOption,
+                        selectedPharmacy = pharmacy,
+                        attemptRedeemValidation = { contact, selectedOrderOption, prescriptions, pharmacy ->
+                            sharedViewModel.attemptRedeemValidation(
+                                contact = contact,
+                                selectedOrderOption = selectedOrderOption,
+                                prescriptions = prescriptions,
+                                pharmacy = pharmacy
+                            )
+                        },
+                        onNotRedeemable = {
+                            orderOverviewController.disableLoadingIndicator()
+                            orderOverviewController.chooseAuthenticationMethod(it)
+                        }
+                    )
+                }
             }
-        }
+        )
+    }
+}
+
+/**
+ * Attempts to redeem the selected prescriptions after validating the input state.
+ *
+ * This function first validates whether the redemption attempt is eligible based on the selected
+ * prescriptions, pharmacy, contact information, and order option. If the validation fails or
+ * redemption is not allowed, the fallback callback [onNotRedeemable] is invoked.
+ *
+ * If validation passes and redemption is allowed, the redemption process is triggered using
+ * [redeemController], provided that both [selectedOrderOption] and [selectedPharmacy] are not null.
+ *
+ * @param redeemController The controller responsible for processing the redemption request.
+ * @param profile The active user profile for whom the redemption is being performed.
+ * @param selectedOrderState The current order state including prescriptions and contact information.
+ * @param selectedOrderOption The selected order option (e.g., delivery or pickup); must be non-null to proceed.
+ * @param selectedPharmacy The selected pharmacy for redemption; must be non-null to proceed.
+ * @param isRedemptionAllowed Flag indicating whether the redemption can proceed at this point.
+ * @param onNotRedeemable Callback to be invoked if redemption cannot proceed due to failed validation
+ *                        or disallowed conditions.
+ */
+private fun redeemOrder(
+    redeemController: RedeemPrescriptionsController,
+    profile: Profile,
+    selectedOrderState: PharmacyUseCaseData.OrderState,
+    selectedOrderOption: PharmacyScreenData.OrderOption?,
+    selectedPharmacy: PharmacyUseCaseData.Pharmacy?,
+    isRedemptionAllowed: Boolean,
+    attemptRedeemValidation: (
+        contact: PharmacyUseCaseData.ShippingContact,
+        selectedOrderOption: PharmacyScreenData.OrderOption?,
+        prescriptions: List<PrescriptionInOrder>,
+        pharmacy: PharmacyUseCaseData.Pharmacy?
+    ) -> Boolean,
+    onNotRedeemable: () -> Unit
+) {
+    val hasSuccessfullyValidated = attemptRedeemValidation(
+        selectedOrderState.contact,
+        selectedOrderOption,
+        selectedOrderState.prescriptionsInOrder,
+        selectedPharmacy
+    )
+
+    if (!hasSuccessfullyValidated) return
+
+    if (!isRedemptionAllowed) {
+        onNotRedeemable()
+        return
     }
 
-    @Suppress("ComposableNaming")
-    @Composable
-    private fun observerProfileRefresh(
-        isProfileRefreshing: Boolean,
-        orderOverviewController: RedeemOrderOverviewScreenController
-    ) {
-        LaunchedEffect(isProfileRefreshing) {
-            orderOverviewController.toggleLoadingIndicator(isProfileRefreshing)
+    letNotNull(selectedOrderOption, selectedPharmacy, { orderOption, pharmacy ->
+        redeemController.processPrescriptionRedemptions(
+            arguments = orderID().from(
+                profile = profile,
+                order = selectedOrderState,
+                redeemOption = orderOption,
+                pharmacy = pharmacy
+            )
+        )
+    }, elseBlock = onNotRedeemable)
+}
+
+@Suppress("ComposableNaming")
+@Composable
+private fun observeRedeemState(
+    redeemPrescriptionState: BaseRedeemState,
+    orderOverviewController: RedeemOrderOverviewScreenController
+) {
+    with(orderOverviewController) {
+        LaunchedEffect(redeemPrescriptionState) {
+            redeemPrescriptionState.handleRedeemedState(
+                onShowPrescriptionRedeemAlertDialog = { showPrescriptionRedeemAlertDialogEvent.trigger(it) },
+                onOrderHasError = { toggleOrderHasError(it) },
+                // hide the loading indicator when the  dialog is to be shown
+                onIncompleteOrder = {
+                    disableLoadingIndicator()
+                    showErrorOnRedeemAlertDialogEvent.trigger(it)
+                },
+                onInvalidOrder = {
+                    disableLoadingIndicator()
+                    showErrorOnRedeemAlertDialogEvent.trigger(it)
+                }
+            )
         }
     }
 }
 
+@Suppress("ComposableNaming")
 @Composable
-fun RedeemOrderOverviewScreenContent(
-    profile: Profile,
+private fun observerProfileRefresh(
+    isProfileRefreshing: Boolean,
+    orderOverviewController: RedeemOrderOverviewScreenController
+) {
+    LaunchedEffect(isProfileRefreshing) {
+        orderOverviewController.toggleLoadingIndicator(isProfileRefreshing)
+    }
+}
+
+@Composable
+fun RedeemOrderOverviewScreenScaffold(
+    activeProfile: UiState<Profile>,
+    listState: LazyListState,
+    scaffoldState: ScaffoldState,
     selectedOrderState: PharmacyUseCaseData.OrderState,
     selectedOrderOption: PharmacyScreenData.OrderOption?,
     contactValidationState: RedeemContactValidationState,
     selectedPharmacy: PharmacyUseCaseData.Pharmacy?,
+    isLoadingIndicatorShown: Boolean,
     isRedeemEnabled: Boolean,
     isPrescriptionError: Boolean,
     isPharmacyError: Boolean,
@@ -513,93 +538,143 @@ fun RedeemOrderOverviewScreenContent(
     videoContent: @Composable BoxScope.() -> Unit,
     onClickRedeem: () -> Unit
 ) {
-    val listState = rememberLazyListState()
-    val scaffoldState = rememberScaffoldState()
-
     Scaffold(
         modifier = Modifier.testTag(TestTag.PharmacySearch.OrderSummary.Screen),
         scaffoldState = scaffoldState,
         snackbarHost = { SnackbarHost(it, modifier = Modifier.systemBarsPadding()) },
         bottomBar = {
             AnimatedBottomBar(listState) {
-                AnimatedVisibility(
-                    visible = !contactValidationState.isValid() || isPrescriptionError || isPharmacyError,
-                    enter = fadeIn() + expandVertically(expandFrom = Alignment.Top) + slideInVertically(),
-                    exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top) + slideOutVertically()
+                Column(
+                    modifier = Modifier.navigationBarsPadding()
+                        .padding(
+                            vertical = PaddingDefaults.Small,
+                            horizontal = PaddingDefaults.Medium
+                        ),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)
                 ) {
-                    // Error banner
-                    Banner(
-                        modifier = Modifier.padding(PaddingDefaults.Medium),
-                        startIcon = BannerClickableIcon(BannerIcon.Warning) {},
-                        contentColor = AppTheme.colors.red900,
-                        containerColor = AppTheme.colors.red100,
-                        borderColor = AppTheme.colors.red600,
-                        text = when {
-                            isPrescriptionError -> stringResource(R.string.pharmacy_order_no_prescriptions_error)
-                            isPharmacyError -> stringResource(R.string.pharmacy_order_no_pharmacy_error)
-                            else -> contactValidationState.error?.let { stringResource(it) } ?: ""
-                        }
+                    AnimatedVisibility(
+                        visible = !contactValidationState.isValid() || isPrescriptionError || isPharmacyError,
+                        enter = fadeIn() + expandVertically(expandFrom = Alignment.Top) + slideInVertically(),
+                        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top) + slideOutVertically()
+                    ) {
+                        // Error banner
+                        Banner(
+                            modifier = Modifier,
+                            startIcon = BannerClickableIcon(BannerIcon.Warning) {},
+                            contentColor = AppTheme.colors.red900,
+                            containerColor = AppTheme.colors.red100,
+                            borderColor = AppTheme.colors.red600,
+                            text = when {
+                                isPrescriptionError -> stringResource(R.string.pharmacy_order_no_prescriptions_error)
+                                isPharmacyError -> stringResource(R.string.pharmacy_order_no_pharmacy_error)
+                                else -> contactValidationState.error?.let { stringResource(it) } ?: ""
+                            }
+                        )
+                    }
+                    AnimatedVisibility(
+                        visible = selectedOrderState.selfPayerPrescriptionNames.isNotEmpty(),
+                        enter = fadeIn() + expandVertically(expandFrom = Alignment.Top) + slideInVertically(),
+                        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top) + slideOutVertically()
+                    ) {
+                        SelfPayerPrescriptionWarning(selectedOrderState.selfPayerPrescriptionNames)
+                    }
+                    RedeemButton(
+                        modifier = Modifier.padding(vertical = PaddingDefaults.Medium),
+                        isEnabled = isRedeemEnabled,
+                        processStateEvent = processStateEvent,
+                        onClickRedeem = onClickRedeem
                     )
                 }
-                RedeemButton(
-                    modifier = Modifier.padding(vertical = PaddingDefaults.Medium),
-                    isEnabled = isRedeemEnabled,
-                    processStateEvent = processStateEvent,
-                    onClickRedeem = onClickRedeem
-                )
             }
         }
     ) { padding ->
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(padding),
-            verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Large)
-        ) {
-            item {
-                Box {
-                    videoContent()
-                    NavigateBackButton(
-                        onClick = redeemClickEvent.onBack,
-                        contentDescription = stringResource(R.string.back)
-                    )
+        Box(modifier = Modifier.padding(padding)) {
+            UiStateMachine(
+                state = activeProfile,
+                onLoading = {
+                    Center {
+                        CircularProgressIndicator()
+                    }
+                }
+            ) { profile ->
+                RedeemOrderOverviewScreenContent(
+                    profile = profile,
+                    listState = listState,
+                    selectedOrderState = selectedOrderState,
+                    selectedOrderOption = selectedOrderOption,
+                    contactValidationState = contactValidationState,
+                    selectedPharmacy = selectedPharmacy,
+                    isPrescriptionError = isPrescriptionError,
+                    isPharmacyError = isPharmacyError,
+                    isContactError = isContactError,
+                    redeemClickEvent = redeemClickEvent,
+                    videoContent = videoContent
+                )
+                if (isLoadingIndicatorShown) {
+                    LoadingIndicator()
                 }
             }
-            redeemOrderOverviewTitle()
-            prescriptionSelectionSection(
-                prescriptions = selectedOrderState.prescriptionsInOrder,
-                isPrescriptionError = isPrescriptionError,
-                onClick = redeemClickEvent.onSelectPrescriptions
-            )
-            pharmacySelectionSection(
-                selectedPharmacy = selectedPharmacy,
-                selectedOrderOption = selectedOrderOption,
-                isPharmacyError = isPharmacyError,
-                onClick = redeemClickEvent.onChangePharmacy,
-                onServiceSelection = redeemClickEvent.onChangeService
-            )
-            contactSelectionAnimatedItem(
-                show = selectedOrderOption != null
-            ) {
-                ContactSelectionSection(
-                    profile = profile,
-                    selectedOrderOption = selectedOrderOption,
-                    contact = selectedOrderState.contact,
-                    contactValidationState = contactValidationState,
-                    isContactError = isContactError,
-                    onClick = redeemClickEvent.onClickContacts
+        }
+    }
+}
+
+@Composable
+private fun RedeemOrderOverviewScreenContent(
+    profile: Profile,
+    listState: LazyListState,
+    selectedOrderState: PharmacyUseCaseData.OrderState,
+    selectedOrderOption: PharmacyScreenData.OrderOption?,
+    contactValidationState: RedeemContactValidationState,
+    selectedPharmacy: PharmacyUseCaseData.Pharmacy?,
+    isPrescriptionError: Boolean,
+    isPharmacyError: Boolean,
+    isContactError: Boolean,
+    redeemClickEvent: RedeemClickEvent,
+    videoContent: @Composable BoxScope.() -> Unit
+) {
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Large)
+    ) {
+        item {
+            Box {
+                videoContent()
+                NavigateBackButton(
+                    onClick = redeemClickEvent.onBack,
+                    contentDescription = stringResource(R.string.back)
                 )
             }
-
-            if (selectedOrderState.selfPayerPrescriptionNames.isNotEmpty()) {
-                item {
-                    SelfPayerPrescriptionWarning(selectedOrderState.selfPayerPrescriptionNames)
-                }
-            }
-            item {
-                SpacerLarge()
-            }
+        }
+        redeemOrderOverviewTitle()
+        prescriptionSelectionSection(
+            prescriptions = selectedOrderState.prescriptionsInOrder,
+            isPrescriptionError = isPrescriptionError,
+            onClick = redeemClickEvent.onSelectPrescriptions
+        )
+        pharmacySelectionSection(
+            selectedPharmacy = selectedPharmacy,
+            selectedOrderOption = selectedOrderOption,
+            isPharmacyError = isPharmacyError,
+            onClick = redeemClickEvent.onChangePharmacy,
+            onServiceSelection = redeemClickEvent.onChangeService
+        )
+        contactSelectionAnimatedItem(
+            show = selectedOrderOption != null
+        ) {
+            ContactSelectionSection(
+                profile = profile,
+                selectedOrderOption = selectedOrderOption,
+                contact = selectedOrderState.contact,
+                contactValidationState = contactValidationState,
+                isContactError = isContactError,
+                onClick = redeemClickEvent.onClickContacts
+            )
+        }
+        item {
+            SpacerLarge()
         }
     }
 }
@@ -618,7 +693,7 @@ private fun LazyListScope.redeemOrderOverviewTitle() {
 }
 
 private fun LazyListScope.prescriptionSelectionSection(
-    prescriptions: List<PharmacyUseCaseData.PrescriptionInOrder>,
+    prescriptions: List<PrescriptionInOrder>,
     isPrescriptionError: Boolean,
     onClick: () -> Unit
 ) {
@@ -751,7 +826,7 @@ private fun ContactSelectionSection(
 @LightDarkPreview
 @Composable
 private fun PrescriptionSelectionSectionPreview(
-    @PreviewParameter(PrescriptionSelectionSectionParameter::class) state: List<PharmacyUseCaseData.PrescriptionInOrder>
+    @PreviewParameter(PrescriptionSelectionSectionParameter::class) state: List<PrescriptionInOrder>
 ) {
     PreviewTheme {
         LazyColumn {
@@ -782,13 +857,15 @@ private fun ContactSelectionSectionPreview() {
     PreviewTheme {
         LazyColumn {
             contactSelectionAnimatedItem(true) {
-                ContactSelectionSection(
-                    profile = RedeemOverviewScreenPreviewParameter.profilePreviewData,
-                    contactValidationState = RedeemContactValidationState.NoError,
-                    contact = RedeemOverviewScreenPreviewParameter.contactPreviewData,
-                    selectedOrderOption = PharmacyScreenData.OrderOption.Pickup,
-                    isContactError = false
-                ) {}
+                RedeemOverviewScreenPreviewParameter.profilePreviewData.data?.let {
+                    ContactSelectionSection(
+                        profile = it,
+                        contactValidationState = RedeemContactValidationState.NoError,
+                        contact = RedeemOverviewScreenPreviewParameter.contactPreviewData,
+                        selectedOrderOption = PharmacyScreenData.OrderOption.Pickup,
+                        isContactError = false
+                    ) {}
+                }
             }
         }
     }
@@ -800,8 +877,10 @@ internal fun RedeemOrderOverviewScreenContentPreview(
     @PreviewParameter(RedeemOverviewScreenParameter::class) state: RedeemOverviewScreenPreviewData
 ) {
     PreviewTheme {
-        RedeemOrderOverviewScreenContent(
-            profile = state.profile,
+        val listState = rememberLazyListState()
+        val scaffoldState = rememberScaffoldState()
+        RedeemOrderOverviewScreenScaffold(
+            activeProfile = state.activeProfile,
             selectedOrderState = state.orderState(),
             selectedOrderOption = state.orderOption,
             contactValidationState = state.contactValidationState,
@@ -829,7 +908,10 @@ internal fun RedeemOrderOverviewScreenContentPreview(
                     contentDescription = "Video content comes here"
                 )
             },
-            {}
+            listState = listState,
+            scaffoldState = scaffoldState,
+            isLoadingIndicatorShown = false,
+            onClickRedeem = {}
         )
     }
 }

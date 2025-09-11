@@ -24,12 +24,16 @@ package de.gematik.ti.erp.app.fhir.prescription.model.original
 
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions.KBV_BUNDLE_VERSION_103
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions.KBV_BUNDLE_VERSION_110
+import de.gematik.ti.erp.app.fhir.constant.FhirVersions.KBV_BUNDLE_VERSION_12
+import de.gematik.ti.erp.app.fhir.constant.FhirVersions.KBV_BUNDLE_VERSION_13
 import kotlinx.serialization.Serializable
 
 @Serializable
 internal enum class KbvBundleVersion(val version: String) {
     V_1_0_3(KBV_BUNDLE_VERSION_103),
     V_1_1_0(KBV_BUNDLE_VERSION_110),
+    V_1_2(KBV_BUNDLE_VERSION_12),
+    V_1_3(KBV_BUNDLE_VERSION_13),
     UNKNOWN("");
 }
 

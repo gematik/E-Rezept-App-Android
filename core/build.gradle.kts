@@ -20,6 +20,7 @@ dependencies {
     implementation(project(namesPlugin.fhirParser))
     implementation(project(namesPlugin.multiplatform))
     implementation(project(namesPlugin.navigation))
+    implementation(project(namesPlugin.testTags))
     implementation(libs.text.translation)
     implementation(project(namesPlugin.uiComponents))
     implementation(libs.text.recognition)

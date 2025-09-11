@@ -1,0 +1,66 @@
+{
+  "resourceType": "Medication",
+  "id": "Medication-Without-Strength-Numerator",
+  "meta": {
+    "profile": [
+      "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Medication|1.5"
+    ]
+  },
+  "code": {
+    "text": "Infusion bestehend aus 85mg Doxorubicin aufgeloest zur Verabreichung in 250ml 5-%iger (50 mg/ml) Glucose-Infusionsloesung"
+  },
+  "form": {
+    "coding": [
+      {
+        "code": "11210000",
+        "system": "http://standardterms.edqm.eu",
+        "display": "Solution for infusion"
+      }
+    ]
+  },
+  "ingredient": [
+    {
+      "itemCodeableConcept": {
+        "coding": [
+          {
+            "code": "L01DB01",
+            "system": "http://fhir.de/CodeSystem/bfarm/atc",
+            "display": "Doxorubicin"
+          }
+        ]
+      },
+      "isActive": true,
+      "strength": {
+        "numerator": {
+          "_value": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          },
+          "_system": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          },
+          "_code": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        },
+        "denominator": {
+          "value": 1
+        }
+      }
+    }
+  ]
+}

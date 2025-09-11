@@ -38,11 +38,9 @@ import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
@@ -56,7 +54,6 @@ import org.junit.Test
 import retrofit2.Retrofit
 import kotlin.time.Duration
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class TruststoreIntegrationTest {
     @get:Rule
     val coroutineRule = CoroutineTestRule()
@@ -65,7 +62,6 @@ class TruststoreIntegrationTest {
     lateinit var localDataSource: VauLocalDataSource
 
     @Suppress("JSON_FORMAT_REDUNDANT")
-    @OptIn(ExperimentalSerializationApi::class)
     private val jsonConverterFactory = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true

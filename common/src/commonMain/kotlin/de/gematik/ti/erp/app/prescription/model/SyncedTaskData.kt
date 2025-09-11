@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.prescription.model
 
 import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispenseDeviceRequestErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.fhir.temporal.toLocalDate
 import de.gematik.ti.erp.app.fhir.temporal.toStartOfDayInUTC
@@ -462,6 +463,7 @@ object SyncedTaskData {
     @SerialName("Medication")
     data class Medication(
         val category: MedicationCategory,
+        val medicationProfile: FhirTaskKbvMedicationProfileErpModel?,
         val vaccine: Boolean,
         val text: String,
         val form: String?,

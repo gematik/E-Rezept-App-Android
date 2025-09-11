@@ -1,0 +1,423 @@
+{
+  "resourceType": "Bundle",
+  "id": "b3440748-c898-4017-9713-9d81283a3d29",
+  "meta": {
+    "lastUpdated": "2025-08-29T01:03:15.610+02:00",
+    "tag": [
+      {
+        "system": "https://gematik.de/fhir/StructureDefinition/filtered-endpoints-count",
+        "code": "0",
+        "display": "Reason: hideVersicherte"
+      }
+    ]
+  },
+  "type": "searchset",
+  "total": 6,
+  "entry": [
+    {
+      "fullUrl": "https://fhir-directory-ref.vzd.ti-dienste.de/fdv/search/HealthcareService/f7dd85a9-1fe6-40c3-a384-c86b411bddca",
+      "resource": {
+        "resourceType": "HealthcareService",
+        "id": "f7dd85a9-1fe6-40c3-a384-c86b411bddca",
+        "meta": {
+          "versionId": "3",
+          "lastUpdated": "2025-07-21T14:12:59.083+02:00",
+          "source": "#CIBO71BoBPV6LJKF",
+          "profile": [
+            "https://gematik.de/fhir/directory/StructureDefinition/HealthcareServiceDirectory"
+          ],
+          "security": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/OwnerId",
+              "code": "5768edc3-d6be-4061-bf41-c8b8fcc514c0"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+              "code": "4f271d87-cc03-4888-9f7f-b1c305b621d7",
+              "display": "UID of LDAP source entry"
+            }
+          ],
+          "tag": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Origin",
+              "code": "ldap",
+              "display": "Synchronized from LDAP VZD",
+              "userSelected": true
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+            "value": "4f271d87-cc03-4888-9f7f-b1c305b621d7"
+          }
+        ],
+        "providedBy": {
+          "reference": "Organization/e65e0937-c10d-453d-b221-4e3c56c41e63"
+        },
+        "specialty": [
+          {
+            "coding": [
+              {
+                "system": "http://loinc.org",
+                "code": "57833-6",
+                "display": "elektronische Verordnungen"
+              }
+            ],
+            "text": "owner"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://fhir-directory-ref.vzd.ti-dienste.de/fdv/search/HealthcareService/bda9d0b1-5443-473a-a41e-a49f14816bf8",
+      "resource": {
+        "resourceType": "HealthcareService",
+        "id": "bda9d0b1-5443-473a-a41e-a49f14816bf8",
+        "meta": {
+          "versionId": "3",
+          "lastUpdated": "2025-08-28T15:29:14.787+02:00",
+          "source": "#wnvZHJTdX5Rw0xJM",
+          "profile": [
+            "https://gematik.de/fhir/directory/StructureDefinition/HealthcareServiceDirectory"
+          ],
+          "security": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/OwnerId",
+              "code": "17294f8f-646d-419a-a660-0b2324e56833"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+              "code": "46caa3a3-545f-4e59-ae35-c3a9a479890f",
+              "display": "UID of LDAP source entry"
+            }
+          ],
+          "tag": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Origin",
+              "code": "ldap",
+              "display": "Synchronized from LDAP VZD",
+              "userSelected": true
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+            "value": "46caa3a3-545f-4e59-ae35-c3a9a479890f"
+          }
+        ],
+        "providedBy": {
+          "reference": "Organization/b5dfedf8-c0cc-4ff8-8122-229baf8b18e7"
+        },
+        "specialty": [
+          {
+            "coding": [
+              {
+                "system": "http://loinc.org",
+                "code": "57833-6",
+                "display": "elektronische Verordnungen"
+              }
+            ],
+            "text": "owner"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://fhir-directory-ref.vzd.ti-dienste.de/fdv/search/HealthcareService/fa82d383-feec-4230-8cdb-00c5de2f21b8",
+      "resource": {
+        "resourceType": "HealthcareService",
+        "id": "fa82d383-feec-4230-8cdb-00c5de2f21b8",
+        "meta": {
+          "versionId": "3",
+          "lastUpdated": "2025-08-28T15:23:06.559+02:00",
+          "source": "#FTSzc37Z5lkjgtfe",
+          "profile": [
+            "https://gematik.de/fhir/directory/StructureDefinition/HealthcareServiceDirectory"
+          ],
+          "security": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/OwnerId",
+              "code": "c467f29d-3998-4a93-a809-d8d02964109d"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+              "code": "45334338-0ee4-4b23-ba0b-f4674c8df41a",
+              "display": "UID of LDAP source entry"
+            }
+          ],
+          "tag": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Origin",
+              "code": "ldap",
+              "display": "Synchronized from LDAP VZD",
+              "userSelected": true
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+            "value": "45334338-0ee4-4b23-ba0b-f4674c8df41a"
+          }
+        ],
+        "providedBy": {
+          "reference": "Organization/5fdd0f2b-7d02-42e8-a953-88b74417225b"
+        },
+        "specialty": [
+          {
+            "coding": [
+              {
+                "system": "http://loinc.org",
+                "code": "57833-6",
+                "display": "elektronische Verordnungen"
+              }
+            ],
+            "text": "owner"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://fhir-directory-ref.vzd.ti-dienste.de/fdv/search/Organization/e65e0937-c10d-453d-b221-4e3c56c41e63",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "e65e0937-c10d-453d-b221-4e3c56c41e63",
+        "meta": {
+          "versionId": "2",
+          "lastUpdated": "2025-07-21T14:10:39.239+02:00",
+          "source": "#I6GvAnBrhAb45en9",
+          "profile": [
+            "https://gematik.de/fhir/directory/StructureDefinition/OrganizationDirectory"
+          ],
+          "security": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/OwnerId",
+              "code": "5768edc3-d6be-4061-bf41-c8b8fcc514c0"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+              "code": "4f271d87-cc03-4888-9f7f-b1c305b621d7",
+              "display": "UID of LDAP source entry"
+            }
+          ],
+          "tag": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Origin",
+              "code": "ldap",
+              "display": "Synchronized from LDAP VZD"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/directory/StructureDefinition/ncpeh-country-ex",
+            "valueCoding": {
+              "system": "urn:iso:std:iso:3166",
+              "code": "LI",
+              "display": "Liechtenstein"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PRN"
+                }
+              ]
+            },
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "9-2.292.12504015"
+          },
+          {
+            "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+            "value": "4f271d87-cc03-4888-9f7f-b1c305b621d7"
+          }
+        ],
+        "active": true,
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/OrganizationProfessionOID",
+                "code": "1.2.276.0.76.4.292",
+                "display": "NCPeH Fachdienst"
+              }
+            ]
+          }
+        ],
+        "name": "Liechtenstein (LI) TEST-ONLY"
+      },
+      "search": {
+        "mode": "include"
+      }
+    },
+    {
+      "fullUrl": "https://fhir-directory-ref.vzd.ti-dienste.de/fdv/search/Organization/b5dfedf8-c0cc-4ff8-8122-229baf8b18e7",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "b5dfedf8-c0cc-4ff8-8122-229baf8b18e7",
+        "meta": {
+          "versionId": "3",
+          "lastUpdated": "2025-08-28T15:43:46.246+02:00",
+          "source": "#lZeufahzPh2i9xXr",
+          "profile": [
+            "https://gematik.de/fhir/directory/StructureDefinition/OrganizationDirectory"
+          ],
+          "security": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/OwnerId",
+              "code": "17294f8f-646d-419a-a660-0b2324e56833"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+              "code": "46caa3a3-545f-4e59-ae35-c3a9a479890f",
+              "display": "UID of LDAP source entry"
+            }
+          ],
+          "tag": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Origin",
+              "code": "ldap",
+              "display": "Synchronized from LDAP VZD"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/directory/StructureDefinition/ncpeh-country-ex",
+            "valueCoding": {
+              "system": "urn:iso:std:iso:3166",
+              "code": "SI",
+              "display": "Slovenia"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PRN"
+                }
+              ]
+            },
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "9-2.292.12504016"
+          },
+          {
+            "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+            "value": "46caa3a3-545f-4e59-ae35-c3a9a479890f"
+          }
+        ],
+        "active": true,
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/OrganizationProfessionOID",
+                "code": "1.2.276.0.76.4.292",
+                "display": "NCPeH Fachdienst"
+              }
+            ]
+          }
+        ],
+        "name": "Slowenien (SI) TEST-ONLY"
+      },
+      "search": {
+        "mode": "include"
+      }
+    },
+    {
+      "fullUrl": "https://fhir-directory-ref.vzd.ti-dienste.de/fdv/search/Organization/5fdd0f2b-7d02-42e8-a953-88b74417225b",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "5fdd0f2b-7d02-42e8-a953-88b74417225b",
+        "meta": {
+          "versionId": "2",
+          "lastUpdated": "2025-08-28T15:25:03.685+02:00",
+          "source": "#tpbvpArYC6i0Viy2",
+          "profile": [
+            "https://gematik.de/fhir/directory/StructureDefinition/OrganizationDirectory"
+          ],
+          "security": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/OwnerId",
+              "code": "c467f29d-3998-4a93-a809-d8d02964109d"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+              "code": "45334338-0ee4-4b23-ba0b-f4674c8df41a",
+              "display": "UID of LDAP source entry"
+            }
+          ],
+          "tag": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Origin",
+              "code": "ldap",
+              "display": "Synchronized from LDAP VZD"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/directory/StructureDefinition/ncpeh-country-ex",
+            "valueCoding": {
+              "system": "urn:iso:std:iso:3166",
+              "code": "LT",
+              "display": "Lithuania"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PRN"
+                }
+              ]
+            },
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "9-2.292.12504017"
+          },
+          {
+            "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+            "value": "45334338-0ee4-4b23-ba0b-f4674c8df41a"
+          }
+        ],
+        "active": true,
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/OrganizationProfessionOID",
+                "code": "1.2.276.0.76.4.292",
+                "display": "NCPeH Fachdienst"
+              }
+            ]
+          }
+        ],
+        "name": "Litauen (LT) TEST-ONLY"
+      },
+      "search": {
+        "mode": "include"
+      }
+    }
+  ]
+}

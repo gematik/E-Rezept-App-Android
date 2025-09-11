@@ -28,9 +28,5 @@ import kotlinx.serialization.Serializable
 data class FhirContactInformationErpModel(
     val phone: String,
     val mail: String,
-    val url: String,
-    // required only for zuweisung-ohne-ti
-    val pickUpUrl: String?,
-    val deliveryUrl: String?,
-    val onlineServiceUrl: String?
+    val url: String
 )

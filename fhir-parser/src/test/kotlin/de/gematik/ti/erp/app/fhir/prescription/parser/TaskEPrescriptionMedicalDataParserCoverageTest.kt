@@ -22,10 +22,12 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.parser
 
-import de.gematik.ti.erp.app.data.coverage1_v110_json
 import de.gematik.ti.erp.app.data.coverage1_v103_json
+import de.gematik.ti.erp.app.data.coverage1_v110_json
 import de.gematik.ti.erp.app.data.coverage2_v103_json
 import de.gematik.ti.erp.app.data.coverage2_v110_json
+import de.gematik.ti.erp.app.data.coverage3_v12_json
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirCoverageErpTestData.coverage_AokNordost
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirCoverageErpTestData.erpCoverage1_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirCoverageErpTestData.erpCoverage1_v110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirCoverageErpTestData.erpCoverage2_v103
@@ -34,6 +36,7 @@ import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirCoverageTestData.fhirCo
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirCoverageTestData.fhirCoverage1_v110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirCoverageTestData.fhirCoverage2_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirCoverageTestData.fhirCoverage2_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirCoverageTestData.fhir_coverage_AokNordost
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirCoverageModel.Companion.getCoverage
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirCoverageModel.Companion.toErpModel
 import kotlinx.coroutines.test.runTest
@@ -77,5 +80,14 @@ class TaskEPrescriptionMedicalDataParserCoverageTest {
         val erpModel = fhirCoverageModel?.toErpModel()
         assertEquals(fhirCoverage2_v110, fhirCoverageModel)
         assertEquals(erpCoverage2_v110, erpModel)
+    }
+
+    @Test
+    fun `test parser for coverage 3 version 120`() = runTest {
+        val coverage = Json.parseToJsonElement(coverage3_v12_json)
+        val fhirCoverageModel = coverage.getCoverage()
+        val erpModel = fhirCoverageModel?.toErpModel()
+        assertEquals(fhir_coverage_AokNordost, fhirCoverageModel)
+        assertEquals(coverage_AokNordost, erpModel)
     }
 }

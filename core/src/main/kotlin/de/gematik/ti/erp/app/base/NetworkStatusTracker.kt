@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.base
 
+import android.annotation.SuppressLint
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -30,6 +31,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
+@SuppressLint("MissingPermission")
 class NetworkStatusTracker(private val connectivityManager: ConnectivityManager) {
 
     val networkStatus: Flow<Boolean> = callbackFlow {
@@ -69,10 +71,11 @@ class NetworkStatusTracker(private val connectivityManager: ConnectivityManager)
     }.distinctUntilChanged() // Emit only when the network status changes and on app start
 
     // Helper function to check the current network status
-    private fun isNetworkAvailable(): Boolean {
-        val network = connectivityManager.activeNetwork
-        val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
-        return networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+    internal fun isNetworkAvailable(): Boolean {
+        val network = connectivityManager.activeNetwork ?: return false
+        val caps = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
 
     // public helper function to check the current network status

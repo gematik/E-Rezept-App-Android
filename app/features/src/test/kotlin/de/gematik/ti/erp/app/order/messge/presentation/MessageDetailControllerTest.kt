@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.order.messge.presentation
 
 import android.app.Application
 import com.google.mlkit.common.model.RemoteModelManager
+import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.info.BuildConfigInformation
@@ -193,7 +194,8 @@ class MessageDetailControllerTest {
 
         translateTextUseCase = TranslateTextUseCase(
             remoteModelManager = mockk<RemoteModelManager>(relaxed = true),
-            repository = translationRepository
+            repository = translationRepository,
+            networkStatusTracker = mockk<NetworkStatusTracker>(relaxed = true)
         )
 
         getTranslationConsentUseCase = GetTranslationConsentUseCase(repository = translationRepository)

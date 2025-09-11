@@ -47,7 +47,9 @@ class SyncedTaskEntityV1 : RealmObject, Cascading {
     var expiresOn: RealmInstant? = null
     var acceptUntil: RealmInstant? = null
     var authoredOn: RealmInstant = RealmInstant.MIN
-    var isEuRedeemable: Boolean = false
+
+    var isEuRedeemableByProperties: Boolean = false
+    var isEuRedeemableByPatientAuthorization: Boolean = false
 
     // KBV Bundle Entities
 

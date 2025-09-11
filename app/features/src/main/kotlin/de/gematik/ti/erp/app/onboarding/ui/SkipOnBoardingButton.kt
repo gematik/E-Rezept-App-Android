@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
@@ -43,6 +45,7 @@ fun SkipOnBoardingButton(onClick: () -> Unit) {
                 .align(Alignment.TopEnd)
                 .systemBarsPadding()
                 .padding(PaddingDefaults.Medium)
+                .testTag(TestTag.Onboarding.Debug.SkipOnboardingButton)
         ) {
             OutlinedDebugButton(
                 "SKIP",

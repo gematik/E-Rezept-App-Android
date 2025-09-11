@@ -27,7 +27,7 @@ import de.gematik.ti.erp.app.digas.data.repository.DigaInformationRemoteDataSour
 import de.gematik.ti.erp.app.interceptor.ERezeptBackendTokenApiKeyInterceptor
 import de.gematik.ti.erp.app.interceptor.PharmacySearchApiKeyInterceptor
 import de.gematik.ti.erp.app.pharmacy.api.ERezeptBackendService
-import de.gematik.ti.erp.app.pharmacy.api.FhirVzdPharmacySearchService
+import de.gematik.ti.erp.app.pharmacy.api.FhirVzdService
 import de.gematik.ti.erp.app.pharmacy.api.model.SearchAccessTokenInterceptor
 import de.gematik.ti.erp.app.pharmacy.repository.DefaultPharmacySearchAccessTokenRepository
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacySearchAccessTokenRepository
@@ -79,7 +79,7 @@ val fhirVzdNetworkModule = DI.Module("FhirVzdNetworkModule") {
             .baseUrl(endpointHelper.pharmacyFhirVzdBaseUri)
             .addConverterFactory(instance(JsonConverterFactoryTag))
             .build()
-            .create(FhirVzdPharmacySearchService::class.java)
+            .create(FhirVzdService::class.java)
     }
 
     // Fhir-vzd Pharmacy Search access token Service

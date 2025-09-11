@@ -87,7 +87,6 @@ class ProfileScreenController(
                     id = it.id
                 )
             }
-            refreshCombinedProfile()
         }
     }
 

@@ -31,10 +31,13 @@ import androidx.security.crypto.MasterKey
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.base.BaseConstants.applicationScope
-import de.gematik.ti.erp.app.featuretoggle.datasource.FeatureToggleDataStore
+import de.gematik.ti.erp.app.database.datastore.featuretoggle.featureToggleLocalDataSource
+import de.gematik.ti.erp.app.datastore.featuretoggle.DefaultFeatureToggleRepository
+import de.gematik.ti.erp.app.datastore.featuretoggle.FeatureToggleRepository
 import de.gematik.ti.erp.app.featuretoggle.datasource.NavigationTriggerDataStore
 import de.gematik.ti.erp.app.info.di.buildConfigInformationModule
 import de.gematik.ti.erp.app.pkv.fileProviderAuthorityModule
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CoroutineScope
@@ -107,7 +110,9 @@ val appModules = DI.Module("appModules") {
 
     bindSingleton { EndpointHelper(networkPrefs = instance(NetworkPreferencesTag)) }
 
-    bindSingleton { FeatureToggleDataStore(instance()) }
+    bindSingleton<FeatureToggleRepository> { DefaultFeatureToggleRepository(instance()) }
+    bindSingleton { featureToggleLocalDataSource(instance(), BuildConfigExtension.isInternalDebug) }
+
     bindSingleton { NavigationTriggerDataStore(instance()) }
 
     importAll(

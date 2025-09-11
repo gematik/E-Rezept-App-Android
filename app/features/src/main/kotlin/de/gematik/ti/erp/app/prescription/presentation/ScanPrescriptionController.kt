@@ -30,7 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.prescription.ui.ScannedCode
+import de.gematik.ti.erp.app.prescription.ui.RawScannedCode
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeProcessor
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeScanner
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeValidator
@@ -38,7 +38,6 @@ import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
 import de.gematik.ti.erp.app.prescription.ui.model.ScanData
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -62,7 +61,7 @@ import org.kodein.di.compose.rememberInstance
 private data class ScanWorkflow(
     val info: ScanData.Info? = null,
     val state: ScanData.ScanState? = null,
-    val code: ScannedCode,
+    val code: RawScannedCode,
     val coordinates: FloatArray
 ) {
     override fun equals(other: Any?): Boolean {
@@ -95,7 +94,6 @@ class ScanPrescriptionController(
     val scanner: TwoDCodeScanner,
     val processor: TwoDCodeProcessor,
     private val validator: TwoDCodeValidator,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val context: Context,
     private val scope: CoroutineScope
 ) {
@@ -110,21 +108,21 @@ class ScanPrescriptionController(
         private set
 
     private val emptyScanWorkflow = ScanWorkflow(
-        code = ScannedCode("", Clock.System.now()),
+        code = RawScannedCode("", Clock.System.now()),
         coordinates = FloatArray(0),
         state = ScanData.ScanState.Final
     )
 
     private var existingTaskIds = scannedCodes.map {
         it.flatMap { validCode ->
-            validCode.urls.mapNotNull { url ->
-                TwoDCodeValidator.taskPattern.matchEntire(url)?.groupValues?.get(1)
+            validCode.codes.mapNotNull { code ->
+                TwoDCodeValidator.taskPattern.matchEntire(code.url)?.groupValues?.get(1)
             }
         } + prescriptionUseCase.getAllTasksWithTaskIdOnly().first()
     }
 
     private val stateFlow = scannedCodes.map { codes ->
-        val totalNrOfPrescriptions = codes.sumOf { it.urls.size }
+        val totalNrOfPrescriptions = codes.sumOf { it.codes.size }
         val totalNrOfCodes = codes.size
 
         ScanData.State(
@@ -143,7 +141,7 @@ class ScanPrescriptionController(
                 Pair(
                     batch.averageScanTime,
                     ScanWorkflow(
-                        code = ScannedCode(json, Clock.System.now()),
+                        code = RawScannedCode(json, Clock.System.now()),
                         coordinates = coords
                     )
                 )
@@ -200,7 +198,7 @@ class ScanPrescriptionController(
                     )
                 } else {
                     vibration.emit(ScanData.VibrationPattern.Saved)
-                    it.copy(info = ScanData.Info.Scanned(validCode.urls.size))
+                    it.copy(info = ScanData.Info.Scanned(validCode.codes.size))
                 }
             } else {
                 it
@@ -214,27 +212,27 @@ class ScanPrescriptionController(
                 )
             )
         }
-    }.flowOn(dispatcher)
+    }.flowOn(Dispatchers.Default)
 
     val overlayState
         @Composable
         get() = scanOverlayFlow.collectAsStateWithLifecycle(ScanData.defaultOverlayState)
 
-    private fun validateScannedCode(scannedCode: ScannedCode): ValidScannedCode? =
-        validator.validate(scannedCode)
+    private fun validateScannedCode(rawScannedCode: RawScannedCode): ValidScannedCode? =
+        validator.validate(rawScannedCode)
 
     suspend fun addScannedCode(validCode: ValidScannedCode): Boolean {
         val existingTaskIds = existingTaskIds.take(1).toCollection(mutableListOf()).first()
 
-        val uniqueUrls = validCode.urls.filter { url ->
-            val taskId = TwoDCodeValidator.taskPattern.matchEntire(url)?.groupValues?.get(1)
+        val uniqueCodes = validCode.codes.filter { code ->
+            val taskId = TwoDCodeValidator.taskPattern.matchEntire(code.url)?.groupValues?.get(1)
             taskId !in existingTaskIds
         }
 
-        return if (uniqueUrls.isEmpty()) {
+        return if (uniqueCodes.isEmpty()) {
             false
         } else {
-            scannedCodes.value += validCode.copy(urls = uniqueUrls)
+            scannedCodes.value += validCode.copy(codes = uniqueCodes)
             true
         }
     }
@@ -243,11 +241,9 @@ class ScanPrescriptionController(
         scope.launch {
             getActiveProfileUseCase().collectLatest { profile ->
                 prescriptionUseCase.saveScannedCodes(
-                    profile.id,
-                    scannedCodes.value,
-                    context.getString(
-                        R.string.pres_details_scanned_medication
-                    )
+                    profileId = profile.id,
+                    scannedCodes = scannedCodes.value,
+                    medicationString = context.getString(R.string.pres_details_scanned_medication)
                 )
             }
         }

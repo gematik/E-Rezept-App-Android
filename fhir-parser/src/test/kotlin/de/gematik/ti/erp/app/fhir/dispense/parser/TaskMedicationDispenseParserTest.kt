@@ -25,11 +25,13 @@ package de.gematik.ti.erp.app.fhir.dispense.parser
 import de.gematik.ti.erp.app.data.TestDataGenerator
 import de.gematik.ti.erp.app.data.bundle_dispense_1_4_complex_bundle
 import de.gematik.ti.erp.app.data.bundle_dispense_1_4_simple
+import de.gematik.ti.erp.app.data.bundle_dispense_1_5_multiple
+import de.gematik.ti.erp.app.data.bundle_dispense_1_5_single
 import de.gematik.ti.erp.app.data.bundle_dispenses_1_4_multiple_simple_medications
+import de.gematik.ti.erp.app.data.medication_dispense_1_4_diga_deeplink
+import de.gematik.ti.erp.app.data.medication_dispense_1_4_diga_name_and_pzn
+import de.gematik.ti.erp.app.data.medication_dispense_1_4_diga_no_redeem_code
 import de.gematik.ti.erp.app.data.medication_dispense_bundle_version_1_2
-import de.gematik.ti.erp.app.data.medication_dispense_diga_deeplink
-import de.gematik.ti.erp.app.data.medication_dispense_diga_name_and_pzn
-import de.gematik.ti.erp.app.data.medication_dispense_diga_no_redeem_code
 import de.gematik.ti.erp.app.data.medication_dispense_medication_1_4_complex
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_2
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_4_complex
@@ -39,6 +41,8 @@ import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_4_simple
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_diga_deeplink
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_diga_name_and_pzn
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_diga_no_redeem_code
+import de.gematik.ti.erp.app.fhir.dispense.mocks.medicationDispenseErpModelCollectionV15MultipleMedications
+import de.gematik.ti.erp.app.fhir.dispense.mocks.medicationDispenseErpModelCollectionV15SingleMedication
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import org.junit.Test
@@ -50,7 +54,7 @@ class TaskMedicationDispenseParserTest {
 
     @Test
     fun `test  bundle for diga deeplink`() {
-        val resource = Json.parseToJsonElement(medication_dispense_diga_deeplink)
+        val resource = Json.parseToJsonElement(medication_dispense_1_4_diga_deeplink)
         val result = Json.parseToJsonElement(erp_model_diga_deeplink)
         val bundle = testDataGenerator.createMedicationDispenseBundleFromResources(listOf(resource))
         val erpModel = parser.extract(bundle)
@@ -60,7 +64,7 @@ class TaskMedicationDispenseParserTest {
 
     @Test
     fun `test  bundle for diga name and pzn`() {
-        val resource = Json.parseToJsonElement(medication_dispense_diga_name_and_pzn)
+        val resource = Json.parseToJsonElement(medication_dispense_1_4_diga_name_and_pzn)
         val bundle = testDataGenerator.createMedicationDispenseBundleFromResources(listOf(resource))
         val result = Json.parseToJsonElement(erp_model_diga_name_and_pzn)
         val erpModel = parser.extract(bundle)
@@ -70,7 +74,7 @@ class TaskMedicationDispenseParserTest {
 
     @Test
     fun `test  bundle for diga no redeem code`() {
-        val resource = Json.parseToJsonElement(medication_dispense_diga_no_redeem_code)
+        val resource = Json.parseToJsonElement(medication_dispense_1_4_diga_no_redeem_code)
         val bundle = testDataGenerator.createMedicationDispenseBundleFromResources(listOf(resource))
         val result = Json.parseToJsonElement(erp_model_diga_no_redeem_code)
         val erpModel = parser.extract(bundle)
@@ -124,5 +128,19 @@ class TaskMedicationDispenseParserTest {
         val erpModel = parser.extract(bundle)
         val serializedModel = Json.encodeToJsonElement(serializer(), erpModel)
         assertEquals(result, serializedModel)
+    }
+
+    @Test
+    fun `test bundle for 1_5 single medication`() {
+        val bundle = Json.parseToJsonElement(bundle_dispense_1_5_single)
+        val erpModel = parser.extract(bundle)
+        assertEquals(medicationDispenseErpModelCollectionV15SingleMedication, erpModel)
+    }
+
+    @Test
+    fun `test bundle for 1_5 multiple medications`() {
+        val bundle = Json.parseToJsonElement(bundle_dispense_1_5_multiple)
+        val erpModel = parser.extract(bundle)
+        assertEquals(medicationDispenseErpModelCollectionV15MultipleMedications, erpModel)
     }
 }

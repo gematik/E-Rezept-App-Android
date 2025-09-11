@@ -281,4 +281,143 @@ internal object FhirMedicationRequestTestData {
             allowed = true
         )
     )
+
+    val fhirMedicationRequestModel12 = FhirMedicationRequest(
+        commentsSection = null,
+        resourceType = FhirMeta(
+            profiles = listOf("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.2")
+        ),
+        extensions = listOf(
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_StatusCoPayment",
+                valueCoding = FhirCoding(
+                    coding = emptyList(),
+                    system = "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_StatusCoPayment",
+                    code = "1"
+                )
+            ),
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee",
+                valueBoolean = false
+            ),
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_SER",
+                valueBoolean = true
+            ),
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription",
+                extensions = listOf(
+                    FhirExtension(
+                        url = "Kennzeichen",
+                        valueBoolean = false
+                    )
+                )
+            ),
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Prescriber_ID",
+                valueIdentifier = FhirIdentifier(
+                    value = "Beispiel-ID-123456"
+                )
+            )
+        ),
+        status = "active",
+        intent = "order",
+        authoredOn = "2024-05-20",
+        dosageInstruction = listOf(
+            FhirMedicationRequestDosageInstruction(
+                text = null,
+                extensions = listOf(
+                    FhirExtension(
+                        url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag",
+                        valueBoolean = false
+                    )
+                )
+            )
+        ),
+        note = emptyList(),
+        dispenseRequest = FhirMedicationRequestDispenseRequest(
+            quantity = FhirMedicationRequestQuantityValue(
+                value = "127",
+                unit = "Packung"
+            )
+        ),
+        substitution = FhirMedicationRequestSubstitution(
+            allowed = true
+        )
+    )
+
+    val fhirMedicationRequestModelV13 = FhirMedicationRequest(
+        commentsSection = null,
+        resourceType = FhirMeta(
+            profiles = listOf(
+                "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.3"
+            )
+        ),
+        extensions = listOf(
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_StatusCoPayment",
+                valueCoding = FhirCoding(
+                    coding = emptyList(),
+                    system = "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_StatusCoPayment",
+                    code = "1",
+                    version = null,
+                    display = null
+                ),
+                valueCodeableConcept = null,
+                valueCode = null,
+                valueString = null,
+                valueUrl = null,
+                valueDate = null,
+                valueBoolean = null,
+                valueRatio = null,
+                valuePeriod = null,
+                valueIdentifier = null,
+                extensions = emptyList()
+            ),
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee",
+                valueBoolean = false
+            ),
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_SER",
+                valueBoolean = false
+            ),
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription",
+                extensions = listOf(
+                    FhirExtension(
+                        url = "Kennzeichen",
+                        valueBoolean = false
+                    )
+                )
+            )
+        ),
+        status = "active",
+        intent = "order",
+        authoredOn = "2024-05-20",
+        dosageInstruction = listOf(
+            FhirMedicationRequestDosageInstruction(
+                text = "2mal tägl. 5ml",
+                extensions = listOf(
+                    FhirExtension(
+                        url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag",
+                        valueBoolean = true
+                    )
+                ),
+                patientInstruction = null
+            )
+        ),
+        note = emptyList(),
+        dispenseRequest = FhirMedicationRequestDispenseRequest(
+            quantity = FhirMedicationRequestQuantityValue(
+                value = "1",
+                system = null,
+                code = null,
+                unit = "Packung"
+            )
+        ),
+        substitution = FhirMedicationRequestSubstitution(
+            allowed = true
+        )
+    )
 }

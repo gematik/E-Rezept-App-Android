@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.fhir.constant
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
 object SafeJson {
@@ -32,5 +33,15 @@ object SafeJson {
         isLenient = true
         prettyPrint = true
         encodeDefaults = true
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    val prettyPrint = Json {
+        ignoreUnknownKeys = true
+        explicitNulls = false // To avoid issues with missing fields
+        isLenient = true
+        prettyPrint = true
+        encodeDefaults = true
+        prettyPrintIndent = "  "
     }
 }

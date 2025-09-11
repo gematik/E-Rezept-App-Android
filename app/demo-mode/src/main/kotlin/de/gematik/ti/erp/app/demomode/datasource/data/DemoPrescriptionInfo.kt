@@ -34,7 +34,10 @@ import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.randomTimeTo
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoProfileInfo.demoProfile01
 import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispenseDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.RequestIntent
 import de.gematik.ti.erp.app.fhir.support.FhirAccidentInformationErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirTaskAccidentType
@@ -304,6 +307,10 @@ object DemoPrescriptionInfo {
         ingredientMedications = emptyList(),
         ingredients = emptyList(),
         manufacturingInstructions = null,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.PZN,
+            version = ErpMedicationProfileVersion.V_110
+        ),
         packaging = null
     )
 
@@ -315,6 +322,7 @@ object DemoPrescriptionInfo {
         vaccine = Random.nextBoolean(),
         text = when (index) {
             0 -> "\uD83C\uDDEA\uD83C\uDDFA EU Medikament Prescription"
+            30 -> "\uD83C\uDDEA\uD83C\uDDFA EU Aspirin 500mg"
             else -> SYNCED_MEDICATION_NAMES.elementAtOrElse(index) { SYNCED_MEDICATION_NAMES.random() }
         },
         form = codeToFormMapping.random(),
@@ -326,6 +334,10 @@ object DemoPrescriptionInfo {
         ingredientMedications = emptyList(),
         ingredients = emptyList(),
         manufacturingInstructions = null,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.PZN,
+            version = ErpMedicationProfileVersion.V_110
+        ),
         packaging = null
     )
 

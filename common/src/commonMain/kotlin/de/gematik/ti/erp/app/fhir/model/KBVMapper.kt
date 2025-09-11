@@ -23,15 +23,10 @@
 package de.gematik.ti.erp.app.fhir.model
 
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.IdentifierEntityV1
-import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.serialization.json.JsonElement
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 typealias AddressFn<R> = (
     line: List<String>?,
@@ -156,26 +151,6 @@ data class Identifier(
             snomed = this@Identifier.snomed
         }
     }
-}
-
-fun cleanJsonFile(jsonElement: JsonElement): String {
-    // Use a temporary directory (app-specific, no context required)
-    val outputDir = File(System.getProperty("java.io.tmpdir"), "cleaned_json")
-    if (!outputDir.exists()) outputDir.mkdirs() // ✅ Ensure directory exists
-
-    // Generate a timestamp-based unique file name
-    val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-    val outputFile = File(outputDir, "kbv_cleaned_$timestamp.json") // ✅ Unique file name
-
-    // Convert JsonElement to formatted JSON
-    val cleanedJson = SafeJson.value.encodeToString(JsonElement.serializer(), jsonElement)
-
-    // Write the cleaned JSON to the file
-    outputFile.writeText(cleanedJson)
-
-    println("✅ Cleaned JSON saved to: ${outputFile.absolutePath}")
-
-    return outputFile.absolutePath // ✅ Return file path for later use
 }
 
 @Deprecated(

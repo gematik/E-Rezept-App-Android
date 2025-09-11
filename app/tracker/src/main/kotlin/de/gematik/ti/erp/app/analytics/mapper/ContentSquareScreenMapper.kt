@@ -196,6 +196,12 @@ class ContentSquareScreenMapper {
                 NavigationRouteNames.TranslationPickLanguageScreen -> "translation:pickLanguage"
                 NavigationRouteNames.CardWallScannerScreen -> "cardWall:MlKitCamera"
                 NavigationRouteNames.DigaContributionInfoSheetScreen -> "digas:contributionInfo"
+
+                NavigationRouteNames.EuConsentScreen -> "eu:consent"
+                NavigationRouteNames.EuRedeemScreen -> "eu:redeem"
+                NavigationRouteNames.EuCountrySelectionScreen -> "eu:countrySelection"
+                NavigationRouteNames.EuPrescriptionSelectionScreen -> "eu:prescriptionSelection"
+                NavigationRouteNames.EUAvailabilityScreen -> "eu:availability"
             }
         }
 }

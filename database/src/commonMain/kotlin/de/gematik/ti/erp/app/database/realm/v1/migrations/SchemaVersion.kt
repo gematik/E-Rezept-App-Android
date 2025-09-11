@@ -36,7 +36,20 @@ object SchemaVersion {
         SchemaMigration(53, "Change ProfileEntityV1 to add organizationIdentifier"),
         SchemaMigration(54, "Add AuthenticationTimeOut to AuthenticationEntityV1"),
         SchemaMigration(55, "Add isEuRedeemable to SyncedTaskEntityV1"),
-        SchemaMigration(56, "MedicationReminder Refactoring")
+        SchemaMigration(56, "MedicationReminder Refactoring"),
+        SchemaMigration(
+            57,
+            "Rename isEuRedeemable to isEuRedeemableByProperties in SyncedTaskEntityV1 and " +
+                "Add isEuRedeemableByPatientAuthorization to SyncedTaskEntityV1"
+        ),
+        SchemaMigration(
+            58,
+            "Added fax and telematikId to OrganizationEntityV1" +
+                "Added additionalAddressInformation to AddressEntityV1"
+        ),
+        SchemaMigration(59, "Added zanr and telematikId to PractitionerEntityV1"),
+        SchemaMigration(60, "Added medicationProfileType and medicationProfileVersion to MedicationEntityV1")
+
     )
-    val ACTUAL = 56L
+    val ACTUAL = 61L
 }

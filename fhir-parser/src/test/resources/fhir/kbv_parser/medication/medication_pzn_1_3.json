@@ -1,0 +1,79 @@
+{
+  "resourceType": "Medication",
+  "id": "d0da19d0-00a9-411a-bfe3-e75607c1f0b2",
+  "meta": {
+    "profile": [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.3"
+    ]
+  },
+  "extension": [
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Medication_Type",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "version": "http://snomed.info/sct/11000274103/version/20240515",
+            "code": "763158003",
+            "display": "Medicinal product (product)"
+          }
+        ]
+      }
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category",
+      "valueCoding": {
+        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category",
+        "code": "00"
+      }
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine",
+      "valueBoolean": false
+    },
+    {
+      "url": "http://fhir.de/StructureDefinition/normgroesse",
+      "valueCode": "N1"
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "system": "http://fhir.de/CodeSystem/ifa/pzn",
+        "code": "11164213"
+      }
+    ],
+    "text": "Neupro 4MG/24H PFT 7ST"
+  },
+  "form": {
+    "coding": [
+      {
+        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM",
+        "code": "PFT"
+      }
+    ]
+  },
+  "ingredient": [
+    {
+      "itemCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://fhir.de/CodeSystem/ask",
+            "code": "30404"
+          }
+        ],
+        "text": "Rotigotin"
+      },
+      "strength": {
+        "numerator": {
+          "value": 4,
+          "unit": "mg/24 h"
+        },
+        "denominator": {
+          "value": 1,
+          "unit": "Stück"
+        }
+      }
+    }
+  ]
+}

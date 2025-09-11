@@ -106,7 +106,7 @@ fun LazyListScope.overviewSection(
                     if (!uiStateBfarm.isEmptyState) {
                         OverviewDescriptionRow(actions.onNavigateToDescriptionScreen)
                         SpacerMedium()
-                        if ((current.step) >= DigaStatus.CompletedSuccessfully.step || current is DigaStatus.CompletedWithRejection) {
+                        if ((current.step) >= DigaStatus.CompletedSuccessfully.step) {
                             OverviewSupportRow(actions.onShowSupportBottomSheet)
                             SpacerMedium()
                         }

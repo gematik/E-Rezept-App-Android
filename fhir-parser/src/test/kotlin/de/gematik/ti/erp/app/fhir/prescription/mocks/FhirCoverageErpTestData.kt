@@ -53,4 +53,11 @@ object FhirCoverageErpTestData {
         coverageType = "GKV",
         insuranceIdentifier = "104212059"
     )
+
+    val coverage_AokNordost = FhirCoverageErpModel(
+        name = "AOK Nordost",
+        statusCode = "5", // from versichertenart extension
+        insuranceIdentifier = "109719018", // IKNR of the payer
+        coverageType = "GKV" // Gesetzliche Krankenversicherung (statutory health insurance)
+    )
 }

@@ -25,11 +25,17 @@ package de.gematik.ti.erp.app.fhir.prescription.parser
 import de.gematik.ti.erp.app.data.medicationRequestJson_vers_1_0_2
 import de.gematik.ti.erp.app.data.medicationRequestJson_vers_1_1_0
 import de.gematik.ti.erp.app.data.medicationRequestJson_vers_1_1_0_with_accident
+import de.gematik.ti.erp.app.data.medicationRequestJson_vers_1_2
+import de.gematik.ti.erp.app.data.medicationRequestJson_vers_1_3
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestErpTestData.erpMedicationRequestModel12
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestErpTestData.erpMedicationRequestModelV102
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestErpTestData.erpMedicationRequestModelV110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestErpTestData.erpMedicationRequestModelV13
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestErpTestData.erpMedicationRequestWithAccidentInfoModelV110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestTestData.fhirMedicationRequestModel12
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestTestData.fhirMedicationRequestModelV102
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestTestData.fhirMedicationRequestModelV110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestTestData.fhirMedicationRequestModelV13
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestTestData.fhirMedicationRequestWithAccidentModelV110
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequest.Companion.getMedicationRequest
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequest.Companion.toErpModel
@@ -64,5 +70,23 @@ class TaskEPrescriptionMedicalDataParserMedicationRequestTest {
         val erpModel = fhirModel?.toErpModel()
         assertEquals(fhirMedicationRequestWithAccidentModelV110, fhirModel)
         assertEquals(erpMedicationRequestWithAccidentInfoModelV110, erpModel)
+    }
+
+    @Test
+    fun `test parser for medication request 1_2`() {
+        val bundle = Json.parseToJsonElement(medicationRequestJson_vers_1_2)
+        val fhirModel = bundle.getMedicationRequest()
+        val erpModel = fhirModel?.toErpModel()
+        assertEquals(fhirMedicationRequestModel12, fhirModel)
+        assertEquals(erpMedicationRequestModel12, erpModel)
+    }
+
+    @Test
+    fun `test parser for medication request 1_3`() {
+        val bundle = Json.parseToJsonElement(medicationRequestJson_vers_1_3)
+        val fhirModel = bundle.getMedicationRequest()
+        val erpModel = fhirModel?.toErpModel()
+        assertEquals(fhirMedicationRequestModelV13, fhirModel)
+        assertEquals(erpMedicationRequestModelV13, erpModel)
     }
 }

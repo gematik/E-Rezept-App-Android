@@ -31,15 +31,26 @@ import de.gematik.ti.erp.app.data.SingleDispenseCommV1_4
 import de.gematik.ti.erp.app.data.SingleReplyCommV1_2
 import de.gematik.ti.erp.app.data.SingleReplyCommV1_3
 import de.gematik.ti.erp.app.data.SingleReplyCommV1_4
+import de.gematik.ti.erp.app.data.communication_diga_dispense_1_5
+import de.gematik.ti.erp.app.data.communication_dispense_1_5
+import de.gematik.ti.erp.app.data.communication_dispense_with_payload_1_5
+import de.gematik.ti.erp.app.data.communication_reply_1_5
+import de.gematik.ti.erp.app.data.communication_reply_bundle_1_5
+import de.gematik.ti.erp.app.fhir.communication.mocks.FhirCommunicationErpTestData.digaDispense_1_5_withPayloadSingleBundle
+import de.gematik.ti.erp.app.fhir.communication.mocks.FhirCommunicationErpTestData.digaDispense_1_5_withPayloadSingleBundle2
 import de.gematik.ti.erp.app.fhir.communication.mocks.FhirCommunicationErpTestData.dispenseEntryV1_4Bundle
+import de.gematik.ti.erp.app.fhir.communication.mocks.FhirCommunicationErpTestData.dispense_1_5_SingleBundle
 import de.gematik.ti.erp.app.fhir.communication.mocks.FhirCommunicationErpTestData.mixedBundleV1_2Model
 import de.gematik.ti.erp.app.fhir.communication.mocks.FhirCommunicationErpTestData.mixedBundleV1_4Model
+import de.gematik.ti.erp.app.fhir.communication.mocks.FhirCommunicationErpTestData.replyCommunication_1_5_singleBundle
 import de.gematik.ti.erp.app.fhir.communication.mocks.FhirCommunicationErpTestData.replyEntriesV1_4Bundle
 import de.gematik.ti.erp.app.fhir.communication.mocks.FhirCommunicationErpTestData.singleDispenseV1_2Model
 import de.gematik.ti.erp.app.fhir.communication.mocks.FhirCommunicationErpTestData.singleDispenseV1_4Model
 import de.gematik.ti.erp.app.fhir.communication.mocks.FhirCommunicationErpTestData.singleReplyV1_2Model
 import de.gematik.ti.erp.app.fhir.communication.mocks.FhirCommunicationErpTestData.singleReplyV1_3Model
 import de.gematik.ti.erp.app.fhir.communication.mocks.FhirCommunicationErpTestData.singleReplyV1_4Model
+import de.gematik.ti.erp.app.fhir.communication.mocks.FhirCommunicationReplyBundleTestData.replyBundle
+import de.gematik.ti.erp.app.fhir.communication.util.wrapCommunicationInBundle
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -119,5 +130,44 @@ class CommunicationParserTest {
         val result = communicationParser.extract(communicationJson)
 
         assertEquals(singleDispenseV1_2Model, result)
+    }
+
+    @Test
+    fun `test parse dispense with payload 1_5 version`() {
+        val communicationJson = wrapCommunicationInBundle(
+            communication = Json.parseToJsonElement(communication_dispense_with_payload_1_5)
+        )
+        val result = communicationParser.extract(communicationJson)
+        assertEquals(dispense_1_5_SingleBundle, result)
+    }
+
+    @Test
+    fun `test parse dispense-diga without payload 1_5 version`() {
+        val communicationJson = wrapCommunicationInBundle(
+            communication = Json.parseToJsonElement(communication_diga_dispense_1_5)
+        )
+        val communicationJson2 = wrapCommunicationInBundle(
+            communication = Json.parseToJsonElement(communication_dispense_1_5)
+        )
+        val result = communicationParser.extract(communicationJson)
+        val result2 = communicationParser.extract(communicationJson2)
+        assertEquals(digaDispense_1_5_withPayloadSingleBundle, result)
+        assertEquals(digaDispense_1_5_withPayloadSingleBundle2, result2)
+    }
+
+    @Test
+    fun `test parse reply 1_5 version`() {
+        val communicationJson = wrapCommunicationInBundle(
+            communication = Json.parseToJsonElement(communication_reply_1_5)
+        )
+        val result = communicationParser.extract(communicationJson)
+        assertEquals(replyCommunication_1_5_singleBundle, result)
+    }
+
+    @Test
+    fun `test parse reply bundle 1_4 and 1_5 version`() {
+        val communicationJson = Json.parseToJsonElement(communication_reply_bundle_1_5)
+        val result = communicationParser.extract(communicationJson)
+        assertEquals(replyBundle, result)
     }
 }

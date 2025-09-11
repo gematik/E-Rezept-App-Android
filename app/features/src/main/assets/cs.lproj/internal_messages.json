@@ -34,5 +34,11 @@
         "text": "**🙌 Registrace pro soukromě pojištěné osoby** \nRegistrace pro soukromě pojištěné osoby byla optimalizována. Můžete se pohodlně přihlásit pomocí svého zdravotního ID během několika kliknutí. \n \n **⏰ Připomenutí léků** \nNyní si můžete nastavit připomenutí k užívání léků. \n \n **🛒 Vylepšený proces objednávání** \nProces objednávání je nyní jednodušší a rychlejší. \n \n **♿️ Přístupnost** \nPřístupové číslo ke zdravotní kartě lze nyní naskenovat také fotoaparátem. \n \n **📲 Více informací pro DiGA** \nOd nynějška budete dostávat podrobnější informace o vašich receptech DiGA, jako je prodejní cena nebo logo.",
         "timestamp": "2025-08-06T08:00:00.000Z",
         "version": "1.32"
+    },
+    {
+        "id": "8",
+        "text": "**📝 Flexibilní pole pro pokyny k doručení** \n Pole pro pokyny k doručení se nyní automaticky přizpůsobí délce textu. \n \n **🎨 Modernější tlačítka s Material 3** \n Tlačítka byla přizpůsobena novému designu Material 3 pro Android a nyní mají modernější a zaoblenější vzhled. \n \n **📤 Sdílejte recepty** \nRecepty lze nyní sdílet s ostatními přímo z aplikace.",
+        "timestamp": "2025-09-09T08:00:00.000Z",
+        "version": "1.33"
     }
 ]

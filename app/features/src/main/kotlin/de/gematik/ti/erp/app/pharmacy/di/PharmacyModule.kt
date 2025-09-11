@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.pharmacy.di
 
+import de.gematik.ti.erp.app.fhir.pharmacy.parser.FhirVzdCountriesParser
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.OrganizationParser
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyParsers
@@ -44,20 +45,19 @@ import de.gematik.ti.erp.app.pharmacy.ui.components.GooglePharmacyMap
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyMap
 import de.gematik.ti.erp.app.pharmacy.usecase.ChangePharmacyFavoriteStateUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.DeleteOverviewPharmacyUseCase
-import de.gematik.ti.erp.app.pharmacy.usecase.GetLocationUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetOrderStateUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetOverviewPharmaciesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPharmacyByTelematikIdUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPreviewMapCoordinatesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.IsPharmacyFavoriteUseCase
-import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyDirectRedeemUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyMapsUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.SaveShippingContactUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.SetPreviewMapCoordinatesUseCase
 import de.gematik.ti.erp.app.redeem.repository.datasource.DefaultRedeemLocalDataSource
 import de.gematik.ti.erp.app.redeem.repository.datasource.RedeemLocalDataSource
+import de.gematik.ti.erp.app.shared.usecase.GetLocationUseCase
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
@@ -71,12 +71,10 @@ val pharmacyModule = DI.Module("pharmacyModule", allowSilentOverride = true) {
             instance(),
             instance(),
             instance(),
-            instance(),
             instance()
         )
     }
     bindProvider { GetShippingContactValidationUseCase() }
-    bindProvider { PharmacyDirectRedeemUseCase(instance()) } // TODO: Only used in debug process on testing
     bindProvider { PharmacyMapsUseCase(instance(), instance(), instance()) }
     bindProvider { PharmacySearchUseCase(instance(), instance()) }
     bindProvider { GetOverviewPharmaciesUseCase(instance()) }
@@ -98,10 +96,11 @@ val pharmacyRepositoryModule = DI.Module("pharmacyRepositoryModule", allowSilent
     // parsers
     bindProvider { PharmacyBundleParser() }
     bindProvider { OrganizationParser() }
+    bindProvider { FhirVzdCountriesParser() }
     bindProvider { PharmacyParsers(instance(), instance()) }
 
     // data-sources
-    bindProvider { ApoVzdRemoteDataSource(instance(), instance()) }
+    bindProvider { ApoVzdRemoteDataSource(instance()) }
     bindProvider { FhirVzdRemoteDataSource(instance()) }
     bindProvider<RedeemLocalDataSource> { DefaultRedeemLocalDataSource(instance()) }
     bindProvider<FavouritePharmacyLocalDataSource> { DefaultFavouritePharmacyLocalDataSource(instance()) }

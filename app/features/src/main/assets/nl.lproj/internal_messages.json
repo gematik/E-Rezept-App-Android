@@ -34,5 +34,11 @@
         "text": "**🙌 Registratie voor particulier verzekerden** \nDe registratie voor particulier verzekerden is geoptimaliseerd. U kunt met een paar klikken eenvoudig inloggen met uw Gezondheids-ID. \n \n **⏰ Medicijnherinneringen** \nU kunt nu herinneringen instellen om uw medicijnen in te nemen. \n \n **🛒 Verbeterde bestelprocedure** \nHet bestelproces is nu eenvoudiger en sneller. \n \n **♿️ Toegankelijkheid** \nHet toegangsnummer voor de zorgpas kan nu ook met de camera worden gescand. \n \n **📲 Meer informatie voor DiGA's** \nVanaf nu ontvangt u meer gedetailleerde informatie over uw DiGA-voorschriften, zoals de verkoopprijs of het logo.",
         "timestamp": "2025-08-06T08:00:00.000Z",
         "version": "1.32"
+    },
+    {
+        "id": "8",
+        "text": "**📝 Flexibel veld voor bezorginstructies** \n Het veld voor bezorginstructies past zich nu automatisch aan de lengte van de tekst aan. \n \n **🎨 Modernere knoppen met Material 3** \n De knoppen zijn aangepast aan het nieuwe Material 3-ontwerp van Android en hebben nu een moderner en ronder uiterlijk. \n \n **📤 Recepten delen** \nRecepten kunnen nu rechtstreeks vanuit de app met anderen worden gedeeld.",
+        "timestamp": "2025-09-09T08:00:00.000Z",
+        "version": "1.33"
     }
 ]

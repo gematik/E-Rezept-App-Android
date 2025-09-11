@@ -34,5 +34,11 @@
         "text": "**🙌 Registro para personas con seguro privado** \nEl registro para personas con seguro privado ha sido optimizado. Puedes iniciar sesión cómodamente con tu ID de salud en solo unos clics. \n \n **⏰ Recordatorios de medicamentos** \nAhora puedes configurar recordatorios para tomar tu medicamento. \n \n **🛒 Flujo de pedidos mejorado** \nEl proceso de pedido ahora es más simple y rápido. \n \n **♿️ Accesibilidad** \nEl número de acceso para la tarjeta de salud ahora también se puede escanear con la cámara. \n \n **📲 Más información para DiGAs** \nA partir de ahora recibirás información más detallada sobre tus recetas de DiGA, como el precio de venta o el logotipo.",
         "timestamp": "2025-08-06T08:00:00.000Z",
         "version": "1.32"
+    },
+    {
+        "id": "8",
+        "text": "**📝 Campo flexible para instrucciones de entrega** \n El campo para instrucciones de entrega ahora se ajusta automáticamente a la longitud del texto. \n \n **🎨 Botones más modernos con Material 3** \n Los botones se han adaptado al nuevo diseño Material 3 de Android y ahora tienen una apariencia más moderna y redondeada. \n \n **📤 Comparte recetas** \n Ahora las recetas se pueden compartir con otros directamente desde la aplicación.",
+        "timestamp": "2025-09-09T08:00:00.000Z",
+        "version": "1.33"
     }
 ]

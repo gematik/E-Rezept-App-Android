@@ -37,6 +37,7 @@ import de.gematik.ti.erp.app.di.profile.mockProfileRepositoryModule
 import de.gematik.ti.erp.app.di.settings.mockSettingsRepositoryModule
 import de.gematik.ti.erp.app.digas.di.digaModule
 import de.gematik.ti.erp.app.digas.di.digaRepositoryModule
+import de.gematik.ti.erp.app.eurezept.di.euModule
 import de.gematik.ti.erp.app.idp.idpModule
 import de.gematik.ti.erp.app.idp.idpUseCaseModule
 import de.gematik.ti.erp.app.logger.di.loggerModule
@@ -90,6 +91,7 @@ val mockFeatureModule = DI.Module("featureModule", allowSilentOverride = true) {
         cardUnlockModule,
         pkvModule,
         digaModule,
+        euModule,
         // shared-prefs modules
         timeoutsSharedPrefsModule,
         // other modules

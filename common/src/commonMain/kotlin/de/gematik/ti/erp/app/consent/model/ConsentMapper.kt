@@ -112,7 +112,8 @@ fun extractConsentBundle(
         when {
             profileValue(
                 "https://gematik.de/fhir/erpchrg/StructureDefinition/GEM_ERPCHRG_PR_Consent",
-                "1.0"
+                "1.0",
+                "1.1"
             ).invoke(
                 profileString
             ) -> extractConsent(bundle)

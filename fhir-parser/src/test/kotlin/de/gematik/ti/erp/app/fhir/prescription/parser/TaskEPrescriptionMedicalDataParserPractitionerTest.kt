@@ -26,14 +26,20 @@ import de.gematik.ti.erp.app.data.practitioner1_v103_json
 import de.gematik.ti.erp.app.data.practitioner1_v110_json
 import de.gematik.ti.erp.app.data.practitioner2_v103_json
 import de.gematik.ti.erp.app.data.practitioner2_v110_json
+import de.gematik.ti.erp.app.data.practitioner3_v12_json
+import de.gematik.ti.erp.app.data.practitioner4_zanr_v12_json
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPractitionerErpTestData.erpPractitioner1_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPractitionerErpTestData.erpPractitioner1_v110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPractitionerErpTestData.erpPractitioner2_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPractitionerErpTestData.erpPractitioner2_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPractitionerErpTestData.erpPractitioner3_v12
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPractitionerErpTestData.erpPractitioner4_v12
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPractitionerTestData.fhirPractitioner1_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPractitionerTestData.fhirPractitioner1_v110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPractitionerTestData.fhirPractitioner2_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPractitionerTestData.fhirPractitioner2_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPractitionerTestData.fhirPractitioner3_v12
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPractitionerTestData.fhirPractitioner4_v12
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirPractitioner.Companion.getPractitioner
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirPractitioner.Companion.toErpModel
 import kotlinx.serialization.json.Json
@@ -47,7 +53,7 @@ class TaskEPrescriptionMedicalDataParserPractitionerTest {
         val bundle = Json.parseToJsonElement(practitioner1_v103_json)
         val fhirModel = bundle.getPractitioner()
         val erpModel = fhirModel?.toErpModel()
-        assertEquals(fhirPractitioner1_v103, fhirModel?.first)
+        assertEquals(fhirPractitioner1_v103, fhirModel)
         assertEquals(erpPractitioner1_v103, erpModel)
     }
 
@@ -56,7 +62,7 @@ class TaskEPrescriptionMedicalDataParserPractitionerTest {
         val bundle = Json.parseToJsonElement(practitioner2_v103_json)
         val fhirModel = bundle.getPractitioner()
         val erpModel = fhirModel?.toErpModel()
-        assertEquals(fhirPractitioner2_v103, fhirModel?.first)
+        assertEquals(fhirPractitioner2_v103, fhirModel)
         assertEquals(erpPractitioner2_v103, erpModel)
     }
 
@@ -65,7 +71,7 @@ class TaskEPrescriptionMedicalDataParserPractitionerTest {
         val bundle = Json.parseToJsonElement(practitioner1_v110_json)
         val fhirModel = bundle.getPractitioner()
         val erpModel = fhirModel?.toErpModel()
-        assertEquals(fhirPractitioner1_v110, fhirModel?.first)
+        assertEquals(fhirPractitioner1_v110, fhirModel)
         assertEquals(erpPractitioner1_v110, erpModel)
     }
 
@@ -74,7 +80,25 @@ class TaskEPrescriptionMedicalDataParserPractitionerTest {
         val bundle = Json.parseToJsonElement(practitioner2_v110_json)
         val fhirModel = bundle.getPractitioner()
         val erpModel = fhirModel?.toErpModel()
-        assertEquals(fhirPractitioner2_v110, fhirModel?.first)
+        assertEquals(fhirPractitioner2_v110, fhirModel)
         assertEquals(erpPractitioner2_v110, erpModel)
+    }
+
+    @Test
+    fun `test parser for practitioner 3 version 1_2`() {
+        val bundle = Json.parseToJsonElement(practitioner3_v12_json)
+        val fhirModel = bundle.getPractitioner()
+        val erpModel = fhirModel?.toErpModel()
+        assertEquals(fhirPractitioner3_v12, fhirModel)
+        assertEquals(erpPractitioner3_v12, erpModel)
+    }
+
+    @Test
+    fun `test parser for practitioner 4 with zanr and telematik-id version 1_2`() {
+        val bundle = Json.parseToJsonElement(practitioner4_zanr_v12_json)
+        val fhirModel = bundle.getPractitioner()
+        val erpModel = fhirModel?.toErpModel()
+        assertEquals(fhirPractitioner4_v12, fhirModel)
+        assertEquals(erpPractitioner4_v12, erpModel)
     }
 }

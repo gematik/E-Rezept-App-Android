@@ -43,21 +43,18 @@ fun DigaPrimaryButton(
     enabled: Boolean = true,
     onClick: () -> Unit = {}
 ) {
-    Surface(
+    PrimaryButtonSmall(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = PaddingDefaults.Medium)
+            .padding(
+                horizontal = PaddingDefaults.XLarge,
+                vertical = PaddingDefaults.Medium
+            )
+            .wrapContentHeight(),
+        enabled = enabled,
+        onClick = { onClick() }
     ) {
-        PrimaryButtonSmall(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = PaddingDefaults.XLarge)
-                .wrapContentHeight(),
-            enabled = enabled,
-            onClick = { onClick() }
-        ) {
-            Text(text = text, style = AppTheme.typography.button)
-        }
+        Text(text = text, style = AppTheme.typography.button)
     }
 }
 

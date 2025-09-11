@@ -34,5 +34,11 @@
         "text": "**🙌 Registrazione per persone con assicurazione privata** \nLa registrazione per persone con assicurazione privata è stata ottimizzata. Puoi accedere comodamente con il tuo ID sanitario in pochi clic. \n \n **⏰ Promemoria per i farmaci** \nOra puoi impostare promemoria per l'assunzione dei farmaci. \n \n **🛒 Flusso di ordinazione migliorato** \nIl processo di ordinazione è ora più semplice e veloce. \n \n **♿️ Accessibilità** \nIl numero di accesso per la tessera sanitaria può ora essere scansionato anche con la fotocamera. \n \n **📲 Ulteriori informazioni per i DiGA** \nD'ora in poi riceverai informazioni più dettagliate sulle tue prescrizioni DiGA, come il prezzo di vendita o il logo.",
         "timestamp": "2025-08-06T08:00:00.000Z",
         "version": "1.32"
+    },
+    {
+        "id": "8",
+        "text": "**📝 Campo flessibile per le istruzioni di consegna** \n Il campo per le istruzioni di consegna ora si adatta automaticamente alla lunghezza del testo. \n \n **🎨 Pulsanti più moderni con Material 3** \n I pulsanti sono stati adattati al nuovo design Material 3 di Android e ora hanno un aspetto più moderno e arrotondato. \n \n **📤 Condividi ricette** \n Le ricette ora possono essere condivise con altri direttamente dall'app.",
+        "timestamp": "2025-09-09T08:00:00.000Z",
+        "version": "1.33"
     }
 ]

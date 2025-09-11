@@ -83,7 +83,8 @@ internal fun DefaultDrawerScreenContent(
         )
 
         PrimaryButton(
-            modifier = modifierPrimaryButton.fillMaxWidth(),
+            modifier = modifierPrimaryButton
+                .fillMaxWidth(),
             onClick = onClickPrimary,
             shape = RoundedCornerShape(SizeDefaults.triple),
             contentPadding = PaddingValues(
@@ -97,7 +98,8 @@ internal fun DefaultDrawerScreenContent(
         }
         PrimaryOutlinedButton(
             onClick = onClickOutlined,
-            modifier = modifierOutlinedButton.fillMaxWidth()
+            modifier = modifierOutlinedButton
+                .fillMaxWidth()
         ) {
             Text(
                 text = outlinedButtonText

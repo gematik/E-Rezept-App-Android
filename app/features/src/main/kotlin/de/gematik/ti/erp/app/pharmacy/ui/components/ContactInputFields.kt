@@ -112,7 +112,7 @@ fun LazyListScope.nameInputField(
     item(key = "InputField_3") {
         InputField(
             modifier = Modifier
-                .scrollOnFocus(4, listState)
+                .scrollOnFocus(3, listState)
                 .fillParentMaxWidth(),
             value = value,
             onValueChange = onValueChange,
@@ -141,7 +141,7 @@ fun LazyListScope.streetAndNumberInputField(
     item(key = "InputField_4") {
         InputField(
             modifier = Modifier
-                .scrollOnFocus(5, listState)
+                .scrollOnFocus(4, listState)
                 .fillParentMaxWidth(),
             value = value,
             onValueChange = onValueChange,
@@ -170,7 +170,7 @@ fun LazyListScope.addressSupplementInputField(
     item(key = "InputField_5") {
         InputField(
             modifier = Modifier
-                .scrollOnFocus(6, listState)
+                .scrollOnFocus(5, listState)
                 .fillParentMaxWidth(),
             value = value,
             onValueChange = onValueChange,
@@ -195,7 +195,7 @@ fun LazyListScope.postalCodeInputField(
     item(key = "InputField_6") {
         InputField(
             modifier = Modifier
-                .scrollOnFocus(7, listState)
+                .scrollOnFocus(6, listState)
                 .fillParentMaxWidth(),
             value = value,
             onValueChange = onValueChange,
@@ -225,7 +225,7 @@ fun LazyListScope.cityInputField(
     item(key = "InputField_7") {
         InputField(
             modifier = Modifier
-                .scrollOnFocus(8, listState)
+                .scrollOnFocus(7, listState)
                 .fillParentMaxWidth(),
             value = value,
             onValueChange = onValueChange,
@@ -254,11 +254,12 @@ fun LazyListScope.deliveryInformationInputField(
     item(key = "InputField_8") {
         InputField(
             modifier = Modifier
-                .scrollOnFocus(9, listState)
+                .scrollOnFocus(8, listState)
                 .fillParentMaxWidth(),
             value = value,
             onValueChange = onValueChange,
             onSubmit = onSubmit,
+            singleLine = false,
             label = { Text(stringResource(R.string.edit_shipping_contact_delivery_information)) },
             isError = validationResult.isInvalid,
             errorText = {

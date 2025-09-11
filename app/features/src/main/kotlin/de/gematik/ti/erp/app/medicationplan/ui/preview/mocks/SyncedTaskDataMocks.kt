@@ -22,6 +22,9 @@
 
 package de.gematik.ti.erp.app.medicationplan.ui.preview.mocks
 
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
@@ -50,6 +53,10 @@ internal val PATIENT = Patient(
 
 private val MEDICATION = Medication(
     category = SyncedTaskData.MedicationCategory.entries[0],
+    medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+        type = ErpMedicationProfileType.PZN,
+        version = ErpMedicationProfileVersion.V_110
+    ),
     vaccine = true,
     text = "Medication",
     form = "AEO",

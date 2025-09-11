@@ -178,7 +178,7 @@ fun SelectionSummaryButton(
     ) {
         OutlinedButton(
             onClick = onClick,
-            shape = RoundedCornerShape(SizeDefaults.oneHalf),
+            shape = RoundedCornerShape(SizeDefaults.double),
             contentPadding = PaddingValues(SizeDefaults.double),
             colors = ButtonDefaults.outlinedButtonColors(
                 contentColor = contentColor,

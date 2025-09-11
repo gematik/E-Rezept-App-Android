@@ -1,0 +1,46 @@
+{
+  "resourceType": "MedicationDispense",
+  "id": "Example-MedicationDispense-DiGA-NoRedeemCode",
+  "meta": {
+    "profile": [
+      "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense_DiGA|1.5"
+    ]
+  },
+  "identifier": [
+    {
+      "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+      "value": "162.000.033.491.280.78"
+    }
+  ],
+  "status": "completed",
+  "subject": {
+    "identifier": {
+      "system": "http://fhir.de/sid/gkv/kvid-10",
+      "value": "X123456789"
+    }
+  },
+  "performer": [
+    {
+      "actor": {
+        "identifier": {
+          "system": "https://gematik.de/fhir/sid/telematik-id",
+          "value": "8-SMC-B-Testkarte-883110000095957"
+        }
+      }
+    }
+  ],
+  "medicationReference": {
+    "extension": [
+      {
+        "valueCode": "asked-declined",
+        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason"
+      }
+    ]
+  },
+  "whenHandedOver": "2025-10-01",
+  "note": [
+    {
+      "text": "Freischaltcode für DiGA konnte nicht erstellt werden"
+    }
+  ]
+}

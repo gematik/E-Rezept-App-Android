@@ -26,7 +26,6 @@ import de.gematik.ti.erp.app.redeem.usecase.GetDMCodesForLocalRedeemUseCase
 import de.gematik.ti.erp.app.redeem.usecase.GetRedeemableTasksForDmCodesUseCase
 import de.gematik.ti.erp.app.redeem.usecase.HasEuRedeemablePrescriptionsUseCase
 import de.gematik.ti.erp.app.redeem.usecase.HasRedeemableTasksUseCase
-import de.gematik.ti.erp.app.redeem.usecase.RedeemPrescriptionsOnDirectUseCase
 import de.gematik.ti.erp.app.redeem.usecase.RedeemPrescriptionsOnLoggedInUseCase
 import de.gematik.ti.erp.app.redeem.usecase.RedeemScannedTasksUseCase
 import de.gematik.ti.erp.app.redeem.usecase.ValidateContactUseCase
@@ -41,6 +40,5 @@ val redeemModule = DI.Module("redeemModule") {
     bindProvider { RedeemScannedTasksUseCase(instance()) }
     bindProvider { GetRedeemableTasksForDmCodesUseCase(instance()) }
     bindProvider { RedeemPrescriptionsOnLoggedInUseCase(instance(), instance()) }
-    bindProvider { RedeemPrescriptionsOnDirectUseCase(instance(), instance()) }
     bindProvider { HasEuRedeemablePrescriptionsUseCase(instance()) }
 }

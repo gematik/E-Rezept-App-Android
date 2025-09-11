@@ -31,6 +31,9 @@ import de.gematik.ti.erp.app.consent.usecase.GrantConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.RevokeConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.SaveGrantConsentDrawerShownUseCase
 import de.gematik.ti.erp.app.consent.usecase.ShowGrantConsentDrawerUseCase
+import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemBundleEntryParser
+import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemBundleParser
+import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemEPrescriptionParsers
 import de.gematik.ti.erp.app.invoice.repository.DefaultInvoiceRepository
 import de.gematik.ti.erp.app.invoice.repository.InvoiceLocalDataSource
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRemoteDataSource
@@ -54,14 +57,19 @@ val pkvModule = DI.Module("pkvModule") {
     bindProvider { RevokeConsentUseCase(instance()) }
     bindProvider { ShowGrantConsentDrawerUseCase(instance(), instance()) }
     bindProvider { SaveGrantConsentDrawerShownUseCase(instance()) }
-    bindProvider { DownloadInvoicesUseCase(instance(), instance()) }
+    bindProvider { DownloadInvoicesUseCase(instance(), instance(), instance()) }
     bindProvider { DeleteInvoiceUseCase(instance(), instance()) }
     bindProvider { DeleteAllLocalInvoices(instance()) }
     bindProvider { GetInvoiceByTaskIdUseCase(instance()) }
     bindProvider { GetInvoicesByProfileUseCase(instance()) }
-    bindProvider { SaveInvoiceUseCase(instance()) }
+    bindProvider { SaveInvoiceUseCase(instance(), instance()) }
     bindProvider { ShareInvoiceUseCase(instance()) }
-    bindProvider<InvoiceRepository> { DefaultInvoiceRepository(instance(), instance(), instance()) }
+    // start: parsers
+    bindProvider { ChargeItemBundleEntryParser() }
+    bindProvider { ChargeItemBundleParser(instance()) }
+    bindProvider { ChargeItemEPrescriptionParsers(instance(), instance()) }
+    // end: parsers
+    bindProvider<InvoiceRepository> { DefaultInvoiceRepository(instance(), instance(), instance(), instance()) }
     bindProvider { InvoiceRemoteDataSource(instance()) }
     bindProvider { InvoiceLocalDataSource(instance()) }
     bindSingleton { ConsentController(instance(), instance(), instance(), instance()) }

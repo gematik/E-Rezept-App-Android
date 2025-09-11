@@ -26,7 +26,6 @@ import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 
 internal fun orderID(): UUID = UUID.randomUUID()
 
@@ -40,17 +39,9 @@ sealed class PrescriptionRedeemArguments(
 ) {
     @OptIn(ExperimentalContracts::class)
     fun onRedemptionState(
-        directRedemptionBlock: (DirectRedemptionArguments) -> Unit,
         loggedInUserRedemptionBlock: (LoggedInUserRedemptionArguments) -> Unit
     ) {
-        contract {
-            returns(true) implies (this@PrescriptionRedeemArguments is DirectRedemptionArguments)
-            returns(false) implies (this@PrescriptionRedeemArguments is LoggedInUserRedemptionArguments)
-        }
-        when {
-            profile?.isDirectRedeemEnabled == true || profile == null -> directRedemptionBlock(this as DirectRedemptionArguments)
-            else -> loggedInUserRedemptionBlock(this as LoggedInUserRedemptionArguments)
-        }
+        loggedInUserRedemptionBlock(this as LoggedInUserRedemptionArguments)
     }
 
     // arguments required to redeem a prescription for a logged in user
@@ -63,15 +54,6 @@ sealed class PrescriptionRedeemArguments(
         override val contact: PharmacyUseCaseData.ShippingContact
     ) : PrescriptionRedeemArguments(profile, orderId, prescriptionOrderInfos, redeemOption, pharmacy, contact)
 
-    // arguments required to redeem a prescription for a first time user who has never logged in
-    data class DirectRedemptionArguments(
-        override val orderId: UUID,
-        override val prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionInOrder>,
-        override val redeemOption: PharmacyScreenData.OrderOption,
-        override val pharmacy: PharmacyUseCaseData.Pharmacy,
-        override val contact: PharmacyUseCaseData.ShippingContact
-    ) : PrescriptionRedeemArguments(null, orderId, prescriptionOrderInfos, redeemOption, pharmacy, contact)
-
     companion object {
         fun UUID.from(
             profile: ProfilesUseCaseData.Profile,
@@ -79,27 +61,13 @@ sealed class PrescriptionRedeemArguments(
             redeemOption: PharmacyScreenData.OrderOption,
             pharmacy: PharmacyUseCaseData.Pharmacy
         ): PrescriptionRedeemArguments =
-            when {
-                profile.isDirectRedeemEnabled -> {
-                    DirectRedemptionArguments(
-                        orderId = this,
-                        prescriptionOrderInfos = order.prescriptionsInOrder,
-                        redeemOption = redeemOption,
-                        pharmacy = pharmacy,
-                        contact = order.contact
-                    )
-                }
-
-                else -> {
-                    LoggedInUserRedemptionArguments(
-                        profile = profile,
-                        orderId = this,
-                        prescriptionOrderInfos = order.prescriptionsInOrder,
-                        redeemOption = redeemOption,
-                        pharmacy = pharmacy,
-                        contact = order.contact
-                    )
-                }
-            }
+            LoggedInUserRedemptionArguments(
+                profile = profile,
+                orderId = this,
+                prescriptionOrderInfos = order.prescriptionsInOrder,
+                redeemOption = redeemOption,
+                pharmacy = pharmacy,
+                contact = order.contact
+            )
     }
 }

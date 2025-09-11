@@ -1,47 +1,45 @@
 {
-  "resourceType":"Communication",
-  "id":"order-id-1",
-  "identifier":[
+  "resourceType": "Communication",
+  "id": "order-id-1",
+  "identifier": [
     {
-      "system":"https://gematik.de/fhir/NamingSystem/OrderID",
-      "value":"ORDER-ID-1"
+      "system": "https://gematik.de/fhir/NamingSystem/OrderID",
+      "value": "ORDER-ID-1"
     }
   ],
-  "meta":{
-    "profile":[
+  "meta": {
+    "profile": [
       "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.4"
     ]
   },
-  "status":"unknown",
-  "extension":[
+  "status": "unknown",
+  "extension": [
     {
-      "url":"https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
-      "valueCoding":{
-        "system":"https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
-        "code":"162"
+      "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+      "valueCoding": {
+        "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+        "code": "162"
       }
     }
   ],
-  "basedOn":[
+  "basedOn": [
     {
-      "reference":"Task/160.000.006.394.157.15/$accept?ac=8cc887c16681517e2db71078f367d4446c156bde743e15c2440722ec0835f406"
+      "reference": "Task/160.000.006.394.157.15/$accept?ac=8cc887c16681517e2db71078f367d4446c156bde743e15c2440722ec0835f406"
     }
   ],
-  "recipient":[
+  "recipient": [
     {
-      "identifier":{
-        "system":"https://gematik.de/fhir/sid/telematik-id",
-        "value":"telematik-id-1"
+      "identifier": {
+        "system": "https://gematik.de/fhir/sid/telematik-id",
+        "value": "telematik-id-1"
       }
     }
   ],
-  "sender":[
-    {
-      "identifier":{
-        "system":"http://fhir.de/sid/gkv/kvid-10",
-        "value":"X11054359845"
-      }
+  "sender": {
+    "identifier": {
+      "system": "http://fhir.de/sid/gkv/kvid-10",
+      "value": "X11054359845"
     }
-  ],
-  "sent":"2025-04-14T13:37:00.000+00:00"
+  },
+  "sent": "2025-04-14T13:37:00.000+00:00"
 }

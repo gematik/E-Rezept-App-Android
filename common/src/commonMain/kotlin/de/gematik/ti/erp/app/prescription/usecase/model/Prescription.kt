@@ -39,7 +39,7 @@ sealed interface Prescription {
     val expiresOn: Instant?
 
     val uuid: String
-        get() = "${taskId}-${name}-${hashCode()}"
+        get() = "$taskId-$name-${hashCode()}"
 
     /**
      * Represents a single [Task] synchronized with the backend.

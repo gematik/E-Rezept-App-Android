@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.invoice.repository
 
+import de.gematik.ti.erp.app.fhir.FhirPkvChargeItemsErpModelCollection
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
@@ -50,7 +51,7 @@ interface InvoiceRepository {
 
     fun invoiceByTaskId(taskId: String): Flow<InvoiceData.PKVInvoiceRecord?>
 
-    suspend fun saveInvoice(profileId: ProfileIdentifier, bundle: JsonElement)
+    suspend fun saveInvoice(profileId: ProfileIdentifier, bundle: FhirPkvChargeItemsErpModelCollection)
 
     suspend fun deleteRemoteInvoiceById(taskId: String, profileId: ProfileIdentifier): Result<Unit>
 

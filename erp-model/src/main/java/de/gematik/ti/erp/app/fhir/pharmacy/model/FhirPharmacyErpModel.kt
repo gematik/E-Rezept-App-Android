@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.fhir.pharmacy.model
 
+import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -35,4 +36,10 @@ data class FhirPharmacyErpModel(
     val specialities: List<FhirVzdSpecialtyType> = emptyList(),
     val hoursOfOperation: OpeningHoursErpModel? = null, // hoursOfOperation (only available from apo-vzd)
     val availableTime: OpeningHoursErpModel // availableTime
-)
+) {
+    companion object {
+        fun FhirPharmacyErpModel.toJson(): String {
+            return SafeJson.value.encodeToString(this)
+        }
+    }
+}

@@ -75,23 +75,17 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.CropFree
-import androidx.compose.material.icons.rounded.SaveAlt
-import androidx.compose.material.icons.rounded.ShoppingBag
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -125,14 +119,10 @@ import de.gematik.ti.erp.app.navigation.navigateAndClearStack
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.prescription.presentation.rememberScanPrescriptionController
 import de.gematik.ti.erp.app.prescription.ui.model.ScanData
-import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.SpacerMedium
-import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.AccessToCameraDenied
-import de.gematik.ti.erp.app.utils.compose.BottomSheetAction
 import de.gematik.ti.erp.app.utils.compose.CameraTopBar
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
@@ -140,7 +130,6 @@ import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -209,55 +198,36 @@ class PrescriptionScanScreen(
         }
 
         var flashEnabled by remember { mutableStateOf(false) }
-        val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-        val coroutineScope = rememberCoroutineScope()
 
         // conditional back
-        val onBack: () -> Unit = {
-            if (sheetState.isVisible) {
-                coroutineScope.launch { sheetState.hide() }
-            }
+        val onBack: () -> Unit by rememberUpdatedState {
             if (scanPrescriptionState.hasCodesToSave()) {
                 confirmCancelDialogEvent.trigger()
             } else {
                 navController.navigateAndClearStack(PrescriptionRoutes.PrescriptionListScreen.route)
             }
         }
+        val onSave: () -> Unit by rememberUpdatedState {
+            scanPrescriptionController.saveToDatabase()
+            navController.navigate(PrescriptionRoutes.PrescriptionListScreen.path())
+        }
 
         BackHandler { onBack() }
-
-        ModalBottomSheetLayout(
-            sheetState = sheetState,
-            sheetContent = {
-                SheetContent(
-                    onClickSave = {
-                        scanPrescriptionController.saveToDatabase()
-                        navController.navigate(PrescriptionRoutes.PrescriptionListScreen.path())
-                    },
-                    onClickRedeem = {
-                        scanPrescriptionController.saveToDatabase()
-                        navController.navigate(RedeemRoutes.HowToRedeemScreen.path())
-                    }
-                )
-            }
-        ) {
-            if (camPermissionGranted) {
-                PrescriptionScanScreenContent(
-                    scanner = scanner,
-                    processor = processor,
-                    flashEnabled = flashEnabled,
-                    sheetState = sheetState,
-                    stopCameraOverlayScan = stopCameraOverlayScan,
-                    overlayState = overlayState,
-                    state = scanPrescriptionState,
-                    coroutineScope = coroutineScope,
-                    onFlashToggled = { flashEnabled = it },
-                    onClickClose = { onBack() }
-                )
-            } else {
-                AccessToCameraDenied {
-                    navController.navigate(PrescriptionRoutes.PrescriptionListScreen.path())
-                }
+        if (camPermissionGranted) {
+            PrescriptionScanScreenContent(
+                scanner = scanner,
+                processor = processor,
+                flashEnabled = flashEnabled,
+                stopCameraOverlayScan = stopCameraOverlayScan,
+                overlayState = overlayState,
+                state = scanPrescriptionState,
+                onFlashToggled = { flashEnabled = it },
+                onClickClose = { onBack() },
+                onClickSave = { onSave() }
+            )
+        } else {
+            AccessToCameraDenied {
+                navController.navigate(PrescriptionRoutes.PrescriptionListScreen.path())
             }
         }
 
@@ -273,11 +243,10 @@ private fun PrescriptionScanScreenContent(
     flashEnabled: Boolean,
     onFlashToggled: (Boolean) -> Unit,
     onClickClose: () -> Unit,
-    sheetState: ModalBottomSheetState,
+    onClickSave: () -> Unit,
     stopCameraOverlayScan: Boolean,
     overlayState: ScanData.OverlayState,
-    state: ScanData.State,
-    coroutineScope: CoroutineScope
+    state: ScanData.State
 ) {
     Box {
         CameraView(
@@ -290,7 +259,7 @@ private fun PrescriptionScanScreenContent(
 
         ScanOverlay(
             modifier = Modifier.fillMaxSize(),
-            enabled = !sheetState.isVisible && !stopCameraOverlayScan,
+            enabled = !stopCameraOverlayScan,
             flashEnabled = flashEnabled,
             onFlashClick = onFlashToggled,
             onClickClose = onClickClose,
@@ -310,45 +279,10 @@ private fun PrescriptionScanScreenContent(
                         bottom = PaddingDefaults.XLarge
                     ),
                 data = state.snackBar,
-                onClick = { coroutineScope.launch { sheetState.show() } }
+                onClick = onClickSave
             )
         }
     }
-}
-
-@Composable
-private fun SheetContent(
-    onClickSave: () -> Unit,
-    onClickRedeem: () -> Unit
-) {
-    SpacerMedium()
-    Text(
-        stringResource(R.string.cam_next_sheet_how_to_proceed),
-        style = AppTheme.typography.body1l,
-        modifier = Modifier
-            .padding(horizontal = PaddingDefaults.Medium)
-    )
-    SpacerSmall()
-    BottomSheetAction(
-        icon = { Icon(Icons.Rounded.ShoppingBag, null) },
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.cam_next_sheet_order_now_title))
-                SpacerSmall()
-            }
-        },
-        info = { Text(stringResource(R.string.cam_next_sheet_order_now_info)) },
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClickRedeem
-    )
-    BottomSheetAction(
-        icon = Icons.Rounded.SaveAlt,
-        title = stringResource(R.string.cam_next_sheet_order_later_title),
-        info = stringResource(R.string.cam_next_sheet_order_later_info),
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClickSave
-    )
-    Spacer(Modifier.navigationBarsPadding())
 }
 
 @Suppress("MagicNumber")
@@ -390,25 +324,6 @@ private fun SaveDialog(
         onConfirmRequest = onCancel,
         onDismissRequest = onDismissRequest
     )
-    /* AlertDialog(
-        onDismissRequest = onDismissRequest,
-        text = {
-            Text(
-                stringResource(R.string.cam_cancel_msg)
-            )
-        },
-        buttons = {
-            TextButton(
-                onClick = { onDismissRequest() },
-                modifier = Modifier.testTag("camera/saveDialog/dismissDialogButton")
-            ) {
-                Text(stringResource(R.string.cam_cancel_resume).uppercase(Locale.getDefault()))
-            }
-            TextButton(onClick = { onCancel() }, modifier = Modifier.testTag("camera/saveDialog/saveButton")) {
-                Text(stringResource(R.string.cam_cancel_ok).uppercase(Locale.getDefault()))
-            }
-        }
-    )  */
 }
 
 @Suppress("MagicNumber")
@@ -467,7 +382,7 @@ private fun ActionBarButton(
     ) {
         Text(
             annotatedPluralsResource(
-                R.plurals.cam_next_with,
+                R.plurals.cam_save_scanned_prescriptions,
                 data.totalNrOfPrescriptions,
                 AnnotatedString(data.totalNrOfPrescriptions.toString())
             )

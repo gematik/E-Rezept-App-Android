@@ -62,4 +62,56 @@ object FhirTaskEntryParserResultTestData {
             )
         )
     )
+
+    val taskEntryV_1_5 = FhirTaskEntryParserResultErpModel(
+        bundleTotal = 6,
+        taskEntries = listOf(
+            FhirTaskEntryDataErpModel(
+                id = "160.000.113.612.488.29",
+                status = TaskStatus.InProgress,
+                lastModified = FhirTemporal.Instant(
+                    value = Instant.parse("2025-05-12T09:57:08.460Z")
+                )
+            ),
+            FhirTaskEntryDataErpModel(
+                id = "162.000.000.004.510.98",
+                status = TaskStatus.Ready,
+                lastModified = FhirTemporal.Instant(
+                    value = Instant.parse("2025-05-21T12:19:41.851Z")
+                )
+            ),
+            FhirTaskEntryDataErpModel(
+                id = "162.000.000.005.408.23",
+                status = TaskStatus.Ready,
+                lastModified = FhirTemporal.Instant(
+                    value = Instant.parse("2025-06-10T11:16:16.188Z")
+                )
+            ),
+            FhirTaskEntryDataErpModel(
+                id = "162.000.000.005.596.41",
+                status = TaskStatus.Ready,
+                lastModified = FhirTemporal.Instant(
+                    value = Instant.parse("2025-06-13T12:16:05.871Z")
+                )
+            ),
+            FhirTaskEntryDataErpModel(
+                id = "160.000.114.336.581.65",
+                status = TaskStatus.Ready,
+                lastModified = FhirTemporal.Instant(
+                    value = Instant.parse("2025-08-14T09:52:19.200Z")
+                )
+            ),
+            FhirTaskEntryDataErpModel(
+                id = "160.000.114.336.582.62",
+                status = TaskStatus.Ready,
+                lastModified = FhirTemporal.Instant(
+                    value = Instant.parse("2025-08-14T09:52:22.386Z")
+                )
+            )
+        ),
+        firstPageUrl = "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Task?_sort=modified&_count=50&__offset=0",
+        previousPageUrl = null,
+        selfPageUrl = "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Task?_sort=modified",
+        nextPageUrl = null
+    )
 }

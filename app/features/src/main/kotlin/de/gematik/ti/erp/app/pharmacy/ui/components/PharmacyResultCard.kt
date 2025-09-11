@@ -175,10 +175,7 @@ internal fun PharmacyResultCardPreview() {
                 contact = PharmacyUseCaseData.PharmacyContact(
                     phone = "12345678",
                     mail = "pharmacy@mail.com",
-                    url = "https://pharmacy.com",
-                    pickUpUrl = "https://pharmacy.pickup.com/code123",
-                    deliveryUrl = "https://pharmacy.delivery.com/code123",
-                    onlineServiceUrl = "https://pharmacy.online.com/code123"
+                    url = "https://pharmacy.com"
                 ),
                 provides = listOf(
                     DeliveryPharmacyService(

@@ -34,15 +34,14 @@ import de.gematik.ti.erp.app.permissions.isLocationServiceEnabled
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import de.gematik.ti.erp.app.pharmacy.presentation.FilterType.Companion.getUpdatedFilter
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.PreviewMapCoordinatesDataSource.Companion.berlinCoordinates
-import de.gematik.ti.erp.app.pharmacy.usecase.GetLocationUseCase
-import de.gematik.ti.erp.app.pharmacy.usecase.GetLocationUseCase.LocationResult
 import de.gematik.ti.erp.app.pharmacy.usecase.GetOrderStateUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetOverviewPharmaciesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPreviewMapCoordinatesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.SetPreviewMapCoordinatesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
-import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
+import de.gematik.ti.erp.app.shared.usecase.GetLocationUseCase
+import de.gematik.ti.erp.app.shared.usecase.GetLocationUseCase.LocationResult
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import io.github.aakira.napier.Napier
@@ -50,10 +49,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -90,14 +87,10 @@ abstract class PharmacyGraphController : Controller() {
     @Composable
     abstract fun hasRedeemableOrders(): State<Boolean>
 
-    @Composable
-    abstract fun isDirectRedeemEnabled(): State<Boolean>
-
     abstract fun reset()
 }
 
 class DefaultPharmacyGraphController(
-    private val getActiveProfileUseCase: GetActiveProfileUseCase,
     private val getOverviewPharmaciesUseCase: GetOverviewPharmaciesUseCase,
     private val getOrderStateUseCase: GetOrderStateUseCase,
     private val getLocationUseCase: GetLocationUseCase,
@@ -107,11 +100,6 @@ class DefaultPharmacyGraphController(
 
     private val _coordinates = MutableStateFlow<Coordinates?>(null)
 
-    private val _activeProfile by lazy {
-        getActiveProfileUseCase()
-            .stateIn(controllerScope, SharingStarted.WhileSubscribed(0, 0), null)
-    }
-
     private val _orderState by lazy { getOrderStateUseCase() }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -120,9 +108,6 @@ class DefaultPharmacyGraphController(
     }
 
     private val _filter = MutableStateFlow(PharmacyUseCaseData.Filter())
-
-    private val _isDirectRedeemEnabled = _activeProfile
-        .mapNotNull { (it?.lastAuthenticated == null) }
 
     private val _favouritePharmacies by lazy {
         getOverviewPharmaciesUseCase().stateIn(controllerScope, SharingStarted.Lazily, emptyList())
@@ -153,10 +138,6 @@ class DefaultPharmacyGraphController(
         }
     }
 
-    init {
-        updateIsDirectRedeemEnabledOnFilter()
-    }
-
     // Location events
     override val permissionDeniedEvent = ComposableEvent<Unit>()
 
@@ -171,7 +152,6 @@ class DefaultPharmacyGraphController(
     override val locationLoadingEvent = ComposableEvent<Boolean>()
 
     override fun init(context: Context) {
-        updateIsDirectRedeemEnabledOnFilter()
         updateLocation(context)
         _filter.value = PharmacyUseCaseData.Filter()
     }
@@ -190,16 +170,6 @@ class DefaultPharmacyGraphController(
                     } else {
                         Napier.d(tag = "LocationResults") { "$result" }
                     }
-                }
-            }
-        }
-    }
-
-    private fun updateIsDirectRedeemEnabledOnFilter() {
-        controllerScope.launch {
-            combine(_hasRedeemableOrders, _isDirectRedeemEnabled) { hasOrders, isEnabled ->
-                if (hasOrders && isEnabled) {
-                    updateFilter(type = FilterType.DIRECT_REDEEM)
                 }
             }
         }
@@ -305,9 +275,6 @@ class DefaultPharmacyGraphController(
         return getPreviewMapCoordinatesUseCase()
             .collectAsStateWithLifecycle(berlinCoordinates)
     }
-
-    @Composable
-    override fun isDirectRedeemEnabled() = _isDirectRedeemEnabled.collectAsStateWithLifecycle(false)
 
     @Composable
     override fun hasRedeemableOrders() = _hasRedeemableOrders.collectAsStateWithLifecycle(false)

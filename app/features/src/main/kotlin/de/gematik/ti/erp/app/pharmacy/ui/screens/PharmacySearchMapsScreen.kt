@@ -73,8 +73,6 @@ import de.gematik.ti.erp.app.pharmacy.presentation.toLatLng
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyScreen
 import de.gematik.ti.erp.app.pharmacy.ui.components.DefaultZoomLevel
 import de.gematik.ti.erp.app.pharmacy.ui.components.GooglePharmacyMap
-import de.gematik.ti.erp.app.pharmacy.ui.components.LocationPermissionDeniedDialog
-import de.gematik.ti.erp.app.pharmacy.ui.components.LocationServicesNotAvailableDialog
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyMap
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyProperties
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacySettings
@@ -84,6 +82,8 @@ import de.gematik.ti.erp.app.pharmacy.ui.model.SelectedPharmacyUi
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
 import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.utils.compose.LocationPermissionDeniedDialog
+import de.gematik.ti.erp.app.utils.compose.LocationServicesNotAvailableDialog
 import de.gematik.ti.erp.app.utils.compose.disableZoomWhileActive
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbar

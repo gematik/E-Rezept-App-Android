@@ -29,11 +29,14 @@ import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
@@ -58,7 +61,7 @@ import de.gematik.ti.erp.app.core.LocalTimeZone
 import de.gematik.ti.erp.app.mainscreen.presentation.rememberAppController
 import de.gematik.ti.erp.app.mainscreen.ui.ExternalAuthenticationUiHandler
 import de.gematik.ti.erp.app.navigation.ErezeptNavigatorFactory.initNavigation
-import de.gematik.ti.erp.app.prescription.detail.presentation.SharePrescriptionHandler
+import de.gematik.ti.erp.app.prescription.share.presentation.SharePrescriptionHandler
 import de.gematik.ti.erp.app.profiles.presentation.rememberProfileController
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
@@ -70,7 +73,7 @@ open class MainActivity : BaseActivity() {
     @VisibleForTesting(otherwise = VisibleForTesting.NONE) // Only visible for testing, otherwise shows a warning
     val testWrapper: TestWrapper by instance()
 
-    @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
+    @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalComposeUiApi::class)
     @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -132,7 +135,7 @@ open class MainActivity : BaseActivity() {
 
                             val activeProfile by profilesController.getActiveProfileState()
 
-                            Box {
+                            Box(modifier = Modifier.semantics { testTagsAsResourceId = true }) {
                                 ApplicationScaffold(
                                     authentication = authentication,
                                     isDemoMode = isDemoMode()

@@ -162,4 +162,56 @@ internal object FhirCoverageTestData {
             )
         )
     )
+    val fhir_coverage_AokNordost = FhirCoverageModel(
+        meta = FhirMeta(
+            profiles = listOf("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.2")
+        ),
+        extensions = listOf(
+            FhirCoverageExtension(
+                url = "http://fhir.de/StructureDefinition/gkv/besondere-personengruppe",
+                coding = FhirCoding(
+                    system = "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PERSONENGRUPPE",
+                    code = "00"
+                )
+            ),
+            FhirCoverageExtension(
+                url = "http://fhir.de/StructureDefinition/gkv/dmp-kennzeichen",
+                coding = FhirCoding(
+                    system = "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DMP",
+                    code = "05"
+                )
+            ),
+            FhirCoverageExtension(
+                url = "http://fhir.de/StructureDefinition/gkv/wop",
+                coding = FhirCoding(
+                    system = "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP",
+                    code = "17"
+                )
+            ),
+            FhirCoverageExtension(
+                url = "http://fhir.de/StructureDefinition/gkv/versichertenart",
+                coding = FhirCoding(
+                    system = "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS",
+                    code = "5"
+                )
+            )
+        ),
+        type = FhirCoverageType(
+            coding = listOf(
+                FhirCoding(
+                    system = "http://fhir.de/CodeSystem/versicherungsart-de-basis",
+                    code = "GKV"
+                )
+            )
+        ),
+        payer = listOf(
+            FhirPayer(
+                name = "AOK Nordost",
+                identifier = FhirIdentifier(
+                    system = "http://fhir.de/sid/arge-ik/iknr",
+                    value = "109719018"
+                )
+            )
+        )
+    )
 }

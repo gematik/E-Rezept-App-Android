@@ -44,7 +44,7 @@ import kotlinx.serialization.json.JsonElement
  */
 class DefaultTaskRepository(
     private val remoteDataSource: TaskRemoteDataSource,
-    private val localDataSource: RealmLegacyTaskLocalDataSource,
+    private val localDataSource: LegacyTaskLocalDataSource,
     private val parsers: TaskEPrescriptionParsers,
     private val paginator: FhirPagination,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -122,7 +122,7 @@ class DefaultTaskRepository(
     private suspend fun processTaskBundle(profileId: String, taskId: String, taskMetaDataAndKbvBundle: JsonElement): Result<Unit> {
         return parsers.taskBundleSeparationParser.extract(taskMetaDataAndKbvBundle)?.let { (metaDataBundle, kbvDataBundle) ->
             // 1) Process metadata
-            val metaData = metaDataBundle.value.let(parsers.taskEPrescriptionMetadataParser::extract)
+            val metaData = metaDataBundle.value.let(parsers.taskMetadataParser::extract)
             if (metaData != null) {
                 localDataSource.saveTaskEPrescriptionMetaData(profileId, metaData)
             } else {
@@ -130,7 +130,7 @@ class DefaultTaskRepository(
             }
 
             // 2) Process medical data
-            val medicalData = kbvDataBundle.value.let(parsers.taskEPrescriptionMedicalDataParser::extract)
+            val medicalData = kbvDataBundle.value.let(parsers.taskMedicalDataParser::extract)
             when {
                 // Parsing failed -> mark incomplete
                 medicalData == null -> {

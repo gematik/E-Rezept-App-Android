@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.fhir.pharmacy.model.original
 
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirTypeCoding
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyAddressErpModel
@@ -41,7 +42,8 @@ internal data class FhirVzdOrganization(
     @SerialName("resourceType") val resourceType: String,
     @SerialName("id") val id: String?,
     @SerialName("identifier") val identifiers: List<FhirVzdIdentifier> = emptyList(),
-    @SerialName("name") val name: String
+    @SerialName("name") val name: String,
+    @SerialName("extension") val extensions: List<FhirExtension> = emptyList()
 ) {
 
     val telematikId: String

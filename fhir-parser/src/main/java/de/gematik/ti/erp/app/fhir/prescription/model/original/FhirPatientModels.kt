@@ -32,6 +32,10 @@ import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvPatientErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.original.KbvBundleVersion.V_1_0_3
+import de.gematik.ti.erp.app.fhir.prescription.model.original.KbvBundleVersion.V_1_1_0
+import de.gematik.ti.erp.app.fhir.prescription.model.original.KbvBundleVersion.V_1_2
+import de.gematik.ti.erp.app.fhir.prescription.model.original.KbvBundleVersion.V_1_3
 import de.gematik.ti.erp.app.utils.ParserUtil.asFhirTemporal
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName
@@ -65,8 +69,8 @@ internal data class FhirPatient(
      */
     fun getKvnr(version: KbvBundleVersion): String? {
         return when (version) {
-            KbvBundleVersion.V_1_0_3 -> identifiers?.firstOrNull { it.system == FhirConstants.PATIENT_KVNR_NAME_103 }?.value
-            KbvBundleVersion.V_1_1_0 -> {
+            V_1_0_3 -> identifiers?.firstOrNull { it.system == FhirConstants.PATIENT_KVNR_NAME_103 }?.value
+            V_1_1_0, V_1_2, V_1_3 -> {
                 val kvnrSystem = identifiers?.flatMap { identifier ->
                     identifier.type?.coding?.filter {
                         it.system == FhirConstants.PATIENT_KVNR_CODE_SYSTEM_URL
@@ -75,7 +79,7 @@ internal data class FhirPatient(
 
                 val systemUrl = when (kvnrSystem?.code) {
                     FhirConstants.PKV -> FhirConstants.PATIENT_KVNR_CODE_PKV
-                    else -> FhirConstants.PATIENT_KVNR_CODE_GKV
+                    else -> FhirConstants.PATIENT_KVNR_CODE_GKV // 1.2.0 seems to have only gkv is examples
                 }
 
                 return identifiers?.firstOrNull { it.system == systemUrl }?.value

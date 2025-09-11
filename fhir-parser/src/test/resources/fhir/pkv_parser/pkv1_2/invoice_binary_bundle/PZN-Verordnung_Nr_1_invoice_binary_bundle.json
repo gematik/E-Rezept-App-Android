@@ -1,0 +1,138 @@
+{
+  "resourceType": "Bundle",
+  "id": "c8606712-0000-0000-0003-000000000000",
+  "meta": {
+    "profile": [
+      "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Bundle|1.2"
+    ]
+  },
+  "identifier": {
+    "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+    "value": "200.000.001.206.112.29"
+  },
+  "type": "document",
+  "timestamp": "2023-02-23T15:08:30.803+00:00",
+  "link": [
+    {
+      "relation": "self",
+      "url": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Task/200.000.001.206.112.29/$close/"
+    }
+  ],
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:1f107ad7-f4bf-47e3-a606-0181f5dd4f73",
+      "resource": {
+        "resourceType": "Composition",
+        "id": "1f107ad7-f4bf-47e3-a606-0181f5dd4f73",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Composition|1.2"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_Beneficiary",
+            "valueIdentifier": {
+              "system": "https://gematik.de/fhir/sid/telematik-id",
+              "value": "3-SMC-B-Testkarte-883110000116873"
+            }
+          }
+        ],
+        "status": "final",
+        "type": {
+          "coding": [
+            {
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_DocumentType",
+              "code": "3",
+              "display": "Receipt"
+            }
+          ]
+        },
+        "date": "2023-02-23T15:08:30.802+00:00",
+        "author": [
+          {
+            "reference": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Device/1"
+          }
+        ],
+        "title": "Quittung",
+        "event": [
+          {
+            "period": {
+              "start": "2023-02-23T15:08:29.843+00:00",
+              "end": "2023-02-23T15:08:30.802+00:00"
+            }
+          }
+        ],
+        "section": [
+          {
+            "entry": [
+              {
+                "reference": "Binary/PrescriptionDigest-200.000.001.206.112.29"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Device/1",
+      "resource": {
+        "resourceType": "Device",
+        "id": "1",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Device|1.2"
+          ]
+        },
+        "status": "active",
+        "serialNumber": "1.9.0",
+        "deviceName": [
+          {
+            "name": "E-Rezept Fachdienst",
+            "type": "user-friendly-name"
+          }
+        ],
+        "version": [
+          {
+            "value": "1.9.0"
+          }
+        ],
+        "contact": [
+          {
+            "system": "email",
+            "value": "betrieb@gematik.de"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Binary/PrescriptionDigest-200.000.001.206.112.29",
+      "resource": {
+        "resourceType": "Binary",
+        "id": "PrescriptionDigest-200.000.001.206.112.29",
+        "meta": {
+          "versionId": "1",
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Digest|1.2"
+          ]
+        },
+        "contentType": "application/octet-stream",
+        "data": "aYDkjPosw3Sa5dX5EmSghwhVg7d9jhoXHdwszETXV/8="
+      }
+    }
+  ],
+  "signature": {
+    "type": [
+      {
+        "system": "urn:iso-astm:E1762-95:2013",
+        "code": "1.2.840.10065.1.12.1.1"
+      }
+    ],
+    "when": "2023-02-23T15:08:32.985+00:00",
+    "who": {
+      "reference": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Device/1"
+    },
+    "sigFormat": "application/pkcs7-mime",
+    "data": "MIIUnAYJKoZIhvcNAQcCoIIUjTCCFIkCAQUxDTALBglghkgBZQM"
+  }
+}

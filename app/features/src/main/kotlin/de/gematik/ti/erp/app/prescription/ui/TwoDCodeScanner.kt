@@ -39,6 +39,8 @@ import de.gematik.ti.erp.app.Requirement
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import com.google.android.gms.tasks.Task as GoogleTask
+import com.google.android.gms.tasks.Tasks as GoogleTasks
 
 private const val DEFAULT_SCAN_TIME = 250L
 
@@ -70,6 +72,40 @@ class TwoDCodeScanner(
     )
         private set
 
+    private val qrScanner by lazy {
+        BarcodeScanning.getClient(
+            BarcodeScannerOptions.Builder()
+                .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+                .build()
+        )
+    }
+
+    private val dmScanner by lazy {
+        BarcodeScanning.getClient(
+            BarcodeScannerOptions.Builder()
+                .setBarcodeFormats(Barcode.FORMAT_DATA_MATRIX)
+                .build()
+        )
+    }
+
+    private fun detectPreferQr(image: InputImage): GoogleTask<List<Barcode>> {
+        return qrScanner.process(image)
+            .continueWithTask { qrTask ->
+                val qr = qrTask.result.orEmpty().filter { it.format == Barcode.FORMAT_QR_CODE }
+                if (qr.isNotEmpty()) {
+                    GoogleTasks.forResult(qr)
+                } else {
+                    dmScanner.process(image)
+                }
+            }
+            .continueWith { allTask ->
+                // Optional: filter to exactly one format to avoid ambiguity downstream
+                val found = allTask.result.orEmpty()
+                val onlyQr = found.filter { it.format == Barcode.FORMAT_QR_CODE }
+                onlyQr.ifEmpty { found.filter { it.format == Barcode.FORMAT_DATA_MATRIX } }
+            }
+    }
+
     @Requirement(
         "O.Data_8#1",
         sourceSpecification = "BSI-eRp-ePA",
@@ -79,7 +115,10 @@ class TwoDCodeScanner(
     private val scanner: BarcodeScanner by lazy {
         BarcodeScanning.getClient(
             BarcodeScannerOptions.Builder()
-                .setBarcodeFormats(Barcode.FORMAT_DATA_MATRIX)
+                .setBarcodeFormats(
+                    Barcode.FORMAT_DATA_MATRIX,
+                    Barcode.FORMAT_QR_CODE
+                )
                 .build()
         )
     }
@@ -105,7 +144,7 @@ class TwoDCodeScanner(
 
             try {
                 val t0 = System.currentTimeMillis()
-                scanner.process(image)
+                detectPreferQr(image)
                     .addOnSuccessListener { matrixCodes ->
                         synchronized(countLock) {
                             averageTime =
@@ -122,9 +161,12 @@ class TwoDCodeScanner(
                             )
                         }
                     }
+                    .addOnFailureListener {
+                        Napier.e(tag = "2DScanner", message = "2D code processing error", throwable = it)
+                    }
                     .addOnCompleteListener { imageProxy.close() }
             } catch (e: Exception) {
-                Napier.d("2D code processing error", e)
+                Napier.e(tag = "2DScanner", message = "2D code processing error", throwable = e)
             }
         }
     }

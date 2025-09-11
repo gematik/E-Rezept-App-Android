@@ -23,6 +23,9 @@
 package de.gematik.ti.erp.app.pkv.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.pkv.ui.preview.InvoiceLocalCorrectionScreenPreviewData.pkvInvoiceRecord
@@ -78,6 +81,10 @@ object InvoiceLocalCorrectionScreenPreviewData {
         medicationRequest = SyncedTaskData.MedicationRequest(
             SyncedTaskData.Medication(
                 category = SyncedTaskData.MedicationCategory.ARZNEI_UND_VERBAND_MITTEL,
+                medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+                    type = ErpMedicationProfileType.PZN,
+                    version = ErpMedicationProfileVersion.V_110
+                ),
                 vaccine = true,
                 text = "Medication Name",
                 form = "Form",

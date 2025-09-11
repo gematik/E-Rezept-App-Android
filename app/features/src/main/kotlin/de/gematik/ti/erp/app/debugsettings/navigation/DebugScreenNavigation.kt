@@ -26,10 +26,10 @@ import de.gematik.ti.erp.app.navigation.Routes
 
 object DebugScreenNavigation {
     object DebugMain : Routes("DebugMain")
-    object DebugRedeemWithoutFD : Routes("DebugRedeemWithoutFD")
     object DebugPKV : Routes("DebugPKV")
     object DebugTimeout : Routes("TimeoutScreen")
     object QrCodeScannerScreen : Routes("QrCodeScannerScreen")
     object LoggerScreen : Routes("LoggerScreen")
+    object DebugDbMigrationLoggerScreen : Routes("DbMigrationLoggerScreen")
     object PharmacyVzdSelectionScreen : Routes("PharmacyVzdSelectionScreen")
 }

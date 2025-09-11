@@ -32,7 +32,7 @@ object GemListItemDefaults {
 
     @Composable
     fun gemListItemColors(
-        containerColor: Color = AppTheme.colors.neutral000,
+        containerColor: Color = AppTheme.colors.neutral025,
         headlineColor: Color = AppTheme.colors.neutral900,
         leadingIconColor: Color = AppTheme.colors.primary700,
         overlineColor: Color = AppTheme.colors.neutral600,

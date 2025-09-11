@@ -23,15 +23,18 @@
 package de.gematik.ti.erp.app.prescription.usecase
 
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.prescription.model.ParsedScannedQrCode
+import de.gematik.ti.erp.app.prescription.model.ParserScannedDataMatrix
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.repository.TaskRepository
-import de.gematik.ti.erp.app.prescription.ui.TwoDCodeValidator
+import de.gematik.ti.erp.app.prescription.ui.TwoDCodeValidator.Companion.taskPattern
 import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
+import de.gematik.ti.erp.app.utils.letNotNull
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
@@ -166,26 +169,41 @@ class PrescriptionUseCase(
         scannedCodes: List<ValidScannedCode>,
         medicationString: String
     ) {
-        val tasks = scannedCodes.flatMap { code ->
-            code.extract().mapIndexed { index, (_, taskId, accessCode) ->
-                ScannedTaskData.ScannedTask(
-                    profileId = profileId,
-                    taskId = taskId,
-                    index = index,
-                    name = "", // name will be set later
-                    accessCode = accessCode,
-                    scannedOn = code.raw.scannedOn,
-                    redeemedOn = null
-                )
+        val tasks = scannedCodes.flatMap { codesEmbeddedInScan ->
+            codesEmbeddedInScan.codes.mapIndexed { index, parsedCode ->
+                when (parsedCode) {
+                    is ParsedScannedQrCode -> ScannedTaskData.ScannedTask(
+                        profileId = profileId,
+                        taskId = parsedCode.taskId,
+                        index = index,
+                        name = if (parsedCode.name.isNotNullOrEmpty()) parsedCode.name else "", // if empty name will be set at database
+                        accessCode = parsedCode.accessCode,
+                        scannedOn = codesEmbeddedInScan.raw.scannedOn,
+                        redeemedOn = null
+                    )
+
+                    is ParserScannedDataMatrix -> {
+                        val match = taskPattern.matchEntire(parsedCode.taskUrl)
+                        val taskId = match?.groupValues?.get(1)
+                        val accessCode = match?.groupValues?.get(2)
+
+                        letNotNull(taskId, accessCode) { task, taskAccessCode ->
+                            ScannedTaskData.ScannedTask(
+                                profileId = profileId,
+                                taskId = task,
+                                index = index,
+                                name = "", // name will be set at database
+                                accessCode = taskAccessCode,
+                                scannedOn = codesEmbeddedInScan.raw.scannedOn,
+                                redeemedOn = null
+                            )
+                        }
+                    }
+                }
             }
-        }
+        }.filterNotNull()
         tasks.takeIf { it.isNotEmpty() }?.let { saveScannedTasks(profileId, it, medicationString) }
     }
-
-    private fun ValidScannedCode.extract(): List<List<String>> =
-        this.urls.mapNotNull {
-            TwoDCodeValidator.taskPattern.matchEntire(it)?.groupValues
-        }
 
     fun scannedTasks(profileId: ProfileIdentifier): Flow<List<ScannedTaskData.ScannedTask>> =
         repository.scannedTasks(profileId).flowOn(dispatchers.io)

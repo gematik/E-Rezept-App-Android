@@ -24,12 +24,10 @@ package de.gematik.ti.erp.app.onboarding.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
@@ -57,7 +55,7 @@ class DataProtectionScreen(
     @Composable
     override fun Content() {
         WebViewScreen(
-            modifier = Modifier.testTag(TestTag.Onboarding.DataProtectionScreen),
+            modifier = Modifier,
             title = stringResource(R.string.onb_data_consent),
             onBack = { navController.popBackStack() },
             url = getUriDataTerms()

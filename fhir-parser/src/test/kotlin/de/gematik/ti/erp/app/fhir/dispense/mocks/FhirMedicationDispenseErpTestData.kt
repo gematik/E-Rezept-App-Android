@@ -23,8 +23,12 @@
 package de.gematik.ti.erp.app.fhir.dispense.mocks
 
 import de.gematik.ti.erp.app.data.getResourceAsString
+import de.gematik.ti.erp.app.fhir.FhirMedicationDispenseErpModelCollection
+import de.gematik.ti.erp.app.fhir.dispense.model.DispensedEpaMedicationErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.DispensedIngredientMedicationErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.DispensedPznMedicationErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.EpaContextualData
+import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispenseDeviceRequestErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispensedFreeTextMedicationErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.FhirMedicationDispenseErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.IngredientContextualData
@@ -37,55 +41,55 @@ import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 
-val erp_model_1_2 by lazy {
+internal val erp_model_1_2 by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/erp_model_1_2.json"
     )
 }
 
-val erp_model_1_4_simple by lazy {
+internal val erp_model_1_4_simple by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/erp_model_1_4_simple.json"
     )
 }
 
-val erp_model_1_4_complex by lazy {
+internal val erp_model_1_4_complex by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/erp_model_1_4_complex.json"
     )
 }
 
-val erp_model_1_4_kombi_complex by lazy {
+internal val erp_model_1_4_kombi_complex by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/erp_model_1_4_kombi_complex.json"
     )
 }
 
-val erp_model_1_4_multiple_simple by lazy {
+internal val erp_model_1_4_multiple_simple by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/erp_model_1_4_multiple_simple.json"
     )
 }
 
-val erp_model_diga_deeplink by lazy {
+internal val erp_model_diga_deeplink by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/erp_model_diga_deeplink.json"
     )
 }
 
-val erp_model_diga_name_and_pzn by lazy {
+internal val erp_model_diga_name_and_pzn by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/erp_model_diga_name_and_pzn.json"
     )
 }
 
-val erp_model_diga_no_redeem_code by lazy {
+internal val erp_model_diga_no_redeem_code by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/mocks/erp_model_diga_no_redeem_code.json"
     )
 }
 
-val simpleMedicationDispense = FhirMedicationDispenseErpModel(
+internal val simpleMedicationDispense = FhirMedicationDispenseErpModel(
     dispenseId = "160.000.000.031.686.59",
     patientId = "X110535541",
     substitutionAllowed = false,
@@ -118,7 +122,7 @@ val simpleMedicationDispense = FhirMedicationDispenseErpModel(
     dispensedDeviceRequest = null
 )
 
-val unknownMedicationProfileDispense = FhirMedicationDispenseErpModel(
+internal val unknownMedicationProfileDispense = FhirMedicationDispenseErpModel(
     dispenseId = "160.000.000.031.686.59",
     patientId = "X110535541",
     substitutionAllowed = false,
@@ -157,7 +161,7 @@ val unknownMedicationProfileDispense = FhirMedicationDispenseErpModel(
     dispensedDeviceRequest = null
 )
 
-val multipleMedicationDispense = FhirMedicationDispenseErpModel(
+internal val multipleMedicationDispense = FhirMedicationDispenseErpModel(
     dispenseId = "160.000.000.099.999.99",
     patientId = "X000000000",
     substitutionAllowed = false,
@@ -266,7 +270,7 @@ val multipleMedicationDispense = FhirMedicationDispenseErpModel(
     dispensedDeviceRequest = null
 )
 
-val medicationDispenseNoCategory = FhirMedicationDispenseErpModel(
+internal val medicationDispenseNoCategory = FhirMedicationDispenseErpModel(
     dispenseId = "160.000.000.031.686.59",
     patientId = "X110535541",
     substitutionAllowed = false,
@@ -297,4 +301,252 @@ val medicationDispenseNoCategory = FhirMedicationDispenseErpModel(
         )
     ),
     dispensedDeviceRequest = null
+)
+
+val erpMedicationDispenseDiGADeepLinkV15 = FhirMedicationDispenseErpModel(
+    dispenseId = "Example-MedicationDispense-DiGA-DeepLink",
+    patientId = "X123456789",
+    substitutionAllowed = false,
+    dosageInstruction = null,
+    performer = "8-SMC-B-Testkarte-883110000095957",
+    handedOver = FhirTemporal.LocalDate(
+        value = LocalDate.parse("2025-10-01")
+    ),
+    dispensedMedication = emptyList(),
+    dispensedDeviceRequest = FhirDispenseDeviceRequestErpModel(
+        deepLink = "https://gematico.de?redeemCode=DE12345678901234",
+        redeemCode = "DE12345678901234",
+        declineCode = null,
+        modifiedDate = FhirTemporal.LocalDate(
+            value = LocalDate.parse("2025-10-01")
+        ),
+        note = null,
+        referencePzn = "12345678",
+        display = "Gematico Diabetestherapie",
+        status = "completed"
+    )
+)
+
+val erpMedicationDispenseDiGANameAndPznV15 = FhirMedicationDispenseErpModel(
+    dispenseId = "Example-MedicationDispense-DiGA-Name-And-PZN",
+    patientId = "X123456789",
+    substitutionAllowed = false,
+    dosageInstruction = null,
+    performer = "8-SMC-B-Testkarte-883110000095957",
+    handedOver = FhirTemporal.LocalDate(
+        value = LocalDate.parse("2025-10-01")
+    ),
+    dispensedMedication = emptyList(),
+    dispensedDeviceRequest = FhirDispenseDeviceRequestErpModel(
+        deepLink = null,
+        redeemCode = "DE12345678901234",
+        declineCode = null,
+        modifiedDate = FhirTemporal.LocalDate(
+            value = LocalDate.parse("2025-10-01")
+        ),
+        note = null,
+        referencePzn = "12345678",
+        display = "Gematico Diabetestherapie",
+        status = "completed" // Replace with enum if applicable
+    )
+)
+
+val erpMedicationDispenseDiGANoRedeemCodeV15 = FhirMedicationDispenseErpModel(
+    dispenseId = "Example-MedicationDispense-DiGA-NoRedeemCode",
+    patientId = "X123456789",
+    substitutionAllowed = false,
+    dosageInstruction = null,
+    performer = "8-SMC-B-Testkarte-883110000095957",
+    handedOver = FhirTemporal.LocalDate(
+        value = LocalDate.parse("2025-10-01")
+    ),
+    dispensedMedication = emptyList(),
+    dispensedDeviceRequest = FhirDispenseDeviceRequestErpModel(
+        deepLink = null,
+        redeemCode = null,
+        declineCode = "asked-declined",
+        modifiedDate = FhirTemporal.LocalDate(
+            value = LocalDate.parse("2025-10-01")
+        ),
+        note = "Freischaltcode für DiGA konnte nicht erstellt werden",
+        referencePzn = null,
+        display = null,
+        status = "completed" // Replace with enum if applicable
+    )
+)
+
+val erpMedicationDispenseKombipackungV15 = FhirMedicationDispenseErpModel(
+    dispenseId = "Example-MedicationDispense-Kombipackung",
+    patientId = "X123456789",
+    substitutionAllowed = false,
+    dosageInstruction = null,
+    performer = "3-SMC-B-Testkarte-883110000095957",
+    handedOver = FhirTemporal.LocalDate(
+        value = LocalDate.parse("2025-10-01")
+    ),
+    dispensedMedication = emptyList(),
+    dispensedDeviceRequest = null
+)
+
+val erpMedicationDispenseRezepturV15 = FhirMedicationDispenseErpModel(
+    dispenseId = "Example-MedicationDispense-Rezeptur",
+    patientId = "X123456789",
+    substitutionAllowed = false,
+    dosageInstruction = null,
+    performer = "3-SMC-B-Testkarte-883110000095957",
+    handedOver = FhirTemporal.LocalDate(
+        value = LocalDate.parse("2025-10-01")
+    ),
+    dispensedMedication = emptyList(),
+    dispensedDeviceRequest = null
+)
+
+val erpMedicationDispenseWithoutMedicationV15 = FhirMedicationDispenseErpModel(
+    dispenseId = "Example-MedicationDispense-Without-Medication",
+    patientId = "X123456789",
+    substitutionAllowed = false,
+    dosageInstruction = null,
+    performer = "3-SMC-B-Testkarte-883110000095957",
+    handedOver = FhirTemporal.LocalDate(
+        value = LocalDate.parse("2025-10-01")
+    ),
+    dispensedMedication = emptyList(),
+    dispensedDeviceRequest = null
+)
+
+val medicationDispenseErpModelCollectionV15SingleMedication = FhirMedicationDispenseErpModelCollection(
+    dispensedMedications = listOf(
+        FhirMedicationDispenseErpModel(
+            dispenseId = "200.000.000.000.000.01",
+            patientId = "X123456789",
+            substitutionAllowed = false,
+            dosageInstruction = "1-0-1-0",
+            performer = "3-2-APO-XanthippeVeilchenblau01",
+            handedOver = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2025-10-01")
+            ),
+            dispensedMedication = listOf(
+                DispensedEpaMedicationErpModel(
+                    text = "Sumatriptan-1a Pharma 100 mg Tabletten",
+                    category = null,
+                    form = "TAB",
+                    amount = null,
+                    isVaccine = false,
+                    lotNumber = null,
+                    expirationDate = null,
+                    contextualData = EpaContextualData(
+                        identifier = FhirMedicationIdentifierErpModel(
+                            pzn = "06313728",
+                            atc = null,
+                            ask = null,
+                            snomed = null
+                        ),
+                        normSizeCode = "N1",
+                        manufacturingInstructions = null,
+                        packaging = null,
+                        ingredients = listOf(
+                            FhirMedicationIngredientErpModel(
+                                text = "Sumatriptan",
+                                amount = null,
+                                form = null,
+                                strengthRatio = FhirRatioErpModel(
+                                    numerator = FhirQuantityErpModel(
+                                        value = "100",
+                                        unit = "mg"
+                                    ),
+                                    denominator = FhirQuantityErpModel(
+                                        value = "1",
+                                        unit = null
+                                    )
+                                ),
+                                identifier = FhirMedicationIdentifierErpModel(
+                                    pzn = "06313728",
+                                    atc = null,
+                                    ask = null,
+                                    snomed = null
+                                )
+                            )
+                        ),
+                        internalMedication = emptyList()
+                    )
+                )
+            ),
+            dispensedDeviceRequest = null
+        )
+    )
+)
+
+val medicationDispenseErpModelCollectionV15MultipleMedications = FhirMedicationDispenseErpModelCollection(
+    dispensedMedications = listOf(
+        FhirMedicationDispenseErpModel(
+            dispenseId = "160.000.000.000.000.01",
+            patientId = "X123456789",
+            substitutionAllowed = false,
+            dosageInstruction = null,
+            performer = "3-2-APO-XanthippeVeilchenblau01",
+            handedOver = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2025-10-01")
+            ),
+            dispensedMedication = listOf(
+                DispensedEpaMedicationErpModel(
+                    text = null,
+                    category = null,
+                    form = null,
+                    amount = null,
+                    isVaccine = false,
+                    lotNumber = "123456",
+                    expirationDate = null,
+                    contextualData = EpaContextualData(
+                        identifier = FhirMedicationIdentifierErpModel(
+                            pzn = "06313728",
+                            atc = null,
+                            ask = null,
+                            snomed = null
+                        ),
+                        normSizeCode = null,
+                        manufacturingInstructions = null,
+                        packaging = null,
+                        ingredients = emptyList(),
+                        internalMedication = emptyList()
+                    )
+                )
+            ),
+            dispensedDeviceRequest = null
+        ),
+        FhirMedicationDispenseErpModel(
+            dispenseId = "160.000.000.000.000.02",
+            patientId = "X123456789",
+            substitutionAllowed = false,
+            dosageInstruction = null,
+            performer = "3-2-APO-XanthippeVeilchenblau01",
+            handedOver = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2025-10-01")
+            ),
+            dispensedMedication = listOf(
+                DispensedEpaMedicationErpModel(
+                    text = null,
+                    category = null,
+                    form = null,
+                    amount = null,
+                    isVaccine = false,
+                    lotNumber = "123456",
+                    expirationDate = null,
+                    contextualData = EpaContextualData(
+                        identifier = FhirMedicationIdentifierErpModel(
+                            pzn = "06313728",
+                            atc = null,
+                            ask = null,
+                            snomed = null
+                        ),
+                        normSizeCode = null,
+                        manufacturingInstructions = null,
+                        packaging = null,
+                        ingredients = emptyList(),
+                        internalMedication = emptyList()
+                    )
+                )
+            ),
+            dispensedDeviceRequest = null
+        )
+    )
 )

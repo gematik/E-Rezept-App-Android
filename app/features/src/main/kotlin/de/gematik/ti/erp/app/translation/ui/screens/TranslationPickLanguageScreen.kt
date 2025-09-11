@@ -54,6 +54,7 @@ class TranslationPickLanguageScreen(
         val dialog = LocalDialog.current
         val snackbarScaffold = LocalSnackbarScaffold.current
         val uiScope = uiScope
+        val okText = stringResource(R.string.ok)
         val controller = rememberTranslationSettingsController()
 
         var selectedLang by remember { mutableStateOf<String?>(null) }
@@ -66,7 +67,7 @@ class TranslationPickLanguageScreen(
             if (languageDownloadState is LanguageDownloadState.Completed) {
                 snackbarScaffold.showWithDismissButton(
                     message = "Language model downloaded successfully",
-                    actionLabel = "OK",
+                    actionLabel = okText,
                     scope = uiScope,
                     action = navController::navigateUp
                 )

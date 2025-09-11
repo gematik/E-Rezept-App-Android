@@ -37,10 +37,7 @@ val mockPharmacy = Pharmacy(
     contact = PharmacyUseCaseData.PharmacyContact(
         phone = "0123456",
         mail = "mail@mail.com",
-        url = "https://website.com",
-        pickUpUrl = "https://pickup.com",
-        deliveryUrl = "https://delivery.com",
-        onlineServiceUrl = "https://online.com"
+        url = "https://website.com"
     ),
     provides = listOf(),
     openingHours = null,

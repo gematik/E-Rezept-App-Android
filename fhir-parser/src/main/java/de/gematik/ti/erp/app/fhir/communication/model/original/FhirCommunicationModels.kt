@@ -48,19 +48,37 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
+/**
+ * Enum representing the supported FHIR communication resource types.
+ * Currently supports only the "Communication" resource.
+ */
 enum class FhirCommunicationResourceType {
     Communication;
 
     companion object {
+        /**
+         * Checks whether the given [resourceType] string matches the supported type.
+         *
+         * @param resourceType The string value of the resource type.
+         * @return True if the resource type is valid, otherwise false.
+         */
         fun isValidType(resourceType: String?): Boolean {
             return resourceType == Communication.name
         }
     }
 
+    /**
+     * FHIR participant model containing the identifier of a communication participant.
+     *
+     * @property identifier The identifier of the sender or recipient in the communication.
+     */
     @Serializable
     internal data class FhirCommunicationParticipant(
         @SerialName("identifier") val identifier: FhirIdentifier? = null
     ) {
+        /**
+         * Converts this FHIR model to an ERP-specific [CommunicationParticipantErpModel].
+         */
         fun toErpModel(): CommunicationParticipantErpModel {
             return CommunicationParticipantErpModel(
                 identifier = identifier?.value,
@@ -69,11 +87,22 @@ enum class FhirCommunicationResourceType {
         }
     }
 
+    /**
+     * Represents the payload of a FHIR Communication resource.
+     *
+     * Supports mapping to both reply and dispense communication ERP models depending on the context.
+     *
+     * @property contentString Optional plain text content of the communication.
+     * @property extensions Additional FHIR extensions, used for extracting supply option types.
+     */
     @Serializable
     internal data class FhirCommunicationPayload(
         @SerialName("contentString") val contentString: String? = null,
         @SerialName("extension") val extensions: List<FhirExtension> = emptyList()
     ) {
+        /**
+         * Converts this payload into an ERP reply communication model.
+         */
         fun toReplyErpModel(): ReplyCommunicationPayloadContentErpModel {
             val supplyOptionsExt = extensions.findExtensionByUrl(
                 FhirCommunicationConstants.SUPPLY_OPTIONS_TYPE_EXTENSION
@@ -97,6 +126,9 @@ enum class FhirCommunicationResourceType {
             )
         }
 
+        /**
+         * Converts this payload into an ERP dispense communication model.
+         */
         fun toDispenseErpModel(): DispenseCommunicationPayloadContentErpModel {
             val parsedContent = contentString?.let {
                 try {
@@ -117,6 +149,17 @@ enum class FhirCommunicationResourceType {
         }
     }
 
+    /**
+     * JSON-parsed structure of the dispense communication payload content.
+     * This structure is embedded within the content string of the FHIR communication.
+     *
+     * @property version Payload format version.
+     * @property supplyOptionsType Optional supply option code (e.g. on-premise, shipment).
+     * @property name Name of the patient or contact person.
+     * @property address List of address lines.
+     * @property hint Additional user-provided notes.
+     * @property phone Contact phone number.
+     */
     @Serializable
     internal data class DispensePayloadContent(
         @SerialName("version") val version: Int? = null,
@@ -127,6 +170,13 @@ enum class FhirCommunicationResourceType {
         @SerialName("phone") val phone: String? = null
     )
 
+    /**
+     * Data class representing the core FHIR Communication resource.
+     *
+     * This includes sender/recipient details, payload, status, task references, and communication metadata.
+     *
+     * Supports transformation into ERP-specific reply or dispense communication models.
+     */
     @Serializable
     internal data class FhirCommunication(
         @SerialName("resourceType") val resourceType: String? = null,
@@ -149,37 +199,32 @@ enum class FhirCommunicationResourceType {
         val received: FhirTemporal.Instant? = null
 
     ) {
-        fun getProfileType(): CommunicationProfileType {
-            return CommunicationProfileType.fromProfiles(meta?.profiles)
-        }
 
-        fun getProfileVersion(): String {
-            val profiles = meta?.profiles ?: return ""
-            val profileType = getProfileType()
-
-            if (profileType == CommunicationProfileType.UNKNOWN) {
-                return ""
-            }
-
-            return profiles.find { it.contains(profileType.profileIdentifier) }
-                ?.let { profileType.getVersionFromProfile(it) }
-                ?: ""
-        }
-
+        /**
+         * Extracts the order ID from the list of identifiers, if present.
+         */
         private fun getOrderId(): String? {
             return identifier?.find { it.system == FhirCommunicationConstants.ORDER_ID_SYSTEM }?.value
         }
 
+        /**
+         * Determines whether this communication corresponds to a DiGA (Digitale Gesundheitsanwendung).
+         *
+         * A communication is considered a DiGA if it contains a matching prescription type extension.
+         */
         private fun getIsDiga(): Boolean {
-            val noPayload = payload == null
-
             val hasFlowTypeForDiga = extensions
                 ?.findExtensionByUrl(CommunicationDigaConstants.PRESCRIPTION_TYPE_VALUE_CODING)
                 ?.valueCoding?.code == CommunicationDigaConstants.VALUE_CODING_TYPE_162
 
-            return noPayload && hasFlowTypeForDiga
+            return hasFlowTypeForDiga
         }
 
+        /**
+         * Extracts the prescription type from FHIR extensions.
+         *
+         * @return A mapped ERP prescription type model or null if not found.
+         */
         private fun getPrescriptionType(): DispensePrescriptionTypeErpModel? {
             val prescriptionExt = extensions?.find {
                 it.url == FhirCommunicationConstants.PRESCRIPTION_TYPE_EXTENSION
@@ -194,10 +239,13 @@ enum class FhirCommunicationResourceType {
             }
         }
 
-        fun toReplyErpModel(): FhirReplyCommunicationEntryErpModel {
+        /**
+         * Converts this communication into an ERP reply model.
+         */
+        internal fun toReplyErpModel(): FhirReplyCommunicationEntryErpModel {
             return FhirReplyCommunicationEntryErpModel(
                 id = id ?: "",
-                profile = getProfileVersion(),
+                profile = getCommunicationProfileVersion(),
                 taskId = taskId,
                 sent = sent,
                 received = received,
@@ -208,10 +256,13 @@ enum class FhirCommunicationResourceType {
             )
         }
 
-        fun toDispenseErpModel(): FhirDispenseCommunicationEntryErpModel {
+        /**
+         * Converts this communication into an ERP dispense model.
+         */
+        internal fun toDispenseErpModel(): FhirDispenseCommunicationEntryErpModel {
             return FhirDispenseCommunicationEntryErpModel(
                 id = id ?: "",
-                profile = getProfileVersion(),
+                profile = getCommunicationProfileVersion(),
                 taskId = taskId,
                 sender = sender?.toErpModel(),
                 recipient = recipient?.firstOrNull()?.toErpModel(),
@@ -224,6 +275,11 @@ enum class FhirCommunicationResourceType {
         }
 
         companion object {
+            /**
+             * Parses a [JsonElement] and converts it into a [FhirCommunication], validating the resource type.
+             *
+             * @return Parsed communication object, or null on error or invalid type.
+             */
             fun JsonElement.getCommunication(): FhirCommunication? {
                 val resourceType = this.jsonObject["resourceType"]?.jsonPrimitive?.content
 
@@ -238,6 +294,29 @@ enum class FhirCommunicationResourceType {
                     Napier.e("Error parsing FHIR Communication: ${e.message}")
                     null
                 }
+            }
+
+            /**
+             * Determines the communication profile type based on FHIR meta profiles.
+             */
+            internal fun FhirCommunication.getCommunicationProfileType(): CommunicationProfileType {
+                return CommunicationProfileType.fromProfiles(meta?.profiles)
+            }
+
+            /**
+             * Extracts the version string from the communication profile.
+             */
+            internal fun FhirCommunication.getCommunicationProfileVersion(): String {
+                val profiles = meta?.profiles ?: return ""
+                val profileType = getCommunicationProfileType()
+
+                if (profileType == CommunicationProfileType.UNKNOWN) {
+                    return ""
+                }
+
+                return profiles.find { it.contains(profileType.identifier) }
+                    ?.let { profileType.getVersionFromProfile(it) }
+                    ?: ""
             }
         }
     }

@@ -23,11 +23,11 @@
 package de.gematik.ti.erp.app.mainscreen.presentation
 
 import androidx.compose.runtime.Stable
-import de.gematik.ti.erp.app.core.GidResultIntent
 import de.gematik.ti.erp.app.idp.model.error.DecryptAccessTokenError
 import de.gematik.ti.erp.app.idp.model.error.SingleSignOnTokenError
 import de.gematik.ti.erp.app.idp.model.error.UniversalLinkError
 import de.gematik.ti.erp.app.idp.usecase.AuthenticateWithExternalHealthInsuranceAppUseCase
+import de.gematik.ti.erp.app.intent.GidResultIntent
 import de.gematik.ti.erp.app.mainscreen.presentation.AuthenticationHandlerState.Idle
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow

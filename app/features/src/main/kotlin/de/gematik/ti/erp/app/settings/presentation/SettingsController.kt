@@ -27,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.di.EndpointHelper
-import de.gematik.ti.erp.app.featuretoggle.datasource.FeatureToggleDataStore
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
@@ -148,7 +147,6 @@ fun rememberSettingsController(): SettingsController {
     val saveZoomPreferenceUseCase by rememberInstance<SaveZoomPreferenceUseCase>()
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
     val endpointHelper by rememberInstance<EndpointHelper>()
-    val featureToggleDataStore by rememberInstance<FeatureToggleDataStore>()
     val hasValidDigasUseCase by rememberInstance<HasValidDigasUseCase>()
 
     return remember {

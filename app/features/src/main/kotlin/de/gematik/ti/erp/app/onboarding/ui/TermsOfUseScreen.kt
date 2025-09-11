@@ -24,12 +24,10 @@ package de.gematik.ti.erp.app.onboarding.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
@@ -57,7 +55,7 @@ class TermsOfUseScreen(
     @Composable
     override fun Content() {
         WebViewScreen(
-            modifier = Modifier.testTag(TestTag.Onboarding.TermsOfUseScreen),
+            modifier = Modifier,
             title = stringResource(R.string.onb_terms_of_use),
             onBack = { navController.popBackStack() },
             url = URI_TERMS_OF_USE

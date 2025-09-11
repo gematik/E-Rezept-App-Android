@@ -151,13 +151,13 @@ fun OnboardingScreenScaffold(
                     buttonText = stringResource(R.string.onboarding_analytics_agree_button),
                     buttonEnabled = true,
                     includeBottomSpacer = false,
-                    modifier = Modifier.testTag(TestTag.Onboarding.NextButton),
+                    modifier = Modifier.testTag(TestTag.Onboarding.AnalyticsPreviewScreen.AllowButton),
                     onButtonClick = onClickAccept
                 )
                 OnboardingBottomBar(
                     info = null,
                     buttonText = stringResource(R.string.onboarding_analytics_reject_button),
-                    modifier = Modifier.testTag(TestTag.Onboarding.RejectButton),
+                    modifier = Modifier.testTag(TestTag.Onboarding.AnalyticsPreviewScreen.DenyButton),
                     buttonEnabled = true,
                     onButtonClick = onClickReject
                 )

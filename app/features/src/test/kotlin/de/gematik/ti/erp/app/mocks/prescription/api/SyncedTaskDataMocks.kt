@@ -22,6 +22,9 @@
 
 package de.gematik.ti.erp.app.mocks.prescription.api
 
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
 import de.gematik.ti.erp.app.mocks.DATE_3024_01_01
@@ -53,6 +56,10 @@ internal val PATIENT = Patient(
 
 private val MEDICATION = Medication(
     category = SyncedTaskData.MedicationCategory.entries[0],
+    medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+        type = ErpMedicationProfileType.PZN,
+        version = ErpMedicationProfileVersion.V_110
+    ),
     vaccine = true,
     text = "Medication",
     form = "AEO",
@@ -75,6 +82,10 @@ private val MEDICATION = Medication(
 
 private val MEDICATION_10_TAB = Medication(
     category = SyncedTaskData.MedicationCategory.entries[0],
+    medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+        type = ErpMedicationProfileType.PZN,
+        version = ErpMedicationProfileVersion.V_110
+    ),
     vaccine = true,
     text = "Medication",
     form = "TAB",

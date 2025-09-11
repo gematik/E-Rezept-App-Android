@@ -24,4 +24,5 @@ dependencies {
     implementation(project(namesPlugin.multiplatform))
     implementation(project(namesPlugin.uiComponents))
     implementation(libs.bundles.animation)
+    testImplementation(libs.test.turbine)
 }

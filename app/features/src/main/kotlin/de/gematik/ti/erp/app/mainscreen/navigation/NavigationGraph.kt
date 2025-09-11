@@ -44,6 +44,7 @@ import de.gematik.ti.erp.app.core.LocalNavController
 import de.gematik.ti.erp.app.debugsettings.navigation.showcaseScreensGraph
 import de.gematik.ti.erp.app.digas.navigation.DigasRoutes
 import de.gematik.ti.erp.app.digas.navigation.digasGraph
+import de.gematik.ti.erp.app.eurezept.navigation.euGraph
 import de.gematik.ti.erp.app.mainscreen.presentation.rememberAppController
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
 import de.gematik.ti.erp.app.medicationplan.navigation.medicationPlanGraph
@@ -162,6 +163,9 @@ fun NavigationGraph(
         composable(MainNavigationScreens.Debug.route) {
             DebugScreenWrapper(navHostController)
         }
+        euGraph(
+            navController = navHostController
+        )
     }
 }
 

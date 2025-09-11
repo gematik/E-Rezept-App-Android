@@ -24,8 +24,10 @@ package de.gematik.ti.erp.app.fhir.prescription.parser
 
 import de.gematik.ti.erp.app.data.task_bundle_vers_1_2
 import de.gematik.ti.erp.app.data.task_bundle_vers_1_3
+import de.gematik.ti.erp.app.data.task_bundle_vers_1_5
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskEntryParserResultTestData.taskEntryV_1_2
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskEntryParserResultTestData.taskEntryV_1_3
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskEntryParserResultTestData.taskEntryV_1_5
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.junit.Test
@@ -47,5 +49,12 @@ class TaskEntryParserTest {
         val bundle = Json.parseToJsonElement(task_bundle_vers_1_3)
         val result = parser.extract(bundle)
         assertEquals(taskEntryV_1_3, result)
+    }
+
+    @Test
+    fun `test parser for task bundle version 1_5`() = runTest {
+        val bundle = Json.parseToJsonElement(task_bundle_vers_1_5)
+        val result = parser.extract(bundle)
+        assertEquals(taskEntryV_1_5, result)
     }
 }

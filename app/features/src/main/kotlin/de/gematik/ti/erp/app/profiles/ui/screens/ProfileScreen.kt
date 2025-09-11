@@ -170,7 +170,6 @@ class ProfileScreen(
             onClickLogout = {
                 combinedProfileState.data?.selectedProfile?.let { profile ->
                     profileScreenController.logout(profile.id)
-                    profileScreenController.refreshCombinedProfile()
                 }
             },
             onClickDelete = {
@@ -411,7 +410,7 @@ internal fun ThreeDotMenu(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val description = stringResource(R.string.profile_show_options)
-    val isSsoTokenValid by remember { mutableStateOf(selectedProfile.isSSOTokenValid()) }
+    val isSsoTokenValid by remember(selectedProfile) { mutableStateOf(selectedProfile.isSSOTokenValid()) }
     IconButton(
         onClick = { expanded = true },
         modifier = Modifier

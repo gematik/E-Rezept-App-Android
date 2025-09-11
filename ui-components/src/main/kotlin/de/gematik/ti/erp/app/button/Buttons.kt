@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.utils.compose
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -89,11 +90,11 @@ fun TertiaryButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    elevation: ButtonElevation? = ButtonDefaults.elevation(defaultElevation = 0.dp, pressedElevation = SizeDefaults.half),
+    elevation: ButtonElevation? = ButtonDefaults.elevation(defaultElevation = SizeDefaults.zero, pressedElevation = SizeDefaults.half),
     shape: Shape = RoundedCornerShape(SizeDefaults.triple),
-    border: BorderStroke? = BorderStroke(width = 1.dp, color = AppTheme.colors.neutral300),
+    border: BorderStroke? = BorderStroke(width = SizeDefaults.eighth, color = AppTheme.colors.neutral300),
     colors: ButtonColors = ButtonDefaults.buttonColors(
-        backgroundColor = AppTheme.colors.neutral050,
+        backgroundColor = AppTheme.colors.neutral025,
         contentColor = AppTheme.colors.primary700
     ),
     contentPadding: PaddingValues = PaddingValues(
@@ -142,6 +143,7 @@ fun PrimaryButtonLarge(
     content = content
 )
 
+@Deprecated("use PrimaryOutlinedButton instead")
 @Composable
 fun PrimaryButtonOutlined(
     onClick: () -> Unit,
@@ -149,7 +151,7 @@ fun PrimaryButtonOutlined(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     elevation: ButtonElevation? = ButtonDefaults.elevation(defaultElevation = SizeDefaults.zero, pressedElevation = SizeDefaults.half),
-    shape: Shape = RoundedCornerShape(SizeDefaults.one),
+    shape: Shape = RoundedCornerShape(SizeDefaults.triple),
     border: BorderStroke? = BorderStroke(width = SizeDefaults.eighth, color = AppTheme.colors.primary700),
     colors: ButtonColors = ButtonDefaults.buttonColors(
         backgroundColor = AppTheme.colors.neutral000,
@@ -208,7 +210,7 @@ fun PrimaryButtonTiny(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     elevation: ButtonElevation? = ButtonDefaults.elevation(defaultElevation = SizeDefaults.zero, pressedElevation = SizeDefaults.half),
-    shape: Shape = RoundedCornerShape(SizeDefaults.one),
+    shape: Shape = RoundedCornerShape(SizeDefaults.triple),
     border: BorderStroke? = null,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     content: @Composable RowScope.() -> Unit
@@ -235,7 +237,7 @@ fun PrimaryButton(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     elevation: ButtonElevation? = ButtonDefaults.elevation(defaultElevation = SizeDefaults.zero, pressedElevation = SizeDefaults.half),
-    shape: Shape = RoundedCornerShape(SizeDefaults.one),
+    shape: Shape = RoundedCornerShape(SizeDefaults.triple),
     border: BorderStroke? = null,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     contentPadding: PaddingValues = PaddingValues(
@@ -360,8 +362,13 @@ fun PrimarySmallButtonPreview() {
 @Composable
 fun PrimaryButtonOutlinednPreview() {
     AppTheme {
-        PrimaryButtonOutlined({}) {
-            Text(text = "Button")
+        Column {
+            PrimaryButtonOutlined({}) {
+                Text(text = "Button")
+            }
+            PrimaryOutlinedButton({}) {
+                Text(text = "Button")
+            }
         }
     }
 }

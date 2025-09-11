@@ -70,7 +70,6 @@ import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.fhir.audit.model.FhirAuditEventErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.navigation.Screen
-import de.gematik.ti.erp.app.navigation.onReturnAction
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
 import de.gematik.ti.erp.app.profiles.presentation.rememberAuditEventsController
 import de.gematik.ti.erp.app.profiles.ui.components.AuditEventsLoading
@@ -119,10 +118,6 @@ class ProfileAuditEventsScreen(
         val auditEvents = auditController.auditEvents.collectAsLazyPagingItems()
         val isSsoTokenValid by auditController.isSsoTokenValidForSelectedProfile.collectAsStateWithLifecycle()
 
-        navBackStackEntry.onReturnAction(ProfileRoutes.ProfileAuditEventsScreen) {
-            auditController.refreshCombinedProfile()
-        }
-
         ChooseAuthenticationNavigationEventsListener(auditController, navController)
         with(auditController) {
             refreshStartedEvent.listen {
@@ -137,7 +132,6 @@ class ProfileAuditEventsScreen(
 
         LaunchedEffect(Unit) {
             intentHandler.gidSuccessfulIntent.collectLatest {
-                auditController.refreshCombinedProfile()
                 auditController.refreshAuditEvents()
             }
 

@@ -23,9 +23,11 @@
 package de.gematik.ti.erp.app.prescription.ui.screen
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -39,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,6 +61,7 @@ import de.gematik.ti.erp.app.prescription.ui.preview.PrescriptionsArchiveScreenP
 import de.gematik.ti.erp.app.prescription.ui.preview.PrescriptionsDigasArchiveScreenPreviewData
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.EmptyScreenComponent
@@ -177,6 +181,13 @@ fun PrescriptionsArchiveEmptyScreenContent(
         modifier = modifier,
         title = stringResource(R.string.prescription_archive_empty_screen_title),
         body = stringResource(R.string.prescription_archive_empty_screen_body),
+        image = {
+            Image(
+                painter = painterResource(id = R.drawable.girl_red_oh_no),
+                contentDescription = null,
+                modifier = Modifier.size(SizeDefaults.twentyfold)
+            )
+        },
         button = {}
     )
 

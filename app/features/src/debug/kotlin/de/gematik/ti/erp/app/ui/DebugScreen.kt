@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -55,6 +54,7 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.DataExploration
 import androidx.compose.material.icons.rounded.Adb
 import androidx.compose.material.icons.rounded.AddRoad
 import androidx.compose.material.icons.rounded.Bookmarks
@@ -72,7 +72,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -93,6 +92,8 @@ import androidx.navigation.compose.rememberNavController
 import com.chuckerteam.chucker.api.Chucker
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.database.datastore.featuretoggle.FeatureEntity
+import de.gematik.ti.erp.app.debugsettings.logger.ui.screens.DbMigrationLoggerScreen
 import de.gematik.ti.erp.app.debugsettings.logger.ui.screens.LoggerScreen.LoggerScreen
 import de.gematik.ti.erp.app.debugsettings.navigation.DebugScreenNavigation
 import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.ui.screens.PharmacyServiceSelectionScreen
@@ -103,7 +104,6 @@ import de.gematik.ti.erp.app.debugsettings.timeout.DebugTimeoutScreen
 import de.gematik.ti.erp.app.debugsettings.ui.components.ClearTextTrafficSection
 import de.gematik.ti.erp.app.debugsettings.ui.components.ClientIdsSection
 import de.gematik.ti.erp.app.debugsettings.ui.components.EnvironmentSelector
-import de.gematik.ti.erp.app.debugsettings.ui.components.LoadingButton
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -244,8 +244,7 @@ fun DebugScreen(
                 idpRepository = instance(),
                 idpUseCase = instance(),
                 profilesUseCase = instance(),
-                featureToggleDataStore = instance(),
-                pharmacyDirectRedeemUseCase = instance(),
+                featureToggleRepository = instance(),
                 getAppUpdateManagerFlagUseCase = instance(),
                 changeAppUpdateManagerFlagUseCase = instance(),
                 markAllUnreadMessagesAsReadUseCase = instance(),
@@ -269,9 +268,6 @@ fun DebugScreen(
                         onBack = {
                             settingsNavController.popBackStack()
                         },
-                        onClickDirectRedemption = {
-                            navController.navigate(DebugScreenNavigation.DebugRedeemWithoutFD.path())
-                        },
                         onClickPKV = {
                             navController.navigate(DebugScreenNavigation.DebugPKV.path())
                         },
@@ -286,16 +282,9 @@ fun DebugScreen(
                         },
                         onClickLogger = {
                             navController.navigate(DebugScreenNavigation.LoggerScreen.path())
-                        }
-                    )
-                }
-            }
-            composable(DebugScreenNavigation.DebugRedeemWithoutFD.route) {
-                NavigationAnimation(mode = navMode) {
-                    DebugScreenDirectRedeem(
-                        viewModel = viewModel,
-                        onBack = {
-                            navController.popBackStack()
+                        },
+                        onClickDbMigrationLogger = {
+                            navController.navigate(DebugScreenNavigation.DebugDbMigrationLoggerScreen.path())
                         }
                     )
                 }
@@ -331,6 +320,13 @@ fun DebugScreen(
                     navController.popBackStack()
                 }
             }
+            composable(DebugScreenNavigation.DebugDbMigrationLoggerScreen.route) {
+                    navEntry ->
+                DbMigrationLoggerScreen(
+                    navController = navController,
+                    navBackStackEntry = navEntry
+                ).Content()
+            }
             composable(DebugScreenNavigation.PharmacyVzdSelectionScreen.route) {
                 PharmacyServiceSelectionScreen {
                     navController.popBackStack()
@@ -340,157 +336,17 @@ fun DebugScreen(
     }
 }
 
-// TODO: Change to use the correct use-cases
-@Composable
-fun DebugScreenDirectRedeem(
-    viewModel: DebugSettingsViewModel,
-    onBack: () -> Unit
-) {
-    val listState = rememberLazyListState()
-
-    AnimatedElevationScaffold(
-        navigationMode = NavigationBarMode.Back,
-        listState = listState,
-        backLabel = stringResource(R.string.back),
-        closeLabel = stringResource(R.string.cancel),
-        topBarTitle = "Debug Redeem",
-        onBack = onBack
-    ) { innerPadding ->
-        var shipmentUrl by remember { mutableStateOf("") }
-        var deliveryUrl by remember { mutableStateOf("") }
-        var onPremiseUrl by remember { mutableStateOf("") }
-        var message by remember { mutableStateOf("") }
-        var certificates by remember { mutableStateOf("") }
-
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .padding(innerPadding)
-                .navigationBarsPadding()
-                .imePadding(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium),
-            contentPadding = PaddingValues(PaddingDefaults.Medium)
-        ) {
-            item {
-                DebugCard(
-                    title = "Endpoints"
-                ) {
-                    ErezeptOutlineText(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = shipmentUrl,
-                        label = "Shipment URL",
-                        placeholder = "Shipment URL",
-                        onValueChange = {
-                            shipmentUrl = it
-                        }
-                    )
-                    ErezeptOutlineText(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = deliveryUrl,
-                        label = "Delivery URL",
-                        placeholder = "Delivery URL",
-                        onValueChange = {
-                            deliveryUrl = it
-                        }
-                    )
-                    ErezeptOutlineText(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = onPremiseUrl,
-                        label = "OnPremise URL",
-                        placeholder = "OnPremise URL",
-                        onValueChange = {
-                            onPremiseUrl = it
-                        }
-                    )
-                }
-            }
-            item {
-                RedeemButton(
-                    viewModel = viewModel,
-                    url = shipmentUrl,
-                    message = message,
-                    certificates = certificates,
-                    text = "Send as Shipment"
-                )
-                RedeemButton(
-                    viewModel = viewModel,
-                    url = deliveryUrl,
-                    message = message,
-                    certificates = certificates,
-                    text = "Send as Delivery"
-                )
-                RedeemButton(
-                    viewModel = viewModel,
-                    url = onPremiseUrl,
-                    message = message,
-                    certificates = certificates,
-                    text = "Send as OnPremise"
-                )
-            }
-            item {
-                DebugCard(
-                    title = "Message"
-                ) {
-                    ErezeptOutlineText(
-                        modifier = Modifier
-                            .heightIn(max = 400.dp)
-                            .fillMaxWidth(),
-                        value = message,
-                        label = "Any Message",
-                        placeholder = "Any Message",
-                        onValueChange = {
-                            message = it
-                        }
-                    )
-                }
-            }
-            item {
-                DebugCard(
-                    title = "Certificates"
-                ) {
-                    ErezeptOutlineText(
-                        modifier = Modifier
-                            .heightIn(max = 400.dp)
-                            .fillMaxWidth(),
-                        value = certificates,
-                        label = "Certificate as PEM",
-                        placeholder = "Certificate as PEM",
-                        onValueChange = {
-                            certificates = it
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun RedeemButton(
-    viewModel: DebugSettingsViewModel,
-    url: String,
-    message: String,
-    certificates: String,
-    text: String
-) =
-    LoadingButton(
-        onClick = { viewModel.redeemDirect(url = url, message = message, certificatesPEM = certificates) },
-        enabled = url.isNotEmpty() && certificates.isNotEmpty(),
-        text = text
-    )
-
 @Suppress("LongMethod")
 @Composable
 fun DebugScreenMain(
     viewModel: DebugSettingsViewModel,
     onBack: () -> Unit,
-    onClickDirectRedemption: () -> Unit,
     onClickPKV: () -> Unit,
     onClickVzdSelection: () -> Unit,
     onClickBioMetricSettings: () -> Unit,
     onScanQrCode: () -> Unit,
-    onClickLogger: () -> Unit
+    onClickLogger: () -> Unit,
+    onClickDbMigrationLogger: () -> Unit
 ) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
@@ -501,6 +357,7 @@ fun DebugScreenMain(
     val appUpdateManager by viewModel.appUpdateManagerState
     val messageMarkingLoading by viewModel.messageMarkingLoadingState
     val prescriptionDeletionLoading by viewModel.prescriptionDeletionLoadingState
+    val featureState by viewModel.featureToggles.collectAsStateWithLifecycle()
     val iknr by viewModel.iknr.collectAsStateWithLifecycle()
     val onIknrChangedEvent = viewModel.onIknrChangedEvent
 
@@ -559,12 +416,6 @@ fun DebugScreenMain(
                             onClickBioMetricSettings()
                         }
                         LabelButton(
-                            icon = painterResource(R.drawable.ic_qr_code),
-                            text = "Direct Redemption"
-                        ) {
-                            onClickDirectRedemption()
-                        }
-                        LabelButton(
                             icon = painterResource(R.drawable.ic_pkv),
                             text = "PKV / GKV Switch"
                         ) {
@@ -596,6 +447,13 @@ fun DebugScreenMain(
                             text = "Internal Logger"
                         ) {
                             onClickLogger()
+                        }
+
+                        LabelButton(
+                            icon = Icons.Outlined.DataExploration,
+                            text = "DB Migration Logger"
+                        ) {
+                            onClickDbMigrationLogger()
                         }
                     }
                 }
@@ -804,7 +662,10 @@ fun DebugScreenMain(
                     }
                 }
                 item {
-                    FeatureToggles(viewModel = viewModel)
+                    FeatureToggles(
+                        viewModel = viewModel,
+                        featureState = featureState
+                    )
                 }
                 item {
                     RotatingLog(viewModel = viewModel)
@@ -966,27 +827,26 @@ private fun VirtualHealthCard(
 }
 
 @Composable
-private fun FeatureToggles(modifier: Modifier = Modifier, viewModel: DebugSettingsViewModel) {
-    val featuresState by produceState(initialValue = mutableMapOf<String, Boolean>()) {
-        viewModel.featuresState().collect {
-            value = it
-        }
-    }
+private fun FeatureToggles(
+    modifier: Modifier = Modifier,
+    featureState: Set<FeatureEntity>,
+    viewModel: DebugSettingsViewModel
+) {
     DebugCard(modifier, title = "Feature Toggles") {
-        for (feature in viewModel.features()) {
+        for (feature in featureState) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = feature.featureName,
+                    text = feature.name ?: "",
                     modifier = Modifier
                         .weight(1f),
                     style = MaterialTheme.typography.body1
                 )
                 Switch(
-                    checked = featuresState[feature.featureName] ?: false,
+                    checked = feature.isActive,
                     onCheckedChange = { viewModel.toggleFeature(feature) }
                 )
             }

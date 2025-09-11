@@ -31,6 +31,7 @@ import de.gematik.ti.erp.app.database.di.databaseModule
 import de.gematik.ti.erp.app.debugsettings.di.debugSettingsModule
 import de.gematik.ti.erp.app.digas.di.digaModule
 import de.gematik.ti.erp.app.digas.di.digaRepositoryModule
+import de.gematik.ti.erp.app.eurezept.di.euModule
 import de.gematik.ti.erp.app.features.BuildConfig
 import de.gematik.ti.erp.app.idp.idpModule
 import de.gematik.ti.erp.app.idp.idpUseCaseModule
@@ -95,6 +96,7 @@ val featureModule = DI.Module("featureModule", allowSilentOverride = true) {
         cardUnlockModule,
         pkvModule,
         digaModule,
+        euModule,
         // shared-prefs modules
         timeoutsSharedPrefsModule,
         // other modules

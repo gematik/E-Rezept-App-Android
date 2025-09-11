@@ -118,7 +118,6 @@ abstract class ChooseAuthenticationController(
                         ).collectLatest { result ->
                             when (result) {
                                 is AuthenticationResult.IdpCommunicationUpdate.IdpCommunicationSuccess -> {
-                                    refreshCombinedProfile()
                                     refreshActiveProfile()
                                     biometricAuthenticationSuccessEvent.trigger()
                                 }
@@ -188,7 +187,6 @@ abstract class ChooseAuthenticationController(
             is AuthenticationResult.Error.ResetError -> {
                 Napier.i(tag = TAG) { "Removing authentication data from database" }
                 biometricAuthenticator.removeAuthentication(profileId)
-                refreshCombinedProfile()
                 refreshActiveProfile()
                 biometricAuthenticationResetErrorEvent.trigger(error)
             }

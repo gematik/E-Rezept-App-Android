@@ -64,6 +64,7 @@ import de.gematik.ti.erp.app.prescription.ui.NumeratorChip
 import de.gematik.ti.erp.app.prescription.ui.PendingStatusChip
 import de.gematik.ti.erp.app.prescription.ui.ProvidedStatusChip
 import de.gematik.ti.erp.app.prescription.ui.ReadyStatusChip
+import de.gematik.ti.erp.app.prescription.ui.SelfPayerPrescriptionChip
 import de.gematik.ti.erp.app.prescription.ui.UnknownStatusChip
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription

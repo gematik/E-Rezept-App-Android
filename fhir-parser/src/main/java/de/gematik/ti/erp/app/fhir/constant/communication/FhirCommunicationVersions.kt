@@ -22,28 +22,35 @@
 
 package de.gematik.ti.erp.app.fhir.constant.communication
 
-import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants.COMMUNICATION_DISPENSE_PROFILE_BASE
-import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants.COMMUNICATION_REPLY_PROFILE_BASE
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants.COMMUNICATION_DISPENSE_DIGA_WORKFLOW_PROFILE
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants.COMMUNICATION_DISPENSE_WORKFLOW_PROFILE
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants.COMMUNICATION_REPLY_REPLY_WORKFLOW_PROFILE
 
-object FhirCommunicationVersions {
+internal object FhirCommunicationVersions {
     const val COMMUNICATION_VERSION_1_2 = "1.2"
     const val COMMUNICATION_VERSION_1_3 = "1.3"
     const val COMMUNICATION_VERSION_1_4 = "1.4"
+    const val COMMUNICATION_VERSION_1_5 = "1.5"
 
     val COMMUNICATION_REPLY_PROFILE_REGEX =
-        Regex("""$COMMUNICATION_REPLY_PROFILE_BASE\|(.+)""")
+        Regex("""$COMMUNICATION_REPLY_REPLY_WORKFLOW_PROFILE\|(.+)""")
     val COMMUNICATION_DISPENSE_PROFILE_REGEX =
-        Regex("""$COMMUNICATION_DISPENSE_PROFILE_BASE\|(.+)""")
+        Regex("""$COMMUNICATION_DISPENSE_WORKFLOW_PROFILE\|(.+)""")
+
+    val COMMUNICATION_DIGA_DISPENSE_PROFILE_REGEX =
+        Regex("""$COMMUNICATION_DISPENSE_DIGA_WORKFLOW_PROFILE\|(.+)""")
 
     enum class SupportedCommunicationReplyVersions(val version: String) {
         V_1_2(COMMUNICATION_VERSION_1_2),
         V_1_3(COMMUNICATION_VERSION_1_3),
-        V_1_4(COMMUNICATION_VERSION_1_4);
+        V_1_4(COMMUNICATION_VERSION_1_4),
+        V_1_5(COMMUNICATION_VERSION_1_5);
     }
 
     enum class SupportedCommunicationDispenseVersions(val version: String) {
         V_1_2(COMMUNICATION_VERSION_1_2),
         V_1_3(COMMUNICATION_VERSION_1_3),
-        V_1_4(COMMUNICATION_VERSION_1_4)
+        V_1_4(COMMUNICATION_VERSION_1_4),
+        V_1_5(COMMUNICATION_VERSION_1_5) // Support https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.5
     }
 }

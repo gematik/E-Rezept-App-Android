@@ -287,20 +287,6 @@
     <string name="prs_low_detail_medication">الوصفة الطبية التي تم مسحها</string>
     <string name="prs_low_detail_scanned_on">تم المسح الضوئي في %s</string>
     <string name="prs_low_detail_redeemed_on">وضع علامة \"تم الصرف\" في %s</string>
-    <string name="cam_next_sheet_how_to_proceed">كيف تريد المواصلة؟</string>
-    <string name="cam_next_sheet_order_now_title">إرسال إلى الصيدلية</string>
-    <string name="cam_next_sheet_available_soon">متوفر في القريب العاجل</string>
-    <string name="cam_next_sheet_order_now_info">احجز الآن للتحصيل أو احصل عليه عن طريق خدمة البريد السريع أو الشحن</string>
-    <string name="cam_next_sheet_order_later_title">الحفظ للطلب لاحقًا</string>
-    <string name="cam_next_sheet_order_later_info">حفظ الوصفات الطبية على الجهاز</string>
-    <plurals name="cam_next_with">
-        <item quantity="zero"></item>
-        <item quantity="one">متابعة مع وصفة %s</item>
-        <item quantity="two"></item>
-        <item quantity="few"></item>
-        <item quantity="many"></item>
-        <item quantity="other">متابعة مع وصفات %s</item>
-    </plurals>
     <string name="cdw_nfc_error_assign_title">فضل الارتباط بالبطاقة الصحية</string>
     <string name="cdw_nfc_error_assign_subtitle">بروفايلك الحالي مرتبط بالفعل ببطاقة صحية أخرى (رقم تأمين صحي %s).</string>
     <string name="cdw_nfc_error_assign_other_subtitle">بطاقتك الصحية مرتبطة بالفعل ببروفايل آخر. يُرجى تغيير البروفايل %s.</string>
@@ -323,7 +309,7 @@
     <string name="onb_page_4_header">الخصوصية والاستخدام</string>
     <string name="cdw_forward">متابعة</string>
     <string name="cdw_pin_info">كان عليك أن تطلب رقم التعريف الشخصي (PIN) الخاص ببطاقتك الصحية من شركة التأمين الصحي الخاصة بك ثم تستلمه عبر عملية آمنة مثل Postident.</string>
-    <string name="cdw_no_pin_received">تم استلام رمز PIN </string>
+    <string name="cdw_no_pin_received">ليس لدي رقم التعريف الشخصي</string>
     <string name="cdw_pin_label">رمز PIN</string>
     <string name="cdw_idp_error_time_and_connection">تحقق من الاتصال بالإنترنت وإعدادات الوقت / التاريخ لجهازك.</string>
     <string name="auth_failed_biometry_info">هل تم الإغلاق؟ يرجى التحقق من بيانات الدخول البيومترية الخاصة بك على هذا الجهاز.</string>
@@ -1277,7 +1263,7 @@
     <string name="diga_validity_question">ما هي مدة صلاحية هذا DiGA؟</string>
     <string name="diga_unlock_code_info">يمكنك طلب رمز التفعيل لجهاز DiGA الخاص بك خلال هذه الفترة.</string>
     <string name="last_updated_just_now">آخر تحديث: %s</string>
-    <string name="diga_insurance_waiting_info">قد تحتاج شركة التأمين الصحي الخاصة بك إلى مزيد من الوقت. يرجى الانتظار لمدة تصل إلى 10 أيام أو الاتصال بشركة التأمين الصحي مباشرة. في حالات نادرة، قد يأتي الكود من مصدر آخر.</string>
+    <string name="diga_insurance_waiting_info">قد يحتاج مُقدّم التأمين الصحي الخاص بك إلى مزيد من الوقت. يُرجى الانتظار لمدة تصل إلى ١٠ أيام أو التواصل معه مباشرةً. في حالات نادرة، سيُرسل إليك مُقدّم التأمين الرمز مباشرةً.</string>
     <string name="redeemable_until_date">قابلة للاسترداد حتى %s</string>
     <string name="code_received_on_date">تم استلام الكود في %s</string>
     <string name="code_reject_info">تم استلام الإشعار %s</string>
@@ -1548,4 +1534,67 @@
     <string name="date_picker_toggle_calendar">حدد التاريخ في التقويم</string>
     <string name="date_picker_dialog_textfield_header">أدخل التاريخ</string>
     <string name="date_picker_toggle_textfield">أدخل التاريخ باستخدام لوحة المفاتيح</string>
+    <string name="eu_consent_close">يلغي</string>
+    <string name="eu_consent_title">الموافقة على استرداد الوصفات الطبية الإلكترونية في بلدان أخرى بالاتحاد الأوروبي</string>
+    <string name="eu_consent_description">لاسترداد وصفاتك الطبية الإلكترونية في الخارج، سيتم إرسال معلومات التأمين والوصفات الطبية إلى البلد المختار عبر نقطة الاتصال الوطنية للاتحاد الأوروبي. تُطبق شروط وأحكام الاتحاد الأوروبي للخدمات العابرة للحدود.</string>
+    <string name="eu_consent_withdrawal">إذا قمت بإلغاء موافقتك لاحقًا، فلن يتم نقل المزيد من البيانات وسيتم إيقاف العمليات الجارية على الفور.</string>
+    <string name="eu_consent_profile_settings">يمكنك تغيير قرارك في أي وقت من خلال إعدادات ملفك الشخصي.</string>
+    <string name="eu_consent_accept">يقبل</string>
+    <string name="eu_consent_decline">انخفاض</string>
+    <string name="eu_redeem_title">استرداد في بلدان الاتحاد الأوروبي الأخرى</string>
+    <string name="eu_redeem_instructions_prefix">يمكن العثور على كيفية استرداد الوصفات الطبية في بلدان الاتحاد الأوروبي الأخرى في</string>
+    <string name="eu_redeem_instructions_link">تعليمات</string>
+    <string name="eu_redeem_prescriptions_title">الوصفات الطبية</string>
+    <string name="eu_redeem_select_prescriptions">اختيار الوصفات الطبية</string>
+    <string name="eu_redeem_select_prescriptions_error">الرجاء اختيار الوصفة الطبية</string>
+    <string name="eu_redeem_country_title">دولة</string>
+    <string name="eu_redeem_select_country">اختر البلد</string>
+    <string name="eu_redeem_select_country_error">الرجاء اختيار البلد</string>
+    <string name="eu_redeem_button">يسترد</string>
+    <string name="eu_country_selection_description">يرجى تحديد البلد الذي ترغب في استرداد الوصفات الطبية منه. إذا لم يكن بلدك مدرجًا، فهذا يعني أن استرداد الوصفات الطبية في الاتحاد الأوروبي غير متاح هناك.</string>
+    <string name="eu_country_selection_search_hint">يطلب</string>
+    <string name="eu_country_selection_use_location">استخدم الموقع</string>
+    <string name="eu_country_selection_clear_search">مسح البحث</string>
+    <string name="eu_country_selection_country_select_heading">اختر البلد</string>
+    <string name="eu_country_selection_select_country_desc">يرجى تحديد البلد الذي ترغب في استرداد الوصفات الطبية منه. إذا لم يكن بلدك مدرجًا، فهذا يعني أن استرداد الوصفات الطبية في الاتحاد الأوروبي غير متاح هناك.</string>
+    <string name="eu_country_selection_country_current_location">استخدم الموقع</string>
+    <string name="eu_country_location_permission_denied_title">مطلوب الوصول إلى الموقع</string>
+    <string name="eu_country_location_permission_denied_message">شارك موقعك للكشف عن بلدك تلقائيًا</string>
+    <string name="eu_country_location_service_disabled_message">خدمات الموقع مُعطّلة. فعّلها في الإعدادات لتحديد بلدك تلقائيًا.</string>
+    <string name="eu_country_location_settings_button">إعدادات</string>
+    <string name="eu_country_server_not_responding_title">الخادم لا يستجيب</string>
+    <string name="eu_country_server_not_responding_message">يرجى المحاولة مرة أخرى لاحقًا.</string>
+    <string name="eu_country_retry_button">حاول ثانية</string>
+    <string name="eu_country_location_stop_using">التوقف عن استخدام الموقع</string>
+    <string name="eu_country_detected_not_supported_message">موقعك الحالي إما في ألمانيا أو في بلد لم يشارك في التنفيذ بعد.</string>
+    <string name="eu_country_not_in_eu_message">البلد المكتشف ( %1$s ) ليس ضمن الاتحاد الأوروبي</string>
+    <string name="eu_country_not_found_message">لم يمكن تحديد البلد من الموقع</string>
+    <string name="eu_geocoder_not_available_message">خدمات الموقع غير متوفرة على هذا الجهاز</string>
+    <string name="eu_availability_title">سوف يكون استرداد الاتحاد الأوروبي متاحًا قريبًا</string>
+    <string name="eu_availability_description">تعمل الدول المشاركة حاليًا على التنفيذ. سنُعلمكم فور استعداد الدولة الأولى.</string>
+    <string name="eu_search_countries">يطلب</string>
+    <string name="eu_prescription_selection_title">الوصفات الطبية</string>
+    <string name="eu_prescription_selection_select_all">حدد جميع الوصفات الطبية</string>
+    <string name="eu_prescription_selection_profile_name">آدا موستيرمان</string>
+    <string name="eu_prescription_selection_available_until">قابلة للاسترداد في بلدان الاتحاد الأوروبي الأخرى حتى %1$s</string>
+    <string name="eu_prescription_selection_available">قابلة للاسترداد في بلدان الاتحاد الأوروبي الأخرى</string>
+    <string name="eu_prescription_selection_not_available">غير قابلة للاسترداد في بلدان الاتحاد الأوروبي الأخرى</string>
+    <string name="eu_prescription_selection_scanned_not_available">لا يمكن استرداد الوصفات الطبية الممسوحة ضوئيًا في الخارج</string>
+    <string name="eu_prescription_selection_freetext_not_available">لا يمكن استرداد الوصفات الطبية النصية المجانية في الخارج</string>
+    <string name="eu_prescription_selection_narcotic_not_available">لا يمكن استرداد المخدرات في الخارج</string>
+    <string name="eu_prescription_selection_ingredient_not_available">لا يمكن استرداد وصفات المكونات النشطة في الخارج</string>
+    <string name="eu_prescription_selection_selected">مُختار</string>
+    <string name="eu_prescription_selection_not_selected">لم يتم التحديد</string>
+    <string name="security_warning_text">**لا توجد تحديثات أمان لجهازك** \n لم تعد جوجل توفر تحديثات أمان للأجهزة التي تعمل بنظام Android 12 أو الإصدارات الأقدم. يُرجى تحديث جهازك لحماية بياناتك واستخدام التطبيق بأمان.</string>
+    <string name="security_warning_tag">🛡️ تحذير أمني</string>
+    <string name="eu_prescription_search_empty_title">ولكن للأسف لم يتم العثور على بلد مناسب.</string>
+    <string name="eu_prescription_search_empty_text">حاول استخدام مصطلح بحث مختلف.</string>
+    <plurals name="cam_save_scanned_prescriptions">
+        <item quantity="zero">%s حفظ الوصفة الطبية</item>
+        <item quantity="one">%s حفظ الوصفة الطبية</item>
+        <item quantity="two">%s حفظ الوصفة</item>
+        <item quantity="few">%s حفظ الوصفة الطبية</item>
+        <item quantity="many">%s حفظ الوصفة الطبية</item>
+        <item quantity="other">%s حفظ الوصفات</item>
+    </plurals>
 </resources>

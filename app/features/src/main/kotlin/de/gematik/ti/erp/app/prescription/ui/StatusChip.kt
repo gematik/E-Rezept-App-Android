@@ -24,16 +24,20 @@
 
 package de.gematik.ti.erp.app.prescription.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.Surface
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Check
@@ -48,194 +52,213 @@ import androidx.compose.material.icons.rounded.HourglassTop
 import androidx.compose.material.icons.rounded.Smartphone
 import androidx.compose.material.icons.rounded.Today
 import androidx.compose.material.icons.rounded.WarningAmber
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 
+// Base
 @Composable
-fun StatusChip(
-    text: String,
-    textColor: Color,
-    backgroundColor: Color,
+fun GemAssistChip(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    icon: (@Composable () -> Unit)? = null
-) {
-    val shape = RoundedCornerShape(8.dp)
-    Row(
-        Modifier
-            .background(backgroundColor, shape)
-            .clip(shape)
-            .then(modifier)
-            .padding(vertical = 6.dp, horizontal = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text, style = AppTheme.typography.subtitle2, color = textColor, overflow = TextOverflow.Ellipsis)
-        icon?.let {
-            SpacerSmall()
-            it()
-        }
-    }
-}
-
-@Composable
-fun StatusChip(
     text: String,
-    icon: ImageVector?,
-    textColor: Color,
-    backgroundColor: Color,
-    iconColor: Color,
-    modifier: Modifier = Modifier
-) =
-    StatusChip(
-        text = text,
-        icon = icon?.let {
-            {
-                Icon(it, tint = iconColor, contentDescription = null)
-            }
+    enabled: Boolean = true,
+    labelColor: Color = AppTheme.colors.neutral900,
+    iconColor: Color = AppTheme.colors.primary700,
+    containerColor: Color = AppTheme.colors.neutral025,
+    border: BorderStroke? = null,
+    trailingIcon: (@Composable () -> Unit)? = null,
+    leadingIcon: (@Composable () -> Unit)? = null
+) {
+    AssistChip(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        elevation = null,
+        shape = RoundedCornerShape(SizeDefaults.one),
+        border = border,
+        colors = AssistChipDefaults.assistChipColors(
+            containerColor = containerColor,
+            labelColor = labelColor,
+            leadingIconContentColor = iconColor,
+            trailingIconContentColor = iconColor,
+            disabledContainerColor = containerColor,
+            disabledLabelColor = labelColor,
+            disabledLeadingIconContentColor = iconColor,
+            disabledTrailingIconContentColor = iconColor
+        ),
+        leadingIcon = leadingIcon,
+        label = {
+            Text(text, style = AppTheme.typography.subtitle2, overflow = TextOverflow.Ellipsis)
         },
-        textColor = textColor,
-        backgroundColor = backgroundColor,
-        modifier = modifier
+        trailingIcon = trailingIcon
     )
-
-@Preview
-@Composable
-private fun StatusChipPreview() {
-    AppTheme {
-        StatusChip(
-            text = "Einlösbar",
-            icon = Icons.Rounded.Check,
-            textColor = AppTheme.colors.green900,
-            backgroundColor = AppTheme.colors.green100,
-            iconColor = AppTheme.colors.green500
-        )
-    }
 }
 
+@Composable
+fun GemNonInteractiveAssistChip(
+    modifier: Modifier = Modifier,
+    text: String,
+    labelColor: Color = AppTheme.colors.neutral900,
+    iconColor: Color = AppTheme.colors.neutral500,
+    containerColor: Color = AppTheme.colors.neutral200,
+    border: BorderStroke? = null,
+    trailingIcon: (@Composable () -> Unit)? = null,
+    leadingIcon: (@Composable () -> Unit)? = null
+) {
+    AssistChip(
+        onClick = {},
+        modifier = modifier.clearAndSetSemantics {
+            contentDescription = text
+        },
+        enabled = false,
+        elevation = null,
+        shape = RoundedCornerShape(SizeDefaults.one),
+        border = border,
+        colors = AssistChipDefaults.assistChipColors(
+            containerColor = containerColor,
+            labelColor = labelColor,
+            leadingIconContentColor = iconColor,
+            trailingIconContentColor = iconColor,
+            disabledContainerColor = containerColor,
+            disabledLabelColor = labelColor,
+            disabledLeadingIconContentColor = iconColor,
+            disabledTrailingIconContentColor = iconColor
+        ),
+        leadingIcon = leadingIcon,
+        label = {
+            Text(text, style = AppTheme.typography.subtitle2, overflow = TextOverflow.Ellipsis)
+        },
+        trailingIcon = trailingIcon
+    )
+}
+
+// PrescriptionStatus
 @Composable
 fun ReadyStatusChip() =
-    StatusChip(
+    GemNonInteractiveAssistChip(
         text = stringResource(R.string.prescription_status_ready),
-        icon = null,
-        textColor = AppTheme.colors.primary900,
-        backgroundColor = AppTheme.colors.primary100,
+        trailingIcon = null,
+        labelColor = AppTheme.colors.primary900,
+        containerColor = AppTheme.colors.primary100,
         modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionRedeemable)
     )
 
 @Composable
 fun SentStatusChip() =
-    StatusChip(
+    GemNonInteractiveAssistChip(
         text = stringResource(R.string.prescription_status_sent),
-        icon = null,
-        textColor = AppTheme.colors.yellow900,
-        backgroundColor = AppTheme.colors.yellow100
+        trailingIcon = { Icon(Icons.AutoMirrored.Rounded.Send, null) },
+        labelColor = AppTheme.colors.yellow900,
+        containerColor = AppTheme.colors.yellow100,
+        iconColor = AppTheme.colors.yellow500
     )
 
 @Composable
 fun PendingStatusChip() =
-    StatusChip(
+    GemNonInteractiveAssistChip(
         text = stringResource(R.string.prescription_status_pending),
-        icon = {
+        trailingIcon = {
             CircularProgressIndicator(
                 modifier = Modifier.size(16.dp),
                 color = AppTheme.colors.neutral500,
                 strokeWidth = 2.dp
             )
         },
-        textColor = AppTheme.colors.neutral600,
-        backgroundColor = AppTheme.colors.neutral200,
+        labelColor = AppTheme.colors.neutral600,
+        containerColor = AppTheme.colors.neutral200,
         modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionWaitForResponse)
     )
 
 @Composable
 fun InProgressStatusChip() =
-    StatusChip(
+    GemNonInteractiveAssistChip(
         text = stringResource(R.string.prescription_status_in_progress),
-        icon = Icons.Rounded.HourglassTop,
-        textColor = AppTheme.colors.yellow900,
-        backgroundColor = AppTheme.colors.yellow100,
+        trailingIcon = { Icon(Icons.Rounded.HourglassTop, null) },
+        labelColor = AppTheme.colors.yellow900,
+        containerColor = AppTheme.colors.yellow100,
         iconColor = AppTheme.colors.yellow500,
         modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionInProgress)
     )
 
 @Composable
 fun FailureStatusChip() =
-    StatusChip(
+    GemNonInteractiveAssistChip(
         text = stringResource(R.string.prescription_status_failure),
-        icon = Icons.Rounded.WarningAmber,
-        textColor = AppTheme.colors.red900,
-        backgroundColor = AppTheme.colors.red100,
+        trailingIcon = { Icon(Icons.Rounded.WarningAmber, null) },
+        labelColor = AppTheme.colors.red900,
+        containerColor = AppTheme.colors.red100,
         iconColor = AppTheme.colors.red500
     )
 
 @Composable
 fun CompletedStatusChip() =
-    StatusChip(
+    GemNonInteractiveAssistChip(
         text = stringResource(R.string.prescription_status_completed),
-        icon = Icons.Rounded.DoneAll,
-        textColor = AppTheme.colors.neutral600,
-        backgroundColor = AppTheme.colors.neutral200,
+        trailingIcon = { Icon(Icons.Rounded.DoneAll, null) },
+        labelColor = AppTheme.colors.neutral600,
+        containerColor = AppTheme.colors.neutral200,
         iconColor = AppTheme.colors.neutral500,
         modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionRedeemed)
     )
 
 @Composable
 fun ProvidedStatusChip() =
-    StatusChip(
+    GemNonInteractiveAssistChip(
         text = stringResource(R.string.provided),
-        icon = Icons.Rounded.DoneAll,
-        textColor = AppTheme.colors.neutral600,
-        backgroundColor = AppTheme.colors.neutral200,
+        trailingIcon = { Icon(Icons.Rounded.DoneAll, null) },
+        labelColor = AppTheme.colors.neutral600,
+        containerColor = AppTheme.colors.neutral200,
         iconColor = AppTheme.colors.neutral500,
         modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionProvided)
     )
 
 @Composable
 fun DeletedStatusChip() =
-    StatusChip(
+    GemNonInteractiveAssistChip(
         text = stringResource(R.string.prescription_status_deleted),
-        icon = Icons.Outlined.Delete,
-        textColor = AppTheme.colors.neutral600,
-        backgroundColor = AppTheme.colors.neutral200,
+        trailingIcon = { Icon(Icons.Outlined.Delete, null) },
+        labelColor = AppTheme.colors.neutral600,
+        containerColor = AppTheme.colors.neutral200,
         iconColor = AppTheme.colors.neutral500,
         modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionDeleted)
     )
 
 @Composable
 fun ExpiredStatusChip() =
-    StatusChip(
+    GemNonInteractiveAssistChip(
         text = stringResource(R.string.prescription_status_expired),
-        icon = Icons.Rounded.EventBusy,
-        textColor = AppTheme.colors.neutral600,
-        backgroundColor = AppTheme.colors.neutral200,
+        trailingIcon = { Icon(Icons.Rounded.EventBusy, null) },
+        labelColor = AppTheme.colors.neutral600,
+        containerColor = AppTheme.colors.neutral200,
         iconColor = AppTheme.colors.neutral500
     )
 
 @Composable
 fun LaterRedeemableStatusChip() =
-    StatusChip(
+    GemNonInteractiveAssistChip(
         text = stringResource(R.string.prescription_status_later_redeemable),
-        icon = Icons.Rounded.Today,
-        textColor = AppTheme.colors.yellow900,
-        backgroundColor = AppTheme.colors.yellow100,
+        trailingIcon = { Icon(Icons.Rounded.Today, null) },
+        labelColor = AppTheme.colors.yellow900,
+        containerColor = AppTheme.colors.yellow100,
         iconColor = AppTheme.colors.yellow500
     )
 
@@ -247,30 +270,142 @@ fun NumeratorChip(numerator: String, denominator: String) {
             numerator,
             denominator
         ).toString()
+    GemNonInteractiveAssistChip(
+        text = text,
+        containerColor = AppTheme.colors.neutral200,
+        labelColor = AppTheme.colors.neutral600
+    )
+}
 
-    val shape = RoundedCornerShape(8.dp)
+@Composable
+fun UnknownStatusChip() =
+    GemNonInteractiveAssistChip(
+        text = stringResource(R.string.prescription_status_unknown),
+        labelColor = AppTheme.colors.neutral600,
+        containerColor = AppTheme.colors.neutral100,
+        iconColor = AppTheme.colors.neutral500
+    )
+
+@Composable
+fun DirectAssignmentStatusChip(redeemed: Boolean) {
+    val text = if (redeemed) {
+        stringResource(R.string.prescription_status_direct_assignment_closed)
+    } else {
+        stringResource(R.string.prescription_status_direct_assignment_ready)
+    }
+    GemNonInteractiveAssistChip(
+        text = text,
+        labelColor = AppTheme.colors.neutral600,
+        containerColor = AppTheme.colors.neutral200,
+        iconColor = AppTheme.colors.neutral500
+    )
+}
+
+@Composable
+fun DirectAssignmentChip(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) =
+    GemAssistChip(
+        modifier = modifier,
+        text = stringResource(R.string.prescription_detail_direct_assignment_chip),
+        trailingIcon = { Icon(Icons.Outlined.Info, null) },
+        labelColor = AppTheme.colors.primary900,
+        containerColor = AppTheme.colors.primary100,
+        iconColor = AppTheme.colors.primary500,
+        onClick = onClick
+    )
+
+@Composable
+fun SubstitutionNotAllowedChip(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) =
+    GemAssistChip(
+        modifier = modifier,
+        text = stringResource(R.string.prescription_details_substitution_not_allowed),
+        trailingIcon = { Icon(Icons.Outlined.Info, null) },
+        labelColor = AppTheme.colors.primary900,
+        containerColor = AppTheme.colors.primary100,
+        iconColor = AppTheme.colors.primary500,
+        onClick = onClick
+    )
+
+@Composable
+fun FailureDetailsStatusChip(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) =
+    GemAssistChip(
+        modifier = modifier,
+        text = stringResource(R.string.prescription_status_failure),
+        trailingIcon = { Icon(Icons.Outlined.Info, null) },
+        labelColor = AppTheme.colors.red900,
+        containerColor = AppTheme.colors.red100,
+        iconColor = AppTheme.colors.red500,
+        onClick = onClick
+    )
+
+@Composable
+fun SelfPayerPrescriptionChip() =
+    GemNonInteractiveAssistChip(
+        text = stringResource(R.string.prescription_status_self_pay),
+        labelColor = AppTheme.colors.neutral600,
+        containerColor = AppTheme.colors.neutral100
+    )
+
+@Composable
+fun SelfPayPrescriptionDetailsChip(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) =
+    GemAssistChip(
+        modifier = modifier,
+        text = stringResource(R.string.pres_details_exp_sel_payer_prescription),
+        trailingIcon = { Icon(Icons.Outlined.Info, null) },
+        labelColor = AppTheme.colors.primary900,
+        containerColor = AppTheme.colors.primary100,
+        iconColor = AppTheme.colors.primary500,
+        onClick = onClick
+    )
+
+// Diga
+@Composable
+internal fun DigaStatusChip(
+    text: String,
+    icon: ImageVector? = null,
+    labelColor: Color,
+    containerColor: Color,
+    iconColor: Color,
+    showTrailingIcon: Boolean = true
+) {
     Row(
-        modifier = Modifier
-            .background(AppTheme.colors.neutral200, shape)
-            .clip(shape)
-            .padding(vertical = PaddingDefaults.ShortMedium / 2, horizontal = PaddingDefaults.ShortMedium),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
     ) {
-        Text(text, style = AppTheme.typography.subtitle2, color = AppTheme.colors.neutral600)
+        GemNonInteractiveAssistChip(
+            text = text,
+            trailingIcon = { icon?.let { Icon(icon, null) } },
+            labelColor = labelColor,
+            containerColor = containerColor,
+            iconColor = iconColor
+        )
+        if (showTrailingIcon) {
+            DigaStatusExtraIcon()
+        }
     }
 }
 
 @Composable
-fun DigaIconRowItem() {
-    val shape = RoundedCornerShape(SizeDefaults.one)
-    Row(
-        modifier = Modifier
-            .background(AppTheme.colors.neutral200, shape)
-            .clip(shape)
-            .padding(vertical = SizeDefaults.fivefoldHalf, horizontal = SizeDefaults.half),
-        verticalAlignment = Alignment.CenterVertically
+private fun DigaStatusExtraIcon() {
+    Surface(
+        modifier = Modifier,
+        shape = RoundedCornerShape(SizeDefaults.one),
+        color = AppTheme.colors.neutral200,
+        contentColor = AppTheme.colors.neutral500
     ) {
         Icon(
+            modifier = Modifier.padding(PaddingValues(SizeDefaults.half)),
             imageVector = Icons.Rounded.Smartphone,
             tint = AppTheme.colors.neutral500,
             contentDescription = null
@@ -281,8 +416,8 @@ fun DigaIconRowItem() {
 @Composable
 fun InReguestStatusChip() = DigaStatusChip(
     text = stringResource(R.string.diga_status_request),
-    textColor = AppTheme.colors.primary900,
-    backgroundColor = AppTheme.colors.primary100,
+    labelColor = AppTheme.colors.primary900,
+    containerColor = AppTheme.colors.primary100,
     iconColor = AppTheme.colors.neutral500
 )
 
@@ -291,8 +426,8 @@ fun ArchivedChip() =
     DigaStatusChip(
         text = stringResource(R.string.diga_status_archived),
         icon = Icons.Outlined.Archive,
-        textColor = AppTheme.colors.neutral600,
-        backgroundColor = AppTheme.colors.neutral200,
+        labelColor = AppTheme.colors.neutral600,
+        containerColor = AppTheme.colors.neutral200,
         iconColor = AppTheme.colors.neutral500
     )
 
@@ -301,8 +436,8 @@ fun NotLongerValidChip() =
     DigaStatusChip(
         text = stringResource(R.string.diga_status_not_valid),
         icon = Icons.Outlined.AccessTime,
-        textColor = AppTheme.colors.neutral600,
-        backgroundColor = AppTheme.colors.neutral200,
+        labelColor = AppTheme.colors.neutral600,
+        containerColor = AppTheme.colors.neutral200,
         iconColor = AppTheme.colors.neutral500
     )
 
@@ -311,8 +446,8 @@ fun WaitingForCodeChip() =
     DigaStatusChip(
         text = stringResource(R.string.diga_status_waiting),
         icon = Icons.Outlined.HourglassTop,
-        textColor = AppTheme.colors.yellow900,
-        backgroundColor = AppTheme.colors.yellow100,
+        labelColor = AppTheme.colors.yellow900,
+        containerColor = AppTheme.colors.yellow100,
         iconColor = AppTheme.colors.yellow500
     )
 
@@ -321,8 +456,8 @@ fun CodeRejectChip() =
     DigaStatusChip(
         text = stringResource(R.string.diga_status_reject),
         icon = Icons.Outlined.Close,
-        textColor = AppTheme.colors.red900,
-        backgroundColor = AppTheme.colors.red100,
+        labelColor = AppTheme.colors.red900,
+        containerColor = AppTheme.colors.red100,
         iconColor = AppTheme.colors.red500
     )
 
@@ -331,121 +466,100 @@ fun InsuranceCodeChip() =
     DigaStatusChip(
         text = stringResource(R.string.diga_status_insurance_code),
         icon = Icons.Outlined.Check,
-        textColor = AppTheme.colors.green900,
-        backgroundColor = AppTheme.colors.green100,
+        labelColor = AppTheme.colors.green900,
+        containerColor = AppTheme.colors.green100,
         iconColor = AppTheme.colors.green900
     )
 
+@LightDarkPreview
 @Composable
-internal fun DigaStatusChip(
-    text: String,
-    icon: ImageVector? = null,
-    textColor: Color,
-    backgroundColor: Color,
-    iconColor: Color,
-    showTrailingIcon: Boolean = true
-) {
-    Row {
-        StatusChip(
-            text = text,
-            icon = icon,
-            textColor = textColor,
-            backgroundColor = backgroundColor,
-            iconColor = iconColor
-        )
-
-        if (showTrailingIcon) {
-            SpacerSmall()
-            DigaIconRowItem()
+fun StatusChipsPreview() {
+    PreviewAppTheme {
+        Column {
+            ReadyStatusChip()
+            SentStatusChip()
+            PendingStatusChip()
+            InProgressStatusChip()
+            FailureStatusChip()
+            CompletedStatusChip()
+            ProvidedStatusChip()
+            DeletedStatusChip()
+            ExpiredStatusChip()
+            LaterRedeemableStatusChip()
+            SelfPayerPrescriptionChip()
         }
     }
 }
 
-@Composable
-fun UnknownStatusChip() =
-    StatusChip(
-        text = stringResource(R.string.prescription_status_unknown),
-        textColor = AppTheme.colors.neutral600,
-        backgroundColor = AppTheme.colors.neutral100
-    )
-
-@Composable
-fun DirectAssignmentStatusChip(redeemed: Boolean) {
-    val text = if (redeemed) {
-        stringResource(R.string.prescription_status_direct_assignment_closed)
-    } else {
-        stringResource(R.string.prescription_status_direct_assignment_ready)
-    }
-    StatusChip(
-        text = text,
-        textColor = AppTheme.colors.neutral600,
-        backgroundColor = AppTheme.colors.neutral200
-    )
-}
-
-@Composable
-fun DirectAssignmentChip(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) =
-    StatusChip(
-        modifier = modifier
-            .clickable(role = Role.Button) {
-                onClick()
-            },
-        text = stringResource(R.string.prescription_detail_direct_assignment_chip),
-        icon = Icons.Outlined.Info,
-        textColor = AppTheme.colors.primary900,
-        backgroundColor = AppTheme.colors.primary100,
-        iconColor = AppTheme.colors.primary700
-    )
-
-@Composable
-fun SubstitutionNotAllowedChip(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) =
-    StatusChip(
-        modifier = modifier
-            .clickable(role = Role.Button) {
-                onClick()
-            },
-        text = stringResource(R.string.prescription_details_substitution_not_allowed),
-        icon = Icons.Outlined.Info,
-        textColor = AppTheme.colors.primary900,
-        backgroundColor = AppTheme.colors.primary100,
-        iconColor = AppTheme.colors.primary700
-    )
-
-@Composable
-fun FailureDetailsStatusChip(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) =
-    StatusChip(
-        modifier = modifier
-            .clickable(role = Role.Button) {
-                onClick()
-            },
-        text = stringResource(R.string.prescription_status_failure),
-        icon = Icons.Outlined.Info,
-        textColor = AppTheme.colors.red900,
-        backgroundColor = AppTheme.colors.red100,
-        iconColor = AppTheme.colors.red500
-    )
-
 @LightDarkPreview
 @Composable
-fun SubstitutionNotallowedStatusChipPreview() {
+fun StatusChipsPreviewExtended() {
     PreviewAppTheme {
-        SubstitutionNotAllowedChip {}
+        Column {
+            NumeratorChip("1", "2")
+            UnknownStatusChip()
+            DirectAssignmentStatusChip(true)
+            DirectAssignmentStatusChip(false)
+            DirectAssignmentChip { }
+            SubstitutionNotAllowedChip { }
+            FailureDetailsStatusChip { }
+            SelfPayPrescriptionDetailsChip { }
+        }
     }
 }
 
 @LightDarkPreview
 @Composable
-fun PendingStatusChipPreview() {
+fun DigaStatusChipsPreview() {
     PreviewAppTheme {
-        PendingStatusChip()
+        Column {
+            InReguestStatusChip()
+            ArchivedChip()
+            NotLongerValidChip()
+            WaitingForCodeChip()
+            CodeRejectChip()
+            InsuranceCodeChip()
+        }
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun AssistChipsPreview() {
+    PreviewAppTheme {
+        Column {
+            GemAssistChip(
+                text = "Einlösbar",
+                trailingIcon = { Icon(Icons.Rounded.Check, null) },
+                labelColor = AppTheme.colors.green900,
+                containerColor = AppTheme.colors.green100,
+                iconColor = AppTheme.colors.green500,
+                onClick = {}
+            )
+            GemAssistChip(
+                text = stringResource(R.string.prescription_status_deleted),
+                trailingIcon = null,
+                labelColor = AppTheme.colors.neutral600,
+                containerColor = AppTheme.colors.neutral200,
+                iconColor = AppTheme.colors.neutral500,
+                modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionDeleted),
+                onClick = {}
+            )
+            GemNonInteractiveAssistChip(
+                text = "Einlösbar",
+                trailingIcon = { Icon(Icons.Rounded.Check, null) },
+                labelColor = AppTheme.colors.green900,
+                containerColor = AppTheme.colors.green100,
+                iconColor = AppTheme.colors.green500
+            )
+            GemNonInteractiveAssistChip(
+                text = stringResource(R.string.prescription_status_deleted),
+                trailingIcon = null,
+                labelColor = AppTheme.colors.neutral600,
+                containerColor = AppTheme.colors.neutral200,
+                iconColor = AppTheme.colors.neutral500,
+                modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionDeleted)
+            )
+        }
     }
 }

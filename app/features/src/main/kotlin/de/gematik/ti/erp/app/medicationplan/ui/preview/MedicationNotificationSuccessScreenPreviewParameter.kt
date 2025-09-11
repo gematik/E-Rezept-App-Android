@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.medicationplan.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleInterval
 import de.gematik.ti.erp.app.medicationplan.model.ProfileWithSchedules
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.PROFILE1
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.PROFILE2
@@ -75,7 +76,9 @@ class MedicationSuccessScreenPreviewParameter : PreviewParameterProvider<Medicat
                             PROFILE2.toModel(),
                             medicationSchedules = listOf(
                                 @Suppress("MagicNumber")
-                                SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_PERSONALIZED
+                                SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_PERSONALIZED.copy(
+                                    interval = MedicationScheduleInterval.Daily
+                                )
                             )
                         )
                     )

@@ -23,6 +23,9 @@
 package de.gematik.ti.erp.app.pkv.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.fhir.temporal.Year
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
@@ -147,6 +150,10 @@ object PkvMockData {
     )
     val medicationPzn = SyncedTaskData.Medication(
         category = SyncedTaskData.MedicationCategory.entries[0],
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.PZN,
+            version = ErpMedicationProfileVersion.V_110
+        ),
         vaccine = true,
         text = "Präparat",
         form = "AEO",

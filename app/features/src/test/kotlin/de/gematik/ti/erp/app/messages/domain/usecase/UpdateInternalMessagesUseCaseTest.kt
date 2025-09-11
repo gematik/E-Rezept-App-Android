@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.messages.domain.usecase
 import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.messages.domain.repository.ChangeLogLocalDataSource
 import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
+import de.gematik.ti.erp.app.mocks.order.model.securityWarningMessage
 import de.gematik.ti.erp.app.mocks.order.model.welcomeMessage
 import de.gematik.ti.erp.app.timestate.getTimeState
 import io.mockk.coEvery
@@ -78,6 +79,7 @@ class UpdateInternalMessagesUseCaseTest {
         every { internalMessagesRepository.getLastUpdatedVersion() } returns flowOf(lastUpdatedVersion)
         every { localMessageRepository.getChangeLogsAsInternalMessage() } returns emptyList()
         every { localMessageRepository.createWelcomeMessage(lastUpdatedVersion, any()) } returns welcomeMessage
+        every { localMessageRepository.shouldShowSecurityWarningMessage() } returns false
 
         updateInternalMessagesUseCase.invoke()
 
@@ -95,6 +97,7 @@ class UpdateInternalMessagesUseCaseTest {
         every { localMessageRepository.getChangeLogsAsInternalMessage() } returns listOf(welcomeMessage)
         every { localMessageRepository.createWelcomeMessage(lastUpdatedVersion, getTimeState(Instant.DISTANT_PAST)) } returns welcomeMessage
         coEvery { internalMessagesRepository.saveInternalMessage(any()) } just runs
+        every { localMessageRepository.shouldShowSecurityWarningMessage() } returns false
 
         updateInternalMessagesUseCase.invoke()
         verify(exactly = 1) { localMessageRepository.getChangeLogsAsInternalMessage() }
@@ -114,5 +117,43 @@ class UpdateInternalMessagesUseCaseTest {
 
         verify(exactly = 1) { localMessageRepository.getChangeLogsAsInternalMessage() }
         coVerify(exactly = 0) { internalMessagesRepository.saveInternalMessage(any()) }
+    }
+
+    @Test
+    fun `invoke does update when phone is not supported by security Updates`() = runTest {
+        val versionWithRC = "2.0.0"
+        val lastUpdatedVersion = "1.28.4"
+
+        every { buildConfigInformation.versionName() } returns versionWithRC
+        every { internalMessagesRepository.getLastUpdatedVersion() } returns flowOf(lastUpdatedVersion)
+        every { localMessageRepository.getChangeLogsAsInternalMessage() } returns listOf(welcomeMessage)
+        every { localMessageRepository.createWelcomeMessage(lastUpdatedVersion, getTimeState(Instant.DISTANT_PAST)) } returns welcomeMessage
+        every { localMessageRepository.createSecurityWarningMessage(any(), any()) } returns securityWarningMessage
+        coEvery { internalMessagesRepository.saveInternalMessage(any()) } just runs
+        every { localMessageRepository.shouldShowSecurityWarningMessage() } returns true
+
+        updateInternalMessagesUseCase.invoke()
+        verify(exactly = 1) { localMessageRepository.getChangeLogsAsInternalMessage() }
+        coVerify(exactly = 2) { internalMessagesRepository.saveInternalMessage(any()) }
+        coVerify(exactly = 1) { localMessageRepository.createSecurityWarningMessage(any(), any()) }
+    }
+
+    @Test
+    fun `invoke does only update the security message when phone is not supported by security Updates`() = runTest {
+        val versionWithRC = "2.0.0"
+        val lastUpdatedVersion = "1.28.4"
+
+        every { buildConfigInformation.versionName() } returns versionWithRC
+        every { internalMessagesRepository.getLastUpdatedVersion() } returns flowOf(lastUpdatedVersion)
+        every { localMessageRepository.getChangeLogsAsInternalMessage() } returns emptyList()
+        every { localMessageRepository.createWelcomeMessage(lastUpdatedVersion, getTimeState(Instant.DISTANT_PAST)) } returns welcomeMessage
+        every { localMessageRepository.createSecurityWarningMessage(any(), any()) } returns securityWarningMessage
+        coEvery { internalMessagesRepository.saveInternalMessage(any()) } just runs
+        every { localMessageRepository.shouldShowSecurityWarningMessage() } returns true
+
+        updateInternalMessagesUseCase.invoke()
+        verify(exactly = 1) { localMessageRepository.getChangeLogsAsInternalMessage() }
+        coVerify(exactly = 1) { internalMessagesRepository.saveInternalMessage(any()) }
+        coVerify(exactly = 1) { localMessageRepository.createSecurityWarningMessage(any(), any()) }
     }
 }

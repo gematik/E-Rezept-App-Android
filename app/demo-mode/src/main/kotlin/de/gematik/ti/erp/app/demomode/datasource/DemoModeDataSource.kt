@@ -35,6 +35,7 @@ import de.gematik.ti.erp.app.demomode.datasource.data.FunnyAppNameProvider
 import de.gematik.ti.erp.app.demomode.datasource.data.internalMessageEntityV1
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfile
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfileLinkedCommunication
+import de.gematik.ti.erp.app.eurezept.domin.model.Country
 import de.gematik.ti.erp.app.fhir.audit.model.FhirAuditEventErpModel
 import de.gematik.ti.erp.app.idp.api.models.PairingData
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
@@ -45,6 +46,8 @@ import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.Clock
 import java.util.UUID
 import kotlin.time.Duration.Companion.days
@@ -69,6 +72,13 @@ class DemoModeDataSource(
             medicationNamesIndex = 0,
             isEuRedeemable = true
         ),
+        syncedTask(
+            profileIdentifier = demoProfile01.id,
+            status = SyncedTaskData.TaskStatus.Ready,
+            medicationNamesIndex = 30,
+            isEuRedeemable = true
+        ),
+
         syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Completed, medicationNamesIndex = 1),
         syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Completed, medicationNamesIndex = 2),
 
@@ -268,6 +278,61 @@ class DemoModeDataSource(
                     )
             )
         )
+
+    /**
+     * Data sources for EU countries prescription
+     */
+    private val euCountriesList = listOf(
+        Country("Österreich", "at", "🇦🇹"),
+        Country("Belgien", "be", "🇧🇪"),
+        Country("Tschechien", "cz", "🇨🇿"),
+        Country("Dänemark", "dk", "🇩🇰"),
+        Country("Estland", "ee", "🇪🇪"),
+        Country("Finnland", "fi", "🇫🇮"),
+        Country("Frankreich", "fr", "🇫🇷"),
+        Country("Kroatien", "hr", "🇭🇷"),
+        Country("Ungarn", "hu", "🇭🇺"),
+        Country("Italien", "it", "🇮🇹"),
+        Country("Luxemburg", "lu", "🇱🇺"),
+        Country("Niederlande", "nl", "🇳🇱"),
+        Country("Polen", "pl", "🇵🇱"),
+        Country("Portugal", "pt", "🇵🇹"),
+        Country("Schweden", "se", "🇸🇪"),
+        Country("Spanien", "es", "🇪🇸")
+    ).sortedBy { it.name }
+    val euCountries: StateFlow<List<Country>> = MutableStateFlow(euCountriesList).asStateFlow()
+
+    private val countryNameToCodeMap = mapOf(
+        "spanien" to "es", "frankreich" to "fr",
+        "italien" to "it", "österreich" to "at", "niederlande" to "nl",
+        "belgien" to "be", "portugal" to "pt", "polen" to "pl",
+        "tschechien" to "cz", "ungarn" to "hu", "dänemark" to "dk",
+        "schweden" to "se", "finnland" to "fi", "estland" to "ee",
+        "kroatien" to "hr", "luxemburg" to "lu",
+
+        "spain" to "es", "france" to "fr",
+        "italy" to "it", "austria" to "at", "netherlands" to "nl",
+        "belgium" to "be", "poland" to "pl", "czech republic" to "cz",
+        "hungary" to "hu", "denmark" to "dk", "sweden" to "se",
+        "finland" to "fi", "estonia" to "ee", "croatia" to "hr",
+        "luxembourg" to "lu"
+    )
+
+    private val countryCodeToFlagMap = mapOf(
+        "at" to "🇦🇹", "be" to "🇧🇪", "cz" to "🇨🇿",
+        "dk" to "🇩🇰", "ee" to "🇪🇪", "fi" to "🇫🇮", "fr" to "🇫🇷",
+        "hr" to "🇭🇷", "hu" to "🇭🇺", "it" to "🇮🇹", "lu" to "🇱🇺",
+        "nl" to "🇳🇱", "pl" to "🇵🇱", "pt" to "🇵🇹", "se" to "🇸🇪",
+        "es" to "🇪🇸"
+    )
+
+    fun getCountryCode(countryName: String): String {
+        return countryNameToCodeMap[countryName.lowercase()] ?: ""
+    }
+
+    fun getCountryFlagForDemo(countryCode: String): String {
+        return countryCodeToFlagMap[countryCode.lowercase()] ?: "🇪🇺"
+    }
 
     companion object {
         val communicationPayload: String = """

@@ -92,6 +92,14 @@ fun X509CertificateHolder.checkSignatureWith(signatureCertificate: X509Certifica
     require(this.isSignatureValid(verifier))
 }
 
+fun X509CertificateHolder.canBeValidatedBy(signatureCertificate: X509CertificateHolder, date: Date): Boolean {
+    val verifier =
+        BcECContentVerifierProviderBuilder(DefaultDigestAlgorithmIdentifierFinder())
+            .build(signatureCertificate)
+
+    return this.isSignatureValid(verifier) && this.isValidOn(date)
+}
+
 /**
  * Validates the common name form the distinguished name.
  * Throws an exception if the common name is not present or the pattern `CN=GEM.KOMP-CA + number` doesn't match.

@@ -62,6 +62,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -104,6 +105,14 @@ class MessageDetailController(
     val pharmacy = _pharmacy.asStateFlow()
     val profile = _profile.asStateFlow()
     val translationInProgress = _translationInProgress.asStateFlow()
+
+    private val isAppGerman: Boolean = selectedAppLanguage.equals("de", ignoreCase = true)
+
+    val showTranslationFeature: StateFlow<Boolean> = flowOf(!isAppGerman).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false
+    )
 
     val isTranslationsAllowed: StateFlow<Boolean> =
         combine(isTargetLanguageSet, isTranslationEnabled) { targetSet, translationEnabled ->
