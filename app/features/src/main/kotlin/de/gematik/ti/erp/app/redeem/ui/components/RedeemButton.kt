@@ -22,24 +22,18 @@
 
 package de.gematik.ti.erp.app.redeem.ui.components
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.redeem.model.RedeemEventModel
-import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonLarge
 
 // A composable button that can handle the redemption process and gives the user feedback about the process
@@ -62,20 +56,12 @@ fun RedeemButton(
         processStateEvent.onProcessEnded()
     }
 
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = SizeDefaults.half
+    PrimaryButtonLarge(
+        modifier = Modifier
+            .testTag(TestTag.PharmacySearch.OrderSummary.SendOrderButton),
+        enabled = isEnabled && !uploadInProgress,
+        onClick = onClickRedeem
     ) {
-        Column(modifier.navigationBarsPadding()) {
-            PrimaryButtonLarge(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .testTag(TestTag.PharmacySearch.OrderSummary.SendOrderButton),
-                enabled = isEnabled && !uploadInProgress,
-                onClick = onClickRedeem
-            ) {
-                Text(stringResource(R.string.pharmacy_order_send))
-            }
-        }
+        Text(stringResource(R.string.pharmacy_order_send))
     }
 }

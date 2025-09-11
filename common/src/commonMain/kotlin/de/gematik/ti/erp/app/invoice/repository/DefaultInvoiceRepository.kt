@@ -24,7 +24,8 @@ package de.gematik.ti.erp.app.invoice.repository
 
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.ResourcePaging
-import de.gematik.ti.erp.app.fhir.model.extractTaskIdsFromChargeItemBundle
+import de.gematik.ti.erp.app.fhir.FhirPkvChargeItemsErpModelCollection
+import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemEPrescriptionParsers
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.async
@@ -42,6 +43,7 @@ private const val InvoiceMaxPageSize = 25
 class DefaultInvoiceRepository(
     private val remoteDataSource: InvoiceRemoteDataSource,
     private val localDataSource: InvoiceLocalDataSource,
+    private val parsers: ChargeItemEPrescriptionParsers,
     private val dispatchers: DispatchProvider
 ) : InvoiceRepository, ResourcePaging<Int>(dispatchers, InvoiceMaxPageSize, maxPages = 1) {
 
@@ -88,7 +90,7 @@ class DefaultInvoiceRepository(
     override fun invoiceByTaskId(taskId: String): Flow<InvoiceData.PKVInvoiceRecord?> =
         localDataSource.loadInvoiceByTaskId(taskId)
 
-    override suspend fun saveInvoice(profileId: ProfileIdentifier, bundle: JsonElement) {
+    override suspend fun saveInvoice(profileId: ProfileIdentifier, bundle: FhirPkvChargeItemsErpModelCollection) {
         localDataSource.saveInvoice(profileId, bundle)
     }
 
@@ -119,17 +121,19 @@ class DefaultInvoiceRepository(
             count = count
         ).mapCatching { fhirBundle ->
             withContext(dispatchers.io) {
-                val (total, taskIds) = extractTaskIdsFromChargeItemBundle(fhirBundle)
+                val chargeItemEntryParserResultErpModel = parsers.entryParser.extract(fhirBundle)
+                val total = chargeItemEntryParserResultErpModel?.bundleTotal
+                val taskIds = chargeItemEntryParserResultErpModel?.chargeItemEntries?.map { it.taskId }
 
                 supervisorScope {
-                    val results = taskIds.map { taskId ->
+                    val results = taskIds?.map { taskId ->
                         async {
                             downloadInvoiceWithBundle(taskId = taskId, profileId = profileId)
                         }
-                    }.awaitAll()
+                    }?.awaitAll()
 
                     // return number of bundles saved to db
-                    ResourceResult(total, results.size)
+                    ResourceResult(total ?: 0, results?.size ?: 0)
                 }
             }
         }
@@ -139,7 +143,8 @@ class DefaultInvoiceRepository(
         profileId: ProfileIdentifier
     ) = withContext(dispatchers.io) {
         remoteDataSource.getChargeItemBundleById(profileId, taskId).mapCatching { bundle ->
-            requireNotNull(localDataSource.saveInvoice(profileId, bundle))
+            val bundleCollection = parsers.bundleParser.extract(bundle)
+            localDataSource.saveInvoice(profileId, bundleCollection)
         }
     }
 }

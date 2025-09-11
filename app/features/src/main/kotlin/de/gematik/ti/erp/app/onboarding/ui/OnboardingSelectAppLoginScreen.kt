@@ -194,7 +194,6 @@ fun OnboardingScreenContent(
 ) {
     OnboardingScreenScaffold(
         modifier = Modifier
-            .testTag(TestTag.Onboarding.CredentialsScreen)
             .fillMaxSize(),
         state = lazyListState,
         topBar = {
@@ -282,6 +281,7 @@ private fun LazyListScope.onboardingSelectAppLoginContent(
 
         // Security option (biometric/device security)
         SelectionCard(
+            modifier = Modifier.testTag(TestTag.Onboarding.SelectAppLoginScreen.DeviceSecurityButton),
             data = SelectionCard(
                 title = securityTitle,
                 description = securityDescription,
@@ -293,7 +293,8 @@ private fun LazyListScope.onboardingSelectAppLoginContent(
 
         // Password option - always available
         SelectionCard(
-            modifier = Modifier.padding(top = PaddingDefaults.Small),
+            modifier = Modifier.padding(top = PaddingDefaults.Small)
+                .testTag(TestTag.Onboarding.SelectAppLoginScreen.PasswordButton),
             data = SelectionCard(
                 title = stringResource(R.string.onboarding_secure_app_password),
                 description = stringResource(R.string.onboarding_select_app_login_password_info),

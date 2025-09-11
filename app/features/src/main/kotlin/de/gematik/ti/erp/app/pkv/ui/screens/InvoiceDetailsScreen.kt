@@ -22,22 +22,26 @@
 
 package de.gematik.ti.erp.app.pkv.ui.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
@@ -46,6 +50,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -53,15 +58,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.invoice.model.PkvHtmlTemplate.joinMedicationInfo
+import de.gematik.ti.erp.app.labels.TextLabel
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pkv.model.InvoiceAction
 import de.gematik.ti.erp.app.pkv.model.InvoiceState
@@ -77,12 +85,12 @@ import de.gematik.ti.erp.app.pkv.ui.preview.InvoiceDetailScreenPreviewParameterP
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
-import de.gematik.ti.erp.app.utils.compose.LabeledText
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.TertiaryButton
@@ -231,7 +239,6 @@ class InvoiceDetailsScreen(
                         }
 
                         is InvoiceAction.InAppCorrect -> {
-                            // TODO: to be implemented
                             if (BuildConfigExtension.isInternalDebug) {
                                 snackbar.show(
                                     message = "InAppCorrect is not implemented yet",
@@ -305,6 +312,7 @@ private fun InvoiceDetailScreenScaffold(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun InvoiceDetailsScreenContent(
     innerPadding: PaddingValues,
@@ -314,67 +322,99 @@ private fun InvoiceDetailsScreenContent(
     onClickInvoiceDetail: (String) -> Unit,
     onClickInvoiceList: () -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        val padding by rememberContentPadding(innerPadding)
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            state = listState,
-            verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)
-        ) {
-            if (invoiceState.hasInvoice()) {
-                val invoice = (invoiceState as InvoiceState.InvoiceLoaded)
-                item {
-                    InvoiceMedicationHeader(invoice.record)
-                }
-                item {
-                    LabeledText(
-                        description = stringResource(R.string.invoice_prescribed_by),
-                        content = invoice.record.practitioner.name
-                    )
-                }
-                item {
-                    LabeledText(
-                        description = stringResource(R.string.invoice_redeemed_in),
-                        content = invoice.record.pharmacyOrganization.name
-                    )
-                }
-                item {
-                    LabeledText(
-                        description = stringResource(R.string.invoice_redeemed_on),
-                        content = invoice.record.whenHandedOver?.formattedString()
-                    )
-                }
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        TertiaryButton(
-                            onClick = {
-                                onClickInvoiceDetail(invoice.record.taskId)
-                            }
-                        ) {
-                            Text(text = stringResource(R.string.invoice_show_more))
+    val padding by rememberContentPadding(innerPadding)
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        state = listState,
+        verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)
+    ) {
+        if (invoiceState.hasInvoice()) {
+            val invoice = invoiceState as InvoiceState.InvoiceLoaded
+            item {
+                InvoiceMedicationHeader(
+                    modifier = Modifier.padding(
+                        start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                        end = padding.calculateEndPadding(LayoutDirection.Ltr)
+                    ),
+                    invoice = invoice.record
+                )
+            }
+            item {
+                TextLabel(
+                    modifier = Modifier.padding(
+                        start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                        end = padding.calculateEndPadding(LayoutDirection.Ltr)
+                    ),
+                    description = stringResource(R.string.invoice_prescribed_by),
+                    content = invoice.record.practitioner.name
+                )
+            }
+            item {
+                TextLabel(
+                    modifier = Modifier.padding(
+                        start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                        end = padding.calculateEndPadding(LayoutDirection.Ltr)
+                    ),
+                    description = stringResource(R.string.invoice_redeemed_in),
+                    content = invoice.record.pharmacyOrganization.name
+                )
+            }
+            item {
+                TextLabel(
+                    modifier = Modifier.padding(
+                        start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                        end = padding.calculateEndPadding(LayoutDirection.Ltr)
+                    ),
+                    description = stringResource(R.string.invoice_redeemed_on),
+                    content = invoice.record.whenHandedOver?.formattedString()
+                )
+            }
+            item {
+                Row(
+                    modifier = Modifier
+                        .padding(
+                            start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                            end = padding.calculateEndPadding(LayoutDirection.Ltr)
+                        )
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    TertiaryButton(
+                        onClick = {
+                            onClickInvoiceDetail(invoice.record.taskId)
                         }
+                    ) {
+                        Text(text = stringResource(R.string.invoice_show_more))
                     }
                 }
-                item {
-                    if (isFromPrescriptionDetails && invoiceState.hasInvoice()) {
-                        // check if navigation comes from PrescriptionDetailScreen
+            }
+            stickyHeader {
+                if (isFromPrescriptionDetails && invoiceState.hasInvoice()) {
+                    // check if navigation comes from PrescriptionDetailScreen
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = PaddingDefaults.XXLargeMedium)
+                    ) {
+                        Spacer(modifier = Modifier.weight(0.3f))
                         LinkToInvoiceList(
-                            modifier = Modifier.padding(vertical = PaddingDefaults.Medium + innerPadding.calculateBottomPadding())
+                            modifier = Modifier
+                                .padding(
+                                    start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                                    end = padding.calculateEndPadding(LayoutDirection.Ltr)
+                                )
+                                .padding(vertical = PaddingDefaults.Medium)
                         ) {
                             onClickInvoiceList()
                         }
+                        Spacer(modifier = Modifier.weight(0.3f))
                     }
                 }
-            } else {
-                item {
-                    Center {
-                        InvoicesEmptyScreen()
-                    }
+            }
+        } else {
+            item {
+                Center {
+                    InvoicesEmptyScreen()
                 }
             }
         }
@@ -417,29 +457,43 @@ private fun LinkToInvoiceList(
     modifier: Modifier,
     onClickInvoiceList: () -> Unit
 ) {
+    val interaction = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
-            .clickable { onClickInvoiceList() }
-            .padding(PaddingDefaults.Medium)
-            .wrapContentWidth()
-            .then(modifier),
+            .padding(vertical = SizeDefaults.triple)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(SizeDefaults.one))
+            .clickable(
+                interactionSource = interaction,
+                indication = ripple(bounded = true),
+                onClick = onClickInvoiceList
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
+            modifier = modifier,
             text = stringResource(R.string.link_to_invoice_list),
             style = AppTheme.typography.body2,
             color = AppTheme.colors.primary700
         )
         SpacerTiny()
-        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = AppTheme.colors.primary700)
+        Icon(
+            modifier = modifier,
+            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+            contentDescription = null,
+            tint = AppTheme.colors.primary700
+        )
     }
 }
 
 // TODO: move to components
 @Composable
-fun InvoiceMedicationHeader(invoice: InvoiceData.PKVInvoiceRecord) {
+fun InvoiceMedicationHeader(
+    modifier: Modifier = Modifier,
+    invoice: InvoiceData.PKVInvoiceRecord
+) {
     val medicationInfo = joinMedicationInfo(invoice.medicationRequest)
-    Text(text = medicationInfo, style = AppTheme.typography.h5)
+    Text(modifier = modifier, text = medicationInfo, style = AppTheme.typography.h5)
 }
 
 @LightDarkPreview

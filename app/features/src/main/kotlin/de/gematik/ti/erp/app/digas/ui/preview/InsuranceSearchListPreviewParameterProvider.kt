@@ -76,10 +76,7 @@ val mockInsuranceUiModelList = listOf(
             contact = PharmacyUseCaseData.PharmacyContact(
                 phone = "0800 2650800",
                 mail = "service@nordost.aok.de",
-                url = "https://www.aok.de/pk/nordost/",
-                pickUpUrl = "",
-                deliveryUrl = "",
-                onlineServiceUrl = ""
+                url = "https://www.aok.de/pk/nordost/"
             ),
             provides = listOf(
                 PharmacyUseCaseData.PharmacyService.OnlinePharmacyService(
@@ -101,10 +98,7 @@ val mockInsuranceUiModelList = listOf(
             contact = PharmacyUseCaseData.PharmacyContact(
                 phone = "0800 3331010",
                 mail = "service@barmer.de",
-                url = "https://www.barmer.de",
-                pickUpUrl = "",
-                deliveryUrl = "",
-                onlineServiceUrl = ""
+                url = "https://www.barmer.de"
             ),
             provides = listOf(
                 PharmacyUseCaseData.PharmacyService.OnlinePharmacyService(
@@ -126,10 +120,7 @@ val mockInsuranceUiModelList = listOf(
             contact = PharmacyUseCaseData.PharmacyContact(
                 phone = "0800 2858585",
                 mail = "service@tk.de",
-                url = "https://www.tk.de",
-                pickUpUrl = "",
-                deliveryUrl = "",
-                onlineServiceUrl = ""
+                url = "https://www.tk.de"
             ),
             provides = listOf(
                 PharmacyUseCaseData.PharmacyService.OnlinePharmacyService(
@@ -151,10 +142,7 @@ val mockInsuranceUiModelList = listOf(
             contact = PharmacyUseCaseData.PharmacyContact(
                 phone = "040 325325555",
                 mail = "service@dak.de",
-                url = "https://www.dak.de",
-                pickUpUrl = "",
-                deliveryUrl = "",
-                onlineServiceUrl = ""
+                url = "https://www.dak.de"
             ),
             provides = listOf(
                 PharmacyUseCaseData.PharmacyService.OnlinePharmacyService(
@@ -176,10 +164,7 @@ val mockInsuranceUiModelList = listOf(
             contact = PharmacyUseCaseData.PharmacyContact(
                 phone = "0800 4551111",
                 mail = "service@ikk-classic.de",
-                url = "https://www.ikk-classic.de",
-                pickUpUrl = "",
-                deliveryUrl = "",
-                onlineServiceUrl = ""
+                url = "https://www.ikk-classic.de"
             ),
             provides = listOf(
                 PharmacyUseCaseData.PharmacyService.OnlinePharmacyService(

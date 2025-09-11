@@ -24,12 +24,6 @@
 
 package de.gematik.ti.erp.app.data
 
-internal fun getResourceAsString(resourcePath: String): String {
-    return object {}.javaClass.getResourceAsStream(resourcePath)
-        ?.bufferedReader()?.use { it.readText() }
-        ?: error("Test resource not found: $resourcePath")
-}
-
 // task metadata + kbv bundle
 val taskMetadataBundleKbvBundle by lazy { getResourceAsString("/fhir/bundle_seperation_parser/task_metadata_bundle_kbv_bundle.json") }
 val taskMetadataBundleKbvWithDigaBundle by lazy { getResourceAsString("/fhir/bundle_seperation_parser/task_metadata_bundle_kbv_bundle_with_diga.json") }
@@ -37,35 +31,55 @@ val taskMetadataBundleKbvWithDigaBundle by lazy { getResourceAsString("/fhir/bun
 // task-initial-bundle
 val task_bundle_vers_1_2 by lazy { getResourceAsString("/fhir/entry_parser/task_bundle_vers_1_2.json") }
 val task_bundle_vers_1_3 by lazy { getResourceAsString("/fhir/entry_parser/task_bundle_vers_1_3.json") }
+val task_bundle_vers_1_5 by lazy { getResourceAsString("/fhir/entry_parser/task_bundle_vers_1_5.json") }
 
 // task metadata
 val taskJson_vers_1_2 by lazy { getResourceAsString("/fhir/metadata_parser/task_vers_1_2.json") }
 val taskJson_vers_1_3 by lazy { getResourceAsString("/fhir/metadata_parser/task_vers_1_3.json") }
+val taskJson_vers_1_5 by lazy { getResourceAsString("/fhir/metadata_parser/task_vers_1_5.json") }
 
 // insurance information
 val coverage1_v103_json by lazy { getResourceAsString("/fhir/kbv_parser/coverage/coverage1_v103.json") }
 val coverage2_v103_json by lazy { getResourceAsString("/fhir/kbv_parser/coverage/coverage2_v103.json") }
 val coverage1_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/coverage/coverage1_v110.json") }
 val coverage2_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/coverage/coverage2_v110.json") }
+val coverage3_v12_json by lazy { getResourceAsString("/fhir/kbv_parser/coverage/coverage3_v1_2.json") }
 
 // medication request
-val medicationRequestJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication_request/medication_request.json") }
-val medicationRequestJson_vers_1_1_0 by lazy { getResourceAsString("/fhir/kbv_parser/medication_request/medication_request_vers_1_1_0.json") }
+val medicationRequestJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication_request/medication_request_1_0_2.json") }
+val medicationRequestJson_vers_1_1_0 by lazy { getResourceAsString("/fhir/kbv_parser/medication_request/medication_request_1_1_0.json") }
 val medicationRequestJson_vers_1_1_0_with_accident by lazy {
     getResourceAsString(
         "/fhir/kbv_parser/medication_request/medication_request_1_1_0_with_accident.json"
     )
 }
+val medicationRequestJson_vers_1_2 by lazy {
+    getResourceAsString(
+        "/fhir/kbv_parser/medication_request/medication_request_1_2.json"
+    )
+}
+
+val medicationRequestJson_vers_1_3 by lazy {
+    getResourceAsString(
+        "/fhir/kbv_parser/medication_request/medication_request_1_3.json"
+    )
+}
 
 // medication
-val medicationPznJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_pzn.json") }
-val medicationPznJson_vers_1_1_0 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_pzn_vers_1_1_0.json") }
-val medicationIngredientJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_ingredient.json") }
-val medicationIngredientJson_vers_1_1_0 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_ingredient_vers_1_1_0.json") }
-val medicationCompoundingJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_compounding.json") }
-val medicationCompoundingJson_vers_1_1_0 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_compounding_vers_1_1_0.json") }
-val medicationFreetextJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_freetext.json") }
-val medicationFreetextJson_vers_1_1_0 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_freetext_vers_1_1_0.json") }
+val medicationPznJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_pzn_1_0_2.json") }
+val medicationPznJson_vers_1_1_0 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_pzn_1_1_0.json") }
+val medicationPznJson_vers_1_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_pzn_1_2.json") }
+val medicationPznWithAmountJson_vers_1_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_pzn_1_2_with_amount.json") }
+val medicationPznJson_vers_1_3 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_pzn_1_3.json") }
+val medicationIngredientJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_ingredient_1_0_2.json") }
+val medicationIngredientJson_vers_1_1_0 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_ingredient_1_1_0.json") }
+val medicationIngredientJson_vers_1_3 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_ingredient_1_3.json") }
+val medicationCompoundingJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_compounding_1_0_2.json") }
+val medicationCompoundingJson_vers_1_1_0 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_compounding_1_1_0.json") }
+val medicationCompoundingJson_vers_1_3 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_compounding_1_3.json") }
+val medicationFreetextJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_freetext_1_0_2.json") }
+val medicationFreetextJson_vers_1_1_0 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_freetext_1_1_0.json") }
+val medicationFreetextJson_vers_1_3 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_freetext_1_3.json") }
 
 // organization
 val organization1_v103_json by lazy { getResourceAsString("/fhir/kbv_parser/organization/organization1_v103.json") }
@@ -76,6 +90,8 @@ val organization1NoEmail_v110_json by lazy { getResourceAsString("/fhir/kbv_pars
 val organization1NoFax_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/organization/organization1_no_fax_v110.json") }
 val organization1NoTelecom_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/organization/organization1_no_telecom_v110.json") }
 val organization2_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/organization/organization2_v110.json") }
+val organization3_v12_json by lazy { getResourceAsString("/fhir/kbv_parser/organization/organization3_v1_2.json") }
+val organization4_additionalData_v12_json by lazy { getResourceAsString("/fhir/kbv_parser/organization/organization4_additional_locator_v1_2.json") }
 
 // patient
 val patient1_v103_json by lazy { getResourceAsString("/fhir/kbv_parser/patient/patient1_v103.json") }
@@ -84,12 +100,16 @@ val patient1_incomplete_birth_date_v103_json by lazy { getResourceAsString("/fhi
 val patient1_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/patient/patient1_v110.json") }
 val patient2_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/patient/patient2_v110.json") }
 val patient3_pkv_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/patient/patient3_pkv_v110.json") }
+val patient4_v12_json by lazy { getResourceAsString("/fhir/kbv_parser/patient/patient4_v1_2.json") }
+val patient5_v12_json by lazy { getResourceAsString("/fhir/kbv_parser/patient/patient5_v1_2.json") }
 
 // practitioner
 val practitioner1_v103_json by lazy { getResourceAsString("/fhir/kbv_parser/practitioner/practitioner1_v103.json") }
 val practitioner2_v103_json by lazy { getResourceAsString("/fhir/kbv_parser/practitioner/practitioner2_v103.json") }
 val practitioner1_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/practitioner/practitioner1_v110.json") }
 val practitioner2_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/practitioner/practitioner2_v110.json") }
+val practitioner3_v12_json by lazy { getResourceAsString("/fhir/kbv_parser/practitioner/practitioner3_v1_2.json") }
+val practitioner4_zanr_v12_json by lazy { getResourceAsString("/fhir/kbv_parser/practitioner/practitioner4_zanr_v1_2.json") }
 
 // diga
 val digaSimple by lazy { getResourceAsString("/fhir/kbv_parser/diga/diga.json") }
@@ -112,6 +132,10 @@ val kbvBundle3_gkv_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/bun
 val kbvBundle4_pkv_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbvBundle4_pkv_v110.json") }
 val kbvBundle5_gkv_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbvBundle5_gkv_v110.json") }
 val kbvBundle6_gkv_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbvBundle6_gkv_v110.json") }
+val kbvBundle_v1_2_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbv_bundle_v1_2.json") }
+val kbvBundle_v1_3_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbv_bundle_v1_3.json") }
+val kbvBundle_v1_3_example2_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbv_bundle_example_2_v1_3.json") }
+val kbvBundle_v1_3_example3_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbv_bundle_example_3_v1_3.json") }
 
 // kbv-diga-bundle
 val kbvBundle_device_request_1_4 by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbv_with_diga.json") }
@@ -121,76 +145,7 @@ val fhirVzdPharmacyBundle by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_
 
 // fhir-vzd diga bundle
 val fhirVzdOrganizationBundle by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/organization_bundle_fhirvzd.json") }
-
-// fhir-communication
-val ReplyCommTestBundleV1_4 by lazy { getResourceAsString("/fhir/communications_parser/communications_reply_bundle_version_1_4.json") }
-val DispenseCommTestBundleV1_4 by lazy { getResourceAsString("/fhir/communications_parser/communications_dispense_bundle_version_1_4.json") }
-val MixedBundleV1_4Json by lazy { getResourceAsString("/fhir/communications_parser/communications_mix_bundle_version_1_4.json") }
-val MixedBundleV1_2Json by lazy { getResourceAsString("/fhir/communications_parser/communications_mix_bundle_version_1_2.json") }
-val SingleReplyCommV1_4 by lazy { getResourceAsString("/fhir/communications_parser/communications_reply_version_1_4.json") }
-val SingleReplyCommV1_3 by lazy { getResourceAsString("/fhir/communications_parser/communications_reply_version_1_3.json") }
-val SingleReplyCommV1_2 by lazy { getResourceAsString("/fhir/communications_parser/communications_reply_version_1_2.json") }
-val SingleDispenseCommV1_4 by lazy { getResourceAsString("/fhir/communications_parser/communications_dispense_version_1_4.json") }
-val SingleDispenseCommV1_2 by lazy { getResourceAsString("/fhir/communications_parser/communications_dispense_version_1_2.json") }
-val communication_diga_dispense_1_4 by lazy { getResourceAsString("/fhir/communications_parser/communication_diga_dispense_1_4.json") }
-
-// fhir-medication-dispense
-val medication_dispense_legacy_simple by lazy { getResourceAsString("/fhir/dispense_parser/legacy/medication_dispense_legacy_simple.json") }
-val medication_dispense_legacy_unknown_medication_profile by lazy {
-    getResourceAsString(
-        "/fhir/dispense_parser/legacy/medication_dispense_legacy_unknown_medication_profile.json"
-    )
-}
-
-// NOTE: [medication_dispense_legacy_unknown_medication_list] will never happen, test added to only harden parser
-val medication_dispense_legacy_unknown_medication_list by lazy {
-    getResourceAsString(
-        "/fhir/dispense_parser/legacy/medication_dispense_legacy_unknown_medication_list.json"
-    )
-}
-val medication_dispense_legacy_without_category by lazy { getResourceAsString("/fhir/dispense_parser/legacy/medication_dispense_legacy_without_category.json") }
-val medication_dispense_bundle_version_1_2 by lazy { getResourceAsString("/fhir/dispense_parser/legacy/bundle_med_dispense_version_1_2.json") }
-
-// fhir 1.4 medication dispense medication
-val medication_dispense_medication_1_4_complex by lazy {
-    getResourceAsString(
-        "/fhir/dispense_parser/1_4_workflow/medication_dispense_1_4_medication_kombipackung.json"
-    )
-}
-val medication_dispense_medication_1_4_pharmaceutical_product by lazy {
-    getResourceAsString(
-        "/fhir/dispense_parser/1_4_workflow/medication_dispense_1_4_medication_pharmaceutical_product.json"
-    )
-}
-val medication_dispense_medication_1_4_simple by lazy {
-    getResourceAsString(
-        "/fhir/dispense_parser/1_4_workflow/medication_dispense_1_4_medication_simple.json"
-    )
-}
-
-// fhir 1.4 medication dispense
-val medication_dispense_1_4_compounding by lazy { getResourceAsString("/fhir/dispense_parser/1_4_workflow/medication_dispense_1_4_dispense_compounding.json") }
-val medication_dispense_1_4_free_text by lazy { getResourceAsString("/fhir/dispense_parser/1_4_workflow/medication_dispense_1_4_dispense_free_text.json") }
-val medication_dispense_1_4_simple by lazy { getResourceAsString("/fhir/dispense_parser/1_4_workflow/medication_dispense_1_4_dispense_simple.json") }
-val medication_dispense_1_4_no_medication by lazy { getResourceAsString("/fhir/dispense_parser/1_4_workflow/medication_dispense_1_4_without_medication.json") }
-
-// fhir DiGA medication dispense
-val medication_dispense_diga_deeplink by lazy { getResourceAsString("/fhir/dispense_parser/diga/medication_dispense_diga_deeplink.json") }
-val medication_dispense_diga_name_and_pzn by lazy { getResourceAsString("/fhir/dispense_parser/diga/medication_dispense_diga_name_and_pzn.json") }
-val medication_dispense_diga_no_redeem_code by lazy { getResourceAsString("/fhir/dispense_parser/diga/medication_dispense_diga_no_redeem_code.json") }
-
-// fhir-medication-dispense (bundle) 1.4 workflow
-val bundle_dispense_1_4_complex_bundle by lazy { getResourceAsString("/fhir/dispense_parser/1_4_workflow/bundle_dispense_compounding_medication.json") }
-val bundle_dispense_1_4_simple by lazy { getResourceAsString("/fhir/dispense_parser/1_4_workflow/bundle_dispense_simple_medication.json") }
-val bundle_dispenses_1_4_multiple_simple_medications by lazy {
-    getResourceAsString(
-        "/fhir/dispense_parser/1_4_workflow/bundle_multiple_dispenses_simple_medications.json"
-    )
-}
-
-// fhir-audit events
-val bundle_audit_events_1_2 by lazy { getResourceAsString("/fhir/audit_event_parser/audit_event_bundle_version_1_2.json") }
-val bundle_audit_events_1_1 by lazy { getResourceAsString("/fhir/audit_event_parser/audit_event_bundle_version_1_1.json") }
+val fhirVzdCountriesBundle by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/countries_bundle_fhirvzd.json") }
 
 // speciality types pharmacy
 val bundle_speciality_simple by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/speciality_bundle_different_types.json") }

@@ -50,6 +50,7 @@ dependencies {
     implementation(project(namesPlugin.multiplatform))
     implementation(project(namesPlugin.fhirParser))
     implementation(project(namesPlugin.database))
+    implementation(project(namesPlugin.eurezept))
     implementation(libs.bundles.crypto)
     implementation(libs.bundles.accompanist)
     implementation(libs.bundles.database)

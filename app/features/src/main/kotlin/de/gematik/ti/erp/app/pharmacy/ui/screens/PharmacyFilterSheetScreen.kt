@@ -46,8 +46,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.animated.LoadingIndicatorLine
-import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.base.openSettingsAsNewActivity
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
 import de.gematik.ti.erp.app.permissions.getLocationPermissionLauncher
 import de.gematik.ti.erp.app.permissions.locationPermissions
@@ -58,8 +58,6 @@ import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes.PHARMACY_NAV_WIT
 import de.gematik.ti.erp.app.pharmacy.presentation.FilterType
 import de.gematik.ti.erp.app.pharmacy.presentation.FilterType.NEARBY
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyGraphController
-import de.gematik.ti.erp.app.pharmacy.ui.components.LocationPermissionDeniedDialog
-import de.gematik.ti.erp.app.pharmacy.ui.components.LocationServicesNotAvailableDialog
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -68,6 +66,8 @@ import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.Chip
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
+import de.gematik.ti.erp.app.utils.compose.LocationPermissionDeniedDialog
+import de.gematik.ti.erp.app.utils.compose.LocationServicesNotAvailableDialog
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension

@@ -190,6 +190,7 @@ dependencies {
     implementation(project(namesPlugin.demoMode))
     implementation(project(namesPlugin.uiComponents))
     implementation(project(namesPlugin.multiplatform))
+    implementation(project(namesPlugin.database))
     androidTestImplementation(project(namesPlugin.testActions))
     androidTestImplementation(project(namesPlugin.testTags))
     testImplementation(project(namesPlugin.multiplatform))

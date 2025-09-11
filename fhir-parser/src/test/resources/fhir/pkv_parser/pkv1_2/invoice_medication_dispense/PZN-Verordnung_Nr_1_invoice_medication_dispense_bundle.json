@@ -1,0 +1,107 @@
+{
+  "resourceType": "MedicationDispense",
+  "id": "31232fb4-b725-464a-9291-cd951b61934c",
+  "meta": {
+    "profile": [
+      "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense|1.2"
+    ],
+    "tag": [
+      {
+        "display": "Beispiel MedicationDispense PZN Bsp 2"
+      }
+    ]
+  },
+  "contained": [
+    {
+      "resourceType": "Medication",
+      "id": "62daa902-3a35-42c8-9413-58443c817922",
+      "meta": {
+        "profile": [
+          "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.1.0"
+        ]
+      },
+      "extension": [
+        {
+          "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Medication_Type",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "version": "http://snomed.info/sct/900000000000207008/version/20220331",
+                "code": "763158003",
+                "display": "Medicinal product (product)"
+              }
+            ]
+          }
+        },
+        {
+          "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category",
+          "valueCoding": {
+            "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category",
+            "code": "00"
+          }
+        },
+        {
+          "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine",
+          "valueBoolean": false
+        },
+        {
+          "url": "http://fhir.de/StructureDefinition/normgroesse",
+          "valueCode": "N3"
+        }
+      ],
+      "code": {
+        "coding": [
+          {
+            "system": "http://fhir.de/CodeSystem/ifa/pzn",
+            "code": "09494280"
+          }
+        ],
+        "text": "VENLAFAXIN Heumann 75 mg Tabletten 100 St"
+      },
+      "form": {
+        "coding": [
+          {
+            "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM",
+            "code": "TAB"
+          }
+        ]
+      },
+      "batch": {
+        "lotNumber": "A123456789-1",
+        "expirationDate": "2024-12-31"
+      }
+    }
+  ],
+  "identifier": [
+    {
+      "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+      "value": "200.457.180.497.994.96"
+    }
+  ],
+  "status": "completed",
+  "medicationReference": {
+    "reference": "#62daa902-3a35-42c8-9413-58443c817922",
+    "display": "VENLAFAXIN Heumann 75 mg Tabletten 100 St"
+  },
+  "subject": {
+    "identifier": {
+      "system": "http://fhir.de/sid/pkv/kvid-10",
+      "value": "P123464315"
+    }
+  },
+  "performer": [
+    {
+      "actor": {
+        "identifier": {
+          "system": "https://gematik.de/fhir/sid/telematik-id",
+          "value": "3-abc-1234567890"
+        }
+      }
+    }
+  ],
+  "whenHandedOver": "2023-07-03",
+  "substitution": {
+    "wasSubstituted": true
+  }
+}

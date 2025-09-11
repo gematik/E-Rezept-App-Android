@@ -25,12 +25,12 @@ package de.gematik.ti.erp.app.prescription
 import de.gematik.ti.erp.app.api.FhirPagination
 import de.gematik.ti.erp.app.fhir.dispense.parser.TaskMedicationDispenseParser
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskBundleSeparationParser
-import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEPrescriptionMedicalDataParser
-import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEPrescriptionMetadataParser
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEPrescriptionParsers
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEntryParser
+import de.gematik.ti.erp.app.fhir.prescription.parser.TaskMedicalDataParser
+import de.gematik.ti.erp.app.fhir.prescription.parser.TaskMetadataParser
 import de.gematik.ti.erp.app.prescription.repository.DefaultTaskRepository
-import de.gematik.ti.erp.app.prescription.repository.RealmLegacyTaskLocalDataSource
+import de.gematik.ti.erp.app.prescription.repository.LegacyTaskLocalDataSource
 import de.gematik.ti.erp.app.prescription.repository.TaskRemoteDataSource
 import de.gematik.ti.erp.app.prescription.repository.TaskRepository
 import org.kodein.di.DI
@@ -39,11 +39,11 @@ import org.kodein.di.instance
 
 val taskModule = DI.Module("taskModule") {
     bindProvider { TaskRemoteDataSource(instance()) }
-    bindProvider { RealmLegacyTaskLocalDataSource(instance()) }
+    bindProvider { LegacyTaskLocalDataSource(instance()) }
     bindProvider { TaskEntryParser() }
     bindProvider { TaskBundleSeparationParser() }
-    bindProvider { TaskEPrescriptionMetadataParser() }
-    bindProvider { TaskEPrescriptionMedicalDataParser() }
+    bindProvider { TaskMetadataParser() }
+    bindProvider { TaskMedicalDataParser() }
     bindProvider { TaskMedicationDispenseParser() }
     bindProvider { FhirPagination() } // Later we move this to a more generic module, when we use it more widely
     bindProvider {

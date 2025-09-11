@@ -62,8 +62,6 @@ import de.gematik.ti.erp.app.pharmacy.presentation.rememberPharmacyStartControll
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyScreen
 import de.gematik.ti.erp.app.pharmacy.ui.components.FavouritePharmacies
 import de.gematik.ti.erp.app.pharmacy.ui.components.FilterSection
-import de.gematik.ti.erp.app.pharmacy.ui.components.LocationPermissionDeniedDialog
-import de.gematik.ti.erp.app.pharmacy.ui.components.LocationServicesNotAvailableDialog
 import de.gematik.ti.erp.app.pharmacy.ui.components.MapsSection
 import de.gematik.ti.erp.app.pharmacy.ui.components.MockMap
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyMap
@@ -77,6 +75,8 @@ import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
+import de.gematik.ti.erp.app.utils.compose.LocationPermissionDeniedDialog
+import de.gematik.ti.erp.app.utils.compose.LocationServicesNotAvailableDialog
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
@@ -383,7 +383,7 @@ private fun PharmacyStartScreenBody(
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         state = listState,
-        contentPadding = padding?.combineWithInnerScaffold(contentPadding) ?: contentPadding,
+        contentPadding = padding?.combineWithInnerScaffold(contentPadding) ?: contentPadding
     ) {
         item {
             SpacerLarge()

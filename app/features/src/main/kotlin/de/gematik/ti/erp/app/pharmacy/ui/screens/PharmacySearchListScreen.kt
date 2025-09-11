@@ -564,7 +564,7 @@ fun PharmacyListSearchResultPreview() {
                 modifier = Modifier,
                 count = 3,
                 index = 1,
-                pharmacy = PharmacyPreviewData.LOCAL_PICKUP_ONLY_DATA,
+                pharmacy = PharmacyPreviewData.ONLINE_ONLY_DATA,
                 onSelectPharmacy = {}
             )
             SpacerMedium()
@@ -572,7 +572,7 @@ fun PharmacyListSearchResultPreview() {
                 modifier = Modifier,
                 count = 3,
                 index = 2,
-                pharmacy = PharmacyPreviewData.LOCAL_PICKUP_ONLY_DATA,
+                pharmacy = PharmacyPreviewData.ONLINE_ONLY_DATA,
                 onSelectPharmacy = {}
             )
             SpacerMedium()
@@ -580,7 +580,7 @@ fun PharmacyListSearchResultPreview() {
                 modifier = Modifier,
                 count = 3,
                 index = 3,
-                pharmacy = PharmacyPreviewData.LOCAL_PICKUP_ONLY_DATA,
+                pharmacy = PharmacyPreviewData.ONLINE_ONLY_DATA,
                 onSelectPharmacy = {}
             )
             SpacerMedium()

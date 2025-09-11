@@ -184,7 +184,6 @@ class InvoiceListScreen(
         }
 
         navBackStackEntry.onReturnAction(PkvRoutes.InvoiceListScreen) {
-            invoiceController.refreshCombinedProfile()
             invoiceController.downloadInvoices()
             invoiceController.invoiceListScreenEvents.getConsentEvent.trigger(profileId)
         }
@@ -215,8 +214,7 @@ class InvoiceListScreen(
             onRevokeConsentEvent = onRevokeConsentEvent,
             onRevokeConsent = {
                 consentRecentlyRevoked = true
-                invoiceController.deleteLocalInvoices()
-                consentController.revokeChargeConsent(profileId)
+                consentController.revokeChargeConsent(profileId) { invoiceController.deleteLocalInvoices() }
                 consentController.saveConsentDrawerShown(profileId)
                 navController.navigateAndClearStack(route = PrescriptionRoutes.PrescriptionListScreen.route)
             }
@@ -235,6 +233,7 @@ class InvoiceListScreen(
             }
         }
 
+        // TODO: Needs to be refactored
         HandleConsentState(
             consentState = consentState,
             dialog = dialog,
@@ -245,7 +244,7 @@ class InvoiceListScreen(
                         consentController.grantChargeConsent(profileId)
                     }
 
-                    ConsentContext.RevokeConsent -> consentController.revokeChargeConsent(profileId)
+                    ConsentContext.RevokeConsent -> consentController.revokeChargeConsent(profileId) {}
                 }
             },
             onShowCardWall = { activeProfile.data?.let { invoiceController.chooseAuthenticationMethod(it) } },
@@ -256,7 +255,6 @@ class InvoiceListScreen(
 
         LaunchedEffect(Unit) {
             intentHandler.gidSuccessfulIntent.collectLatest {
-                invoiceController.refreshCombinedProfile()
                 invoiceController.downloadInvoices()
             }
 

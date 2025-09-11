@@ -39,8 +39,10 @@ object FhirVersions {
      * ⚠️ **Note:**
      * - Versions `1.2` and `1.3` will be **deprecated after 15 July 2025**.
      * - Ensure future updates comply with **GEMATIK guidelines**.
+     * - Adding Meta profile version 1.5 (https://simplifier.net/packages/de.gematik.erezept-workflow.r4/1.5.0-rc1/~introduction)
      */
-    private val SUPPORTED_TASK_VERSIONS = listOf("1.2", "1.3", "1.4") // TODO: Remove versions 1.2, 1.3 after 15 Jul 2025
+    // TODO: Remove versions 1.2, 1.3 after 15 Jul 2025
+    private val SUPPORTED_TASK_VERSIONS = listOf("1.2", "1.3", "1.4", "1.5")
 
     /**
      * **Supported KBV Bundle Versions**
@@ -48,7 +50,7 @@ object FhirVersions {
      * A list of **supported FHIR KBV PR ERP Bundle versions**.
      * These versions determine which KBV-compliant prescription bundles are accepted.
      */
-    private val SUPPORTED_KBV_VERSIONS = listOf("1.0.2", "1.1.0")
+    private val SUPPORTED_KBV_VERSIONS = listOf("1.0.2", "1.1.0", "1.3")
     private val SUPPORTED_KBV_DEVICE_REQUEST_VERSIONS = listOf("1.1")
 
     /**
@@ -97,7 +99,8 @@ object FhirVersions {
     enum class SupportedFhirTaskEntryProfileVersions(val version: String) {
         V_1_2("1.2"),
         V_1_3("1.3"),
-        V_1_4("1.4")
+        V_1_4("1.4"),
+        V_1_5("1.5")
     }
 
     val SUPPORTED_TASK_ENTRY_PROFILE_VERSIONS = SupportedFhirTaskEntryProfileVersions.entries.map { it.version }
@@ -123,17 +126,21 @@ object FhirVersions {
 
     enum class SupportedFhirKbvMetaProfileVersions(val version: String) {
         V_102("1.0.2"),
-        V_110("1.1.0")
+        V_110("1.1.0"),
+        V_12("1.2"),
+        V_13("1.3")
     }
 
     enum class SupportedFhirKbvMetaDeviceRequestProfileVersions(val version: String) { V_1_1_DEVICE_REQUEST("1.1") }
 
     // ERP bundle data
-    val TASK_KBV_META_PROFILE_ERP_REGEX = Regex("""https://fhir\.kbv\.de/StructureDefinition/KBV_PR_ERP_Bundle\|(\d+\.\d+\.\d+)""")
+    val TASK_KBV_META_PROFILE_ERP_REGEX = Regex("""https://fhir\.kbv\.de/StructureDefinition/KBV_PR_ERP_Bundle\|(\d+\.\d+(?:\.\d+)?)""")
 
     // ERP Device request bundle data
     val TASK_KBV_META_PROFILE_EVDGA_REGEX = Regex("""https://fhir\.kbv\.de/StructureDefinition/KBV_PR_EVDGA_Bundle(?:\|(\d+\.\d+(?:\.\d+)?))?""")
 
     const val KBV_BUNDLE_VERSION_103 = "1.0.3"
     const val KBV_BUNDLE_VERSION_110 = "1.1.0"
+    const val KBV_BUNDLE_VERSION_12 = "1.2"
+    const val KBV_BUNDLE_VERSION_13 = "1.3"
 }

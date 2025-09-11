@@ -22,14 +22,18 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.model.original
 
-import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier.Companion.findPractitionerIdentifierValue
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier.Companion.findPractitionerLanr
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier.Companion.findPractitionerTelematikId
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier.Companion.findPractitionerZanr
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirName
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirName.Companion.processName
-import de.gematik.ti.erp.app.fhir.common.model.original.FhirTaskResource.Companion.getResourceIdentifiers
 import de.gematik.ti.erp.app.fhir.common.model.original.isResourceType
 import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvPractitionerErpModel
+import de.gematik.ti.erp.app.utils.Reference
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -94,8 +98,16 @@ internal data class FhirAuthor(
     }
 }
 
+@Reference(
+    info = "Practitioner version 1.2.0",
+    url = "https://simplifier.net/packages/kbv.ita.for/1.2.0/files/2777638"
+)
 @Serializable
 internal data class FhirPractitioner(
+    @SerialName("resourceType") val resourceType: String? = null,
+    @SerialName("id") val id: String? = null,
+    @SerialName("meta") val meta: FhirMeta? = null,
+    @SerialName("identifier") val identifiers: List<FhirIdentifier> = emptyList(),
     @SerialName("qualification") val qualifications: List<FhirQualificationCode> = emptyList(),
     @SerialName("name") val names: List<FhirName> = emptyList()
 ) {
@@ -104,12 +116,9 @@ internal data class FhirPractitioner(
             FhirKbvResourceType.Practitioner
         )
 
-        fun JsonElement.getPractitioner(): Pair<FhirPractitioner, JsonElement>? {
+        fun JsonElement.getPractitioner(): FhirPractitioner? {
             if (!isValidPractitioner()) return null
-            return Pair(
-                SafeJson.value.decodeFromJsonElement<FhirPractitioner>(serializer(), this),
-                this
-            )
+            return SafeJson.value.decodeFromJsonElement<FhirPractitioner>(serializer(), this)
         }
 
         /**
@@ -146,15 +155,32 @@ internal data class FhirPractitioner(
             }
         }
 
-        fun Pair<FhirPractitioner, JsonElement>.toErpModel() =
-            FhirTaskKbvPractitionerErpModel(
-                name = first.getName(),
-                qualification = first.getQualification(),
-                practitionerIdentifier = second.getResourceIdentifiers().identifiers.findPractitionerIdentifierValue()
+        fun FhirPractitioner.toErpModel(): FhirTaskKbvPractitionerErpModel {
+            return FhirTaskKbvPractitionerErpModel(
+                name = getName(),
+                qualification = getQualification(),
+                doctorIdentifier = identifiers.findPractitionerLanr(),
+                dentistIdentifier = identifiers.findPractitionerZanr(),
+                telematikId = identifiers.findPractitionerTelematikId()
             )
+        }
     }
 }
 
+/**
+ * A stripped down version of the json below where we look only for the text
+ * {
+ *             "code": {
+ *               "coding": [
+ *                 {
+ *                   "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Berufsbezeichnung",
+ *                   "code": "Berufsbezeichnung"
+ *                 }
+ *               ],
+ *               "text": "Facharzt für Kinder- und Jugendmedizin"
+ *             }
+ *           }
+ */
 @Serializable
 internal data class FhirQualificationCode(
     @SerialName("code") val code: FhirQualificationText? = null

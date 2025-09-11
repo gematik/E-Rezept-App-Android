@@ -33,6 +33,8 @@ class OrganizationEntityV1 : RealmObject, Cascading {
     var uniqueIdentifier: String? = null // BSNR
     var phone: String? = null
     var mail: String? = null
+    var fax: String? = null
+    var telematikId: String? = null
 
     override fun objectsToFollow(): Iterator<Deleteable> =
         iterator {

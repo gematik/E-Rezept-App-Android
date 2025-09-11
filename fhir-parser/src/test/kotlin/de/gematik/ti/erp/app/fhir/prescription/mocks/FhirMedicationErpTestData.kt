@@ -22,7 +22,10 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskMedicationCategoryErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirMedicationIdentifierErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirMedicationIngredientErpModel
@@ -30,12 +33,143 @@ import de.gematik.ti.erp.app.fhir.support.FhirQuantityErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirRatioErpModel
 
 object FhirMedicationErpTestData {
+
+    val erpMedicationPznModelV13 = FhirTaskKbvMedicationErpModel(
+        text = "Neupro 4MG/24H PFT 7ST",
+        form = "PFT",
+        medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.PZN,
+            version = ErpMedicationProfileVersion.V_13
+        ),
+        amount = null,
+        isVaccine = false,
+        normSizeCode = "N1",
+        compoundingInstructions = null,
+        compoundingPackaging = null,
+        ingredients = listOf(
+            FhirMedicationIngredientErpModel(
+                text = "Rotigotin",
+                amount = null,
+                form = null,
+                strengthRatio = FhirRatioErpModel(
+                    numerator = FhirQuantityErpModel(
+                        value = "4",
+                        unit = "mg/24 h"
+                    ),
+                    denominator = FhirQuantityErpModel(
+                        value = "1",
+                        unit = "Stück"
+                    )
+                ),
+                identifier = FhirMedicationIdentifierErpModel(
+                    pzn = "11164213",
+                    atc = null,
+                    ask = "30404",
+                    snomed = null
+                )
+            )
+        ),
+        identifier = FhirMedicationIdentifierErpModel(
+            pzn = "11164213",
+            atc = null,
+            ask = "30404",
+            snomed = null
+        ),
+        lotNumber = null,
+        expirationDate = null
+    )
+
+    val erpMedicationPznModelV12 = FhirTaskKbvMedicationErpModel(
+        text = "Venlafaxin - 1 A Pharma® 75mg 100 Tabl. N3",
+        form = "TAB",
+        medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.PZN,
+            version = ErpMedicationProfileVersion.V_12
+        ),
+        amount = null,
+        isVaccine = false,
+        normSizeCode = "N3",
+        compoundingInstructions = null,
+        compoundingPackaging = null,
+        ingredients = listOf(
+            FhirMedicationIngredientErpModel(
+                text = "Venlafaxinhydrochlorid",
+                amount = null,
+                form = null,
+                strengthRatio = FhirRatioErpModel(
+                    numerator = FhirQuantityErpModel(value = "84.88", unit = "mg"),
+                    denominator = FhirQuantityErpModel(value = "1", unit = null)
+                ),
+                identifier = FhirMedicationIdentifierErpModel(
+                    pzn = "05392039",
+                    atc = null,
+                    ask = null,
+                    snomed = null
+                )
+            )
+        ),
+        identifier = FhirMedicationIdentifierErpModel(
+            pzn = "05392039",
+            atc = null,
+            ask = null,
+            snomed = null
+        ),
+        lotNumber = null,
+        expirationDate = null
+    )
+
+    val erpMedicationPznWithAmountModelV12 = FhirTaskKbvMedicationErpModel(
+        text = "Olanzapin Heumann 20mg 70 Schmelztbl. N3",
+        form = "SMT",
+        medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.PZN,
+            version = ErpMedicationProfileVersion.V_12
+        ),
+        amount = FhirRatioErpModel(
+            numerator = FhirQuantityErpModel(value = "70", unit = "Stück"),
+            denominator = FhirQuantityErpModel(value = "1", unit = "")
+        ),
+        isVaccine = true,
+        normSizeCode = "N3",
+        compoundingInstructions = null,
+        compoundingPackaging = null,
+        ingredients = listOf(
+            FhirMedicationIngredientErpModel(
+                text = "Olanzapin",
+                amount = null,
+                form = null,
+                strengthRatio = FhirRatioErpModel(
+                    numerator = FhirQuantityErpModel(value = "20", unit = "mg"),
+                    denominator = FhirQuantityErpModel(value = "1", unit = null)
+                ),
+                identifier = FhirMedicationIdentifierErpModel(
+                    pzn = "08850519",
+                    atc = null,
+                    ask = null,
+                    snomed = null
+                )
+            )
+        ),
+        identifier = FhirMedicationIdentifierErpModel(
+            pzn = "08850519",
+            atc = null,
+            ask = null,
+            snomed = null
+        ),
+        lotNumber = null,
+        expirationDate = null
+    )
     val erpMedicationPznModelV102 = FhirTaskKbvMedicationErpModel(
         text = "Ich bin in Einlösung",
-        type = "Medication_PZN",
-        version = "1.0.2",
         form = "IHP",
         medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.PZN,
+            version = ErpMedicationProfileVersion.V_102
+        ),
         amount = FhirRatioErpModel(
             numerator = FhirQuantityErpModel(value = "1", unit = "Diskus"),
             denominator = FhirQuantityErpModel(value = "1", unit = null)
@@ -57,10 +191,12 @@ object FhirMedicationErpTestData {
 
     val erpMedicationPznModelV110 = FhirTaskKbvMedicationErpModel(
         text = "Novaminsulfon 500 mg Lichtenstein 100 ml Tropf. N3",
-        type = "Medication_PZN",
-        version = "1.1.0",
         form = "TEI",
         medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.PZN,
+            version = ErpMedicationProfileVersion.V_110
+        ),
         amount = FhirRatioErpModel(
             numerator = FhirQuantityErpModel(value = "100", unit = "ml"),
             denominator = FhirQuantityErpModel(value = "1", unit = "")
@@ -82,10 +218,12 @@ object FhirMedicationErpTestData {
 
     val erpMedicationIngredientModelV102 = FhirTaskKbvMedicationErpModel(
         text = null,
-        type = "Medication_Ingredient",
-        version = "1.0.2",
         form = "Flüssigkeiten",
         medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.Ingredient,
+            version = ErpMedicationProfileVersion.V_102
+        ),
         amount = null,
         isVaccine = false,
         normSizeCode = "N1",
@@ -120,10 +258,12 @@ object FhirMedicationErpTestData {
 
     val erpMedicationIngredientModelV110 = FhirTaskKbvMedicationErpModel(
         text = null,
-        type = "Medication_Ingredient",
-        version = "1.1.0",
         form = "Tabletten",
         medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.Ingredient,
+            version = ErpMedicationProfileVersion.V_110
+        ),
         amount = FhirRatioErpModel(
             numerator = FhirQuantityErpModel(value = "100", unit = "Stück"),
             denominator = FhirQuantityErpModel(value = "1", unit = "")
@@ -159,12 +299,60 @@ object FhirMedicationErpTestData {
         expirationDate = null
     )
 
+    val erpMedicationIngredientModelV13 = FhirTaskKbvMedicationErpModel(
+        text = null,
+        form = "Tabletten",
+        medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.Ingredient,
+            version = ErpMedicationProfileVersion.V_13
+        ),
+        amount = null,
+        isVaccine = false,
+        normSizeCode = "N3",
+        compoundingInstructions = null,
+        compoundingPackaging = null,
+        ingredients = listOf(
+            FhirMedicationIngredientErpModel(
+                text = "Simvastatin",
+                amount = null,
+                form = null,
+                strengthRatio = FhirRatioErpModel(
+                    numerator = FhirQuantityErpModel(
+                        value = "20",
+                        unit = "mg"
+                    ),
+                    denominator = FhirQuantityErpModel(
+                        value = "1",
+                        unit = "Stück"
+                    )
+                ),
+                identifier = FhirMedicationIdentifierErpModel(
+                    pzn = null,
+                    atc = null,
+                    ask = "23816",
+                    snomed = null
+                )
+            )
+        ),
+        identifier = FhirMedicationIdentifierErpModel(
+            pzn = null,
+            atc = null,
+            ask = "23816",
+            snomed = null
+        ),
+        lotNumber = null,
+        expirationDate = null
+    )
+
     val erpMedicationCompoundingMedicationV102 = FhirTaskKbvMedicationErpModel(
         text = null,
-        type = "Medication_Compounding",
-        version = "1.0.2",
         form = "Lösung",
         medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.Compounding,
+            version = ErpMedicationProfileVersion.V_102
+        ),
         amount = FhirRatioErpModel(
             numerator = FhirQuantityErpModel(value = "100", unit = "ml"),
             denominator = FhirQuantityErpModel(value = "1", unit = null)
@@ -217,10 +405,12 @@ object FhirMedicationErpTestData {
 
     val erpMedicationCompoundingMedicationV110 = FhirTaskKbvMedicationErpModel(
         text = null,
-        type = "Medication_Compounding",
-        version = "1.1.0",
         form = "Kapseln",
         medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.Compounding,
+            version = ErpMedicationProfileVersion.V_110
+        ),
         amount = FhirRatioErpModel(
             numerator = FhirQuantityErpModel(value = "50", unit = "Stück"),
             denominator = FhirQuantityErpModel(value = "1", unit = "")
@@ -286,12 +476,84 @@ object FhirMedicationErpTestData {
         expirationDate = null
     )
 
+    val erpMedicationCompoundingMedicationV13 = FhirTaskKbvMedicationErpModel(
+        text = null,
+        form = "Lösung",
+        medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.Compounding,
+            version = ErpMedicationProfileVersion.V_13
+        ),
+        amount = FhirRatioErpModel(
+            numerator = FhirQuantityErpModel(
+                value = "100",
+                unit = "ml"
+            ),
+            denominator = FhirQuantityErpModel(
+                value = "1",
+                unit = ""
+            )
+        ),
+        isVaccine = false,
+        normSizeCode = null,
+        compoundingInstructions = null,
+        compoundingPackaging = null,
+        ingredients = listOf(
+            FhirMedicationIngredientErpModel(
+                text = "Salicylsäure",
+                amount = null,
+                form = null,
+                strengthRatio = FhirRatioErpModel(
+                    numerator = FhirQuantityErpModel(
+                        value = "5",
+                        unit = "g"
+                    ),
+                    denominator = FhirQuantityErpModel(
+                        value = "1",
+                        unit = null
+                    )
+                ),
+                identifier = FhirMedicationIdentifierErpModel(
+                    pzn = null,
+                    atc = null,
+                    ask = null,
+                    snomed = null
+                )
+            ),
+            FhirMedicationIngredientErpModel(
+                text = "2-propanol 70 %",
+                amount = "Ad 100 g",
+                form = null,
+                strengthRatio = FhirRatioErpModel(
+                    numerator = null,
+                    denominator = null
+                ),
+                identifier = FhirMedicationIdentifierErpModel(
+                    pzn = null,
+                    atc = null,
+                    ask = null,
+                    snomed = null
+                )
+            )
+        ),
+        identifier = FhirMedicationIdentifierErpModel(
+            pzn = null,
+            atc = null,
+            ask = null,
+            snomed = null
+        ),
+        lotNumber = null,
+        expirationDate = null
+    )
+
     val erpMedicationFreeTextModelV102 = FhirTaskKbvMedicationErpModel(
         text = "Freitext",
-        type = "Medication_FreeText",
-        version = "1.0.2",
         form = null,
         medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.FreeText,
+            version = ErpMedicationProfileVersion.V_102
+        ),
         amount = null,
         isVaccine = false,
         normSizeCode = null,
@@ -310,12 +572,38 @@ object FhirMedicationErpTestData {
 
     val erpMedicationFreeTextModelV110 = FhirTaskKbvMedicationErpModel(
         text = "Metformin 850mg Tabletten N3",
-        type = "Medication_FreeText",
-        version = "1.1.0",
         form = null,
         medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.FreeText,
+            version = ErpMedicationProfileVersion.V_110
+        ),
         amount = null,
         isVaccine = false,
+        normSizeCode = null,
+        compoundingInstructions = null,
+        compoundingPackaging = null,
+        ingredients = emptyList(),
+        identifier = FhirMedicationIdentifierErpModel(
+            pzn = null,
+            atc = null,
+            ask = null,
+            snomed = null
+        ),
+        lotNumber = null,
+        expirationDate = null
+    )
+
+    val erpMedicationFreeTextModelV13 = FhirTaskKbvMedicationErpModel(
+        text = "Dummy-Impfstoff als Freitext",
+        form = null,
+        medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.FreeText,
+            version = ErpMedicationProfileVersion.V_13
+        ),
+        amount = null,
+        isVaccine = true,
         normSizeCode = null,
         compoundingInstructions = null,
         compoundingPackaging = null,

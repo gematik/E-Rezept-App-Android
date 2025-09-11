@@ -77,7 +77,6 @@ import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
-import de.gematik.ti.erp.app.utils.compose.OutlinedIconButton
 import de.gematik.ti.erp.app.utils.compose.TertiaryButton
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
@@ -287,11 +286,11 @@ fun ConnectionHelper(
         contentAlignment = contentAlignment
     ) {
         if (isProfileWithValidSsoTokenScope) {
-            OutlinedIconButton(
-                onClick = onClickRefresh,
-                imageVector = Icons.Default.Replay,
-                contentDescription = stringResource(R.string.refresh)
-            )
+            TertiaryButton(
+                onClick = onClickRefresh
+            ) {
+                Icon(Icons.Default.Replay, stringResource(R.string.refresh))
+            }
         } else {
             TertiaryButton(onClickLogin) {
                 Text(stringResource(R.string.mainscreen_login))

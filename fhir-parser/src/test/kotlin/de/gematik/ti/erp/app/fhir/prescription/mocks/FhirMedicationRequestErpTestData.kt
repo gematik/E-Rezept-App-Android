@@ -51,7 +51,7 @@ object FhirMedicationRequestErpTestData {
             start = FhirTemporal.LocalDate(LocalDate.parse("2022-08-17")),
             end = FhirTemporal.LocalDate(LocalDate.parse("2022-11-25"))
         ),
-        bvg = true
+        isSer = true
     )
     val erpMedicationRequestModelV110 = FhirTaskKbvMedicationRequestErpModel(
         authoredOn = FhirTemporal.LocalDate(LocalDate.parse("2022-05-20")),
@@ -73,7 +73,7 @@ object FhirMedicationRequestErpTestData {
             start = FhirTemporal.LocalDate(LocalDate.parse("2022-05-20")),
             end = FhirTemporal.LocalDate(LocalDate.parse("2022-06-30"))
         ),
-        bvg = false
+        isSer = false
     )
 
     val erpMedicationRequestWithAccidentInfoModelV110 = FhirTaskKbvMedicationRequestErpModel(
@@ -93,6 +93,50 @@ object FhirMedicationRequestErpTestData {
             start = null,
             end = null
         ),
-        bvg = false
+        isSer = false
+    )
+
+    val erpMedicationRequestModel12 = FhirTaskKbvMedicationRequestErpModel(
+        authoredOn = FhirTemporal.LocalDate(LocalDate.parse("2024-05-20")),
+        dateOfAccident = null,
+        location = null,
+        accidentType = FhirTaskAccidentType.None,
+        emergencyFee = false,
+        additionalFee = "1",
+        substitutionAllowed = true,
+        dosageInstruction = null,
+        note = null,
+        quantity = 127,
+        multiplePrescriptionInfo = FhirMultiplePrescriptionInfoErpModel(
+            indicator = false,
+            numbering = null,
+            start = null,
+            end = null
+        ),
+        isSer = true,
+        prescriberId = "Beispiel-ID-123456"
+    )
+
+    val erpMedicationRequestModelV13 = FhirTaskKbvMedicationRequestErpModel(
+        authoredOn = FhirTemporal.LocalDate(
+            value = LocalDate.parse("2024-05-20")
+        ),
+        dateOfAccident = null,
+        location = null,
+        accidentType = FhirTaskAccidentType.None,
+        emergencyFee = false,
+        additionalFee = "1",
+        substitutionAllowed = true,
+        dosageInstruction = "2mal tägl. 5ml",
+        note = null,
+        quantity = 1,
+        multiplePrescriptionInfo = FhirMultiplePrescriptionInfoErpModel(
+            indicator = false,
+            numbering = null,
+            start = null,
+            end = null
+        ),
+        isSer = false,
+        prescriberId = null
     )
 }

@@ -137,7 +137,6 @@ fun OnboardingPasswordScreenScaffold(
 ) {
     OnboardingScreenScaffold(
         modifier = Modifier
-            .testTag(TestTag.Onboarding.CredentialsScreen)
             .fillMaxSize(),
         state = lazyListState,
         topBar = {
@@ -159,12 +158,13 @@ fun OnboardingPasswordScreenScaffold(
                     info = null,
                     buttonText = stringResource(R.string.onboarding_bottom_button_save),
                     buttonEnabled = passwordFieldsState.passwordIsValidAndConsistent,
-                    modifier = Modifier.testTag(TestTag.Onboarding.NextButton),
+                    modifier = Modifier.testTag(TestTag.Onboarding.PasswordAuthenticationScreen.SaveButton),
                     buttonStyle = OnboardingButtonStyle.Filled,
                     onButtonClick = onChoosePassword,
                     includeBottomSpacer = false
                 )
                 OnboardingBottomBar(
+                    modifier = Modifier.testTag(TestTag.Onboarding.PasswordAuthenticationScreen.BackButton),
                     info = null,
                     buttonText = stringResource(R.string.back),
                     buttonEnabled = true,
@@ -246,7 +246,7 @@ private fun PasswordAuthentication(
     ) {
         PasswordTextField(
             modifier = Modifier
-                .testTag(TestTag.Onboarding.Credentials.PasswordFieldA)
+                .testTag(TestTag.Onboarding.PasswordAuthenticationScreen.PasswordFieldA)
                 .fillMaxWidth()
                 .scrollOnFocus(POS_OF_PASSWORD_CONTENT_ITEM, lazyListState, offsetFirstPassword)
                 .onGloballyPositioned { offsetFirstPassword = it.positionInParent().y.toInt() }
@@ -276,14 +276,13 @@ private fun PasswordAuthentication(
         )
         PasswordStrength(
             modifier = Modifier
-                .testTag(TestTag.Onboarding.Credentials.PasswordStrengthCheck)
                 .fillMaxWidth()
                 .padding(bottom = PaddingDefaults.Medium),
             passwordEvaluation = passwordFieldsState.passwordEvaluation
         )
         ConfirmationPasswordTextField(
             modifier = Modifier
-                .testTag(TestTag.Onboarding.Credentials.PasswordFieldB)
+                .testTag(TestTag.Onboarding.PasswordAuthenticationScreen.PasswordFieldB)
                 .fillMaxWidth()
                 .scrollOnFocus(POS_OF_PASSWORD_CONTENT_ITEM, lazyListState, offsetSecondPassword)
                 .onGloballyPositioned { offsetSecondPassword = it.positionInParent().y.toInt() },

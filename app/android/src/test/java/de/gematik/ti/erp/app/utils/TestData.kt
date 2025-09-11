@@ -24,6 +24,9 @@
 
 package de.gematik.ti.erp.app.utils
 
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.pharmacy.mocks.MEDICATION
 import de.gematik.ti.erp.app.prescription.model.Quantity
@@ -86,6 +89,10 @@ fun syncedTask(
         medicationRequest = SyncedTaskData.MedicationRequest(
             medication = SyncedTaskData.Medication(
                 category = SyncedTaskData.MedicationCategory.ARZNEI_UND_VERBAND_MITTEL,
+                medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+                    type = ErpMedicationProfileType.PZN,
+                    version = ErpMedicationProfileVersion.V_110
+                ),
                 vaccine = false,
                 text = medicationName,
                 form = null,

@@ -53,7 +53,9 @@ object CommunicationDispenseRequest {
     ): JsonElement {
         val request = CommunicationDispenseRequest(
             meta = FhirMeta(
-                profiles = listOf("${FhirCommunicationConstants.COMMUNICATION_DISPENSE_PROFILE_BASE}|${FhirCommunicationVersions.COMMUNICATION_VERSION_1_4}")
+                profiles = listOf(
+                    "${FhirCommunicationConstants.COMMUNICATION_DISPENSE_WORKFLOW_PROFILE}|${FhirCommunicationVersions.COMMUNICATION_VERSION_1_4}"
+                )
             ),
             identifier = listOf(
                 FhirIdentifier(

@@ -26,7 +26,6 @@ import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
-import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.messages.model.InternalMessage
 import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
@@ -54,6 +53,14 @@ const val WELCOME_MESSAGE_LANG = "de"
 const val WELCOME_MESSAGE_ID = "0"
 const val WELCOME_MESSAGE_TIMESTAMP = "2024-01-01T10:00:00Z"
 const val WELCOME_MESSAGE_GET_MESSAGE_TAG = "Neuerungen in der App Version 1.29.0"
+const val SECURITY_WARNING_MESSAGE_TAG = "Warnung"
+const val SECURITY_WARNING_MESSAGE_VERSION = "1.29.0"
+const val SECURITY_WARNING_MESSAGE_LANG = "de"
+const val SECURITY_WARNING_MESSAGE_ID = "0"
+const val SECURITY_WARNING_MESSAGE_TIMESTAMP = "2024-01-01T10:00:00Z"
+const val SECURITY_WARNING_MESSAGE_GET_MESSAGE_TAG = "Warnung"
+const val SECURITY_WARNING_MESSAGE_FROM = "E-Rezept App Team"
+const val SECURITY_WARNING_MESSAGE_TEXT = "Warnung nicht supported"
 private const val MOCK_PRACTITIONER_NAME = "Dr. John Doe"
 
 val CACHED_PHARMACY = CachedPharmacy(name = PHARMACY_NAME, telematikId = TELEMATIK_ID)
@@ -139,127 +146,6 @@ val MOCK_MESSAGE = OrderUseCaseData.Message(
     taskIds = listOf("testId1")
 )
 
-val inAppMessages = listOf(
-    InAppMessage(
-        id = ORDER_ID,
-        from = "",
-        text = IN_APP_MESSAGE_TEXT,
-        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
-        prescriptionsCount = 1,
-        tag = "",
-        isUnread = true,
-        lastMessage = null,
-        messageProfile = null,
-        version = ""
-    ),
-    InAppMessage(
-        id = ORDER_ID,
-        from = "",
-        text = IN_APP_MESSAGE_TEXT,
-        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
-        prescriptionsCount = 1,
-        tag = "",
-        isUnread = true,
-        lastMessage = null,
-        messageProfile = null,
-        version = ""
-    ),
-    InAppMessage(
-        id = WELCOME_MESSAGE_ID,
-        from = WELCOME_MESSAGE_FROM,
-        text = WELCOME_MESSAGE_TEXT,
-        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
-        prescriptionsCount = 0,
-        tag = WELCOME_MESSAGE_TAG,
-        isUnread = true,
-        lastMessage = null,
-        messageProfile = CommunicationProfile.InApp,
-        version = WELCOME_MESSAGE_VERSION
-    )
-)
-
-val inAppMessage = listOf(
-    InAppMessage(
-        id = "01",
-        from = "Team",
-        text = "This is a long message to see how it looks like when the message is long and how the UI should handle it properly",
-        timeState = TimeState.ShowDate(Instant.parse("2024-01-01T10:00:00Z")),
-        prescriptionsCount = 0,
-        tag = "1",
-        isUnread = true,
-        lastMessage = null,
-        messageProfile = CommunicationProfile.InApp,
-        version = "1.27.1"
-    ),
-    InAppMessage(
-        id = WELCOME_MESSAGE_ID,
-        from = WELCOME_MESSAGE_FROM,
-        text = WELCOME_MESSAGE_TEXT,
-        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
-        prescriptionsCount = 0,
-        tag = WELCOME_MESSAGE_TAG,
-        isUnread = true,
-        lastMessage = null,
-        messageProfile = CommunicationProfile.InApp,
-        version = WELCOME_MESSAGE_VERSION
-    )
-
-)
-
-val inAppMessagesFiltered = listOf(
-    InAppMessage(
-        id = ORDER_ID,
-        from = "",
-        text = IN_APP_MESSAGE_TEXT,
-        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
-        prescriptionsCount = 1,
-        tag = "",
-        isUnread = true,
-        lastMessage = null,
-        messageProfile = null,
-        version = ""
-    ),
-    InAppMessage(
-        id = WELCOME_MESSAGE_ID,
-        from = WELCOME_MESSAGE_FROM,
-        text = WELCOME_MESSAGE_TEXT,
-        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
-        prescriptionsCount = 0,
-        tag = WELCOME_MESSAGE_TAG,
-        isUnread = true,
-        lastMessage = null,
-        messageProfile = CommunicationProfile.InApp,
-        version = WELCOME_MESSAGE_VERSION
-    )
-)
-
-val inAppMessagesVersion = listOf(
-    InAppMessage(
-        id = "orderId1",
-        from = "",
-        text = IN_APP_MESSAGE_TEXT,
-        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
-        prescriptionsCount = 1,
-        tag = "",
-        isUnread = true,
-        lastMessage = null,
-        messageProfile = null,
-        version = "2.0.0"
-    ),
-    InAppMessage(
-        id = "orderId1",
-        from = "",
-        text = IN_APP_MESSAGE_TEXT,
-        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
-        prescriptionsCount = 1,
-        tag = "",
-        isUnread = true,
-        lastMessage = null,
-        messageProfile = null,
-        version = "1.0.0"
-    )
-)
-
 val welcomeMessage =
     InternalMessage(
         id = WELCOME_MESSAGE_ID,
@@ -271,6 +157,19 @@ val welcomeMessage =
         messageProfile = CommunicationProfile.InApp,
         version = WELCOME_MESSAGE_VERSION,
         languageCode = WELCOME_MESSAGE_LANG
+    )
+
+val securityWarningMessage =
+    InternalMessage(
+        id = SECURITY_WARNING_MESSAGE_ID,
+        sender = SECURITY_WARNING_MESSAGE_FROM,
+        text = SECURITY_WARNING_MESSAGE_TEXT,
+        time = TimeState.ShowDate(Instant.parse(SECURITY_WARNING_MESSAGE_TIMESTAMP)),
+        tag = SECURITY_WARNING_MESSAGE_TAG,
+        isUnread = true,
+        messageProfile = CommunicationProfile.InApp,
+        version = SECURITY_WARNING_MESSAGE_VERSION,
+        languageCode = SECURITY_WARNING_MESSAGE_LANG
     )
 
 val ORDER_DETAIL = OrderUseCaseData.OrderDetail(

@@ -287,7 +287,11 @@ private fun ScheduleTimeCardPreview() {
                     )
                 )
             ),
-            onAddNewItem = {}, onRemoveNotificationTime = {}, onNotificationTimeClick = {}, onDosageClicked = {})
+            onAddNewItem = {},
+            onRemoveNotificationTime = {},
+            onNotificationTimeClick = {},
+            onDosageClicked = {}
+        )
     }
 }
 

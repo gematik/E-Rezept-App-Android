@@ -58,10 +58,6 @@ class DemoPharmacyRepository(
         return Result.success(listOf(""))
     }
 
-    override suspend fun redeemPrescriptionDirectly(url: String, message: ByteArray, pharmacyTelematikId: String, transactionId: String): Result<Unit> {
-        return Result.success(Unit)
-    }
-
     override fun loadOftenUsedPharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>> {
         return flowOf(emptyList())
     }

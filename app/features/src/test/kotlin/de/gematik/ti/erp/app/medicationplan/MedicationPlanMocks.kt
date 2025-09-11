@@ -22,10 +22,15 @@
 
 package de.gematik.ti.erp.app.medicationplan
 
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.toLocalDate
 import de.gematik.ti.erp.app.medicationplan.model.MedicationNotificationMessage
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
@@ -35,8 +40,6 @@ import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Organization
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Patient
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Practitioner
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
-import de.gematik.ti.erp.app.fhir.temporal.toLocalDate
 import io.mockk.mockk
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -134,6 +137,10 @@ val medicationSchedule2 = MedicationSchedule(
 
 private val MEDICATION = SyncedTaskData.Medication(
     category = SyncedTaskData.MedicationCategory.entries[0],
+    medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+        type = ErpMedicationProfileType.PZN,
+        version = ErpMedicationProfileVersion.V_110
+    ),
     vaccine = true,
     text = "Medication",
     form = "AEO",

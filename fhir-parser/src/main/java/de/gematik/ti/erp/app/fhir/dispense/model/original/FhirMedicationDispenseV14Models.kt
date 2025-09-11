@@ -36,7 +36,7 @@ import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonElement
 
 @Serializable
-sealed class FhirMedicationDispenseV14Model(
+sealed class FhirMedicationDispenseStandardModel(
     @Transient
     open val type: FhirMediationDispenseResourceType = FhirMediationDispenseResourceType.Unknown
 )
@@ -59,7 +59,7 @@ sealed class FhirMedicationDispenseV14Model(
  * @property substitution Indicates if a substitution occurred and provides additional details.
  */
 @Serializable
-internal data class FhirMedicationDispenseV14DispenseModel(
+internal data class FhirMedicationDispenseV14V15DispenseModel(
     @SerialName("id") val id: String? = null,
     @SerialName("meta") val meta: FhirMeta? = null,
     @SerialName("identifier") val identifier: List<FhirIdentifier> = emptyList(),
@@ -75,22 +75,22 @@ internal data class FhirMedicationDispenseV14DispenseModel(
     @SerialName("substitution") val substitution: FhirMedicationDispenseSubstitution? = null,
     @SerialName("extension") val extension: List<FhirExtension> = emptyList(),
     @SerialName("note") val note: List<FhirMedicationRequestText> = emptyList()
-) : FhirMedicationDispenseV14Model() {
+) : FhirMedicationDispenseStandardModel() {
     override val type: FhirMediationDispenseResourceType
         get() = FhirMediationDispenseResourceType.MedicationDispense
 
-    companion object {
+    companion object Companion {
         /**
-         * Decodes a `JsonElement` into a [FhirMedicationDispenseV14DispenseModel].
+         * Decodes a `JsonElement` into a [FhirMedicationDispenseV14V15DispenseModel].
          *
          * @receiver The raw JSON payload of the `MedicationDispense` resource which comes as a pair with `Medication`.
-         * @return Parsed [FhirMedicationDispenseV14DispenseModel] instance.
+         * @return Parsed [FhirMedicationDispenseV14V15DispenseModel] instance.
          */
-        fun JsonElement.getMedicationDispenseV14(): FhirMedicationDispenseV14DispenseModel {
+        fun JsonElement.extractMedicationDispense(): FhirMedicationDispenseV14V15DispenseModel {
             return SafeJson.value.decodeFromJsonElement(serializer(), this)
         }
 
-        fun FhirMedicationDispenseV14DispenseModel.isDigaType() =
+        fun FhirMedicationDispenseV14V15DispenseModel.isDigaType() =
             meta?.profiles?.any { it.contains(DIGA_DISPENSE_TYPE) } ?: false
     }
 }

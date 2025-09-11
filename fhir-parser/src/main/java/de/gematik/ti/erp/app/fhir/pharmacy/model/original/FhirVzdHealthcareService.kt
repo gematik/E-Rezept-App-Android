@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.fhir.pharmacy.model.original
 
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirPeriod
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirTypeCoding
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirContactInformationErpModel
@@ -86,11 +87,7 @@ internal data class FhirVzdTelecom(
             return FhirContactInformationErpModel(
                 phone = getPhone(),
                 mail = getEmail(),
-                url = getUrl(),
-                // required only when we activate zuweisung-ohne-telematik-id
-                pickUpUrl = null,
-                deliveryUrl = null,
-                onlineServiceUrl = null
+                url = getUrl()
             )
         }
 
@@ -107,12 +104,6 @@ internal data class FhirVzdTelecom(
         }
     }
 }
-
-@Serializable
-internal data class FhirPeriod(
-    @SerialName("start") val start: String?,
-    @SerialName("end") val end: String?
-)
 
 @Serializable
 internal data class FhirVzdNotAvailable(

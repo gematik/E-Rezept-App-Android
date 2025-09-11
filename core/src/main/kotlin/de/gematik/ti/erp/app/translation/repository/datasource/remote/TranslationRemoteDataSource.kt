@@ -28,6 +28,7 @@ import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.TranslateRemoteModel
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.TranslatorOptions
+import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.translation.domain.model.LanguageDownloadState
 import de.gematik.ti.erp.app.translation.domain.model.TRANSLATION_TAG
 import io.github.aakira.napier.Napier
@@ -37,7 +38,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 
 class TranslationRemoteDataSource(
-    private val remoteModelManager: RemoteModelManager
+    private val remoteModelManager: RemoteModelManager,
+    private val networkStatusTracker: NetworkStatusTracker
 ) {
 
     suspend fun getDownloadedTranslationModels(): List<String> {
@@ -54,6 +56,14 @@ class TranslationRemoteDataSource(
 
     fun downloadLanguageModels(targetLangTag: String): Flow<LanguageDownloadState> {
         return flow {
+            // 1) Quick pre-check
+            val online = networkStatusTracker.isNetworkAvailable()
+            Napier.d(tag = TRANSLATION_TAG) { "Network available: $online" }
+            if (!online) {
+                emit(LanguageDownloadState.Error(Exception("Kein Internet")))
+                return@flow
+            }
+
             emit(LanguageDownloadState.Downloading)
 
             try {

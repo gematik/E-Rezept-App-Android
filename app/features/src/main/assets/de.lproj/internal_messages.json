@@ -34,5 +34,11 @@
         "text": "**🙌 Anmelden für Privatversicherte**\nDas Anmelden für Privatversicherte ist jetzt optimiert. Mit wenigen Klicks können Sie sich bequem mit Ihrer GesundheitsID anmelden.\n\n**⏰ Einnahmeerinnerungen**\nSie können jetzt Einnahmeerinnerungen für Ihre Medikamente einrichten.\n\n**🛒 Verbesserter Bestellflow**\nDer Bestellprozess ist jetzt einfacher und schneller.\n\n**♿️ Barrierefreiheit**\nDie Zugangsnummer für die Gesundheitskarte kann ab jetzt auch mit der Kamera eingelesen werden.\n\n**📲 Mehr Informationen für DiGAs**\nAb jetzt erhalten Sie ausführlichere Informationen zu Ihren DiGA-Verordnungen, wie den Verkaufspreis oder das Logo.",
         "timestamp": "2025-08-06T08:00:00.000Z",
         "version": "1.32"
+    },
+    {
+        "id": "8",
+        "text": "**📝 Flexibles Feld für Lieferanweisungen**\nDas Feld für Lieferanweisungen passt sich jetzt automatisch der Länge des Textes an.\n\n**🎨 Modernere Buttons mit Material 3**\nDie Buttons wurden an das neue Material 3 Design von Android angepasst und wirken jetzt moderner und runder.\n\n**📤 Rezepte teilen**\nRezepte können jetzt direkt aus der App mit anderen geteilt werden.",
+        "timestamp": "2025-09-09T08:00:00.000Z",
+        "version": "1.33"
     }
 ]

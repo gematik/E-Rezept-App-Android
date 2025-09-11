@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.invoice.repository
 
 import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.utils.safeWrite
 import de.gematik.ti.erp.app.database.realm.utils.toInstant
 import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
 import de.gematik.ti.erp.app.database.realm.utils.tryWrite
@@ -46,19 +47,23 @@ import de.gematik.ti.erp.app.database.realm.v1.task.entity.PatientEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.PractitionerEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.QuantityEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.RatioEntityV1
+import de.gematik.ti.erp.app.fhir.FhirPkvChargeItemsErpModelCollection
 import de.gematik.ti.erp.app.fhir.model.AccidentType
 import de.gematik.ti.erp.app.fhir.model.MedicationCategory
 import de.gematik.ti.erp.app.fhir.model.extractBinary
 import de.gematik.ti.erp.app.fhir.model.extractInvoiceBundle
 import de.gematik.ti.erp.app.fhir.model.extractInvoiceKBVAndErpPrBundle
 import de.gematik.ti.erp.app.fhir.model.extractKBVBundle
+import de.gematik.ti.erp.app.invoice.mapper.InvoiceDatabaseMappers.toInvoiceDatabaseModel
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.prescription.errors.PrescriptionDataNotFoundException
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.toMedication
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import io.github.aakira.napier.Napier
+import io.realm.kotlin.MutableRealm
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.ext.toRealmList
@@ -76,9 +81,7 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.serialization.json.JsonElement
 
 @Suppress("SpreadOperator")
-class InvoiceLocalDataSource(
-    private val realm: Realm
-) {
+class InvoiceLocalDataSource(private val realm: Realm) {
 
     fun latestInvoiceModifiedTimestamp(profileId: ProfileIdentifier): Flow<Instant?> =
         realm.query<PKVInvoiceEntityV1>("parent.id = $0", profileId)
@@ -90,12 +93,43 @@ class InvoiceLocalDataSource(
 
     private val mutex = Mutex()
 
+    private fun MutableRealm.findProfile(profileId: ProfileIdentifier): ProfileEntityV1 {
+        return queryFirst<ProfileEntityV1>("id = $0", profileId)
+            ?: throw PrescriptionDataNotFoundException("ProfileEntity with id $profileId not found in database")
+    }
+
+    private fun MutableRealm.findExistingInvoice(taskId: String): PKVInvoiceEntityV1? =
+        queryFirst<PKVInvoiceEntityV1>("taskId = $0", taskId)
+
+    suspend fun saveInvoice(
+        profileId: ProfileIdentifier,
+        chargeItemCollection: FhirPkvChargeItemsErpModelCollection
+    ) {
+        mutex.withLock {
+            realm.safeWrite {
+                val profile = findProfile(profileId)
+
+                chargeItemCollection.chargeItems.forEach { chargeItem ->
+                    val entity = chargeItem.taskId
+                        ?.let { findExistingInvoice(it) }
+                        ?: copyToRealm(PKVInvoiceEntityV1()).also { newEntity ->
+                            // Only add if we just created it
+                            profile.invoices.add(newEntity)
+                        }
+
+                    // Always update fields, regardless of new or existing
+                    chargeItem.toInvoiceDatabaseModel(profile, entity)
+                }
+            }
+        }
+    }
+
     @Suppress("LongMethod", "CyclomaticComplexMethod")
     suspend fun saveInvoice(profileId: ProfileIdentifier, bundle: JsonElement) = mutex.withLock {
         realm.tryWrite {
             queryFirst<ProfileEntityV1>("id = $0", profileId)?.let { profile ->
 
-                lateinit var invoiceEntity: PKVInvoiceEntityV1
+                lateinit var pKVInvoiceEntityV1: PKVInvoiceEntityV1
 
                 extractInvoiceKBVAndErpPrBundle(
                     bundle,
@@ -142,7 +176,7 @@ class InvoiceLocalDataSource(
                                 }
                             },
                             save = { _, timeStamp, pharmacy, invoice, whenHandedOver ->
-                                invoiceEntity = queryFirst<PKVInvoiceEntityV1>("taskId = $0", taskId) ?: run {
+                                pKVInvoiceEntityV1 = queryFirst<PKVInvoiceEntityV1>("taskId = $0", taskId) ?: run {
                                     copyToRealm(PKVInvoiceEntityV1()).also {
                                         profile.invoices += it
                                     }
@@ -154,7 +188,7 @@ class InvoiceLocalDataSource(
 
                                 profile.apply {
                                     this.invoices.add(
-                                        invoiceEntity.apply {
+                                        pKVInvoiceEntityV1.apply {
                                             this.parent = profile
                                             this.taskId = taskId
                                             this.accessCode = accessCode
@@ -320,13 +354,13 @@ class InvoiceLocalDataSource(
                                 medication,
                                 medicationRequest ->
 
-                                invoiceEntity = queryFirst("taskId = $0", taskId) ?: run {
+                                pKVInvoiceEntityV1 = queryFirst("taskId = $0", taskId) ?: run {
                                     copyToRealm(PKVInvoiceEntityV1()).also {
                                         profile.invoices += it
                                     }
                                 }
 
-                                invoiceEntity.apply {
+                                pKVInvoiceEntityV1.apply {
                                     this.parent = profile
                                     this.practitionerOrganization = organization
                                     this.patient = patient

@@ -36,7 +36,6 @@ import de.gematik.ti.erp.app.database.realm.v1.task.entity.SyncedTaskEntityV1
 import de.gematik.ti.erp.app.fhir.FhirCommunicationBundleErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
-import de.gematik.ti.erp.app.fhir.temporal.toStartOfDayInUTC
 import de.gematik.ti.erp.app.messages.mapper.CommunicationDatabaseMappers.toDatabaseModel
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
@@ -60,12 +59,12 @@ class PrescriptionLocalDataSource(
         tasks: List<ScannedTaskData.ScannedTask>,
         medicationString: String
     ) {
-        realm.tryWrite<Unit> {
+        realm.safeWrite {
             queryFirst<ProfileEntityV1>("id = $0", profileId)?.let { profile ->
-                val todaysNumberOfTasks = query<ScannedTaskEntityV1>(
-                    "parent = $0 AND scannedOn >= $1",
+                val numberOfUnnamedScannedTasks = query<ScannedTaskEntityV1>(
+                    "parent = $0 AND name CONTAINS $1",
                     profile,
-                    Clock.System.now().toStartOfDayInUTC().toRealmInstant()
+                    medicationString
                 ).count().find().toInt()
 
                 tasks.forEachIndexed { idx, task ->
@@ -77,7 +76,7 @@ class PrescriptionLocalDataSource(
                         profile.scannedTasks += copyToRealm(
                             ScannedTaskEntityV1().apply {
                                 this.index = task.index + 1
-                                this.name = "$medicationString ${todaysNumberOfTasks + idx + 1}"
+                                this.name = task.name.ifEmpty { "$medicationString ${numberOfUnnamedScannedTasks + idx + 1}" }
                                 this.parent = profile
                                 this.taskId = task.taskId
                                 this.accessCode = task.accessCode
@@ -240,8 +239,8 @@ class PrescriptionLocalDataSource(
     suspend fun updateEuRedeemableStatus(taskId: String, isEuRedeemable: Boolean) {
         realm.tryWrite {
             queryFirst<SyncedTaskEntityV1>("taskId = $0", taskId)?.let { task ->
-                val oldValue = task.isEuRedeemable
-                task.isEuRedeemable = isEuRedeemable
+                val oldValue = task.isEuRedeemableByProperties
+                task.isEuRedeemableByProperties = isEuRedeemable
                 Napier.i(tag = "EuRedeemable") {
                     "Database updated for taskId: $taskId, EuRedeemable status changed from [$oldValue] to [$isEuRedeemable]"
                 }

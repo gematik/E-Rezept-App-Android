@@ -207,7 +207,7 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersio
 
     val timestamp = Instant.parse(bundle.containedString("timestamp"))
 
-    val additionalDispenses = bundle.findAll("entry.resource")
+    val additionalDispensesInvoice = bundle.findAll("entry.resource")
         .filterWith(
             "meta.profile",
             or(
@@ -220,7 +220,7 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersio
             )
         )
 
-    val additionalDispenseData = bundle.findAll("entry.resource")
+    val additionalDispenseMedicationDispenseData = bundle.findAll("entry.resource")
         .filterWith(
             "meta.profile",
             or(
@@ -277,8 +277,8 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersio
             ) -> {
                 invoice = extractInvoice(
                     resource,
-                    additionalDispenses,
-                    additionalDispenseData,
+                    additionalDispensesInvoice,
+                    additionalDispenseMedicationDispenseData,
                     processInvoice
                 )
             }
@@ -305,8 +305,8 @@ fun <Dispense> extractPkvDispense(
 
 fun <Invoice> extractInvoice(
     billingLines: JsonElement,
-    additionalDispensesJson: Sequence<JsonElement>,
-    additionalDispenseDataJson: Sequence<JsonElement>,
+    additionalDispensesInvoice: Sequence<JsonElement>,
+    additionalDispenseMedicationDispenseData: Sequence<JsonElement>,
     processInvoice: InvoiceFn<Invoice>
 ): Invoice {
     val totalGross = billingLines.contained("totalGross")
@@ -451,13 +451,13 @@ fun <Invoice> extractInvoice(
 
     when (items[0].description) {
         InvoiceData.ChargeableItem.Description.TA1("02567053") -> // separation
-            additionalDispenses = chargeableItems(additionalDispensesJson)
+            additionalDispenses = chargeableItems(additionalDispensesInvoice)
 
         InvoiceData.ChargeableItem.Description.TA1("09999092") -> // parentale Zytostatica
-            additionalInformation = joinZytostaticaProductionSteps(additionalDispensesJson, additionalDispenseDataJson)
+            additionalInformation = joinZytostaticaProductionSteps(additionalDispensesInvoice, additionalDispenseMedicationDispenseData)
 
         else -> // must be compounding
-            additionalInformation = listOf(joinComponents(additionalDispensesJson))
+            additionalInformation = listOf(joinComponents(additionalDispensesInvoice))
     }
     return processInvoice(
         totalAdditionalFee,
@@ -470,17 +470,17 @@ fun <Invoice> extractInvoice(
 }
 
 fun joinZytostaticaProductionSteps(
-    additionalDispensesJson: Sequence<JsonElement>,
-    additionalDispensDataJson: Sequence<JsonElement>
+    additionalDispensesInvoice: Sequence<JsonElement>,
+    additionalDispenseMedicationDispenseData: Sequence<JsonElement>
 ): List<String> {
     val additionalInformation: MutableList<String> = mutableListOf()
     var productionItems = ""
-    val dispenseData = additionalDispensDataJson.toList()
-    val dispenses = additionalDispensesJson.toList()
+    val medicalDispenseData = additionalDispenseMedicationDispenseData.toList()
+    val invoiceDispenses = additionalDispensesInvoice.toList()
 
-    if (dispenseData.isNotEmpty()) {
+    if (medicalDispenseData.isNotEmpty()) {
         additionalInformation.add("Bestandteile (Nettopreise):")
-        dispenseData.forEachIndexed { index, data ->
+        medicalDispenseData.forEachIndexed { index, data ->
             val whenPrepared =
                 data.containedString("whenPrepared").toFhirTemporal().toInstant().toFormattedDateTime()
             val reference = data.findAll("extension").filterWith(
@@ -491,13 +491,13 @@ fun joinZytostaticaProductionSteps(
             ).firstOrNull()?.contained("valueReference")
                 ?.containedString("reference")?.removePrefix("urn:uuid:")
 
-            val dispense = dispenses.filter {
+            val invoiceDispense = invoiceDispenses.filter {
                 it.containedString("id") == reference
             }.first()
 
             val productionStep = index + 1
 
-            productionItems = joinProductionItems(dispense)
+            productionItems = joinProductionItems(invoiceDispense)
 
             additionalInformation.add("Herstellung $productionStep - $whenPrepared: $productionItems")
         }
@@ -506,12 +506,12 @@ fun joinZytostaticaProductionSteps(
     return additionalInformation
 }
 
-fun joinProductionItems(additionalDispensesJson: JsonElement): String {
+fun joinProductionItems(invoiceDispense: JsonElement): String {
     val productionItems: MutableList<String> = mutableListOf()
-    val items = additionalDispensesJson.findAll("lineItem").toList()
+    val items = invoiceDispense.findAll("lineItem").toList()
 
     items.forEachIndexed { index, lineItem ->
-        productionItems += additionalDispensesJson.findAll("extension")
+        productionItems += invoiceDispense.findAll("extension")
             .filterWith(
                 "url",
                 stringValue(
@@ -558,9 +558,9 @@ fun joinProductionItems(additionalDispensesJson: JsonElement): String {
     return productionItems.joinToString(" ")
 }
 
-fun joinComponents(additionalDispensesJson: Sequence<JsonElement>): String {
+fun joinComponents(additionalDispensesInvoice: Sequence<JsonElement>): String {
     val components = mutableListOf("Bestandteile:")
-    val items = chargeableItems(additionalDispensesJson)
+    val items = chargeableItems(additionalDispensesInvoice)
     val itemsSize = items.size
     items.forEachIndexed { index, item ->
         when (item.description) {
@@ -579,7 +579,7 @@ fun joinComponents(additionalDispensesJson: Sequence<JsonElement>): String {
     return components.joinToString(" ")
 }
 
-private fun chargeableItems(additionalDispensesJson: Sequence<JsonElement>) =
+private fun chargeableItems(additionalDispensesJson: Sequence<JsonElement>): List<InvoiceData.ChargeableItem> =
     additionalDispensesJson.findAll("lineItem")
         .mapNotNull { lineItem ->
             val text = "" // only Special indicator and its designation from the billing line are available

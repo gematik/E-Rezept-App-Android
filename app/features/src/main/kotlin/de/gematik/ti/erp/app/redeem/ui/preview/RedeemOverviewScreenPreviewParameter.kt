@@ -28,6 +28,7 @@ import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OrderState
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyContact
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.ShippingContact
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
@@ -37,6 +38,7 @@ import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParame
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParameter.pharmacyPreviewData
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParameter.prescriptionsForOrdersPreviewData
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParameter.profilePreviewData
+import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.Instant
 
 class PrescriptionSelectionSectionParameter : PreviewParameterProvider<List<PharmacyUseCaseData.PrescriptionInOrder>> {
@@ -45,7 +47,7 @@ class PrescriptionSelectionSectionParameter : PreviewParameterProvider<List<Phar
 
 data class RedeemOverviewScreenPreviewData(
     val title: String,
-    val profile: ProfilesUseCaseData.Profile,
+    val activeProfile: UiState<ProfilesUseCaseData.Profile>,
     val prescriptions: List<PharmacyUseCaseData.PrescriptionInOrder>,
     val orderOption: PharmacyScreenData.OrderOption?,
     val markAsSelfPayer: Boolean,
@@ -70,7 +72,7 @@ class RedeemOverviewScreenParameter : PreviewParameterProvider<RedeemOverviewScr
             // normal order
             RedeemOverviewScreenPreviewData(
                 title = "normal_order",
-                profile = profilePreviewData,
+                activeProfile = profilePreviewData,
                 prescriptions = prescriptionsForOrdersPreviewData,
                 orderOption = PharmacyScreenData.OrderOption.Delivery,
                 markAsSelfPayer = false,
@@ -85,7 +87,7 @@ class RedeemOverviewScreenParameter : PreviewParameterProvider<RedeemOverviewScr
             // self payer order
             RedeemOverviewScreenPreviewData(
                 title = "self_payer_order",
-                profile = profilePreviewData,
+                activeProfile = profilePreviewData,
                 prescriptions = prescriptionsForOrdersPreviewData,
                 orderOption = PharmacyScreenData.OrderOption.Online,
                 markAsSelfPayer = true,
@@ -100,7 +102,7 @@ class RedeemOverviewScreenParameter : PreviewParameterProvider<RedeemOverviewScr
             // missing pharmacy
             RedeemOverviewScreenPreviewData(
                 title = "missing_pharmacy_order",
-                profile = profilePreviewData,
+                activeProfile = profilePreviewData,
                 prescriptions = prescriptionsForOrdersPreviewData,
                 orderOption = null,
                 markAsSelfPayer = false,
@@ -115,7 +117,7 @@ class RedeemOverviewScreenParameter : PreviewParameterProvider<RedeemOverviewScr
             // missing contact
             RedeemOverviewScreenPreviewData(
                 title = "missing_contact_order",
-                profile = profilePreviewData,
+                activeProfile = profilePreviewData,
                 prescriptions = prescriptionsForOrdersPreviewData,
                 orderOption = PharmacyScreenData.OrderOption.Online,
                 markAsSelfPayer = false,
@@ -130,7 +132,7 @@ class RedeemOverviewScreenParameter : PreviewParameterProvider<RedeemOverviewScr
             // missing prescriptions
             RedeemOverviewScreenPreviewData(
                 title = "missing_prescription_order",
-                profile = profilePreviewData,
+                activeProfile = profilePreviewData,
                 prescriptions = emptyList(),
                 orderOption = PharmacyScreenData.OrderOption.Pickup,
                 markAsSelfPayer = false,
@@ -147,20 +149,22 @@ class RedeemOverviewScreenParameter : PreviewParameterProvider<RedeemOverviewScr
 
 object RedeemOverviewScreenPreviewParameter {
 
-    val profilePreviewData = ProfilesUseCaseData.Profile(
-        id = "test-profile-1",
-        name = "Ada Muster",
-        insurance = ProfileInsuranceInformation(
-            insuranceIdentifier = "123456789",
-            insuranceName = "Test Insurance",
-            insuranceType = ProfilesUseCaseData.InsuranceType.GKV
-        ),
-        isActive = true,
-        color = ProfilesData.ProfileColorNames.BLUE_MOON,
-        avatar = ProfilesData.Avatar.FemaleDoctor,
-        image = null,
-        lastAuthenticated = Instant.parse("2024-03-20T10:00:00Z"),
-        ssoTokenScope = null
+    val profilePreviewData = UiState.Data(
+        ProfilesUseCaseData.Profile(
+            id = "test-profile-1",
+            name = "Ada Muster",
+            insurance = ProfileInsuranceInformation(
+                insuranceIdentifier = "123456789",
+                insuranceName = "Test Insurance",
+                insuranceType = ProfilesUseCaseData.InsuranceType.GKV
+            ),
+            isActive = true,
+            color = ProfilesData.ProfileColorNames.BLUE_MOON,
+            avatar = ProfilesData.Avatar.FemaleDoctor,
+            image = null,
+            lastAuthenticated = Instant.parse("2024-03-20T10:00:00Z"),
+            ssoTokenScope = null
+        )
     )
 
     private val prescriptionForOrderPreviewData = PharmacyUseCaseData.PrescriptionInOrder(
@@ -205,14 +209,17 @@ object RedeemOverviewScreenPreviewParameter {
         contact = PharmacyContact(
             "1234",
             "mail@web.de",
-            "https://www.gematik.de",
-            "https://www.pickup.de",
-            "https://www.delivery.de",
-            "https://www.onlineservice.de"
+            "https://www.gematik.de"
         ),
         provides = listOf(
-            PharmacyUseCaseData.PharmacyService.LocalPharmacyService(
-                name = "PHARMACY_NAME",
+            PharmacyService.OnlinePharmacyService(name = "Online"),
+            PharmacyService.PickUpPharmacyService(name = "PickUp"),
+            PharmacyService.LocalPharmacyService(
+                name = "Local",
+                openingHours = PharmacyUseCaseData.OpeningHours(emptyMap())
+            ),
+            PharmacyService.DeliveryPharmacyService(
+                name = "Delivery",
                 openingHours = PharmacyUseCaseData.OpeningHours(emptyMap())
             )
         ),

@@ -90,12 +90,17 @@ class ConsentController(
         }
     }
 
-    fun revokeChargeConsent(profileId: ProfileIdentifier) {
+    // TODO: Needs a cleanup on consent changes
+    fun revokeChargeConsent(
+        profileId: ProfileIdentifier,
+        onSuccess: () -> Unit
+    ) {
         controllerScope.launch {
-            revokeConsentUseCase(profileId)
-                .first().apply {
-                    _consentState.value = this as ConsentState
-                }
+            val result = revokeConsentUseCase(profileId)
+            if (result is ConsentState.ValidState.Revoked) {
+                onSuccess()
+            }
+            _consentState.value = result as ConsentState
         }
     }
 

@@ -1,0 +1,43 @@
+{
+  "resourceType": "Communication",
+  "id": "140f716f-f649-44fe-9a4e-157eb3c8adf3",
+  "meta": {
+    "profile": [
+      "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DiGA|1.5"
+    ],
+    "tag": [
+      {
+        "display": "Health Care Provider to Patient"
+      },
+      {
+        "display": "Communication message sent by health care provider to patient"
+      }
+    ]
+  },
+  "status": "unknown",
+  "recipient": [
+    {
+      "identifier": {
+        "system": "http://fhir.de/sid/gkv/kvid-10",
+        "value": "X234567890"
+      }
+    }
+  ],
+  "sender": {
+    "identifier": {
+      "system": "https://gematik.de/fhir/sid/telematik-id",
+      "value": "8-SMC-B-Testkarte-783498105628375"
+    }
+  },
+  "basedOn": [
+    {
+      "reference": "Task/162.000.000.000.000.01"
+    }
+  ],
+  "sent": "2025-10-01T15:29:00.434+00:00",
+  "payload": [
+    {
+      "contentString": "Nachrichteninhalt für den Versicherten"
+    }
+  ]
+}

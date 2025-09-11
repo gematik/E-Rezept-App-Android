@@ -31,7 +31,6 @@ import de.gematik.ti.erp.app.consent.usecase.RevokeConsentUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -63,7 +62,7 @@ class RevokeConsentUseCaseTest {
     fun `on consent revoked successfully for a profile`() {
         coEvery { remoteDataSource.deleteChargeConsent(any()) } returns Result.success(Unit)
         runTest(dispatcher) {
-            val result = useCase.invoke("123").first()
+            val result = useCase.invoke("123")
             assertEquals(ConsentState.ValidState.Revoked, result)
             coVerify(exactly = 1) {
                 repository.revokeChargeConsent("123")
@@ -75,7 +74,7 @@ class RevokeConsentUseCaseTest {
     fun `on consent revoked failed for a profile`() {
         coEvery { remoteDataSource.deleteChargeConsent(any()) } returns Result.failure(Throwable("server error"))
         runTest(dispatcher) {
-            val result = useCase.invoke("123").first()
+            val result = useCase.invoke("123")
             assertEquals(ConsentState.ConsentErrorState.Unknown, result)
             coVerify(exactly = 1) {
                 repository.revokeChargeConsent("123")

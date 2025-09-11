@@ -23,7 +23,13 @@
 package de.gematik.ti.erp.app.messages.domain.model
 
 import android.content.Context
+import android.os.Build
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.utils.extensions.isGooglePlayServiceAvailable
+
+// only null or negative ids, since positive ids are for changelogs
+const val WELCOME_MESSAGE_ID = "0"
+const val SECURITY_WARNING_MESSAGE_ID = "-1"
 
 class InternalMessageResources(
     private val context: Context
@@ -35,4 +41,9 @@ class InternalMessageResources(
 
     val welcomeMessage = context.getString(R.string.welcome_text)
     val welcomeMessageTag = context.getString(R.string.welcome_tag)
+
+    // only show this on Android devices with access to google which are not safe anymore
+    val shouldShowSecurityWarningMessage = context.isGooglePlayServiceAvailable() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.S
+    val securityWarningMessage = context.getString(R.string.security_warning_text)
+    val securityWarningTag = context.getString(R.string.security_warning_tag)
 }

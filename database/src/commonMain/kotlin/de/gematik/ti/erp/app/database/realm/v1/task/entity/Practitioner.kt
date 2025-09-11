@@ -28,4 +28,6 @@ class PractitionerEntityV1 : RealmObject {
     var name: String? = null
     var qualification: String? = null
     var practitionerIdentifier: String? = null // code == LANR (long term practitioner id)
+    var dentistIdentifier: String? = null // code == ZANR (dentist license id)
+    var telematikId: String? = null
 }

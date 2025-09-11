@@ -35,12 +35,6 @@ data class PharmacyFilter(
     val textFilter: TextFilter? = null
 ) {
     companion object {
-        /*
-        Only valid in apo-vzd, switched off in fhir-vzd
-         if (searchData.filter.directRedeem) {
-                filterMap += "type" to "DELEGATOR"
-            }
-         */
         fun PharmacyFilter.buildApoVzdQueryMap(): Map<String, String> {
             val queryMap = mutableMapOf<String, String>()
             locationFilter?.let {

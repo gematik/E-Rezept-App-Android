@@ -42,8 +42,6 @@ interface PharmacyRepository {
 
     suspend fun searchBinaryCerts(locationId: String): Result<List<String>>
 
-    suspend fun redeemPrescriptionDirectly(url: String, message: ByteArray, pharmacyTelematikId: String, transactionId: String): Result<Unit>
-
     fun loadOftenUsedPharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>>
 
     fun loadFavoritePharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>>

@@ -24,8 +24,10 @@ package de.gematik.ti.erp.app.fhir.prescription.parser
 
 import de.gematik.ti.erp.app.data.taskJson_vers_1_2
 import de.gematik.ti.erp.app.data.taskJson_vers_1_3
+import de.gematik.ti.erp.app.data.taskJson_vers_1_5
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskMetaDataErpTestData.taskMetaDataVersion_1_2
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskMetaDataErpTestData.taskMetaDataVersion_1_3
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskMetaDataErpTestData.taskMetaVersion_1_5_InProgress
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.junit.Test
@@ -33,7 +35,7 @@ import kotlin.test.assertEquals
 
 class TaskEPrescriptionMetadataParserTest {
 
-    val parser = TaskEPrescriptionMetadataParser()
+    val parser = TaskMetadataParser()
 
     @Test
     fun `test parserFor_task_resource_version_1_2`() = runTest {
@@ -47,5 +49,12 @@ class TaskEPrescriptionMetadataParserTest {
         val bundle = Json.parseToJsonElement(taskJson_vers_1_3)
         val result = parser.extract(bundle)
         assertEquals(taskMetaDataVersion_1_3, result)
+    }
+
+    @Test
+    fun `test parserFor_task_resource_version_1_5`() = runTest {
+        val bundle = Json.parseToJsonElement(taskJson_vers_1_5)
+        val result = parser.extract(bundle)
+        assertEquals(taskMetaVersion_1_5_InProgress, result)
     }
 }

@@ -135,13 +135,13 @@ private fun UserConfirmationBottomBar(
             buttonText = stringResource(R.string.onboarding_analytics_agree_button),
             buttonEnabled = !isCreatingProfile,
             includeBottomSpacer = false,
-            modifier = Modifier.testTag(TestTag.Onboarding.Analytics.AcceptAnalyticsButton),
+            modifier = Modifier.testTag(TestTag.Onboarding.AnalyticsAllowScreen.AllowButton),
             onButtonClick = onClickAccept
         )
         OnboardingBottomBar(
             info = null,
             buttonText = stringResource(R.string.onboarding_analytics_reject_button),
-            modifier = Modifier.testTag(TestTag.Onboarding.RejectButton),
+            modifier = Modifier.testTag(TestTag.Onboarding.AnalyticsAllowScreen.DenyButton),
             buttonEnabled = !isCreatingProfile,
             onButtonClick = onClickReject
         )

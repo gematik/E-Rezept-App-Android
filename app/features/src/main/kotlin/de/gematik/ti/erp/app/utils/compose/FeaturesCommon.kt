@@ -689,6 +689,7 @@ fun InputField(
     colors: TextFieldColors = erezeptTextFieldColors(),
     isError: Boolean = false,
     errorText: @Composable (() -> Unit)? = null,
+    singleLine: Boolean = true,
     keyBoardType: KeyboardType? = null
 ) {
     val initialValue = rememberSaveable { value }
@@ -701,7 +702,7 @@ fun InputField(
             },
             modifier = modifier
                 .heightIn(min = 56.dp),
-            singleLine = true,
+            singleLine = singleLine,
             keyboardOptions = KeyboardOptions(
                 autoCorrect = true,
                 keyboardType = keyBoardType ?: KeyboardType.Text,

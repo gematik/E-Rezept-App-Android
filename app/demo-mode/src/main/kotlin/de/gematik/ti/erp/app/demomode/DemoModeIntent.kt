@@ -58,8 +58,3 @@ inline fun <reified T> DemoModeIntent.startAppWithNormalMode(activity: Component
         )
     )
 }
-
-enum class DemoModeIntentAction {
-    DemoModeStarted,
-    DemoModeEnded
-}

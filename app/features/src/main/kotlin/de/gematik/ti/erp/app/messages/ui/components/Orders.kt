@@ -61,6 +61,7 @@ import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
+import de.gematik.ti.erp.app.utils.extensions.sanitizeMarkdownText
 import de.gematik.ti.erp.app.utils.uistate.UiState
 
 @Composable
@@ -102,7 +103,7 @@ internal fun Orders(
                             date = date,
                             hasUnreadMessages = order.isUnread,
                             prescriptionsCount = order.prescriptionsCount,
-                            text = order.text ?: "",
+                            text = order.text?.sanitizeMarkdownText() ?: "",
                             onClick = {
                                 onClickOrder(order.id, order.messageProfile == CommunicationProfile.InApp)
                             }

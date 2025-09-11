@@ -24,7 +24,6 @@
 
 package de.gematik.ti.erp.app.cardwall.ui.screens
 
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -106,9 +105,8 @@ private fun CardWallSelectInsuranceTypeBottomSheetScreenContent(
     onClickPKV: () -> Unit
 ) {
     DefaultDrawerScreenContent(
-        modifierOutlinedButton = Modifier
-            .wrapContentSize()
-            .testTag(TestTag.Main.MainScreenBottomSheet.ConnectLaterButton),
+        modifierPrimaryButton = Modifier.testTag(TestTag.CardWall.SelectInsuranceTypeBottomSheet.GkvButton),
+        modifierOutlinedButton = Modifier.testTag(TestTag.CardWall.SelectInsuranceTypeBottomSheet.PkvButton),
         info = stringResource(R.string.cardwall_select_insurance_type_drawer_body),
         header = stringResource(R.string.cardwall_select_insurance_type_drawer_title),
         image = painterResource(R.drawable.man_phone_blue_circle),

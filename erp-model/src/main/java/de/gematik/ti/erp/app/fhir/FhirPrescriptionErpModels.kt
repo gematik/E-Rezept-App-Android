@@ -67,7 +67,10 @@ data class FhirTaskMetaDataErpModel(
     val acceptUntil: FhirTemporal.LocalDate? = null,
     val authoredOn: FhirTemporal.Instant,
     val status: TaskStatus, // todo, using the TaskStatus from the fhir model, need to move it
-    val lastMedicationDispense: FhirTemporal.Instant? = null
+    val lastMedicationDispense: FhirTemporal.Instant? = null,
+    // values only become true after version 1.5
+    val isEuRedeemableByProperties: Boolean = false,
+    val isEuRedeemableByPatientAuthorization: Boolean = false
 ) : FhirTaskErpModel
 
 @Serializable

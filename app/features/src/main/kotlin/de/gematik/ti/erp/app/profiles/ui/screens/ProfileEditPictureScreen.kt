@@ -105,7 +105,7 @@ import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.circularBorder
 
-// todo: this is duplicated from EditProfilePicture.kt, needs to be combined into one view
+// TODO: this is duplicated from EditProfilePicture.kt, needs to be combined into one view
 class ProfileEditPictureScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry
@@ -262,24 +262,27 @@ private fun AvatarSelector(
     val notSelectedDescription = stringResource(R.string.inactive_description)
     val onClickDescription = stringResource(R.string.choose_profile_picture)
     Surface(
-        modifier = modifier.size(SizeDefaults.tenfold).semantics {
-            role = Role.Button
-            stateDescription = avatarDescription
-            contentDescription = if (selected) {
-                selectedDescription
-            } else {
-                notSelectedDescription
+        modifier = modifier
+            .size(SizeDefaults.tenfold)
+            .semantics {
+                role = Role.Button
+                stateDescription = avatarDescription
+                contentDescription = if (selected) {
+                    selectedDescription
+                } else {
+                    notSelectedDescription
+                }
             }
-        }.clickable(
-            onClickLabel = onClickDescription,
-            onClick = {
-                if (figure == ProfilesData.Avatar.PersonalizedImage) {
-                    onPickPersonalizedImage()
+            .clickable(
+                onClickLabel = onClickDescription,
+                onClick = {
+                    if (figure == ProfilesData.Avatar.PersonalizedImage) {
+                        onPickPersonalizedImage()
+                        onSelectAvatar(figure)
+                    }
                     onSelectAvatar(figure)
                 }
-                onSelectAvatar(figure)
-            }
-        ),
+            ),
         shape = CircleShape,
         border = if (selected) {
             BorderStroke(SizeDefaults.fivefoldHalf, color = AppTheme.colors.primary700)

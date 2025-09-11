@@ -135,6 +135,7 @@ kotlin {
                 implementation(compose.material)
                 implementation(compose.materialIconsExtended)
                 implementation(compose.ui)
+                implementation(libs.androidx.datastore.preferences)
                 implementation(project(":utils"))
                 implementation(project(":fhir-parser"))
                 implementation(project(":database"))

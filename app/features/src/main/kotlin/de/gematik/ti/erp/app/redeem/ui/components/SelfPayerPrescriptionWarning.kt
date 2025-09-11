@@ -85,7 +85,7 @@ fun SelfPayerPrescriptionWarning(
     selfPayerPrescriptionNames: List<String>
 ) {
     Banner(
-        modifier = Modifier.padding(PaddingDefaults.Medium),
+        modifier = Modifier,
         startIcon = BannerClickableIcon(
             BannerIcon.Custom(
                 vector = Icons.Rounded.WarningAmber,

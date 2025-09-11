@@ -30,6 +30,8 @@ import de.gematik.ti.erp.app.data.organization1NoTelecom_v110_json
 import de.gematik.ti.erp.app.data.organization1_v103_json
 import de.gematik.ti.erp.app.data.organization2_v103_json
 import de.gematik.ti.erp.app.data.organization2_v110_json
+import de.gematik.ti.erp.app.data.organization3_v12_json
+import de.gematik.ti.erp.app.data.organization4_additionalData_v12_json
 import de.gematik.ti.erp.app.data.patient1_v103_json
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganization1AllPresent_v110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganization1NoAddress_v110
@@ -39,14 +41,18 @@ import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganization1_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganization2_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganization2_v110
-import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization1_v103
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganization3_v120
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganization4_v120
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization1AllPresent_v110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization1NoAddress_v110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization1NoEmail_v110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization1NoFax_v110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization1NoTelecom_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization1_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization2_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization2_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization3_v120
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization4_v120
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirOrganization.Companion.getOrganization
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirOrganization.Companion.toErpModel
 import kotlinx.serialization.json.Json
@@ -134,5 +140,23 @@ class TaskEPrescriptionMedicalDataParserOrganizationTest {
         val erpModel = fhirModel?.toErpModel()
         assertEquals(null, fhirModel)
         assertEquals(null, erpModel)
+    }
+
+    @Test
+    fun `test parser for organization 3 version 1_2_0`() {
+        val bundle = Json.parseToJsonElement(organization3_v12_json)
+        val fhirModel = bundle.getOrganization()
+        val erpModel = fhirModel?.toErpModel()
+        assertEquals(fhirOrganization3_v120, fhirModel)
+        assertEquals(erpOrganization3_v120, erpModel)
+    }
+
+    @Test
+    fun `test parser for organization 3 version with additional address data 1_2_0`() {
+        val bundle = Json.parseToJsonElement(organization4_additionalData_v12_json)
+        val fhirModel = bundle.getOrganization()
+        val erpModel = fhirModel?.toErpModel()
+        assertEquals(fhirOrganization4_v120, fhirModel)
+        assertEquals(erpOrganization4_v120, erpModel)
     }
 }

@@ -23,7 +23,6 @@
 package de.gematik.ti.erp.app.pharmacy.mapper
 
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
 
 internal fun PharmacyScreenData.OrderOption.toRedeemOption(): RemoteRedeemOption =
@@ -31,11 +30,4 @@ internal fun PharmacyScreenData.OrderOption.toRedeemOption(): RemoteRedeemOption
         PharmacyScreenData.OrderOption.Pickup -> RemoteRedeemOption.Local
         PharmacyScreenData.OrderOption.Delivery -> RemoteRedeemOption.Delivery
         PharmacyScreenData.OrderOption.Online -> RemoteRedeemOption.Shipment
-    }
-
-internal fun PharmacyScreenData.OrderOption.toPharmacyContact(data: PharmacyUseCaseData.Pharmacy): String =
-    when (this) {
-        PharmacyScreenData.OrderOption.Pickup -> data.contact.pickUpUrl
-        PharmacyScreenData.OrderOption.Delivery -> data.contact.deliveryUrl
-        PharmacyScreenData.OrderOption.Online -> data.contact.onlineServiceUrl
     }

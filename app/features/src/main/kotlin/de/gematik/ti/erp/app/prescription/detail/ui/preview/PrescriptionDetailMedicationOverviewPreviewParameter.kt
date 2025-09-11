@@ -24,6 +24,9 @@ package de.gematik.ti.erp.app.prescription.detail.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispenseDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import de.gematik.ti.erp.app.pkv.ui.preview.PkvMockData.medicationPzn
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
@@ -83,6 +86,10 @@ private data class PrescriptionPreviewData(
                 patientIdentifier = "1234",
                 medication = SyncedTaskData.Medication(
                     category = SyncedTaskData.MedicationCategory.AMVV,
+                    medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+                        type = ErpMedicationProfileType.PZN,
+                        version = ErpMedicationProfileVersion.V_110
+                    ),
                     vaccine = false,
                     text = "Dispensed Medication",
                     form = "Capsule",

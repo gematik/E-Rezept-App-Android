@@ -1,0 +1,79 @@
+{
+  "resourceType": "Patient",
+  "id": "ce4104af-b86b-4664-afee-1b5fc3ac8acf",
+  "meta": {
+    "profile": [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.2"
+    ]
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "http://fhir.de/CodeSystem/identifier-type-de-basis",
+            "code": "KVZ10"
+          }
+        ]
+      },
+      "system": "http://fhir.de/sid/gkv/kvid-10",
+      "value": "K030182229"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Kluge",
+      "_family": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+            "valueString": "Kluge"
+          }
+        ]
+      },
+      "given": [
+        "Eva"
+      ],
+      "prefix": [
+        "Prof. Dr. Dr. med"
+      ],
+      "_prefix": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+              "valueCode": "AC"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "birthDate": "1982-01-03",
+  "address": [
+    {
+      "type": "both",
+      "line": [
+        "Pflasterhofweg 111B"
+      ],
+      "_line": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
+              "valueString": "111B"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+              "valueString": "Pflasterhofweg"
+            }
+          ]
+        }
+      ],
+      "city": "Köln",
+      "postalCode": "50999",
+      "country": "D"
+    }
+  ]
+}

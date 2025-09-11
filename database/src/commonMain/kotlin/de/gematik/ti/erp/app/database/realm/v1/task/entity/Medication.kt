@@ -44,6 +44,12 @@ enum class MedicationCategoryV1 {
 
 class MedicationEntityV1 : RealmObject, Cascading {
     var text: String = ""
+
+    // PZN, Compounding, Ingredient, FreeText
+    var medicationProfileType: String? = null
+
+    // V_110, V_102, V_120
+    var medicationProfileVersion: String? = null
     var _medicationCategory: String = MedicationCategoryV1.ARZNEI_UND_VERBAND_MITTEL.toString()
 
     @delegate:Ignore

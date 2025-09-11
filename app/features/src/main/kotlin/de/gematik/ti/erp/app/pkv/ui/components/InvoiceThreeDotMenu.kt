@@ -45,6 +45,7 @@ import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerSmall
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 
 @Composable
 fun InvoiceThreeDotMenu(
@@ -106,13 +107,15 @@ fun InvoiceThreeDotMenu(
                             style = AppTheme.typography.subtitle1
                         )
                     }
-                    DropdownMenuItem(onClick = {
-                        onClickCorrectInvoiceInApp(taskId)
-                    }) {
-                        Text(
-                            text = stringResource(R.string.invoice_menu_correct_invoice_online),
-                            style = AppTheme.typography.subtitle1l
-                        )
+                    if (BuildConfigExtension.isInternalDebug) {
+                        DropdownMenuItem(onClick = {
+                            onClickCorrectInvoiceInApp(taskId)
+                        }) {
+                            Text(
+                                text = stringResource(R.string.invoice_menu_correct_invoice_online),
+                                style = AppTheme.typography.subtitle1l
+                            )
+                        }
                     }
                 }
             }

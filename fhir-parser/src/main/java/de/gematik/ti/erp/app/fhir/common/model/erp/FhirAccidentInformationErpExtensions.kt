@@ -34,6 +34,7 @@ import kotlinx.datetime.LocalDate
 private object FhirAccidentExtensionUrls {
     const val ACCIDENT_EXTENSION_URL_102 = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Accident"
     const val ACCIDENT_EXTENSION_URL_110 = "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Accident"
+    const val ACCIDENT_EXTENSION_URL_13 = "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Accident"
 }
 
 private const val ACCIDENT_DATE = "unfalltag"
@@ -52,8 +53,13 @@ internal fun List<FhirExtension>.toAccidentInformation(
 )
 
 internal fun List<FhirExtension>.accidentInformationExtension() =
-    firstOrNull { it.url == FhirAccidentExtensionUrls.ACCIDENT_EXTENSION_URL_110 }
-        ?: firstOrNull { it.url == FhirAccidentExtensionUrls.ACCIDENT_EXTENSION_URL_102 }
+    sequenceOf(
+        FhirAccidentExtensionUrls.ACCIDENT_EXTENSION_URL_110,
+        FhirAccidentExtensionUrls.ACCIDENT_EXTENSION_URL_102,
+        FhirAccidentExtensionUrls.ACCIDENT_EXTENSION_URL_13
+    )
+        .mapNotNull { url -> firstOrNull { it.url == url } }
+        .firstOrNull()
 
 internal fun List<FhirExtension>.findAccidentDate() =
     findExtensionByUrl(ACCIDENT_DATE)?.valueDate?.let { FhirTemporal.LocalDate(LocalDate.parse(it)) }

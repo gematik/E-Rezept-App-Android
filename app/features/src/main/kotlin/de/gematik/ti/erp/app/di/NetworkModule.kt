@@ -27,11 +27,9 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.ErpService
-import de.gematik.ti.erp.app.api.PharmacyRedeemService
 import de.gematik.ti.erp.app.idp.api.IdpService
 import de.gematik.ti.erp.app.interceptor.BearerHeaderInterceptor
 import de.gematik.ti.erp.app.interceptor.ErpApiKeyHeaderInterceptor
-import de.gematik.ti.erp.app.interceptor.PharmacyRedeemInterceptor
 import de.gematik.ti.erp.app.interceptor.UrlRewriteInterceptor
 import de.gematik.ti.erp.app.interceptor.UserAgentHeaderInterceptor
 import de.gematik.ti.erp.app.logger.HttpAppLogger
@@ -234,25 +232,5 @@ val networkModule = DI.Module("Network Module") {
             .addConverterFactory(instance(JsonConverterFactoryTag))
             .build()
             .create(VauService::class.java)
-    }
-
-    @Requirement(
-        "O.Ntwk_3#4",
-        sourceSpecification = "BSI-eRp-ePA",
-        rationale = "We use OkHttp with different interceptors to make it more secure."
-    )
-    // Pharmacy Redeem Service
-    bindSingleton {
-        val clientBuilder = instance<OkHttpClient>(REQUIRED_HTTP_CLIENT).newBuilder()
-
-        if (BuildKonfig.INTERNAL) {
-            clientBuilder.addInterceptor(PharmacyRedeemInterceptor())
-        }
-
-        Retrofit.Builder()
-            .client(clientBuilder.build())
-            .baseUrl("https://localhost") // unused but required
-            .build()
-            .create(PharmacyRedeemService::class.java)
     }
 }

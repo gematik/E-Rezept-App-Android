@@ -132,15 +132,12 @@ fun PharmacyDetailsComponent(
 
         val showTelematikId by controller.showTelematikId.collectAsStateWithLifecycle(false)
 
-        val isDirectRedeemEnabled by (graphController?.isDirectRedeemEnabled() ?: remember { mutableStateOf(false) })
-
         val hasRedeemableOrders by (graphController?.hasRedeemableOrders() ?: remember { mutableStateOf(false) })
 
         BasePharmacyDetailsContent(
             pharmacy = pharmacy,
             clickableText = urlText,
             isMarkedAsFavorite = isMarkedAsFavorite,
-            isDirectRedeemEnabled = isDirectRedeemEnabled,
             showTelematikId = showTelematikId,
             onChangeFavoriteState = {
                 controller.changePharmacyAsFavorite(pharmacy, it)
@@ -190,7 +187,6 @@ private fun BasePharmacyDetailsContent(
     pharmacy: PharmacyUseCaseData.Pharmacy,
     clickableText: AnnotatedString,
     isMarkedAsFavorite: Boolean,
-    isDirectRedeemEnabled: Boolean,
     screenType: ScreenType,
     currentDateTime: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
     onClickOrder: (PharmacyUseCaseData.Pharmacy, PharmacyScreenData.OrderOption) -> Unit,
@@ -359,7 +355,6 @@ fun PharmacyDetailsScreenFromPharmacyPreview(
             pharmacy = pharmacy,
             clickableText = PharmacyPortalText().urlText(),
             isMarkedAsFavorite = true,
-            isDirectRedeemEnabled = false,
             showTelematikId = false,
             screenType = ScreenType.ForPharmacy,
             currentDateTime = LocalDateTime(2024, 7, 31, 10, 0),
@@ -389,7 +384,6 @@ fun PharmacyDetailsScreenFromMessagePreview(
             pharmacy = pharmacy,
             clickableText = PharmacyPortalText().urlText(),
             isMarkedAsFavorite = true,
-            isDirectRedeemEnabled = true,
             showTelematikId = false,
             screenType = ScreenType.ForMessage,
             currentDateTime = LocalDateTime(2024, 7, 31, 10, 0),

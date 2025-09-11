@@ -30,8 +30,7 @@ enum class FilterType {
     NEARBY,
     OPEN_NOW,
     DELIVERY_SERVICE,
-    ONLINE_SERVICE,
-    DIRECT_REDEEM;
+    ONLINE_SERVICE;
 
     companion object {
         fun FilterType.getUpdatedFilter(filter: PharmacyUseCaseData.Filter) =
@@ -40,7 +39,6 @@ enum class FilterType {
                 OPEN_NOW -> filter.copy(openNow = !filter.openNow)
                 DELIVERY_SERVICE -> filter.copy(deliveryService = !filter.deliveryService)
                 ONLINE_SERVICE -> filter.copy(onlineService = !filter.onlineService)
-                DIRECT_REDEEM -> filter.copy(directRedeem = !filter.directRedeem)
             }
     }
 }

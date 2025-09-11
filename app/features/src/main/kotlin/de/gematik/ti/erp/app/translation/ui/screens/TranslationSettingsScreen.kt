@@ -34,9 +34,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -77,8 +74,6 @@ class TranslationSettingsScreen(
         val confirmDownloadEvent = ComposableEvent<String>()
         val errorData = ErrorScreenDataWithRetry()
 
-        var selectedLang by remember { mutableStateOf<String?>(null) }
-
         val downloadedLanguages by controller.downloadedLanguages.collectAsStateWithLifecycle()
 
         val isConsentGiven by controller.isConsentGiven.collectAsStateWithLifecycle(false)
@@ -98,7 +93,6 @@ class TranslationSettingsScreen(
                 controller.downloadLanguageModel(confirmedLanguage)
             },
             onDismissRequest = {
-                selectedLang = null
             }
         )
 

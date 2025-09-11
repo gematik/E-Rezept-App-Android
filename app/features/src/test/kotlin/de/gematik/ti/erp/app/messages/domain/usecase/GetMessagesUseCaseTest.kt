@@ -165,7 +165,6 @@ class GetMessagesUseCaseTest {
     fun `only request messages are available`() {
         testScope.runTest {
             val result = usecaseUnderTest.invoke()
-            println(result)
             assert(result.isNotEmpty())
             assertEquals(ORDERS_WITH_ONLY_REQUEST_COMMUNICATIONS, result)
         }

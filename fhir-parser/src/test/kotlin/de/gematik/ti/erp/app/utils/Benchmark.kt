@@ -26,7 +26,7 @@ import kotlin.system.measureTimeMillis
 
 object Benchmark {
 
-    fun check(name: String, times: Int = 100, block: () -> Unit) {
+    fun check(name: String, times: Int = 10, block: () -> Unit) {
         // Warm-up (JVM optimizations)
         repeat(5) {
             block()

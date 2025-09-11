@@ -39,5 +39,6 @@ data class FhirTaskKbvMedicationRequestErpModel(
     val note: String?,
     val quantity: Int,
     val multiplePrescriptionInfo: FhirMultiplePrescriptionInfoErpModel?,
-    val bvg: Boolean
+    val isSer: Boolean,
+    val prescriberId: String? = null // only from 1.2.0
 )

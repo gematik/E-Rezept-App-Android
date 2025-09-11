@@ -137,7 +137,7 @@ private fun OnboardingDataProtectionAndTermsOfUseOverviewScreenContent(
         bottomBar = {
             OnboardingBottomBar(
                 modifier = Modifier
-                    .testTag(TestTag.Onboarding.NextButton)
+                    .testTag(TestTag.Onboarding.DataProtectionAndTermsOfUseScreen.NextButton)
                     .fillMaxWidth(),
                 info = null,
                 buttonText = stringResource(R.string.onboarding_bottom_app_safety_button_next),
@@ -146,7 +146,6 @@ private fun OnboardingDataProtectionAndTermsOfUseOverviewScreenContent(
             )
         },
         modifier = Modifier
-            .testTag(TestTag.Onboarding.DataTermsScreen)
             .fillMaxSize()
     ) {
         dataProtectionAndTermsOfUseOverviewScreenContent(
@@ -199,7 +198,7 @@ private fun LazyListScope.dataProtectionAndTermsOfUseOverviewScreenContent(
             SecondaryButton(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .testTag(TestTag.Onboarding.DataTerms.OpenDataProtectionButton),
+                    .testTag(TestTag.Onboarding.DataProtectionAndTermsOfUseScreen.PrivacyButton),
                 onClick = onClickOpenDataProtectionButton,
                 shape = RoundedCornerShape(SizeDefaults.triple),
                 colors = ButtonDefaults.buttonColors(
@@ -224,7 +223,7 @@ private fun LazyListScope.dataProtectionAndTermsOfUseOverviewScreenContent(
             SecondaryButton(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .testTag(TestTag.Onboarding.DataTerms.OpenDataProtectionButton),
+                    .testTag(TestTag.Onboarding.DataProtectionAndTermsOfUseScreen.TermsOfUseButton),
                 onClick = onClickOpenTermsOfUseButton,
                 shape = RoundedCornerShape(SizeDefaults.triple),
                 colors = ButtonDefaults.buttonColors(

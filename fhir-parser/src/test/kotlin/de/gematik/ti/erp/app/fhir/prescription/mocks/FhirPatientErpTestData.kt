@@ -119,4 +119,34 @@ object FhirPatientErpTestData {
         ),
         insuranceInformation = "X110411675"
     )
+
+    val erpPatient4_v12 = FhirTaskKbvPatientErpModel(
+        name = "Prof. Dr. Dr. med Eva Kluge",
+        birthDate = FhirTemporal.LocalDate(
+            value = LocalDate.parse("1982-01-03")
+        ),
+        address = FhirTaskKbvAddressErpModel(
+            streetName = "Pflasterhofweg",
+            houseNumber = "111B",
+            additionalAddressInformation = null,
+            postalCode = "50999",
+            city = "Köln"
+        ),
+        insuranceInformation = "K030182229"
+    )
+
+    val erpPatient5_v12 = FhirTaskKbvPatientErpModel(
+        name = "Ingrid Erbprinzessin von und zu der Schimmelpfennig-Hammerschmidt Federmannssohn",
+        birthDate = FhirTemporal.LocalDate(
+            value = LocalDate.parse("2010-01-31")
+        ),
+        address = FhirTaskKbvAddressErpModel(
+            streetName = "Anneliese- und Georg-von-Groscurth-Plaetzchen",
+            houseNumber = "149-C",
+            additionalAddressInformation = "5. OG - Hinterhof",
+            postalCode = "60437",
+            city = "Bad Homburg"
+        ),
+        insuranceInformation = "M310119802"
+    )
 }

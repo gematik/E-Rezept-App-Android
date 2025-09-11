@@ -28,12 +28,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingBottomBar
@@ -133,13 +131,13 @@ private fun SettingsUserConfirmationBottomBar(
             buttonText = stringResource(R.string.onboarding_analytics_agree_button),
             buttonEnabled = true,
             includeBottomSpacer = false,
-            modifier = Modifier.testTag(TestTag.Onboarding.Analytics.AcceptAnalyticsButton),
+            modifier = Modifier,
             onButtonClick = onClickAccept
         )
         OnboardingBottomBar(
             info = null,
             buttonText = stringResource(R.string.onboarding_analytics_reject_button),
-            modifier = Modifier.testTag(TestTag.Onboarding.RejectButton),
+            modifier = Modifier,
             buttonEnabled = true,
             onButtonClick = onClickReject
         )

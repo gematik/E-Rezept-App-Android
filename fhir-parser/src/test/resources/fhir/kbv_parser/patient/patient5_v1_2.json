@@ -1,0 +1,83 @@
+{
+  "resourceType": "Patient",
+  "id": "512ab5bc-a7ab-4fd7-81cc-16a594f747a6",
+  "meta": {
+    "profile": [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.2"
+    ]
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "http://fhir.de/CodeSystem/identifier-type-de-basis",
+            "code": "KVZ10"
+          }
+        ]
+      },
+      "system": "http://fhir.de/sid/gkv/kvid-10",
+      "value": "M310119802"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Erbprinzessin von und zu der Schimmelpfennig-Hammerschmidt Federmannssohn",
+      "_family": {
+        "extension": [
+          {
+            "url": "http://fhir.de/StructureDefinition/humanname-namenszusatz",
+            "valueString": "Erbprinzessin"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
+            "valueString": "von und zu der"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+            "valueString": "Schimmelpfennig-Hammerschmidt Federmannssohn"
+          }
+        ]
+      },
+      "given": [
+        "Ingrid"
+      ]
+    }
+  ],
+  "birthDate": "2010-01-31",
+  "address": [
+    {
+      "type": "both",
+      "line": [
+        "Anneliese- und Georg-von-Groscurth-Plaetzchen 149-C",
+        "5. OG - Hinterhof"
+      ],
+      "_line": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
+              "valueString": "149-C"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+              "valueString": "Anneliese- und Georg-von-Groscurth-Plaetzchen"
+            }
+          ]
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-additionalLocator",
+              "valueString": "5. OG - Hinterhof"
+            }
+          ]
+        }
+      ],
+      "city": "Bad Homburg",
+      "postalCode": "60437",
+      "country": "D"
+    }
+  ]
+}

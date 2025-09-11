@@ -30,7 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
@@ -42,21 +41,20 @@ import de.gematik.ti.erp.app.VisibleDebugTree
 import de.gematik.ti.erp.app.appupdate.usecase.ChangeAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
+import de.gematik.ti.erp.app.database.datastore.featuretoggle.FeatureEntity
+import de.gematik.ti.erp.app.datastore.featuretoggle.FeatureToggleRepository
 import de.gematik.ti.erp.app.debugsettings.data.DebugSettingsData
 import de.gematik.ti.erp.app.debugsettings.data.Environment
 import de.gematik.ti.erp.app.di.DebugSettings.getDebugSettingsDataForEnvironment
 import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.digas.domain.usecase.GetIknrUseCase
 import de.gematik.ti.erp.app.digas.domain.usecase.UpdateIknrUseCase
-import de.gematik.ti.erp.app.featuretoggle.datasource.FeatureToggleDataStore
-import de.gematik.ti.erp.app.featuretoggle.datasource.Features
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.AccessToken
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.invoice.usecase.SaveInvoiceUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.MarkAllUnreadMessagesAsReadUseCase
-import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyDirectRedeemUseCase
 import de.gematik.ti.erp.app.prescription.usecase.DeletePrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetTaskIdsUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
@@ -69,6 +67,7 @@ import de.gematik.ti.erp.app.vau.repository.VauRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -81,7 +80,6 @@ import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.spec.ECPrivateKeySpec
 import org.bouncycastle.util.encoders.Base64
-import org.bouncycastle.util.io.pem.PemReader
 import org.jose4j.base64url.Base64Url
 import org.jose4j.jws.EcdsaUsingShaAlgorithm
 import java.math.BigInteger
@@ -89,7 +87,6 @@ import java.security.KeyFactory
 import java.security.Signature
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.UUID
 import kotlin.time.Duration.Companion.minutes
 
 private val HealthCardCert = BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE
@@ -106,8 +103,7 @@ class DebugSettingsViewModel(
     private val saveInvoiceUseCase: SaveInvoiceUseCase,
     private val idpUseCase: IdpUseCase,
     private val profilesUseCase: ProfilesUseCase,
-    private val featureToggleDataStore: FeatureToggleDataStore,
-    private val pharmacyDirectRedeemUseCase: PharmacyDirectRedeemUseCase,
+    private val featureToggleRepository: FeatureToggleRepository,
     private val getAppUpdateManagerFlagUseCase: GetAppUpdateManagerFlagUseCase,
     private val changeAppUpdateManagerFlagUseCase: ChangeAppUpdateManagerFlagUseCase,
     private val markAllUnreadMessagesAsReadUseCase: MarkAllUnreadMessagesAsReadUseCase,
@@ -117,7 +113,6 @@ class DebugSettingsViewModel(
     private val updateIknrUseCase: UpdateIknrUseCase,
     private val dispatchers: DispatchProvider
 ) : ViewModel() {
-
     private val appUpdateManager = MutableStateFlow(true)
     val appUpdateManagerState
         @Composable
@@ -133,6 +128,9 @@ class DebugSettingsViewModel(
         @Composable
         get() = _prescriptionDeletionLoading.collectAsStateWithLifecycle()
 
+    private val _featureToggles: MutableStateFlow<Set<FeatureEntity>> = MutableStateFlow(emptySet())
+    val featureToggles: StateFlow<Set<FeatureEntity>> = _featureToggles
+
     private val aokBwIknr = "108018007"
     private val _iknr = MutableStateFlow(aokBwIknr)
     val iknr = _iknr.asStateFlow()
@@ -142,7 +140,9 @@ class DebugSettingsViewModel(
         viewModelScope.launch {
             val value = getAppUpdateManagerFlagUseCase()
             appUpdateManager.value = value
-
+            featureToggleRepository.getFeatures().collect {
+                _featureToggles.value = it
+            }
             getIknrUseCase().collectLatest {
                 _iknr.value = it
             }
@@ -303,15 +303,9 @@ class DebugSettingsViewModel(
         }
     }
 
-    fun features() = featureToggleDataStore.features
-
-    fun featuresState() =
-        featureToggleDataStore.featuresState()
-
-    fun toggleFeature(feature: Features) {
+    fun toggleFeature(feature: FeatureEntity) {
         viewModelScope.launch {
-            val key = booleanPreferencesKey(feature.featureName)
-            featureToggleDataStore.toggleFeature(key)
+            featureToggleRepository.toggleFeature(feature)
         }
     }
 
@@ -375,30 +369,6 @@ class DebugSettingsViewModel(
                 EcdsaUsingShaAlgorithm.convertDerToConcatenated(signed, 64)
             }
         )
-    }
-
-    suspend fun redeemDirect(
-        url: String,
-        message: String,
-        certificatesPEM: String
-    ) {
-        val pemReader = PemReader(certificatesPEM.reader())
-
-        val certificates = mutableListOf<X509CertificateHolder>()
-        do {
-            val obj = pemReader.readPemObject()
-            if (obj != null) {
-                certificates += X509CertificateHolder(obj.content)
-            }
-        } while (obj != null)
-
-        pharmacyDirectRedeemUseCase.redeemPrescriptionDirectly(
-            url = url,
-            message = message,
-            telematikId = "",
-            recipientCertificates = certificates,
-            transactionId = UUID.randomUUID().toString()
-        ).getOrThrow()
     }
 
     fun saveInvoice(invoiceBundle: String) {

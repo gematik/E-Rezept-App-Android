@@ -43,7 +43,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import org.kodein.di.compose.rememberInstance
@@ -89,9 +88,6 @@ class AuditEventsController(
             .flatMapLatest {
                 auditEventsUseCase.invoke(selectedProfileId)
                     .onEach { refreshStartedEvent.trigger() }
-                    .onCompletion {
-                        refreshCombinedProfile()
-                    }
                     .shareIn(
                         scope = controllerScope,
                         started = SharingStarted.WhileSubscribed(),

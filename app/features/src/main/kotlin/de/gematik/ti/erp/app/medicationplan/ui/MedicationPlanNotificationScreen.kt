@@ -382,16 +382,6 @@ private fun getNotificationTimeDescription(
                         notification.dosage.form.toAnnotatedString()
                     )
                 ).toString()
-            2 ->
-                annotatedPluralsResource(
-                    R.plurals.medication_plan_notification_description,
-                    daysSinceTheLastNotification,
-                    args = arrayOf(
-                        formatter.time(notification.time).toAnnotatedString(),
-                        notification.dosage.ratio.toAnnotatedString(),
-                        notification.dosage.form.toAnnotatedString()
-                    )
-                ).toString()
             else -> annotatedPluralsResource(
                 R.plurals.medication_plan_notification_description,
                 daysSinceTheLastNotification,

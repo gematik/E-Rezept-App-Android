@@ -24,7 +24,10 @@ package de.gematik.ti.erp.app.fhir.constant.communication
 
 object CommunicationDigaConstants {
 
-    internal const val COMMUNICATION_DIGA_DISP_REQUEST_VERSION = "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.4"
+    /**
+     * Constraint for GEM_ERP_PR_Communication_DispReq to check if flowType matches referenced Task
+     */
+    internal const val COMMUNICATION_DIGA_DISP_REQUEST_VERSION_1_4 = "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.4"
 
     /**
      * The URL identifying the FHIR extension for prescription type (e.g., DiGA).

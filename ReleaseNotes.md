@@ -1,3 +1,28 @@
+# Release 1.33.0
+
+### fixed (3 changes)
+
+- scrollbehaviour to the right inputfields on focus
+- OrderShippingContact: show multiline in delivery instructions field
+- color miss matches in listitems
+
+### ⚡ enhancements (3 changes):
+
+- show security warnings for Android <= 12
+- new fhir parsing mechanism 
+- support for newer fhir versions
+
+### ✨ features (1 change):
+
+- share prescriptions
+
+### improvements (2 changes)
+
+- upgraded more UI-components to use material 3
+- added UI-Test enhancements
+
+---
+
 # Release 1.32.0
 
 ### fixed (3 changes)

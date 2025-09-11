@@ -30,25 +30,21 @@ import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 
 class RevokeConsentUseCase(
     private val consentRepository: ConsentRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(profileIdentifier: ProfileIdentifier): Flow<ErpServiceState> =
+    suspend operator fun invoke(profileIdentifier: ProfileIdentifier): ErpServiceState =
         withContext(dispatcher) {
-            flowOf(
-                consentRepository.revokeChargeConsent(
-                    profileId = profileIdentifier
-                ).fold(
-                    onSuccess = {
-                        ConsentState.ValidState.Revoked
-                    },
-                    onFailure = { mapConsentErrorStates(it, ConsentContext.RevokeConsent) }
-                )
+            consentRepository.revokeChargeConsent(
+                profileId = profileIdentifier
+            ).fold(
+                onSuccess = {
+                    ConsentState.ValidState.Revoked
+                },
+                onFailure = { mapConsentErrorStates(it, ConsentContext.RevokeConsent) }
             )
         }
 }

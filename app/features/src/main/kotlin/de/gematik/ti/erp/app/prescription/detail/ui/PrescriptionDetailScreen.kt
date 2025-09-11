@@ -45,6 +45,7 @@ import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isConsentGrant
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.demomode.DemoModeObserver
+import de.gematik.ti.erp.app.eurezept.navigation.EuRoutes
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
 import de.gematik.ti.erp.app.navigation.Screen
@@ -56,11 +57,10 @@ import de.gematik.ti.erp.app.pkv.presentation.rememberInvoiceController
 import de.gematik.ti.erp.app.pkv.ui.screens.HandleConsentState
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
-import de.gematik.ti.erp.app.prescription.detail.presentation.rememberSharePrescriptionController
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailBottomSheetNavigationData
 import de.gematik.ti.erp.app.prescription.detail.ui.preview.PrescriptionDetailPreview
 import de.gematik.ti.erp.app.prescription.detail.ui.preview.PrescriptionDetailPreviewParameter
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
+import de.gematik.ti.erp.app.prescription.share.presentation.rememberSharePrescriptionController
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
@@ -74,7 +74,6 @@ import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
-import de.gematik.ti.erp.app.utils.compose.shortToast
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
@@ -299,7 +298,11 @@ class PrescriptionDetailScreen(
                         onClickDeletePrescriptionEvent.trigger(Unit)
                     },
                     onSharePrescription = {
-                        shareHandler.share(taskId = prescription.taskId, prescription.accessCode)
+                        shareHandler.share(
+                            taskId = prescription.taskId,
+                            accessCode = prescription.accessCode,
+                            name = prescription.name
+                        )
                     },
                     onClickRedeemLocal = {
                         navController.navigate(
@@ -424,17 +427,9 @@ class PrescriptionDetailScreen(
                             )
                         )
                     },
-                    onToggleEuRedeemable = {
-                        if (prescription is PrescriptionData.Synced) {
-                            prescriptionDetailsController.updateEuRedeemableStatus(
-                                prescription.taskId,
-                                !prescription.isEuRedeemable
-                            )
-                        }
-                    },
                     onClickRedeemInEuAbroad = {
-                        // TODO: Navigate to EU abroad redemption screen
-                        context.shortToast("EU Rezept is coming soon!")
+                        // TODO: check if user consent is already granted then navigate directly to EuRedeemScreen to skip redundant consent flow
+                        navController.navigate(EuRoutes.EuConsentScreen.path(prescription.taskId))
                     },
                     onBack = navController::popBackStack
                 )
@@ -529,7 +524,6 @@ fun PrescriptionDetailScreenPreview(
             onShowHowLongValidBottomSheet = {},
             onClickInvoice = {},
             onBack = {},
-            onToggleEuRedeemable = {},
             onClickRedeemInEuAbroad = {}
         )
     }

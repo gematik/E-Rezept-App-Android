@@ -28,7 +28,7 @@ import de.gematik.ti.erp.app.data.medication_dispense_medication_1_4_simple
 import de.gematik.ti.erp.app.fhir.dispense.mocks.fhir_model_medication_1_4_complex
 import de.gematik.ti.erp.app.fhir.dispense.mocks.fhir_model_medication_1_4_pharma_product
 import de.gematik.ti.erp.app.fhir.dispense.mocks.fhir_model_medication_1_4_simple
-import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseMedicationModel.Companion.getMedicationDispensedMedication
+import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseMedicationModel.Companion.extractDispensedMedication
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import org.junit.Test
@@ -40,7 +40,7 @@ class FhirMedicationDispenseV14MedicationModelTest {
     fun `test parser getting medication from medication dispense workflow 1_4 compounding`() {
         val bundle = Json.parseToJsonElement(medication_dispense_medication_1_4_complex)
         val result = Json.parseToJsonElement(fhir_model_medication_1_4_complex)
-        val fhirModel = bundle.getMedicationDispensedMedication()
+        val fhirModel = bundle.extractDispensedMedication()
         val serializedFhirModel = Json.encodeToJsonElement(serializer(), fhirModel)
         assertEquals(result, serializedFhirModel)
     }
@@ -49,7 +49,7 @@ class FhirMedicationDispenseV14MedicationModelTest {
     fun `test parser getting medication from medication dispense workflow 1_4 pharma product`() {
         val bundle = Json.parseToJsonElement(medication_dispense_medication_1_4_pharmaceutical_product)
         val result = Json.parseToJsonElement(fhir_model_medication_1_4_pharma_product)
-        val fhirModel = bundle.getMedicationDispensedMedication()
+        val fhirModel = bundle.extractDispensedMedication()
         val serializedFhirModel = Json.encodeToJsonElement(serializer(), fhirModel)
         assertEquals(result, serializedFhirModel)
     }
@@ -58,7 +58,7 @@ class FhirMedicationDispenseV14MedicationModelTest {
     fun `test parser getting medication from medication dispense workflow 1_4 simple`() {
         val bundle = Json.parseToJsonElement(medication_dispense_medication_1_4_simple)
         val result = Json.parseToJsonElement(fhir_model_medication_1_4_simple)
-        val fhirModel = bundle.getMedicationDispensedMedication()
+        val fhirModel = bundle.extractDispensedMedication()
         val serializedFhirModel = Json.encodeToJsonElement(serializer(), fhirModel)
         assertEquals(result, serializedFhirModel)
     }

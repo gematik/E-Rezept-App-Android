@@ -54,15 +54,6 @@ class ERezeptBackendTokenApiKeyInterceptor(private val endpointHelper: EndpointH
     }
 }
 
-class PharmacyRedeemInterceptor : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val original: Request = chain.request()
-        val request: Request = original.newBuilder()
-            .build()
-        return chain.proceed(request)
-    }
-}
-
 class UserAgentHeaderInterceptor(private val endpointHelper: EndpointHelper) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val original = chain.request()

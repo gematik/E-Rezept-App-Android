@@ -27,6 +27,7 @@ import io.realm.kotlin.types.RealmObject
 class AddressEntityV1 : RealmObject {
     var line1: String = ""
     var line2: String = ""
+    var additionalAddressInformation: String = ""
     var postalCode: String = ""
     var city: String = ""
 }

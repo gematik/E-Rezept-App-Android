@@ -58,12 +58,12 @@ import de.gematik.ti.erp.app.medicationplan.ui.components.MedicationPlanLineItem
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
 import de.gematik.ti.erp.app.pkv.presentation.model.InvoiceCardUiState
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
-import de.gematik.ti.erp.app.prescription.detail.ui.components.SelfPayPrescriptionDetailsChip
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailBottomSheetNavigationData
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.ui.DirectAssignmentChip
 import de.gematik.ti.erp.app.prescription.ui.FailureDetailsStatusChip
+import de.gematik.ti.erp.app.prescription.ui.SelfPayPrescriptionDetailsChip
 import de.gematik.ti.erp.app.prescription.ui.SubstitutionNotAllowedChip
 import de.gematik.ti.erp.app.prescription.ui.components.PrescriptionStateInfo
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData

@@ -23,18 +23,23 @@
 package de.gematik.ti.erp.app.fhir.communication.model.original
 
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.COMMUNICATION_DIGA_DISPENSE_PROFILE_REGEX
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.COMMUNICATION_DISPENSE_PROFILE_REGEX
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.COMMUNICATION_REPLY_PROFILE_REGEX
 
-enum class CommunicationProfileType(val profileIdentifier: String) {
-    REPLY(FhirCommunicationConstants.COMMUNICATION_REPLY_PROFILE_BASE),
-    DISPENSE(FhirCommunicationConstants.COMMUNICATION_DISPENSE_PROFILE_BASE),
+enum class CommunicationProfileType(val identifier: String) {
+    REPLY(FhirCommunicationConstants.COMMUNICATION_REPLY_REPLY_WORKFLOW_PROFILE),
+    DISPENSE(FhirCommunicationConstants.COMMUNICATION_DISPENSE_WORKFLOW_PROFILE),
+
+    // https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DiGA
+    DIGA_DISPENSE(FhirCommunicationConstants.COMMUNICATION_DISPENSE_DIGA_WORKFLOW_PROFILE),
     UNKNOWN("");
 
     fun getVersionFromProfile(profile: String): String {
         val regex = when (this) {
             REPLY -> COMMUNICATION_REPLY_PROFILE_REGEX
             DISPENSE -> COMMUNICATION_DISPENSE_PROFILE_REGEX
+            DIGA_DISPENSE -> COMMUNICATION_DIGA_DISPENSE_PROFILE_REGEX
             UNKNOWN -> return ""
         }
 
@@ -45,7 +50,7 @@ enum class CommunicationProfileType(val profileIdentifier: String) {
     companion object {
         fun fromProfiles(profiles: List<String>?): CommunicationProfileType {
             return profiles?.firstNotNullOfOrNull { profile ->
-                CommunicationProfileType.entries.firstOrNull { it != UNKNOWN && profile.contains(it.profileIdentifier) }
+                CommunicationProfileType.entries.firstOrNull { it != UNKNOWN && profile.contains(it.identifier) }
             } ?: UNKNOWN
         }
     }

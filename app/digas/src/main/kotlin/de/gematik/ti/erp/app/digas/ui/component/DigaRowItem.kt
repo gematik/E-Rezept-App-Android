@@ -72,8 +72,10 @@ fun RequestRowItem(current: DigaStatus) {
 @Composable
 fun InsuranceRowItem(currentProcess: DigaStatus, code: String, declineNote: String?, onClick: () -> Unit = {}, onRegisterFeedback: () -> Unit = {}) {
     when {
-        currentProcess.step > DigaStatusSteps.InProgress.step || currentProcess == DigaStatus.CompletedSuccessfully -> {
-            onRegisterFeedback()
+        currentProcess.step > DigaStatusSteps.InProgress.step -> {
+            if (currentProcess is DigaStatus.CompletedSuccessfully) {
+                onRegisterFeedback()
+            }
             DigaRowItem(
                 text = stringResource(R.string.code_received),
                 contentDescr = stringResource(R.string.a11y_diga_code_received),
@@ -83,7 +85,6 @@ fun InsuranceRowItem(currentProcess: DigaStatus, code: String, declineNote: Stri
         }
 
         currentProcess is DigaStatus.CompletedWithRejection -> {
-            onRegisterFeedback()
             DigaRowItem(text = stringResource(R.string.insurance_notification))
             Row(
                 modifier = Modifier.padding(start = PaddingDefaults.XLarge)
@@ -104,7 +105,7 @@ fun InsuranceRowItem(currentProcess: DigaStatus, code: String, declineNote: Stri
             }
         }
 
-        currentProcess.step == DigaStatusSteps.InProgress.step -> {
+        currentProcess is DigaStatus.InProgress -> {
             DigaRowItem(
                 isWaiting = true,
                 stepNumber = 2,

@@ -42,7 +42,7 @@ import org.kodein.di.instance
 
 val textTranslatorModule = DI.Module("textTranslatorModule", allowSilentOverride = true) {
     bindProvider { RemoteModelManager.getInstance() }
-    bindProvider { TranslationRemoteDataSource(instance()) }
+    bindProvider { TranslationRemoteDataSource(instance(), instance()) }
     bindProvider { TranslationLocalDataSource(instance(), instance()) }
     bindProvider<TranslationRepository> { DefaultTranslationRepository(instance(), instance(), instance()) }
     bindProvider { DeleteDownloadedLanguageUseCase(instance()) }
@@ -51,7 +51,7 @@ val textTranslatorModule = DI.Module("textTranslatorModule", allowSilentOverride
     bindProvider { GetTranslatableLanguagesUseCase(instance()) }
     bindProvider { GetTranslationConsentUseCase(instance()) }
     bindProvider { ToggleTranslationConsentUseCase(instance()) }
-    bindProvider { TranslateTextUseCase(instance(), instance()) }
+    bindProvider { TranslateTextUseCase(instance(), instance(), instance()) }
     bindProvider { UpdateTargetLanguageUseCase(instance()) }
     bindProvider { IsTargetLanguageSetUseCase(instance()) }
 }

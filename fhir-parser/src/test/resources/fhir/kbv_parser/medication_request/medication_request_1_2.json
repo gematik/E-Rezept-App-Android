@@ -1,0 +1,77 @@
+{
+  "resourceType": "MedicationRequest",
+  "id": "7d871b93-e18c-4865-bad0-6b55196be46b",
+  "meta": {
+    "profile": [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.2"
+    ]
+  },
+  "extension": [
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_StatusCoPayment",
+      "valueCoding": {
+        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_StatusCoPayment",
+        "code": "1"
+      }
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee",
+      "valueBoolean": false
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_SER",
+      "valueBoolean": true
+    },
+    {
+      "extension": [
+        {
+          "url": "Kennzeichen",
+          "valueBoolean": false
+        }
+      ],
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Prescriber_ID",
+      "valueIdentifier": {
+        "value": "Beispiel-ID-123456"
+      }
+    }
+  ],
+  "status": "active",
+  "intent": "order",
+  "medicationReference": {
+    "reference": "Medication/a3ca01a4-92c1-422a-87d9-ef046e94527f"
+  },
+  "subject": {
+    "reference": "Patient/30635f5d-c233-4500-94e8-6414940236aa"
+  },
+  "authoredOn": "2024-05-20",
+  "requester": {
+    "reference": "Practitioner/0c4e1a54-8a42-4d3d-a12c-0bbf2db48570"
+  },
+  "insurance": [
+    {
+      "reference": "Coverage/e51239e1-ba74-48e0-97fb-9754d2b05c60"
+    }
+  ],
+  "dosageInstruction": [
+    {
+      "extension": [
+        {
+          "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag",
+          "valueBoolean": false
+        }
+      ]
+    }
+  ],
+  "dispenseRequest": {
+    "quantity": {
+      "value": 127,
+      "unit": "Packung"
+    }
+  },
+  "substitution": {
+    "allowedBoolean": true
+  }
+}

@@ -25,6 +25,9 @@
 package de.gematik.ti.erp.app.prescription.detail.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile.ErxCommunicationDispReq
@@ -192,6 +195,10 @@ internal val SYNCED_TASK = SyncedTaskData.SyncedTask(
     medicationRequest = SyncedTaskData.MedicationRequest(
         medication = Medication(
             category = SyncedTaskData.MedicationCategory.entries[0],
+            medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+                type = ErpMedicationProfileType.PZN,
+                version = ErpMedicationProfileVersion.V_110
+            ),
             vaccine = true,
             text = "Ibuprofen",
             form = "AEO",

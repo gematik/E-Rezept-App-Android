@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.cardwall.ui.screens
 
 import android.app.Dialog
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -259,6 +260,8 @@ private fun CardWallGidListScreenScaffold(
         }
     ) { innerPadding ->
         val searchBarDescription = stringResource(R.string.cardwall_gid_list_insurance_searchbar)
+        val placeholderText = stringResource(id = R.string.search_pharmacies_start_search)
+        val contentDescriptionText = stringResource(id = R.string.a11y_deleted_text)
         LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
@@ -273,7 +276,9 @@ private fun CardWallGidListScreenScaffold(
                 onRemoveValue = onRemoveFilterList,
                 listState = listState,
                 indexOfPreviousItemInList = 1,
-                searchBarDescription = searchBarDescription
+                searchBarDescription = searchBarDescription,
+                placeholderText = placeholderText,
+                contentDescriptionText = contentDescriptionText
             )
             gidListScreenContent(
                 profileId = profileId,
@@ -308,6 +313,13 @@ private fun LazyListScope.gidListScreenContent(
                     modifier = Modifier.padding(top = PaddingDefaults.XXLarge),
                     title = stringResource(R.string.cardwall_gid_list_insurance_search_empty_title),
                     body = stringResource(R.string.cardwall_gid_list_insurance_search_empty_body),
+                    image = {
+                        Image(
+                            painter = painterResource(id = R.drawable.girl_red_oh_no),
+                            contentDescription = null,
+                            modifier = Modifier.size(SizeDefaults.twentyfold)
+                        )
+                    },
                     button = {}
                 )
             },
@@ -391,7 +403,9 @@ private fun LazyListScope.cardWallGidListScreenSearchBar(
     indexOfPreviousItemInList: Int = 0,
     onValueChange: (String) -> Unit,
     onRemoveValue: () -> Unit,
-    searchBarDescription: String
+    searchBarDescription: String,
+    placeholderText: String,
+    contentDescriptionText: String
 ) {
     animatedElevationStickySearchField(
         lazyListState = listState,
@@ -400,7 +414,9 @@ private fun LazyListScope.cardWallGidListScreenSearchBar(
         onValueChange = onValueChange,
         onRemoveValue = onRemoveValue,
         description = searchBarDescription,
-        indexOfPreviousItemInList = indexOfPreviousItemInList
+        indexOfPreviousItemInList = indexOfPreviousItemInList,
+        placeholderText = placeholderText,
+        contentDescriptionText = contentDescriptionText
     )
 }
 

@@ -43,18 +43,19 @@ class UpdateInternalMessagesUseCase(
                 internalMessagesRepository.saveInternalMessage(
                     changeLogDataSource.createWelcomeMessage(currentVersion)
                 )
+                if (changeLogDataSource.shouldShowSecurityWarningMessage()) {
+                    internalMessagesRepository.saveInternalMessage(
+                        changeLogDataSource.createSecurityWarningMessage(currentVersion)
+                    )
+                }
             }
-            lastUpdatedVersion.isMigration() -> {
-                /*
-                lastUpdatedVersion in this case is set to the lowest existing entry of inAppMessages in the db,
-                which should be the welcomeMessage
-                 */
-                internalMessagesRepository.updateInternalMessage(
-                    changeLogDataSource.createWelcomeMessage(lastUpdatedVersion)
-                )
+            lastUpdatedVersion.isSecurityWarningMigration() -> {
                 getNewChangeLogEntries(
                     lastUpdatedVersion,
                     currentVersion
+                )
+                internalMessagesRepository.saveInternalMessage(
+                    changeLogDataSource.createSecurityWarningMessage(currentVersion)
                 )
             }
             else -> {
@@ -67,8 +68,8 @@ class UpdateInternalMessagesUseCase(
         }
     }
 
-    private fun String.isMigration(): Boolean {
-        return this.let { it <= "1.28.3" }
+    private fun String.isSecurityWarningMigration(): Boolean {
+        return this.let { it <= "1.32.0" } && changeLogDataSource.shouldShowSecurityWarningMessage()
     }
 
     private suspend fun getNewChangeLogEntries(

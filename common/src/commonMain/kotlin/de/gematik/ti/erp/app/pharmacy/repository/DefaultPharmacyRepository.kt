@@ -249,19 +249,6 @@ class DefaultPharmacyRepository(
             extractBinaryCertificatesAsBase64(bundle = it)
         }
 
-    // will only work with APOVZD
-    override suspend fun redeemPrescriptionDirectly(
-        url: String,
-        message: ByteArray,
-        pharmacyTelematikId: String,
-        transactionId: String
-    ): Result<Unit> = remoteDataSource.redeemPrescriptionDirectly(
-        url = url,
-        message = message,
-        pharmacyTelematikId = pharmacyTelematikId,
-        transactionId = transactionId
-    )
-
     override fun loadOftenUsedPharmacies() = oftenUsedLocalDataSource.loadOftenUsedPharmacies()
 
     override fun loadFavoritePharmacies() = favouriteLocalDataSource.loadFavoritePharmacies()

@@ -62,6 +62,7 @@ import de.gematik.ti.erp.app.utils.compose.DynamicText
 internal fun ReplyMessage(
     item: ReplyMessageUiModel,
     isTranslationsAllowed: Boolean,
+    showTranslationFeature: Boolean,
     isTranslationInProgress: Boolean,
     onClickTranslation: (String) -> Unit,
     onClick: () -> Unit
@@ -120,7 +121,7 @@ internal fun ReplyMessage(
                 SpacerTiny()
                 AnnotatedInfoText(info = it)
             }
-            if (item.description.first == ReplyMessageType.Text) {
+            if (item.description.first == ReplyMessageType.Text && showTranslationFeature) {
                 TranslateChip(isTranslationsAllowed, isTranslationInProgress) {
                     onClickTranslation(item.description.second)
                 }

@@ -22,24 +22,20 @@
 
 package de.gematik.ti.erp.app.bottombar
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import de.gematik.ti.erp.app.extensions.rememberBottomScrollElevationState
-import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 
 @Composable
 fun AnimatedBottomBar(
     listState: LazyListState,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable () -> Unit
 ) {
     val isBottomElevated by listState.rememberBottomScrollElevationState()
     Surface(
@@ -47,15 +43,6 @@ fun AnimatedBottomBar(
         elevation = if (isBottomElevated) SizeDefaults.double else SizeDefaults.zero,
         color = MaterialTheme.colors.surface
     ) {
-        Column {
-            // Optional: subtle top divider
-            if (isBottomElevated) {
-                Divider(
-                    color = AppTheme.colors.neutral200,
-                    thickness = SizeDefaults.eighth
-                )
-            }
-            content()
-        }
+        content()
     }
 }

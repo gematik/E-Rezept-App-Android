@@ -1,0 +1,147 @@
+{
+  "resourceType": "Bundle",
+  "id": "erp-versicherte-05-response-get-single-medicationdispense-by-id",
+  "type": "searchset",
+  "timestamp": "2025-10-01T15:29:00.434+00:00",
+  "total": 0,
+  "link": [
+    {
+      "relation": "self",
+      "url": "https://erp-ref.zentral.erp.splitdns.ti-dienste.de/MedicationDispense?identifier=200.000.000.000.000.01"
+    }
+  ],
+  "entry": [
+    {
+      "fullUrl": "https://erp-ref.zentral.erp.splitdns.ti-dienste.de/MedicationDispense/200.000.000.000.000.01",
+      "resource": {
+        "resourceType": "MedicationDispense",
+        "id": "200.000.000.000.000.01",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense|1.5"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            "value": "200.000.000.000.000.01"
+          }
+        ],
+        "status": "completed",
+        "subject": {
+          "identifier": {
+            "system": "http://fhir.de/sid/gkv/kvid-10",
+            "value": "X123456789"
+          }
+        },
+        "performer": [
+          {
+            "actor": {
+              "identifier": {
+                "system": "https://gematik.de/fhir/sid/telematik-id",
+                "value": "3-2-APO-XanthippeVeilchenblau01"
+              }
+            }
+          }
+        ],
+        "dosageInstruction": [
+          {
+            "text": "1-0-1-0"
+          }
+        ],
+        "whenHandedOver": "2025-10-01",
+        "quantity": {
+          "value": 1,
+          "code": "{Package}",
+          "system": "http://unitsofmeasure.org"
+        },
+        "medicationReference": {
+          "reference": "Medication/a6635059-bb82-4cdc-90dc-907bc83be523"
+        }
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-ref.zentral.erp.splitdns.ti-dienste.de/Medication/a6635059-bb82-4cdc-90dc-907bc83be523",
+      "resource": {
+        "resourceType": "Medication",
+        "id": "a6635059-bb82-4cdc-90dc-907bc83be523",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Medication|1.5"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/epa-medication/StructureDefinition/drug-category-extension",
+            "valueCoding": {
+              "code": "00",
+              "system": "https://gematik.de/fhir/epa-medication/CodeSystem/epa-drug-category-cs"
+            }
+          },
+          {
+            "url": "https://gematik.de/fhir/epa-medication/StructureDefinition/medication-id-vaccine-extension",
+            "valueBoolean": false
+          },
+          {
+            "url": "http://fhir.de/StructureDefinition/normgroesse",
+            "valueCode": "N1"
+          }
+        ],
+        "amount": {
+          "numerator": {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/epa-medication/StructureDefinition/medication-total-quantity-formulation-extension",
+                "valueString": "20"
+              }
+            ],
+            "unit": "St"
+          },
+          "denominator": {
+            "value": 1
+          }
+        },
+        "code": {
+          "coding": [
+            {
+              "code": "06313728",
+              "system": "http://fhir.de/CodeSystem/ifa/pzn"
+            }
+          ],
+          "text": "Sumatriptan-1a Pharma 100 mg Tabletten"
+        },
+        "form": {
+          "coding": [
+            {
+              "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM",
+              "code": "TAB",
+              "display": "Tabletten"
+            }
+          ]
+        },
+        "ingredient": [
+          {
+            "itemCodeableConcept": {
+              "text": "Sumatriptan"
+            },
+            "strength": {
+              "numerator": {
+                "value": 100,
+                "unit": "mg"
+              },
+              "denominator": {
+                "value": 1
+              }
+            }
+          }
+        ]
+      },
+      "search": {
+        "mode": "include"
+      }
+    }
+  ]
+}

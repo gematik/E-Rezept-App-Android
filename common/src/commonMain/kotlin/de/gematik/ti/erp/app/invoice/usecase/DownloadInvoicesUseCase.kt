@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.invoice.usecase
 
 import de.gematik.ti.erp.app.api.HttpErrorState.Unknown
-import de.gematik.ti.erp.app.fhir.model.extractTaskIdsFromChargeItemBundle
+import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemEPrescriptionParsers
 import de.gematik.ti.erp.app.invoice.mapper.mapJsonToInvoiceError
 import de.gematik.ti.erp.app.invoice.model.InvoiceResult
 import de.gematik.ti.erp.app.invoice.model.InvoiceResult.InvoiceError
@@ -45,6 +45,7 @@ import kotlinx.coroutines.withContext
 class DownloadInvoicesUseCase(
     private val profileRepository: ProfileRepository,
     private val invoiceRepository: InvoiceRepository,
+    private val parsers: ChargeItemEPrescriptionParsers,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend operator fun invoke(
@@ -54,57 +55,62 @@ class DownloadInvoicesUseCase(
         withContext(dispatcher) {
             val isSsoTokenValid = profileRepository.isSsoTokenValid(profileId).first()
             if (!isSsoTokenValid) {
-                return@withContext flowOf(Result.failure(InvoiceResult.UserNotLoggedInError(profileId)))
-            }
-            onDownloadStarted()
-            Napier.i(
-                tag = DownloadInvoicesUseCase::class.simpleName,
-                message = "starting invoices download"
-            )
-            invoiceRepository.getLatestTimeStamp(profileId)
-                .map { latestTimeStamp ->
-                    invoiceRepository.downloadChargeItemBundle(
-                        profileId = profileId,
-                        lastUpdated = latestTimeStamp
-                    ).mapJsonToInvoiceError { fhirJsonBundle ->
-                        val (total, taskIds) = extractTaskIdsFromChargeItemBundle(fhirJsonBundle) // TODO: Needs a mapper class or extension method
-                        supervisorScope {
-                            val invoiceResults = taskIds.map { taskId ->
-                                invoiceRepository.downloadChargeItemByTaskId(profileId, taskId)
-                                    .mapJsonToInvoiceError { fhirJsonTask ->
-                                        invoiceRepository.saveInvoice(profileId, fhirJsonTask) // TODO: Mapper needs to be extracted before save
-                                        SuccessOnChargeItemBundleDownload
-                                    }
-                            }
-                            val totalDownloads = invoiceResults.filter { it.isSuccess }.size
-                            val totalDownloadsFailures = invoiceResults.filter { it.isFailure }.size
-                            Napier.i(
-                                tag = DownloadInvoicesUseCase::class.simpleName,
-                                message = "total downloads $totalDownloads"
-                            )
-                            when {
-                                taskIds.size == totalDownloads && (totalDownloads > 0 || totalDownloadsFailures <= 0) -> SuccessOnChargeItemDownload(
-                                    total = total,
-                                    downloaded = totalDownloads
+                flowOf(Result.failure(InvoiceResult.UserNotLoggedInError(profileId)))
+            } else {
+                onDownloadStarted()
+                Napier.i(
+                    tag = DownloadInvoicesUseCase::class.simpleName,
+                    message = "starting invoices download"
+                )
+                invoiceRepository.getLatestTimeStamp(profileId)
+                    .map { latestTimeStamp ->
+                        // TODO: (Duplicate code removal) Remove ResourcePaging logic from repo to call the same code in the usecase to download, extract and save in db
+                        invoiceRepository.downloadChargeItemBundle(
+                            profileId = profileId,
+                            lastUpdated = latestTimeStamp
+                        ).mapJsonToInvoiceError { fhirBundle ->
+                            val chargeItemEntryParserResultErpModel = parsers.entryParser.extract(fhirBundle)
+                            val total = chargeItemEntryParserResultErpModel?.bundleTotal
+                            val taskIds = chargeItemEntryParserResultErpModel?.chargeItemEntries?.map { it.taskId }
+                            supervisorScope {
+                                val invoiceResults = taskIds?.map { taskId ->
+                                    invoiceRepository.downloadChargeItemByTaskId(profileId, taskId)
+                                        .mapJsonToInvoiceError { bundle ->
+                                            val bundleCollection = parsers.bundleParser.extract(bundle)
+                                            invoiceRepository.saveInvoice(profileId, bundleCollection)
+                                            SuccessOnChargeItemBundleDownload
+                                        }
+                                }
+                                val totalDownloads = invoiceResults?.filter { it.isSuccess }?.size ?: 0
+                                val totalDownloadsFailures = invoiceResults?.filter { it.isFailure }?.size ?: 0
+                                Napier.i(
+                                    tag = DownloadInvoicesUseCase::class.simpleName,
+                                    message = "total downloads $totalDownloads"
                                 )
-                                // TODO: Needs to be used in the UI to inform the user that they need to download again
-                                invoiceResults.any { it.isSuccess } -> InvoiceSuccess.SuccessOnChargeItemDownloadWithErrors(
-                                    total = total,
-                                    downloaded = totalDownloads,
-                                    errors = invoiceResults.filter { it.isFailure }.map { it.exceptionOrNull() as? InvoiceError ?: InvoiceError(Unknown) }
-                                )
+                                when {
+                                    taskIds?.size == totalDownloads && (totalDownloads > 0 || totalDownloadsFailures <= 0) -> SuccessOnChargeItemDownload(
+                                        total = total ?: 0,
+                                        downloaded = totalDownloads
+                                    )
+                                    // TODO: (Improvement) Needs to be used in the UI to inform the user that they need to download again
+                                    invoiceResults?.any { it.isSuccess } == true -> InvoiceSuccess.SuccessOnChargeItemDownloadWithErrors(
+                                        total = total ?: 0,
+                                        downloaded = totalDownloads,
+                                        errors = invoiceResults.filter { it.isFailure }.map { it.exceptionOrNull() as? InvoiceError ?: InvoiceError(Unknown) }
+                                    )
 
-                                else -> {
-                                    val httpErrors = if (invoiceResults.isNotEmpty()) {
-                                        invoiceResults.map { (it.getOrNull() as? InvoiceError)?.errorState ?: Unknown }
-                                    } else {
-                                        listOf(Unknown)
+                                    else -> {
+                                        val httpErrors = if (invoiceResults?.isNotEmpty() == true) {
+                                            invoiceResults.map { (it.getOrNull() as? InvoiceError)?.errorState ?: Unknown }
+                                        } else {
+                                            listOf(Unknown)
+                                        }
+                                        InvoiceResult.InvoiceCombinedError(errorStates = httpErrors)
                                     }
-                                    InvoiceResult.InvoiceCombinedError(errorStates = httpErrors)
                                 }
                             }
                         }
                     }
-                }
+            }
         }
 }

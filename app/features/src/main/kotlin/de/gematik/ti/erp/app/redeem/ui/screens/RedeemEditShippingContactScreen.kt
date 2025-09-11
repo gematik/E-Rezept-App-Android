@@ -46,24 +46,20 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.max
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
-import de.gematik.ti.erp.app.navigation.onReturnAction
 import de.gematik.ti.erp.app.pharmacy.ui.components.addressSupplementInputField
 import de.gematik.ti.erp.app.pharmacy.ui.components.cityInputField
 import de.gematik.ti.erp.app.pharmacy.ui.components.deliveryInformationInputField
-import de.gematik.ti.erp.app.pharmacy.ui.components.mailInputField
 import de.gematik.ti.erp.app.pharmacy.ui.components.nameInputField
 import de.gematik.ti.erp.app.pharmacy.ui.components.phoneNumberInputField
 import de.gematik.ti.erp.app.pharmacy.ui.components.postalCodeInputField
 import de.gematik.ti.erp.app.pharmacy.ui.components.streetAndNumberInputField
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isEmptyCity
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isEmptyLine1
-import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isEmptyMail
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isEmptyName
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isEmptyPhoneNumber
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isEmptyPostalCode
@@ -71,7 +67,6 @@ import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCas
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidDeliveryInformation
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidLine1
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidLine2
-import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidMail
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidName
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidPhoneNumber
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidPostalCode
@@ -79,7 +74,6 @@ import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCas
 import de.gematik.ti.erp.app.pharmacy.usecase.ShippingContactState
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRouteBackStackEntryArguments
-import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
 import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemSharedViewModel
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemEditShippingPreviewParameter
 import de.gematik.ti.erp.app.redeem.ui.preview.ShippingContactPreviewData
@@ -120,20 +114,11 @@ class RedeemEditShippingContactScreen(
         val listState = rememberLazyListState()
         val showDialogEvent = ComposableEvent<Unit>()
 
-        val activeProfile by sharedViewModel.activeProfile.collectAsStateWithLifecycle()
-        var isDirectRedeemEnabled = remember(activeProfile) { false }
-
         CheckAddressChangeDialog(
             event = showDialogEvent,
             dialogScaffold = LocalDialog.current,
             onBack = { navController.popBackStack() }
         )
-
-        navBackStackEntry.onReturnAction(
-            RedeemRoutes.RedeemEditShippingContactScreen
-        ) {
-            isDirectRedeemEnabled = activeProfile.data?.isDirectRedeemEnabled ?: false
-        }
 
         RedeemRouteBackStackEntryArguments(navBackStackEntry)
             .getOrderOption()?.let { selectedOrderOption ->
@@ -153,7 +138,6 @@ class RedeemEditShippingContactScreen(
                     RedeemEditShippingContactScreenContent(
                         state = state,
                         notNullContact = notNullContact,
-                        isDirectRedeemEnabled = isDirectRedeemEnabled,
                         listState = listState,
                         onContactChange = { contact = it },
                         onSave = {
@@ -171,7 +155,6 @@ class RedeemEditShippingContactScreen(
 fun RedeemEditShippingContactScreenContent(
     state: ShippingContactState,
     notNullContact: PharmacyUseCaseData.ShippingContact,
-    isDirectRedeemEnabled: Boolean,
     listState: LazyListState,
     onContactChange: (PharmacyUseCaseData.ShippingContact) -> Unit,
     onSave: () -> Unit,
@@ -233,22 +216,6 @@ fun RedeemEditShippingContactScreenContent(
                 },
                 onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
             )
-            // we sent the mail currently only on direct redeem
-            if (isDirectRedeemEnabled) {
-                mailInputField(
-                    listState = listState,
-                    validationResult = ValidationResult(
-                        isEmpty = state.isEmptyMail(),
-                        isInvalid = state.isInvalidMail()
-                    ),
-                    value = notNullContact.mail,
-                    onValueChange = { mail ->
-                        onContactChange(notNullContact.copy(mail = mail.trim()))
-                    },
-                    onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
-                )
-            }
-
             item { DeliveryAddressHeader() }
 
             nameInputField(
@@ -411,7 +378,6 @@ fun RedeemEditShippingScreenPreview(
                 else -> ShippingContactState.ValidShippingContactState.OK
             },
             notNullContact = shippingContactPreviewData.shippingContact,
-            isDirectRedeemEnabled = true,
             listState = rememberLazyListState(),
             onContactChange = {},
             onSave = {},

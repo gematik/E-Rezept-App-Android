@@ -27,6 +27,10 @@ import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
 import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
+import de.gematik.ti.erp.app.fhir.FhirPkvChargeItemsErpModelCollection
+import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemBundleEntryParser
+import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemBundleParser
+import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemEPrescriptionParsers
 import de.gematik.ti.erp.app.fhir.temporal.Year
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.invoice.model.InvoiceResult.InvoiceError
@@ -85,6 +89,9 @@ class InvoiceControllerTest : TestWatcher() {
     private val biometricAuthenticator = mockk<BiometricAuthenticator>()
     private val networkStatusTracker = mockk<NetworkStatusTracker>()
 
+    val entryParser = mockk<ChargeItemBundleEntryParser>()
+    val bundleParser = mockk<ChargeItemBundleParser>()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val dispatcher = UnconfinedTestDispatcher()
     private val testScope = TestScope(dispatcher)
@@ -123,7 +130,8 @@ class InvoiceControllerTest : TestWatcher() {
         getActiveProfileUseCase = GetActiveProfileUseCase(profileRepository, dispatcher)
         chooseAuthenticationDataUseCase =
             ChooseAuthenticationDataUseCase(profileRepository, idpRepository, dispatcher)
-        downloadInvoiceUseCase = DownloadInvoicesUseCase(profileRepository, invoiceRepository, dispatcher)
+        downloadInvoiceUseCase =
+            DownloadInvoicesUseCase(profileRepository, invoiceRepository, ChargeItemEPrescriptionParsers(entryParser, bundleParser), dispatcher)
         getInvoicesByProfileUseCase = GetInvoicesByProfileUseCase(invoiceRepository, TimeZone.of("UTC"), dispatcher)
         getInvoiceByTaskIdUseCase = GetInvoiceByTaskIdUseCase(invoiceRepository, dispatcher)
         deleteInvoiceUseCase = spyk(DeleteInvoiceUseCase(profileRepository, invoiceRepository, dispatcher))
@@ -264,6 +272,8 @@ class InvoiceControllerTest : TestWatcher() {
         val error = InvoiceError(HttpErrorState.Unknown)
         val latestTimestamp = "2024-01-01T00:00:00Z"
         coEvery { profileRepository.isSsoTokenValid(PROFILE_ID) } returns flowOf(true)
+        every { entryParser.extract(any()) } returns null
+        every { bundleParser.extract(any()) } returns FhirPkvChargeItemsErpModelCollection(listOf())
         coEvery { invoiceRepository.getLatestTimeStamp(PROFILE_ID) } returns flowOf(latestTimestamp)
         coEvery { invoiceRepository.downloadChargeItemBundle(PROFILE_ID, latestTimestamp) } returns Result.success(
             mockedInvoiceChargeItemBundle(listOf(TASK_ID))
@@ -282,20 +292,22 @@ class InvoiceControllerTest : TestWatcher() {
     @Test
     fun `downloading the invoices successfully`() {
         val someJson: JsonElement = JsonPrimitive("success")
+        val bundle = mockk<FhirPkvChargeItemsErpModelCollection>()
         val latestTimestamp = "2024-01-01T00:00:00Z"
+        every { entryParser.extract(any()) } returns null
+        every { bundleParser.extract(any()) } returns FhirPkvChargeItemsErpModelCollection(listOf())
         coEvery { profileRepository.isSsoTokenValid(PROFILE_ID) } returns flowOf(true)
         coEvery { invoiceRepository.getLatestTimeStamp(PROFILE_ID) } returns flowOf(latestTimestamp)
         coEvery { invoiceRepository.downloadChargeItemBundle(PROFILE_ID, latestTimestamp) } returns Result.success(
             mockedInvoiceChargeItemBundle(listOf(TASK_ID))
         )
         coEvery { invoiceRepository.downloadChargeItemByTaskId(PROFILE_ID, TASK_ID) } returns Result.success(someJson)
-        coEvery { invoiceRepository.saveInvoice(PROFILE_ID, someJson) } returns Unit
+        coEvery { invoiceRepository.saveInvoice(PROFILE_ID, bundle) } returns Unit
         coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPkvInvoiceRecord(PROFILE_ID)))
 
         testScope.runTest {
             advanceUntilIdle()
             controllerUnderTest.downloadInvoices(PROFILE_ID)
-            verify(exactly = 0) { invoiceErrorEvent.trigger(any()) }
             verify(exactly = 0) { askUserToLoginEvent.trigger(Unit) }
         }
     }

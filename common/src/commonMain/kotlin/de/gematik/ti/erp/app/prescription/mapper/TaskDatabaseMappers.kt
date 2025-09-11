@@ -150,8 +150,10 @@ object TaskDatabaseMappers {
         .apply {
             this.name = this@toDatabaseModel.name
             this.uniqueIdentifier = bsnr
+            this.telematikId = this@toDatabaseModel.telematikId
             this.phone = this@toDatabaseModel.phone
-            this.mail = this@toDatabaseModel.mail
+            this.mail = this@toDatabaseModel.email
+            this.fax = this@toDatabaseModel.fax
             this.address = this@toDatabaseModel.address?.toDatabaseModel()
         }
 
@@ -159,6 +161,7 @@ object TaskDatabaseMappers {
         .apply {
             this.line1 = streetName ?: ""
             this.line2 = houseNumber ?: ""
+            this.additionalAddressInformation = this@toDatabaseModel.additionalAddressInformation ?: ""
             this.postalCode = this@toDatabaseModel.postalCode ?: ""
             this.city = this@toDatabaseModel.city ?: ""
         }
@@ -175,7 +178,9 @@ object TaskDatabaseMappers {
         .apply {
             this.name = this@toDatabaseModel.name
             this.qualification = this@toDatabaseModel.qualification
-            this.practitionerIdentifier = this@toDatabaseModel.practitionerIdentifier
+            this.practitionerIdentifier = this@toDatabaseModel.lanr
+            this.dentistIdentifier = this@toDatabaseModel.zanr
+            this.telematikId = this@toDatabaseModel.telematikId
         }
 
     fun FhirCoverageErpModel.toDatabaseModel() = InsuranceInformationEntityV1()
@@ -198,13 +203,15 @@ object TaskDatabaseMappers {
             this.quantity = this@toDatabaseModel.quantity
             this.multiplePrescriptionInfo = this@toDatabaseModel.multiplePrescriptionInfo?.toDatabaseModel()
             this.note = this@toDatabaseModel.note
-            this.bvg = this@toDatabaseModel.bvg
+            this.bvg = this@toDatabaseModel.isSer // from version 1.2.0 its called SER
             this.additionalFee = this@toDatabaseModel.additionalFee
         }
 
     fun FhirTaskKbvMedicationErpModel.toDatabaseModel() = MedicationEntityV1()
         .apply {
             this.text = this@toDatabaseModel.text ?: ""
+            this.medicationProfileType = this@toDatabaseModel.medicationProfile.type.name
+            this.medicationProfileVersion = this@toDatabaseModel.medicationProfile.version.name
             this.medicationCategory = this@toDatabaseModel.medicationCategory.toDatabaseModel()
             this.form = this@toDatabaseModel.form
             this.amount = this@toDatabaseModel.amount?.toDatabaseModel()

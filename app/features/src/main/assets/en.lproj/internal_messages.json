@@ -34,5 +34,11 @@
         "text": "**🙌 Registration for privately insured people** \nRegistration for privately insured people has been optimized. You can log in conveniently with your Health ID in just a few clicks. \n \n **⏰ Medication reminders** \nYou can now set reminders to take your medication. \n \n **🛒 Improved ordering flow** \nThe ordering process is now simpler and faster. \n \n **♿️ Accessibility** \nThe access number for the health card can now also be scanned with the camera. \n \n **📲 More information for DiGAs** \nFrom now on you will receive more detailed information about your DiGA prescriptions, such as the sales price or the logo.",
         "timestamp": "2025-08-06T08:00:00.000Z",
         "version": "1.32"
+    },
+    {
+        "id": "8",
+        "text": "**📝 Flexible field for delivery instructions** \n The field for delivery instructions now automatically adjusts to the length of the text. \n \n **🎨 More modern buttons with Material 3** \n The buttons have been adapted to the new Material 3 design of Android and now have a more modern and rounded appearance. \n \n **📤 Share Prescriptions** \nPrescriptions can now be shared with others directly from the app.",
+        "timestamp": "2025-09-09T08:00:00.000Z",
+        "version": "1.33"
     }
 ]

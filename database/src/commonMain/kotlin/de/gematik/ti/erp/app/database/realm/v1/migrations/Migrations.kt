@@ -365,7 +365,14 @@ fun appSchemas(profileName: String): Set<AppRealmSchema> {
                 if (migrationStartedFrom < 55) {
                     query<SyncedTaskEntityV1>().find().forEach { syncedTask ->
                         // Initialize isEuRedeemable to false for all existing tasks
-                        syncedTask.isEuRedeemable = false
+                        syncedTask.isEuRedeemableByProperties = false
+                    }
+                }
+                if (migrationStartedFrom < 57) {
+                    query<SyncedTaskEntityV1>().find().forEach { syncedTask ->
+                        // doing this because the initial name isEuRedeemable was too generic
+                        syncedTask.isEuRedeemableByProperties = false
+                        syncedTask.isEuRedeemableByPatientAuthorization = false
                     }
                 }
             }

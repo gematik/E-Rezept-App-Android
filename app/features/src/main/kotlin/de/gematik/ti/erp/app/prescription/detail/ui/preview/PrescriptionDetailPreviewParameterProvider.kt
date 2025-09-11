@@ -24,6 +24,9 @@ package de.gematik.ti.erp.app.prescription.detail.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispenseDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporalSerializationType
 import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
@@ -74,6 +77,10 @@ class PrescriptionDetailPreviewParameterProvider : PreviewParameterProvider<Pres
 private val mockMedicationRequest = SyncedTaskData.MedicationRequest(
     medication = SyncedTaskData.Medication(
         category = SyncedTaskData.MedicationCategory.ARZNEI_UND_VERBAND_MITTEL,
+        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+            type = ErpMedicationProfileType.PZN,
+            version = ErpMedicationProfileVersion.V_110
+        ),
         vaccine = false,
         text = "Paracetamol 500mg",
         form = "Tablet",

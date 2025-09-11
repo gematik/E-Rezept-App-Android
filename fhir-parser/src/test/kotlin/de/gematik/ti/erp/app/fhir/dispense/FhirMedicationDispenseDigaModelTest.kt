@@ -22,13 +22,13 @@
 
 package de.gematik.ti.erp.app.fhir.dispense
 
-import de.gematik.ti.erp.app.data.medication_dispense_diga_deeplink
-import de.gematik.ti.erp.app.data.medication_dispense_diga_name_and_pzn
-import de.gematik.ti.erp.app.data.medication_dispense_diga_no_redeem_code
+import de.gematik.ti.erp.app.data.medication_dispense_1_4_diga_deeplink
+import de.gematik.ti.erp.app.data.medication_dispense_1_4_diga_name_and_pzn
+import de.gematik.ti.erp.app.data.medication_dispense_1_4_diga_no_redeem_code
 import de.gematik.ti.erp.app.fhir.dispense.mocks.fhir_model_medication_dispense_diga_deeplink
 import de.gematik.ti.erp.app.fhir.dispense.mocks.fhir_model_medication_dispense_diga_name_and_pzn
 import de.gematik.ti.erp.app.fhir.dispense.mocks.fhir_model_medication_dispense_diga_no_redeem_code
-import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseV14DispenseModel.Companion.getMedicationDispenseV14
+import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseV14V15DispenseModel.Companion.extractMedicationDispense
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import org.junit.Test
@@ -38,27 +38,27 @@ class FhirMedicationDispenseDigaModelTest {
 
     @Test
     fun `medication dispense with diga deeplink`() {
-        val bundle = Json.parseToJsonElement(medication_dispense_diga_deeplink)
+        val bundle = Json.parseToJsonElement(medication_dispense_1_4_diga_deeplink)
         val result = Json.parseToJsonElement(fhir_model_medication_dispense_diga_deeplink)
-        val fhirModel = bundle.getMedicationDispenseV14()
+        val fhirModel = bundle.extractMedicationDispense()
         val serializedFhirModel = Json.encodeToJsonElement(serializer(), fhirModel)
         assertEquals(result, serializedFhirModel)
     }
 
     @Test
     fun `medication dispense with diga name and pzn`() {
-        val bundle = Json.parseToJsonElement(medication_dispense_diga_name_and_pzn)
+        val bundle = Json.parseToJsonElement(medication_dispense_1_4_diga_name_and_pzn)
         val result = Json.parseToJsonElement(fhir_model_medication_dispense_diga_name_and_pzn)
-        val fhirModel = bundle.getMedicationDispenseV14()
+        val fhirModel = bundle.extractMedicationDispense()
         val serializedFhirModel = Json.encodeToJsonElement(serializer(), fhirModel)
         assertEquals(result, serializedFhirModel)
     }
 
     @Test
     fun `medication dispense with diga no redeem code`() {
-        val bundle = Json.parseToJsonElement(medication_dispense_diga_no_redeem_code)
+        val bundle = Json.parseToJsonElement(medication_dispense_1_4_diga_no_redeem_code)
         val result = Json.parseToJsonElement(fhir_model_medication_dispense_diga_no_redeem_code)
-        val fhirModel = bundle.getMedicationDispenseV14()
+        val fhirModel = bundle.extractMedicationDispense()
         val serializedFhirModel = Json.encodeToJsonElement(serializer(), fhirModel)
         assertEquals(result, serializedFhirModel)
     }

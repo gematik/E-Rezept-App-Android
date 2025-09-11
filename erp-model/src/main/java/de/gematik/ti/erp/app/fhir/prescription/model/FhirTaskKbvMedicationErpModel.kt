@@ -31,10 +31,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class FhirTaskKbvMedicationErpModel(
     val text: String?,
-    val type: String,
-    val version: String,
     val form: String?,
     val medicationCategory: FhirTaskMedicationCategoryErpModel,
+    val medicationProfile: FhirTaskKbvMedicationProfileErpModel,
     val amount: FhirRatioErpModel?,
     val isVaccine: Boolean,
     val normSizeCode: String?,

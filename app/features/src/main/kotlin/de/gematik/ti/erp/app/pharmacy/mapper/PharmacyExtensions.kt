@@ -24,11 +24,6 @@ package de.gematik.ti.erp.app.pharmacy.mapper
 
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyOrderServiceState
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceState
-import de.gematik.ti.erp.app.pharmacy.ui.PharmacyOrderExtensions.deliveryUrlNotEmpty
-import de.gematik.ti.erp.app.pharmacy.ui.PharmacyOrderExtensions.isDeliveryWithoutContactUrls
-import de.gematik.ti.erp.app.pharmacy.ui.PharmacyOrderExtensions.isOnlineServiceWithoutContactUrls
-import de.gematik.ti.erp.app.pharmacy.ui.PharmacyOrderExtensions.onlineUrlNotEmpty
-import de.gematik.ti.erp.app.pharmacy.ui.PharmacyOrderExtensions.pickupUrlNotEmpty
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
 
 /**
@@ -43,109 +38,18 @@ import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
  * @return A [PharmacyOrderServiceState] object containing the visibility and enabled state for each service.
  */
 internal fun Pharmacy.calculateServiceState(): PharmacyOrderServiceState {
-    val directRedeemUrlsNotPresent = this.directRedeemUrlsNotPresent
-
-    val (pickUpContactAvailable, deliveryContactAvailable, onlineContactAvailable) =
-        checkRedemptionAndContactAvailabilityForPharmacy()
-
-    val (pickUpServiceVisible, deliveryServiceVisible, onlineServiceVisible) =
-        checkServiceVisibility(
-            directRedeemUrlsNotPresent = directRedeemUrlsNotPresent,
-            deliveryServiceAvailable = deliveryContactAvailable,
-            onlineServiceAvailable = onlineContactAvailable
-        )
-
-    val (pickupServiceEnabled, deliveryServiceEnabled, onlineServiceEnabled) =
-        checkServiceAvailability(
-            pickUpContactAvailable = pickUpContactAvailable,
-            deliveryContactAvailable = deliveryContactAvailable,
-            onlineContactAvailable = onlineContactAvailable
-        )
-
     return PharmacyOrderServiceState(
         pickup = PharmacyServiceState(
-            visible = pickUpServiceVisible,
-            enabled = pickupServiceEnabled
+            visible = isPickupService,
+            enabled = isPickupService
         ),
         delivery = PharmacyServiceState(
-            visible = deliveryServiceVisible,
-            enabled = deliveryServiceEnabled
+            visible = isDeliveryService,
+            enabled = isDeliveryService
         ),
         online = PharmacyServiceState(
-            visible = onlineServiceVisible,
-            enabled = onlineServiceEnabled
+            visible = isOnlineService,
+            enabled = isOnlineService
         )
     )
-}
-
-/**
- * Determines if the pharmacy provides contact URLs for each service type.
- *
- * Checks whether the pickup, delivery, and online service contact URLs are available.
- *
- * @receiver [Pharmacy] The pharmacy being checked.
- * @return A [Triple] containing flags for pickup, delivery, and online contact availability (in that order).
- */
-private fun Pharmacy.checkRedemptionAndContactAvailabilityForPharmacy(): Triple<Boolean, Boolean, Boolean> {
-    val pickUpServiceAvailable = pickupUrlNotEmpty()
-
-    val deliveryServiceAvailable = deliveryUrlNotEmpty()
-
-    val onlineServiceAvailable = onlineUrlNotEmpty()
-
-    return Triple(pickUpServiceAvailable, deliveryServiceAvailable, onlineServiceAvailable)
-}
-
-/**
- * Determines whether each pharmacy service should be visible in the UI.
- *
- * A service is considered visible if:
- * - A contact URL is available
- * - Or if fallback conditions are met (e.g., no direct redeem URLs available)
- *
- * @param directRedeemUrlsNotPresent Whether the pharmacy lacks direct redemption URLs.
- * @param deliveryServiceAvailable Whether delivery contact is available.
- * @param onlineServiceAvailable Whether online contact is available.
- * @return A [Triple] indicating UI visibility for pickup, delivery, and online services (in that order).
- */
-private fun Pharmacy.checkServiceVisibility(
-    directRedeemUrlsNotPresent: Boolean,
-    deliveryServiceAvailable: Boolean,
-    onlineServiceAvailable: Boolean
-): Triple<Boolean, Boolean, Boolean> {
-    val pickUpServiceVisible = pickupUrlNotEmpty() || directRedeemUrlsNotPresent
-
-    val deliveryServiceVisible = deliveryServiceAvailable ||
-        deliveryUrlNotEmpty() ||
-        isDeliveryWithoutContactUrls(directRedeemUrlsNotPresent)
-
-    val onlineServiceVisible = onlineServiceAvailable ||
-        onlineUrlNotEmpty() ||
-        isOnlineServiceWithoutContactUrls(directRedeemUrlsNotPresent)
-
-    return Triple(pickUpServiceVisible, deliveryServiceVisible, onlineServiceVisible)
-}
-
-/**
- * Determines whether each pharmacy service should be enabled (interactable).
- *
- * A service is considered enabled if:
- * - It has a contact URL
- * - Or it is supported by the pharmacy or a matching contact method is available
- *
- * @param pickUpContactAvailable Whether a pickup contact is available.
- * @param deliveryContactAvailable Whether a delivery contact is available.
- * @param onlineContactAvailable Whether an online contact is available.
- * @return A [Triple] indicating enablement for pickup, delivery, and online services (in that order).
- */
-private fun Pharmacy.checkServiceAvailability(
-    pickUpContactAvailable: Boolean,
-    deliveryContactAvailable: Boolean,
-    onlineContactAvailable: Boolean
-): Triple<Boolean, Boolean, Boolean> {
-    val pickupServiceEnabled = pickupUrlNotEmpty() || pickUpContactAvailable || isPickupService
-    val deliveryServiceEnabled = deliveryUrlNotEmpty() || deliveryContactAvailable || isDeliveryService
-    val onlineServiceEnabled = onlineUrlNotEmpty() || onlineContactAvailable || isOnlineService
-
-    return Triple(pickupServiceEnabled, deliveryServiceEnabled, onlineServiceEnabled)
 }

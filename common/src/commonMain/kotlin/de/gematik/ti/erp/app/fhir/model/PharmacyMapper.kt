@@ -29,7 +29,6 @@ import de.gematik.ti.erp.app.fhir.parser.containedArray
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedDouble
 import de.gematik.ti.erp.app.fhir.parser.containedInt
-import de.gematik.ti.erp.app.fhir.parser.containedIntOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedObject
 import de.gematik.ti.erp.app.fhir.parser.containedObjectOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedString
@@ -57,10 +56,6 @@ import java.net.URL
 
 val Contained = listOf("contained")
 val TypeCodingCode = listOf("type", "coding", "code")
-
-const val PickUpRank = 100
-const val DeliveryRank = 200
-const val OnlineServiceRank = 300
 
 @Requirement(
     "O.Source_2#4",
@@ -161,7 +156,7 @@ fun extractPharmacyServices(
 }
 
 private fun emptyFhirContactInformationErpModel() =
-    FhirContactInformationErpModel("", "", "", "", "", "")
+    FhirContactInformationErpModel("", "", "")
 
 /**
  * Extract certificates from binary bundle.
@@ -209,9 +204,6 @@ private fun contacts(
     var phone = ""
     var mail = ""
     var url = ""
-    var pickUpUrl = ""
-    var deliveryUrl = ""
-    var onlineServiceUrl = ""
 
     telecom
         .forEach {
@@ -219,21 +211,13 @@ private fun contacts(
                 "phone" -> phone = it.containedStringOrNull("value") ?: ""
                 "email" -> mail = it.containedStringOrNull("value") ?: ""
                 "url" -> url = sanitizeUrl(it.containedStringOrNull("value") ?: "")
-                "other" -> when (it.containedIntOrNull("rank")) {
-                    PickUpRank -> pickUpUrl = sanitizeUrl(it.containedStringOrNull("value") ?: "")
-                    DeliveryRank -> deliveryUrl = sanitizeUrl(it.containedStringOrNull("value") ?: "")
-                    OnlineServiceRank -> onlineServiceUrl = sanitizeUrl(it.containedStringOrNull("value") ?: "")
-                }
             }
         }
 
     return FhirContactInformationErpModel(
         phone = phone,
         mail = mail,
-        url = url,
-        pickUpUrl = pickUpUrl,
-        deliveryUrl = deliveryUrl,
-        onlineServiceUrl = onlineServiceUrl
+        url = url
     )
 }
 

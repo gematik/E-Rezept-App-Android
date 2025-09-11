@@ -44,9 +44,6 @@ import kotlin.test.assertEquals
 
 private val testBundle by lazy { File("$ResourceBasePath/pharmacy_result_bundle.json").readText() }
 private val testBundleBinaries by lazy { File("$ResourceBasePath/fhir/pharmacy_binary.json").readText() }
-private val directRedeemPharmacyBundle by lazy {
-    File("$ResourceBasePath/direct_redeem_pharmacy_bundle.json").readText()
-}
 
 class PharmacyMapperTest {
     @Test
@@ -54,7 +51,6 @@ class PharmacyMapperTest {
         val pharmacies = extractPharmacyServices(
             Json.parseToJsonElement(testBundle),
             onError = { element, cause ->
-                println(element)
                 throw cause
             }
         )
@@ -63,22 +59,6 @@ class PharmacyMapperTest {
         assertEquals(pharmacyErpModel, pharmacies.entries.first())
         val useCaseData = pharmacies.entries.toModel(type = PharmacyVzdService.APOVZD)
         assertEquals(pharmacyUseCaseData, useCaseData.first())
-    }
-
-    @Test
-    fun `map direct redeem pharmacy from JSON bundle get urls for direct redeem`() {
-        val pharmacies = extractPharmacyServices(
-            Json.parseToJsonElement(directRedeemPharmacyBundle),
-            onError = { element, cause ->
-                println(element)
-                throw cause
-            }
-        )
-
-        assertEquals(1, pharmacies.total)
-        assertEquals(directRedeemPharmacyErpModel, pharmacies.entries.first())
-        val useCaseData = pharmacies.entries.toModel(type = PharmacyVzdService.APOVZD)
-        println(useCaseData.first())
     }
 
     @Test
@@ -113,10 +93,7 @@ class PharmacyMapperTest {
             contact = FhirContactInformationErpModel(
                 phone = "0471/87029",
                 mail = "info@heide-apotheke-bremerhaven.de",
-                url = "http://www.heide-apotheke-bremerhaven.de",
-                pickUpUrl = "",
-                deliveryUrl = "",
-                onlineServiceUrl = ""
+                url = "http://www.heide-apotheke-bremerhaven.de"
             ),
             specialities = listOf(Delivery, Pickup, Shipment),
             hoursOfOperation = OpeningHoursErpModel(
@@ -149,10 +126,7 @@ class PharmacyMapperTest {
             contact = PharmacyUseCaseData.PharmacyContact(
                 phone = "0471/87029",
                 mail = "info@heide-apotheke-bremerhaven.de",
-                url = "http://www.heide-apotheke-bremerhaven.de",
-                pickUpUrl = "",
-                deliveryUrl = "",
-                onlineServiceUrl = ""
+                url = "http://www.heide-apotheke-bremerhaven.de"
             ),
             provides = listOf(
                 PharmacyUseCaseData.PharmacyService.LocalPharmacyService(
@@ -194,33 +168,6 @@ class PharmacyMapperTest {
                 )
             ),
             telematikId = "3-05.2.1007600000.080"
-        )
-
-        val directRedeemPharmacyErpModel = FhirPharmacyErpModel(
-            id = "ngc26fe2-9c3a-4d52-854e-794c96f73f66",
-            name = "PT-STA-Apotheke 2TEST-ONLY",
-            telematikId = "3-SMC-B-Testkarte-883110000116948",
-            position = FhirPositionErpModel(
-                latitude = 48.0018513,
-                longitude = 11.3497755
-            ),
-            address = FhirPharmacyAddressErpModel(
-                lineAddress = "",
-                postalCode = "82139",
-                city = "Starnberg"
-            ),
-            contact = FhirContactInformationErpModel(
-                phone = "",
-                mail = "",
-                url = "",
-                pickUpUrl = "https://ixosapi.service-pt.de/api/GematikAppZuweisung/945357?sig=CoLEeMyykSQul06Rp4wyTsfOJPBrSHOG2YBB4Bzy8QQ%3d&se=2625644988",
-                deliveryUrl = "https://ixosapi.service-pt.de/api/GematikAppZuweisung/945357?sig=CoLEeMyykSQul06Rp4wyTsfOJPBrSHOG2YBB4Bzy8QQ%3d&se=2625644988",
-                onlineServiceUrl = ""
-            ),
-            specialities = listOf(Pickup, Shipment),
-            availableTime = OpeningHoursErpModel(
-                openingTime = emptyMap() // No opening times provided
-            )
         )
     }
 }

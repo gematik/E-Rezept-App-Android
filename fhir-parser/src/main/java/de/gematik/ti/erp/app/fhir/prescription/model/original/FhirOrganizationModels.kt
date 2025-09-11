@@ -27,32 +27,49 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirAddress.Companion.to
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
-import de.gematik.ti.erp.app.fhir.constant.FhirConstants
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
+import de.gematik.ti.erp.app.fhir.constant.prescription.organization.FhirOrganizationConstants
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskOrganizationErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirTelecom.Companion.getMail
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirTelecom.Companion.getEmail
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirTelecom.Companion.getFax
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirTelecom.Companion.getPhone
+import de.gematik.ti.erp.app.utils.Reference
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
+internal interface FhirOrganizationBase {
+
+    @SerialName("identifier")
+    val identifiers: List<FhirIdentifier>?
+
+    val bsnr: String?
+        get() = identifiers?.firstOrNull { it.system == FhirOrganizationConstants.ORGANIZATION_IDENTIFIER_BSNR_NAME }?.value
+
+    val iknr: String?
+        get() = identifiers?.firstOrNull { it.system == FhirOrganizationConstants.ORGANIZATION_IDENTIFIER_IKNR_NAME }?.value
+
+    // found in 1.2.0 version
+    val telematikId: String?
+        get() = identifiers?.firstOrNull { it.system == FhirOrganizationConstants.ORGANIZATION_IDENTIFIER_TELEMATIK_ID }?.value
+}
+
+@Reference(
+    info = "Organization version 1.2.0",
+    url = "https://simplifier.net/packages/kbv.ita.for/1.2.0/files/2777636/~overview"
+)
+// NOTE: This organization and the on inside the pkv invoice bundle follow the same structure
 @Serializable
 internal data class FhirOrganization(
     @SerialName("resourceType") val resourceType: String? = null,
     @SerialName("id") val id: String? = null,
     @SerialName("meta") val meta: FhirMeta? = null,
-    @SerialName("identifier") val identifiers: List<FhirIdentifier>? = emptyList(),
+    @SerialName("identifier") override val identifiers: List<FhirIdentifier>? = emptyList(),
     @SerialName("name") val name: String? = null,
     @SerialName("telecom") val telecoms: List<FhirTelecom>? = emptyList(),
     @SerialName("address") val addresses: List<FhirAddress>? = emptyList()
-) {
-
-    val bsnr: String?
-        get() = identifiers?.firstOrNull { it.system == FhirConstants.ORGANIZATION_IDENTIFIER_BSNR_NAME }?.value
-
-    val iknr: String?
-        get() = identifiers?.firstOrNull { it.system == FhirConstants.ORGANIZATION_IDENTIFIER_IKNR_NAME }?.value
+) : FhirOrganizationBase {
 
     companion object {
 
@@ -83,19 +100,23 @@ internal data class FhirOrganization(
                 address = addresses?.firstOrNull()?.toErpModel(),
                 bsnr = bsnr,
                 iknr = iknr,
+                telematikId = telematikId,
                 phone = telecoms?.getPhone(),
-                mail = telecoms?.getMail()
+                email = telecoms?.getEmail(),
+                fax = telecoms?.getFax()
             )
     }
 }
 
+// TODO: Move to common
 @Serializable
 internal data class FhirTelecom(
     @SerialName("system") val system: String? = null,
     @SerialName("value") val value: String? = null
 ) {
     companion object {
-        fun List<FhirTelecom>.getPhone(): String? = firstOrNull { it.system == FhirConstants.TELECOM_PHONE }?.value
-        fun List<FhirTelecom>.getMail(): String? = firstOrNull { it.system == FhirConstants.TELECOM_EMAIL }?.value
+        fun List<FhirTelecom>.getPhone(): String? = firstOrNull { it.system == FhirOrganizationConstants.TELECOM_PHONE }?.value
+        fun List<FhirTelecom>.getEmail(): String? = firstOrNull { it.system == FhirOrganizationConstants.TELECOM_EMAIL }?.value
+        fun List<FhirTelecom>.getFax(): String? = firstOrNull { it.system == FhirOrganizationConstants.TELECOM_FAX }?.value
     }
 }

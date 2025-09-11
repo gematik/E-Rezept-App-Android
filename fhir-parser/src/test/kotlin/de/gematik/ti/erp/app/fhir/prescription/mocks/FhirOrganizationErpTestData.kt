@@ -37,7 +37,8 @@ object FhirOrganizationErpTestData {
         bsnr = "721111100",
         iknr = null,
         phone = "0301234567",
-        mail = "mvz@e-mail.de"
+        email = "mvz@e-mail.de",
+        fax = "030123456789"
     )
 
     val erpOrganization2_v103 = FhirTaskOrganizationErpModel(
@@ -51,7 +52,7 @@ object FhirOrganizationErpTestData {
         bsnr = "031234567",
         iknr = null,
         phone = "0301234567",
-        mail = null
+        email = null
     )
 
     val erpOrganization1AllPresent_v110 = FhirTaskOrganizationErpModel(
@@ -65,7 +66,8 @@ object FhirOrganizationErpTestData {
         bsnr = "721111100",
         iknr = null,
         phone = "0301234567",
-        mail = "mvz@e-mail.de"
+        email = "mvz@e-mail.de",
+        fax = "030123456789"
     )
 
     val erpOrganization1NoAddress_v110 = FhirTaskOrganizationErpModel(
@@ -74,7 +76,8 @@ object FhirOrganizationErpTestData {
         bsnr = "721111100",
         iknr = null,
         phone = "0301234567",
-        mail = "mvz@e-mail.de"
+        email = "mvz@e-mail.de",
+        fax = "030123456789"
     )
 
     val erpOrganization1NoEmail_v110 = FhirTaskOrganizationErpModel(
@@ -88,7 +91,8 @@ object FhirOrganizationErpTestData {
         bsnr = "721111100",
         iknr = null,
         phone = "0301234567",
-        mail = null
+        email = null,
+        fax = "030123456789"
     )
 
     val erpOrganization1NoFax_v110 = FhirTaskOrganizationErpModel(
@@ -102,7 +106,7 @@ object FhirOrganizationErpTestData {
         bsnr = "721111100",
         iknr = null,
         phone = "0301234567",
-        mail = "mvz@e-mail.de"
+        email = "mvz@e-mail.de"
     )
 
     val erpOrganization1NoContact_v110 = FhirTaskOrganizationErpModel(
@@ -116,7 +120,7 @@ object FhirOrganizationErpTestData {
         bsnr = "721111100",
         iknr = null,
         phone = null,
-        mail = null
+        email = null
     )
 
     val erpOrganization2_v110 = FhirTaskOrganizationErpModel(
@@ -128,8 +132,43 @@ object FhirOrganizationErpTestData {
             city = "Berlin"
         ),
         bsnr = "031234567",
+        telematikId = "1-031234567",
         iknr = null,
         phone = "0301234567",
-        mail = null
+        email = null
+    )
+
+    val erpOrganization3_v120 = FhirTaskOrganizationErpModel(
+        name = "Hausarztpraxis",
+        address = FhirTaskKbvAddressErpModel(
+            streetName = "Herbert-Lewin-Platz",
+            houseNumber = "2",
+            additionalAddressInformation = null,
+            postalCode = "10623",
+            city = "Berlin"
+        ),
+        bsnr = "724444400",
+        iknr = null,
+        telematikId = null,
+        phone = "030321654987",
+        email = "hausarztpraxis@e-mail.de",
+        fax = null
+    )
+
+    val erpOrganization4_v120 = FhirTaskOrganizationErpModel(
+        name = "Hausarztpraxis",
+        address = FhirTaskKbvAddressErpModel(
+            streetName = "Herbert-Lewin-Platz",
+            houseNumber = "2",
+            additionalAddressInformation = "Erdgeschoss",
+            postalCode = "10623",
+            city = "Berlin"
+        ),
+        bsnr = "724444400",
+        iknr = null,
+        telematikId = null,
+        phone = "030321654987",
+        email = "hausarztpraxis@e-mail.de",
+        fax = null
     )
 }

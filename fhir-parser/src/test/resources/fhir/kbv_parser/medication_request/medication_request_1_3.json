@@ -1,0 +1,72 @@
+{
+  "resourceType": "MedicationRequest",
+  "id": "06dc1594-509a-4f4c-ada7-dfd477a02d86",
+  "meta": {
+    "profile": [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.3"
+    ]
+  },
+  "extension": [
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_StatusCoPayment",
+      "valueCoding": {
+        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_StatusCoPayment",
+        "code": "1"
+      }
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee",
+      "valueBoolean": false
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_SER",
+      "valueBoolean": false
+    },
+    {
+      "extension": [
+        {
+          "url": "Kennzeichen",
+          "valueBoolean": false
+        }
+      ],
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"
+    }
+  ],
+  "status": "active",
+  "intent": "order",
+  "medicationReference": {
+    "reference": "Medication/f568397d-7ba2-46ac-904b-02caec933b42"
+  },
+  "subject": {
+    "reference": "Patient/512ab5bc-a7ab-4fd7-81cc-16a594f747a6"
+  },
+  "authoredOn": "2024-05-20",
+  "requester": {
+    "reference": "Practitioner/e33d2afd-44c8-462b-80e5-52dbe5ebf359"
+  },
+  "insurance": [
+    {
+      "reference": "Coverage/df0f2536-97b9-4bae-99cc-83ba2e8371e4"
+    }
+  ],
+  "dosageInstruction": [
+    {
+      "extension": [
+        {
+          "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag",
+          "valueBoolean": true
+        }
+      ],
+      "text": "2mal tägl. 5ml"
+    }
+  ],
+  "dispenseRequest": {
+    "quantity": {
+      "value": 1,
+      "unit": "Packung"
+    }
+  },
+  "substitution": {
+    "allowedBoolean": true
+  }
+}

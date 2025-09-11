@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.digas.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -52,6 +53,7 @@ import kotlinx.datetime.Instant
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DigaContent(
+    contentPadding: PaddingValues,
     listState: LazyListState = rememberLazyListState(),
     errorTitle: String,
     errorBody: String,
@@ -66,7 +68,7 @@ fun DigaContent(
 ) {
     val options = listOf(stringResource(R.string.diga_overview), stringResource(R.string.diga_details))
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(contentPadding),
         state = listState,
         verticalArrangement = Arrangement.Top
     ) {

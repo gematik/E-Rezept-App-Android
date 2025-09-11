@@ -31,6 +31,8 @@ data class FhirTaskOrganizationErpModel(
     val address: FhirTaskKbvAddressErpModel?,
     val bsnr: String?,
     val iknr: String?,
+    val telematikId: String? = null,
     val phone: String?,
-    val mail: String?
+    val email: String?,
+    val fax: String? = null
 )

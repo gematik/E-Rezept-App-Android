@@ -58,6 +58,9 @@ import de.gematik.ti.erp.app.database.realm.v1.task.entity.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.SyncedTaskEntityV1
 import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.fhir.model.chargeItem_freetext
+import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemBundleEntryParser
+import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemBundleParser
+import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemEPrescriptionParsers
 import de.gematik.ti.erp.app.profiles.repository.DefaultProfilesRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import io.mockk.MockKAnnotations
@@ -82,11 +85,12 @@ class InvoiceRepositoryTest : TestDB() {
     lateinit var invoiceRemoteDataSource: InvoiceRemoteDataSource
     lateinit var invoiceRepository: DefaultInvoiceRepository
     lateinit var profileRepository: ProfileRepository
-
     lateinit var realm: Realm
 
     @MockK
     lateinit var erpService: ErpService
+    val entryParser: ChargeItemBundleEntryParser = ChargeItemBundleEntryParser()
+    val bundleParser: ChargeItemBundleParser = ChargeItemBundleParser()
 
     @Before
     fun setUp() {
@@ -138,6 +142,7 @@ class InvoiceRepositoryTest : TestDB() {
         invoiceRepository = DefaultInvoiceRepository(
             invoiceRemoteDataSource,
             invoiceLocalDataSource,
+            ChargeItemEPrescriptionParsers(entryParser, bundleParser),
             coroutineRule.dispatchers
         )
         profileRepository = DefaultProfilesRepository(realm)
@@ -146,13 +151,13 @@ class InvoiceRepositoryTest : TestDB() {
     @Test
     fun `save invoices and load invoice`() {
         val chargeItemByIdBundle = Json.parseToJsonElement(chargeItem_freetext)
-
+        val bundle = bundleParser.extract(chargeItemByIdBundle)
         runTest {
             profileRepository.createNewProfile("test")
             val testProfileId =
                 profileRepository.profiles().first()[0].id
 
-            invoiceRepository.saveInvoice(testProfileId, chargeItemByIdBundle)
+            invoiceRepository.saveInvoice(testProfileId, bundle)
             val invoice = invoiceRepository.invoices(testProfileId).first()[0]
 
             assertEquals("200.334.138.469.717.92", invoice.taskId)

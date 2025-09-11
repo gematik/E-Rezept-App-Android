@@ -61,6 +61,7 @@ class TranslationConsentController(
     private val isCurrentLanguageDownloaded = downloadLanguageModels.map { models -> models.fastAny { it.code == currentLocale } }
 
     val onConsentEvent = ComposableEvent<Unit>()
+    val onDownloadFailedEvent = ComposableEvent<String>()
     val languageDownloadState = _languageDownloadState.asStateFlow()
 
     fun toggleTranslationConsent(consentGiven: Boolean) {
@@ -89,6 +90,10 @@ class TranslationConsentController(
                 is LanguageDownloadState.Completed -> {
                     onConsentEvent.trigger()
                     fetchDownloadedLanguages()
+                }
+
+                is LanguageDownloadState.Error -> {
+                    onDownloadFailedEvent.trigger(state.exception.message ?: "Unknown error")
                 }
 
                 else -> Unit // No-op for NotStarted, etc.

@@ -302,4 +302,85 @@ internal object FhirOrganizationTestData {
             )
         )
     )
+
+    val fhirOrganization3_v120 = FhirOrganization(
+        resourceType = "Organization",
+        id = "2a555cd3-0543-483c-88b3-f68647620962",
+        meta = FhirMeta(
+            profiles = listOf("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.2")
+        ),
+        identifiers = listOf(
+            FhirIdentifier(
+                system = "https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR",
+                value = "724444400",
+                type = FhirCodeableConcept(
+                    coding = listOf(
+                        FhirCoding(
+                            system = "http://terminology.hl7.org/CodeSystem/v2-0203",
+                            code = "BSNR"
+                        )
+                    )
+                )
+            )
+        ),
+        name = "Hausarztpraxis",
+        telecoms = listOf(
+            FhirTelecom(system = "phone", value = "030321654987"),
+            FhirTelecom(system = "email", value = "hausarztpraxis@e-mail.de")
+        ),
+        addresses = listOf(
+            FhirAddress(
+                type = "both",
+                line = listOf("Herbert-Lewin-Platz 2", "Erdgeschoss"),
+                city = "Berlin",
+                postalCode = "10623",
+                country = "D",
+                extractedLine = mapOf(
+                    "houseNumber" to "2",
+                    "streetName" to "Herbert-Lewin-Platz"
+                )
+            )
+        )
+    )
+
+    val fhirOrganization4_v120 = FhirOrganization(
+        resourceType = "Organization",
+        id = "2a555cd3-0543-483c-88b3-f68647620962",
+        meta = FhirMeta(
+            profiles = listOf("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.2")
+        ),
+        identifiers = listOf(
+            FhirIdentifier(
+                system = "https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR",
+                value = "724444400",
+                type = FhirCodeableConcept(
+                    coding = listOf(
+                        FhirCoding(
+                            system = "http://terminology.hl7.org/CodeSystem/v2-0203",
+                            code = "BSNR"
+                        )
+                    )
+                )
+            )
+        ),
+        name = "Hausarztpraxis",
+        telecoms = listOf(
+            FhirTelecom(system = "phone", value = "030321654987"),
+            FhirTelecom(system = "email", value = "hausarztpraxis@e-mail.de")
+        ),
+        addresses = listOf(
+            FhirAddress(
+                type = "both",
+                line = listOf("Herbert-Lewin-Platz 2", "Erdgeschoss"),
+                city = "Berlin",
+                postalCode = "10623",
+                country = "D",
+                extractedLine = mapOf(
+                    "houseNumber" to "2",
+                    "streetName" to "Herbert-Lewin-Platz",
+                    "additionalLocator" to "Erdgeschoss"
+                )
+            )
+        )
+    )
 }

@@ -30,13 +30,7 @@ interface PharmacyRemoteDataSource {
     suspend fun searchInsurances(filter: PharmacyFilter, onUnauthorizedException: suspend () -> Unit): Result<JsonElement>
     suspend fun searchPharmaciesContinued(bundleId: String, offset: Int, count: Int): Result<JsonElement>
     suspend fun searchBinaryCert(locationId: String): Result<JsonElement>
-    suspend fun redeemPrescriptionDirectly(
-        url: String,
-        message: ByteArray,
-        pharmacyTelematikId: String,
-        transactionId: String
-    ): Result<Unit>
-
     suspend fun searchPharmacyByTelematikId(telematikId: String, onUnauthorizedException: suspend () -> Unit): Result<JsonElement>
     suspend fun searchByInsuranceProvider(institutionIdentifier: String, onUnauthorizedException: suspend () -> Unit): Result<JsonElement>
+    suspend fun fetchAvailableCountries(): Result<JsonElement>
 }

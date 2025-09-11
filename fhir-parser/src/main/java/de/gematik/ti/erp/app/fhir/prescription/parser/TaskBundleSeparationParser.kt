@@ -25,22 +25,19 @@ package de.gematik.ti.erp.app.fhir.prescription.parser
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.BundleParser
 import de.gematik.ti.erp.app.fhir.FhirTaskPayloadErpModel
-import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundle
-import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
-import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta.Companion.getProfile
+import de.gematik.ti.erp.app.fhir.common.model.original.extractProfilesFromResourceMeta
+import de.gematik.ti.erp.app.fhir.common.model.original.extractResources
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants.KBV_BUNDLE
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants.KBV_BUNDLE_DEVICE_REQUEST
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants.TASK
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions.KBV_DEVICE_REQUEST_VERSION_REGEX
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions.KBV_VERSION_REGEX
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions.TASK_VERSION_REGEX
-import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskMetaDataPayloadErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.FirTaskKbvPayloadErpModel
 import de.gematik.ti.erp.app.utils.letNotNull
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.jsonObject
 
 /**
  * A utility class that extracts specific FHIR resources from a given JSON bundle.
@@ -70,7 +67,7 @@ class TaskBundleSeparationParser : BundleParser {
      *
      * Once the [TaskEntryParser] provides the task-id, the task-bundle is fetched from the server.
      * This is then fed to this parser which separates this into two parts called taskBundle and kbvBundle.
-     * These parts are then further processed by [TaskEPrescriptionMetadataParser] and [TaskEPrescriptionMedicalDataParser] respectively.
+     * These parts are then further processed by [TaskMetadataParser] and [TaskMedicalDataParser] respectively.
      *
      * This function parses the `"entry.resource"` section of the JSON, identifies resources
      * based on their FHIR profile URLs, and returns a structured [FhirTaskPayloadErpModel].
@@ -109,7 +106,7 @@ class TaskBundleSeparationParser : BundleParser {
             var kbvBundle: JsonElement? = null
 
             for (resource in resources) {
-                val profileValues = extractProfiles(resource)
+                val profileValues = extractProfilesFromResourceMeta(resource)
                 when {
                     isTaskResource(profileValues) -> taskBundle = resource // will be unwrapped by [TaskMetadataExtractor]
                     isKBVBundleResource(profileValues) -> kbvBundle = resource // will be unwrapped by [TaskKBVExtractor]
@@ -126,81 +123,8 @@ class TaskBundleSeparationParser : BundleParser {
                 )
             }
         } catch (e: Throwable) {
-            Napier.e { "FHIR Parsing Error : parsing 'task-bundle' from resource: $bundle ${e.message}" }
+            Napier.e(tag = "fhir-parser") { "FHIR Parsing Error : parsing 'task-bundle' from resource: $bundle ${e.message}" }
             return null
-        }
-    }
-
-    /**
-     * Extracts all resources from a given FHIR bundle JSON.
-     *
-     * This method deserializes the input JSON into a [FhirBundle] and retrieves the list of
-     * contained FHIR resources.
-     *
-     * ### **Processing Steps**
-     *
-     * 1. Parses the JSON bundle into a [FhirBundle] using Kotlinx Serialization.
-     * 2. Extracts all `"resource"` elements from the `"entry"` array.
-     *
-     * @param bundle The [JsonElement] representing the FHIR bundle.
-     * @return A list of [JsonElement]s representing the extracted resources.
-     * @throws kotlinx.serialization.json.JsonDecodingException If the JSON format is invalid.
-     *
-     * ### **Example Usage**
-     *
-     * ```kotlin
-     * val bundle: JsonElement = Json.parseToJsonElement(sampleJsonString)
-     * val resources = extractResources(bundle)
-     * resources.forEach { println(it) }
-     * ```
-     */
-    private fun extractResources(bundle: JsonElement): List<JsonElement> {
-        try {
-            // Deserialize JSON into `FhirBundle`
-            val fhirBundle = SafeJson.value.decodeFromJsonElement<FhirBundle>(FhirBundle.serializer(), bundle)
-
-            // Extract all resources
-            return fhirBundle.entry.map { it.resource }
-        } catch (e: Throwable) {
-            Napier.e { "FHIR Parsing Error : parsing 'task-bundle' from resource: $bundle ${e.message}" }
-            return emptyList()
-        }
-    }
-
-    /**
-     * Extracts the `"profile"` values from the `"meta"` section of a FHIR resource.
-     *
-     * This function retrieves the `"meta"` object from a FHIR resource and extracts the list of
-     * profile URLs. If `"meta"` is missing, it returns an empty list.
-     *
-     * ### **Processing Steps:**
-     * 1. Retrieves the `"meta"` field from the JSON resource.
-     * 2. Uses Kotlinx Serialization to parse it into a [FhirMeta] object.
-     * 3. Returns the extracted list of profile URLs.
-     *
-     * @param resource The [JsonElement] representing a FHIR resource.
-     * @return A list of profile URLs (`List<String>`) found in the `"meta.profile"` field.
-     * Returns an empty list if `"meta.profile"` is missing or malformed.
-     *
-     * ### **Error Handling**
-     * - If `"meta.profile"` is missing, the function returns `emptyList()`.
-     * - If JSON parsing fails, the error is logged using [Napier].
-     *
-     * ### **Example Usage**
-     * ```kotlin
-     * val resource: JsonElement = getResourceJson()
-     * val profiles = extractProfiles(resource)
-     * profiles.forEach { println(it) }
-     * ```
-     */
-    private fun extractProfiles(resource: JsonElement): List<String> {
-        val metaElement = resource.jsonObject["meta"] ?: return emptyList()
-
-        return try {
-            metaElement.getProfile() // Returns a List<String> directly
-        } catch (e: Throwable) {
-            Napier.e { "FHIR Parsing Error : parsing 'meta.profile' from resource: $resource ${e.message}" }
-            emptyList() // Fallback in case of parsing errors
         }
     }
 

@@ -28,5 +28,17 @@ import kotlinx.serialization.Serializable
 data class FhirTaskKbvPractitionerErpModel(
     val name: String?,
     val qualification: String?,
-    val practitionerIdentifier: String?
-)
+    val doctorIdentifier: String?, // LANR
+    val dentistIdentifier: String?, // ZANR
+    val telematikId: String?
+) {
+    /**
+     * LANR refers to the lifelong doctor identification number
+     */
+    val lanr = doctorIdentifier
+
+    /**
+     * ZANR refers to the dentist identification number
+     */
+    val zanr = dentistIdentifier
+}

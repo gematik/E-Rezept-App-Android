@@ -56,8 +56,8 @@ import de.gematik.ti.erp.app.fhir.dispense.model.PznContextualData
 import de.gematik.ti.erp.app.fhir.dispense.model.erp.toCategoryVersionMapper
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseMedicationModel.Companion.inferMedicationTypeOnUnknown
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationAmount
-import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationAmount.Companion.getRatio102
-import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationAmount.Companion.getRatio110
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationAmount.Companion.getRatio
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationAmount.Companion.getRatioSpecialVersion102
 import de.gematik.ti.erp.app.fhir.serializer.SafeFhirIngredientListSerializer
 import de.gematik.ti.erp.app.fhir.support.FhirMedicationIdentifierErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirMedicationIngredientErpModel
@@ -120,9 +120,9 @@ internal data class FhirMedicationDispenseMedicationModel(
         @Suppress("ktlint:max-line-length")
         private fun FhirMedicationDispenseMedicationModel.getAmountRatio(version: FhirMedicationDispenseConstants.DispenseMedicationVersionType?) =
             when (version?.toReducedVersion()) {
-                FhirMedicationDispenseConstants.DispenseMedicationReducedVersion.V_1_1_0 -> amount?.getRatio110()
+                FhirMedicationDispenseConstants.DispenseMedicationReducedVersion.V_1_1_0 -> amount?.getRatio()
                 FhirMedicationDispenseConstants.DispenseMedicationReducedVersion.V_1_0_2,
-                FhirMedicationDispenseConstants.DispenseMedicationReducedVersion.V_1_4 -> amount?.getRatio102()
+                FhirMedicationDispenseConstants.DispenseMedicationReducedVersion.V_1_4 -> amount?.getRatioSpecialVersion102()
 
                 null -> null
             }
@@ -294,7 +294,7 @@ internal data class FhirMedicationDispenseMedicationModel(
             DispenseMedicationType.Unknown -> null
         }
 
-        internal fun JsonElement.getMedicationDispensedMedication(): FhirMedicationDispenseMedicationModel {
+        internal fun JsonElement.extractDispensedMedication(): FhirMedicationDispenseMedicationModel {
             return SafeJson.value.decodeFromJsonElement(serializer(), this)
         }
 

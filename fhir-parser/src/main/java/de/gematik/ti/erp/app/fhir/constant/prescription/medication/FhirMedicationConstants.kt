@@ -27,32 +27,31 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension.Companion.
 
 @Suppress("ktlint:max-line-length")
 object FhirMedicationConstants {
-    private const val MEDICATION_CATEGORY = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category"
     private const val MEDICATION_CATEGORY_SYSTEM = "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category"
-    private const val MEDICATION_VACCINE_EXTENSION = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine"
     private const val EPA_MEDICATION_VACCINE_EXTENSION = "https://gematik.de/fhir/epa-medication/StructureDefinition/medication-id-vaccine-extension"
-    private const val MEDICATION_NORM_GROSSE = "http://fhir.de/StructureDefinition/normgroesse"
     private const val MEDICATION_COMPOUNDING_MANUFACTURING_INSTRUCTIONS = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_CompoundingInstruction"
-    private const val EPA_MEDICATION_COMPOUNDING_MANUFACTURING_INSTRUCTIONS = "https://gematik.de/fhir/epa-medication/StructureDefinition/medication-manufacturing-instructions-extension"
+    private const val EPA_MEDICATION_COMPOUNDING_MANUFACTURING_INSTRUCTIONS =
+        "https://gematik.de/fhir/epa-medication/StructureDefinition/medication-manufacturing-instructions-extension"
     private const val MEDICATION_COMPOUNDING_PACKAGING = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Packaging"
-    private const val EPA_MEDICATION_COMPOUNDING_PACKAGING = "https://gematik.de/fhir/epa-medication/StructureDefinition/medication-formulation-packaging-extension"
+    private const val EPA_MEDICATION_COMPOUNDING_PACKAGING =
+        "https://gematik.de/fhir/epa-medication/StructureDefinition/medication-formulation-packaging-extension"
 
-    internal fun List<FhirExtension>.findMedicationCategory110() =
-        findExtensionByUrl(MEDICATION_CATEGORY)?.valueCoding?.code
+    internal fun List<FhirExtension>.findMedicationCategory() =
+        findExtensionByUrl(FhirMedicationPznConstants.MEDICATION_CATEGORY)?.valueCoding?.code
 
-    internal fun List<FhirExtension>.findMedicationCategory102(): String? =
-        findExtensionByUrl(MEDICATION_CATEGORY)
+    internal fun List<FhirExtension>.findMedicationCategorySpecialVersion102(): String? =
+        findExtensionByUrl(FhirMedicationPznConstants.MEDICATION_CATEGORY)
             ?.takeIf { it.valueCoding?.system == MEDICATION_CATEGORY_SYSTEM }
             ?.valueCoding?.code
 
     internal fun List<FhirExtension>.getVaccine(): Boolean =
-        findExtensionByUrl(MEDICATION_VACCINE_EXTENSION)?.valueBoolean == true
+        findExtensionByUrl(FhirMedicationPznConstants.MEDICATION_VACCINE_EXTENSION)?.valueBoolean == true
 
     internal fun List<FhirExtension>.getEpaVaccine(): Boolean =
         findExtensionByUrl(EPA_MEDICATION_VACCINE_EXTENSION)?.valueBoolean == true
 
     internal fun List<FhirExtension>.getNormSizeCode(): String? = findExtensionByUrl(
-        MEDICATION_NORM_GROSSE
+        FhirMedicationPznConstants.MEDICATION_NORM_GROSSE
     )?.valueCode
 
     internal fun List<FhirExtension>.getCompoundingInstructions(): String? =

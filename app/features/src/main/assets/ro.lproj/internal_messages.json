@@ -34,5 +34,11 @@
         "text": "**🙌 Înregistrarea pentru persoanele asigurate privat** \nÎnregistrarea pentru persoanele asigurate privat a fost optimizată. Vă puteți conecta convenabil cu ID-ul dvs. de sănătate în doar câteva clicuri. \n \n **⏰ Mementouri pentru medicamente** \nAcum puteți seta mementouri pentru a vă lua medicamentele. \n \n **🛒 Flux de comandă îmbunătățit** \nProcesul de comandă este acum mai simplu și mai rapid. \n \n **♿️ Accesibilitate** \nNumărul de acces pentru cardul de sănătate poate fi acum scanat și cu camera. \n \n **📲 Mai multe informații pentru persoanele asigurate DiGA** \nDe acum înainte veți primi informații mai detaliate despre rețetele dvs. DiGA, cum ar fi prețul de vânzare sau sigla.",
         "timestamp": "2025-08-06T08:00:00.000Z",
         "version": "1.32"
+    },
+    {
+        "id": "8",
+        "text": "**📝 Câmp flexibil pentru instrucțiuni de livrare** \n Câmpul pentru instrucțiuni de livrare se ajustează acum automat în funcție de lungimea textului. \n \n **🎨 Butoane mai moderne cu Material 3** \n Butoanele au fost adaptate la noul design Material 3 al sistemului de operare Android și au acum un aspect mai modern și mai rotunjit. \n \n **📤 Partajați rețete** \n Rețetele pot fi acum partajate cu alte persoane direct din aplicație.",
+        "timestamp": "2025-09-09T08:00:00.000Z",
+        "version": "1.33"
     }
 ]

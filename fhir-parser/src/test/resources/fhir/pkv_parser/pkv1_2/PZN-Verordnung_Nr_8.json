@@ -1,0 +1,1203 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "200.108.757.032.088.60",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erpchrg/StructureDefinition/GEM_ERPCHRG_PR_ChargeItem|1.0"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            "value": "200.108.757.032.088.60"
+          },
+          {
+            "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode",
+            "value": "abd4afed9f3f458114fc3407878213e110f238d1afa919fbed7282abbef68bfd"
+          }
+        ],
+        "status": "billable",
+        "code": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+              "code": "not-applicable"
+            }
+          ]
+        },
+        "subject": {
+          "identifier": {
+            "system": "http://fhir.de/sid/pkv/kvid-10",
+            "value": "X110465770"
+          }
+        },
+        "enterer": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte-883110000116873"
+          }
+        },
+        "enteredDate": "2023-02-23T15:08:32.699+00:00",
+        "supportingInformation": [
+          {
+            "reference": "urn:uuid:c8606712-0000-0000-0001-000000000000",
+            "display": "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle"
+          },
+          {
+            "reference": "urn:uuid:c8606712-0000-0000-0004-000000000000",
+            "display": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-AbgabedatenBundle"
+          },
+          {
+            "reference": "urn:uuid:c8606712-0000-0000-0003-000000000000",
+            "display": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Bundle"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Bundle",
+        "id": "c8606712-0000-0000-0003-000000000000",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Bundle|1.2"
+          ]
+        },
+        "identifier": {
+          "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+          "value": "200.000.001.206.112.29"
+        },
+        "type": "document",
+        "timestamp": "2023-02-23T15:08:30.803+00:00",
+        "link": [
+          {
+            "relation": "self",
+            "url": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Task/200.000.001.206.112.29/$close/"
+          }
+        ],
+        "entry": [
+          {
+            "fullUrl": "urn:uuid:1f107ad7-f4bf-47e3-a606-0181f5dd4f73",
+            "resource": {
+              "resourceType": "Composition",
+              "id": "1f107ad7-f4bf-47e3-a606-0181f5dd4f73",
+              "meta": {
+                "profile": [
+                  "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Composition|1.2"
+                ]
+              },
+              "extension": [
+                {
+                  "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_Beneficiary",
+                  "valueIdentifier": {
+                    "system": "https://gematik.de/fhir/sid/telematik-id",
+                    "value": "3-SMC-B-Testkarte-883110000116873"
+                  }
+                }
+              ],
+              "status": "final",
+              "type": {
+                "coding": [
+                  {
+                    "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_DocumentType",
+                    "code": "3",
+                    "display": "Receipt"
+                  }
+                ]
+              },
+              "date": "2023-02-23T15:08:30.802+00:00",
+              "author": [
+                {
+                  "reference": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Device/1"
+                }
+              ],
+              "title": "Quittung",
+              "event": [
+                {
+                  "period": {
+                    "start": "2023-02-23T15:08:29.843+00:00",
+                    "end": "2023-02-23T15:08:30.802+00:00"
+                  }
+                }
+              ],
+              "section": [
+                {
+                  "entry": [
+                    {
+                      "reference": "Binary/PrescriptionDigest-200.000.001.206.112.29"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Device/1",
+            "resource": {
+              "resourceType": "Device",
+              "id": "1",
+              "meta": {
+                "profile": [
+                  "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Device|1.2"
+                ]
+              },
+              "status": "active",
+              "serialNumber": "1.9.0",
+              "deviceName": [
+                {
+                  "name": "E-Rezept Fachdienst",
+                  "type": "user-friendly-name"
+                }
+              ],
+              "version": [
+                {
+                  "value": "1.9.0"
+                }
+              ],
+              "contact": [
+                {
+                  "system": "email",
+                  "value": "betrieb@gematik.de"
+                }
+              ]
+            }
+          },
+          {
+            "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Binary/PrescriptionDigest-200.000.001.206.112.29",
+            "resource": {
+              "resourceType": "Binary",
+              "id": "PrescriptionDigest-200.000.001.206.112.29",
+              "meta": {
+                "versionId": "1",
+                "profile": [
+                  "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Digest|1.2"
+                ]
+              },
+              "contentType": "application/octet-stream",
+              "data": "aYDkjPosw3Sa5dX5EmSghwhVg7d9jhoXHdwszETXV/8="
+            }
+          }
+        ],
+        "signature": {
+          "type": [
+            {
+              "system": "urn:iso-astm:E1762-95:2013",
+              "code": "1.2.840.10065.1.12.1.1"
+            }
+          ],
+          "when": "2023-02-23T15:08:32.985+00:00",
+          "who": {
+            "reference": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Device/1"
+          },
+          "sigFormat": "application/pkcs7-mime",
+          "data": "aYDkjPosw3Sa5dX5EmSghwhVg7d9jhoXHdwszETXV/8="
+        }
+      },
+      "fullUrl": "urn:uuid:c8606712-0000-0000-0003-000000000000"
+    },
+    {
+      "resource": {
+        "resourceType": "Bundle",
+        "id": "9c41d25c-0f94-469f-a7f5-3a94c1fad020",
+        "meta": {
+          "profile": [
+            "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-AbgabedatenBundle|1.2"
+          ],
+          "tag": [
+            {
+              "display": "Beispiel RezeptAbgabedatenPKV Bundle (PZN-8)"
+            },
+            {
+              "display": "ACHTUNG! Der fachlich korrekte Inhalt der Beispielinstanz kann nicht gewährleistet werden. Wir sind jederzeit dankbar für Hinweise auf Fehler oder für Verbesserungsvorschläge."
+            }
+          ]
+        },
+        "identifier": {
+          "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+          "value": "200.108.757.032.088.60"
+        },
+        "type": "document",
+        "timestamp": "2023-07-03T11:30:00+00:00",
+        "entry": [
+          {
+            "fullUrl": "urn:uuid:8265e112-d8a6-453d-b524-0d6cbbf181b5",
+            "resource": {
+              "resourceType": "Composition",
+              "id": "8265e112-d8a6-453d-b524-0d6cbbf181b5",
+              "meta": {
+                "profile": [
+                  "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-AbgabedatenComposition|1.2"
+                ]
+              },
+              "status": "final",
+              "type": {
+                "coding": [
+                  {
+                    "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-CS-ERP-CompositionTypes",
+                    "code": "ERezeptAbgabedaten"
+                  }
+                ]
+              },
+              "date": "2023-07-03T11:30:00Z",
+              "author": [
+                {
+                  "reference": "urn:uuid:ed76bd25-a6ae-41b2-a1b9-7c385ce7a9f2"
+                }
+              ],
+              "title": "ERezeptAbgabedaten",
+              "section": [
+                {
+                  "title": "Abgabeinformationen",
+                  "entry": [
+                    {
+                      "reference": "urn:uuid:ff665486-c7f0-4064-a7b6-9f811e0e16f7"
+                    }
+                  ]
+                },
+                {
+                  "title": "Apotheke",
+                  "entry": [
+                    {
+                      "reference": "urn:uuid:ed76bd25-a6ae-41b2-a1b9-7c385ce7a9f2"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "fullUrl": "urn:uuid:ed76bd25-a6ae-41b2-a1b9-7c385ce7a9f2",
+            "resource": {
+              "resourceType": "Organization",
+              "id": "ed76bd25-a6ae-41b2-a1b9-7c385ce7a9f2",
+              "meta": {
+                "profile": [
+                  "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-Apotheke|1.2"
+                ]
+              },
+              "identifier": [
+                {
+                  "system": "http://fhir.de/sid/arge-ik/iknr",
+                  "value": "308412345"
+                }
+              ],
+              "name": "Adler-Apotheke",
+              "address": [
+                {
+                  "type": "physical",
+                  "line": [
+                    "Taunusstraße 89"
+                  ],
+                  "_line": [
+                    {
+                      "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+                          "valueString": "Taunusstraße"
+                        },
+                        {
+                          "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
+                          "valueString": "89"
+                        }
+                      ]
+                    }
+                  ],
+                  "city": "Langen",
+                  "postalCode": "63225",
+                  "country": "D"
+                }
+              ]
+            }
+          },
+          {
+            "fullUrl": "urn:uuid:ff665486-c7f0-4064-a7b6-9f811e0e16f7",
+            "resource": {
+              "resourceType": "MedicationDispense",
+              "id": "ff665486-c7f0-4064-a7b6-9f811e0e16f7",
+              "meta": {
+                "profile": [
+                  "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-Abgabeinformationen|1.2"
+                ]
+              },
+              "extension": [
+                {
+                  "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-Abrechnungszeilen",
+                  "valueReference": {
+                    "reference": "urn:uuid:38f94ec0-1856-47c5-a942-a703a50bc89e"
+                  }
+                },
+                {
+                  "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-EX-ERP-AbrechnungsTyp",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-PKV-CS-ERP-AbrechnungsTyp",
+                        "code": "1"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-ZusatzdatenHerstellung",
+                  "valueReference": {
+                    "reference": "urn:uuid:5885e1f8-7f5a-4688-8cf2-47b3fddcdd9a"
+                  }
+                }
+              ],
+              "status": "completed",
+              "medicationCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                    "code": "not-applicable"
+                  }
+                ]
+              },
+              "performer": [
+                {
+                  "actor": {
+                    "reference": "urn:uuid:ed76bd25-a6ae-41b2-a1b9-7c385ce7a9f2"
+                  }
+                }
+              ],
+              "authorizingPrescription": [
+                {
+                  "identifier": {
+                    "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+                    "value": "200.108.757.032.088.60"
+                  }
+                }
+              ],
+              "type": {
+                "coding": [
+                  {
+                    "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-CS-ERP-MedicationDispenseTyp",
+                    "code": "Abgabeinformationen"
+                  }
+                ]
+              },
+              "whenHandedOver": "2023-07-03"
+            }
+          },
+          {
+            "fullUrl": "urn:uuid:38f94ec0-1856-47c5-a942-a703a50bc89e",
+            "resource": {
+              "resourceType": "Invoice",
+              "id": "38f94ec0-1856-47c5-a942-a703a50bc89e",
+              "meta": {
+                "profile": [
+                  "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-Abrechnungszeilen|1.2"
+                ]
+              },
+              "status": "issued",
+              "type": {
+                "coding": [
+                  {
+                    "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-CS-ERP-InvoiceTyp",
+                    "code": "Abrechnungszeilen"
+                  }
+                ]
+              },
+              "lineItem": [
+                {
+                  "sequence": 1,
+                  "chargeItemCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://TA1.abda.de",
+                        "code": "02567053"
+                      }
+                    ],
+                    "text": "Auseinzelung"
+                  },
+                  "priceComponent": [
+                    {
+                      "extension": [
+                        {
+                          "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-MwStSatz",
+                          "valueDecimal": 19
+                        },
+                        {
+                          "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-KostenVersicherter",
+                          "extension": [
+                            {
+                              "url": "Kategorie",
+                              "valueCodeableConcept": {
+                                "coding": [
+                                  {
+                                    "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-PKV-CS-ERP-KostenVersicherterKategorie",
+                                    "code": "0"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "url": "Kostenbetrag",
+                              "valueMoney": {
+                                "value": 0,
+                                "currency": "EUR"
+                              }
+                            }
+                          ]
+                        }
+                      ],
+                      "type": "informational",
+                      "factor": 1,
+                      "amount": {
+                        "value": 50.97,
+                        "currency": "EUR"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "totalGross": {
+                "extension": [
+                  {
+                    "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-Gesamtzuzahlung",
+                    "valueMoney": {
+                      "value": 0,
+                      "currency": "EUR"
+                    }
+                  }
+                ],
+                "value": 50.97,
+                "currency": "EUR"
+              }
+            }
+          },
+          {
+            "fullUrl": "urn:uuid:5885e1f8-7f5a-4688-8cf2-47b3fddcdd9a",
+            "resource": {
+              "resourceType": "MedicationDispense",
+              "id": "5885e1f8-7f5a-4688-8cf2-47b3fddcdd9a",
+              "meta": {
+                "profile": [
+                  "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-ZusatzdatenHerstellung|1.2"
+                ]
+              },
+              "extension": [
+                {
+                  "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-Zaehler",
+                  "valuePositiveInt": 1
+                },
+                {
+                  "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-ZusatzdatenEinheit",
+                  "valueReference": {
+                    "reference": "urn:uuid:d9bbd913-2836-4cbc-a2ab-605af44948a9"
+                  }
+                }
+              ],
+              "status": "completed",
+              "medicationCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                    "code": "not-applicable"
+                  }
+                ]
+              },
+              "type": {
+                "coding": [
+                  {
+                    "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-CS-ERP-MedicationDispenseTyp",
+                    "code": "ZusatzdatenHerstellung"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "fullUrl": "urn:uuid:d9bbd913-2836-4cbc-a2ab-605af44948a9",
+            "resource": {
+              "resourceType": "Invoice",
+              "id": "d9bbd913-2836-4cbc-a2ab-605af44948a9",
+              "meta": {
+                "profile": [
+                  "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-ZusatzdatenEinheit|1.2"
+                ]
+              },
+              "extension": [
+                {
+                  "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-Zaehler",
+                  "valuePositiveInt": 1
+                }
+              ],
+              "status": "issued",
+              "type": {
+                "coding": [
+                  {
+                    "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-CS-ERP-InvoiceTyp",
+                    "code": "ZusatzdatenEinheit"
+                  }
+                ]
+              },
+              "lineItem": [
+                {
+                  "sequence": 1,
+                  "chargeItemCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://fhir.de/CodeSystem/ifa/pzn",
+                        "code": "17543785"
+                      }
+                    ]
+                  },
+                  "priceComponent": [
+                    {
+                      "type": "informational",
+                      "factor": 100,
+                      "amount": {
+                        "value": 42.83,
+                        "currency": "EUR"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "signature": {
+          "type": [
+            {
+              "system": "urn:iso-astm:E1762-95:2013",
+              "code": "1.2.840.10065.1.12.1.1"
+            }
+          ],
+          "when": "2023-07-30T10:40:00+00:00",
+          "who": {
+            "reference": "https://erp-ref.zentral.erp.splitdns.ti-dienste.de/Device/1"
+          },
+          "sigFormat": "application/pkcs7-mime",
+          "data": "Y2RjMTVjNThkMzlkMjllNDdjMTk1MjIzNDlkODRjMThiNTliYTZkMGFhZmI5NGYyZjM2NDFkNGJiZTk1ODhiMQ=="
+        }
+      },
+      "fullUrl": "urn:uuid:c8606712-0000-0000-0004-000000000000"
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationDispense",
+        "id": "ca8a8e17-5dec-4c1b-a556-b7815605097b",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense|1.2"
+          ],
+          "tag": [
+            {
+              "display": "Beispiel MedicationDispense PKV PZN Bsp 8"
+            }
+          ]
+        },
+        "contained": [
+          {
+            "resourceType": "Medication",
+            "id": "44198295-e6ba-4149-b625-2b223d3457e0",
+            "meta": {
+              "profile": [
+                "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.1.0"
+              ]
+            },
+            "extension": [
+              {
+                "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category",
+                "valueCoding": {
+                  "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category",
+                  "code": "00"
+                }
+              },
+              {
+                "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine",
+                "valueBoolean": false
+              }
+            ],
+            "code": {
+              "coding": [
+                {
+                  "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Type",
+                  "code": "freitext"
+                }
+              ],
+              "text": "Efluelda Injektionssuspension 2022/2023 1 Fertigspr. ohne Kanüle"
+            },
+            "batch": {
+              "lotNumber": "A123456789-1",
+              "expirationDate": "2024-12-31"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            "value": "200.108.757.032.088.60"
+          }
+        ],
+        "status": "completed",
+        "medicationReference": {
+          "reference": "#44198295-e6ba-4149-b625-2b223d3457e0",
+          "display": "Auseinzelung"
+        },
+        "subject": {
+          "identifier": {
+            "system": "http://fhir.de/sid/pkv/kvid-10",
+            "value": "P123464113"
+          }
+        },
+        "performer": [
+          {
+            "actor": {
+              "identifier": {
+                "system": "https://gematik.de/fhir/sid/telematik-id",
+                "value": "3-abc-1234567890"
+              }
+            }
+          }
+        ],
+        "whenHandedOver": "2023-07-03",
+        "dosageInstruction": [
+          {
+            "text": "1-0-0-0"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Bundle",
+        "id": "131d129a-4307-4855-abd0-30bd4b9c8da4",
+        "meta": {
+          "profile": [
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.1.0"
+          ]
+        },
+        "identifier": {
+          "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+          "value": "200.108.757.032.088.60"
+        },
+        "type": "document",
+        "timestamp": "2023-07-03T08:30:00+00:00",
+        "entry": [
+          {
+            "fullUrl": "http://pvs.praxis.local/fhir/Composition/9d1a838a-d53a-44aa-b9a6-7a1cb660ffd1",
+            "resource": {
+              "resourceType": "Composition",
+              "id": "9d1a838a-d53a-44aa-b9a6-7a1cb660ffd1",
+              "meta": {
+                "profile": [
+                  "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.1.0"
+                ]
+              },
+              "extension": [
+                {
+                  "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis",
+                  "valueCoding": {
+                    "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN",
+                    "code": "00"
+                  }
+                },
+                {
+                  "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_PKV_Tariff",
+                  "valueCoding": {
+                    "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PKV_TARIFF",
+                    "code": "01"
+                  }
+                }
+              ],
+              "status": "final",
+              "type": {
+                "coding": [
+                  {
+                    "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_FORMULAR_ART",
+                    "code": "e16A"
+                  }
+                ]
+              },
+              "subject": {
+                "reference": "Patient/60ba3f78-d76e-457f-b125-489205b036de"
+              },
+              "date": "2023-07-03T08:00:00Z",
+              "author": [
+                {
+                  "reference": "Practitioner/c8a7813d-8ed8-45fe-a5fe-ac1f589057e7",
+                  "type": "Practitioner"
+                },
+                {
+                  "type": "Device",
+                  "identifier": {
+                    "system": "https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer",
+                    "value": "Y/400/2107/36/999"
+                  }
+                }
+              ],
+              "title": "elektronische Arzneimittelverordnung",
+              "custodian": {
+                "reference": "Organization/d36740b4-f77c-49d8-8343-591846df97da"
+              },
+              "section": [
+                {
+                  "code": {
+                    "coding": [
+                      {
+                        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type",
+                        "code": "Prescription"
+                      }
+                    ]
+                  },
+                  "entry": [
+                    {
+                      "reference": "MedicationRequest/19791b5b-69f0-4f35-bb47-bfd945f6ef8b"
+                    }
+                  ]
+                },
+                {
+                  "code": {
+                    "coding": [
+                      {
+                        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type",
+                        "code": "Coverage"
+                      }
+                    ]
+                  },
+                  "entry": [
+                    {
+                      "reference": "Coverage/554badb3-ab8a-4e8f-9b5b-3e962e339099"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "fullUrl": "http://pvs.praxis.local/fhir/MedicationRequest/19791b5b-69f0-4f35-bb47-bfd945f6ef8b",
+            "resource": {
+              "resourceType": "MedicationRequest",
+              "id": "19791b5b-69f0-4f35-bb47-bfd945f6ef8b",
+              "meta": {
+                "profile": [
+                  "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.1.0"
+                ]
+              },
+              "extension": [
+                {
+                  "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee",
+                  "valueBoolean": false
+                },
+                {
+                  "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG",
+                  "valueBoolean": false
+                },
+                {
+                  "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription",
+                  "extension": [
+                    {
+                      "url": "Kennzeichen",
+                      "valueBoolean": false
+                    }
+                  ]
+                }
+              ],
+              "status": "active",
+              "intent": "order",
+              "medicationReference": {
+                "reference": "Medication/3465d6a1-6785-427f-8f21-90387daa5855"
+              },
+              "subject": {
+                "reference": "Patient/60ba3f78-d76e-457f-b125-489205b036de"
+              },
+              "authoredOn": "2023-07-03",
+              "requester": {
+                "reference": "Practitioner/c8a7813d-8ed8-45fe-a5fe-ac1f589057e7"
+              },
+              "insurance": [
+                {
+                  "reference": "Coverage/554badb3-ab8a-4e8f-9b5b-3e962e339099"
+                }
+              ],
+              "dosageInstruction": [
+                {
+                  "extension": [
+                    {
+                      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag",
+                      "valueBoolean": false
+                    }
+                  ]
+                }
+              ],
+              "dispenseRequest": {
+                "quantity": {
+                  "value": 1,
+                  "system": "http://unitsofmeasure.org",
+                  "code": "{Package}"
+                }
+              },
+              "substitution": {
+                "allowedBoolean": true
+              }
+            }
+          },
+          {
+            "fullUrl": "http://pvs.praxis.local/fhir/Medication/3465d6a1-6785-427f-8f21-90387daa5855",
+            "resource": {
+              "resourceType": "Medication",
+              "id": "3465d6a1-6785-427f-8f21-90387daa5855",
+              "meta": {
+                "profile": [
+                  "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.1.0"
+                ]
+              },
+              "extension": [
+                {
+                  "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Medication_Type",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://snomed.info/sct",
+                        "version": "http://snomed.info/sct/900000000000207008/version/20220331",
+                        "code": "763158003",
+                        "display": "Medicinal product (product)"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category",
+                  "valueCoding": {
+                    "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category",
+                    "code": "00"
+                  }
+                },
+                {
+                  "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine",
+                  "valueBoolean": true
+                },
+                {
+                  "url": "http://fhir.de/StructureDefinition/normgroesse",
+                  "valueCode": "N1"
+                }
+              ],
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://fhir.de/CodeSystem/ifa/pzn",
+                    "code": "17543779"
+                  }
+                ],
+                "text": "Efluelda Injek.susp. 2022/2023 1 FER o. Kanüle N1"
+              },
+              "form": {
+                "coding": [
+                  {
+                    "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM",
+                    "code": "FER"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "fullUrl": "http://pvs.praxis.local/fhir/Patient/60ba3f78-d76e-457f-b125-489205b036de",
+            "resource": {
+              "resourceType": "Patient",
+              "id": "60ba3f78-d76e-457f-b125-489205b036de",
+              "meta": {
+                "profile": [
+                  "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.1.0"
+                ]
+              },
+              "identifier": [
+                {
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://fhir.de/CodeSystem/identifier-type-de-basis",
+                        "code": "PKV"
+                      }
+                    ]
+                  },
+                  "system": "http://fhir.de/sid/pkv/kvid-10",
+                  "value": "P123464113"
+                }
+              ],
+              "name": [
+                {
+                  "use": "official",
+                  "family": "Privati",
+                  "_family": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+                        "valueString": "Privati"
+                      }
+                    ]
+                  },
+                  "given": [
+                    "Paula"
+                  ]
+                }
+              ],
+              "birthDate": "1935-06-22",
+              "address": [
+                {
+                  "type": "both",
+                  "line": [
+                    "Blumenweg 18"
+                  ],
+                  "_line": [
+                    {
+                      "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+                          "valueString": "Blumenweg"
+                        },
+                        {
+                          "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
+                          "valueString": "18"
+                        }
+                      ]
+                    }
+                  ],
+                  "city": "Esens",
+                  "postalCode": "26427",
+                  "country": "D"
+                }
+              ]
+            }
+          },
+          {
+            "fullUrl": "http://pvs.praxis.local/fhir/Practitioner/c8a7813d-8ed8-45fe-a5fe-ac1f589057e7",
+            "resource": {
+              "resourceType": "Practitioner",
+              "id": "c8a7813d-8ed8-45fe-a5fe-ac1f589057e7",
+              "meta": {
+                "profile": [
+                  "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.1.0"
+                ]
+              },
+              "identifier": [
+                {
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "LANR"
+                      }
+                    ]
+                  },
+                  "system": "https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR",
+                  "value": "987654423"
+                },
+                {
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "PRN"
+                      }
+                    ]
+                  },
+                  "system": "https://gematik.de/fhir/sid/telematik-id",
+                  "value": "1-748382202"
+                }
+              ],
+              "name": [
+                {
+                  "use": "official",
+                  "family": "Schneider",
+                  "_family": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+                        "valueString": "Schneider"
+                      }
+                    ]
+                  },
+                  "given": [
+                    "Emma"
+                  ],
+                  "prefix": [
+                    "Dr. med."
+                  ],
+                  "_prefix": [
+                    {
+                      "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+                          "valueCode": "AC"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "qualification": [
+                {
+                  "code": {
+                    "coding": [
+                      {
+                        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type",
+                        "code": "00"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "code": {
+                    "coding": [
+                      {
+                        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Berufsbezeichnung",
+                        "code": "Berufsbezeichnung"
+                      }
+                    ],
+                    "text": "Fachärztin für Innere Medizin"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "fullUrl": "http://pvs.praxis.local/fhir/Organization/d36740b4-f77c-49d8-8343-591846df97da",
+            "resource": {
+              "resourceType": "Organization",
+              "id": "d36740b4-f77c-49d8-8343-591846df97da",
+              "meta": {
+                "profile": [
+                  "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.1.0"
+                ]
+              },
+              "identifier": [
+                {
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "BSNR"
+                      }
+                    ]
+                  },
+                  "system": "https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR",
+                  "value": "721111100"
+                }
+              ],
+              "name": "MVZ",
+              "telecom": [
+                {
+                  "system": "phone",
+                  "value": "0301234567"
+                },
+                {
+                  "system": "fax",
+                  "value": "030123456789"
+                },
+                {
+                  "system": "email",
+                  "value": "mvz@e-mail.de"
+                }
+              ],
+              "address": [
+                {
+                  "type": "both",
+                  "line": [
+                    "Herbert-Lewin-Platz 2"
+                  ],
+                  "_line": [
+                    {
+                      "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+                          "valueString": "Herbert-Lewin-Platz"
+                        },
+                        {
+                          "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
+                          "valueString": "2"
+                        }
+                      ]
+                    }
+                  ],
+                  "city": "Berlin",
+                  "postalCode": "10623",
+                  "country": "D"
+                }
+              ]
+            }
+          },
+          {
+            "fullUrl": "http://pvs.praxis.local/fhir/Coverage/554badb3-ab8a-4e8f-9b5b-3e962e339099",
+            "resource": {
+              "resourceType": "Coverage",
+              "id": "554badb3-ab8a-4e8f-9b5b-3e962e339099",
+              "meta": {
+                "profile": [
+                  "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.1.0"
+                ]
+              },
+              "extension": [
+                {
+                  "url": "http://fhir.de/StructureDefinition/gkv/besondere-personengruppe",
+                  "valueCoding": {
+                    "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PERSONENGRUPPE",
+                    "code": "00"
+                  }
+                },
+                {
+                  "url": "http://fhir.de/StructureDefinition/gkv/dmp-kennzeichen",
+                  "valueCoding": {
+                    "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DMP",
+                    "code": "00"
+                  }
+                },
+                {
+                  "url": "http://fhir.de/StructureDefinition/gkv/versichertenart",
+                  "valueCoding": {
+                    "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS",
+                    "code": "1"
+                  }
+                }
+              ],
+              "status": "active",
+              "type": {
+                "coding": [
+                  {
+                    "system": "http://fhir.de/CodeSystem/versicherungsart-de-basis",
+                    "code": "PKV"
+                  }
+                ]
+              },
+              "beneficiary": {
+                "reference": "Patient/60ba3f78-d76e-457f-b125-489205b036de"
+              },
+              "payor": [
+                {
+                  "identifier": {
+                    "system": "http://fhir.de/sid/arge-ik/iknr",
+                    "value": "123456789"
+                  },
+                  "display": "Allianz Private Krankenversicherung"
+                }
+              ]
+            }
+          }
+        ],
+        "signature": {
+          "type": [
+            {
+              "system": "urn:iso-astm:E1762-95:2013",
+              "code": "1.2.840.10065.1.12.1.1"
+            }
+          ],
+          "when": "2023-07-30T10:40:00+00:00",
+          "who": {
+            "reference": "https://erp-ref.zentral.erp.splitdns.ti-dienste.de/Device/1"
+          },
+          "sigFormat": "application/pkcs7-mime",
+          "data": "Y2RjMTVjNThkMzlkMjllNDdjMTk1MjIzNDlkODRjMThiNTliYTZkMGFhZmI5NGYyZjM2NDFkNGJiZTk1ODhiMQ=="
+        }
+      },
+      "fullUrl": "urn:uuid:c8606712-0000-0000-0001-000000000000"
+    }
+  ]
+}

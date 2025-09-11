@@ -58,10 +58,7 @@ object ProfilesUseCaseData {
 
         fun isSSOTokenValid(now: Instant = Clock.System.now()) = ssoTokenScope?.token?.isValid(now) ?: false
 
-        val isDirectRedeemEnabled: Boolean
-            get() = lastAuthenticated == null
-
-        fun isRedemptionAllowed() = isSSOTokenValid() || isDirectRedeemEnabled
+        fun isRedemptionAllowed() = isSSOTokenValid()
         //endregion
 
         fun hasNoImageSelected() = this.avatar == ProfilesData.Avatar.PersonalizedImage &&
@@ -143,9 +140,6 @@ object ProfilesUseCaseData {
             fun List<Profile>.profileById(id: ProfileIdentifier?) = firstOrNull { it.id == id }
 
             fun List<Profile>.containsProfileWithName(name: String) = any { it.name == name.trim() }
-
-            // for pharmacies that do not support direct redemption this condition needs to be fulfilled
-            fun Profile.isSsoTokenValidAndDirectRedeemEnabled() = isSSOTokenValid() && isDirectRedeemEnabled
 
             @Stable
             fun Profile.connectionState(): ProfileConnectionState? =

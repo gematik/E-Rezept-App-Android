@@ -23,25 +23,37 @@
 package de.gematik.ti.erp.app.redeem.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.eurezept.navigation.EuRoutes
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
 import de.gematik.ti.erp.app.redeem.presentation.rememberHowToRedeemController
@@ -60,7 +72,6 @@ import de.gematik.ti.erp.app.utils.compose.ErezeptText.TextAlignment
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
-import androidx.compose.runtime.getValue
 
 class HowToRedeemScreen(
     override val navController: NavController,
@@ -86,6 +97,10 @@ class HowToRedeemScreen(
                     )
                 )
             },
+            onEuPrescriptionClick = {
+                // TODO: check if user consent is already granted then navigate directly to EuRedeemScreen to skip redundant consent flow
+                navController.navigate(EuRoutes.EuConsentScreen.path())
+            },
             onBack = { navController.popBackStack() }
         )
     }
@@ -97,6 +112,7 @@ fun HowToRedeemScreenScaffold(
     hasEuRedeemablePrescriptions: Boolean,
     onLocalClick: () -> Unit,
     onOnlineClick: () -> Unit,
+    onEuPrescriptionClick: () -> Unit,
     onBack: () -> Unit
 ) {
     AnimatedElevationScaffold(
@@ -111,7 +127,8 @@ fun HowToRedeemScreenScaffold(
             listState = listState,
             hasEuRedeemablePrescriptions = hasEuRedeemablePrescriptions,
             onLocalClick = onLocalClick,
-            onOnlineClick = onOnlineClick
+            onOnlineClick = onOnlineClick,
+            onEuPrescriptionClick = onEuPrescriptionClick
         )
     }
 }
@@ -121,7 +138,8 @@ fun HowToRedeemScreenContent(
     listState: LazyListState,
     hasEuRedeemablePrescriptions: Boolean,
     onLocalClick: () -> Unit,
-    onOnlineClick: () -> Unit
+    onOnlineClick: () -> Unit,
+    onEuPrescriptionClick: () -> Unit
 ) {
     LazyColumn(
         state = listState,
@@ -174,14 +192,42 @@ fun HowToRedeemScreenContent(
         if (hasEuRedeemablePrescriptions) {
             item {
                 SpacerXLarge()
-                Text(
-                    text = stringResource(R.string.eu_prescription_available),
-                    style = AppTheme.typography.subtitle2l,
-                    textAlign = TextAlign.Center,
-                    color = AppTheme.colors.primary700
-                )
-                Spacer(Modifier.navigationBarsPadding())
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(TestTag.CardWall.CAN.OrderEgkButton)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .clickable { onEuPrescriptionClick() },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.eu_prescription_available),
+                            style = AppTheme.typography.body1,
+                            color = AppTheme.colors.primary700,
+                            textAlign = TextAlign.Start
+                        )
+
+                        Spacer(modifier = Modifier.width(SizeDefaults.half))
+
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
+                            contentDescription = null,
+                            tint = AppTheme.colors.primary700,
+                            modifier = Modifier.size(SizeDefaults.triple)
+                        )
+                    }
+                }
             }
+        }
+        item {
+            Box(
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .padding(bottom = PaddingDefaults.XXLarge)
+            )
         }
     }
     SpacerMedium()
@@ -197,6 +243,7 @@ fun HowToRedeemScaffoldScreenPreview() {
             hasEuRedeemablePrescriptions = false,
             onLocalClick = {},
             onOnlineClick = {},
+            onEuPrescriptionClick = {},
             onBack = {}
         )
     }

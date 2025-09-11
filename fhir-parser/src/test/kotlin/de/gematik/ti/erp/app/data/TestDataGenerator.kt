@@ -22,6 +22,8 @@
 
 package de.gematik.ti.erp.app.data
 
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toJavaInstant
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -29,7 +31,11 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.putJsonArray
+import kotlinx.serialization.json.putJsonObject
 import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -193,6 +199,38 @@ class TestDataGenerator {
             put("resourceType", JsonPrimitive("Bundle"))
             put("total", JsonPrimitive(dispenseEntries.size))
             put("entry", JsonArray(dispenseEntries))
+        }
+    }
+
+    fun createEntryBundleForChargeItems(
+        resource: JsonElement,
+        fullUrl: String,
+        id: String,
+        lastUpdated: Instant,
+        total: Int = 1
+    ): JsonObject {
+        val lastUpdatedStr = OffsetDateTime.ofInstant(lastUpdated.toJavaInstant(), ZoneOffset.UTC)
+            .toString() // e.g. 2021-09-02T11:38:42.557Z (still valid).
+
+        return buildJsonObject {
+            put("resourceType", JsonPrimitive("Bundle"))
+            put("id", JsonPrimitive(id))
+            putJsonObject("meta") {
+                put("lastUpdated", JsonPrimitive(lastUpdatedStr))
+            }
+            put("type", JsonPrimitive("searchset"))
+            put("total", JsonPrimitive(total))
+            putJsonArray("entry") {
+                add(
+                    buildJsonObject {
+                        put("fullUrl", JsonPrimitive(fullUrl))
+                        put("resource", resource)
+                        putJsonObject("search") {
+                            put("mode", JsonPrimitive("match"))
+                        }
+                    }
+                )
+            }
         }
     }
 }

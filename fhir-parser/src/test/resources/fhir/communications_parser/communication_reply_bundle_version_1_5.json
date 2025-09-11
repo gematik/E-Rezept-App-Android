@@ -1,0 +1,2330 @@
+{
+  "resourceType": "Bundle",
+  "id": "72255769-7305-49f4-921a-c7fa09f67408",
+  "type": "searchset",
+  "timestamp": "2025-08-05T08:31:53.022+00:00",
+  "total": 39,
+  "link": [
+    {
+      "relation": "last",
+      "url": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication?_sort=-sent&_count=50&__offset=0"
+    },
+    {
+      "relation": "first",
+      "url": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication?_sort=-sent&_count=50&__offset=0"
+    },
+    {
+      "relation": "self",
+      "url": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication?_sort=-sent"
+    }
+  ],
+  "entry": [
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe55a-0410-a488-3f5d-e5e0bed59890",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe55a-0410-a488-3f5d-e5e0bed59890",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.5"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/169.000.002.416.192.08/$accept?ac=2edd8e78f552706ca0725d63ee99fe6620da8718831d64ba7104994aa7434ff8"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-08-03T20:52:22.949+00:00",
+        "received": "2025-08-03T20:52:23.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Nachricht Nr. 4 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe55a-040e-8978-a838-8c3b3ff86b6d",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe55a-040e-8978-a838-8c3b3ff86b6d",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.5"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/169.000.002.416.192.08/$accept?ac=2edd8e78f552706ca0725d63ee99fe6620da8718831d64ba7104994aa7434ff8"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-08-03T20:52:22.811+00:00",
+        "received": "2025-08-03T20:52:23.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Nachricht Nr. 3 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe55a-040b-e998-2cca-5f2d2b60397b",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe55a-040b-e998-2cca-5f2d2b60397b",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.5"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/169.000.002.416.192.08/$accept?ac=2edd8e78f552706ca0725d63ee99fe6620da8718831d64ba7104994aa7434ff8"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-08-03T20:52:22.639+00:00",
+        "received": "2025-08-03T20:52:23.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Nachricht Nr. 2 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe55a-0409-49b8-063e-23fa83e746a6",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe55a-0409-49b8-063e-23fa83e746a6",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.5"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/169.000.002.416.192.08/$accept?ac=2edd8e78f552706ca0725d63ee99fe6620da8718831d64ba7104994aa7434ff8"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-08-03T20:52:22.467+00:00",
+        "received": "2025-08-03T20:52:23.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Nachricht Nr. 1 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe55a-0406-82c8-2487-fc3b980e85b1",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe55a-0406-82c8-2487-fc3b980e85b1",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.5"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/169.000.002.416.192.08/$accept?ac=2edd8e78f552706ca0725d63ee99fe6620da8718831d64ba7104994aa7434ff8"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-08-03T20:52:22.285+00:00",
+        "received": "2025-08-03T20:52:23.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Nachricht Nr. 0 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe505-234e-1100-f9bf-3a40f120a93b",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe505-234e-1100-f9bf-3a40f120a93b",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.5"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/169.000.002.413.890.27/$accept?ac=fa27352f53a3cdc0b0c356147be937f095f991f59c0dff4c66d047ab3808c095"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-30T15:36:34.848+00:00",
+        "received": "2025-07-30T15:36:35.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"shipment\",\"info_text\":\"Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe505-2341-b108-7d7c-1392712e3399",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe505-2341-b108-7d7c-1392712e3399",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.5"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+            "valueCoding": {
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+              "code": "169",
+              "display": "Muster 16 (Direkte Zuweisung)"
+            }
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": "/Task/169.000.002.413.890.27/$accept?ac=fa27352f53a3cdc0b0c356147be937f095f991f59c0dff4c66d047ab3808c095"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-30T15:36:34.037+00:00",
+        "received": "2025-07-30T15:36:34.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "https://gematik.de/fhir/sid/telematik-id",
+              "value": "3-SMC-B-Testkarte--883110000163973"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "http://fhir.de/sid/gkv/kvid-10",
+            "value": "X110614233"
+          }
+        },
+        "payload": [
+          {
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"shipment\",\"hint\":\"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe4ef-7aa6-51a8-dd9f-7aaec3ca8129",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe4ef-7aa6-51a8-dd9f-7aaec3ca8129",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.5"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.114.318.211.79/$accept?ac=e174d1fff2bbcd3c4f79f52d1ffad6ff2bf39874ad70a3f12cc9271bd38f6991"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-29T13:46:10.969+00:00",
+        "received": "2025-07-29T13:46:11.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Nachricht Nr. 4 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe4ef-7aa4-03d0-10a2-7aeac2787f42",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe4ef-7aa4-03d0-10a2-7aeac2787f42",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.5"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.114.318.211.79/$accept?ac=e174d1fff2bbcd3c4f79f52d1ffad6ff2bf39874ad70a3f12cc9271bd38f6991"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-29T13:46:10.818+00:00",
+        "received": "2025-07-29T13:46:11.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Nachricht Nr. 3 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe4ef-7aa1-b5f8-3606-d5a43d4dcb98",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe4ef-7aa1-b5f8-3606-d5a43d4dcb98",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.5"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.114.318.211.79/$accept?ac=e174d1fff2bbcd3c4f79f52d1ffad6ff2bf39874ad70a3f12cc9271bd38f6991"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-29T13:46:10.667+00:00",
+        "received": "2025-07-29T13:46:11.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Nachricht Nr. 2 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe4ef-7a9f-9ed0-d0e9-47f08eff1a4a",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe4ef-7a9f-9ed0-d0e9-47f08eff1a4a",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.5"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.114.318.211.79/$accept?ac=e174d1fff2bbcd3c4f79f52d1ffad6ff2bf39874ad70a3f12cc9271bd38f6991"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-29T13:46:10.530+00:00",
+        "received": "2025-07-29T13:46:11.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Nachricht Nr. 1 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe4ef-7a9d-4158-bcf9-419379763fdb",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe4ef-7a9d-4158-bcf9-419379763fdb",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.5"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.114.318.211.79/$accept?ac=e174d1fff2bbcd3c4f79f52d1ffad6ff2bf39874ad70a3f12cc9271bd38f6991"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-29T13:46:10.375+00:00",
+        "received": "2025-07-29T13:46:11.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Nachricht Nr. 0 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe403-f63b-ff30-050d-49ca157f4d7d",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe403-f63b-ff30-050d-49ca157f4d7d",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.5"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/200.000.003.549.919.41/$accept?ac=8dc933c174fc9f73827d0ae44c5c29e2df308f6cd16e3268ca9fe5b369ab63bd"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-17T20:47:12.094+00:00",
+        "received": "2025-07-17T20:47:12.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe403-f62f-1298-4c50-a10fa68ca1df",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe403-f62f-1298-4c50-a10fa68ca1df",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.5"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+            "valueCoding": {
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+              "code": "200",
+              "display": "PKV (Apothekenpflichtige Arzneimittel)"
+            }
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": "/Task/200.000.003.549.919.41/$accept?ac=8dc933c174fc9f73827d0ae44c5c29e2df308f6cd16e3268ca9fe5b369ab63bd"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-17T20:47:11.247+00:00",
+        "received": "2025-07-17T20:47:11.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "https://gematik.de/fhir/sid/telematik-id",
+              "value": "3-SMC-B-Testkarte--883110000163973"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "http://fhir.de/sid/gkv/kvid-10",
+            "value": "X110614233"
+          }
+        },
+        "payload": [
+          {
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"hint\":\"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe3ef-dc34-ba00-5bc6-93c713065d1a",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe3ef-dc34-ba00-5bc6-93c713065d1a",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.113.683.980.20/$accept?ac=4ccc2c406a0ef2083be1572976d2fa93842aea4fd34b5079690647d9756621b1"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-16T20:48:16.064+00:00",
+        "received": "2025-07-16T20:48:16.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"delivery\",\"info_text\":\"Nachricht Nr. 4 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe3ef-dc32-9ef0-c710-7f1f50ea0c30",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe3ef-dc32-9ef0-c710-7f1f50ea0c30",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.113.683.980.20/$accept?ac=4ccc2c406a0ef2083be1572976d2fa93842aea4fd34b5079690647d9756621b1"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-16T20:48:15.926+00:00",
+        "received": "2025-07-16T20:48:16.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"delivery\",\"info_text\":\"Nachricht Nr. 3 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe3ef-dc30-2620-766d-ec3a257ccc12",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe3ef-dc30-2620-766d-ec3a257ccc12",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.113.683.980.20/$accept?ac=4ccc2c406a0ef2083be1572976d2fa93842aea4fd34b5079690647d9756621b1"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-16T20:48:15.764+00:00",
+        "received": "2025-07-16T20:48:16.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"delivery\",\"info_text\":\"Nachricht Nr. 2 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe3ef-dc2d-dc30-d452-cfa90af38b4f",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe3ef-dc2d-dc30-d452-cfa90af38b4f",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.113.683.980.20/$accept?ac=4ccc2c406a0ef2083be1572976d2fa93842aea4fd34b5079690647d9756621b1"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-16T20:48:15.614+00:00",
+        "received": "2025-07-16T20:48:16.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"delivery\",\"info_text\":\"Nachricht Nr. 1 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe3ef-dc2b-ad98-0e4a-af6574da8dc5",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe3ef-dc2b-ad98-0e4a-af6574da8dc5",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.113.683.980.20/$accept?ac=4ccc2c406a0ef2083be1572976d2fa93842aea4fd34b5079690647d9756621b1"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-16T20:48:15.471+00:00",
+        "received": "2025-07-16T20:48:16.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"delivery\",\"info_text\":\"Nachricht Nr. 0 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe326-f861-6558-520c-4c3dcba45219",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe326-f861-6558-520c-4c3dcba45219",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/200.000.003.545.270.20/$accept?ac=5ad1b8d96c85ce109cc083664384c769e049059651eea4507c9508e2cbe10705"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-06T21:08:00.327+00:00",
+        "received": "2025-07-06T21:08:00.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe326-f853-a1e8-e009-118572565901",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe326-f853-a1e8-e009-118572565901",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.4"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+            "valueCoding": {
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+              "code": "200",
+              "display": "PKV (Apothekenpflichtige Arzneimittel)"
+            }
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": "/Task/200.000.003.545.270.20/$accept?ac=5ad1b8d96c85ce109cc083664384c769e049059651eea4507c9508e2cbe10705"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-07-06T21:07:59.425+00:00",
+        "received": "2025-07-06T21:08:00.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "https://gematik.de/fhir/sid/telematik-id",
+              "value": "3-SMC-B-Testkarte--883110000163973"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "http://fhir.de/sid/gkv/kvid-10",
+            "value": "X110614233"
+          }
+        },
+        "payload": [
+          {
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"hint\":\"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe1f8-ecff-d7c8-203b-f92cb8ac95c3",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe1f8-ecff-d7c8-203b-f92cb8ac95c3",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.113.654.985.93/$accept?ac=bab0edd0fa90423c40435ebdf6c1f4f61e1443ae7a41ae88bb524c6cd8206d3f"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-06-21T20:46:49.261+00:00",
+        "received": "2025-06-21T20:46:49.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"shipment\",\"info_text\":\"Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe1f8-ecf5-4c90-72aa-7682dd0cc5c1",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe1f8-ecf5-4c90-72aa-7682dd0cc5c1",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.4"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+            "valueCoding": {
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+              "code": "160",
+              "display": "Muster 16 (Apothekenpflichtige Arzneimittel)"
+            }
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.113.654.985.93/$accept?ac=bab0edd0fa90423c40435ebdf6c1f4f61e1443ae7a41ae88bb524c6cd8206d3f"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-06-21T20:46:48.570+00:00",
+        "received": "2025-06-21T20:46:49.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "https://gematik.de/fhir/sid/telematik-id",
+              "value": "3-SMC-B-Testkarte--883110000163973"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "http://fhir.de/sid/gkv/kvid-10",
+            "value": "X110614233"
+          }
+        },
+        "payload": [
+          {
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"shipment\",\"hint\":\"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe143-dbb5-5688-6d3b-81ca51c513e6",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe143-dbb5-5688-6d3b-81ca51c513e6",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/169.000.002.390.204.81/$accept?ac=e2b15b71bffdcd152bb090b6d1a752d3a9def49c15e3608b3fc07f98e422b719"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-06-12T20:45:30.085+00:00",
+        "received": "2025-06-12T20:45:30.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Nachricht Nr. 4 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe143-dbb3-81c8-60a6-39e108a9f188",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe143-dbb3-81c8-60a6-39e108a9f188",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/169.000.002.390.204.81/$accept?ac=e2b15b71bffdcd152bb090b6d1a752d3a9def49c15e3608b3fc07f98e422b719"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-06-12T20:45:29.965+00:00",
+        "received": "2025-06-12T20:45:30.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Nachricht Nr. 3 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe143-dbb1-6aa0-7840-df26c92a9f17",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe143-dbb1-6aa0-7840-df26c92a9f17",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/169.000.002.390.204.81/$accept?ac=e2b15b71bffdcd152bb090b6d1a752d3a9def49c15e3608b3fc07f98e422b719"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-06-12T20:45:29.828+00:00",
+        "received": "2025-06-12T20:45:30.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Nachricht Nr. 2 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe143-dbaf-cc90-1720-b63f671457d8",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe143-dbaf-cc90-1720-b63f671457d8",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/169.000.002.390.204.81/$accept?ac=e2b15b71bffdcd152bb090b6d1a752d3a9def49c15e3608b3fc07f98e422b719"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-06-12T20:45:29.722+00:00",
+        "received": "2025-06-12T20:45:30.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Nachricht Nr. 1 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe143-dbae-4dc0-bb7d-35d0cda8408e",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe143-dbae-4dc0-bb7d-35d0cda8408e",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/169.000.002.390.204.81/$accept?ac=e2b15b71bffdcd152bb090b6d1a752d3a9def49c15e3608b3fc07f98e422b719"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-06-12T20:45:29.624+00:00",
+        "received": "2025-06-12T20:45:30.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Nachricht Nr. 0 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe107-82a2-c0a8-3f11-0e712dd4425b",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe107-82a2-c0a8-3f11-0e712dd4425b",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.113.639.985.85/$accept?ac=270587acaf4065d0f617abfaac4f1ab41cf55b0faab4753ef09d4e62effa6a18"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-06-09T20:45:37.657+00:00",
+        "received": "2025-06-09T20:45:37.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"shipment\",\"info_text\":\"Nachricht Nr. 4 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe107-82a0-c8c0-5e22-0c99dfa42034",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe107-82a0-c8c0-5e22-0c99dfa42034",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.113.639.985.85/$accept?ac=270587acaf4065d0f617abfaac4f1ab41cf55b0faab4753ef09d4e62effa6a18"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-06-09T20:45:37.528+00:00",
+        "received": "2025-06-09T20:45:37.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"shipment\",\"info_text\":\"Nachricht Nr. 3 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe107-829f-26c8-b463-140509a768f7",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe107-829f-26c8-b463-140509a768f7",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.113.639.985.85/$accept?ac=270587acaf4065d0f617abfaac4f1ab41cf55b0faab4753ef09d4e62effa6a18"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-06-09T20:45:37.421+00:00",
+        "received": "2025-06-09T20:45:37.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"shipment\",\"info_text\":\"Nachricht Nr. 2 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe107-829d-7530-8d36-808b8fd48336",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe107-829d-7530-8d36-808b8fd48336",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.113.639.985.85/$accept?ac=270587acaf4065d0f617abfaac4f1ab41cf55b0faab4753ef09d4e62effa6a18"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-06-09T20:45:37.310+00:00",
+        "received": "2025-06-09T20:45:37.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"shipment\",\"info_text\":\"Nachricht Nr. 1 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe107-829b-f660-768e-be11b5a84fed",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe107-829b-f660-768e-be11b5a84fed",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.113.639.985.85/$accept?ac=270587acaf4065d0f617abfaac4f1ab41cf55b0faab4753ef09d4e62effa6a18"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-06-09T20:45:37.212+00:00",
+        "received": "2025-06-09T20:45:37.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"shipment\",\"info_text\":\"Nachricht Nr. 0 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebe03e-5214-5b00-b427-e582121fe481",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebe03e-5214-5b00-b427-e582121fe481",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.4"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+            "valueCoding": {
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+              "code": "169",
+              "display": "Muster 16 (Direkte Zuweisung)"
+            }
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": "/Task/169.000.002.384.176.26/$accept?ac=428348e4564b802c98d4b0776b0fcd58b16ba110a7b8e43014b7e6470e0184f6"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-05-30T20:43:54.592+00:00",
+        "received": "2025-05-30T20:43:54.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "https://gematik.de/fhir/sid/telematik-id",
+              "value": "3-SMC-B-Testkarte--883110000163973"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "http://fhir.de/sid/gkv/kvid-10",
+            "value": "X110614233"
+          }
+        },
+        "payload": [
+          {
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"delivery\",\"hint\":\"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebdf75-2e3b-1a08-f71c-edf9f1941a25",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebdf75-2e3b-1a08-f71c-edf9f1941a25",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.113.621.512.20/$accept?ac=55dd6de4ac8a9bbb24345733a32c321d4d59399bfadbca2b6d2f4da638262aa5"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-05-20T20:45:44.725+00:00",
+        "received": "2025-05-20T20:45:44.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"delivery\",\"info_text\":\"Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebdf75-2e31-32e0-e90a-e4e51c278c77",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebdf75-2e31-32e0-e90a-e4e51c278c77",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.4"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+            "valueCoding": {
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+              "code": "160",
+              "display": "Muster 16 (Apothekenpflichtige Arzneimittel)"
+            }
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.113.621.512.20/$accept?ac=55dd6de4ac8a9bbb24345733a32c321d4d59399bfadbca2b6d2f4da638262aa5"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-05-20T20:45:44.076+00:00",
+        "received": "2025-05-20T20:45:44.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "https://gematik.de/fhir/sid/telematik-id",
+              "value": "3-SMC-B-Testkarte--883110000163973"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "http://fhir.de/sid/gkv/kvid-10",
+            "value": "X110614233"
+          }
+        },
+        "payload": [
+          {
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"delivery\",\"hint\":\"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebde6f-a1f6-a888-da1a-88d5a0e30fda",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebde6f-a1f6-a888-da1a-88d5a0e30fda",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.4"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+            "valueCoding": {
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+              "code": "160",
+              "display": "Muster 16 (Apothekenpflichtige Arzneimittel)"
+            }
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": "/Task/160.000.113.606.518.91/$accept?ac=578024154a292245a37db10b0f43e0a5d808766e07a2c6adddb15a7876fc9626"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-05-07T20:43:24.965+00:00",
+        "received": "2025-05-07T20:43:25.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "https://gematik.de/fhir/sid/telematik-id",
+              "value": "3-SMC-B-Testkarte--883110000163973"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "http://fhir.de/sid/gkv/kvid-10",
+            "value": "X110614233"
+          }
+        },
+        "payload": [
+          {
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"delivery\",\"hint\":\"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebddce-bd53-5a50-401f-132ced869880",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebddce-bd53-5a50-401f-132ced869880",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "/Task/169.000.002.370.803.84/$accept?ac=8c13095a4374026779e32f9e80c6e5fd2ebb6ba50f28a99f11e1c7754a6f3479"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-04-29T20:46:14.290+00:00",
+        "received": "2025-04-29T20:46:14.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110614233"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-SMC-B-Testkarte--883110000163973"
+          }
+        },
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"info_text\":\"Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Communication/01ebddce-bd47-f458-8fa7-9326fdedf49f",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebddce-bd47-f458-8fa7-9326fdedf49f",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.4"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+            "valueCoding": {
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+              "code": "169",
+              "display": "Muster 16 (Direkte Zuweisung)"
+            }
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": "/Task/169.000.002.370.803.84/$accept?ac=8c13095a4374026779e32f9e80c6e5fd2ebb6ba50f28a99f11e1c7754a6f3479"
+          }
+        ],
+        "status": "unknown",
+        "sent": "2025-04-29T20:46:13.543+00:00",
+        "received": "2025-04-29T20:46:14.000+00:00",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "https://gematik.de/fhir/sid/telematik-id",
+              "value": "3-SMC-B-Testkarte--883110000163973"
+            }
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "system": "http://fhir.de/sid/gkv/kvid-10",
+            "value": "X110614233"
+          }
+        },
+        "payload": [
+          {
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"hint\":\"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??\"}"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    }
+  ]
+}

@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.consent.repository
 import de.gematik.ti.erp.app.consent.model.ConsentType
 import de.gematik.ti.erp.app.consent.model.extractConsentBundle
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement
 
 class DefaultConsentRepository(
@@ -49,18 +50,21 @@ class DefaultConsentRepository(
             profileId
         )
 
-    override fun isConsentDrawerShown(profileId: ProfileIdentifier): Boolean = localDataSource.getConsentDrawerShown(
-        profileId
-    )
+    override fun isConsentDrawerShown(profileId: ProfileIdentifier): Boolean = localDataSource.getConsentDrawerShown(profileId)
 
     override fun isConsentGranted(it: JsonElement): Boolean {
         var granted = false
-        extractConsentBundle(it) { consentTypes ->
-            granted = consentTypes.any { consentType ->
-                consentType == ConsentType.Charge
+        try {
+            extractConsentBundle(it) { consentTypes ->
+                granted = consentTypes.any { consentType ->
+                    consentType == ConsentType.Charge
+                }
             }
+            return granted
+        } catch (e: Exception) {
+            Napier.e { "Consent parsing error ${e.stackTraceToString()}" }
+            return false
         }
-        return granted
     }
 
     override fun getInsuranceId(profileId: ProfileIdentifier): String? =

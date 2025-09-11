@@ -25,33 +25,26 @@ package de.gematik.ti.erp.app.core
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.core.net.toUri
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.base.BaseActivity
-import de.gematik.ti.erp.app.demomode.DemoModeIntentAction
 import de.gematik.ti.erp.app.demomode.DemoModeIntentAction.DemoModeEnded
 import de.gematik.ti.erp.app.demomode.DemoModeIntentAction.DemoModeStarted
+import de.gematik.ti.erp.app.demomode.validateForDemoMode
 import de.gematik.ti.erp.app.idp.api.models.UniversalLinkToken.Companion.toUniversalLinkToken
+import de.gematik.ti.erp.app.intent.ExternalAuthUrls.isExternalAuthAllowed
+import de.gematik.ti.erp.app.intent.GidResultIntent
+import de.gematik.ti.erp.app.intent.SharePrescriptionUrls.isSharePrescriptionAllowed
 import de.gematik.ti.erp.app.medicationplan.alarm.REMINDER_NOTIFICATION_INTENT_ACTION
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import java.net.URI
 
-const val ExternalAppAuthenticationBaseUri = "https://das-e-rezept-fuer-deutschland.de/extauth"
-const val WwwExternalAppAuthenticationBaseUri = "https://www.das-e-rezept-fuer-deutschland.de/extauth"
-const val ShareBaseUri = "https://das-e-rezept-fuer-deutschland.de/prescription"
-
 private fun String.isLikelyIosDeeplink(): Boolean =
     startsWith("itms-apps://") || contains("apps.apple.com") || contains("platform=ios", ignoreCase = true)
-
-data class GidResultIntent(
-    val uriData: String,
-    val resultChannel: Channel<String>
-)
 
 @Stable
 class IntentHandler(private val context: Context) {
@@ -67,46 +60,43 @@ class IntentHandler(private val context: Context) {
         "O.Source_1#7",
         sourceSpecification = "BSI-eRp-ePA",
         rationale = "Processing of universal link",
-        codeLines = 7
+        codeLines = 33
     )
-    @Suppress("NestedBlockDepth")
     suspend fun propagateIntent(intent: Intent) {
-        if (intent.validateForDemoMode()) {
-            if (intent.action == DemoModeStarted.name) {
-                (context as BaseActivity).setAsDemoMode()
-            } else if (intent.action == DemoModeEnded.name) {
-                (context as BaseActivity).cancelDemoMode()
+        val base = context as BaseActivity
+        val action = intent.action
+        val isDemoIntent = !action.isNullOrEmpty() && intent.validateForDemoMode()
+
+        // --- Actions (no URI required) ---
+        when (action) {
+            DemoModeStarted.name -> if (isDemoIntent) base.setAsDemoMode() else base.cancelDemoMode()
+            DemoModeEnded.name -> base.cancelDemoMode()
+            REMINDER_NOTIFICATION_INTENT_ACTION -> {
+                if (!isDemoIntent) base.cancelDemoMode()
+                base.setPendingNavigationToMedicationNotificationScreen()
             }
-        } else {
-            (context as BaseActivity).cancelDemoMode()
-            if (intent.action == REMINDER_NOTIFICATION_INTENT_ACTION) {
-                (context).setPendingNavigationToMedicationNotificationScreen()
-            }
+
+            else -> if (!isDemoIntent) base.cancelDemoMode()
         }
 
-        intent.data?.let {
-            val data = it.toString()
-            Napier.d("Received new intent: $data")
+        val uri = intent.data ?: return
+        if (uri.scheme != "https") return
+        val url = uri.toString()
 
-            if (data.isValidUri()) {
-                when {
-                    data.startsWith(ExternalAppAuthenticationBaseUri) || data.startsWith(
-                        WwwExternalAppAuthenticationBaseUri
-                    ) -> {
-                        if (URI(data).validateForUniversalLink()) {
-                            extAuthChannel.send(
-                                GidResultIntent(
-                                    uriData = data,
-                                    resultChannel = gidSuccessfulChannel
-                                )
-                            )
-                        }
-                    }
+        Napier.d("Received new intent: $url")
 
-                    data.startsWith(ShareBaseUri) -> {
-                        shareChannel.send(data)
-                    }
-                }
+        if (!url.isValidUri()) return
+
+        when {
+            url.isExternalAuthAllowed() && URI(url).validateForUniversalLink() -> extAuthChannel.send(
+                GidResultIntent(
+                    uriData = url,
+                    resultChannel = gidSuccessfulChannel
+                )
+            )
+
+            url.isSharePrescriptionAllowed() -> {
+                shareChannel.send(url)
             }
         }
     }
@@ -123,10 +113,10 @@ class IntentHandler(private val context: Context) {
     ) {
         try {
             clear() // clear possible cached values
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(redirect.toString())))
+            context.startActivity(Intent(Intent.ACTION_VIEW, redirect.toString().toUri()))
             onSuccess()
         } catch (e: ActivityNotFoundException) {
-            Napier.e { "Activity missing, user needs to install the other app" }
+            Napier.e(e) { "Activity missing, user needs to install the other app" }
             onFailure()
         }
     }
@@ -193,15 +183,6 @@ private fun String.isValidUri(): Boolean = try {
 } catch (e: Exception) {
     false
 }
-
-@Requirement(
-    "O.Source_1#8",
-    sourceSpecification = "BSI-eRp-ePA",
-    rationale = "Demo mode is started or ended with an intent and it is also checked that no other data is present in the intent."
-)
-fun Intent.validateForDemoMode(): Boolean =
-    scheme == null && extras == null &&
-        (action == DemoModeIntentAction.DemoModeStarted.name || action == DemoModeIntentAction.DemoModeEnded.name)
 
 val LocalIntentHandler =
     staticCompositionLocalOf<IntentHandler> { error("No intent handler provided!") }

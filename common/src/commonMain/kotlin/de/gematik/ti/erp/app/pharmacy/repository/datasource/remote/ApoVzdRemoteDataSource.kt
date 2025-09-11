@@ -22,25 +22,15 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository.datasource.remote
 
-import de.gematik.ti.erp.app.api.PharmacyRedeemService
 import de.gematik.ti.erp.app.api.safeApiCall
 import de.gematik.ti.erp.app.pharmacy.api.ApoVzdPharmacySearchService
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter.Companion.buildApoVzdQueryMap
 import kotlinx.serialization.json.JsonElement
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
-import java.net.URL
 
 class ApoVzdRemoteDataSource(
-    private val searchService: ApoVzdPharmacySearchService,
-    private val redeemService: PharmacyRedeemService
+    private val searchService: ApoVzdPharmacySearchService
 ) : PharmacyRemoteDataSource {
-
-    companion object {
-        internal const val PlaceholderTelematikId = "<ti_id>"
-        internal const val PlaceholderTransactionId = "<transactionID>"
-    }
 
     override suspend fun searchPharmacies(filter: PharmacyFilter, onUnauthorizedException: suspend () -> Unit): Result<JsonElement> =
         safeApiCall("error searching pharmacies") {
@@ -71,27 +61,6 @@ class ApoVzdRemoteDataSource(
         }
     }
 
-    override suspend fun redeemPrescriptionDirectly(
-        url: String,
-        message: ByteArray,
-        pharmacyTelematikId: String,
-        transactionId: String
-    ): Result<Unit> = safeApiCall("error redeeming prescription with $url") {
-        val messageBody = message.toRequestBody("application/pkcs7-mime".toMediaType())
-
-        val validatedUrl = url
-            .replace(PlaceholderTelematikId, pharmacyTelematikId, ignoreCase = true)
-            .replace(PlaceholderTransactionId, transactionId, ignoreCase = true)
-            .let {
-                URL(it)
-            }
-
-        redeemService.redeemDirectly(
-            url = validatedUrl.toString(),
-            message = messageBody
-        )
-    }
-
     override suspend fun searchPharmacyByTelematikId(telematikId: String, onUnauthorizedException: suspend () -> Unit): Result<JsonElement> =
         safeApiCall("error searching pharmacies") {
             if (telematikId.startsWith("3-SMC")) {
@@ -106,6 +75,10 @@ class ApoVzdRemoteDataSource(
         institutionIdentifier: String,
         onUnauthorizedException: suspend () -> Unit
     ): Result<JsonElement> {
+        return Result.failure(NotImplementedError())
+    }
+
+    override suspend fun fetchAvailableCountries(): Result<JsonElement> {
         return Result.failure(NotImplementedError())
     }
 }

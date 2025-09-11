@@ -28,16 +28,17 @@ import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.utils.letNotNullOnCondition
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 abstract class GetProfileByIdController(
@@ -64,12 +65,6 @@ abstract class GetProfileByIdController(
         }
     }
 
-    fun refreshCombinedProfile() {
-        controllerScope.launch {
-            initCombinedProfile()
-        }
-    }
-
     val isSsoTokenValidForSelectedProfile: StateFlow<Boolean> by lazy {
         combinedProfile.map { it.data?.selectedProfile?.ssoTokenScope }
             .distinctUntilChanged()
@@ -82,38 +77,43 @@ abstract class GetProfileByIdController(
     }
 
     private suspend fun initCombinedProfile() {
-        runCatching {
-            _combinedProfile.value = UiState.Companion.Loading()
-
-            val profiles = getProfilesUseCase().first()
-            val selectedProfile = selectedProfileId?.let { getProfileByIdUseCase(selectedProfileId).first() }
-            selectedProfile to profiles
-        }.fold(
-            onSuccess = { (selectedProfile, profiles) ->
-                selectedProfile?.let { onSelectedProfileSuccess?.invoke(it, controllerScope) }
-                letNotNullOnCondition(
-                    first = selectedProfile,
-                    condition = { profiles.isEmpty().not() }
-                ) { profile ->
-                    _combinedProfile.value = UiState.Companion.Data(
-                        ProfileCombinedData(
-                            selectedProfile = profile,
-                            profiles = profiles
-                        )
+        try {
+            _combinedProfile.update { UiState.Loading() }
+            selectedProfileId?.let {
+                combine(
+                    getProfilesUseCase.invoke(),
+                    getProfileByIdUseCase(selectedProfileId)
+                ) { profileList, selectedProfile ->
+                    onSelectedProfileSuccess?.invoke(selectedProfile, controllerScope)
+                    ProfileCombinedData(
+                        selectedProfile = selectedProfile,
+                        profiles = profileList
                     )
-                } ?: run {
-                    _combinedProfile.value = UiState.Companion.Data(
-                        ProfileCombinedData(
-                            selectedProfile = null,
-                            profiles = profiles
-                        )
-                    )
-                }
-            },
-            onFailure = {
-                onSelectedProfileFailure?.invoke(it, controllerScope)
-                _combinedProfile.value = UiState.Companion.Error(it)
+                }.onEmpty { throw IllegalStateException("profileList- or selectedProfileFlow is empty") }
+                    .collect { combinedData ->
+                        _combinedProfile.update {
+                            UiState.Data(
+                                combinedData
+                            )
+                        }
+                    }
             }
-        )
+                ?: getProfilesUseCase.invoke()
+                    .onEmpty { throw IllegalStateException("profileListFlow is empty") }
+                    .collect {
+                            profileList ->
+                        _combinedProfile.update {
+                            UiState.Data(
+                                ProfileCombinedData(
+                                    selectedProfile = null,
+                                    profiles = profileList
+                                )
+                            )
+                        }
+                    }
+        } catch (e: Exception) {
+            onSelectedProfileFailure?.invoke(e, controllerScope)
+            _combinedProfile.update { UiState.Error(e) }
+        }
     }
 }

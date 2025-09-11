@@ -1,0 +1,443 @@
+{
+  "id": "eb55ad16-01e7-4e4c-a954-013f6816c21f",
+  "type": "searchset",
+  "timestamp": "2025-08-14T10:01:56.637+00:00",
+  "resourceType": "Bundle",
+  "total": 6,
+  "link": [
+    {
+      "relation": "last",
+      "url": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Task?_sort=modified&_count=50&__offset=0"
+    },
+    {
+      "relation": "first",
+      "url": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Task?_sort=modified&_count=50&__offset=0"
+    },
+    {
+      "relation": "self",
+      "url": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Task?_sort=modified"
+    }
+  ],
+  "entry": [
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Task/160.000.113.612.488.29",
+      "resource": {
+        "resourceType": "Task",
+        "id": "160.000.113.612.488.29",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task|1.5"
+          ]
+        },
+        "identifier": [
+          {
+            "use": "official",
+            "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            "value": "160.000.113.612.488.29"
+          }
+        ],
+        "intent": "order",
+        "status": "in-progress",
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+            "valueCoding": {
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+              "code": "160",
+              "display": "Muster 16 (Apothekenpflichtige Arzneimittel)"
+            }
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_ExpiryDate",
+            "valueDate": "2025-08-12"
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_AcceptDate",
+            "valueDate": "2025-06-09"
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_EU_IS_REDEEMABLE_BY_PATIENT_AUTHORIZATION",
+            "valueBoolean": false
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_EU_IS_REDEEMABLE_BY_PROPERTIES",
+            "valueBoolean": false
+          }
+        ],
+        "authoredOn": "2025-05-12T09:56:58.456+00:00",
+        "lastModified": "2025-05-12T09:57:08.460+00:00",
+        "performerType": [
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_OrganizationType",
+                "code": "urn:oid:1.2.276.0.76.4.54",
+                "display": "Öffentliche Apotheke"
+              }
+            ],
+            "text": "Öffentliche Apotheke"
+          }
+        ],
+        "for": {
+          "identifier": {
+            "value": "X110519788",
+            "system": "http://fhir.de/sid/gkv/kvid-10"
+          }
+        }
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Task/162.000.000.004.510.98",
+      "resource": {
+        "resourceType": "Task",
+        "id": "162.000.000.004.510.98",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task|1.5"
+          ]
+        },
+        "identifier": [
+          {
+            "use": "official",
+            "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            "value": "162.000.000.004.510.98"
+          }
+        ],
+        "intent": "order",
+        "status": "ready",
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+            "valueCoding": {
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+              "code": "162",
+              "display": "Muster 16 (Digitale Gesundheitsanwendungen)"
+            }
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_ExpiryDate",
+            "valueDate": "2025-08-21"
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_AcceptDate",
+            "valueDate": "2025-08-21"
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_EU_IS_REDEEMABLE_BY_PATIENT_AUTHORIZATION",
+            "valueBoolean": false
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_EU_IS_REDEEMABLE_BY_PROPERTIES",
+            "valueBoolean": false
+          }
+        ],
+        "authoredOn": "2025-05-21T12:17:39.435+00:00",
+        "lastModified": "2025-05-21T12:19:41.851+00:00",
+        "performerType": [
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_OrganizationType",
+                "code": "urn:oid:1.2.276.0.76.4.59",
+                "display": "Kostenträger"
+              }
+            ],
+            "text": "Kostenträger"
+          }
+        ],
+        "for": {
+          "identifier": {
+            "value": "X110519788",
+            "system": "http://fhir.de/sid/gkv/kvid-10"
+          }
+        }
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Task/162.000.000.005.408.23",
+      "resource": {
+        "resourceType": "Task",
+        "id": "162.000.000.005.408.23",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task|1.5"
+          ]
+        },
+        "identifier": [
+          {
+            "use": "official",
+            "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            "value": "162.000.000.005.408.23"
+          }
+        ],
+        "intent": "order",
+        "status": "ready",
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+            "valueCoding": {
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+              "code": "162",
+              "display": "Muster 16 (Digitale Gesundheitsanwendungen)"
+            }
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_ExpiryDate",
+            "valueDate": "2025-09-10"
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_AcceptDate",
+            "valueDate": "2025-09-10"
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_EU_IS_REDEEMABLE_BY_PATIENT_AUTHORIZATION",
+            "valueBoolean": false
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_EU_IS_REDEEMABLE_BY_PROPERTIES",
+            "valueBoolean": false
+          }
+        ],
+        "authoredOn": "2025-06-10T11:16:15.940+00:00",
+        "lastModified": "2025-06-10T11:16:16.188+00:00",
+        "performerType": [
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_OrganizationType",
+                "code": "urn:oid:1.2.276.0.76.4.59",
+                "display": "Kostenträger"
+              }
+            ],
+            "text": "Kostenträger"
+          }
+        ],
+        "for": {
+          "identifier": {
+            "value": "X110519788",
+            "system": "http://fhir.de/sid/gkv/kvid-10"
+          }
+        }
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Task/162.000.000.005.596.41",
+      "resource": {
+        "resourceType": "Task",
+        "id": "162.000.000.005.596.41",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task|1.5"
+          ]
+        },
+        "identifier": [
+          {
+            "use": "official",
+            "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            "value": "162.000.000.005.596.41"
+          }
+        ],
+        "intent": "order",
+        "status": "ready",
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+            "valueCoding": {
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+              "code": "162",
+              "display": "Muster 16 (Digitale Gesundheitsanwendungen)"
+            }
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_ExpiryDate",
+            "valueDate": "2025-09-13"
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_AcceptDate",
+            "valueDate": "2025-09-13"
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_EU_IS_REDEEMABLE_BY_PATIENT_AUTHORIZATION",
+            "valueBoolean": false
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_EU_IS_REDEEMABLE_BY_PROPERTIES",
+            "valueBoolean": false
+          }
+        ],
+        "authoredOn": "2025-06-13T12:16:05.584+00:00",
+        "lastModified": "2025-06-13T12:16:05.871+00:00",
+        "performerType": [
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_OrganizationType",
+                "code": "urn:oid:1.2.276.0.76.4.59",
+                "display": "Kostenträger"
+              }
+            ],
+            "text": "Kostenträger"
+          }
+        ],
+        "for": {
+          "identifier": {
+            "value": "X110519788",
+            "system": "http://fhir.de/sid/gkv/kvid-10"
+          }
+        }
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Task/160.000.114.336.581.65",
+      "resource": {
+        "resourceType": "Task",
+        "id": "160.000.114.336.581.65",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task|1.5"
+          ]
+        },
+        "identifier": [
+          {
+            "use": "official",
+            "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            "value": "160.000.114.336.581.65"
+          }
+        ],
+        "intent": "order",
+        "status": "ready",
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+            "valueCoding": {
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+              "code": "160",
+              "display": "Muster 16 (Apothekenpflichtige Arzneimittel)"
+            }
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_ExpiryDate",
+            "valueDate": "2025-09-13"
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_AcceptDate",
+            "valueDate": "2025-09-13"
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_EU_IS_REDEEMABLE_BY_PATIENT_AUTHORIZATION",
+            "valueBoolean": false
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_EU_IS_REDEEMABLE_BY_PROPERTIES",
+            "valueBoolean": false
+          }
+        ],
+        "authoredOn": "2025-08-14T09:52:18.996+00:00",
+        "lastModified": "2025-08-14T09:52:19.200+00:00",
+        "performerType": [
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_OrganizationType",
+                "code": "urn:oid:1.2.276.0.76.4.54",
+                "display": "Öffentliche Apotheke"
+              }
+            ],
+            "text": "Öffentliche Apotheke"
+          }
+        ],
+        "for": {
+          "identifier": {
+            "value": "X110519788",
+            "system": "http://fhir.de/sid/gkv/kvid-10"
+          }
+        }
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/Task/160.000.114.336.582.62",
+      "resource": {
+        "resourceType": "Task",
+        "id": "160.000.114.336.582.62",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task|1.5"
+          ]
+        },
+        "identifier": [
+          {
+            "use": "official",
+            "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            "value": "160.000.114.336.582.62"
+          }
+        ],
+        "intent": "order",
+        "status": "ready",
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+            "valueCoding": {
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+              "code": "160",
+              "display": "Muster 16 (Apothekenpflichtige Arzneimittel)"
+            }
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_ExpiryDate",
+            "valueDate": "2025-09-13"
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_AcceptDate",
+            "valueDate": "2025-09-13"
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_EU_IS_REDEEMABLE_BY_PATIENT_AUTHORIZATION",
+            "valueBoolean": false
+          },
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_EU_IS_REDEEMABLE_BY_PROPERTIES",
+            "valueBoolean": true
+          }
+        ],
+        "authoredOn": "2025-08-14T09:52:22.187+00:00",
+        "lastModified": "2025-08-14T09:52:22.386+00:00",
+        "performerType": [
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_OrganizationType",
+                "code": "urn:oid:1.2.276.0.76.4.54",
+                "display": "Öffentliche Apotheke"
+              }
+            ],
+            "text": "Öffentliche Apotheke"
+          }
+        ],
+        "for": {
+          "identifier": {
+            "value": "X110519788",
+            "system": "http://fhir.de/sid/gkv/kvid-10"
+          }
+        }
+      },
+      "search": {
+        "mode": "match"
+      }
+    }
+  ]
+}

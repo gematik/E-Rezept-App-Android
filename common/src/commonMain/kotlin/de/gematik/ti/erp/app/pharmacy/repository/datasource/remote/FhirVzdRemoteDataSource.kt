@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.pharmacy.repository.datasource.remote
 import de.gematik.ti.erp.app.api.UnauthorizedException
 import de.gematik.ti.erp.app.api.nonFatalApiCall
 import de.gematik.ti.erp.app.api.safeApiCall
-import de.gematik.ti.erp.app.pharmacy.api.FhirVzdPharmacySearchService
+import de.gematik.ti.erp.app.pharmacy.api.FhirVzdService
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
 import de.gematik.ti.erp.app.pharmacy.usecase.model.TextFilter.Companion.toSanitizedSearchText
 import io.github.aakira.napier.Napier
@@ -33,7 +33,7 @@ import kotlinx.serialization.json.JsonElement
 import retrofit2.Response
 
 class FhirVzdRemoteDataSource(
-    private val searchService: FhirVzdPharmacySearchService
+    private val searchService: FhirVzdService
 ) : PharmacyRemoteDataSource {
 
     private fun insuranceIdentifierTag(institutionIdentifier: String) = "http://fhir.de/StructureDefinition/identifier-iknr|$institutionIdentifier"
@@ -143,13 +143,9 @@ class FhirVzdRemoteDataSource(
         return Result.failure(NotImplementedError())
     }
 
-    // will not be called for fhir-vzd
-    override suspend fun redeemPrescriptionDirectly(
-        url: String,
-        message: ByteArray,
-        pharmacyTelematikId: String,
-        transactionId: String
-    ): Result<Unit> {
-        return Result.failure(NotImplementedError())
+    override suspend fun fetchAvailableCountries(): Result<JsonElement> {
+        return safeApiCall("Failed to GET ocsp responses") {
+            searchService.searchAvailableCountries()
+        }
     }
 }

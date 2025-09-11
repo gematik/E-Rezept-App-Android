@@ -86,6 +86,7 @@ internal fun Messages(
     inAppMessages: List<InAppMessage>,
     isTranslationInProgress: Map<String, Boolean>,
     isTranslationsAllowed: Boolean,
+    showTranslationFeature: Boolean,
     onClickReplyMessage: (OrderUseCaseData.Message) -> Unit,
     onClickPrescription: (String) -> Unit,
     onClickInvoiceMessage: (String) -> Unit,
@@ -124,6 +125,7 @@ internal fun Messages(
                             ReplyMessage(
                                 item = message.toReplyMessage(isFirstMessage, isLastMessage),
                                 isTranslationsAllowed = isTranslationsAllowed,
+                                showTranslationFeature = showTranslationFeature,
                                 isTranslationInProgress = isCurrentMessageBeingTranslated,
                                 onClick = { onClickReplyMessage(message) },
                                 onClickTranslation = {

@@ -355,7 +355,6 @@ class DigasMainScreen(
                         )
                     }
                 },
-
                 onShowHowLongValidBottomSheet = {
                     taskId?.let {
                         navController.navigate(DigasRoutes.DigasValidityBottomSheetScreen.path(it))
@@ -421,7 +420,6 @@ class DigasMainScreen(
                 onNavigatetoBfarm = {
                     uriHandler.openUriWhenValid(bfarmUrl)
                 }
-
             ),
             onBack = { onBack() }
         )
@@ -563,8 +561,9 @@ fun DigaMainScreenScaffold(
                     }
                 }
             }
-        ) { _ ->
+        ) { contentPadding ->
             DigaContent(
+                contentPadding = contentPadding,
                 listState = listState,
                 uiState = uiState,
                 uiStateBfarm = uiStateBfarm,

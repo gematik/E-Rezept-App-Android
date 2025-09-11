@@ -28,6 +28,7 @@ import kotlinx.serialization.Serializable
 data class FhirTaskKbvAddressErpModel(
     val streetName: String?,
     val houseNumber: String?,
+    val additionalAddressInformation: String? = null,
     val postalCode: String?,
     val city: String?
 )

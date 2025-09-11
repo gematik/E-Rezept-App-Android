@@ -55,7 +55,7 @@ internal data class FhirBundle(
             return runCatching {
                 SafeJson.value.decodeFromJsonElement(serializer(), this).entry
             }
-                .onFailure { Napier.w("Failed to parse input as a bundle ${it.message}") }
+                .onFailure { Napier.e(tag = "fhir-parser", message = "Failed to parse input as a bundle ${it.message}") }
                 .getOrElse { emptyList() }
         }
 
@@ -63,7 +63,7 @@ internal data class FhirBundle(
             return runCatching {
                 SafeJson.value.decodeFromJsonElement(serializer(), this).link
             }
-                .onFailure { Napier.w("Failed to parse input as a bundle paging ${it.message}") }
+                .onFailure { Napier.e(tag = "fhir-parser", message = "Failed to parse input as a bundle paging ${it.message}") }
                 .getOrElse { emptyList() }
         }
     }
@@ -79,7 +79,8 @@ internal data class FhirBundle(
  */
 @Serializable
 internal data class FhirBundleEntry(
-    val resource: JsonElement
+    @SerialName("resource") val resource: JsonElement,
+    @SerialName("fullUrl") val fullUrl: String? = null
 )
 
 /**

@@ -43,8 +43,8 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.base.ContextExtensions.getCurrentLocaleAsDisplayLanguage
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -55,7 +55,8 @@ import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.Center
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
-import kotlinx.coroutines.launch
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
+import de.gematik.ti.erp.app.utils.extensions.LocalSnackbar
 
 class TranslationConsentBottomSheetScreen(
     override val navController: NavController,
@@ -63,15 +64,22 @@ class TranslationConsentBottomSheetScreen(
 ) : BottomSheetScreen(withCloseButton = true) {
     @Composable
     override fun Content() {
-        val scope = uiScope
+        val snackbar = LocalSnackbar.current
         val controller = rememberTranslationConsentController()
         val currentLanguage = context.getCurrentLocaleAsDisplayLanguage()
-        val onConsentEvent = controller.onConsentEvent
         val downloadState by controller.languageDownloadState.collectAsStateWithLifecycle()
 
-        onConsentEvent.listen {
-            scope.launch {
-                navController.navigateUp()
+        controller.onConsentEvent.listen {
+            navController.navigateUp()
+        }
+        controller.onDownloadFailedEvent.listen {
+            navController.navigateUp()
+            // inform that the language model did not download
+            if (BuildConfigExtension.isInternalDebug) {
+                snackbar.show(
+                    text = it,
+                    actionTextId = R.string.snackbar_close
+                )
             }
         }
         TranslationConsentContent(

@@ -40,6 +40,7 @@ object PrescriptionData {
     @Immutable
     sealed interface Prescription {
         val profileId: ProfileIdentifier
+        val name: String?
         val taskId: String
         val redeemedOn: Instant?
         val accessCode: String
@@ -53,9 +54,9 @@ object PrescriptionData {
         override val taskId: String = task.taskId
         override val redeemedOn: Instant? = task.redeemedOn
         override val accessCode: String = task.accessCode
+        override val name: String = task.name
         val scannedOn: Instant = task.scannedOn
         val index: Int = task.index
-        val name: String = task.name
         val isRedeemed = redeemedOn != null
     }
 
@@ -68,8 +69,8 @@ object PrescriptionData {
         override val taskId: String = task.taskId
         override val redeemedOn: Instant? = task.redeemedOn()
         override val accessCode: String = task.accessCode
+        override val name = task.medicationName()
         val redeemState = task.redeemState(now)
-        val name = task.medicationName()
         val state: SyncedTaskData.SyncedTask.TaskState = task.state()
         val authoredOn: Instant = task.authoredOn
         val expiresOn: Instant? = task.expiresOn

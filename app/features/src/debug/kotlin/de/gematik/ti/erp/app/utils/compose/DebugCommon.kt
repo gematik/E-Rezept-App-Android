@@ -32,8 +32,6 @@ import androidx.compose.material.icons.outlined.SkipNext
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.testTag
-import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerSmall
@@ -50,7 +48,7 @@ fun OutlinedDebugButton(
         border = ButtonDefaults.outlinedBorder.copy(brush = SolidColor(AppTheme.DebugColor)),
         colors = ButtonDefaults.textButtonColors(contentColor = AppTheme.DebugColor),
         contentPadding = PaddingValues(horizontal = PaddingDefaults.Small, vertical = PaddingDefaults.Tiny),
-        modifier = modifier.testTag(TestTag.Onboarding.SkipOnboardingButton)
+        modifier = modifier
     ) {
         Icon(Icons.Outlined.SkipNext, null)
         SpacerSmall()

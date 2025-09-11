@@ -23,9 +23,7 @@
 package de.gematik.ti.erp.app.redeem.ui.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -40,10 +38,11 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
+import androidx.compose.material3.ListItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -57,9 +56,11 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
+import de.gematik.ti.erp.app.listitem.GemListItemDefaults
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes.PharmacyStartScreenModal
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PrescriptionInOrder
 import de.gematik.ti.erp.app.prescriptionId
 import de.gematik.ti.erp.app.prescriptionIds
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
@@ -67,9 +68,7 @@ import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemSharedViewModel
 import de.gematik.ti.erp.app.redeem.ui.preview.PrescriptionSelectionPreview
 import de.gematik.ti.erp.app.redeem.ui.preview.PrescriptionSelectionPreviewParameter
 import de.gematik.ti.erp.app.theme.AppTheme
-import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
@@ -98,72 +97,43 @@ class PrescriptionSelectionScreen(
 
         val isEmptySelectionStateOnOrderOverview = isOrderOverviewMode && selectedOrderState.prescriptionsInOrder.isEmpty()
 
-        val orderOverviewModeOnEmptyNavigation: () -> Unit = {
+        val orderOverviewModeOnEmptyNavigation: () -> Unit by rememberUpdatedState {
             sharedViewModel.updatePrescriptionSelectionFailureFlag()
             snackbar.showWithDismissButton(message = snackbarText, scope = scope, actionLabel = closeText)
             navController.popBackStack()
         }
 
-        val normalBackNavigation: () -> Unit = {
+        val normalBackNavigation: () -> Unit by rememberUpdatedState {
             sharedViewModel.onResetPrescriptionSelection()
             navController.popBackStack()
         }
 
-        val onBack: () -> Unit = {
+        val onBack: () -> Unit by rememberUpdatedState {
             when {
                 !isOrderOverviewMode -> normalBackNavigation()
                 isEmptySelectionStateOnOrderOverview -> orderOverviewModeOnEmptyNavigation()
                 else -> navController.popBackStack()
             }
         }
+        val onNext: () -> Unit by rememberUpdatedState {
+            when {
+                isEmptySelectionStateOnOrderOverview -> orderOverviewModeOnEmptyNavigation()
+                isOrderOverviewMode -> navController.popBackStack()
+                else -> navController.navigate(PharmacyStartScreenModal.path(taskId = ""))
+            }
+        }
 
         BackHandler(onBack = onBack)
-
         PrescriptionSelectionScreenScaffold(
             topBarTitle = stringResource(R.string.pharmacy_order_select_prescriptions),
             listState = listState,
             onBack = onBack,
-            bottomContent = {
-                NextButton(
-                    enabled = when {
-                        isOrderOverviewMode -> true
-                        else -> selectedOrderState.prescriptionsInOrder.isNotEmpty()
-                    },
-                    onNext = {
-                        when {
-                            isEmptySelectionStateOnOrderOverview -> orderOverviewModeOnEmptyNavigation()
-                            isOrderOverviewMode -> navController.popBackStack()
-                            else -> navController.navigate(PharmacyStartScreenModal.path(taskId = ""))
-                        }
-                    }
-                )
-            }
-        ) {
-            Column(Modifier.fillMaxSize()) {
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .testTag(TestTag.PharmacySearch.OrderPrescriptionSelection.Content)
-                        .semantics {
-                            prescriptionIds = orderState.map { it.taskId }
-                        },
-                    state = listState
-                ) {
-                    orderState.forEach { prescriptionInOrder ->
-                        item(key = "prescription-${prescriptionInOrder.taskId}") {
-                            PrescriptionItem(
-                                modifier = Modifier,
-                                prescription = prescriptionInOrder,
-                                checked = prescriptionInOrder in selectedOrderState.prescriptionsInOrder,
-                                onCheckedChange = { isChanged ->
-                                    sharedViewModel.onPrescriptionSelectionChanged(prescriptionInOrder, isChanged)
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-        }
+            onNext = onNext,
+            isOrderOverviewMode = isOrderOverviewMode,
+            orderState = orderState,
+            selectedOrderState = selectedOrderState,
+            onPrescriptionSelectionChanged = { prescription, selected -> sharedViewModel.onPrescriptionSelectionChanged(prescription, selected) }
+        )
     }
 }
 
@@ -172,8 +142,11 @@ fun PrescriptionSelectionScreenScaffold(
     topBarTitle: String,
     listState: LazyListState,
     onBack: () -> Unit,
-    bottomContent: @Composable () -> Unit,
-    content: @Composable () -> Unit
+    onNext: () -> Unit,
+    isOrderOverviewMode: Boolean,
+    orderState: List<PrescriptionInOrder>,
+    selectedOrderState: PharmacyUseCaseData.OrderState,
+    onPrescriptionSelectionChanged: (prescriptionInOrder: PrescriptionInOrder, select: Boolean) -> Unit
 ) {
     AnimatedElevationScaffold(
         modifier = Modifier.testTag(TestTag.PharmacySearch.OrderPrescriptionSelection.Screen),
@@ -183,53 +156,78 @@ fun PrescriptionSelectionScreenScaffold(
         navigationMode = NavigationBarMode.Back,
         listState = listState,
         onBack = onBack,
-        bottomBar = bottomContent
-    ) {
-        content()
+        bottomBar = {
+            NextButton(
+                enabled = when {
+                    isOrderOverviewMode -> true
+                    else -> selectedOrderState.prescriptionsInOrder.isNotEmpty()
+                },
+                onNext = onNext
+            )
+        }
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .semantics {
+                    prescriptionIds = orderState.map { it.taskId }
+                },
+            state = listState
+        ) {
+            orderState.forEach { prescriptionInOrder ->
+                item(key = "prescription-${prescriptionInOrder.taskId}") {
+                    PrescriptionItem(
+                        modifier = Modifier,
+                        prescription = prescriptionInOrder,
+                        checked = prescriptionInOrder in selectedOrderState.prescriptionsInOrder,
+                        onCheckedChange = { isChanged ->
+                            onPrescriptionSelectionChanged(prescriptionInOrder, isChanged)
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 
 @Composable
 private fun PrescriptionItem(
     modifier: Modifier,
-    prescription: PharmacyUseCaseData.PrescriptionInOrder,
+    prescription: PrescriptionInOrder,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    val formatter = rememberErpTimeFormatter()
+    val prescriptionDateTime = remember(prescription) {
+        formatter.date(prescription.timestamp)
+    }
+    ListItem(
         modifier = modifier
             .toggleable(
                 value = checked,
                 onValueChange = onCheckedChange,
                 role = Role.Checkbox
             )
-            .padding(PaddingDefaults.Medium)
             .semantics {
                 selected = checked
                 prescriptionId = prescription.taskId
-            }
-    ) {
-        val formatter = rememberErpTimeFormatter()
-        val prescriptionDateTime = remember(prescription) {
-            formatter.date(prescription.timestamp)
-        }
-
-        Column(Modifier.weight(1f)) {
+            },
+        colors = GemListItemDefaults.gemListItemColors(),
+        headlineContent = {
             Text(
                 prescription.title
                     ?: "",
                 style = AppTheme.typography.body1
             )
+        },
+        supportingContent = {
             Text(
                 prescriptionDateTime,
                 style = AppTheme.typography.body2l
             )
-        }
-        SpacerMedium()
-        Box(
-            contentAlignment = Alignment.Center
-        ) {
+        },
+        trailingContent = {
             if (checked) {
                 Icon(
                     Icons.Rounded.CheckCircle,
@@ -244,7 +242,7 @@ private fun PrescriptionItem(
                 )
             }
         }
-    }
+    )
 }
 
 @Composable
@@ -281,52 +279,17 @@ fun PrescriptionSelectionScreenPreview(
     @PreviewParameter(PrescriptionSelectionPreviewParameter::class) previewData: PrescriptionSelectionPreview
 ) {
     val mockListState = rememberLazyListState()
-    val selectedOrders = remember {
-        mutableStateListOf<PharmacyUseCaseData.PrescriptionInOrder>().apply {
-            addAll(previewData.selectedOrders)
-        }
-    }
-
-    val onCheckedChange = { order: PharmacyUseCaseData.PrescriptionInOrder, isChecked: Boolean ->
-        if (isChecked) {
-            selectedOrders.add(order)
-        } else {
-            selectedOrders.remove(order)
-        }
-    }
 
     PreviewAppTheme {
         PrescriptionSelectionScreenScaffold(
             topBarTitle = stringResource(R.string.pharmacy_order_select_prescriptions),
             listState = mockListState,
-            bottomContent = {
-                NextButton(
-                    enabled = selectedOrders.isNotEmpty(),
-                    onNext = {}
-                )
-            },
-            onBack = { }
-        ) {
-            Column(Modifier.fillMaxSize()) {
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f),
-                    state = mockListState
-                ) {
-                    previewData.orders.forEach { prescriptionOrder ->
-                        item {
-                            PrescriptionItem(
-                                modifier = Modifier,
-                                prescription = prescriptionOrder,
-                                checked = prescriptionOrder in selectedOrders,
-                                onCheckedChange = { isChecked ->
-                                    onCheckedChange(prescriptionOrder, isChecked)
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-        }
+            onBack = {},
+            onNext = {},
+            selectedOrderState = previewData.selectedOrders,
+            orderState = previewData.orders,
+            isOrderOverviewMode = false,
+            onPrescriptionSelectionChanged = { _, _ -> }
+        )
     }
 }

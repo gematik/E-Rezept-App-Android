@@ -39,7 +39,7 @@ val PHARMACY_DATA = Pharmacy(
     address = "",
     coordinates = null,
     distance = null,
-    contact = PharmacyContact("", "", "", "", "", ""),
+    contact = PharmacyContact("", "", ""),
     provides = listOf(
         PharmacyUseCaseData.PharmacyService.LocalPharmacyService(
             name = PHARMACY_NAME,
@@ -54,7 +54,7 @@ val PHARMACY_DATA_FHIR = FhirPharmacyErpModel(
     id = PHARMACY_ID,
     name = PHARMACY_NAME,
     address = FhirPharmacyAddressErpModel("", "", ""),
-    contact = FhirContactInformationErpModel("", "", "", "", "", ""),
+    contact = FhirContactInformationErpModel("", "", ""),
     specialities = emptyList(),
     position = null,
     availableTime = OpeningHoursErpModel(emptyMap()),

@@ -50,7 +50,9 @@ internal data class FhirTaskExtensionValues(
     val acceptDate: String?,
     val expiryDate: String?,
     val lastMedicationDispense: String?,
-    val prescriptionType: String?
+    val prescriptionType: String?,
+    val isEuRedeemableByProperties: Boolean = false,
+    val isEuRedeemableByPatientAuthorization: Boolean = false
 ) {
     fun acceptedDate() = acceptDate?.let { FhirTemporal.LocalDate(LocalDate.parse(it)) }
     fun expiryDate() = expiryDate?.let { FhirTemporal.LocalDate(LocalDate.parse(it)) }

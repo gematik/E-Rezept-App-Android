@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.redeem.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,6 +36,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -44,8 +46,11 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -57,6 +62,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
@@ -64,7 +70,10 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.eurezept.navigation.EuRoutes
 import de.gematik.ti.erp.app.navigation.Screen
+import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
+import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.redeem.model.DMCode
 import de.gematik.ti.erp.app.redeem.presentation.rememberLocalRedeemScreenController
@@ -74,6 +83,7 @@ import de.gematik.ti.erp.app.redeem.ui.preview.LocalRedeemPreviewParameter
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.utils.SpacerXXXLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
@@ -102,6 +112,9 @@ class LocalRedeemScreen(
     override fun Content() {
         val taskId = navBackStackEntry.arguments?.getString("taskId")
         val controller = rememberLocalRedeemScreenController(taskId ?: "")
+        val prescriptionDetailsController = rememberPrescriptionDetailController(taskId ?: "")
+        val profilePrescriptionData by prescriptionDetailsController.profilePrescription.collectAsStateWithLifecycle()
+        val isPrescriptionEuRedeemable = (profilePrescriptionData.data?.second as? PrescriptionData.Synced)?.isEuRedeemable ?: false
 
         val codes by controller.dmCodes.collectAsStateWithLifecycle()
         val showSingleCodes by controller.showSingleCodes.collectAsStateWithLifecycle()
@@ -130,6 +143,7 @@ class LocalRedeemScreen(
 
         LocalRedeemScreenScaffold(
             codes = codes,
+            isPrescriptionEuRedeemable = isPrescriptionEuRedeemable,
             showSingleCodes = showSingleCodes,
             sharedWarningHeight = sharedWarningHeight,
             onClickReady = {
@@ -143,6 +157,9 @@ class LocalRedeemScreen(
                 controller.switchSingleCode()
                 controller.getDmCodes()
             },
+            onEuPrescriptionClick = {
+                navController.navigate(EuRoutes.EuConsentScreen.path(taskId))
+            },
             onRefreshCodes = { controller.refreshDmCodes() },
             onSharedWarningHeightUpdated = { sharedWarningHeight = it },
             onBack = { navController.popBackStack() }
@@ -153,10 +170,12 @@ class LocalRedeemScreen(
 @Composable
 private fun LocalRedeemScreenScaffold(
     codes: UiState<List<DMCode>>,
+    isPrescriptionEuRedeemable: Boolean,
     showSingleCodes: Boolean,
     sharedWarningHeight: Int,
     onClickReady: () -> Unit,
     onSwitchSingleCodes: () -> Unit,
+    onEuPrescriptionClick: () -> Unit,
     onRefreshCodes: () -> Unit,
     onSharedWarningHeightUpdated: (Int) -> Unit,
     onBack: () -> Unit
@@ -196,6 +215,8 @@ private fun LocalRedeemScreenScaffold(
             onContent = { codes ->
                 LocalRedeemScreenContent(
                     sharedWarningHeight = sharedWarningHeight,
+                    isPrescriptionEuRedeemable = isPrescriptionEuRedeemable,
+                    onEuPrescriptionClick = onEuPrescriptionClick,
                     padding = padding,
                     pagerState = pagerState,
                     codes = codes,
@@ -213,6 +234,8 @@ private fun LocalRedeemScreenScaffold(
 @Composable
 private fun LocalRedeemScreenContent(
     sharedWarningHeight: Int,
+    isPrescriptionEuRedeemable: Boolean,
+    onEuPrescriptionClick: () -> Unit,
     padding: PaddingValues,
     listState: LazyListState,
     pagerState: PagerState,
@@ -261,6 +284,40 @@ private fun LocalRedeemScreenContent(
                         Text(stringResource(R.string.local_redeem_single_codes))
                     }
                 }
+            }
+        }
+
+        if (isPrescriptionEuRedeemable) {
+            item {
+                SpacerXXXLarge()
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .clickable { onEuPrescriptionClick() },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.eu_prescription_available),
+                            style = AppTheme.typography.body1,
+                            color = AppTheme.colors.primary700,
+                            textAlign = TextAlign.Start
+                        )
+
+                        Spacer(modifier = Modifier.width(SizeDefaults.half))
+
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
+                            contentDescription = null,
+                            tint = AppTheme.colors.primary700,
+                            modifier = Modifier.size(SizeDefaults.triple)
+                        )
+                    }
+                }
+                Spacer(Modifier.navigationBarsPadding())
             }
         }
     }
@@ -341,8 +398,10 @@ fun LocalRedeemScreenPreview(
     PreviewAppTheme {
         LocalRedeemScreenScaffold(
             codes = previewData.dmCodes,
+            isPrescriptionEuRedeemable = true,
             showSingleCodes = previewData.showSingleCodes,
             sharedWarningHeight = 0,
+            onEuPrescriptionClick = {},
             onClickReady = {},
             onSwitchSingleCodes = {},
             onRefreshCodes = {},

@@ -22,6 +22,9 @@
 
 package de.gematik.ti.erp.app.pharmacy.mocks
 
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_SYNCED_TASK_DATA_01
 import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_SYNCED_TASK_DATA_02
@@ -92,6 +95,10 @@ internal val MOCK_SYNCED_TASK_DATA_REDEEMABLE_02 = MOCK_SYNCED_TASK_DATA_02.copy
 
 internal val MEDICATION = SyncedTaskData.Medication(
     category = SyncedTaskData.MedicationCategory.entries[0],
+    medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+        type = ErpMedicationProfileType.PZN,
+        version = ErpMedicationProfileVersion.V_110
+    ),
     vaccine = true,
     text = "MedicationName",
     form = "AEO",

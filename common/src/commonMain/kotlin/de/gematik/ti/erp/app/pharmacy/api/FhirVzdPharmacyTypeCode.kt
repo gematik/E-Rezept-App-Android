@@ -27,4 +27,5 @@ internal object FhirVzdPharmacyTypeCode {
     const val publicPharmacy = "1.2.276.0.76.4.54"
     const val insuranceProvider = "1.2.276.0.76.4.59"
     const val digaProvider = "1.2.276.0.76.4.282"
+    const val availableCountriesProvider = "1.2.276.0.76.4.292"
 }

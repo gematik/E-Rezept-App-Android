@@ -34,5 +34,11 @@
         "text": "**🙌 Inscription pour les assurés privés** \nL'inscription pour les assurés privés a été optimisée. Vous pouvez vous connecter facilement avec votre identifiant santé en quelques clics. \n \n **⏰ Rappels de médicaments** \nVous pouvez désormais définir des rappels pour la prise de vos médicaments. \n \n **🛒 Flux de commande amélioré** \nLe processus de commande est désormais plus simple et plus rapide. \n \n **♿️ Accessibilité** \nLe numéro d'accès de la carte santé peut désormais également être scanné avec l'appareil photo. \n \n **📲 Plus d'informations pour les DiGA** \nVous recevrez désormais des informations plus détaillées sur vos ordonnances DiGA, telles que le prix de vente ou le logo.",
         "timestamp": "2025-08-06T08:00:00.000Z",
         "version": "1.32"
+    },
+    {
+        "id": "8",
+        "text": "**📝 Champ flexible pour les instructions de livraison** \n Le champ pour les instructions de livraison s'adapte désormais automatiquement à la longueur du texte. \n \n **🎨 Boutons plus modernes avec Material 3** \n Les boutons ont été adaptés au nouveau design Material 3 d'Android et ont désormais une apparence plus moderne et arrondie. \n \n **📤 Partager des recettes** \nLes recettes peuvent désormais être partagées avec d'autres directement depuis l'application.",
+        "timestamp": "2025-09-09T08:00:00.000Z",
+        "version": "1.33"
     }
 ]

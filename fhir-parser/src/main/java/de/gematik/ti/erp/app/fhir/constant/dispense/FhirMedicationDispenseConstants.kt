@@ -22,8 +22,28 @@
 
 package de.gematik.ti.erp.app.fhir.constant.dispense
 
+import io.github.aakira.napier.Napier
+
 object FhirMedicationDispenseConstants {
+
+    enum class MedicationDispenseVersion(val number: String) {
+        Legacy(""),
+        V_1_4("1.4"),
+        V_1_5("1.5");
+
+        companion object {
+            private val map = MedicationDispenseVersion.entries.toTypedArray().associateBy { it.number }
+
+            fun fromNumber(number: String?): MedicationDispenseVersion =
+                map[number] ?: run {
+                    Napier.w { "Unknown MedicationDispenseVersion: $number" }
+                    Legacy
+                }
+        }
+    }
+
     const val VERSION_1_4 = "1.4"
+    const val VERSION_1_5 = "1.5"
 
     // PZN, EPA
     const val MEDICATION_DISPENSE_PZN_EPA_FORM_URL =

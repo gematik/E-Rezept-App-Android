@@ -327,4 +327,138 @@ internal object FhirPatientTestData {
             )
         )
     )
+
+    val fhirPatient4_v12 = FhirPatient(
+        resourceType = "Patient",
+        id = "ce4104af-b86b-4664-afee-1b5fc3ac8acf",
+        meta = FhirMeta(
+            profiles = listOf(
+                "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.2"
+            )
+        ),
+        identifiers = listOf(
+            FhirIdentifier(
+                system = "http://fhir.de/sid/gkv/kvid-10",
+                value = "K030182229",
+                type = FhirCodeableConcept(
+                    coding = listOf(
+                        FhirCoding(
+                            coding = emptyList(),
+                            system = "http://fhir.de/CodeSystem/identifier-type-de-basis",
+                            code = "KVZ10",
+                            version = null,
+                            display = null
+                        )
+                    ),
+                    text = null
+                )
+            )
+        ),
+        names = listOf(
+            FhirName(
+                use = "official",
+                family = "Kluge",
+                familyExtension = FhirNameFamilyExtension(
+                    extensions = listOf(
+                        FhirExtensionReduced(
+                            url = "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+                            valueString = "Kluge",
+                            valueCode = null
+                        )
+                    )
+                ),
+                given = listOf("Eva"),
+                prefix = listOf("Prof. Dr. Dr. med")
+            )
+        ),
+        birthDate = "1982-01-03",
+        addresses = listOf(
+            FhirAddress(
+                type = "both",
+                line = listOf(
+                    "Pflasterhofweg 111B"
+                ),
+                city = "Köln",
+                postalCode = "50999",
+                country = "D",
+                extractedLine = mapOf(
+                    "houseNumber" to "111B",
+                    "streetName" to "Pflasterhofweg"
+                )
+            )
+        )
+    )
+
+    val fhirPatient5_v12 = FhirPatient(
+        resourceType = "Patient",
+        id = "512ab5bc-a7ab-4fd7-81cc-16a594f747a6",
+        meta = FhirMeta(
+            profiles = listOf(
+                "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.2"
+            )
+        ),
+        identifiers = listOf(
+            FhirIdentifier(
+                system = "http://fhir.de/sid/gkv/kvid-10",
+                value = "M310119802",
+                type = FhirCodeableConcept(
+                    coding = listOf(
+                        FhirCoding(
+                            coding = emptyList(),
+                            system = "http://fhir.de/CodeSystem/identifier-type-de-basis",
+                            code = "KVZ10",
+                            version = null,
+                            display = null
+                        )
+                    ),
+                    text = null
+                )
+            )
+        ),
+        names = listOf(
+            FhirName(
+                use = "official",
+                family = "Erbprinzessin von und zu der Schimmelpfennig-Hammerschmidt Federmannssohn",
+                familyExtension = FhirNameFamilyExtension(
+                    extensions = listOf(
+                        FhirExtensionReduced(
+                            url = "http://fhir.de/StructureDefinition/humanname-namenszusatz",
+                            valueString = "Erbprinzessin",
+                            valueCode = null
+                        ),
+                        FhirExtensionReduced(
+                            url = "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
+                            valueString = "von und zu der",
+                            valueCode = null
+                        ),
+                        FhirExtensionReduced(
+                            url = "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+                            valueString = "Schimmelpfennig-Hammerschmidt Federmannssohn",
+                            valueCode = null
+                        )
+                    )
+                ),
+                given = listOf("Ingrid"),
+                prefix = emptyList()
+            )
+        ),
+        birthDate = "2010-01-31",
+        addresses = listOf(
+            FhirAddress(
+                type = "both",
+                line = listOf(
+                    "Anneliese- und Georg-von-Groscurth-Plaetzchen 149-C",
+                    "5. OG - Hinterhof"
+                ),
+                city = "Bad Homburg",
+                postalCode = "60437",
+                country = "D",
+                extractedLine = mapOf(
+                    "houseNumber" to "149-C",
+                    "streetName" to "Anneliese- und Georg-von-Groscurth-Plaetzchen",
+                    "additionalLocator" to "5. OG - Hinterhof"
+                )
+            )
+        )
+    )
 }

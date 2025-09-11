@@ -24,12 +24,14 @@ package de.gematik.ti.erp.app.redeem.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OrderState
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.ShippingContact
 import kotlinx.datetime.Instant
 
 data class PrescriptionSelectionPreview(
     val name: String,
     val orders: List<PharmacyUseCaseData.PrescriptionInOrder>,
-    val selectedOrders: List<PharmacyUseCaseData.PrescriptionInOrder>,
+    val selectedOrders: OrderState,
     val onCheckedChange: (PharmacyUseCaseData.PrescriptionInOrder, Boolean) -> Unit
 )
 
@@ -62,7 +64,11 @@ class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<Prescript
                         isScanned = true
                     )
                 ),
-                selectedOrders = emptyList(),
+                selectedOrders = OrderState(
+                    prescriptionsInOrder = emptyList(),
+                    selfPayerPrescriptionIds = emptyList(),
+                    contact = ShippingContact.EmptyShippingContact
+                ),
                 onCheckedChange = { _, _ -> }
             ),
             PrescriptionSelectionPreview(
@@ -89,17 +95,21 @@ class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<Prescript
                         isScanned = true
                     )
                 ),
-                selectedOrders = listOf(
-                    PharmacyUseCaseData.PrescriptionInOrder(
-                        taskId = "1",
-                        accessCode = "ABC123",
-                        title = "Prescription for Cold Medicine",
-                        isSelfPayerPrescription = false,
-                        index = 1,
-                        timestamp = time,
-                        substitutionsAllowed = true,
-                        isScanned = false
-                    )
+                selectedOrders = OrderState(
+                    prescriptionsInOrder = listOf(
+                        PharmacyUseCaseData.PrescriptionInOrder(
+                            taskId = "1",
+                            accessCode = "ABC123",
+                            title = "Prescription for Cold Medicine",
+                            isSelfPayerPrescription = false,
+                            index = 1,
+                            timestamp = time,
+                            substitutionsAllowed = true,
+                            isScanned = false
+                        )
+                    ),
+                    selfPayerPrescriptionIds = emptyList(),
+                    contact = ShippingContact.EmptyShippingContact
                 ),
                 onCheckedChange = { _, _ -> }
             )

@@ -26,7 +26,7 @@ import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.HTTP_UNAUTHORIZED
 import de.gematik.ti.erp.app.api.UnauthorizedException
 import de.gematik.ti.erp.app.pharmacy.api.ApoVzdPharmacySearchService
-import de.gematik.ti.erp.app.pharmacy.api.FhirVzdPharmacySearchService
+import de.gematik.ti.erp.app.pharmacy.api.FhirVzdService
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -49,7 +49,7 @@ class PharmacyRemoteDataSourceTest {
     private lateinit var fhirVzdRemoteDataSource: FhirVzdRemoteDataSource
 
     private lateinit var apoVzdSearchService: ApoVzdPharmacySearchService
-    private lateinit var fhirVzdSearchService: FhirVzdPharmacySearchService
+    private lateinit var fhirVzdSearchService: FhirVzdService
 
     @Before
     fun setUp() {
@@ -57,8 +57,7 @@ class PharmacyRemoteDataSourceTest {
         fhirVzdSearchService = mockk()
 
         apoVzdRemoteDataSource = ApoVzdRemoteDataSource(
-            searchService = apoVzdSearchService,
-            redeemService = mockk()
+            searchService = apoVzdSearchService
         )
 
         fhirVzdRemoteDataSource = FhirVzdRemoteDataSource(

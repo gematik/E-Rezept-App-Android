@@ -24,4 +24,5 @@ dependencies {
     implementation(project(namesPlugin.eurezept))
     implementation(project(namesPlugin.multiplatform))
     implementation(project(namesPlugin.uiComponents))
+    implementation(project(":common"))
 }
