@@ -78,7 +78,7 @@ interface IdpService {
     suspend fun externalAuthenticationIDList(@Url url: String): Response<JsonWebSignature>
 
     @Requirement(
-        "A_20601#1",
+        "A_20601-01#1",
         sourceSpecification = "gemSpec_IDP_Frontend",
         rationale = """
             • Added `state` to bind the authorization response to the original client request and mitigate CSRF attacks.  

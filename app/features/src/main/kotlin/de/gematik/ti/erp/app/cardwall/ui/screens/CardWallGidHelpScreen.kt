@@ -38,12 +38,12 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.base.openSettingsAsNewActivity
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallScreen
-import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.cardwall.presentation.CardWallSharedViewModel
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallGidGKVHelpScreenContent
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallGidPKVHelpScreenContent
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallGidHelpScreenPreviewData
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallGidHelpScreenPreviewParameterProvider
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LightDarkLongPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode

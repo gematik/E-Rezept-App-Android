@@ -40,5 +40,11 @@
         "text": "**📝 Campo flessibile per le istruzioni di consegna** \n Il campo per le istruzioni di consegna ora si adatta automaticamente alla lunghezza del testo. \n \n **🎨 Pulsanti più moderni con Material 3** \n I pulsanti sono stati adattati al nuovo design Material 3 di Android e ora hanno un aspetto più moderno e arrotondato. \n \n **📤 Condividi ricette** \n Le ricette ora possono essere condivise con altri direttamente dall'app.",
         "timestamp": "2025-09-09T08:00:00.000Z",
         "version": "1.33"
+    },
+    {
+        "id": "9",
+        "text": "**🏛️ Registrazione per le istituzioni federali** \nLa registrazione è ora possibile anche per gli assicurati presso istituzioni federali come la Polizia Federale. \n \n **🕒 Orari di apertura delle farmacie migliorati** \nIl servizio di emergenza e gli orari di chiusura speciali delle farmacie vengono ora visualizzati, se sono stati memorizzati.",
+        "timestamp": "2025-11-03T08:00:00.000Z",
+        "version": "1.34"
     }
 ]

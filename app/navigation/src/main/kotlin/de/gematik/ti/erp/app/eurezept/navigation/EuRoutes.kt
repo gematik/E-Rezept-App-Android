@@ -32,6 +32,7 @@ object EuRoutes : NavigationRoutes {
     override fun subGraphName(): String = "eu"
 
     const val EU_NAV_TASK_ID = "taskId"
+    const val EU_NAV_REDEEM_BUTTON = "euShowRedeemButton"
 
     object EuConsentScreen : Routes(
         NavigationRouteNames.EuConsentScreen.name,
@@ -65,9 +66,24 @@ object EuRoutes : NavigationRoutes {
             return result
         }
     }
+
     object EuCountrySelectionScreen : Routes(NavigationRouteNames.EuCountrySelectionScreen.name)
 
     object EuPrescriptionSelectionScreen : Routes(NavigationRouteNames.EuPrescriptionSelectionScreen.name)
 
-    object EUAvailabilityScreen : Routes(NavigationRouteNames.EUAvailabilityScreen.name)
+    object EuAvailabilityScreen : Routes(NavigationRouteNames.EuAvailabilityScreen.name)
+
+    object EuInstructionsScreen : Routes(
+        NavigationRouteNames.EuInstructionsScreen.name,
+        navArgument(EU_NAV_REDEEM_BUTTON) {
+            type = NavType.BoolType
+            defaultValue = false
+        }
+    ) {
+        fun path(showRedeemButton: Boolean = false): String {
+            return path(EU_NAV_REDEEM_BUTTON to showRedeemButton)
+        }
+    }
+
+    object EuRedemptionCodeScreen : Routes(NavigationRouteNames.EuRedemptionCodeScreen.name)
 }

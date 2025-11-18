@@ -71,12 +71,12 @@ import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.ClickText
+import de.gematik.ti.erp.app.utils.ClickableText
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
-import de.gematik.ti.erp.app.utils.compose.ClickText
-import de.gematik.ti.erp.app.utils.compose.ClickableText
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme

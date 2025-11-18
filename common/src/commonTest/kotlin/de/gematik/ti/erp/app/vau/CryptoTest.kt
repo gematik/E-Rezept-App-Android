@@ -26,7 +26,6 @@ import okio.ByteString.Companion.decodeHex
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
-import kotlin.test.Test
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.KeyPairGenerator
@@ -35,6 +34,7 @@ import java.security.spec.ECGenParameterSpec
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.spec.IvParameterSpec
+import kotlin.test.Test
 
 class CryptoTest {
 

@@ -26,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.cachedIn
-import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.filter
 import androidx.paging.map
 import de.gematik.ti.erp.app.Requirement
@@ -101,7 +100,7 @@ class PharmacySearchListController(
         rationale = "pharmacy state based on search params and filters"
     )
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val pharmacies by lazy {
+    val pharmacies by lazy {
         searchParams.onEach { }.flatMapLatest { searchParams ->
             pharmacySearchUseCase.invoke(searchParams)
                 .mapNotNull { pagingData ->
@@ -112,10 +111,6 @@ class PharmacySearchListController(
                 }.cachedIn(controllerScope)
         }
     }
-
-    val pharmaciesState
-        @Composable
-        get() = pharmacies.collectAsLazyPagingItems()
 
     val searchParamState
         @Composable

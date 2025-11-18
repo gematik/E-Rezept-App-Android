@@ -169,7 +169,8 @@ val API_ACTIVE_SYNCED_TASK = SyncedTaskData.SyncedTask(
     medicationDispenses = emptyList(),
     lastMedicationDispense = null,
     communications = emptyList(),
-    isEuRedeemable = false
+    isEuRedeemable = false,
+    isEuRedeemableByPatientAuthorization = false
 )
 
 val API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE = SyncedTaskData.SyncedTask(
@@ -192,7 +193,8 @@ val API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE = SyncedTaskData.SyncedTask(
     medicationDispenses = emptyList(),
     lastMedicationDispense = null,
     communications = emptyList(),
-    isEuRedeemable = false
+    isEuRedeemable = false,
+    isEuRedeemableByPatientAuthorization = false
 )
 
 val API_ARCHIVE_SYNCED_TASK = SyncedTaskData.SyncedTask(
@@ -215,5 +217,6 @@ val API_ARCHIVE_SYNCED_TASK = SyncedTaskData.SyncedTask(
     medicationDispenses = emptyList(),
     lastMedicationDispense = null,
     communications = emptyList(),
-    isEuRedeemable = false
+    isEuRedeemable = false,
+    isEuRedeemableByPatientAuthorization = false
 )

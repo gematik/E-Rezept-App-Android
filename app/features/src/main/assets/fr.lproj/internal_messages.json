@@ -40,5 +40,11 @@
         "text": "**📝 Champ flexible pour les instructions de livraison** \n Le champ pour les instructions de livraison s'adapte désormais automatiquement à la longueur du texte. \n \n **🎨 Boutons plus modernes avec Material 3** \n Les boutons ont été adaptés au nouveau design Material 3 d'Android et ont désormais une apparence plus moderne et arrondie. \n \n **📤 Partager des recettes** \nLes recettes peuvent désormais être partagées avec d'autres directement depuis l'application.",
         "timestamp": "2025-09-09T08:00:00.000Z",
         "version": "1.33"
+    },
+    {
+        "id": "9",
+        "text": "**🏛️ Inscription pour les institutions fédérales** \nL'inscription est désormais également possible pour les assurés auprès des institutions fédérales telles que la Police fédérale. \n \n **🕒 Heures d'ouverture des pharmacies améliorées** \nLe service d'urgence et les heures de fermeture spéciales des pharmacies sont désormais affichés, s'ils ont été enregistrés.",
+        "timestamp": "2025-11-03T08:00:00.000Z",
+        "version": "1.34"
     }
 ]

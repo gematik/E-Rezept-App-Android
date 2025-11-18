@@ -50,7 +50,8 @@ enum class RedeemPrescriptionDialogMessageState(
     GONE(R.string.server_return_code_410_title, R.string.server_return_code_410),
     NOT_FOUND(R.string.prescription_not_found_on_server_title, R.string.prescription_not_found_on_server),
     UNKNOWN(R.string.prescription_unknown_problem_title, R.string.prescription_unknown_problem),
-    MULTIPLE_PRESCRIPTIONS_FAILED(R.string.server_return_code_title_failure, R.string.several_return_code);
+    MULTIPLE_PRESCRIPTIONS_FAILED(R.string.server_return_code_title_failure, R.string.several_return_code)
+    ;
 
     @Requirement(
         "O.Plat_4#2",
@@ -76,7 +77,8 @@ enum class RedeemPrescriptionDialogMessageState(
                 HttpErrorState.NotFound -> NOT_FOUND
                 // TODO: Add more ui states
                 HttpErrorState.ServerError, HttpErrorState.TooManyRequest, HttpErrorState.MethodNotAllowed, HttpErrorState.Forbidden,
-                is HttpErrorState.ErrorWithCause, HttpErrorState.Unknown -> UNKNOWN
+                is HttpErrorState.ErrorWithCause, HttpErrorState.Unknown
+                -> UNKNOWN
             }
     }
 }

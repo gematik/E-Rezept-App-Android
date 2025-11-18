@@ -144,8 +144,8 @@ val SYNCED_TASK = SyncedTaskData.SyncedTask(
     medicationDispenses = emptyList(),
     lastMedicationDispense = null,
     communications = emptyList(),
-    isEuRedeemable = false
-
+    isEuRedeemable = false,
+    isEuRedeemableByPatientAuthorization = false
 )
 
 val SYNCED_TASK_STRUCTURED_DOSAGE = SYNCED_TASK.copy(

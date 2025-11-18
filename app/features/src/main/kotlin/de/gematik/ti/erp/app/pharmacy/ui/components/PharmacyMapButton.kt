@@ -33,10 +33,10 @@ import androidx.compose.material.icons.rounded.Map
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
-import de.gematik.ti.erp.app.core.R
 
 @Composable
 internal fun PharmacyMapButton(onClick: () -> Unit) {

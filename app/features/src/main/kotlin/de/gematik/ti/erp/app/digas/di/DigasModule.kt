@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.digas.di
 import android.content.Context
 import coil.ImageLoader
 import coil.util.DebugLogger
-import de.gematik.ti.erp.app.base.usecase.MarkNavigationTriggerConsumedUseCase
+import de.gematik.ti.erp.app.base.usecase.MarkAutoNavigationTriggerConsumedUseCase
 import de.gematik.ti.erp.app.base.usecase.ObserveNavigationTriggerUseCase
 import de.gematik.ti.erp.app.base.usecase.TriggerNavigationUseCase
 import de.gematik.ti.erp.app.diga.local.DigaLocalDataSource
@@ -89,7 +89,7 @@ val digaModule = DI.Module("digaModule", allowSilentOverride = true) {
     bindProvider { GetDigaByTaskIdUseCase(instance(), instance()) }
     bindProvider { UpdateDigaStatusUseCase(instance(), instance()) }
     bindProvider { UpdateDigaIsNewUseCase(instance(), instance()) }
-    bindProvider { MarkNavigationTriggerConsumedUseCase(instance()) }
+    bindProvider { MarkAutoNavigationTriggerConsumedUseCase(instance()) }
     bindProvider { ObserveNavigationTriggerUseCase(instance()) }
     bindProvider { TriggerNavigationUseCase(instance()) }
     bindProvider { UpdateArchivedStatusUseCase(instance()) }

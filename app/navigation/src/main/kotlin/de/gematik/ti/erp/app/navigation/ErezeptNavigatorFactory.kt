@@ -24,18 +24,18 @@ package de.gematik.ti.erp.app.navigation
 
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.navigation.BottomSheetNavigator
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.navigation.material.BottomSheetNavigator
-import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+
 import de.gematik.ti.erp.app.navigation.model.ErezeptNavigatorHolder
 
 object ErezeptNavigatorFactory {
 
     @Composable
-    @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialNavigationApi::class)
+    @OptIn(ExperimentalMaterialApi::class)
     fun initNavigation(): ErezeptNavigatorHolder {
         val sheetState = rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,

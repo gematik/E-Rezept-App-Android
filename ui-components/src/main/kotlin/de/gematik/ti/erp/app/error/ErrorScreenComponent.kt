@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.error
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
@@ -48,6 +49,7 @@ import de.gematik.ti.erp.app.utils.letNotNull
 @Composable
 fun ErrorScreenComponent(
     modifier: Modifier = Modifier,
+    paddingValues: PaddingValues = PaddingValues(),
     noMaxSize: Boolean = false,
     titleText: String,
     bodyText: String,
@@ -58,7 +60,13 @@ fun ErrorScreenComponent(
     Box(
         modifier = modifier
             .then(
-                if (noMaxSize) Modifier else Modifier.fillMaxSize()
+                if (noMaxSize) {
+                    Modifier
+                } else {
+                    Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                }
             )
             .padding(PaddingDefaults.Medium),
         contentAlignment = Alignment.Center

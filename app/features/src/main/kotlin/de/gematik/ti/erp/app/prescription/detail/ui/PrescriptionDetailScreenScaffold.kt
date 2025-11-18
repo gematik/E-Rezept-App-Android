@@ -70,6 +70,7 @@ fun PrescriptionDetailScreenScaffold(
     medicationSchedule: MedicationSchedule?,
     invoiceCardState: InvoiceCardUiState,
     onShowInfoBottomSheet: PrescriptionDetailBottomSheetNavigationData,
+    euRedeemFeatureFlag: Boolean,
     now: Instant = Clock.System.now(),
     onSwitchRedeemed: (Boolean) -> Unit,
     onNavigateToRoute: (String) -> Unit,
@@ -106,14 +107,19 @@ fun PrescriptionDetailScreenScaffold(
                     IconButton(onClick = {
                         onSharePrescription()
                     }) {
-                        Icon(Icons.Rounded.Share, null, tint = AppTheme.colors.primary700)
+                        Icon(
+                            Icons.Rounded.Share,
+                            contentDescription = stringResource(R.string.a11y_prescription_details_share),
+                            tint = AppTheme.colors.primary700
+                        )
                     }
                 }
 
                 PrescriptionDetailsDropdownMenu(
                     isDeletable = (actualPrescription as? PrescriptionData.Synced)?.isDeletable ?: true,
-                    isEuRedeemable = (actualPrescription as? PrescriptionData.Synced)?.isEuRedeemable ?: false,
-                    isDemoMode = isDemoMode,
+                    isEuRedeemable = actualPrescription.isEuRedeemable && actualPrescription.isReady(),
+                    isActive = actualPrescription.isActive(),
+                    euRedeemFeatureFlag = euRedeemFeatureFlag,
                     onClickDelete = onClickDeletePrescription,
                     onClickRedeemInEuAbroad = onClickRedeemInEuAbroad
                 )
@@ -169,7 +175,8 @@ fun PrescriptionDetailScreenScaffold(
 private fun PrescriptionDetailsDropdownMenu(
     isDeletable: Boolean,
     isEuRedeemable: Boolean,
-    isDemoMode: Boolean,
+    isActive: Boolean,
+    euRedeemFeatureFlag: Boolean,
     onClickDelete: () -> Unit,
     onClickRedeemInEuAbroad: () -> Unit
 ) {
@@ -179,7 +186,7 @@ private fun PrescriptionDetailsDropdownMenu(
         onClick = { dropdownExpanded = true },
         modifier = Modifier.testTag(TestTag.Prescriptions.Details.MoreButton)
     ) {
-        Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral600)
+        Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.a11y_prescription_more_option), tint = AppTheme.colors.neutral600)
     }
     DropdownMenu(
         expanded = dropdownExpanded,
@@ -187,7 +194,7 @@ private fun PrescriptionDetailsDropdownMenu(
         offset = DpOffset(SizeDefaults.triple, SizeDefaults.zero)
     ) {
         // EU Redemption menu item (only show when prescription is EU redeemable)
-        if (isEuRedeemable) {
+        if (euRedeemFeatureFlag && isEuRedeemable && isActive) {
             DropdownMenuItem(
                 onClick = {
                     dropdownExpanded = false

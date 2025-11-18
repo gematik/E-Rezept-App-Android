@@ -65,7 +65,7 @@ private const val DISABLED_ALPHA = 0.3f
 private const val ENABLED_ALPHA = 1f
 
 enum class PharmacyOrderOptionCardType {
-    Flat, Long;
+    Flat, Long
 }
 
 @Composable
@@ -101,8 +101,11 @@ fun RowScope.PharmacyOrderOptionCard(
         modifier = modifier
             .weight(1f)
             .then(
-                if (type == Long) Modifier.fillMaxSize(1f)
-                else Modifier.height(IntrinsicSize.Min)
+                if (type == Long) {
+                    Modifier.fillMaxSize(1f)
+                } else {
+                    Modifier.height(IntrinsicSize.Min)
+                }
             )
             .shadow(elevation = SizeDefaults.half, shape = shape)
             .background(AppTheme.colors.neutral025, shape)

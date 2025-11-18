@@ -22,9 +22,9 @@
 
 package de.gematik.ti.erp.app.eurezept.usecase
 
-import de.gematik.ti.erp.app.eurezept.countries.repository.CountriesRepository
-import de.gematik.ti.erp.app.eurezept.domin.model.Country
-import de.gematik.ti.erp.app.eurezept.domin.usecase.GetAllEuCountriesUseCase
+import de.gematik.ti.erp.app.eurezept.domain.model.Country
+import de.gematik.ti.erp.app.eurezept.domain.usecase.GetAllEuCountriesUseCase
+import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.fhir.FhirCountryErpModel
 import de.gematik.ti.erp.app.fhir.FhirCountryErpModelCollection
 import io.mockk.clearMocks
@@ -48,7 +48,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 class GetAllEuCountriesUseCaseTest {
 
-    private val repository: CountriesRepository = mockk()
+    private val repository: EuRepository = mockk()
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
 

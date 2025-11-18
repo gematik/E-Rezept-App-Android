@@ -26,7 +26,6 @@ package de.gematik.ti.erp.app.pharmacy.repository
 
 import de.gematik.ti.erp.app.fhir.FhirInsuranceProvider
 import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
-import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
@@ -37,10 +36,6 @@ interface PharmacyRepository {
     suspend fun searchInsurances(filter: PharmacyFilter): Result<FhirPharmacyErpModelCollection>
 
     suspend fun searchPharmacies(filter: PharmacyFilter): Result<FhirPharmacyErpModelCollection>
-
-    suspend fun searchPharmaciesByBundle(bundleId: String, offset: Int, count: Int): Result<FhirPharmacyErpModelCollection>
-
-    suspend fun searchBinaryCerts(locationId: String): Result<List<String>>
 
     fun loadOftenUsedPharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>>
 
@@ -61,10 +56,6 @@ interface PharmacyRepository {
     fun isPharmacyInFavorites(pharmacy: PharmacyUseCaseData.Pharmacy): Flow<Boolean>
 
     suspend fun markAsRedeemed(taskId: String)
-
-    fun getSelectedVzdPharmacyBackend(): PharmacyVzdService
-
-    suspend fun updateSelectedVzdPharmacyBackend(pharmacyVzdService: PharmacyVzdService)
 
     suspend fun savePharmacyToCache(cachedPharmacy: CachedPharmacy)
 

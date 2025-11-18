@@ -44,7 +44,7 @@ internal object FhirCommunicationVersions {
         V_1_2(COMMUNICATION_VERSION_1_2),
         V_1_3(COMMUNICATION_VERSION_1_3),
         V_1_4(COMMUNICATION_VERSION_1_4),
-        V_1_5(COMMUNICATION_VERSION_1_5);
+        V_1_5(COMMUNICATION_VERSION_1_5)
     }
 
     enum class SupportedCommunicationDispenseVersions(val version: String) {

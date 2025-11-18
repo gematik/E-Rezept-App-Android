@@ -148,7 +148,7 @@ fun extractPharmacyServices(
     }
 
     return FhirPharmacyErpModelCollection(
-        type = PharmacyVzdService.APOVZD,
+        type = PharmacyVzdService.FHIRVZD,
         entries = pharmacies.toList(),
         id = bundleId,
         total = bundleTotal

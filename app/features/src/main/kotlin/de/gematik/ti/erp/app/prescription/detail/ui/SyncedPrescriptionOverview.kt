@@ -54,8 +54,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.digas.ui.component.Label
-import de.gematik.ti.erp.app.medicationplan.ui.components.MedicationPlanLineItem
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.ui.components.MedicationPlanLineItem
 import de.gematik.ti.erp.app.pkv.presentation.model.InvoiceCardUiState
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailBottomSheetNavigationData
@@ -177,7 +177,7 @@ fun SyncedPrescriptionOverview(
             SpacerShortMedium()
         }
 
-        if (activeProfile.insurance.insuranceType == ProfilesUseCaseData.InsuranceType.PKV) {
+        if (activeProfile.hasBundFeatures()) {
             item {
                 InvoiceCardSection(
                     ssoTokenValid = activeProfile.isSSOTokenValid(),

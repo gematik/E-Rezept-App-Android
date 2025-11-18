@@ -133,7 +133,7 @@ class SharePrescriptionControllerTest {
         coVerify(exactly = 0) { useCase.saveScannedTasks(any(), any(), any()) }
     }
 
-    @Suppress("ktlint:max-line-length", "MaxLineLength")
+    @Suppress("ktlint:max-line-length")
     @Test
     fun `handle - happy path with two items returns two TaskSaved and saves twice`() = runTest {
         val url =
@@ -223,7 +223,7 @@ class SharePrescriptionControllerTest {
         assertTrue(medSlot.captured.isNotBlank())
     }
 
-    @Suppress("ktlint:max-line-length", "MaxLineLength")
+    @Suppress("ktlint:max-line-length")
     @Test
     fun `handle - null profileId returns Failure`() = runTest {
         val url =

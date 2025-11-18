@@ -55,7 +55,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
-import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState.Companion.isFinished
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState.NotStarted
@@ -65,6 +64,7 @@ import de.gematik.ti.erp.app.consent.model.ConsentContext
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalIntentHandler
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.digas.navigation.DigasRoutes
 import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarWrapper
 import de.gematik.ti.erp.app.mainscreen.ui.MultiProfileTopAppBar
@@ -154,7 +154,12 @@ class PrescriptionListScreen(
             }
         }
 
-        ChooseAuthenticationNavigationEventsListener(controller, navController)
+        ChooseAuthenticationNavigationEventsListener(
+            controller = controller,
+            navController = navController,
+            dialogScaffold = LocalDialog.current
+        )
+
         with(controller) {
             refreshEvent.listen { state ->
                 when {

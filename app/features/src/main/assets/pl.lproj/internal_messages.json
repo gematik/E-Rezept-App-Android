@@ -40,5 +40,11 @@
         "text": "**📝 Elastyczne pole na instrukcje dostawy** \n Pole na instrukcje dostawy teraz automatycznie dostosowuje się do długości tekstu. \n \n **🎨 Bardziej nowoczesne przyciski z Material 3** \n Przyciski zostały dostosowane do nowego designu Material 3 systemu Android i mają teraz bardziej nowoczesny i zaokrąglony wygląd. \n \n **📤 Udostępniaj przepisy** \n Przepisy można teraz udostępniać innym osobom bezpośrednio z aplikacji.",
         "timestamp": "2025-09-09T08:00:00.000Z",
         "version": "1.33"
+    },
+    {
+        "id": "9",
+        "text": "**🏛️ Rejestracja w instytucjach federalnych** \nRejestracja jest teraz możliwa również dla osób ubezpieczonych w instytucjach federalnych, takich jak Policja Federalna. \n \n **🕒 Ulepszone godziny otwarcia aptek** \nTeraz wyświetlane są godziny dyżurów i specjalne godziny zamknięcia aptek, jeśli zostały zapisane.",
+        "timestamp": "2025-11-03T08:00:00.000Z",
+        "version": "1.34"
     }
 ]

@@ -23,11 +23,18 @@
 package de.gematik.ti.erp.app.fhir.pharmacy
 
 import de.gematik.ti.erp.app.data.fhirVzdPharmacyBundle
+import de.gematik.ti.erp.app.data.fhirVzdPharmacyNotAvailableTimesBundle
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal.Instant
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporalSerializationType.FhirTemporalInstant
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporalSerializationType.FhirTemporalLocalDate
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlinx.datetime.Instant as KInstant
 
 class PharmacyBundleParserTest {
 
@@ -53,5 +60,43 @@ class PharmacyBundleParserTest {
         assertEquals("Jakob-Kaiser-Str. 3", lastPharmacy.address?.lineAddress)
         assertEquals("apotheke@uniapo.com", lastPharmacy.contact.mail)
         assertEquals(2, lastPharmacy.specialities.size)
+    }
+
+    @Test
+    fun `parse notAvailable periods with time correctly`() = runTest {
+        val bundle = Json.parseToJsonElement(fhirVzdPharmacyNotAvailableTimesBundle)
+        val results = parser.extract(bundle)
+        val pharmacy = results.entries.find { it.id == "93336e26-497c-4c83-ac9a-a25a5ad238dd" }
+        requireNotNull(pharmacy)
+        assertEquals(1, pharmacy.notAvailablePeriods.size)
+        val firstPeriod = pharmacy.notAvailablePeriods[0]
+        assertEquals("Urlaub", firstPeriod.description)
+        assertEquals(
+            Instant(value = KInstant.parse("2025-06-22T14:13:53.164Z"), type = FhirTemporalInstant),
+            firstPeriod.period.start
+        )
+        assertEquals(
+            Instant(value = KInstant.parse("2025-06-28T14:13:53.164Z"), type = FhirTemporalInstant),
+            firstPeriod.period.end
+        )
+    }
+
+    @Test
+    fun `parse notAvailable periods with only date correctly`() = runTest {
+        val bundle = Json.parseToJsonElement(fhirVzdPharmacyNotAvailableTimesBundle)
+        val results = parser.extract(bundle)
+        val pharmacy = results.entries.find { it.id == "09712925-0b3a-4a3f-b463-b1008252ae38" }
+        requireNotNull(pharmacy)
+        assertEquals(1, pharmacy.notAvailablePeriods.size)
+        val firstPeriod = pharmacy.notAvailablePeriods[0]
+        assertEquals("RosenMontag", firstPeriod.description)
+        assertEquals(
+            FhirTemporal.LocalDate(value = LocalDate.parse("2025-06-22"), type = FhirTemporalLocalDate),
+            firstPeriod.period.start
+        )
+        assertEquals(
+            FhirTemporal.LocalDate(value = LocalDate.parse("2025-06-28"), type = FhirTemporalLocalDate),
+            firstPeriod.period.end
+        )
     }
 }

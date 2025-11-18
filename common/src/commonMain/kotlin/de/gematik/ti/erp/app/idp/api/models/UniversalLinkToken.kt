@@ -53,7 +53,9 @@ data class UniversalLinkToken(
     enum class TokenIdentifier {
         Code,
         State,
-        Kk_app_redirect_uri; // ktlint-disable enum-entry-name-case
+
+        @Suppress("ktlint:enum-entry-name-case")
+        Kk_app_redirect_uri
     }
 
     companion object {

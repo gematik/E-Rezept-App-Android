@@ -99,5 +99,6 @@ internal val MOCK_SYNCED_TASK_DATA_DIGA = SyncedTaskData.SyncedTask(
     medicationDispenses = emptyList(),
     deviceRequest = null,
     communications = emptyList(),
-    isEuRedeemable = false
+    isEuRedeemable = false,
+    isEuRedeemableByPatientAuthorization = false
 )

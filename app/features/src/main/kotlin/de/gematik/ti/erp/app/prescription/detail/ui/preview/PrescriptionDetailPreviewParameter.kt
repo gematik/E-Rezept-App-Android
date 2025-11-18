@@ -233,7 +233,8 @@ internal val SYNCED_TASK = SyncedTaskData.SyncedTask(
     failureToReport = "",
     isIncomplete = false,
     pvsIdentifier = "1234567890",
-    isEuRedeemable = false
+    isEuRedeemable = false,
+    isEuRedeemableByPatientAuthorization = false
 )
 
 private val PREVIEW_SYNCED_PRESCRIPTION = PrescriptionData.Synced(

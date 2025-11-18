@@ -40,5 +40,11 @@
         "text": "**📝 Flexibles Feld für Lieferanweisungen**\nDas Feld für Lieferanweisungen passt sich jetzt automatisch der Länge des Textes an.\n\n**🎨 Modernere Buttons mit Material 3**\nDie Buttons wurden an das neue Material 3 Design von Android angepasst und wirken jetzt moderner und runder.\n\n**📤 Rezepte teilen**\nRezepte können jetzt direkt aus der App mit anderen geteilt werden.",
         "timestamp": "2025-09-09T08:00:00.000Z",
         "version": "1.33"
+    },
+    {
+        "id": "9",
+        "text": "**🏛️ Anmeldung für Bundeseinrichtungen**\nDie Anmeldung ist jetzt auch für Versicherte bei Bundeseinrichtungen wie der Bundespolizei möglich.\n\n**🕒 Bessere Apothekenöffnungszeiten**\nNotdienst- und Sonderschließzeiten von Apotheken werden jetzt angezeigt, sofern diese hinterlegt sind.",
+        "timestamp": "2025-11-03T08:00:00.000Z",
+        "version": "1.34"
     }
 ]

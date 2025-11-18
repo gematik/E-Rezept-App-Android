@@ -32,7 +32,7 @@ import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 
 @Composable
-fun EuLocationPermissionDeniedDialog(
+internal fun EuLocationPermissionDeniedDialog(
     event: ComposableEvent<Unit>,
     dialog: DialogScaffold,
     onClick: () -> Unit
@@ -50,7 +50,7 @@ fun EuLocationPermissionDeniedDialog(
 }
 
 @Composable
-fun EuLocationServicesNotAvailableDialog(
+internal fun EuLocationServicesNotAvailableDialog(
     event: ComposableEvent<Unit>,
     dialog: DialogScaffold,
     onClickDismiss: () -> Unit,
@@ -73,7 +73,7 @@ fun EuLocationServicesNotAvailableDialog(
 }
 
 @Composable
-fun EuLocationPermissionDeniedDialog(
+internal fun EuLocationPermissionDeniedDialog(
     onClick: () -> Unit
 ) {
     ErezeptAlertDialog(
@@ -84,7 +84,7 @@ fun EuLocationPermissionDeniedDialog(
 }
 
 @Composable
-fun EuLocationServicesNotAvailableDialog(
+internal fun EuLocationServicesNotAvailableDialog(
     onClickDismiss: () -> Unit,
     onClickSettings: () -> Unit
 ) {
@@ -100,7 +100,7 @@ fun EuLocationServicesNotAvailableDialog(
 
 @LightDarkPreview
 @Composable
-fun EuLocationPermissionDeniedDialogPreview() {
+internal fun EuLocationPermissionDeniedDialogPreview() {
     PreviewTheme {
         EuLocationPermissionDeniedDialog {}
     }

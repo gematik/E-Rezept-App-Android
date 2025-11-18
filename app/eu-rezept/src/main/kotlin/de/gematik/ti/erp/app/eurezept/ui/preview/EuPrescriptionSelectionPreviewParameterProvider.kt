@@ -23,107 +23,78 @@
 package de.gematik.ti.erp.app.eurezept.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.eurezept.domin.model.EuAvailabilityInfo
-import de.gematik.ti.erp.app.eurezept.domin.model.EuPrescription
-import de.gematik.ti.erp.app.prescription.model.PrescriptionType
+import de.gematik.ti.erp.app.eurezept.domain.model.EuPrescription
+import de.gematik.ti.erp.app.eurezept.domain.model.EuPrescriptionType
+import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import kotlinx.datetime.Instant
 
 data class EuPrescriptionSelectionPreviewData(
     val prescriptions: List<EuPrescription>,
     val selectedPrescriptionIds: Set<String>,
-    val selectAll: Boolean,
-    val profileName: String = "EU-Profile",
-    val getAvailabilityInfo: (EuPrescription) -> EuAvailabilityInfo
+    val profileData: ProfilesUseCaseData.Profile? = null
 )
 
 class EuPrescriptionSelectionPreviewParameterProvider : PreviewParameterProvider<EuPrescriptionSelectionPreviewData> {
 
     private val fullErrorCasePrescriptions = listOf(
         EuPrescription(
+            profileIdentifier = "profile1",
             id = "1",
             name = "🇪🇺 EU Medikament Prescription",
-            type = PrescriptionType.EuRezeptTask,
-            expiryDate = Instant.parse("2024-07-01T10:00:00Z")
+            type = EuPrescriptionType.EuRedeemable,
+            expiryDate = Instant.parse("2024-07-01T10:00:00Z"),
+            isMarkedAsEuRedeemableByPatientAuthorization = true
         ),
         EuPrescription(
+            profileIdentifier = "profile1",
             id = "2",
             name = "Acaimoum",
-            type = PrescriptionType.ScannedTask
+            type = EuPrescriptionType.Unknown,
+            isMarkedAsEuRedeemableByPatientAuthorization = false
         ),
         EuPrescription(
+            profileIdentifier = "profile1",
             id = "3",
             name = "MeinMedikament",
-            type = PrescriptionType.SyncedTask
+            type = EuPrescriptionType.FreeText,
+            isMarkedAsEuRedeemableByPatientAuthorization = false
         ),
         EuPrescription(
+            profileIdentifier = "profile1",
             id = "4",
             name = "Wirkstoff Ibu",
-            type = PrescriptionType.SyncedTask
+            type = EuPrescriptionType.Ingredient,
+            isMarkedAsEuRedeemableByPatientAuthorization = false
         ),
         EuPrescription(
+            profileIdentifier = "profile1",
             id = "5",
             name = "Gescanntes Medikament 3",
-            type = PrescriptionType.ScannedTask
+            type = EuPrescriptionType.Scanned,
+            isMarkedAsEuRedeemableByPatientAuthorization = false
         ),
         EuPrescription(
+            profileIdentifier = "profile1",
             id = "6",
             name = "Benzos",
-            type = PrescriptionType.SyncedTask
+            type = EuPrescriptionType.BTM,
+            isMarkedAsEuRedeemableByPatientAuthorization = false
         )
     )
 
-    private val getAvailabilityInfoWithAllErrors: (EuPrescription) -> EuAvailabilityInfo = { prescription ->
-        when {
-            prescription.type == PrescriptionType.EuRezeptTask && prescription.id in listOf("1", "2") -> {
-                EuAvailabilityInfo(
-                    isAvailable = true,
-                    expiryDate = prescription.expiryDate
-                )
-            }
-
-            prescription.type == PrescriptionType.EuRezeptTask && prescription.id == "3" -> {
-                EuAvailabilityInfo(
-                    isAvailable = false,
-                    reason = "Nicht im EU Ausland einlösbar"
-                )
-            }
-
-            prescription.type == PrescriptionType.ScannedTask -> {
-                EuAvailabilityInfo(
-                    isAvailable = false,
-                    reason = "Gescannte Rezepte können nicht im Ausland eingelöst werden"
-                )
-            }
-
-            prescription.name == "MeinMedikament" -> {
-                EuAvailabilityInfo(
-                    isAvailable = false,
-                    reason = "Freitextverordnungen können nicht im Ausland eingelöst werden"
-                )
-            }
-
-            prescription.name == "Wirkstoff Ibu" -> {
-                EuAvailabilityInfo(
-                    isAvailable = false,
-                    reason = "Wirkstoffverordnungen können nicht im Ausland eingelöst werden"
-                )
-            }
-
-            prescription.name == "Benzos" -> {
-                EuAvailabilityInfo(
-                    isAvailable = false,
-                    reason = "Betäubungsmittel können nicht im Ausland eingelöst werden"
-                )
-            }
-
-            else -> {
-                EuAvailabilityInfo(
-                    isAvailable = false,
-                    reason = "Nicht im EU Ausland einlösbar"
-                )
-            }
-        }
-    }
+    val profile = ProfilesUseCaseData.Profile(
+        id = "1234567890",
+        name = "Ada Mustermann",
+        insurance = ProfileInsuranceInformation(),
+        isActive = false,
+        color = ProfilesData.ProfileColorNames.PINK,
+        lastAuthenticated = null,
+        ssoTokenScope = null,
+        image = null,
+        avatar = ProfilesData.Avatar.PersonalizedImage
+    )
 
     override val values: Sequence<EuPrescriptionSelectionPreviewData>
         get() = sequenceOf(
@@ -131,16 +102,14 @@ class EuPrescriptionSelectionPreviewParameterProvider : PreviewParameterProvider
             EuPrescriptionSelectionPreviewData(
                 prescriptions = fullErrorCasePrescriptions,
                 selectedPrescriptionIds = emptySet(),
-                selectAll = false,
-                getAvailabilityInfo = getAvailabilityInfoWithAllErrors
+                profileData = profile
             ),
 
             // Full error cases - only available selected
             EuPrescriptionSelectionPreviewData(
                 prescriptions = fullErrorCasePrescriptions,
                 selectedPrescriptionIds = setOf("1"),
-                selectAll = true,
-                getAvailabilityInfo = getAvailabilityInfoWithAllErrors
+                profileData = profile
             )
         )
 }

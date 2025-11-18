@@ -23,12 +23,10 @@
 package de.gematik.ti.erp.app.navigation.model
 
 import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.navigation.BottomSheetNavigator
 import androidx.navigation.NavHostController
-import com.google.accompanist.navigation.material.BottomSheetNavigator
-import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
 data class ErezeptNavigatorHolder
-@OptIn(ExperimentalMaterialNavigationApi::class)
 constructor(
     val navHostController: NavHostController,
     val bottomSheetNavigator: BottomSheetNavigator,

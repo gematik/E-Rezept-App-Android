@@ -282,6 +282,15 @@ class DefaultProfilesRepository(
         return entity?.insuranceType == InsuranceTypeV1.GKV
     }
 
+    override suspend fun switchProfileToBUND(profileId: ProfileIdentifier): Boolean {
+        val entity = realm.write {
+            queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
+                this.insuranceType = InsuranceTypeV1.BUND
+            }
+        }
+        return entity?.insuranceType == InsuranceTypeV1.BUND
+    }
+
     override suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean =
         getProfileById(profileId).first().insuranceType == ProfilesData.InsuranceType.PKV
 

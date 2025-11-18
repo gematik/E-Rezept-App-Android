@@ -24,11 +24,11 @@ package de.gematik.ti.erp.app.medicationplan.model
 
 import androidx.compose.runtime.Immutable
 import de.gematik.ti.erp.app.prescription.model.Ratio
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DayOfWeek
-import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -58,19 +58,25 @@ data class MedicationSchedule(
 ) {
     fun shouldBeScheduled(localDateNow: LocalDate): Boolean =
         this.isActive &&
-            this.duration.endDate >= localDateNow &&
-            this.notifications.isNotEmpty()
+                this.duration.endDate >= localDateNow &&
+                this.notifications.isNotEmpty()
 
     fun calculateEndOfPack(
         currentDateTime: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
         startDate: LocalDate = this.duration.startDate
     ): LocalDate {
-        val amountInPackage = if (this.amount?.numerator?.value?.isNotNullOrEmpty() == true) { this.amount.numerator.value.toInt() } else {
+        val amountInPackage = if (this.amount?.numerator?.value?.isNotNullOrEmpty() == true) {
+            this.amount.numerator.value.toInt()
+        } else {
             1
         }
-        val amountToConsumePerDay = this.notifications.map {
-            it.dosage.ratio.toFloatOrNull() ?: 1f
-        }.sum()
+        val amountToConsumePerDay = if (this.notifications.isNotEmpty()) {
+            this.notifications.map {
+                it.dosage.ratio.toFloatOrNull() ?: 1f
+            }.sum()
+        } else {
+            1f // fallback if notifications are empty (no time selected)
+        }
 
         val amountToConsumeToday = if (
             this.interval is MedicationScheduleInterval.Personalized &&
@@ -94,9 +100,11 @@ data class MedicationSchedule(
             is MedicationScheduleInterval.Daily -> {
                 startDate.plus(DatePeriod(days = daysLeft.toInt()))
             }
+
             is MedicationScheduleInterval.EveryTwoDays -> {
                 startDate.plus(DatePeriod(days = daysLeft.toInt() * 2))
             }
+
             is MedicationScheduleInterval.Personalized -> {
                 var dayIndexStartingTomorrow = currentDateTime.dayOfWeek.plus(1).ordinal
                 val weekDays = DayOfWeek.entries
@@ -123,11 +131,11 @@ data class MedicationSchedule(
         val firstNotificationOfADayOffsetInMilliSeconds =
             sortedNotification.first().toMillisecondOfDay().toLong()
         val timeTillEndOfDayOffsetInMilliSeconds = 1.days.inWholeMilliseconds -
-            currentTime.toMillisecondOfDay().toLong()
+                currentTime.toMillisecondOfDay().toLong()
 
         val calculatedOffSetInMilliseconds = if (this.duration.startDate > currentDate) {
             val startDateOffsetInMilliSeconds = this.duration.startDate.atStartOfDayIn(timeZone).toEpochMilliseconds() -
-                currentDate.atStartOfDayIn(timeZone).toEpochMilliseconds()
+                    currentDate.atStartOfDayIn(timeZone).toEpochMilliseconds()
             timeTillEndOfDayOffsetInMilliSeconds + startDateOffsetInMilliSeconds + firstNotificationOfADayOffsetInMilliSeconds
         } else {
             val nextNotificationOfADayOffsetInMilliSeconds = sortedNotification.firstOrNull { it > currentTime }?.toMillisecondOfDay()?.toLong()
@@ -149,6 +157,7 @@ data class MedicationSchedule(
             is MedicationScheduleInterval.EveryTwoDays -> {
                 this.duration.startDate.daysUntil(currentDate) % 2 == 0
             }
+
             is MedicationScheduleInterval.Personalized -> {
                 this.interval.selectedDays.contains(currentDate.dayOfWeek)
             }
@@ -164,6 +173,7 @@ data class MedicationSchedule(
                     0L
                 }
             }
+
             is MedicationScheduleInterval.Personalized -> {
                 var dayIndexStartingTomorrow = currentDate.dayOfWeek.plus(1).ordinal
                 val weekDays = DayOfWeek.entries

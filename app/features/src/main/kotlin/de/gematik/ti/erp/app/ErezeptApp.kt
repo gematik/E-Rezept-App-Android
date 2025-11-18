@@ -33,8 +33,8 @@ import de.gematik.ti.erp.app.database.settings.initSharedPrefsSettings
 import de.gematik.ti.erp.app.di.ApplicationModule
 import de.gematik.ti.erp.app.di.delayedLeakCanary
 import de.gematik.ti.erp.app.medicationplan.alarm.MedicationPlanRescheduleAllSchedulesManager
-import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import de.gematik.ti.erp.app.utils.buildImageLoader
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 
 open class ErezeptApp : Application(), ImageLoaderFactory {
     override fun onCreate() {

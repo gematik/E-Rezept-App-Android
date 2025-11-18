@@ -27,7 +27,7 @@ sealed interface MedicationPlanDosageInstruction {
         MORNING,
         NOON,
         EVENING,
-        NIGHT,
+        NIGHT
     }
 
     data class FreeText(

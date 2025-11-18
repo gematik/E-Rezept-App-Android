@@ -20,14 +20,16 @@
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
-@file:Suppress("ktlint:max-line-length")
+@file:Suppress("ktlint:standard:max-line-length")
 
 package de.gematik.ti.erp.app.data
 
 // fhir 1.5 medication dispense
 
 val medication_dispense_1_5_diga_deeplink by lazy { getResourceAsString("/fhir/dispense_parser/1_5_workflow/medication_dispense_1_5_diga_deeplink.json") }
-val medication_dispense_1_5_diga_name_and_pzn by lazy { getResourceAsString("/fhir/dispense_parser/1_5_workflow/medication_dispense_1_5_diga_name_and_pzn.json") }
+val medication_dispense_1_5_diga_name_and_pzn by lazy {
+    getResourceAsString("/fhir/dispense_parser/1_5_workflow/medication_dispense_1_5_diga_name_and_pzn.json")
+}
 val medication_dispense_1_5_diga_no_redeem_code by lazy {
     getResourceAsString(
         "/fhir/dispense_parser/1_5_workflow/medication_dispense_1_5_diga_no_redeem_code.json"

@@ -34,7 +34,6 @@ import generated.pdfboxBundle
 import generated.playBundle
 import generated.processphoenixBundle
 import generated.serializationBundle
-import gradle.kotlin.dsl.accessors._df5e7e2b12759c4235c86666f0629e28.implementation
 
 plugins {
     id("com.android.library")

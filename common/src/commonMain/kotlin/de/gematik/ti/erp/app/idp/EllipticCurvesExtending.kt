@@ -20,7 +20,7 @@
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
-@file:Suppress("ktlint:max-line-length", "ktlint:argument-list-wrapping", "MandatoryBracesIfStatements", "MagicNumber")
+@file:Suppress("ktlint:max-line-length", "ktlint:standard:argument-list-wrapping", "MandatoryBracesIfStatements", "MagicNumber")
 
 package de.gematik.ti.erp.app.idp
 
@@ -83,37 +83,53 @@ object EllipticCurvesExtending : EllipticCurves() {
     )
     private val BP512 = ECParameterSpec(
         EllipticCurve(
-            ECFieldFp(BigInteger("8948962207650232551656602815159153422162609644098354511344597187200057010413552439917934304191956942765446530386427345937963894309923928536070534607816947")),
-            BigInteger("6294860557973063227666421306476379324074715770622746227136910445450301914281276098027990968407983962691151853678563877834221834027439718238065725844264138"),
-            BigInteger("3245789008328967059274849584342077916531909009637501918328323668736179176583263496463525128488282611559800773506973771797764811498834995234341530862286627")
+            ECFieldFp(
+                BigInteger(
+                    "8948962207650232551656602815159153422162609644098354511344597187200057010413552439917934304191956942765446530386427345937963894309923928536070534607816947"
+                )
+            ),
+            BigInteger(
+                "6294860557973063227666421306476379324074715770622746227136910445450301914281276098027990968407983962691151853678563877834221834027439718238065725844264138"
+            ),
+            BigInteger(
+                "3245789008328967059274849584342077916531909009637501918328323668736179176583263496463525128488282611559800773506973771797764811498834995234341530862286627"
+            )
         ),
         ECPoint(
-            BigInteger("6792059140424575174435640431269195087843153390102521881468023012732047482579853077545647446272866794936371522410774532686582484617946013928874296844351522"),
-            BigInteger("6592244555240112873324748381429610341312712940326266331327445066687010545415256461097707483288650216992613090185042957716318301180159234788504307628509330")
+            BigInteger(
+                "6792059140424575174435640431269195087843153390102521881468023012732047482579853077545647446272866794936371522410774532686582484617946013928874296844351522"
+            ),
+            BigInteger(
+                "6592244555240112873324748381429610341312712940326266331327445066687010545415256461097707483288650216992613090185042957716318301180159234788504307628509330"
+            )
         ),
-        BigInteger("8948962207650232551656602815159153422162609644098354511344597187200057010413418528378981730643524959857451398370029280583094215613882043973354392115544169"),
+        BigInteger(
+            "8948962207650232551656602815159153422162609644098354511344597187200057010413418528378981730643524959857451398370029280583094215613882043973354392115544169"
+        ),
         1
     )
     private var initializedInSession = false
 
     fun init(): Boolean = if (initializedInSession) {
         true
-    } else try {
-        addCurve("BP-256", BP256)
-        addCurve("BP-384", BP384)
-        addCurve("BP-512", BP512)
-        AlgorithmFactoryFactory.getInstance().jwsAlgorithmFactory.registerAlgorithm(
-            EcdsaBP256R1UsingSha256()
-        )
-        AlgorithmFactoryFactory.getInstance().jwsAlgorithmFactory.registerAlgorithm(
-            EcdsaBP384R1UsingSha384()
-        )
-        AlgorithmFactoryFactory.getInstance().jwsAlgorithmFactory.registerAlgorithm(
-            EcdsaBP512R1UsingSha512()
-        )
-        initializedInSession = true
-        true
-    } catch (e: Exception) {
-        throw IllegalStateException("failure on init $e")
+    } else {
+        try {
+            addCurve("BP-256", BP256)
+            addCurve("BP-384", BP384)
+            addCurve("BP-512", BP512)
+            AlgorithmFactoryFactory.getInstance().jwsAlgorithmFactory.registerAlgorithm(
+                EcdsaBP256R1UsingSha256()
+            )
+            AlgorithmFactoryFactory.getInstance().jwsAlgorithmFactory.registerAlgorithm(
+                EcdsaBP384R1UsingSha384()
+            )
+            AlgorithmFactoryFactory.getInstance().jwsAlgorithmFactory.registerAlgorithm(
+                EcdsaBP512R1UsingSha512()
+            )
+            initializedInSession = true
+            true
+        } catch (e: Exception) {
+            throw IllegalStateException("failure on init $e")
+        }
     }
 }

@@ -155,7 +155,7 @@ val AppColorsThemeLight = AppColors(
 )
 
 val AppColorsThemeDark = AppColors(
-    green100 = Color(0x7F22543D),
+    green100 = Color(0xFF223B2F),
     green200 = Color(0xFF22543D),
     green300 = Color(0xFF276749),
     green400 = Color(0xFF2F855A),
@@ -179,7 +179,7 @@ val AppColorsThemeDark = AppColors(
     neutral900 = Color(0xFFFAFAFA),
     neutral999 = Color(0xFFFFFFFF),
 
-    primary100 = Color(0x7F33517A),
+    primary100 = Color(0xFF2A394E),
     primary200 = Color(0xFF2A4365),
     primary300 = Color(0xFF2C5282),
     primary400 = Color(0xFF2B6CB0),
@@ -189,7 +189,7 @@ val AppColorsThemeDark = AppColors(
     primary800 = Color(0xFF90CDF4),
     primary900 = Color(0xFFBEE3F8),
 
-    red100 = Color(0x7F742A2A),
+    red100 = Color(0xFF4B2626),
     red200 = Color(0xFF742A2A),
     red300 = Color(0xFF9B2C2C),
     red400 = Color(0xFFC53030),
@@ -199,7 +199,7 @@ val AppColorsThemeDark = AppColors(
     red800 = Color(0xFFFEB2B2),
     red900 = Color(0xFFFED7D7),
 
-    yellow100 = Color(0x4CECC94B),
+    yellow100 = Color(0xFF5E532E),
     yellow200 = Color(0xFF744210),
     yellow300 = Color(0xFF975A16),
     yellow400 = Color(0xFFB7791F),

@@ -23,10 +23,109 @@
 package de.gematik.ti.erp.app.pharmacy.ui.preview
 
 import androidx.compose.ui.text.buildAnnotatedString
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModelPeriod
+import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodMetadata
+import de.gematik.ti.erp.app.fhir.pharmacy.model.SpecialOpeningTimeErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.SpecialOpeningTimeMetadata
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import java.time.DayOfWeek
+
+val mockSpecialClosingTimes = listOf(
+    NotAvailablePeriodMetadata(
+        erpModel = NotAvailablePeriodErpModel(
+            description = "Urlaub",
+            period = FhirPharmacyErpModelPeriod(
+                start = FhirTemporal.LocalDateTime(LocalDateTime.parse("2028-10-13T12:30:00")), // Monday
+                end = FhirTemporal.LocalDateTime(LocalDateTime.parse("2028-10-15T12:30:00")) // Wednesday
+            )
+        ),
+        hasOverlap = false,
+        isInPast = false,
+        isActive = false
+    ),
+    NotAvailablePeriodMetadata(
+        erpModel = NotAvailablePeriodErpModel(
+            description = "RosenMontag",
+            period = FhirPharmacyErpModelPeriod(
+                start = FhirTemporal.LocalDateTime(LocalDateTime.parse("2028-10-06T12:30:00")), // Monday
+                end = FhirTemporal.LocalDateTime(LocalDateTime.parse("2028-10-08T12:30:00")) // Wednesday
+            )
+        ),
+        hasOverlap = false,
+        isInPast = false,
+        isActive = true
+    ),
+    NotAvailablePeriodMetadata(
+        erpModel = NotAvailablePeriodErpModel(
+            description = "Urlaub 2",
+            period = FhirPharmacyErpModelPeriod(
+                start = FhirTemporal.LocalDate(LocalDate.parse("2028-11-13")), // Thursday
+                end = FhirTemporal.LocalDate(LocalDate.parse("2028-11-15")) // Saturday
+            )
+        ),
+        hasOverlap = true,
+        isInPast = false,
+        isActive = false
+    )
+)
+
+val mockSpecialOpeningTimes = listOf(
+    // 19:00-08:00 (show MOON)
+    SpecialOpeningTimeMetadata(
+        erpModel = SpecialOpeningTimeErpModel(
+            description = "Notdienst",
+            period = FhirPharmacyErpModelPeriod(
+                start = FhirTemporal.Instant(Instant.parse("2026-11-03T19:00:00Z")),
+                end = FhirTemporal.Instant(Instant.parse("2026-11-04T08:00:00Z"))
+            )
+        ),
+        isInPast = false,
+        isActive = true
+    ),
+    // 23:00-06:00 (show MOON)
+    SpecialOpeningTimeMetadata(
+        erpModel = SpecialOpeningTimeErpModel(
+            description = "Notdienst",
+            period = FhirPharmacyErpModelPeriod(
+                start = FhirTemporal.Instant(Instant.parse("2026-12-24T23:00:00Z")),
+                end = FhirTemporal.Instant(Instant.parse("2026-12-25T06:00:00Z"))
+            )
+        ),
+        isInPast = false,
+        isActive = false
+    ),
+    // 14:00-16:00 (show BELL)
+    SpecialOpeningTimeMetadata(
+        erpModel = SpecialOpeningTimeErpModel(
+            description = "Sonderöffnung",
+            period = FhirPharmacyErpModelPeriod(
+                start = FhirTemporal.Instant(Instant.parse("2026-11-25T14:00:00Z")),
+                end = FhirTemporal.Instant(Instant.parse("2026-11-25T16:00:00Z"))
+            )
+        ),
+        isInPast = false,
+        isActive = false
+    ),
+    // Date only period (show BELL)
+    SpecialOpeningTimeMetadata(
+        erpModel = SpecialOpeningTimeErpModel(
+            description = "Sonderöffnung",
+            period = FhirPharmacyErpModelPeriod(
+                start = FhirTemporal.LocalDate(LocalDate.parse("2026-12-01")),
+                end = FhirTemporal.LocalDate(LocalDate.parse("2026-12-03"))
+            )
+        ),
+        isInPast = false,
+        isActive = false
+    )
+)
 
 val mockPharmacy = Pharmacy(
     id = "pharmacy",
@@ -41,6 +140,8 @@ val mockPharmacy = Pharmacy(
     ),
     provides = listOf(),
     openingHours = null,
+    specialClosingTimes = mockSpecialClosingTimes,
+    specialOpeningTimes = mockSpecialOpeningTimes,
     telematikId = "telematik-id"
 )
 

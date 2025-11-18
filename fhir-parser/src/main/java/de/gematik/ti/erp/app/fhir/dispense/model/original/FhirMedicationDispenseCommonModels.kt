@@ -36,7 +36,8 @@ internal data class FhirMedicationDispenseActor(
 
 @Serializable
 internal data class FhirMedicationDispenseIdentifier(
-    @SerialName("identifier") val identifier: FhirIdentifier? = null
+    @SerialName("identifier") val identifier: FhirIdentifier? = null,
+    @SerialName("reference") val reference: String? = null
 )
 
 @Serializable
@@ -58,5 +59,7 @@ internal fun FhirResourceEntry.medicationDispenseResourceTypeForV14V15(): FhirMe
 enum class FhirMediationDispenseResourceType {
     MedicationDispense,
     Medication,
-    Unknown;
+    Organization,
+    PractitionerRole,
+    Unknown
 }

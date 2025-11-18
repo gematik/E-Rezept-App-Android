@@ -77,7 +77,8 @@ object SyncedTaskData {
         GPV, // Gesetzliche Pflegeversicherung
         PPV, // Private Pflegeversicherung
         BEI, // Beihilfe
-        UNKNOWN;
+        UNKNOWN
+        ;
 
         companion object {
             fun mapTo(value: String?): CoverageType =
@@ -96,6 +97,7 @@ object SyncedTaskData {
         val accessCode: String,
         val lastModified: Instant,
         val isEuRedeemable: Boolean,
+        val isEuRedeemableByPatientAuthorization: Boolean,
         val organization: Organization,
         val practitioner: Practitioner,
         val patient: Patient,
@@ -251,7 +253,8 @@ object SyncedTaskData {
         enum class RedeemState {
             NotRedeemable,
             RedeemableAndValid,
-            RedeemableAfterDelta;
+            RedeemableAfterDelta
+            ;
 
             fun isRedeemable() = this == RedeemableAndValid
         }
@@ -291,6 +294,15 @@ object SyncedTaskData {
             }
         }
 
+        /**
+         * Checks if the prescription is active.
+         *
+         * A prescription is considered active if it is not expired and its status is either [TaskStatus.Ready] or [TaskStatus.InProgress],
+         * or if it was active and then canceled before expiration with no medication dispenses.
+         *
+         * @param now The current time to compare against expiration. Defaults to [Clock.System.now()].
+         * @return True if the prescription is active, false otherwise.
+         */
         fun isActive(now: Instant = Clock.System.now()): Boolean {
             val expired = expiresOn != null && expiresOn <= now.toStartOfDayInUTC()
             val wasActiveAndThenCanceled = !expired && medicationDispenses.isEmpty() && status == TaskStatus.Canceled
@@ -298,16 +310,58 @@ object SyncedTaskData {
             return (!expired && allowedStatus) || wasActiveAndThenCanceled
         }
 
+        /**
+         * Checks if the prescription is ready.
+         *
+         * A prescription is considered ready if it is not expired and its status is [TaskStatus.Ready],
+         * or if it was ready and then canceled before expiration with no medication dispenses.
+         *
+         * @param now The current time to compare against expiration. Defaults to [Clock.System.now()].
+         * @return True if the prescription is ready, false otherwise.
+         */
+        fun isReady(now: Instant = Clock.System.now()): Boolean {
+            val expired = expiresOn != null && expiresOn <= now.toStartOfDayInUTC()
+            val wasActiveAndThenCanceled = !expired && medicationDispenses.isEmpty() && status == TaskStatus.Canceled
+            val allowedStatus = status in setOf(TaskStatus.Ready)
+            return (!expired && allowedStatus) || wasActiveAndThenCanceled
+        }
+
+        /**
+         * Checks if the task is a direct assignment prescription.
+         *
+         * A direct assignment is identified by a task ID starting with [DIRECT_ASSIGNMENT_INDICATOR] or [DIRECT_ASSIGNMENT_INDICATOR_PKV].
+         *
+         * @return True if the prescription is a direct assignment, false otherwise.
+         */
         fun isDirectAssignment() =
             taskId.startsWith(DIRECT_ASSIGNMENT_INDICATOR) || taskId.startsWith(DIRECT_ASSIGNMENT_INDICATOR_PKV)
 
+        /**
+         * Checks if the prescription is deletable.
+         *
+         * Direct assignment prescriptions are only deletable if their status is [TaskStatus.Completed].
+         * All other prescriptions are always deletable.
+         *
+         * @return True if the prescription can be deleted, false otherwise.
+         */
         fun isDeletable() =
             when {
                 isDirectAssignment() -> status == TaskStatus.Completed
                 else -> true
             }
 
+        /**
+         * Returns the name of the organization or, if not available, the practitioner's name.
+         *
+         * @return The organization name or the practitioner's name if the organization name is null.
+         */
         fun organizationName() = organization.name ?: practitioner.name
+
+        /**
+         * Returns the name of the medication for this prescription, if available.
+         *
+         * @return The medication name, or null if not available.
+         */
         fun medicationName(): String? = medicationRequest.medication?.name()
     }
 
@@ -376,7 +430,8 @@ object SyncedTaskData {
         None(null),
         NotExempt("0"),
         Exempt("1"),
-        ArtificialFertilization("2");
+        ArtificialFertilization("2")
+        ;
 
         companion object {
             fun valueOf(v: String?) =

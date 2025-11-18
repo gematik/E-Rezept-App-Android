@@ -26,6 +26,7 @@ import de.gematik.ti.erp.app.api.UnauthorizedException
 import de.gematik.ti.erp.app.api.nonFatalApiCall
 import de.gematik.ti.erp.app.api.safeApiCall
 import de.gematik.ti.erp.app.pharmacy.api.FhirVzdService
+import de.gematik.ti.erp.app.pharmacy.api.searchPharmacyWithLocation
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
 import de.gematik.ti.erp.app.pharmacy.usecase.model.TextFilter.Companion.toSanitizedSearchText
 import io.github.aakira.napier.Napier
@@ -78,13 +79,21 @@ class FhirVzdRemoteDataSource(
             errorMessage = "error on search Pharmacies on fhir-vzd",
             onUnauthorizedException = onUnauthorizedException
         ) {
-            searchService.search(
-                textSearch = filter.textFilter?.toSanitizedSearchText(),
-                serviceTypeShipment = filter.serviceFilter?.fhirVzdShipment,
-                serviceTypeCourier = filter.serviceFilter?.fhirVzdCourier,
-                serviceTypePickup = filter.serviceFilter?.fhirVzdPickup,
-                position = filter.locationFilter?.value
-            )
+            // Use location-based search if LocationFilter is present, otherwise use regular search
+            if (filter.locationFilter != null) {
+                searchService.searchPharmacyWithLocation(
+                    serviceFilter = filter.serviceFilter,
+                    locationFilter = filter.locationFilter,
+                    textFilter = filter.textFilter
+                )
+            } else {
+                searchService.search(
+                    textSearch = filter.textFilter?.toSanitizedSearchText(),
+                    serviceTypeShipment = filter.serviceFilter?.fhirVzdShipment,
+                    serviceTypeCourier = filter.serviceFilter?.fhirVzdCourier,
+                    serviceTypePickup = filter.serviceFilter?.fhirVzdPickup
+                )
+            }
         }
     }
 
@@ -127,20 +136,6 @@ class FhirVzdRemoteDataSource(
                 organizationIdentifier = insuranceIdentifierTag(institutionIdentifier)
             )
         }
-    }
-
-    // will not be called for fhir-vzd
-    override suspend fun searchBinaryCert(locationId: String): Result<JsonElement> {
-        return Result.failure(NotImplementedError())
-    }
-
-    // will not be called for fhir-vzd
-    override suspend fun searchPharmaciesContinued(
-        bundleId: String,
-        offset: Int,
-        count: Int
-    ): Result<JsonElement> {
-        return Result.failure(NotImplementedError())
     }
 
     override suspend fun fetchAvailableCountries(): Result<JsonElement> {

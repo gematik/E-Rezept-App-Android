@@ -128,7 +128,8 @@ enum class JenkinsInformation(
     BuildNr("buildNr"),
     Job("job"),
     Owner("appOwner"),
-    AppName("appName");
+    AppName("appName")
+    ;
 
     operator fun invoke() = stringValue
 }

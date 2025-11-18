@@ -111,7 +111,8 @@ open class ErpTimeFormatter(val locale: Locale, val zoneId: ZoneId = ZoneId.syst
          * - Friday, June 1, 2012
          * - Friday, June 1, 2012 at 12:30:00 PM Central European Summer Time'
          */
-        FULL(FormatStyle.FULL);
+        FULL(FormatStyle.FULL)
+        ;
 
         /**
          * Ready to use date formatter for this style and [Locale.getDefault].

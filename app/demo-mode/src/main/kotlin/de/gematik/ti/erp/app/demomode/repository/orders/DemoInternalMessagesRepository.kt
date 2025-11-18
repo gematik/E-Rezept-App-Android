@@ -24,10 +24,10 @@
 
 package de.gematik.ti.erp.app.demomode.repository.orders
 
-import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
 import de.gematik.ti.erp.app.messages.mapper.toInternalMessage
 import de.gematik.ti.erp.app.messages.model.InternalMessage
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

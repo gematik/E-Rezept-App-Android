@@ -108,8 +108,9 @@ class RessourceMapperVersion110Test {
         val result = extractPZNMedicationVersion110<ReturnType, ReturnType, ReturnType, ReturnType>(
             medicationPznJson,
             processMedication = { text, medicationCategory, form, amount, vaccine,
-                manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
-                ingredientMedications, ingredients, lotnumber, expirationDate ->
+                    manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
+                    ingredientMedications, ingredients, lotnumber, expirationDate
+                ->
                 assertEquals("Novaminsulfon 500 mg Lichtenstein 100 ml Tropf. N3", text)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals("TEI", form)
@@ -158,8 +159,9 @@ class RessourceMapperVersion110Test {
                 ReturnType.Ingredient
             },
             processMedication = { text, medicationCategory, form, amount, vaccine,
-                manufacturingInstructions, packaging, normSizeCode, identifier,
-                ingredientMedications, ingredients, lotNumber, expirationDate ->
+                    manufacturingInstructions, packaging, normSizeCode, identifier,
+                    ingredientMedications, ingredients, lotNumber, expirationDate
+                ->
                 assertEquals(null, text)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals("Tabletten", form)
@@ -195,8 +197,9 @@ class RessourceMapperVersion110Test {
                 ReturnType.Ingredient
             },
             processMedication = { text, medicationCategory, form, amount, vaccine,
-                manufacturingInstructions, packaging, normSizeCode, identifier,
-                ingredientMedications, ingredients, lotNumber, expirationDate ->
+                    manufacturingInstructions, packaging, normSizeCode, identifier,
+                    ingredientMedications, ingredients, lotNumber, expirationDate
+                ->
                 assertEquals(null, text)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals("Kapseln", form)
@@ -228,8 +231,9 @@ class RessourceMapperVersion110Test {
                 ReturnType.Ratio
             },
             processMedication = { text, medicationCategory, form, amount, vaccine,
-                manufacturingInstructions, packaging, normSizeCode, identifier,
-                ingredientMedications, ingredients, lotNumber, expirationDate ->
+                    manufacturingInstructions, packaging, normSizeCode, identifier,
+                    ingredientMedications, ingredients, lotNumber, expirationDate
+                ->
                 assertEquals("Metformin 850mg Tabletten N3", text)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals(null, form)
@@ -270,17 +274,18 @@ class RessourceMapperVersion110Test {
                 ReturnType.MultiplePrescriptionInfo
             },
             processMedicationRequest = { authoredOn,
-                dateOfAccident,
-                location,
-                accidentType,
-                emergencyFee,
-                substitutionAllowed,
-                dosageInstruction,
-                quantity,
-                multiplePrescriptionInfo,
-                note,
-                bvg,
-                additionalFee ->
+                    dateOfAccident,
+                    location,
+                    accidentType,
+                    emergencyFee,
+                    substitutionAllowed,
+                    dosageInstruction,
+                    quantity,
+                    multiplePrescriptionInfo,
+                    note,
+                    bvg,
+                    additionalFee
+                ->
                 assertEquals(null, authoredOn)
                 assertEquals(null, dateOfAccident)
                 assertEquals(null, location)

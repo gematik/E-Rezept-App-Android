@@ -135,7 +135,7 @@ class DefaultDigasGraphController(
     override val needLoggedInTokenForDeletionEvent = ComposableEvent<ProfilesUseCaseData.Profile>()
 
     init {
-        onRefreshProfileAction.listen(controllerScope) {
+        isProfileRefreshingEvent.listen(controllerScope) {
             _isProfileRefreshing.value = it
         }
     }

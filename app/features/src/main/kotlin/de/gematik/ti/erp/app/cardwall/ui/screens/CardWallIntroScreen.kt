@@ -80,6 +80,7 @@ import de.gematik.ti.erp.app.cardwall.navigation.CardWallScreen
 import de.gematik.ti.erp.app.cardwall.presentation.CardWallSharedViewModel
 import de.gematik.ti.erp.app.cardwall.presentation.rememberCardWallController
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallScaffold
+import de.gematik.ti.erp.app.cardwall.ui.components.DomainsNotVerifiedDialog
 import de.gematik.ti.erp.app.cardwall.ui.components.EnableNfcDialog
 import de.gematik.ti.erp.app.cardwall.ui.components.GematikErrorDialog
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallIntroScreenContentPreviewParameterProvider
@@ -89,7 +90,6 @@ import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.demomode.DemoModeIntent
 import de.gematik.ti.erp.app.demomode.startAppWithDemoMode
-import de.gematik.ti.erp.app.cardwall.ui.components.DomainsNotVerifiedDialog
 import de.gematik.ti.erp.app.orderhealthcard.navigation.OrderHealthCardRoutes
 import de.gematik.ti.erp.app.semantics.semanticsButton
 import de.gematik.ti.erp.app.semantics.semanticsHeading
@@ -98,13 +98,13 @@ import de.gematik.ti.erp.app.semantics.semanticsMergedButton
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.utils.ClickText
+import de.gematik.ti.erp.app.utils.ClickableText
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.SpacerXLarge
 import de.gematik.ti.erp.app.utils.SpacerXXXLarge
-import de.gematik.ti.erp.app.utils.compose.ClickText
-import de.gematik.ti.erp.app.utils.compose.ClickableText
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog

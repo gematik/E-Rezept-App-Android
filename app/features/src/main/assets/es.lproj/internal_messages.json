@@ -40,5 +40,11 @@
         "text": "**📝 Campo flexible para instrucciones de entrega** \n El campo para instrucciones de entrega ahora se ajusta automáticamente a la longitud del texto. \n \n **🎨 Botones más modernos con Material 3** \n Los botones se han adaptado al nuevo diseño Material 3 de Android y ahora tienen una apariencia más moderna y redondeada. \n \n **📤 Comparte recetas** \n Ahora las recetas se pueden compartir con otros directamente desde la aplicación.",
         "timestamp": "2025-09-09T08:00:00.000Z",
         "version": "1.33"
+    },
+    {
+        "id": "9",
+        "text": "**🏛️ Inscripción en instituciones federales** \nAhora también es posible el registro para los asegurados en instituciones federales como la Policía Federal. \n \n **🕒 Horarios de farmacias mejorados** \nAhora se muestran los horarios de atención de urgencias y de cierre especial de las farmacias, si se han almacenado.",
+        "timestamp": "2025-11-03T08:00:00.000Z",
+        "version": "1.34"
     }
 ]

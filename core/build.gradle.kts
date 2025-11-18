@@ -16,6 +16,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.compose.ui)
     implementation(project(namesPlugin.utils))
     implementation(project(namesPlugin.fhirParser))
     implementation(project(namesPlugin.multiplatform))

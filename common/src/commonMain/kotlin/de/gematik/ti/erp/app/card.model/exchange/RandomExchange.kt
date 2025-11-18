@@ -42,7 +42,8 @@ fun ICardChannel.getRandom(length: Int): ByteArray {
         require(
             when (response.status) {
                 ResponseStatus.SUCCESS,
-                ResponseStatus.SECURITY_STATUS_NOT_SATISFIED ->
+                ResponseStatus.SECURITY_STATUS_NOT_SATISFIED
+                ->
                     true
                 else ->
                     false

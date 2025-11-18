@@ -50,14 +50,6 @@ class DemoPharmacyRepository(
         return Result.success(parser.extract(pharmacyFhirBundle(assetManager)))
     }
 
-    override suspend fun searchPharmaciesByBundle(bundleId: String, offset: Int, count: Int): Result<FhirPharmacyErpModelCollection> {
-        return Result.success(parser.extract(pharmacyFhirBundle(assetManager)))
-    }
-
-    override suspend fun searchBinaryCerts(locationId: String): Result<List<String>> {
-        return Result.success(listOf(""))
-    }
-
     override fun loadOftenUsedPharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>> {
         return flowOf(emptyList())
     }
@@ -108,14 +100,6 @@ class DemoPharmacyRepository(
 
     override suspend fun markAsRedeemed(taskId: String) {
         redeemLocalDataSource.markAsRedeemed(taskId)
-    }
-
-    override fun getSelectedVzdPharmacyBackend(): PharmacyVzdService {
-        return PharmacyVzdService.FHIRVZD
-    }
-
-    override suspend fun updateSelectedVzdPharmacyBackend(pharmacyVzdService: PharmacyVzdService) {
-        // do nothing
     }
 
     override fun loadCachedPharmacies(): Flow<List<CachedPharmacy>> {

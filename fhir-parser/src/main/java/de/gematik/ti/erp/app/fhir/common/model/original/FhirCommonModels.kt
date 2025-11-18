@@ -116,7 +116,7 @@ internal data class FhirBundleMetaProfile(
 }
 
 @Serializable
-internal data class FhirMeta(
+data class FhirMeta(
     @SerialName("profile") val profiles: List<String> = emptyList()
 ) {
     companion object {
@@ -184,7 +184,7 @@ internal data class FhirTaskResource(
  */
 // NOTE: Also used in communication dispense
 @Serializable
-internal data class FhirIdentifier(
+data class FhirIdentifier(
     @SerialName("system") val system: String? = null,
     @SerialName("value") val value: String? = null,
     @SerialName("type") val type: FhirCodeableConcept? = null
@@ -255,7 +255,7 @@ internal data class FhirIdentifier(
 }
 
 @Serializable
-internal data class FhirCoding(
+data class FhirCoding(
     @SerialName("coding") val coding: List<FhirCoding>? = emptyList(),
     @SerialName("system") val system: String? = null,
     @SerialName("code") val code: String? = null,
@@ -269,7 +269,7 @@ internal data class FhirCoding(
 }
 
 @Serializable
-internal data class FhirCodeableConcept(
+data class FhirCodeableConcept(
     @SerialName("coding") val coding: List<FhirCoding>? = emptyList(),
     @SerialName("text") val text: String? = null
 ) {
@@ -330,7 +330,7 @@ internal data class FhirNameFamilyExtension(
 )
 
 @Serializable
-internal data class FhirExtensionReduced(
+data class FhirExtensionReduced(
     @SerialName("url") val url: String? = null,
     @SerialName("valueString") val valueString: String? = null,
     @SerialName("valueCode") val valueCode: String? = null
@@ -369,18 +369,44 @@ internal data class FhirExtension(
 }
 
 @Serializable
-internal data class FhirMoney(
+data class FhirParameter(
+    @SerialName("name") val name: String? = null,
+    @SerialName("valueCoding") val valueCoding: FhirCoding? = null,
+    @SerialName("valueCodeableConcept") val valueCodeableConcept: FhirCoding? = null,
+    @SerialName("valueCode") val valueCode: String? = null,
+    @SerialName("valueString") val valueString: String? = null,
+    @SerialName("valuePositiveInt") val valuePositiveInt: String? = null,
+    @SerialName("valueUrl") val valueUrl: String? = null,
+    @SerialName("valueDate") val valueDate: String? = null,
+    @SerialName("valueMoney") val valueMoney: FhirMoney? = null,
+    @SerialName("valueDecimal") val valueDecimal: String? = null,
+    @SerialName("valueBoolean") val valueBoolean: Boolean? = null,
+    @SerialName("valueRatio") val valueRatio: FhirRatio? = null,
+    @SerialName("valuePeriod") val valuePeriod: FhirPeriod? = null,
+    @SerialName("valueIdentifier") val valueIdentifier: FhirIdentifier? = null,
+    @SerialName("valueReference") val valueReference: FhirReference? = null,
+    @SerialName("valueInstant") val valueInstant: String? = null
+) {
+    companion object {
+        fun List<FhirParameter>.findParameterByName(name: String): FhirParameter? {
+            return find { it.name?.lowercase() == name.lowercase() }
+        }
+    }
+}
+
+@Serializable
+data class FhirMoney(
     @SerialName("value") val value: String? = null,
     @SerialName("currency") val unit: String? = null
 )
 
 @Serializable
-internal data class FhirReference(
+data class FhirReference(
     @SerialName("reference") val value: String? = null
 )
 
 @Serializable
-internal data class FhirRatio(
+data class FhirRatio(
     @SerialName("extension") val extensions: List<FhirExtensionReduced> = emptyList(),
     @SerialName("numerator") val numerator: FhirRatioValue? = null,
     @SerialName("denominator") val denominator: FhirRatioValue? = null
@@ -396,7 +422,7 @@ internal data class FhirRatio(
 }
 
 @Serializable
-internal data class FhirRatioValue(
+data class FhirRatioValue(
     @SerialName("value") val value: String? = null,
     @SerialName("unit") val unit: String? = null
 ) {
@@ -411,7 +437,7 @@ internal data class FhirRatioValue(
 }
 
 @Serializable
-internal data class FhirPeriod(
+data class FhirPeriod(
     @SerialName("start") val start: String? = null,
     @SerialName("end") val end: String? = null
 )

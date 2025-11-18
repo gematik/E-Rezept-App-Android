@@ -29,7 +29,7 @@ pluginManagement {
 
 dependencyResolutionManagement {
 
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 
     // decide if obtaining dependencies from nexus
     val properties = Properties()
@@ -45,22 +45,24 @@ dependencyResolutionManagement {
     val obtainFromNexus = !nexusUrl.isNullOrEmpty() && !nexusUsername.isNullOrEmpty() && !nexusPassword.isNullOrEmpty()
 
     repositories {
-        maven("https://oss.sonatype.org/content/repositories/snapshots/")
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        google()
-        mavenCentral()
-        maven("https://jitpack.io")
-
         if (obtainFromNexus && nexusUrl != null) {
             maven {
                 name = "nexus"
                 setUrl(nexusUrl)
+                
                 credentials {
                     username = nexusUsername
                     password = nexusPassword
                 }
             }
+        } else {
+            println("Skipping nexus repository")
         }
+        maven("https://oss.sonatype.org/content/repositories/snapshots/")
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        google()
+        mavenCentral()
+        maven("https://jitpack.io")
     }
 }
 

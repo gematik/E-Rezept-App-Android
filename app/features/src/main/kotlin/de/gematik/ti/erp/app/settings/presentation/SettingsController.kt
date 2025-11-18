@@ -34,10 +34,8 @@ import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.settings.usecase.AllowScreenshotsUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetScreenShotsAllowedUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetZoomStateUseCase
-import de.gematik.ti.erp.app.settings.usecase.HasValidDigasUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveZoomPreferenceUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
@@ -55,8 +53,7 @@ class SettingsController(
     private val allowScreenshotsUseCase: AllowScreenshotsUseCase,
     private val saveZoomPreferenceUseCase: SaveZoomPreferenceUseCase,
     private val getActiveProfileUseCase: GetActiveProfileUseCase,
-    private val endpointHelper: EndpointHelper,
-    private val hasValidDigasUseCase: HasValidDigasUseCase
+    private val endpointHelper: EndpointHelper
 ) : Controller() {
 
     private val zoomFlow = getZoomStateUseCase.invoke().map { SettingStatesData.ZoomState(it) }
@@ -77,15 +74,7 @@ class SettingsController(
         false
     )
 
-    private val _hasValidDigas: MutableStateFlow<Boolean> = MutableStateFlow(false)
-
-    val hasValidDigas: StateFlow<Boolean> = _hasValidDigas
-
     val allowScreenshotsEvent = ComposableEvent<Unit>()
-
-    init {
-        hasValidDigas()
-    }
 
     fun onAllowScreenshots(allow: Boolean) = viewModelScope.launch {
         if (allow) {
@@ -124,18 +113,6 @@ class SettingsController(
             intentEvent.trigger(url)
         }
     }
-
-    private fun hasValidDigas() {
-        controllerScope.launch {
-            getActiveProfileUseCase()
-                .firstOrNull()
-                ?.let { profile ->
-                    hasValidDigasUseCase(profile.id).collect { isValid ->
-                        _hasValidDigas.value = isValid
-                    }
-                }
-        }
-    }
 }
 
 @Composable
@@ -147,7 +124,6 @@ fun rememberSettingsController(): SettingsController {
     val saveZoomPreferenceUseCase by rememberInstance<SaveZoomPreferenceUseCase>()
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
     val endpointHelper by rememberInstance<EndpointHelper>()
-    val hasValidDigasUseCase by rememberInstance<HasValidDigasUseCase>()
 
     return remember {
         SettingsController(
@@ -157,8 +133,7 @@ fun rememberSettingsController(): SettingsController {
             saveZoomPreferenceUseCase = saveZoomPreferenceUseCase,
             getZoomStateUseCase = getZoomStateUseCase,
             getActiveProfileUseCase = getActiveProfileUseCase,
-            endpointHelper = endpointHelper,
-            hasValidDigasUseCase = hasValidDigasUseCase
+            endpointHelper = endpointHelper
         )
     }
 }

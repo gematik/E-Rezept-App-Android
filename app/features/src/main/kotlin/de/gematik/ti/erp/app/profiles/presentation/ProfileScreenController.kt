@@ -28,7 +28,10 @@ import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
 import de.gematik.ti.erp.app.authentication.presentation.ChooseAuthenticationController
 import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
+import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
+import de.gematik.ti.erp.app.database.datastore.featuretoggle.EU_REDEEM
+import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuPrescriptionConsentUseCase
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.AddProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.DeleteProfileUseCase
@@ -38,7 +41,17 @@ import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.LogoutProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.SwitchActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileUseCase
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.redeem.usecase.HasEuRedeemablePrescriptionsUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
@@ -55,7 +68,10 @@ class ProfileScreenController(
     private val updateProfileUseCase: UpdateProfileUseCase,
     private val logoutProfileUseCase: LogoutProfileUseCase,
     private val addProfileUseCase: AddProfileUseCase,
-    private val deleteProfileUseCase: DeleteProfileUseCase
+    private val deleteProfileUseCase: DeleteProfileUseCase,
+    private val hasEuRedeemablePrescriptionsUseCase: HasEuRedeemablePrescriptionsUseCase,
+    private val getEuPrescriptionConsentUseCase: GetEuPrescriptionConsentUseCase,
+    isFeatureToggleEnabledUseCase: IsFeatureToggleEnabledUseCase
 ) : ChooseAuthenticationController(
     profileId = profileId,
     getProfileByIdUseCase = getProfileByIdUseCase,
@@ -65,6 +81,50 @@ class ProfileScreenController(
     chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
     networkStatusTracker = networkStatusTracker
 ) {
+
+    private val _euConsentStatus = MutableStateFlow<Boolean?>(null)
+    val euConsentStatus: StateFlow<Boolean?> = _euConsentStatus.asStateFlow()
+
+    val euRedeemFeatureFlag: StateFlow<Boolean> =
+        isFeatureToggleEnabledUseCase(EU_REDEEM)
+            .stateIn(
+                controllerScope,
+                SharingStarted.WhileSubscribed(),
+                false
+            )
+
+    fun fetchEuConsentStatus(profileId: ProfileIdentifier) {
+        controllerScope.launch {
+            getEuPrescriptionConsentUseCase(profileId)
+                .fold(
+                    onSuccess = { consentCollection ->
+                        _euConsentStatus.value = consentCollection.isActive()
+                    },
+                    onFailure = {
+                        _euConsentStatus.value = false
+                    }
+                )
+        }
+    }
+
+    fun onEuConsentClick(profile: ProfilesUseCaseData.Profile): Boolean =
+        profile.isSSOTokenValid().also { if (!it) chooseAuthenticationMethod(profile) }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val hasEuRedeemablePrescriptions: StateFlow<Boolean> = getActiveProfileUseCase()
+        .flatMapLatest { profile ->
+            if (profile != null) {
+                hasEuRedeemablePrescriptionsUseCase(profile.id)
+            } else {
+                flowOf(false)
+            }
+        }
+        .stateIn(
+            controllerScope,
+            SharingStarted.WhileSubscribed(),
+            false
+        )
+
     val deleteDialogEvent = ComposableEvent<Unit>()
 
     fun switchActiveProfile(id: ProfileIdentifier) {
@@ -120,6 +180,9 @@ fun rememberProfileScreenController(profileId: ProfileIdentifier): ProfileScreen
     val networkStatusTracker by rememberInstance<NetworkStatusTracker>()
     val chooseAuthenticationDataUseCase by rememberInstance<ChooseAuthenticationDataUseCase>()
     val biometricAuthenticator = LocalBiometricAuthenticator.current
+    val hasEuRedeemablePrescriptionsUseCase by rememberInstance<HasEuRedeemablePrescriptionsUseCase>()
+    val getEuPrescriptionConsentUseCase by rememberInstance<GetEuPrescriptionConsentUseCase>()
+    val isFeatureToggleEnabledUseCase by rememberInstance<IsFeatureToggleEnabledUseCase>()
 
     return remember(profileId) {
         ProfileScreenController(
@@ -134,7 +197,10 @@ fun rememberProfileScreenController(profileId: ProfileIdentifier): ProfileScreen
             logoutProfileUseCase = logoutProfileUseCase,
             biometricAuthenticator = biometricAuthenticator,
             chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
-            networkStatusTracker = networkStatusTracker
+            networkStatusTracker = networkStatusTracker,
+            hasEuRedeemablePrescriptionsUseCase = hasEuRedeemablePrescriptionsUseCase,
+            getEuPrescriptionConsentUseCase = getEuPrescriptionConsentUseCase,
+            isFeatureToggleEnabledUseCase = isFeatureToggleEnabledUseCase
         )
     }
 }

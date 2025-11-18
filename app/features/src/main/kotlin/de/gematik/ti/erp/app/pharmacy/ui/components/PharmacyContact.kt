@@ -22,35 +22,44 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
+import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodMetadata
+import de.gematik.ti.erp.app.fhir.pharmacy.model.SpecialOpeningTimeMetadata
 import de.gematik.ti.erp.app.pharmacy.ui.preview.mockDetailedInfoText
 import de.gematik.ti.erp.app.pharmacy.ui.preview.mockOpeningHours
+import de.gematik.ti.erp.app.pharmacy.ui.preview.mockSpecialClosingTimes
+import de.gematik.ti.erp.app.pharmacy.ui.preview.mockSpecialOpeningTimes
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningTime
+import de.gematik.ti.erp.app.preview.LightDarkLongPreview
 import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerTiny
+import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.ErezeptText
 import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
-import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDateTime
@@ -60,6 +69,8 @@ import java.util.Locale
 @Composable
 internal fun PharmacyContact(
     openingHours: OpeningHours?,
+    specialOpeningTimes: List<SpecialOpeningTimeMetadata>,
+    specialClosingTimes: List<NotAvailablePeriodMetadata>,
     phone: String,
     mail: String,
     url: String,
@@ -82,13 +93,25 @@ internal fun PharmacyContact(
         }
         SpacerLarge()
 
+        if (specialOpeningTimes.isNotEmpty()) {
+            SpecialOpeningTimes(specialOpeningTimes)
+        }
+        SpacerXXLarge()
+
+        if (specialClosingTimes.isNotEmpty()) {
+            SpecialClosingTimes(specialClosingTimes)
+        }
+
         if (phone.isNotEmpty() || mail.isNotEmpty() || url.isNotEmpty()) {
+            SpacerXXLarge()
             ErezeptText.Title(text = stringResource(id = R.string.legal_notice_contact_header))
             SpacerMedium()
         }
+
         if (phone.isNotEmpty()) {
             ContactLabel(
                 text = phone,
+                icon = R.drawable.phone,
                 label = stringResource(R.string.pres_detail_organization_label_telephone),
                 onClick = onPhoneClicked
             )
@@ -97,6 +120,7 @@ internal fun PharmacyContact(
         if (mail.isNotEmpty()) {
             ContactLabel(
                 text = mail,
+                icon = R.drawable.mail,
                 label = stringResource(R.string.pres_detail_organization_label_email),
                 onClick = onMailClicked
             )
@@ -105,6 +129,7 @@ internal fun PharmacyContact(
         if (url.isNotEmpty()) {
             ContactLabel(
                 text = url,
+                icon = R.drawable.website,
                 label = stringResource(R.string.pharm_detail_website),
                 onClick = onUrlClicked
             )
@@ -124,24 +149,36 @@ internal fun PharmacyContact(
 private fun ContactLabel(
     text: String,
     label: String,
+    icon: Int,
     onClick: (String) -> Unit
 ) {
-    Column(
+    Row(
         modifier = Modifier
             .clickable {
                 onClick(text)
             }
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = text,
-            style = AppTheme.typography.body1,
-            color = AppTheme.colors.primary700
-        )
-        SpacerTiny()
-        Text(
-            text = label,
-            style = AppTheme.typography.body2l
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = text,
+                style = AppTheme.typography.body1,
+                color = AppTheme.colors.primary700
+            )
+            SpacerTiny()
+            Text(
+                text = label,
+                style = AppTheme.typography.body2l
+            )
+        }
+        Image(
+            painter = painterResource(icon),
+            contentDescription = label,
+            modifier = Modifier.size(SizeDefaults.triple)
         )
     }
 }
@@ -164,7 +201,14 @@ private fun DataInfoSection(
     Row(modifier = modifier) {
         HintTextActionButton(
             text = stringResource(R.string.pharmacy_detail_data_info_btn),
-            onClick = onHintClicked
+            onClick = onHintClicked,
+            icon = {
+                Icon(
+                    painter = painterResource(R.drawable.open_link),
+                    contentDescription = null,
+                    modifier = Modifier.size(SizeDefaults.triple)
+                )
+            }
         )
     }
 }
@@ -241,7 +285,7 @@ private fun PharmacyDayOpeningHoursDisplay(
                 Text(
                     text = text,
                     color = when {
-                        isOpenNow -> AppTheme.colors.green600
+                        isOpenNow -> AppTheme.colors.green700
                         isOpenToday -> AppTheme.colors.neutral600
                         else -> AppTheme.colors.neutral600
                     },
@@ -273,13 +317,14 @@ private fun generateDayLabel(
 }
 
 @Suppress("MagicNumber")
-@Preview(locale = "en")
-@LightDarkPreview
+@LightDarkLongPreview
 @Composable
 fun PreviewPharmacyContact() {
     PreviewAppTheme {
         PharmacyContact(
             openingHours = mockOpeningHours,
+            specialClosingTimes = mockSpecialClosingTimes,
+            specialOpeningTimes = mockSpecialOpeningTimes,
             phone = "123-456-7890",
             mail = "pharmacy@example.com",
             url = "www.examplepharmacy.com",

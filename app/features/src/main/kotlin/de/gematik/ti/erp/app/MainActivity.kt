@@ -43,7 +43,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import de.gematik.ti.erp.app.app.ApplicationScaffold
 import de.gematik.ti.erp.app.appupdate.navigation.AppUpdateNavHost
 import de.gematik.ti.erp.app.authentication.presentation.rememberBiometricAuthenticator
@@ -73,7 +72,7 @@ open class MainActivity : BaseActivity() {
     @VisibleForTesting(otherwise = VisibleForTesting.NONE) // Only visible for testing, otherwise shows a warning
     val testWrapper: TestWrapper by instance()
 
-    @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalComposeUiApi::class)
     @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

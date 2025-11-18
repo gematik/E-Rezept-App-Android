@@ -22,10 +22,10 @@
 
 package de.gematik.ti.erp.app.messages.domain.usecase
 
-import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
-
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.messages.domain.repository.ChangeLogLocalDataSource
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import kotlinx.coroutines.flow.firstOrNull
 
 class UpdateInternalMessagesUseCase(
@@ -43,12 +43,26 @@ class UpdateInternalMessagesUseCase(
                 internalMessagesRepository.saveInternalMessage(
                     changeLogDataSource.createWelcomeMessage(currentVersion)
                 )
+
+                @Requirement(
+                    "O.Resi_9#1",
+                    sourceSpecification = "BSI-eRp-ePA",
+                    rationale = "Show warning for deprecated Android devices, if present",
+                    codeLines = 5
+                )
+                @Requirement(
+                    "A_19178#1",
+                    sourceSpecification = "gemSpec_eRp_FdV",
+                    rationale = "Show warning for deprecated Android devices, if present",
+                    codeLines = 5
+                )
                 if (changeLogDataSource.shouldShowSecurityWarningMessage()) {
                     internalMessagesRepository.saveInternalMessage(
                         changeLogDataSource.createSecurityWarningMessage(currentVersion)
                     )
                 }
             }
+
             lastUpdatedVersion.isSecurityWarningMigration() -> {
                 getNewChangeLogEntries(
                     lastUpdatedVersion,
@@ -58,6 +72,7 @@ class UpdateInternalMessagesUseCase(
                     changeLogDataSource.createSecurityWarningMessage(currentVersion)
                 )
             }
+
             else -> {
                 // app update
                 getNewChangeLogEntries(

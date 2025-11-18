@@ -50,6 +50,7 @@ interface ProfileRepository {
     suspend fun clearPersonalizedProfileImage(profileId: ProfileIdentifier)
     suspend fun switchProfileToPKV(profileId: ProfileIdentifier): Boolean
     suspend fun switchProfileToGKV(profileId: ProfileIdentifier): Boolean
+    suspend fun switchProfileToBUND(profileId: ProfileIdentifier): Boolean
     suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean
     suspend fun getOrganizationIdentifier(profileId: ProfileIdentifier): Flow<String>
     suspend fun updateOrganizationIdentifier(iknr: String)

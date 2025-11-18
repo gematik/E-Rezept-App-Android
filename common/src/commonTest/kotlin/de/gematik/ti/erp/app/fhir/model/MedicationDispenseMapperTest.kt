@@ -56,8 +56,9 @@ class MedicationDispenseMapperTest {
                 ReturnType.Ingredient
             },
             processMedication = { text, medicationCategory, form, amount, vaccine,
-                manufacturingInstructions, packaging, normSizeCode, identifier, ingredientMedications,
-                ingredients, lotNumber, expirationDate ->
+                    manufacturingInstructions, packaging, normSizeCode, identifier, ingredientMedications,
+                    ingredients, lotNumber, expirationDate
+                ->
                 assertEquals("Defamipin", text)
                 assertEquals(MedicationCategory.BTM, medicationCategory)
                 assertEquals("FET", form)
@@ -73,7 +74,8 @@ class MedicationDispenseMapperTest {
                 ReturnType.Medication
             },
             processMedicationDispense = { dispenseId, patientIdentifier, medication, wasSubstituted,
-                dosageInstruction, performer, whenHandedOver ->
+                    dosageInstruction, performer, whenHandedOver
+                ->
                 assertEquals("160.000.000.031.686.59", dispenseId)
                 assertEquals("X110535541", patientIdentifier)
                 assertEquals(ReturnType.Medication, medication)
@@ -104,8 +106,9 @@ class MedicationDispenseMapperTest {
                 ReturnType.Ingredient
             },
             processMedication = { text, medicationCategory, form, amount, vaccine,
-                manufacturingInstructions, packaging, normSizeCode, identifier, ingredientMedications,
-                ingredients, lotNumber, expirationDate ->
+                    manufacturingInstructions, packaging, normSizeCode, identifier, ingredientMedications,
+                    ingredients, lotNumber, expirationDate
+                ->
                 assertEquals("", text)
                 assertEquals(MedicationCategory.UNKNOWN, medicationCategory)
                 assertEquals(null, form)
@@ -121,7 +124,8 @@ class MedicationDispenseMapperTest {
                 ReturnType.Medication
             },
             processMedicationDispense = { dispenseId, patientIdentifier, medication, wasSubstituted,
-                dosageInstruction, performer, whenHandedOver ->
+                    dosageInstruction, performer, whenHandedOver
+                ->
                 assertEquals("160.000.000.031.686.59", dispenseId)
                 assertEquals("X110535541", patientIdentifier)
                 assertEquals(ReturnType.Medication, medication)
@@ -153,8 +157,9 @@ class MedicationDispenseMapperTest {
                     ReturnType.Ingredient
                 },
                 processMedication = { text, medicationCategory, form, amount, vaccine,
-                    manufacturingInstructions, packaging, normSizeCode, identifier, ingredientMedications,
-                    ingredients, lotNumber, expirationDate ->
+                        manufacturingInstructions, packaging, normSizeCode, identifier, ingredientMedications,
+                        ingredients, lotNumber, expirationDate
+                    ->
                     assertEquals("Sumatriptan-1a Pharma 100 mg Tabletten", text)
                     assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                     assertEquals("TAB", form)
@@ -170,7 +175,8 @@ class MedicationDispenseMapperTest {
                     ReturnType.Medication
                 },
                 processMedicationDispense = { dispenseId, patientIdentifier, medication, wasSubstituted,
-                    dosageInstruction, performer, whenHandedOver ->
+                        dosageInstruction, performer, whenHandedOver
+                    ->
                     assertEquals("3465270a-11e7-4bbf-ae53-378f9cc52747", dispenseId)
                     assertEquals("X234567890", patientIdentifier)
                     assertEquals(ReturnType.Medication, medication)
@@ -207,8 +213,9 @@ class MedicationDispenseMapperTest {
                 ReturnType.Ingredient
             },
             processMedication = { text, medicationCategory, form, amount, vaccine,
-                manufacturingInstructions, packaging, normSizeCode, identifier, ingredientMedications,
-                ingredients, lotNumber, expirationDate ->
+                    manufacturingInstructions, packaging, normSizeCode, identifier, ingredientMedications,
+                    ingredients, lotNumber, expirationDate
+                ->
                 assertEquals("Defamipin", text)
                 assertEquals(MedicationCategory.UNKNOWN, medicationCategory)
                 assertEquals("FET", form)
@@ -224,7 +231,8 @@ class MedicationDispenseMapperTest {
                 ReturnType.Medication
             },
             processMedicationDispense = { dispenseId, patientIdentifier, medication, wasSubstituted,
-                dosageInstruction, performer, whenHandedOver ->
+                    dosageInstruction, performer, whenHandedOver
+                ->
                 assertEquals("160.000.000.031.686.59", dispenseId)
                 assertEquals("X110535541", patientIdentifier)
                 assertEquals(ReturnType.Medication, medication)
@@ -261,8 +269,9 @@ class MedicationDispenseMapperTest {
                     ReturnType.Ingredient
                 },
                 processMedication = { text, medicationCategory, form, amount, vaccine,
-                    manufacturingInstructions, packaging, normSizeCode, identifier, ingredientMedications,
-                    ingredients, lotNumber, expirationDate ->
+                        manufacturingInstructions, packaging, normSizeCode, identifier, ingredientMedications,
+                        ingredients, lotNumber, expirationDate
+                    ->
                     assertEquals("06313728", text)
                     assertEquals(MedicationCategory.UNKNOWN, medicationCategory)
                     assertEquals(null, form)
@@ -279,7 +288,8 @@ class MedicationDispenseMapperTest {
                     ReturnType.Medication
                 },
                 processMedicationDispense = { dispenseId, patientIdentifier, medication, wasSubstituted,
-                    dosageInstruction, performer, whenHandedOver ->
+                        dosageInstruction, performer, whenHandedOver
+                    ->
                     assertEquals("160.000.000.000.000.01", dispenseId)
                     assertEquals("X123456789", patientIdentifier)
                     assertEquals(ReturnType.Medication, medication)
@@ -317,12 +327,14 @@ class MedicationDispenseMapperTest {
                     ReturnType.Ingredient
                 },
                 processMedication = { _, _, _, _, _,
-                    _, _, _, _, _,
-                    _, _, _ ->
+                        _, _, _, _, _,
+                        _, _, _
+                    ->
                     ReturnType.Medication
                 },
                 processMedicationDispense = { dispenseId, patientIdentifier, medication, wasSubstituted,
-                    dosageInstruction, performer, whenHandedOver ->
+                        dosageInstruction, performer, whenHandedOver
+                    ->
                     assertEquals("160.000.000.000.000.03", dispenseId)
                     assertEquals("X123456789", patientIdentifier)
                     assertEquals(ReturnType.Medication, medication)
@@ -360,12 +372,14 @@ class MedicationDispenseMapperTest {
                     ReturnType.Ingredient
                 },
                 processMedication = { _, _, _, _, _,
-                    _, _, _, _, _,
-                    _, _, _ ->
+                        _, _, _, _, _,
+                        _, _, _
+                    ->
                     ReturnType.Medication
                 },
                 processMedicationDispense = { dispenseId, patientIdentifier, medication, wasSubstituted,
-                    dosageInstruction, performer, whenHandedOver ->
+                        dosageInstruction, performer, whenHandedOver
+                    ->
 
                     if (index == 0) {
                         assertEquals("160.000.000.000.000.01", dispenseId)

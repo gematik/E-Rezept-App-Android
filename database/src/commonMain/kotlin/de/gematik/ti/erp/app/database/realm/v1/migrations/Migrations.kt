@@ -47,6 +47,8 @@ import de.gematik.ti.erp.app.database.realm.v1.ShippingContactEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.SingleSignOnTokenScopeV1
 import de.gematik.ti.erp.app.database.realm.v1.TruststoreEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.debugsettings.DebugSettingsEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.euredeem.EuAccessCodeEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.euredeem.EuOrderEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.ChargeableItemV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.PKVInvoiceEntityV1
@@ -148,7 +150,9 @@ fun appSchemas(profileName: String): Set<AppRealmSchema> {
                 DebugSettingsEntityV1::class,
                 // support for digas
                 DeviceRequestEntityV1::class,
-                DeviceRequestDispenseEntityV1::class
+                DeviceRequestDispenseEntityV1::class,
+                EuAccessCodeEntityV1::class,
+                EuOrderEntityV1::class
             ),
             migrateOrInitialize = { migrationStartedFrom ->
                 queryFirst<SettingsEntityV1>() ?: run {
@@ -373,6 +377,12 @@ fun appSchemas(profileName: String): Set<AppRealmSchema> {
                         // doing this because the initial name isEuRedeemable was too generic
                         syncedTask.isEuRedeemableByProperties = false
                         syncedTask.isEuRedeemableByPatientAuthorization = false
+                    }
+                }
+                if (migrationStartedFrom < 58) {
+                    query<MedicationDispenseEntityV1>().find().forEach { medicationDispense ->
+                        medicationDispense.pharmacyName = ""
+                        medicationDispense.address = null
                     }
                 }
             }

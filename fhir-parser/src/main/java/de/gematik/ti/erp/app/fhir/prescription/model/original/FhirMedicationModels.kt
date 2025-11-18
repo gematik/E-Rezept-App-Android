@@ -90,7 +90,8 @@ internal data class FhirMedication(
                 FhirMedicationVersion.V_102 -> amount?.getRatioSpecialVersion102()
                 FhirMedicationVersion.V_110,
                 FhirMedicationVersion.V_12,
-                FhirMedicationVersion.V_13 -> amount?.getRatio()
+                FhirMedicationVersion.V_13
+                -> amount?.getRatio()
 
                 else -> null
             }
@@ -177,7 +178,8 @@ enum class FhirMedicationProfileType(val type: String) {
     FreeText("Medication_FreeText"),
     Compounding("Medication_Compounding"),
     Ingredient("Medication_Ingredient"),
-    Unknown("");
+    Unknown("")
+    ;
 
     companion object {
         fun fromString(value: String): FhirMedicationProfileType = entries.find { it.type == value } ?: Unknown
@@ -193,7 +195,8 @@ enum class FhirMedicationVersion(val version: String) {
     V_110("1.1.0"),
     V_12("1.2"),
     V_13("1.3"),
-    Unknown("");
+    Unknown("")
+    ;
 
     companion object {
         fun fromString(value: String) = entries.find { it.version == value } ?: Unknown

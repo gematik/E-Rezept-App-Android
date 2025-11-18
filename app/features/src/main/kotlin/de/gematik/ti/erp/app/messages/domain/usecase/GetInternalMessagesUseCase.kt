@@ -24,8 +24,8 @@ package de.gematik.ti.erp.app.messages.domain.usecase
 
 import de.gematik.ti.erp.app.messages.domain.repository.ChangeLogLocalDataSource
 import de.gematik.ti.erp.app.messages.mapper.toInAppMessage
-import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.messages.model.InAppMessage
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

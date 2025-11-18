@@ -31,7 +31,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import androidx.work.workDataOf
 import de.gematik.ti.erp.app.api.HttpErrorState
-import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
+import de.gematik.ti.erp.app.authentication.presentation.AuthReason
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
 import de.gematik.ti.erp.app.authentication.presentation.ChooseAuthenticationController
 import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
@@ -48,7 +48,6 @@ import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.DigaRedeemedPrescriptionState
 import de.gematik.ti.erp.app.redeem.usecase.RedeemDigaUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
-import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -84,25 +83,16 @@ class RedeemDigaController(
     private val _isProfileRefreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _isRedeeming: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
-    val showAuthenticationErrorDialog = ComposableEvent<AuthenticationResult.Error>()
-    val onBiometricAuthenticationSuccessEvent = ComposableEvent<Unit>()
+    val onBiometricAuthenticationSuccessEvent = ComposableEvent<AuthReason>()
     val onAutoDownloadEvent = ComposableEvent<Pair<WorkManager, WorkRequest>>()
     val isRedeeming: StateFlow<Boolean> = _isRedeeming.asStateFlow()
 
     init {
-        biometricAuthenticationSuccessEvent.listen(controllerScope) {
-            onBiometricAuthenticationSuccessEvent.trigger()
+        biometricAuthenticationSuccessEvent.listen(controllerScope) { reason ->
+            onBiometricAuthenticationSuccessEvent.trigger(reason)
         }
 
-        biometricAuthenticationResetErrorEvent.listen(controllerScope) { error ->
-            showAuthenticationErrorDialog.trigger(error)
-        }
-
-        biometricAuthenticationOtherErrorEvent.listen(controllerScope) { error ->
-            showAuthenticationErrorDialog.trigger(error)
-        }
-
-        onRefreshProfileAction.listen(controllerScope) { isRefreshing ->
+        isProfileRefreshingEvent.listen(controllerScope) { isRefreshing ->
             _isProfileRefreshing.value = isRefreshing
         }
     }

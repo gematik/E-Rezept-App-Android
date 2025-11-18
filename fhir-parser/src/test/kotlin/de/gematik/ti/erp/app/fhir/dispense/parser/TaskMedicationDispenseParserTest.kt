@@ -32,6 +32,9 @@ import de.gematik.ti.erp.app.data.medication_dispense_1_4_diga_deeplink
 import de.gematik.ti.erp.app.data.medication_dispense_1_4_diga_name_and_pzn
 import de.gematik.ti.erp.app.data.medication_dispense_1_4_diga_no_redeem_code
 import de.gematik.ti.erp.app.data.medication_dispense_bundle_version_1_2
+import de.gematik.ti.erp.app.data.medication_dispense_eu_1_0_multiple_dispense
+import de.gematik.ti.erp.app.data.medication_dispense_eu_1_0_single_dispense
+import de.gematik.ti.erp.app.data.medication_dispense_eu_1_0_single_dispense_urn
 import de.gematik.ti.erp.app.data.medication_dispense_medication_1_4_complex
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_2
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_4_complex
@@ -41,6 +44,9 @@ import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_4_simple
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_diga_deeplink
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_diga_name_and_pzn
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_diga_no_redeem_code
+import de.gematik.ti.erp.app.fhir.dispense.mocks.medicationDispenseErpModelCollectionEuV10Multiple
+import de.gematik.ti.erp.app.fhir.dispense.mocks.medicationDispenseErpModelCollectionEuV10Single
+import de.gematik.ti.erp.app.fhir.dispense.mocks.medicationDispenseErpModelCollectionEuV10SingleUrn
 import de.gematik.ti.erp.app.fhir.dispense.mocks.medicationDispenseErpModelCollectionV15MultipleMedications
 import de.gematik.ti.erp.app.fhir.dispense.mocks.medicationDispenseErpModelCollectionV15SingleMedication
 import kotlinx.serialization.json.Json
@@ -142,5 +148,26 @@ class TaskMedicationDispenseParserTest {
         val bundle = Json.parseToJsonElement(bundle_dispense_1_5_multiple)
         val erpModel = parser.extract(bundle)
         assertEquals(medicationDispenseErpModelCollectionV15MultipleMedications, erpModel)
+    }
+
+    @Test
+    fun `single eu medication dispense`() {
+        val bundle = Json.parseToJsonElement(medication_dispense_eu_1_0_single_dispense)
+        val erpModel = parser.extract(bundle)
+        assertEquals(medicationDispenseErpModelCollectionEuV10Single, erpModel)
+    }
+
+    @Test
+    fun `multiple eu medication dispense`() {
+        val bundle = Json.parseToJsonElement(medication_dispense_eu_1_0_multiple_dispense)
+        val erpModel = parser.extract(bundle)
+        assertEquals(medicationDispenseErpModelCollectionEuV10Multiple, erpModel)
+    }
+
+    @Test
+    fun `single eu medication dispense with URN references`() {
+        val bundle = Json.parseToJsonElement(medication_dispense_eu_1_0_single_dispense_urn)
+        val erpModel = parser.extract(bundle)
+        assertEquals(medicationDispenseErpModelCollectionEuV10SingleUrn, erpModel)
     }
 }

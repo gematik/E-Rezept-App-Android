@@ -58,6 +58,7 @@ import androidx.compose.material.icons.outlined.DataExploration
 import androidx.compose.material.icons.rounded.Adb
 import androidx.compose.material.icons.rounded.AddRoad
 import androidx.compose.material.icons.rounded.Bookmarks
+import androidx.compose.material.icons.rounded.LockReset
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.HorizontalDivider
@@ -252,6 +253,7 @@ fun DebugScreen(
                 getTaskIdsUseCase = instance(),
                 getIknrUseCase = instance(),
                 updateIknrUseCase = instance(),
+                revokeEuConsentUseCase = instance(),
                 dispatchers = instance()
             )
         }
@@ -433,7 +435,12 @@ fun DebugScreenMain(
                         ) {
                             viewModel.refreshPrescriptions()
                         }
-
+                        LabelButton(
+                            icon = Icons.Rounded.LockReset,
+                            text = "Revoke Eu Consent"
+                        ) {
+                            viewModel.onRevokeEuConsent()
+                        }
                         LabelButton(
                             icon = Icons.Rounded.AddRoad,
                             text = "External Logger"

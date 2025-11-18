@@ -24,7 +24,6 @@ package de.gematik.ti.erp.app.redeem.usecase
 
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
-
 import de.gematik.ti.erp.app.fhir.communication.DigaDispenseRequestBuilder
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository

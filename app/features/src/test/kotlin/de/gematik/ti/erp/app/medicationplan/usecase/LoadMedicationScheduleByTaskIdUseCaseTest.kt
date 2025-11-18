@@ -24,17 +24,17 @@ package de.gematik.ti.erp.app.medicationplan.usecase
 
 import de.gematik.ti.erp.app.medicationplan.MEDICATION_SCHEDULE
 import de.gematik.ti.erp.app.medicationplan.alarm.MedicationPlanNotificationScheduler
-import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanLocalDataSource
 import de.gematik.ti.erp.app.medicationplan.repository.DefaultMedicationPlanRepository
+import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanLocalDataSource
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlin.test.assertEquals
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class LoadMedicationScheduleByTaskIdUseCaseTest {
     private val dispatcher = StandardTestDispatcher()

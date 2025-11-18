@@ -45,5 +45,5 @@ enum class FhirKbvResourceType {
     Practitioner,
     Organization,
     Coverage,
-    DeviceRequest;
+    DeviceRequest
 }

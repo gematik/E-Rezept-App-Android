@@ -26,11 +26,13 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
 import de.gematik.ti.erp.app.eurezept.presentation.euSharedViewModel
-import de.gematik.ti.erp.app.eurezept.ui.screens.EUAvailabilityScreen
-import de.gematik.ti.erp.app.eurezept.ui.screens.EUConsentScreen
+import de.gematik.ti.erp.app.eurezept.ui.screens.EuAvailabilityScreen
+import de.gematik.ti.erp.app.eurezept.ui.screens.EuConsentScreen
 import de.gematik.ti.erp.app.eurezept.ui.screens.EuCountrySelectionScreen
+import de.gematik.ti.erp.app.eurezept.ui.screens.EuInstructionsScreen
 import de.gematik.ti.erp.app.eurezept.ui.screens.EuPrescriptionSelectionScreen
-import de.gematik.ti.erp.app.eurezept.ui.screens.EuRedeemScreen
+import de.gematik.ti.erp.app.eurezept.ui.screens.EuRedeemOverviewScreen
+import de.gematik.ti.erp.app.eurezept.ui.screens.EuRedemptionCodeScreen
 import de.gematik.ti.erp.app.navigation.renderComposable
 
 fun NavGraphBuilder.euGraph(
@@ -45,7 +47,7 @@ fun NavGraphBuilder.euGraph(
             route = EuRoutes.EuConsentScreen.route,
             arguments = EuRoutes.EuConsentScreen.arguments
         ) { navEntry ->
-            EUConsentScreen(
+            EuConsentScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )
@@ -55,7 +57,7 @@ fun NavGraphBuilder.euGraph(
             route = EuRoutes.EuRedeemScreen.route,
             arguments = EuRoutes.EuRedeemScreen.arguments
         ) { navEntry ->
-            EuRedeemScreen(
+            EuRedeemOverviewScreen(
                 navController = navController,
                 navBackStackEntry = navEntry,
                 graphController = euSharedViewModel(navController, navEntry)
@@ -85,12 +87,32 @@ fun NavGraphBuilder.euGraph(
         }
 
         renderComposable(
-            route = EuRoutes.EUAvailabilityScreen.route,
-            arguments = EuRoutes.EUAvailabilityScreen.arguments
+            route = EuRoutes.EuAvailabilityScreen.route,
+            arguments = EuRoutes.EuAvailabilityScreen.arguments
         ) { navEntry ->
-            EUAvailabilityScreen(
+            EuAvailabilityScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
+            )
+        }
+        renderComposable(
+            route = EuRoutes.EuInstructionsScreen.route,
+            arguments = EuRoutes.EuInstructionsScreen.arguments
+        ) { navEntry ->
+            EuInstructionsScreen(
+                navController = navController,
+                navBackStackEntry = navEntry,
+                graphController = euSharedViewModel(navController, navEntry)
+            )
+        }
+        renderComposable(
+            route = EuRoutes.EuRedemptionCodeScreen.route,
+            arguments = EuRoutes.EuRedemptionCodeScreen.arguments
+        ) { navEntry ->
+            EuRedemptionCodeScreen(
+                navController = navController,
+                navBackStackEntry = navEntry,
+                graphController = euSharedViewModel(navController, navEntry)
             )
         }
     }

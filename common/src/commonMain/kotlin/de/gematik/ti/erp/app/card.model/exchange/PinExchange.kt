@@ -54,7 +54,8 @@ fun ICardChannel.verifyPin(pin: String): ResponseStatus {
             ResponseStatus.WRONG_SECRET_WARNING_COUNT_01,
             ResponseStatus.WRONG_SECRET_WARNING_COUNT_02,
             ResponseStatus.WRONG_SECRET_WARNING_COUNT_03,
-            ResponseStatus.PASSWORD_BLOCKED ->
+            ResponseStatus.PASSWORD_BLOCKED
+            ->
                 true
             else ->
                 false

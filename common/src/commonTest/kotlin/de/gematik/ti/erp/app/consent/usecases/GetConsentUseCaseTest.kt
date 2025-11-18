@@ -29,8 +29,12 @@ import de.gematik.ti.erp.app.consent.repository.ConsentRemoteDataSource
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.consent.repository.DefaultConsentRepository
 import de.gematik.ti.erp.app.consent.usecase.GetConsentUseCase
+import de.gematik.ti.erp.app.fhir.consent.FhirConsentParser
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
+import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -45,40 +49,46 @@ class GetConsentUseCaseTest {
     private val dispatcher = StandardTestDispatcher()
     private val remoteDataSource = mockk<ConsentRemoteDataSource>()
     private val localDataSource = mockk<ConsentLocalDataSource>()
+
+    @MockK(relaxed = true)
+    private lateinit var fhirConsentParser: FhirConsentParser
     private lateinit var repository: ConsentRepository
     private lateinit var useCase: GetConsentUseCase
 
     @Before
     fun setup() {
+        MockKAnnotations.init(this)
+
         repository = DefaultConsentRepository(
             remoteDataSource = remoteDataSource,
-            localDataSource = localDataSource
+            localDataSource = localDataSource,
+            parsers = fhirConsentParser
         )
         useCase = GetConsentUseCase(repository)
     }
 
     @Test
     fun `on get consent successfully for a profile`() {
-        coEvery { remoteDataSource.getConsent(any()) } returns Result.success(
+        coEvery { remoteDataSource.getPkvConsent(any(), ConsentCategory.PKVCONSENT.code) } returns Result.success(
             json.parseToJsonElement(MOCK_JSON_RESPONSE_CONSENT)
         )
         runTest(dispatcher) {
             val result = useCase.invoke(profileId).first()
             assertEquals(ConsentState.ValidState.Granted(ConsentContext.GetConsent), result)
             coVerify(exactly = 1) {
-                repository.getConsent(profileId)
+                repository.getPkvConsent(profileId, ConsentCategory.PKVCONSENT.code)
             }
         }
     }
 
     @Test
     fun `on get consent failed for a profile`() {
-        coEvery { remoteDataSource.getConsent(any()) } returns Result.failure(Throwable("server error"))
+        coEvery { remoteDataSource.getPkvConsent(any(), ConsentCategory.PKVCONSENT.code) } returns Result.failure(Throwable("server error"))
         runTest(dispatcher) {
             val result = useCase.invoke(profileId).first()
             assertEquals(ConsentState.ConsentErrorState.Unknown, result)
             coVerify(exactly = 1) {
-                repository.getConsent(profileId)
+                repository.getPkvConsent(profileId, ConsentCategory.PKVCONSENT.code)
             }
         }
     }

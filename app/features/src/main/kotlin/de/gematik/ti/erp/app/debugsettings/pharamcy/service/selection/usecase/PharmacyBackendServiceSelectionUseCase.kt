@@ -23,29 +23,13 @@
 package de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.usecase
 
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
-import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 // combined use-case in debug-menu
-class PharmacyBackendServiceSelectionUseCase(
-    private val repository: PharmacyRepository,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
-) {
+class PharmacyBackendServiceSelectionUseCase {
     sealed interface Operation {
         data object LoadPharmacyBackendService : Operation
         data class SavePharmacyBackendService(val type: PharmacyVzdService) : Operation
     }
 
-    suspend operator fun invoke(operation: Operation): PharmacyVzdService =
-        withContext(dispatcher) {
-            when (operation) {
-                Operation.LoadPharmacyBackendService -> repository.getSelectedVzdPharmacyBackend()
-                is Operation.SavePharmacyBackendService -> {
-                    repository.updateSelectedVzdPharmacyBackend(operation.type)
-                    operation.type
-                }
-            }
-        }
+    suspend operator fun invoke(operation: Operation): PharmacyVzdService = PharmacyVzdService.FHIRVZD
 }

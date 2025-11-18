@@ -163,5 +163,5 @@ enum class ErpLanguageCode(val code: String) {
     TR("tr"),
     UK("uk"),
     ES("es"),
-    GA("ga");
+    GA("ga")
 }

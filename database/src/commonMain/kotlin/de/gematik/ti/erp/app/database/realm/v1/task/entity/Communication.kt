@@ -28,7 +28,7 @@ import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.Ignore
 
 enum class CommunicationProfileV1 {
-    ErxCommunicationDispReq, ErxCommunicationReply, Unknown, InApp
+    ErxCommunicationDispReq, ErxCommunicationReply, Unknown, InApp, EuOrder
 }
 
 class CommunicationEntityV1 : RealmObject {

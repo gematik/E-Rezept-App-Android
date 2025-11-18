@@ -23,9 +23,9 @@
 package de.gematik.ti.erp.app.eurezept.controller
 
 import android.location.Location
-import de.gematik.ti.erp.app.eurezept.domin.model.Country
-import de.gematik.ti.erp.app.eurezept.domin.usecase.GetAllEuCountriesUseCase
-import de.gematik.ti.erp.app.eurezept.domin.usecase.LocationBasedCountryDetectionUseCase
+import de.gematik.ti.erp.app.eurezept.domain.model.Country
+import de.gematik.ti.erp.app.eurezept.domain.usecase.GetAllEuCountriesUseCase
+import de.gematik.ti.erp.app.eurezept.domain.usecase.LocationBasedCountryDetectionUseCase
 import de.gematik.ti.erp.app.eurezept.presentation.EuCountrySelectionController
 import de.gematik.ti.erp.app.shared.usecase.GetLocationUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
@@ -77,8 +77,12 @@ class EuCountrySelectionControllerTest {
         every { getAllEuCountriesUseCase.filterCountries(any(), any()) } answers {
             val countries = firstArg<List<Country>>()
             val query = secondArg<String>()
-            if (query.isEmpty()) countries else countries.filter {
-                it.name.contains(query, ignoreCase = true) || it.code.contains(query, ignoreCase = true)
+            if (query.isEmpty()) {
+                countries
+            } else {
+                countries.filter {
+                    it.name.contains(query, ignoreCase = true) || it.code.contains(query, ignoreCase = true)
+                }
             }
         }
     }

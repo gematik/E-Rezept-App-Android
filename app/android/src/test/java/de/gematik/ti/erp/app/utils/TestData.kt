@@ -139,7 +139,8 @@ fun syncedTask(
         communications = listOf(),
         lastMedicationDispense = medicationDispenseWhenHandedOver?.toInstant(),
         failureToReport = "abcdefg",
-        isEuRedeemable = false
+        isEuRedeemable = false,
+        isEuRedeemableByPatientAuthorization = false
     )
 
 val testSyncedTasks =

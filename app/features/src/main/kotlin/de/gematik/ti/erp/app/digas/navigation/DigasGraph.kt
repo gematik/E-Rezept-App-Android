@@ -31,9 +31,9 @@ import de.gematik.ti.erp.app.digas.ui.screen.DigaContributionInfoBottomSheetScre
 import de.gematik.ti.erp.app.digas.ui.screen.DigaDescriptionScreen
 import de.gematik.ti.erp.app.digas.ui.screen.DigaFeedbackPromptScreen
 import de.gematik.ti.erp.app.digas.ui.screen.DigaHelpAndSupportBottomSheetScreen
+import de.gematik.ti.erp.app.digas.ui.screen.DigaInsuranceSearchListScreen
 import de.gematik.ti.erp.app.digas.ui.screen.DigasMainScreen
 import de.gematik.ti.erp.app.digas.ui.screen.HowLongDigaValidBottomSheetScreen
-import de.gematik.ti.erp.app.digas.ui.screen.DigaInsuranceSearchListScreen
 import de.gematik.ti.erp.app.navigation.renderBottomSheet
 import de.gematik.ti.erp.app.navigation.renderComposable
 import de.gematik.ti.erp.app.navigation.slideInDown

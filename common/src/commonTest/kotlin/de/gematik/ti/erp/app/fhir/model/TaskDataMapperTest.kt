@@ -39,7 +39,8 @@ class TaskDataMapperTest {
         extractTask(
             taskJson,
             process = { taskId, accessCode, lastModified, expiresOn,
-                acceptUntil, authoredOn, status, lastMedicationDispense ->
+                    acceptUntil, authoredOn, status, lastMedicationDispense
+                ->
 
                 assertEquals("160.000.033.491.280.78", taskId)
                 assertEquals("777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea", accessCode)
@@ -59,7 +60,8 @@ class TaskDataMapperTest {
         extractTask(
             taskJson,
             process = { taskId, accessCode, lastModified, expiresOn, acceptUntil,
-                authoredOn, status, lastMedicationDispense ->
+                    authoredOn, status, lastMedicationDispense
+                ->
                 assertEquals("160.123.456.789.123.61", taskId)
                 assertEquals("777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607bl", accessCode)
                 assertEquals(Instant.parse("2020-03-02T08:45:05+00:00"), lastModified.toInstant())

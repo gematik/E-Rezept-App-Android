@@ -35,7 +35,6 @@ import de.gematik.ti.erp.app.analytics.model.TrackedEvent.SyncedPrescriptionCoun
 import de.gematik.ti.erp.app.analytics.tracker.Tracker
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.httpErrorState
-import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
 import de.gematik.ti.erp.app.authentication.presentation.ChooseAuthenticationController
 import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
@@ -65,13 +64,12 @@ import de.gematik.ti.erp.app.settings.usecase.GetMLKitAcceptedUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetShowWelcomeDrawerUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveToolTipsShownUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
-import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.uistate.UiState
+import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.extract
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isNotDataState
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -81,11 +79,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -136,15 +132,11 @@ class PrescriptionListController(
     private val _isProfileRefreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     init {
-        biometricAuthenticationSuccessEvent.listen(controllerScope) { refreshDownload() }
-
-        biometricAuthenticationResetErrorEvent.listen(controllerScope) { error ->
-            if (error is AuthenticationResult.IdpCommunicationError.UserNotAuthenticated) {
-                onUserNotAuthenticatedErrorEvent.trigger()
-            }
+        biometricAuthenticationSuccessEvent.listen(controllerScope) {
+            refreshDownload()
         }
 
-        onRefreshProfileAction.listen(controllerScope) { isRefreshing ->
+        isProfileRefreshingEvent.listen(controllerScope) { isRefreshing ->
             Napier.i(tag = "Profile") { "profile refresh state $isRefreshing" }
             updateProfileRefreshingState(isRefreshing)
         }
@@ -193,7 +185,7 @@ class PrescriptionListController(
     }
 
     private fun disableProfileRefresh() {
-        onRefreshProfileAction.trigger(false)
+        isProfileRefreshingEvent.trigger(false)
     }
 
     private fun enablePrescriptionsRefresh() {
@@ -212,33 +204,6 @@ class PrescriptionListController(
         Napier.e(tag = tag) { "Error on download: ${error.stackTraceToString()}" }
         onFailure?.invoke(errorState)
     }
-
-    private suspend fun Flow<UiState<ProfilesUseCaseData.Profile>>.waitUntilValidProfile(
-        profileId: ProfileIdentifier
-    ): ProfilesUseCaseData.Profile =
-        mapNotNull { it.data }
-            .filter { it.id == profileId && it.isSSOTokenValid() }
-            .first()
-
-    private suspend fun waitAndGetActiveProfile(): ProfilesUseCaseData.Profile? =
-        withContext(controllerScope.coroutineContext) {
-            val currentProfile = activeProfile.value.data
-
-            if (currentProfile == null) {
-                Napier.e { "No active profile available" }
-                return@withContext null
-            }
-
-            if (currentProfile.isSSOTokenValid()) {
-                return@withContext currentProfile
-            }
-
-            Napier.i { "SSO token is invalid. Triggering authentication..." }
-            chooseAuthenticationMethod(currentProfile)
-
-            // Now suspend until the profile becomes valid
-            activeProfile.waitUntilValidProfile(currentProfile.id)
-        }
 
     fun refreshDownload() {
         downloadAllResources()
@@ -387,7 +352,6 @@ class PrescriptionListController(
     }
 
     companion object {
-        private suspend fun StateFlow<UiState<ProfilesUseCaseData.Profile>>.extract(): ProfilesUseCaseData.Profile? = first { it.isDataState }.data
 
         private suspend fun StateFlow<UiState<List<Prescription>>>.syncedCount(): Int? =
             countByType(Prescription.SyncedPrescription::class.java)

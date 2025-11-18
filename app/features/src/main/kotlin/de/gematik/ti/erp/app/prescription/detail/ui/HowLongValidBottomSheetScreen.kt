@@ -112,8 +112,15 @@ class HowLongValidBottomSheetScreen(
                     Column {
                         DateRange(start = start, end = prescription.acceptUntil?.minus(1.days) ?: start)
                         SpacerSmall()
+
+                        val acceptInfoStringRes = if (prescription.isEuRedeemable) {
+                            R.string.pres_details_exp_valid_info_accept_eu
+                        } else {
+                            R.string.pres_details_exp_valid_info_accept
+                        }
+
                         Text(
-                            stringResource(R.string.pres_details_exp_valid_info_accept),
+                            stringResource(acceptInfoStringRes),
                             style = AppTheme.typography.body2l
                         )
                         if (!prescription.medicationRequest.multiplePrescriptionInfo.indicator) {

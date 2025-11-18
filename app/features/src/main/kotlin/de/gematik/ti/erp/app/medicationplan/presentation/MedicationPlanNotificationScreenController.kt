@@ -27,7 +27,6 @@ import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.medicationplan.model.ProfileWithSchedules
 import de.gematik.ti.erp.app.medicationplan.usecase.GetActiveProfileWithSchedulesUseCase
-
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -49,7 +49,8 @@ enum class BundleLinkRelation(val value: String) {
     NEXT(FhirBundleLink.RELATION_NEXT),
     PREVIOUS(FhirBundleLink.RELATION_PREVIOUS),
     FIRST(FhirBundleLink.RELATION_FIRST),
-    SELF(FhirBundleLink.RELATION_SELF);
+    SELF(FhirBundleLink.RELATION_SELF)
+    ;
 
     companion object Companion {
         fun fromValue(value: String): BundleLinkRelation? = BundleLinkRelation.entries.find { it.value == value }

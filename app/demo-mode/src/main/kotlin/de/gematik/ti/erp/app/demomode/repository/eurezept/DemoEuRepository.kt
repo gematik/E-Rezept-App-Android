@@ -23,13 +23,24 @@
 package de.gematik.ti.erp.app.demomode.repository.eurezept
 
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
+import de.gematik.ti.erp.app.demomode.datasource.INDEX_OUT_OF_BOUNDS
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.fhir.FhirCountryErpModel
 import de.gematik.ti.erp.app.fhir.FhirCountryErpModelCollection
 import de.gematik.ti.erp.app.fhir.FhirErpModel
+import de.gematik.ti.erp.app.fhir.euredeem.model.generateAccessCode
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.updateAndGet
+import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
+import kotlin.time.Duration.Companion.hours
 
 class DemoEuRepository(
     private val dataSource: DemoModeDataSource,
@@ -46,5 +57,50 @@ class DemoEuRepository(
         }
         val fhirModel = FhirCountryErpModelCollection(countries = fhirCountries)
         return Result.success(fhirModel)
+    }
+
+    override suspend fun toggleIsEuRedeemableByPatientAuthorization(
+        taskId: String,
+        profileId: String,
+        isEuRedeemableByPatientAuthorization: Boolean
+    ): Result<Unit> =
+        withContext(dispatcher) {
+            val data = dataSource.syncedTasks.updateAndGet { syncedList ->
+                val index = syncedList.indexOfFirst { it.taskId == taskId }
+                val updatedList = syncedList
+                if (index != INDEX_OUT_OF_BOUNDS) {
+                    val updatedItem = syncedList[index].copy(
+                        isEuRedeemableByPatientAuthorization = isEuRedeemableByPatientAuthorization,
+                        lastModified = Clock.System.now()
+                    )
+                    updatedList[index] = updatedItem
+                }
+                updatedList
+            }
+            dataSource.syncedTasks.value = emptyList<SyncedTaskData.SyncedTask>().toMutableList()
+            delay(1)
+            dataSource.syncedTasks.value = data
+            Result.success(Unit)
+        }
+
+    override suspend fun createEuRedeemAccessCode(profileId: ProfileIdentifier, countryCode: String, relatedTaskIds: List<String>): Result<EuAccessCode> {
+        val now = Clock.System.now()
+        return Result.success(
+            EuAccessCode(
+                accessCode = generateAccessCode(),
+                countryCode = countryCode,
+                validUntil = now.plus(1.hours),
+                createdAt = now,
+                profileIdentifier = profileId
+            )
+        )
+    }
+
+    override suspend fun getLatestValidEuAccessCodeByProfileIdAndCountry(profileId: ProfileIdentifier, countryCode: String): Flow<EuAccessCode?> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteEuRedeemAccessCode(profileId: ProfileIdentifier) {
+        // TODO EUREZEPT
     }
 }

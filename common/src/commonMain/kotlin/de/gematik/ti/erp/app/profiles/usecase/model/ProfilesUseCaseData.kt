@@ -36,6 +36,7 @@ object ProfilesUseCaseData {
     enum class InsuranceType {
         GKV,
         PKV,
+        BUND,
         NONE
     }
 
@@ -55,6 +56,10 @@ object ProfilesUseCaseData {
         fun isNotGid() = ssoTokenScope !is IdpData.ExternalAuthenticationToken
 
         fun isPkv() = insurance.insuranceType == InsuranceType.PKV
+
+        fun hasBundFeatures() =
+            insurance.insuranceType == InsuranceType.PKV ||
+                insurance.insuranceType == InsuranceType.BUND
 
         fun isSSOTokenValid(now: Instant = Clock.System.now()) = ssoTokenScope?.token?.isValid(now) ?: false
 
@@ -124,7 +129,8 @@ object ProfilesUseCaseData {
                     is IdpData.ExternalAuthenticationToken,
                     is IdpData.AlternateAuthenticationToken,
                     is AlternateAuthenticationWithoutToken,
-                    is IdpData.DefaultToken -> ssoTokenScope.token == null
+                    is IdpData.DefaultToken
+                    -> ssoTokenScope.token == null
 
                     null -> true
                 }

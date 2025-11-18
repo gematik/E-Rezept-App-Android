@@ -68,6 +68,7 @@ enum class AvatarFigureV1 {
 enum class InsuranceTypeV1 {
     GKV,
     PKV,
+    BUND,
     None
 }
 

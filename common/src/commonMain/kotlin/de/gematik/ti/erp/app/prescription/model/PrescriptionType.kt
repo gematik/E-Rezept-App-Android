@@ -23,5 +23,5 @@
 package de.gematik.ti.erp.app.prescription.model
 
 enum class PrescriptionType {
-    ScannedTask, SyncedTask, EuRezeptTask
+    ScannedTask, SyncedTask
 }

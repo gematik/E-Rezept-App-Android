@@ -39,7 +39,6 @@ import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.DefaultOftenUs
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.FavouritePharmacyLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.OftenUsedPharmacyLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacyRemoteSelectorLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.ApoVzdRemoteDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.FhirVzdRemoteDataSource
 import de.gematik.ti.erp.app.pharmacy.ui.components.GooglePharmacyMap
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyMap
@@ -100,7 +99,6 @@ val pharmacyRepositoryModule = DI.Module("pharmacyRepositoryModule", allowSilent
     bindProvider { PharmacyParsers(instance(), instance()) }
 
     // data-sources
-    bindProvider { ApoVzdRemoteDataSource(instance()) }
     bindProvider { FhirVzdRemoteDataSource(instance()) }
     bindProvider<RedeemLocalDataSource> { DefaultRedeemLocalDataSource(instance()) }
     bindProvider<FavouritePharmacyLocalDataSource> { DefaultFavouritePharmacyLocalDataSource(instance()) }
@@ -111,8 +109,6 @@ val pharmacyRepositoryModule = DI.Module("pharmacyRepositoryModule", allowSilent
     bindProvider { PreviewMapCoordinatesRepository(instance()) }
     bindProvider<PharmacyRepository> {
         DefaultPharmacyRepository(
-            instance(),
-            instance(),
             instance(),
             instance(),
             instance(),

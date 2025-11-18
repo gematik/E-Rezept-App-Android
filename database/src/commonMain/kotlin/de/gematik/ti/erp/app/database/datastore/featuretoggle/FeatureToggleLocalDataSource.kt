@@ -30,9 +30,11 @@ import kotlinx.coroutines.flow.map
 const val FEATURE_TOGGLE_DATA_SOURCE = "FeatureToggles"
 
 val REALM_V2 = FeatureEntity(name = "RealmVersion2", isActive = false)
+val EU_REDEEM = FeatureEntity(name = "EuRedeem", isActive = false)
 
 val FEATURE_ENTITIES = setOf(
-    REALM_V2
+    REALM_V2,
+    EU_REDEEM
 )
 
 class FeatureToggleLocalDataSource(

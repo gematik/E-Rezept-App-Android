@@ -177,6 +177,10 @@ class DemoProfilesRepository(
         return true
     }
 
+    override suspend fun switchProfileToBUND(profileId: ProfileIdentifier): Boolean {
+        return false
+    }
+
     override suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean = false
 
     override fun getProfileById(profileId: ProfileIdentifier): Flow<ProfilesData.Profile> =

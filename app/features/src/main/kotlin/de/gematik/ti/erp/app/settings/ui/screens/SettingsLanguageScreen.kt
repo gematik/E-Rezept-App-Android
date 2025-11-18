@@ -53,8 +53,8 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.localization.LanguageCode
 import de.gematik.ti.erp.app.navigation.Screen
-import de.gematik.ti.erp.app.settings.presentation.LanguageCode
 import de.gematik.ti.erp.app.settings.presentation.rememberSettingsLanguageScreenController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults

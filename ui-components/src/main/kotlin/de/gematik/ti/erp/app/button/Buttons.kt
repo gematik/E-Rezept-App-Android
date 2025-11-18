@@ -34,17 +34,23 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonColors
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.ButtonDefaults.OutlinedBorderSize
 import androidx.compose.material.ButtonElevation
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -260,6 +266,54 @@ fun PrimaryButton(
     )
 
 @Composable
+fun PrimaryIconButton(
+    onClick: () -> Unit,
+    imageVector: ImageVector,
+    text: String,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    contentDescription: String? = null,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    elevation: ButtonElevation? = ButtonDefaults.elevation(defaultElevation = SizeDefaults.zero, pressedElevation = SizeDefaults.half),
+    shape: Shape = RoundedCornerShape(SizeDefaults.triple),
+    border: BorderStroke? = null,
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    contentPadding: PaddingValues = PaddingValues(
+        horizontal = PaddingDefaults.Medium,
+        vertical = PaddingDefaults.ShortMedium
+    ),
+    iconSize: Dp = SizeDefaults.triple,
+    spacing: Dp = SizeDefaults.one
+) {
+    PrimaryButton(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        interactionSource = interactionSource,
+        elevation = elevation,
+        shape = shape,
+        border = border,
+        colors = colors,
+        contentPadding = contentPadding
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(spacing)
+        ) {
+            Icon(
+                imageVector = imageVector,
+                contentDescription = contentDescription,
+                modifier = Modifier.size(iconSize)
+            )
+            Text(
+                text = text,
+                style = AppTheme.typography.button
+            )
+        }
+    }
+}
+
+@Composable
 fun PrimaryOutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -267,8 +321,17 @@ fun PrimaryOutlinedButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     elevation: ButtonElevation? = null,
     shape: Shape = RoundedCornerShape(SizeDefaults.triple),
-    border: BorderStroke? = BorderStroke(SizeDefaults.eighth, color = AppTheme.colors.primary700),
-    colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
+    border: BorderStroke? = BorderStroke(
+        OutlinedBorderSize,
+        if (enabled) {
+            MaterialTheme.colors.primary
+        } else {
+            MaterialTheme.colors.primary.copy(ContentAlpha.disabled)
+        }
+    ),
+    colors: ButtonColors = ButtonDefaults.outlinedButtonColors(
+        disabledContentColor = MaterialTheme.colors.primary.copy(alpha = ContentAlpha.disabled)
+    ),
     contentPadding: PaddingValues = PaddingValues(
         vertical = PaddingDefaults.MediumSmall,
         horizontal = PaddingDefaults.XXLargePlus
@@ -296,13 +359,21 @@ fun OutlinedIconButton(
     imageVector: ImageVector,
     contentDescription: String?,
     text: String? = null,
-    iconTint: Color = AppTheme.colors.primary700,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     elevation: ButtonElevation? = null,
     shape: Shape = RoundedCornerShape(SizeDefaults.triple),
-    border: BorderStroke? = ButtonDefaults.outlinedBorder,
-    colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
+    border: BorderStroke? = BorderStroke(
+        OutlinedBorderSize,
+        if (enabled) {
+            MaterialTheme.colors.primary
+        } else {
+            MaterialTheme.colors.primary.copy(ContentAlpha.disabled)
+        }
+    ),
+    colors: ButtonColors = ButtonDefaults.outlinedButtonColors(
+        disabledContentColor = MaterialTheme.colors.primary.copy(alpha = ContentAlpha.disabled)
+    ),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding
 ) {
     OutlinedButton(
@@ -325,7 +396,6 @@ fun OutlinedIconButton(
             Icon(
                 imageVector = imageVector,
                 contentDescription = contentDescription,
-                tint = iconTint,
                 modifier = Modifier.size(SizeDefaults.triple)
             )
             text?.let { buttonText ->
@@ -370,5 +440,31 @@ fun PrimaryButtonOutlinednPreview() {
                 Text(text = "Button")
             }
         }
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun OutlinedIconButtonPreview() {
+    AppTheme {
+        OutlinedIconButton(
+            onClick = {},
+            imageVector = Icons.Default.Add,
+            contentDescription = "Add item",
+            text = "Add"
+        )
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun PrimaryIconButtonPreview() {
+    AppTheme {
+        PrimaryIconButton(
+            onClick = {},
+            imageVector = Icons.Default.CameraAlt,
+            text = "Take Photo",
+            contentDescription = "Take a photo"
+        )
     }
 }

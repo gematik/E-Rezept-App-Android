@@ -76,5 +76,5 @@ enum class ScreenShotConfigComponent(
             nightMode = NightMode.NIGHT,
             locale = Locale.ENGLISH.toLanguageTag()
         )
-    );
+    )
 }

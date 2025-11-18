@@ -36,10 +36,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.authentication.model.BiometricMethod
 import de.gematik.ti.erp.app.authentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.authentication.observer.BiometricStateProviderHolder
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.secureRandomInstance
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.suspendCancellableCoroutine

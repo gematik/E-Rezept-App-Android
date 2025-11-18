@@ -22,8 +22,10 @@
 
 package de.gematik.ti.erp.app.utils.extensions
 
+import android.content.Context
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.SnackbarResult
@@ -79,10 +81,55 @@ fun SnackbarHostState.showWithDismissButton(
     }
 }
 
+fun SnackbarHostState.showWithDismissButton(
+    context: Context,
+    @StringRes messageResId: Int,
+    @StringRes actionLabelId: Int = R.string.snackbar_close,
+    duration: SnackbarDuration = SnackbarDuration.Short,
+    action: () -> Unit = {},
+    scope: CoroutineScope
+) {
+    scope.launch {
+        val message = context.getString(messageResId)
+        val actionLabel = context.getString(actionLabelId)
+        val result = showSnackbar(
+            message = message,
+            duration = duration,
+            actionLabel = actionLabel
+        )
+
+        when (result) {
+            SnackbarResult.Dismissed -> dismiss()
+            SnackbarResult.ActionPerformed -> {
+                dismiss()
+                action()
+            }
+        }
+    }
+}
+
 fun SnackbarHostState.show(
     message: String,
     scope: CoroutineScope
 ) {
+    scope.launch { showSnackbar(message = message) }
+}
+
+/**
+ * Shows a snackbar with a message from a string resource ID, using a Context to resolve the string.
+ *
+ * This function is not composable and can be called from any context where you have access to a Context.
+ *
+ * @param context The context used to resolve the string resource.
+ * @param messageResId The string resource ID for the message to display.
+ * @param scope The coroutine scope to launch the snackbar in.
+ */
+fun SnackbarHostState.show(
+    context: Context,
+    @StringRes messageResId: Int,
+    scope: CoroutineScope
+) {
+    val message = context.getString(messageResId)
     scope.launch { showSnackbar(message = message) }
 }
 

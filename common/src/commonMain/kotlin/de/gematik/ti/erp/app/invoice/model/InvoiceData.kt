@@ -35,7 +35,8 @@ object InvoiceData {
         TPrescriptionFee("06460688"),
         ProvisioningCosts("09999637"),
         DeliveryServiceCosts("06461110"),
-        SupplyShortageFee("17717446");
+        SupplyShortageFee("17717446")
+        ;
 
         companion object {
             fun isAnyOf(pzn: String): Boolean = entries.any { it.value == pzn }

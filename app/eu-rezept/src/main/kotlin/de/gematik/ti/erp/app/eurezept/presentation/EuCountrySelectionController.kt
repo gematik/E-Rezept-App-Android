@@ -26,9 +26,9 @@ import android.location.Location
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.base.Controller
-import de.gematik.ti.erp.app.eurezept.domin.model.Country
-import de.gematik.ti.erp.app.eurezept.domin.usecase.GetAllEuCountriesUseCase
-import de.gematik.ti.erp.app.eurezept.domin.usecase.LocationBasedCountryDetectionUseCase
+import de.gematik.ti.erp.app.eurezept.domain.model.Country
+import de.gematik.ti.erp.app.eurezept.domain.usecase.GetAllEuCountriesUseCase
+import de.gematik.ti.erp.app.eurezept.domain.usecase.LocationBasedCountryDetectionUseCase
 import de.gematik.ti.erp.app.shared.usecase.GetLocationUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger

@@ -60,24 +60,27 @@ sealed class FhirMedicationDispenseStandardModel(
  */
 @Serializable
 internal data class FhirMedicationDispenseV14V15DispenseModel(
-    @SerialName("id") val id: String? = null,
-    @SerialName("meta") val meta: FhirMeta? = null,
-    @SerialName("identifier") val identifier: List<FhirIdentifier> = emptyList(),
-    @SerialName("status") val status: String? = null,
-    @SerialName("subject") val subject: FhirMedicationDispenseIdentifier? = null,
-    @SerialName("performer") val performer: List<FhirMedicationDispenseActor> = emptyList(),
-    @SerialName("whenHandedOver") val whenHandedOver: String? = null,
-    @SerialName("dosageInstruction") val dosageInstruction: List<FhirMedicationRequestDosageInstruction> = emptyList(),
-    @SerialName("whenPrepared") val whenPrepared: String? = null,
+    @SerialName("id") override val id: String? = null,
+    @SerialName("meta") override val meta: FhirMeta? = null,
+    @SerialName("identifier") override val identifier: List<FhirIdentifier> = emptyList(),
+    @SerialName("status") override val status: String? = null,
+    @SerialName("subject") override val subject: FhirMedicationDispenseIdentifier? = null,
+    @SerialName("performer") override val performer: List<FhirMedicationDispenseActor> = emptyList(),
+    @SerialName("whenHandedOver") override val whenHandedOver: String? = null,
+    @SerialName("dosageInstruction") override val dosageInstruction: List<FhirMedicationRequestDosageInstruction> = emptyList(),
+    @SerialName("whenPrepared") override val whenPrepared: String? = null,
     @SerialName("medicationReference")
     @Serializable(with = MedicationReferenceSerializer::class)
-    val medicationReference: FhirMedicationDispenseReference? = null,
-    @SerialName("substitution") val substitution: FhirMedicationDispenseSubstitution? = null,
-    @SerialName("extension") val extension: List<FhirExtension> = emptyList(),
-    @SerialName("note") val note: List<FhirMedicationRequestText> = emptyList()
-) : FhirMedicationDispenseStandardModel() {
+    override val medicationReference: FhirMedicationDispenseReference? = null,
+    @SerialName("substitution") override val substitution: FhirMedicationDispenseSubstitution? = null,
+    @SerialName("extension") override val extension: List<FhirExtension> = emptyList(),
+    @SerialName("note") override val note: List<FhirMedicationRequestText> = emptyList()
+) : FhirMedicationDispenseStandardModel(), MedicationDispenseCommon {
     override val type: FhirMediationDispenseResourceType
         get() = FhirMediationDispenseResourceType.MedicationDispense
+
+    override fun isDigaType() =
+        meta?.profiles?.any { it.contains(DIGA_DISPENSE_TYPE) } ?: false
 
     companion object Companion {
         /**
@@ -89,8 +92,5 @@ internal data class FhirMedicationDispenseV14V15DispenseModel(
         fun JsonElement.extractMedicationDispense(): FhirMedicationDispenseV14V15DispenseModel {
             return SafeJson.value.decodeFromJsonElement(serializer(), this)
         }
-
-        fun FhirMedicationDispenseV14V15DispenseModel.isDigaType() =
-            meta?.profiles?.any { it.contains(DIGA_DISPENSE_TYPE) } ?: false
     }
 }

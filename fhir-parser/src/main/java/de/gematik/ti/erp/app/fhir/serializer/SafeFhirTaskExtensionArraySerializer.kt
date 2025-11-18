@@ -146,9 +146,11 @@ internal object SafeFhirTaskExtensionArraySerializer : KSerializer<FhirTaskExten
     override fun deserialize(decoder: Decoder): FhirTaskExtensionValues {
         val jsonElement = decoder.decodeSerializableValue(JsonElement.serializer())
 
-        if (jsonElement !is JsonArray) fhirSerializationError(
-            "FhirTaskExtensionArraySerializer failed as expected JsonArray but found ${jsonElement::class}"
-        )
+        if (jsonElement !is JsonArray) {
+            fhirSerializationError(
+                "FhirTaskExtensionArraySerializer failed as expected JsonArray but found ${jsonElement::class}"
+            )
+        }
 
         var acceptDate: String? = null
         var expiryDate: String? = null

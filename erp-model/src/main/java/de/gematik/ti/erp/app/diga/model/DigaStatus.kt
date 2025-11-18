@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.diga.model
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
+@OptIn(kotlin.time.ExperimentalTime::class)
 @Serializable
 sealed class DigaStatus(val step: Int) {
 
@@ -71,5 +72,5 @@ enum class DigaStatusSteps(val step: Int) {
     DownloadDigaApp(4),
     OpenAppWithRedeemCode(5),
     ReadyForSelfArchiveDiga(6),
-    SelfArchiveDiga(7);
+    SelfArchiveDiga(7)
 }

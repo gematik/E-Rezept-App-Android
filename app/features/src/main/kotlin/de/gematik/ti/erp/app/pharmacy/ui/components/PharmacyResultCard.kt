@@ -38,6 +38,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModelPeriod
+import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodMetadata
+import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodMetadata.Companion.isCurrentlyClosed
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyImagePlaceholder
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours
@@ -46,11 +51,13 @@ import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.LocalPharmacyService
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.OnlinePharmacyService
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.PickUpPharmacyService
+import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.text.DecimalFormat
@@ -101,39 +108,47 @@ internal fun PharmacyResultCard(
                 maxLines = 1
             )
 
-            val pharmacyLocalServices =
-                pharmacy.provides.find { it is LocalPharmacyService } as? LocalPharmacyService
-            val now =
-                remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()) }
-
-            if (pharmacyLocalServices?.isOpenAt(now) == true) {
-                val text = if (pharmacyLocalServices.isAllDayOpen(now.dayOfWeek)) {
-                    stringResource(R.string.search_pharmacy_continuous_open)
-                } else {
-                    stringResource(
-                        R.string.search_pharmacy_open_until,
-                        requireNotNull(pharmacyLocalServices.openUntil(now)).toString()
-                    )
-                }
+            if (pharmacy.specialClosingTimes.isCurrentlyClosed()) {
                 Text(
-                    text,
+                    stringResource(R.string.search_pharmacy_closed),
                     style = AppTheme.typography.subtitle2l,
-                    color = AppTheme.colors.green600
+                    color = AppTheme.colors.neutral600
                 )
             } else {
-                val text =
-                    pharmacyLocalServices?.opensAt(now)?.let {
+                val pharmacyLocalServices =
+                    pharmacy.provides.find { it is LocalPharmacyService } as? LocalPharmacyService
+                val now =
+                    remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()) }
+
+                if (pharmacyLocalServices?.isOpenAt(now) == true) {
+                    val text = if (pharmacyLocalServices.isAllDayOpen(now.dayOfWeek)) {
+                        stringResource(R.string.search_pharmacy_continuous_open)
+                    } else {
                         stringResource(
-                            R.string.search_pharmacy_opens_at,
-                            it.toString()
+                            R.string.search_pharmacy_open_until,
+                            requireNotNull(pharmacyLocalServices.openUntil(now)).toString()
                         )
                     }
-                if (text != null) {
                     Text(
                         text,
                         style = AppTheme.typography.subtitle2l,
-                        color = AppTheme.colors.yellow600
+                        color = AppTheme.colors.green600
                     )
+                } else {
+                    val text =
+                        pharmacyLocalServices?.opensAt(now)?.let {
+                            stringResource(
+                                R.string.search_pharmacy_opens_at,
+                                it.toString()
+                            )
+                        }
+                    if (text != null) {
+                        Text(
+                            text,
+                            style = AppTheme.typography.subtitle2l,
+                            color = AppTheme.colors.yellow600
+                        )
+                    }
                 }
             }
         }
@@ -163,7 +178,7 @@ internal fun PharmacyResultCard(
 @LightDarkPreview
 @Composable
 internal fun PharmacyResultCardPreview() {
-    AppTheme {
+    PreviewTheme {
         PharmacyResultCard(
             modifier = Modifier,
             pharmacy = Pharmacy(
@@ -190,6 +205,57 @@ internal fun PharmacyResultCardPreview() {
                     )
                 ),
                 openingHours = OpeningHours(openingTime = mapOf()),
+                telematikId = "telematikId"
+            ),
+            onClick = {}
+        )
+    }
+}
+
+@LightDarkPreview
+@Composable
+internal fun PharmacyResultCardClosedPreview() {
+    PreviewTheme {
+        PharmacyResultCard(
+            modifier = Modifier,
+            pharmacy = Pharmacy(
+                id = "pharmacy-id",
+                name = "2Königen-Aptheke",
+                address = "Ostwall 97, 47798 Krefeld",
+                coordinates = null,
+                distance = 4500.0,
+                contact = PharmacyUseCaseData.PharmacyContact(
+                    phone = "12345678",
+                    mail = "pharmacy@mail.com",
+                    url = "https://pharmacy.com"
+                ),
+                provides = listOf(
+                    DeliveryPharmacyService(
+                        name = "delivery-service",
+                        openingHours = OpeningHours(openingTime = mapOf())
+                    ),
+                    OnlinePharmacyService(name = "online-service"),
+                    PickUpPharmacyService(name = "pickup-service"),
+                    LocalPharmacyService(
+                        name = "local-service",
+                        openingHours = OpeningHours(openingTime = mapOf())
+                    )
+                ),
+                openingHours = OpeningHours(openingTime = mapOf()),
+                specialClosingTimes = listOf(
+                    NotAvailablePeriodMetadata(
+                        erpModel = NotAvailablePeriodErpModel(
+                            description = "Urlaub 2",
+                            period = FhirPharmacyErpModelPeriod(
+                                start = FhirTemporal.LocalDate(LocalDate.parse("2025-11-13")), // Thursday
+                                end = FhirTemporal.LocalDate(LocalDate.parse("2025-11-15")) // Saturday
+                            )
+                        ),
+                        hasOverlap = true,
+                        isInPast = false,
+                        isActive = true
+                    )
+                ),
                 telematikId = "telematikId"
             ),
             onClick = {}

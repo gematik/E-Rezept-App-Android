@@ -28,9 +28,14 @@ import de.gematik.ti.erp.app.consent.repository.ConsentRemoteDataSource
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.consent.repository.DefaultConsentRepository
 import de.gematik.ti.erp.app.consent.usecase.RevokeConsentUseCase
+import de.gematik.ti.erp.app.fhir.consent.FhirConsentParser
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
+import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -41,43 +46,59 @@ class RevokeConsentUseCaseTest {
 
     private val dispatcher = StandardTestDispatcher()
 
-    private val remoteDataSource = mockk<ConsentRemoteDataSource>()
+    private val remoteDataSource = mockk<ConsentRemoteDataSource>(relaxed = true)
 
-    private val localDataSource = mockk<ConsentLocalDataSource>()
+    private val localDataSource = mockk<ConsentLocalDataSource>(relaxed = true)
+
+    @MockK(relaxed = true)
+    private lateinit var fhirConsentParser: FhirConsentParser
 
     private lateinit var repository: ConsentRepository
 
     private lateinit var useCase: RevokeConsentUseCase
 
+    private val testProfileId = "123"
+
     @Before
     fun setup() {
+        MockKAnnotations.init(this)
+
         repository = DefaultConsentRepository(
             remoteDataSource = remoteDataSource,
-            localDataSource = localDataSource
+            localDataSource = localDataSource,
+            parsers = fhirConsentParser
         )
-        useCase = RevokeConsentUseCase(repository)
+        useCase = RevokeConsentUseCase(repository, dispatcher)
     }
 
     @Test
     fun `on consent revoked successfully for a profile`() {
-        coEvery { remoteDataSource.deleteChargeConsent(any()) } returns Result.success(Unit)
+        coEvery {
+            remoteDataSource.deleteConsent(any(), any())
+        } returns Result.success(Unit)
+
         runTest(dispatcher) {
-            val result = useCase.invoke("123")
+            val result = useCase.invoke(testProfileId).first()
+
             assertEquals(ConsentState.ValidState.Revoked, result)
             coVerify(exactly = 1) {
-                repository.revokeChargeConsent("123")
+                remoteDataSource.deleteConsent(testProfileId, ConsentCategory.PKVCONSENT.code)
             }
         }
     }
 
     @Test
     fun `on consent revoked failed for a profile`() {
-        coEvery { remoteDataSource.deleteChargeConsent(any()) } returns Result.failure(Throwable("server error"))
+        coEvery {
+            remoteDataSource.deleteConsent(any(), any())
+        } returns Result.failure<Unit>(Throwable("error"))
+
         runTest(dispatcher) {
-            val result = useCase.invoke("123")
-            assertEquals(ConsentState.ConsentErrorState.Unknown, result)
+            val result = useCase.invoke(testProfileId).first()
+
+            assert(result is ConsentState.ConsentErrorState)
             coVerify(exactly = 1) {
-                repository.revokeChargeConsent("123")
+                remoteDataSource.deleteConsent(testProfileId, ConsentCategory.PKVCONSENT.code)
             }
         }
     }

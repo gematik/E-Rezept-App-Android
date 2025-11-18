@@ -82,7 +82,8 @@ class BuildAppFlavoursPlugin : ErpPlugin {
     ) {
         PlayStore("android-googlePuExternal-release-mapping"),
         AppGallery("android-huaweiPuExternal-release-mapping"),
-        TuExternal("android-googleTuExternal-release-mapping");
+        TuExternal("android-googleTuExternal-release-mapping")
+        ;
 
         fun fileName() = this.mappingFileName
     }

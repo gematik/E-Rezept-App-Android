@@ -152,7 +152,9 @@ class SecureMessaging(private val paceKey: PaceKey) {
             } else {
                 EXPECTED_LENGTH_WILDCARD_EXTENDED
             }
-        } else EXPECTED_LENGTH_WILDCARD_EXTENDED
+        } else {
+            EXPECTED_LENGTH_WILDCARD_EXTENDED
+        }
 
         return CommandApdu.ofOptions(
             cla = header[0].toInt() and 0xFF,

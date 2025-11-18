@@ -20,7 +20,7 @@
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
-package de.gematik.ti.erp.app.utils.compose
+package de.gematik.ti.erp.app.utils
 
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.runtime.Composable

@@ -70,7 +70,8 @@ val vauModule = DI.Module("vauModule") {
                 untrustedCertList: UntrustedCertList,
                 trustAnchor: X509CertificateHolder,
                 ocspResponseMaxAge: Duration,
-                timestamp: Instant ->
+                timestamp: Instant
+            ->
             TrustedTruststore.create(
                 untrustedOCSPList = untrustedOCSPList,
                 untrustedCertList = untrustedCertList,

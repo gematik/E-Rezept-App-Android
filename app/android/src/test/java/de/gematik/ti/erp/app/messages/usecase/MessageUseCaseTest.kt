@@ -23,8 +23,8 @@
 package de.gematik.ti.erp.app.messages.usecase
 
 import de.gematik.ti.erp.app.CoroutineTestRule
-import de.gematik.ti.erp.app.messages.mappers.toMessage
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
+import de.gematik.ti.erp.app.messages.mappers.toMessage
 import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import kotlinx.datetime.Instant

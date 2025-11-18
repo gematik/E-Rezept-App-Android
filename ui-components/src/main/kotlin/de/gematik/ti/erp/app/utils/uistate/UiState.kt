@@ -54,7 +54,7 @@ data class UiState<out T>(
         fun <T> Empty(): UiState<T> = UiState(isLoading = false, data = null)
 
         @Suppress("FunctionName")
-        fun <T> Error(error: Throwable): UiState<T> = UiState(isLoading = false, error = error)
+        fun <T> Error(error: Throwable, data: T? = null): UiState<T> = UiState(isLoading = false, data = data, error = error)
 
         val UiState<*>.isEmptyState: Boolean
             get() = !isLoading && isDataEmpty
@@ -63,13 +63,13 @@ data class UiState<out T>(
             get() = !isDataState
 
         val UiState<*>.isErrorState: Boolean
-            get() = !isLoading && error != null && data == null
+            get() = !isLoading && error != null
 
         val UiState<*>.isDataState: Boolean
             get() = !isLoading && data != null && error == null
 
         val UiState<*>.isLoadingState: Boolean
-            get() = isLoading && data == null && error == null
+            get() = isLoading && error == null
 
         suspend fun <T> StateFlow<UiState<T>>.extract(): T? = first { it.isDataState }.data
 

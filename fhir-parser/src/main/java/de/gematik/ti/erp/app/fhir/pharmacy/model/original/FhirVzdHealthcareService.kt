@@ -22,16 +22,20 @@
 
 package de.gematik.ti.erp.app.fhir.pharmacy.model.original
 
-import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirPeriod
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirTypeCoding
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirContactInformationErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModelPeriod
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningTimeErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.SpecialOpeningTimeErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdAvailableTime.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdSpecialty.Companion.getSpecialtyTypes
+import de.gematik.ti.erp.app.fhir.pharmacy.model.original.SpecialOpeningTimesWrapper.Companion.toSpecialOpeningTimeModel
+import de.gematik.ti.erp.app.utils.ParserUtil.asFhirTemporal
+import de.gematik.ti.erp.app.utils.Reference
 import de.gematik.ti.erp.app.utils.letNotNull
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.DayOfWeek
@@ -40,6 +44,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
+@Reference(
+    url = "https://simplifier.net/vzd-fhir-directory/healthcareservicedirectory"
+)
 @Serializable
 internal data class FhirVZDHealthcareService(
     @SerialName("resourceType") val resourceType: String,
@@ -67,13 +74,25 @@ internal data class FhirVZDHealthcareService(
     }
 }
 
+internal fun FhirVZDHealthcareService.parseSpecialOpeningTimes(): List<SpecialOpeningTimeErpModel> {
+    return availableTime.mapNotNull { availableTimeElement ->
+        try {
+            availableTimeElement.specialOpeningTimesExtension.toSpecialOpeningTimeModel()
+        } catch (e: Exception) {
+            Napier.e(tag = "FHIRVZD", throwable = e) {
+                "Error parsing special opening times for $id"
+            }
+            null
+        }
+    }
+}
+
 @Serializable
 internal data class FhirVzdTelecom(
     @SerialName("system") val system: String?,
     @SerialName("value") val value: String?
 ) {
     companion object {
-
         private const val PHONE = "phone"
         private const val EMAIL = "email"
         private const val URL = "url"
@@ -116,7 +135,7 @@ internal data class FhirVzdAvailableTime(
     @SerialName("daysOfWeek") val daysOfWeek: List<String> = emptyList(),
     @SerialName("availableStartTime") val availableStartTime: String? = null,
     @SerialName("availableEndTime") val availableEndTime: String? = null,
-    @SerialName("specialOpeningTimes") val specialOpeningTimesExtension: SpecialOpeningTimesExtensions? = null
+    @SerialName("extension") val specialOpeningTimesExtension: List<SpecialOpeningTimesWrapper>? = null
 ) {
     companion object {
         fun List<FhirVzdAvailableTime>.toErpModel(): Map<DayOfWeek, List<OpeningTimeErpModel>> {
@@ -150,16 +169,47 @@ internal data class FhirVzdAvailableTime(
     }
 }
 
-// https://gematik.de/fhir/directory/StructureDefinition/SpecialOpeningTimesEX
 @Serializable
-internal data class SpecialOpeningTimesExtensions(
-    @SerialName("extension") val extension: List<SpecialOpeningTimes> = emptyList()
-)
+internal data class SpecialOpeningTimesWrapper(
+    @SerialName("url") val url: String?,
+    @SerialName("extension") val extension: List<SpecialOpeningTimesField>? = null
+) {
+    companion object {
+        private const val SPECIAL_OPENING_TIMES_URL =
+            "https://gematik.de/fhir/directory/StructureDefinition/SpecialOpeningTimesEX"
+        private const val PERIOD_URL = "period"
+        private const val QUALIFIER_URL = "qualifier"
+
+        fun List<SpecialOpeningTimesWrapper>?.toSpecialOpeningTimeModel(): SpecialOpeningTimeErpModel? {
+            val specialOpeningTimesExtension = this?.find { it.url == SPECIAL_OPENING_TIMES_URL }
+            val extensionFields = specialOpeningTimesExtension?.extension ?: return null
+
+            val periodValue = extensionFields.find { it.url == PERIOD_URL }?.valuePeriod
+            val period = periodValue?.let {
+                FhirPharmacyErpModelPeriod(
+                    start = it.start?.asFhirTemporal(),
+                    end = it.end?.asFhirTemporal()
+                )
+            }
+
+            val qualifierValue = extensionFields.find { it.url == QUALIFIER_URL }?.valueCoding
+            val description = qualifierValue?.display
+
+            return period?.let {
+                SpecialOpeningTimeErpModel(
+                    description = description,
+                    period = it
+                )
+            }
+        }
+    }
+}
 
 @Serializable
-internal data class SpecialOpeningTimes(
-    @SerialName("period") val period: FhirExtension?, // valuePeriod
-    @SerialName("qualifier") val qualifier: String? // valueCoding
+internal data class SpecialOpeningTimesField(
+    @SerialName("url") val url: String?,
+    @SerialName("valuePeriod") val valuePeriod: FhirPeriod? = null,
+    @SerialName("valueCoding") val valueCoding: FhirTypeCoding? = null
 )
 
 @Serializable
@@ -171,7 +221,6 @@ internal data class FhirVzdSpecialty(
 
         fun List<FhirVzdSpecialty>.getSpecialtyTypes(): List<FhirVzdSpecialtyType> =
             flatMap { it.codings }
-                .onEach { Napier.d { "Processing code: ${it.code}" } }
                 .map { FhirVzdSpecialtyType.fromCode(it.code) }
                 .distinct()
     }

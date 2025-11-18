@@ -568,7 +568,7 @@ object FhirTaskDataErpTestData {
 
     val fhirKbvBundle4_v110_missingFields = listOf<String>()
 
-    @Suppress("ktlint:max-line-length", "MaxLineLength")
+    @Suppress("ktlint:standard:max-line-length", "MaxLineLength")
     val fhirKbvBundle5_v110 = FhirTaskDataErpModel(
         pvsId = "Y/400/2107/36/999",
         medicationRequest = FhirTaskKbvMedicationRequestErpModel(

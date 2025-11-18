@@ -30,10 +30,10 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.authentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.userauthentication.observer.InactivityTimeoutObserver
@@ -190,7 +190,7 @@ class UserAuthenticationController(
             val timeout = calculateAuthenticationTimeOut(it)
             var remainingTimeout = timeout
             flow {
-                while (remainingTimeout >= 0L) {
+                while (remainingTimeout > 0L) {
                     emit(remainingTimeout--)
                     delay(MILLISECONDS_SECONDS_FACTOR)
                     if (remainingTimeout == 0L) {

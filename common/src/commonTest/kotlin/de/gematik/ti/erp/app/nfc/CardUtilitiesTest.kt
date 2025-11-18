@@ -20,7 +20,7 @@
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
-@file:Suppress("ktlint:max-line-length", "ktlint:argument-list-wrapping")
+@file:Suppress("ktlint:max-line-length", "ktlint:standard:argument-list-wrapping")
 
 package de.gematik.ti.erp.app.nfc
 
@@ -32,11 +32,13 @@ import org.bouncycastle.math.ec.ECCurve
 import org.bouncycastle.math.ec.ECPoint
 import org.bouncycastle.util.encoders.Hex
 import org.junit.Assert
-import kotlin.test.Test
 import java.io.IOException
+import kotlin.test.Test
 
 class CardUtilitiesTest {
-    private val byteArray: ByteArray = Hex.decode("044E2778F6AAEF54CB42865A3C30C753495AF4E53121400802D0AB1ACD665E9C774C2FAE1687E9DAA36C64570C909F93176F01EEAFCB45F9C08E49805F127D94EF")
+    private val byteArray: ByteArray = Hex.decode(
+        "044E2778F6AAEF54CB42865A3C30C753495AF4E53121400802D0AB1ACD665E9C774C2FAE1687E9DAA36C64570C909F93176F01EEAFCB45F9C08E49805F127D94EF"
+    )
     private val ecNamedCurveParameterSpec: ECNamedCurveParameterSpec =
         ECNamedCurveTable.getParameterSpec("BrainpoolP256r1")
     private val expectedECPoint =
@@ -53,7 +55,9 @@ class CardUtilitiesTest {
     @Throws(IOException::class)
     fun shouldEncodeAsn1KeyObject() {
         val asn1InputArray: ByteArray =
-            Hex.decode("7C438341041B05278F276BD92E6B0EE3478BD3A93B03FE8E4C35556F0D6C13C89C504F91C065E85C1D289B306F61BE2CECCED4E7532BF0925A4907F246DF7A69C8D69ED24F")
+            Hex.decode(
+                "7C438341041B05278F276BD92E6B0EE3478BD3A93B03FE8E4C35556F0D6C13C89C504F91C065E85C1D289B306F61BE2CECCED4E7532BF0925A4907F246DF7A69C8D69ED24F"
+            )
         val expectedKeyArray: ByteArray =
             Hex.decode("041B05278F276BD92E6B0EE3478BD3A93B03FE8E4C35556F0D6C13C89C504F91C065E85C1D289B306F61BE2CECCED4E7532BF0925A4907F246DF7A69C8D69ED24F")
         val keyArray: ByteArray = CardUtilities.extractKeyObjectEncoded(asn1InputArray)

@@ -30,7 +30,8 @@ enum class RedeemContactValidationState(@StringRes val error: Int? = null) {
     MissingOrderOption(R.string.pharmacy_order_no_pharmacy_error), // Missing order option, cannot validate
     MissingPersonalInfo(R.string.pharmacy_order_no_contact_error), // Name, address, postal code, city
     MissingPhone(R.string.pharmacy_order_no_telephone_error), // Phone or mail
-    MissingDeliveryInfo(R.string.edit_shipping_contact_invalid_delivery_information); // Delivery instructions
+    MissingDeliveryInfo(R.string.edit_shipping_contact_invalid_delivery_information) // Delivery instructions
+    ;
 
     fun isValid(): Boolean = this == NoError
 }

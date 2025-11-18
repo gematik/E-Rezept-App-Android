@@ -208,7 +208,9 @@ private fun DetailBfarmSection(
             supportedPlatforms = state.supportedPlatforms,
             contractMedicalServicesRequired = if (state.contractMedicalServicesRequired) {
                 stringResource(R.string.diga_yes)
-            } else stringResource(R.string.diga_no),
+            } else {
+                stringResource(R.string.diga_no)
+            },
             maxCost = state.maxCost,
             additionalDevicesText = additionalDevicesText,
             navigateToContributionInfo = navigateToContributionInfo

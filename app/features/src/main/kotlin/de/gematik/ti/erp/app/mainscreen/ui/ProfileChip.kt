@@ -191,7 +191,9 @@ fun ProfileChip(
                     label = "iconSize",
                     targetValue = if (iconVisible) {
                         if (profileIconState is ProfileIconState.IsRefreshing) SizeDefaults.doubleHalf else SizeDefaults.double
-                    } else SizeDefaults.zero,
+                    } else {
+                        SizeDefaults.zero
+                    },
                     animationSpec = tween(durationMillis = IconTweenDuration)
                 )
                 val animatedAlpha by animateFloatAsState(

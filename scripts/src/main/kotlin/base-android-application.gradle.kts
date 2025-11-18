@@ -91,7 +91,6 @@ android {
     testOptions {
         execution = "ANDROIDX_TEST_ORCHESTRATOR"
         animationsDisabled = true
-        emulatorSnapshots.compressSnapshots = true
         managedDevices.allDevices {
             maybeCreate<ManagedVirtualDevice>(pixel5Api30.name).apply {
                 device = pixel5Api30.device

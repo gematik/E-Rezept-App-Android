@@ -27,6 +27,7 @@ import de.gematik.ti.erp.app.consent.repository.ConsentRemoteDataSource
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.consent.repository.DefaultConsentRepository
 import de.gematik.ti.erp.app.consent.usecase.SaveGrantConsentDrawerShownUseCase
+import de.gematik.ti.erp.app.fhir.consent.FhirConsentParser
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -45,13 +46,16 @@ class SaveGrantConsentDrawerShownUseCaseTest {
     @MockK
     private lateinit var remoteDataSource: ConsentRemoteDataSource
 
+    @MockK(relaxed = true)
+    private lateinit var fhirConsentParser: FhirConsentParser
+
     private lateinit var consentRepository: ConsentRepository
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
         coEvery { localDataSource.saveGiveConsentDrawerShown("123") } returns Unit
-        consentRepository = DefaultConsentRepository(remoteDataSource, localDataSource)
+        consentRepository = DefaultConsentRepository(remoteDataSource, localDataSource, fhirConsentParser)
         saveGrantConsentDrawerShownUseCase = SaveGrantConsentDrawerShownUseCase(consentRepository)
     }
 

@@ -313,5 +313,7 @@ object TaskDatabaseMappers {
             // from fhir rules, we have dispense -- medication as a 1-1 relation
             this.medication = this@toDatabaseModel.dispensedMedication.firstOrNull()?.toDatabaseModel()
             this.deviceRequest = this@toDatabaseModel.dispensedDeviceRequest?.toDatabaseModel()
+            this.pharmacyName = this@toDatabaseModel.pharmacyName
+            this.address = this@toDatabaseModel.pharmacyAddress?.toDatabaseModel()
         }
 }

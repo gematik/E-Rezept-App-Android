@@ -27,11 +27,11 @@ import de.gematik.ti.erp.app.card.model.command.select
 import de.gematik.ti.erp.app.card.model.identifier.ApplicationIdentifier
 import de.gematik.ti.erp.app.card.model.identifier.FileIdentifier
 import org.junit.Assert
-import kotlin.test.Test
 import org.junit.experimental.theories.DataPoint
 import org.junit.experimental.theories.Theories
 import org.junit.experimental.theories.Theory
 import org.junit.runner.RunWith
+import kotlin.test.Test
 
 @RunWith(Theories::class)
 class SelectCommandTest {

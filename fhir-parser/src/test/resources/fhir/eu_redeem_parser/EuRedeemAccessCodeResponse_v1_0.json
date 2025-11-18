@@ -1,0 +1,33 @@
+{
+  "resourceType": "Parameters",
+  "id": "erp-eprescription-04-POST-AccessCode-EU-Response",
+  "meta": {
+    "profile": [
+      "https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_PAR_Access_Authorization_Response|1.0"
+    ]
+  },
+  "parameter": [
+    {
+      "name": "countryCode",
+      "valueCoding": {
+        "system": "urn:iso:std:iso:3166",
+        "code": "BE"
+      }
+    },
+    {
+      "name": "accessCode",
+      "valueIdentifier": {
+        "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_EU_AccessCode",
+        "value": "aBC123"
+      }
+    },
+    {
+      "name": "validUntil",
+      "valueInstant": "2025-10-01T16:29:00.434+00:00"
+    },
+    {
+      "name": "createdAt",
+      "valueInstant": "2025-10-01T15:29:00.434+00:00"
+    }
+  ]
+}

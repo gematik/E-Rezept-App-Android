@@ -29,11 +29,13 @@ import android.os.Looper
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.featureToggleLocalDataSource
 import de.gematik.ti.erp.app.datastore.featuretoggle.DefaultFeatureToggleRepository
 import de.gematik.ti.erp.app.datastore.featuretoggle.FeatureToggleRepository
-import de.gematik.ti.erp.app.featuretoggle.datasource.NavigationTriggerDataStore
 import de.gematik.ti.erp.app.info.mockBuildConfigurationModule
+import de.gematik.ti.erp.app.navigation.triggers.DefaultNavigationTriggerDataStore
+import de.gematik.ti.erp.app.navigation.triggers.NavigationTriggerDataStore
 import de.gematik.ti.erp.app.pkv.mockFileProviderAuthorityModule
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import org.kodein.di.DI
@@ -90,8 +92,9 @@ val appModules = DI.Module("appModules", allowSilentOverride = true) {
     // local data-store
     bindSingleton<FeatureToggleRepository> { DefaultFeatureToggleRepository(instance()) }
     bindSingleton { featureToggleLocalDataSource(instance(), BuildConfigExtension.isInternalDebug) }
+    bindProvider { IsFeatureToggleEnabledUseCase(instance()) }
 
-    bindSingleton { NavigationTriggerDataStore(instance()) }
+    bindSingleton<NavigationTriggerDataStore> { DefaultNavigationTriggerDataStore(instance()) }
 
     importAll(
         mockBuildConfigurationModule,

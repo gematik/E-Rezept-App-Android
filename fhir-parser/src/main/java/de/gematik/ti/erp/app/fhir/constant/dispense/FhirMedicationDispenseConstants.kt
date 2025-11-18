@@ -22,28 +22,16 @@
 
 package de.gematik.ti.erp.app.fhir.constant.dispense
 
-import io.github.aakira.napier.Napier
-
 object FhirMedicationDispenseConstants {
 
-    enum class MedicationDispenseVersion(val number: String) {
+    enum class MedicationDispenseProfileVersion(val profileUrl: String) {
         Legacy(""),
-        V_1_4("1.4"),
-        V_1_5("1.5");
-
-        companion object {
-            private val map = MedicationDispenseVersion.entries.toTypedArray().associateBy { it.number }
-
-            fun fromNumber(number: String?): MedicationDispenseVersion =
-                map[number] ?: run {
-                    Napier.w { "Unknown MedicationDispenseVersion: $number" }
-                    Legacy
-                }
-        }
+        V_1_4("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense|1.4"),
+        V_1_5("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense|1.5"),
+        DIGA_V_1_4("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense_DiGA|1.4"),
+        DIGA_V_1_5("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense_DiGA|1.5"),
+        EU_V_1_0("https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_MedicationDispense|1.0");
     }
-
-    const val VERSION_1_4 = "1.4"
-    const val VERSION_1_5 = "1.5"
 
     // PZN, EPA
     const val MEDICATION_DISPENSE_PZN_EPA_FORM_URL =
@@ -65,7 +53,9 @@ object FhirMedicationDispenseConstants {
         FreeText("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText"),
         EpaTypeI("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Medication"),
         EpaTypeII("https://gematik.de/fhir/epa-medication/StructureDefinition/epa-medication-pharmaceutical-product"),
-        Unknown("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Unknown");
+        EpaEuV10("https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_Medication"),
+        Unknown("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Unknown")
+        ;
 
         companion object {
             /**
@@ -82,19 +72,22 @@ object FhirMedicationDispenseConstants {
     enum class DispenseMedicationReducedVersion {
         V_1_1_0,
         V_1_0_2,
-        V_1_4;
+        V_1_4
+        ;
 
         companion object {
             fun DispenseMedicationVersionType.toReducedVersion() = when (this) {
                 is DispenseMedicationVersionType.Pzn102,
                 is DispenseMedicationVersionType.Compounding102,
                 is DispenseMedicationVersionType.Ingredient102,
-                is DispenseMedicationVersionType.FreeText102 -> V_1_0_2
+                is DispenseMedicationVersionType.FreeText102
+                -> V_1_0_2
 
                 is DispenseMedicationVersionType.Pzn110,
                 is DispenseMedicationVersionType.Compounding110,
                 is DispenseMedicationVersionType.Ingredient110,
-                is DispenseMedicationVersionType.FreeText110 -> V_1_1_0
+                is DispenseMedicationVersionType.FreeText110
+                -> V_1_1_0
 
                 is DispenseMedicationVersionType.Epa14 -> V_1_4
             }

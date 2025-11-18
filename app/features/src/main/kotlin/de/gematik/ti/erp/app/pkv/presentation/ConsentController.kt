@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -96,11 +97,12 @@ class ConsentController(
         onSuccess: () -> Unit
     ) {
         controllerScope.launch {
-            val result = revokeConsentUseCase(profileId)
-            if (result is ConsentState.ValidState.Revoked) {
-                onSuccess()
+            revokeConsentUseCase(profileId).firstOrNull().apply {
+                if (this is ConsentState.ValidState.Revoked) {
+                    onSuccess()
+                }
+                _consentState.value = this as ConsentState
             }
-            _consentState.value = result as ConsentState
         }
     }
 

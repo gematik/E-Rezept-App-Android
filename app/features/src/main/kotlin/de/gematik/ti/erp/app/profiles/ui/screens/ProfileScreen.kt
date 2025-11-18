@@ -52,6 +52,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -88,6 +89,7 @@ import de.gematik.ti.erp.app.profiles.presentation.rememberProfileScreenControll
 import de.gematik.ti.erp.app.profiles.ui.components.DeleteProfileDialog
 import de.gematik.ti.erp.app.profiles.ui.components.ProfileAvatarSection
 import de.gematik.ti.erp.app.profiles.ui.components.ProfileEditPairedDeviceSection
+import de.gematik.ti.erp.app.profiles.ui.components.ProfileEuConsentSection
 import de.gematik.ti.erp.app.profiles.ui.components.ProfileInsuranceInformationSection
 import de.gematik.ti.erp.app.profiles.ui.components.ProfileInvoiceInformationSection
 import de.gematik.ti.erp.app.profiles.ui.components.ProfileNameSection
@@ -99,7 +101,7 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
-import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
+import de.gematik.ti.erp.app.utils.compose.LightDarkLongPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonLarge
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
@@ -122,7 +124,9 @@ class ProfileScreen(
             remember { navBackStackEntry.arguments?.getString(ProfileRoutes.PROFILE_NAV_PROFILE_ID) } ?: return
         val profileScreenController = rememberProfileScreenController(profileId)
         val combinedProfileState by profileScreenController.combinedProfile.collectAsStateWithLifecycle()
-
+        val hasEuRedeemablePrescriptions by profileScreenController.hasEuRedeemablePrescriptions.collectAsStateWithLifecycle()
+        val euConsentStatus by profileScreenController.euConsentStatus.collectAsStateWithLifecycle()
+        val euRedeemFeatureFlag by profileScreenController.euRedeemFeatureFlag.collectAsStateWithLifecycle()
         val activity = LocalActivity.current as? BaseActivity
         val isDemoMode = remember { activity?.isDemoMode?.value ?: false }
         val listState = rememberLazyListState()
@@ -135,6 +139,10 @@ class ProfileScreen(
         var triggerIsKVNRCopiedCheck by remember { mutableStateOf(true) }
         val isKVNRCopied by remember(triggerIsKVNRCopiedCheck) {
             mutableStateOf(clipboard.primaryClipDescription?.label == kvnrString)
+        }
+
+        LaunchedEffect(profileId) {
+            profileScreenController.fetchEuConsentStatus(profileId)
         }
 
         val onBack by rememberUpdatedState { navController.popBackStack() }
@@ -151,12 +159,15 @@ class ProfileScreen(
                 onBack()
             }
         )
-        ChooseAuthenticationNavigationEventsListener(profileScreenController, navController)
+        ChooseAuthenticationNavigationEventsListener(profileScreenController, navController, dialogScaffold = LocalDialog.current)
         BackHandler { onBack() }
         ProfileScreenScaffold(
             profileState = combinedProfileState,
             scaffoldState = scaffoldState,
             listState = listState,
+            hasEuRedeemablePrescriptions = hasEuRedeemablePrescriptions,
+            euConsentStatus = euConsentStatus,
+            euRedeemFeatureFlag = euRedeemFeatureFlag,
             isDemoMode = isDemoMode,
             isKVNRCopied = isKVNRCopied,
             color = color,
@@ -192,6 +203,13 @@ class ProfileScreen(
                     navController.navigate(PkvRoutes.InvoiceListScreen.path(profileId = profile.id))
                 }
             },
+            onClickEuConsent = {
+                combinedProfileState.data?.selectedProfile?.let { profile ->
+                    if (profileScreenController.onEuConsentClick(profile)) {
+                        navController.navigate(ProfileRoutes.ProfileEuConsentScreen.path())
+                    }
+                }
+            },
             onShowPairedDevices = {
                 combinedProfileState.data?.selectedProfile?.let { profile ->
                     navController.navigate(ProfileRoutes.ProfilePairedDevicesScreen.path(profileId = profile.id))
@@ -217,6 +235,9 @@ internal fun ProfileScreenScaffold(
     profileState: UiState<ProfileCombinedData>,
     scaffoldState: ScaffoldState,
     listState: LazyListState,
+    hasEuRedeemablePrescriptions: Boolean,
+    euConsentStatus: Boolean?,
+    euRedeemFeatureFlag: Boolean,
     isDemoMode: Boolean,
     color: Color,
     isKVNRCopied: Boolean,
@@ -229,6 +250,7 @@ internal fun ProfileScreenScaffold(
     onClickCopy: (ClipData) -> Unit,
     onClickChangeInsuranceType: () -> Unit,
     onClickInvoices: () -> Unit,
+    onClickEuConsent: () -> Unit,
     onShowPairedDevices: () -> Unit,
     onClickAuditEvents: () -> Unit,
     onBack: () -> Unit
@@ -270,6 +292,9 @@ internal fun ProfileScreenScaffold(
                         listState = listState,
                         profileState = profileState,
                         selectedProfile = selectedProfile,
+                        hasEuRedeemablePrescriptions = hasEuRedeemablePrescriptions,
+                        euConsentStatus = euConsentStatus,
+                        euRedeemFeatureFlag = euRedeemFeatureFlag,
                         isDemoMode = isDemoMode,
                         isKVNRCopied = isKVNRCopied,
                         keyboardController = keyboardController,
@@ -282,6 +307,7 @@ internal fun ProfileScreenScaffold(
                         onClickCopy = onClickCopy,
                         onClickChangeInsuranceType = onClickChangeInsuranceType,
                         onClickInvoices = onClickInvoices,
+                        onClickEuConsent = onClickEuConsent,
                         onShowPairedDevices = onShowPairedDevices,
                         onClickAuditEvents = onClickAuditEvents
                     )
@@ -298,6 +324,9 @@ internal fun ProfileScreenContent(
     profileState: UiState<ProfileCombinedData>,
     selectedProfile: ProfilesUseCaseData.Profile,
     isKVNRCopied: Boolean,
+    hasEuRedeemablePrescriptions: Boolean,
+    euConsentStatus: Boolean?,
+    euRedeemFeatureFlag: Boolean,
     isDemoMode: Boolean,
     color: Color,
     keyboardController: SoftwareKeyboardController?,
@@ -309,6 +338,7 @@ internal fun ProfileScreenContent(
     onClickDeleteProfile: () -> Unit,
     onClickChangeInsuranceType: () -> Unit,
     onClickInvoices: () -> Unit,
+    onClickEuConsent: () -> Unit,
     onShowPairedDevices: () -> Unit,
     onClickAuditEvents: () -> Unit
 ) {
@@ -350,7 +380,7 @@ internal fun ProfileScreenContent(
                 color = AppTheme.colors.neutral300
             )
         }
-        if (selectedProfile.insurance.insuranceType == ProfilesUseCaseData.InsuranceType.PKV) {
+        if (selectedProfile.hasBundFeatures()) {
             item {
                 ProfileInvoiceInformationSection {
                     onClickInvoices()
@@ -363,7 +393,21 @@ internal fun ProfileScreenContent(
                 )
             }
         }
-
+        if (euRedeemFeatureFlag && hasEuRedeemablePrescriptions) {
+            item {
+                ProfileEuConsentSection(
+                    euConsentStatus = euConsentStatus
+                ) {
+                    onClickEuConsent()
+                }
+            }
+            item {
+                Divider(
+                    modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+                    color = AppTheme.colors.neutral300
+                )
+            }
+        }
         if (!isDemoMode) {
             item {
                 ProfileEditPairedDeviceSection {
@@ -469,7 +513,7 @@ internal fun ThreeDotMenu(
     }
 }
 
-@LightDarkPreview
+@LightDarkLongPreview
 @Composable
 fun ProfileScreenPreview(
     @PreviewParameter(ProfileStatePreviewParameterProvider::class) profileState: UiState<ProfileCombinedData>
@@ -481,6 +525,9 @@ fun ProfileScreenPreview(
         ProfileScreenScaffold(
             listState = listState,
             profileState = profileState,
+            hasEuRedeemablePrescriptions = true,
+            euConsentStatus = true,
+            euRedeemFeatureFlag = true,
             isDemoMode = false,
             color = color,
             keyboardController = null,
@@ -489,6 +536,7 @@ fun ProfileScreenPreview(
             onClickEditAvatar = {},
             onClickLogIn = {},
             onClickInvoices = {},
+            onClickEuConsent = {},
             onShowPairedDevices = {},
             onClickChangeInsuranceType = {},
             onClickAuditEvents = {},

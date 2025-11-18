@@ -45,6 +45,7 @@ dependencies {
     implementation(project(namesPlugin.utils))
     implementation(project(namesPlugin.fhirParser))
     implementation(project(namesPlugin.feature))
+    implementation(project(namesPlugin.core))
     implementation(project(namesPlugin.demoMode))
     implementation(project(namesPlugin.uiComponents))
     implementation(project(namesPlugin.multiplatform))

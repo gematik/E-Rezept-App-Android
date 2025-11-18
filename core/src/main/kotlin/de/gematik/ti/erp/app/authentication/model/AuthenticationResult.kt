@@ -52,6 +52,7 @@ sealed interface AuthenticationResult {
     sealed interface IdpCommunicationError : AuthenticationResult {
         data object AuthenticationNotSuccessful : IdpCommunicationError, Error.ResetError
         data object CommunicationFailure : IdpCommunicationError, Error.RetryError
+        data object Unknown : IdpCommunicationError, Error.RetryError
         data object InvalidCertificate : IdpCommunicationError, Error.RetryError
         data object InvalidOCSP : IdpCommunicationError, Error.RetryError
         data object SecureElementFailure : IdpCommunicationError, Error.ResetError

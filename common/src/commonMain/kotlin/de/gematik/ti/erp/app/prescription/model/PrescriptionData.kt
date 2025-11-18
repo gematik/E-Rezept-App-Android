@@ -44,6 +44,9 @@ object PrescriptionData {
         val taskId: String
         val redeemedOn: Instant?
         val accessCode: String
+        val isEuRedeemable: Boolean
+        fun isActive(): Boolean
+        fun isReady(): Boolean
     }
 
     @Stable
@@ -55,9 +58,12 @@ object PrescriptionData {
         override val redeemedOn: Instant? = task.redeemedOn
         override val accessCode: String = task.accessCode
         override val name: String = task.name
+        override val isEuRedeemable: Boolean = false
         val scannedOn: Instant = task.scannedOn
         val index: Int = task.index
         val isRedeemed = redeemedOn != null
+        override fun isActive(): Boolean = task.isRedeemable()
+        override fun isReady(): Boolean = task.isRedeemable()
     }
 
     @Stable
@@ -88,7 +94,10 @@ object PrescriptionData {
         val isIncomplete = task.isIncomplete
         val failureToReport = task.failureToReport
         val deviceRequest: FhirTaskKbvDeviceRequestErpModel? = task.deviceRequest
-        val isEuRedeemable = task.isEuRedeemable
+        override val isEuRedeemable = task.isEuRedeemable
+        val isEuRedeemableByPatientAuthorization = task.isEuRedeemableByPatientAuthorization
+        override fun isActive(): Boolean = task.isActive()
+        override fun isReady(): Boolean = task.isReady()
     }
 
     @Serializable(with = MedicationInterfaceSerializer::class)

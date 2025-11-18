@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.composable
-import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import de.gematik.ti.erp.app.analytics.navigation.trackingGraph
 import de.gematik.ti.erp.app.appsecurity.navigation.AppSecurityRoutes
 import de.gematik.ti.erp.app.appsecurity.navigation.appSecurityGraph
@@ -73,7 +72,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 
 @SuppressLint("RestrictedApi")
-@OptIn(ExperimentalMaterialNavigationApi::class)
 @Suppress("LongMethod")
 @Composable
 fun NavigationGraph(

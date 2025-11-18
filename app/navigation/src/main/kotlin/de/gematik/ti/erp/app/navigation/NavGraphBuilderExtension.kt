@@ -27,6 +27,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.material.navigation.bottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NamedNavArgument
@@ -34,8 +35,6 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
-import com.google.accompanist.navigation.material.bottomSheet
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.analytics.tracker.Tracker
 import org.kodein.di.compose.rememberInstance
@@ -110,7 +109,6 @@ fun NavGraphBuilder.renderComposable(
  * @param deepLinks list of deep links to associate with the destinations
  * @param screen the [BottomSheetScreen] at the given destination
  */
-@OptIn(ExperimentalMaterialNavigationApi::class)
 fun NavGraphBuilder.renderBottomSheet(
     route: String,
     arguments: List<NamedNavArgument> = emptyList(),

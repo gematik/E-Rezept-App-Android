@@ -23,9 +23,9 @@
 package de.gematik.ti.erp.app.digas.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.digas.data.model.AdditionalDeviceStatus
 import de.gematik.ti.erp.app.digas.ui.model.DigaBfarmUiModel
-import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.digas.ui.model.DigaMainScreenUiModel
 import de.gematik.ti.erp.app.digas.ui.model.DigaSegmentedControllerTap
 import de.gematik.ti.erp.app.digas.ui.model.DigaTimestamps

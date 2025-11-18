@@ -41,6 +41,7 @@ import de.gematik.ti.erp.app.VisibleDebugTree
 import de.gematik.ti.erp.app.appupdate.usecase.ChangeAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
+import de.gematik.ti.erp.app.consent.usecase.RevokeConsentUseCase
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.FeatureEntity
 import de.gematik.ti.erp.app.datastore.featuretoggle.FeatureToggleRepository
 import de.gematik.ti.erp.app.debugsettings.data.DebugSettingsData
@@ -49,6 +50,7 @@ import de.gematik.ti.erp.app.di.DebugSettings.getDebugSettingsDataForEnvironment
 import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.digas.domain.usecase.GetIknrUseCase
 import de.gematik.ti.erp.app.digas.domain.usecase.UpdateIknrUseCase
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.AccessToken
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
@@ -111,6 +113,7 @@ class DebugSettingsViewModel(
     private val getTaskIdsUseCase: GetTaskIdsUseCase,
     private val getIknrUseCase: GetIknrUseCase,
     private val updateIknrUseCase: UpdateIknrUseCase,
+    private val revokeEuConsentUseCase: RevokeConsentUseCase,
     private val dispatchers: DispatchProvider
 ) : ViewModel() {
     private val appUpdateManager = MutableStateFlow(true)
@@ -306,6 +309,14 @@ class DebugSettingsViewModel(
     fun toggleFeature(feature: FeatureEntity) {
         viewModelScope.launch {
             featureToggleRepository.toggleFeature(feature)
+        }
+    }
+
+    fun onRevokeEuConsent() {
+        viewModelScope.launch {
+            profilesUseCase.activeProfileId().first().let { profile ->
+                revokeEuConsentUseCase(profile, category = ConsentCategory.EUCONSENT).collect { state -> }
+            }
         }
     }
 

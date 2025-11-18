@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.database.realm.v1.task.entity
 
 import de.gematik.ti.erp.app.database.realm.utils.Cascading
 import de.gematik.ti.erp.app.database.realm.utils.temporalAccessorNullable
+import de.gematik.ti.erp.app.database.realm.v1.AddressEntityV1
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import io.realm.kotlin.Deleteable
 import io.realm.kotlin.types.RealmObject
@@ -37,6 +38,8 @@ class MedicationDispenseEntityV1 : RealmObject, Cascading {
     var wasSubstituted: Boolean = false
     var dosageInstruction: String? = null
     var performer: String = "" // Telematik-ID
+    var pharmacyName: String? = null
+    var address: AddressEntityV1? = null
     var _handedOverOn: String? = null
 
     @delegate:Ignore
@@ -45,5 +48,6 @@ class MedicationDispenseEntityV1 : RealmObject, Cascading {
     override fun objectsToFollow(): Iterator<Deleteable> = iterator {
         medication?.let { yield(it) }
         deviceRequest?.let { yield(it) }
+        address?.let { yield(it) }
     }
 }

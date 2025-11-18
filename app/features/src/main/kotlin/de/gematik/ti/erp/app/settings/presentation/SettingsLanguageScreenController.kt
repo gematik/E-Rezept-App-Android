@@ -24,10 +24,8 @@ package de.gematik.ti.erp.app.settings.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.base.Controller
-import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.settings.usecase.GetSupportedLanguagesFromXmlUseCase
+import de.gematik.ti.erp.app.localization.GetSupportedLanguagesFromXmlUseCase
 import org.kodein.di.compose.rememberInstance
 
 class SettingsLanguageScreenController(
@@ -36,33 +34,6 @@ class SettingsLanguageScreenController(
 
     val languageList by lazy {
         getSupportedLanguagesFromXmlUseCase()
-    }
-}
-
-enum class LanguageCode(val code: String, val resource: Int) {
-    DE("de", R.string.language_selection_de), // default language
-    AR("ar", R.string.language_selection_ar),
-    BG("bg", R.string.language_selection_bg),
-    CS("cs", R.string.language_selection_cs),
-    DA("da", R.string.language_selection_da),
-    EN("en", R.string.language_selection_en),
-    FR("fr", R.string.language_selection_fr),
-    IW("iw", R.string.language_selection_he),
-    IT("it", R.string.language_selection_it),
-    NL("nl", R.string.language_selection_nl),
-    PL("pl", R.string.language_selection_pl),
-    RO("ro", R.string.language_selection_ro),
-    RU("ru", R.string.language_selection_ru),
-    TR("tr", R.string.language_selection_tr),
-    UK("uk", R.string.language_selection_uk),
-    ES("es", R.string.language_selection_es),
-    GA("ga", R.string.language_selection_ga);
-
-    @Composable
-    fun mapToName() = stringResource(resource)
-
-    companion object {
-        fun fromCode(code: String) = entries.firstOrNull { it.code == code }
     }
 }
 

@@ -23,13 +23,13 @@
 package de.gematik.ti.erp.app.eurezept.util
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,32 +39,31 @@ import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
+
 @Composable
 fun EuRedeemScaffold(
+    modifier: Modifier = Modifier,
     listState: LazyListState,
     onBack: () -> Unit,
     onCancel: () -> Unit,
     topBarTitle: String = "",
     bottomBar: @Composable () -> Unit = {},
-    modifier: Modifier = Modifier,
+    showBackButton: Boolean = true,
     showCloseButton: Boolean = true,
     topBarColor: Color = colors.surface,
-    snackbarHost: @Composable (SnackbarHostState) -> Unit = { SnackbarHost(it) },
+    snackbarHostState: SnackbarHostState = SnackbarHostState(),
     cancelButtonText: String = stringResource(R.string.eu_consent_close),
     applicationPadding: ApplicationInnerPadding? = null,
     content: @Composable (PaddingValues) -> Unit
 ) {
-    val scaffoldState = rememberScaffoldState()
-
     AnimatedElevationScaffold(
         modifier = modifier,
         backLabel = stringResource(R.string.back),
         closeLabel = "",
-        navigationMode = NavigationBarMode.Back,
+        navigationMode = if (showBackButton) NavigationBarMode.Back else null,
         topBarTitle = topBarTitle,
         topBarColor = topBarColor,
-        scaffoldState = scaffoldState,
-        snackbarHost = snackbarHost,
+        snackbarHost = { SnackbarHost(snackbarHostState, modifier = Modifier.systemBarsPadding()) },
         onBack = onBack,
         applicationPadding = applicationPadding,
         actions = {

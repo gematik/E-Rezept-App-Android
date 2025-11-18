@@ -27,6 +27,7 @@ import de.gematik.ti.erp.app.consent.model.ConsentContext
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.model.mapConsentErrorStates
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -40,9 +41,9 @@ class GetConsentUseCase(
 ) {
     suspend operator fun invoke(profileIdentifier: ProfileIdentifier): Flow<ErpServiceState> = flowOf(
         withContext(dispatcher) {
-            consentRepository.getConsent(profileId = profileIdentifier).fold(
+            consentRepository.getPkvConsent(profileId = profileIdentifier, category = ConsentCategory.PKVCONSENT.code).fold(
                 onSuccess = {
-                    when (consentRepository.isConsentGranted(it)) {
+                    when (consentRepository.isPkvConsentGranted(it)) {
                         true -> ConsentState.ValidState.Granted(ConsentContext.GetConsent)
                         false -> ConsentState.ValidState.NotGranted
                     }

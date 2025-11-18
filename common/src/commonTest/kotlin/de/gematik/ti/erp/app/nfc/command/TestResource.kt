@@ -20,7 +20,7 @@
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
-@file:Suppress("ktlint:max-line-length", "ktlint:argument-list-wrapping", "UnusedPrivateMember")
+@file:Suppress("ktlint:max-line-length", "ktlint:standard:argument-list-wrapping", "UnusedPrivateMember")
 
 package de.gematik.ti.erp.app.nfc.command
 

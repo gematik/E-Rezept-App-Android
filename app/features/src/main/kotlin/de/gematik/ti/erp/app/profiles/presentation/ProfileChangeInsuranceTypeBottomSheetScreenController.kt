@@ -26,10 +26,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.LogoutProfileUseCase
-import de.gematik.ti.erp.app.profiles.usecase.SwitchProfileToGKVUseCase
-import de.gematik.ti.erp.app.profiles.usecase.SwitchProfileToPKVUseCase
+import de.gematik.ti.erp.app.profiles.usecase.SwitchProfileInsuranceTypeUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,8 +41,7 @@ import org.kodein.di.compose.rememberInstance
 class ProfileChangeInsuranceTypeBottomSheetScreenController(
     private val logOutProfileUseCase: LogoutProfileUseCase,
     private val getProfileByIdUseCase: GetProfileByIdUseCase,
-    private val switchProfileToPKVUseCase: SwitchProfileToPKVUseCase,
-    private val switchProfileToGKVUseCase: SwitchProfileToGKVUseCase,
+    private val switchProfileInsuranceTypeUseCase: SwitchProfileInsuranceTypeUseCase,
     private val profileId: ProfileIdentifier?
 ) : Controller() {
     private val _profileState: MutableStateFlow<UiState<ProfilesUseCaseData.Profile>> = MutableStateFlow(UiState.Loading())
@@ -71,13 +70,25 @@ class ProfileChangeInsuranceTypeBottomSheetScreenController(
 
     internal fun setProfileInsuranceTypeAsPKV() {
         controllerScope.launch {
-            profileId?.let { switchProfileToPKVUseCase.invoke(it) }
+            profileId?.let {
+                switchProfileInsuranceTypeUseCase.invoke(it, ProfilesData.InsuranceType.PKV)
+            }
         }
     }
 
     internal fun setProfileInsuranceTypeAsGKV() {
         controllerScope.launch {
-            profileId?.let { switchProfileToGKVUseCase.invoke(it) }
+            profileId?.let {
+                switchProfileInsuranceTypeUseCase.invoke(it, ProfilesData.InsuranceType.GKV)
+            }
+        }
+    }
+
+    internal fun setProfileInsuranceTypeAsBUND() {
+        controllerScope.launch {
+            profileId?.let {
+                switchProfileInsuranceTypeUseCase.invoke(it, ProfilesData.InsuranceType.BUND)
+            }
         }
     }
 }
@@ -88,14 +99,12 @@ fun rememberProfileChangeInsuranceTypeBottomSheetScreenController(
 ): ProfileChangeInsuranceTypeBottomSheetScreenController {
     val getProfileByIdUseCase by rememberInstance<GetProfileByIdUseCase>()
     val logOutProfileUseCase by rememberInstance<LogoutProfileUseCase>()
-    val switchProfileToPKVUseCase by rememberInstance<SwitchProfileToPKVUseCase>()
-    val switchProfileToGKVUseCase by rememberInstance<SwitchProfileToGKVUseCase>()
+    val switchProfileInsuranceTypeUseCase by rememberInstance<SwitchProfileInsuranceTypeUseCase>()
     return remember {
         ProfileChangeInsuranceTypeBottomSheetScreenController(
             logOutProfileUseCase = logOutProfileUseCase,
             getProfileByIdUseCase = getProfileByIdUseCase,
-            switchProfileToPKVUseCase = switchProfileToPKVUseCase,
-            switchProfileToGKVUseCase = switchProfileToGKVUseCase,
+            switchProfileInsuranceTypeUseCase = switchProfileInsuranceTypeUseCase,
             profileId = profileId
         )
     }

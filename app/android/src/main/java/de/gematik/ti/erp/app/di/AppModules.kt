@@ -31,17 +31,19 @@ import androidx.security.crypto.MasterKey
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.base.BaseConstants.applicationScope
+import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.featureToggleLocalDataSource
 import de.gematik.ti.erp.app.datastore.featuretoggle.DefaultFeatureToggleRepository
 import de.gematik.ti.erp.app.datastore.featuretoggle.FeatureToggleRepository
-import de.gematik.ti.erp.app.featuretoggle.datasource.NavigationTriggerDataStore
 import de.gematik.ti.erp.app.info.di.buildConfigInformationModule
+import de.gematik.ti.erp.app.navigation.triggers.DefaultNavigationTriggerDataStore
+import de.gematik.ti.erp.app.navigation.triggers.NavigationTriggerDataStore
 import de.gematik.ti.erp.app.pkv.fileProviderAuthorityModule
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.runBlocking
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
@@ -112,8 +114,9 @@ val appModules = DI.Module("appModules") {
 
     bindSingleton<FeatureToggleRepository> { DefaultFeatureToggleRepository(instance()) }
     bindSingleton { featureToggleLocalDataSource(instance(), BuildConfigExtension.isInternalDebug) }
+    bindProvider { IsFeatureToggleEnabledUseCase(instance()) }
 
-    bindSingleton { NavigationTriggerDataStore(instance()) }
+    bindSingleton<NavigationTriggerDataStore> { DefaultNavigationTriggerDataStore(instance()) }
 
     importAll(
         buildConfigInformationModule,
