@@ -1,5 +1,7 @@
 # README
-# Before removing any libs please check using the Libs.kt in scripts module if its being used in any of the base gradle files
+# Before removing any libs please check using the Libs.kt in scripts module
+# if its being used in any of the base gradle files
+# ./gradlew :scripts:generateLibsObject is the task used to create the Libs file used for using the libs from here
 
 [versions]
 
@@ -10,7 +12,7 @@ androidx-compose-bom = "2024.08.00"
 agp-build = "8.11.1"
 agp-app = "8.11.1"
 certificatetransparency-android = "2.5.42"
-desugar = "2.1.3"
+desugar = "2.1.5"
 
 # androidx
 gradle-license-plugin = "0.9.8"
@@ -20,7 +22,7 @@ accompanist-permission = "0.37.3"
 activity-compose = "1.10.0"
 markdown = "0.5.4"
 appcompat = "1.7.0"
-biometric = "1.2.0-alpha05"
+biometric = "1.1.0"
 camera = "1.4.1"
 core-ktx = "1.15.0"
 datastore-preferences = "1.1.2"
@@ -36,18 +38,18 @@ androidx-test-rules = "1.6.1"
 androidx-test-junit = "1.2.1"
 androidx-test-runner = "1.6.2"
 androidx-test-services = "1.5.0"
-androidx-test-espresso-core = "3.6.1"
 androidx-test-arch-core = "2.2.0"
 
 # animation
-lottie = "6.1.0"
-shimmer = "1.2.0"
+lottie = "6.6.10"
+shimmer = "1.3.3"
 
 # buildkonfig
 buildkonfig-gradle-plugin = "0.15.1"
 
 # compose
 # todo solve problems with compose update
+compose-material-navigation = "1.7.6"
 compose-plugin = "1.7.3"
 compose-foundation = "1.7.7"
 compose = "1.7.7"
@@ -56,15 +58,16 @@ navigation-compose = "2.8.6"
 paging-compose = "3.3.5"
 
 # kotlin
+# NOTE: If you update the Kotlin version here, you MUST also update the hardcoded version in buildSrc/build.gradle.kts plugins block!
 kotlin = "2.0.21"
-kotlinx-datetime = "0.6.0-RC.2"
+kotlinx-datetime = "0.6.1"
 kotlin-reflect = "2.0.21"
 kotlin-test = "2.0.21"
 
 # crypto
-bouncycastle = "1.79"
-jose4j = "0.9.5"
-json = "20231013"
+bouncycastle = "1.82"
+jose4j = "0.9.6"
+json = "20250517"
 
 # coroutines
 coroutine-core = "1.10.1"
@@ -84,10 +87,10 @@ material = "1.12.0"
 di = "7.20.2"
 
 # security fixes
-protobuf = "4.28.2"
+protobuf = "4.32.1"
 netty-codec-http2 = "4.1.108.Final"
 netty-handler = "4.1.118.Final"
-guava = "33.2.0-jre"
+guava = "33.5.0-jre"
 
 # serialization
 kotlinx-serialization = "2.0.21"
@@ -100,7 +103,7 @@ coil = "2.7.0"
 barcode-scanning = "17.3.0"
 text-translation = "17.0.3"
 text-recognition = "16.0.1"
-zxing-core = "3.5.2"
+zxing-core = "3.5.3"
 
 jetbrains-kotlin-jvm = "2.0.21"
 kotlin-serilization = "2.0.21"
@@ -114,7 +117,7 @@ maps-location = "21.3.0"
 
 # logging
 napier = "2.7.1"
-slf4j = "2.0.9"
+slf4j = "2.0.17"
 
 # network
 httpclient5 = "5.4"
@@ -123,24 +126,23 @@ retrofit-kotlinx-serialization-converter = "1.0.0"
 okhttp = "4.12.0" # this depends on the certificate transparancy library. Always check if they are compatible
 
 # play
-play-integrity = "1.4.0"
+play-integrity = "1.5.0"
 play-review = "2.0.2"
 play-app-update = "2.1.0"
 
 # others
-password-strength = "1.8.2"
-reactive-state = "5.6.0"
-opencsv = "5.5.2"
+password-strength = "1.9.0"
+reactive-state = "5.13.0"
+opencsv = "5.12.0"
 process-phoenix = "3.0.0"
 
 # tracking
-tracking = "4.28.0"
+tracking = "4.41.1"
 
 # testing
-screenshot = "0.0.1-alpha09"
 paparazzi = "1.3.5"
-mockk = "1.13.10"
-yaml = "2.3"
+mockk = "1.14.6"
+yaml = "2.5"
 
 # e2e testing
 primsys = "0.13.1"
@@ -148,9 +150,10 @@ kodeon = "0.1.1-SNAPSHOT"
 
 # Quality
 # Always check if these libraries work on update
+# deprecated due to issues with disabling rules
 ktlint = "0.46.1"
-ktlint-test = "0.45.2"
-ktlint-core = "0.45.2"
+ktlint-test = "0.46.1"
+ktlint-core = "0.46.1"
 detekt = "1.23.8"
 composerules = "0.0.26"
 rules = "1.0"
@@ -177,6 +180,7 @@ compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 compose-animation = { group = "androidx.compose.animation", name = "animation" }
 
 # compose without BOM
+compose-material-navigation = { module = "androidx.compose.material:material-navigation", version.ref = "compose-material-navigation" }
 compose-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose-plugin" }
 compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compiler" }
 compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose-foundation" }
@@ -198,7 +202,6 @@ quality-rules = { module = "de.gematik.ti.erp.app:rules", version.ref = "rules" 
 material = { module = "com.google.android.material:material", version.ref = "material" }
 
 # accompanist
-accompanist-navigation-material = { module = "com.google.accompanist:accompanist-navigation-material", version.ref = "accompanist" }
 accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanist" }
 accompanist-flowlayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanist" }
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanist" }
@@ -418,7 +421,7 @@ dependency-overrides = { id = "de.gematik.ti.erp.dependency-overrides" }
 
 # Bundles are used in VersionCatalogBundles file as a way to group dependencies together
 [bundles]
-accompanist = ["accompanist-swiperefresh", "accompanist-flowlayout", "accompanist-pager", "accompanist-pager-indicators", "accompanist-systemuicontroller", "accompanist-navigation-material", "accompanist-permission", "compose-markdown"]
+accompanist = ["accompanist-swiperefresh", "accompanist-flowlayout", "accompanist-pager", "accompanist-pager-indicators", "accompanist-systemuicontroller", "accompanist-permission", "compose-markdown"]
 androidx-app = ["androidx-appcompat", "androidx-security-crypto"]
 androidx = ["androidx-appcompat", "androidx-core-ktx", "androidx-datastore-preferences", "androidx-biometric", "androidx-webkit", "androidx-security-crypto", "androidx-activity-compose", "androidx-window"]
 androidx-test-arch-core = ["androidx-test-arch-core"]
@@ -426,7 +429,7 @@ androidxtest = ["androidx-test-core", "androidx-test-rules", "androidx-test-juni
 androidxtestutils = ["androidx-test-orchestrator"]
 animation = ["lottie", "shimmer"]
 composeLibsWithBom = ["compose-ui", "compose-ui-tooling", "compose-ui-tooling-preview", "compose-material", "compose-material3", "compose-material-icons-core", "compose-material-icons-extended", "compose-runtime", "compose-animation"]
-composeLibsWithoutBom = ["compose-plugin", "compose-compiler", "compose-foundation", "paging-compose", "paging-common-ktx", "navigation-compose"]
+composeLibsWithoutBom = ["compose-plugin", "compose-compiler", "compose-foundation", "paging-compose", "paging-common-ktx", "navigation-compose", "compose-material-navigation"]
 composetest = ["compose-ui-test", "compose-ui-test-manifest", "compose-ui-test-junit4"]
 camera = ["camera-camera2", "camera-lifecycle", "camera-view"]
 coroutines = ["kotlinx-coroutines-core", "kotlinx-coroutines-android", "kotlinx-coroutines-play-services"]

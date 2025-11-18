@@ -26,5 +26,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class QuickFilter {
-    OpenNowNearby, DeliveryNearby, Online;
+    OpenNowNearby, DeliveryNearby, Online
 }

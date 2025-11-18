@@ -32,12 +32,21 @@ import de.gematik.ti.erp.app.navigation.Routes
 object ProfileRoutes : NavigationRoutes {
     override fun subGraphName() = "profile"
     const val PROFILE_NAV_PROFILE_ID = "PROFILE_ID_PROFILE_NAVIGATION"
+    const val PROFILE_NAV_HAS_EU_REDEEMABLE = "HAS_EU_REDEEMABLE_PROFILE_NAVIGATION"
 
     object ProfileScreen : Routes(
         NavigationRouteNames.ProfileScreen.name,
-        navArgument(PROFILE_NAV_PROFILE_ID) { type = NavType.StringType }
+        navArgument(PROFILE_NAV_PROFILE_ID) { type = NavType.StringType },
+        navArgument(PROFILE_NAV_HAS_EU_REDEEMABLE) {
+            type = NavType.BoolType
+            defaultValue = false
+        }
     ) {
-        fun path(profileId: String) = path(PROFILE_NAV_PROFILE_ID to profileId)
+        fun path(profileId: String, hasEuRedeemablePrescriptions: Boolean = false) =
+            path(
+                PROFILE_NAV_PROFILE_ID to profileId,
+                PROFILE_NAV_HAS_EU_REDEEMABLE to hasEuRedeemablePrescriptions
+            )
     }
 
     object ProfileAuditEventsScreen : Routes(
@@ -46,6 +55,8 @@ object ProfileRoutes : NavigationRoutes {
     ) {
         fun path(profileId: String) = path(PROFILE_NAV_PROFILE_ID to profileId)
     }
+
+    object ProfileEuConsentScreen : Routes(NavigationRouteNames.ProfileEuConsentScreen.name)
 
     object ProfilePairedDevicesScreen : Routes(
         NavigationRouteNames.ProfilePairedDevicesScreen.name,

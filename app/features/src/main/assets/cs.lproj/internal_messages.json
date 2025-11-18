@@ -40,5 +40,11 @@
         "text": "**📝 Flexibilní pole pro pokyny k doručení** \n Pole pro pokyny k doručení se nyní automaticky přizpůsobí délce textu. \n \n **🎨 Modernější tlačítka s Material 3** \n Tlačítka byla přizpůsobena novému designu Material 3 pro Android a nyní mají modernější a zaoblenější vzhled. \n \n **📤 Sdílejte recepty** \nRecepty lze nyní sdílet s ostatními přímo z aplikace.",
         "timestamp": "2025-09-09T08:00:00.000Z",
         "version": "1.33"
+    },
+    {
+        "id": "9",
+        "text": "**🏛️ Registrace u federálních institucí** \nRegistrace je nyní možná i pro osoby pojištěné u federálních institucí, jako je federální policie. \n \n **🕒 Vylepšená otevírací doba lékáren** \nNyní se zobrazuje pohotovostní služba a zvláštní zavírací doba lékáren, pokud byly uloženy.",
+        "timestamp": "2025-11-03T08:00:00.000Z",
+        "version": "1.34"
     }
 ]

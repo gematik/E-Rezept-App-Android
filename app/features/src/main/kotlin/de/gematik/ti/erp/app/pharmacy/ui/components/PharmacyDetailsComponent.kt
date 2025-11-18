@@ -57,8 +57,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.base.ClipBoardCopy
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRouteBackStackEntryArguments
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyGraphController
@@ -79,7 +79,7 @@ import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
-import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
+import de.gematik.ti.erp.app.utils.compose.LightDarkLongPreview
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
@@ -95,7 +95,7 @@ import kotlinx.datetime.toLocalDateTime
 
 enum class ScreenType {
     ForPharmacy,
-    ForMessage,
+    ForMessage
 }
 
 @Composable
@@ -276,14 +276,14 @@ private fun BasePharmacyDetailsContent(
                             onOrderClicked = onClickOrder
                         )
                     }
-                    SpacerWithTelematikId(showTelematikId)
+                    SpacerXXLarge()
                 } else if (screenType == ScreenType.ForMessage) {
                     PharmacyContactSelection(
                         pharmacy = pharmacy,
                         onPhoneClicked = onClickPhone,
                         onMailClicked = onClickMail
                     )
-                    SpacerWithTelematikId(showTelematikId)
+                    SpacerXXLarge()
                 }
             }
 
@@ -314,6 +314,8 @@ private fun BasePharmacyDetailsContent(
             item {
                 PharmacyContact(
                     openingHours = pharmacy.openingHours,
+                    specialClosingTimes = pharmacy.specialClosingTimes,
+                    specialOpeningTimes = pharmacy.specialOpeningTimes,
                     phone = pharmacy.contact.phone,
                     mail = pharmacy.contact.mail,
                     url = pharmacy.contact.url,
@@ -333,17 +335,8 @@ private fun BasePharmacyDetailsContent(
     }
 }
 
-@Composable
-private fun SpacerWithTelematikId(show: Boolean) {
-    if (show) {
-        SpacerXXLarge()
-    } else {
-        SpacerLarge()
-    }
-}
-
 @Suppress("MagicNumber")
-@LightDarkPreview
+@LightDarkLongPreview
 @Composable
 fun PharmacyDetailsScreenFromPharmacyPreview(
     @PreviewParameter(
@@ -372,7 +365,7 @@ fun PharmacyDetailsScreenFromPharmacyPreview(
 }
 
 @Suppress("MagicNumber")
-@LightDarkPreview
+@LightDarkLongPreview
 @Composable
 fun PharmacyDetailsScreenFromMessagePreview(
     @PreviewParameter(

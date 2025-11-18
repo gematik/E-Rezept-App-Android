@@ -355,7 +355,7 @@ object DemoPrescriptionInfo {
         deviceRequest = if (isDeviceRequest) deviceRequestDispense(isCompleted) else null
     )
 
-    @Suppress("ktlint:max-line-length", "MaxLineLength")
+    @Suppress("ktlint:max-line-length")
     private fun deviceRequestDispense(isCompleted: Boolean) = FhirDispenseDeviceRequestErpModel(
         deepLink = "intent://maps.google.com/maps?q=Friedrichstraße+136+Berlin+Germany#Intent;scheme=https;package=com.google.android.apps.maps;S.browser_fallback_url=https://maps.google.com?q=Friedrichstraße+136+Berlin+Germany;end",
         redeemCode = FUNNY_REDEEM_CODES.random(),
@@ -495,7 +495,8 @@ object DemoPrescriptionInfo {
             deviceRequestStatusIndex: Int? = null,
             medicationNamesIndex: Int,
             appName: String? = null,
-            isEuRedeemable: Boolean = false
+            isEuRedeemable: Boolean = false,
+            isEuRedeemableByPatientAuthorization: Boolean = false
         ): SyncedTaskData.SyncedTask {
             val taskId =
                 when {
@@ -529,7 +530,8 @@ object DemoPrescriptionInfo {
                 communications = emptyList(),
                 failureToReport = "",
                 deviceRequest = if (isDeviceRequest) demoDiga(deviceRequestStatusIndex, appName) else null,
-                isEuRedeemable = isEuRedeemable
+                isEuRedeemable = isEuRedeemable,
+                isEuRedeemableByPatientAuthorization = isEuRedeemableByPatientAuthorization
             )
         }
     }

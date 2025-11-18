@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.fhir.dispense.model
 
+import de.gematik.ti.erp.app.fhir.support.FhirTaskKbvAddressErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.serialization.Serializable
 
@@ -34,7 +35,9 @@ data class FhirMedicationDispenseErpModel(
     val performer: String?,
     val handedOver: FhirTemporal?,
     val dispensedMedication: List<DispensedMedicationErpModel> = emptyList(),
-    val dispensedDeviceRequest: FhirDispenseDeviceRequestErpModel?
+    val dispensedDeviceRequest: FhirDispenseDeviceRequestErpModel?,
+    val pharmacyName: String? = null,
+    val pharmacyAddress: FhirTaskKbvAddressErpModel? = null
 ) {
     // alias to make getting the information easier
     val kvnrNumber = patientId

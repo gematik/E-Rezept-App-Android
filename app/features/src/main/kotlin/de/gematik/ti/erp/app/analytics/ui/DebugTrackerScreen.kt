@@ -68,9 +68,9 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
-import de.gematik.ti.erp.app.utils.compose.LightDarkBigFontPreview
 import de.gematik.ti.erp.app.utils.compose.Center
 import de.gematik.ti.erp.app.utils.compose.ErezeptText
+import de.gematik.ti.erp.app.utils.compose.LightDarkBigFontPreview
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigateBackButton
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme

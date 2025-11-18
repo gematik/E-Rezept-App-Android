@@ -34,7 +34,8 @@ enum class TaskStatus(val status: String) {
     Requested("requested"),
     Received("received"),
     Rejected("rejected"),
-    Other("other"); // Default fallback
+    Other("other") // Default fallback
+    ;
 
     companion object {
         fun fromString(status: String): TaskStatus {

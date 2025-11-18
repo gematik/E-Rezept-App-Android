@@ -42,7 +42,7 @@ data class Communication(
 )
 
 enum class CommunicationProfile {
-    ErxCommunicationDispReq, ErxCommunicationReply, InApp;
+    ErxCommunicationDispReq, ErxCommunicationReply, InApp, EuOrder;
 
     fun toEntityValue() = when (this) {
         ErxCommunicationDispReq ->
@@ -52,5 +52,7 @@ enum class CommunicationProfile {
             CommunicationProfileV1.ErxCommunicationReply
 
         InApp -> CommunicationProfileV1.InApp
+
+        EuOrder -> CommunicationProfileV1.EuOrder
     }.name
 }

@@ -31,6 +31,7 @@ import de.gematik.ti.erp.app.consent.usecase.GrantConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.RevokeConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.SaveGrantConsentDrawerShownUseCase
 import de.gematik.ti.erp.app.consent.usecase.ShowGrantConsentDrawerUseCase
+import de.gematik.ti.erp.app.fhir.consent.FhirConsentParser
 import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemBundleEntryParser
 import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemBundleParser
 import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemEPrescriptionParsers
@@ -73,10 +74,11 @@ val pkvModule = DI.Module("pkvModule") {
     bindProvider { InvoiceRemoteDataSource(instance()) }
     bindProvider { InvoiceLocalDataSource(instance()) }
     bindSingleton { ConsentController(instance(), instance(), instance(), instance()) }
+    bindSingleton { FhirConsentParser() }
 }
 
 val consentRepositoryModule = DI.Module("consentRepositoryModule", allowSilentOverride = true) {
-    bindProvider<ConsentRepository> { DefaultConsentRepository(instance(), instance()) }
+    bindProvider<ConsentRepository> { DefaultConsentRepository(instance(), instance(), instance()) }
     bindProvider { ConsentLocalDataSource(instance()) }
     bindProvider { ConsentRemoteDataSource(instance()) }
 }

@@ -26,6 +26,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
+@OptIn(kotlin.time.ExperimentalTime::class)
 fun Instant?.format(pattern: String = dateFormat): String {
     if (this == null) return ""
 
@@ -45,6 +46,7 @@ fun Instant?.format(pattern: String = dateFormat): String {
  *
  * @return A formatted timestamp string or null if the Instant is null.
  */
+@OptIn(kotlin.time.ExperimentalTime::class)
 fun Instant?.toFachdienstTimestampString(): String? = this?.let {
     val seconds = it.epochSeconds
     val truncated = Instant.fromEpochSeconds(seconds)

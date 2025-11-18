@@ -33,7 +33,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -48,8 +50,6 @@ import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndO
 import de.gematik.ti.erp.app.onboarding.presentation.rememberOnboardingController
 import de.gematik.ti.erp.app.onboarding.ui.SkipOnBoardingButton
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 
 private const val ANIMATION_TIME = 1000
 
@@ -66,59 +66,59 @@ class DeviceCheckLoadingStartScreen(
         // used here only for skip button
         val onboardingController = rememberOnboardingController()
 
-        val scope = rememberCoroutineScope()
-
-        val infiniteTransition = rememberInfiniteTransition(label = "InfiniteTransition")
-        val angle by infiniteTransition.animateFloat(
-            initialValue = 0F,
-            targetValue = 360F,
-            animationSpec = infiniteRepeatable(
-                animation = tween(ANIMATION_TIME, easing = LinearEasing)
-            ),
-            label = "FloatAnimation"
-        )
+        var isSkipped by remember { mutableStateOf(false) }
 
         LaunchedEffect(Unit) {
-            if (BuildConfigExtension.isInternalDebug) {
-                scope.launch {
-                    onSecurityCheckResult(
-                        AppSecurityResult(
-                            isIntegritySecure = true,
-                            isDeviceSecure = true
-                        )
-                    )
-                }
+            if (isSkipped) return@LaunchedEffect
+
+            val result = if (BuildConfigExtension.isInternalDebug) {
+                AppSecurityResult(
+                    isIntegritySecure = true,
+                    isDeviceSecure = true
+                )
             } else {
-                val isIntegritySecure = appSecurityController.checkIntegrityRisk()
-                val isDeviceSecure = appSecurityController.checkDeviceSecurityRisk()
-                // on obtaining results make a callback to use the results
-                scope.launch {
-                    onSecurityCheckResult(
-                        AppSecurityResult(
-                            isIntegritySecure = isIntegritySecure,
-                            isDeviceSecure = isDeviceSecure
-                        )
-                    )
-                }
+                AppSecurityResult(
+                    isIntegritySecure = appSecurityController.checkIntegrityRisk(),
+                    isDeviceSecure = appSecurityController.checkDeviceSecurityRisk()
+                )
+            }
+
+            if (!isSkipped) {
+                onSecurityCheckResult(result)
             }
         }
 
         if (BuildConfigExtension.isInternalDebug) {
             SkipOnBoardingButton {
-                scope.cancel()
+                isSkipped = true // Prevents LaunchedEffect from continuing
                 onboardingController.createProfileOnSkipOnboarding()
                 navController.finishOnboardingAsSuccessAndOpenPrescriptions()
             }
         }
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            Image(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .graphicsLayer { rotationZ = angle },
-                painter = painterResource(R.drawable.erp_logo),
-                contentDescription = "integrity-check-loading"
-            )
-        }
+        LoadingAnimation()
+    }
+}
+
+@Composable
+private fun LoadingAnimation() {
+    val infiniteTransition = rememberInfiniteTransition(label = "InfiniteTransition")
+    val angle by infiniteTransition.animateFloat(
+        initialValue = 0F,
+        targetValue = 360F,
+        animationSpec = infiniteRepeatable(
+            animation = tween(ANIMATION_TIME, easing = LinearEasing)
+        ),
+        label = "FloatAnimation"
+    )
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .graphicsLayer { rotationZ = angle },
+            painter = painterResource(R.drawable.erp_logo),
+            contentDescription = null
+        )
     }
 }

@@ -80,7 +80,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
-import de.gematik.ti.erp.app.authentication.ui.components.AuthenticationFailureDialog
 import de.gematik.ti.erp.app.consent.model.ConsentContext
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isNotGranted
@@ -116,6 +115,7 @@ import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.SpacerXLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.utils.compose.AuthenticationFailureDialog
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.compose.ConnectBottomBar
@@ -188,7 +188,7 @@ class InvoiceListScreen(
             invoiceController.invoiceListScreenEvents.getConsentEvent.trigger(profileId)
         }
 
-        ChooseAuthenticationNavigationEventsListener(invoiceController, navController)
+        ChooseAuthenticationNavigationEventsListener(invoiceController, navController, dialogScaffold = LocalDialog.current)
         with(invoiceController) {
             invoiceListScreenEvents.invoiceErrorEvent.listen { error ->
                 snackbar.show(

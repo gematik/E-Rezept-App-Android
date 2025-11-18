@@ -38,6 +38,7 @@ import de.gematik.ti.erp.app.card.model.exchange.verifyPin
 import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcCardChannel
 import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcCardSecureChannel
 import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.establishTrustedChannel
+import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState.InsuranceIdentifierAlreadyExists
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
 import de.gematik.ti.erp.app.idp.usecase.AltAuthenticationCryptoException
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
@@ -86,6 +87,7 @@ sealed class AuthenticationState {
     data object HealthCardPin2RetriesLeft : AuthenticationState()
     data object HealthCardPin1RetryLeft : AuthenticationState()
     data object HealthCardBlocked : AuthenticationState()
+    data object Unkown : AuthenticationState()
 
     @Requirement(
         "A_20605#5",
@@ -126,7 +128,8 @@ sealed class AuthenticationState {
             IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate,
             UserNotAuthenticated,
             is InsuranceIdentifierAlreadyExists,
-            SecureElementCryptographyFailed -> true
+            SecureElementCryptographyFailed
+            -> true
 
             else -> false
         }
@@ -142,7 +145,8 @@ sealed class AuthenticationState {
             HealthCardCommunicationTrustedChannelEstablished,
             HealthCardCommunicationCertificateLoaded,
             HealthCardCommunicationFinished,
-            IDPCommunicationFinished -> true
+            IDPCommunicationFinished
+            -> true
 
             else -> false
         }
@@ -161,7 +165,8 @@ enum class IDPErrorCodes(val code: String) {
     AltAuthNotSuccessful("2000"),
     InvalidHealthCardCertificate("2020"),
     InvalidOCSPResponseOfHealthCardCertificate("2021"),
-    Unknown("-");
+    Unknown("-")
+    ;
 
     companion object {
         fun valueOfCode(code: String) = values().find { it.code == code } ?: Unknown
@@ -381,7 +386,8 @@ class AuthenticationUseCase(
         when (e) {
             is CancellationException,
             is AuthenticationException,
-            is ResponseException -> throw e
+            is ResponseException
+            -> throw e
 
             else -> {
                 when (e) {
@@ -445,7 +451,8 @@ class AuthenticationUseCase(
                 Napier.e("Authentication error", e)
                 when (e) {
                     is KeyPermanentlyInvalidatedException,
-                    is UserNotAuthenticatedException ->
+                    is UserNotAuthenticatedException
+                    ->
                         throw AuthenticationException(AuthenticationExceptionKind.UserNotAuthenticated)
 
                     is AltAuthenticationCryptoException ->
@@ -455,7 +462,7 @@ class AuthenticationUseCase(
                         handleApiCallException(e, AuthenticationExceptionKind.IDPCommunicationFailed)
 
                     else ->
-                        throw AuthenticationException(AuthenticationExceptionKind.IDPCommunicationFailed)
+                        throw AuthenticationException(AuthenticationExceptionKind.Unknown)
                 }
             }
 
@@ -525,12 +532,14 @@ class AuthenticationUseCase(
                     AuthenticationExceptionKind.UserNotAuthenticated -> AuthenticationState.UserNotAuthenticated
                     AuthenticationExceptionKind.InsuranceIdentifierAlreadyAssigned -> {
                         val alreadyAssignedException = (e.cause!! as KVNRAlreadyAssignedException)
-                        AuthenticationState.InsuranceIdentifierAlreadyExists(
+                        InsuranceIdentifierAlreadyExists(
                             inActiveProfile = alreadyAssignedException.isActiveProfile,
                             profileName = alreadyAssignedException.inProfile,
                             insuranceIdentifier = alreadyAssignedException.insuranceIdentifier
                         )
                     }
+
+                    AuthenticationExceptionKind.Unknown -> AuthenticationState.Unkown
                 }
             }
 
@@ -569,6 +578,7 @@ private enum class AuthenticationExceptionKind {
 
     SecureElementFailure,
     UserNotAuthenticated,
+    Unknown
 }
 
 private class AuthenticationException : IllegalStateException {

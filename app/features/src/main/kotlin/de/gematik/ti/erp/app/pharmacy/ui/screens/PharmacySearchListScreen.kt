@@ -136,21 +136,21 @@ class PharmacySearchListScreen(
 
         val searchParam by searchListController.searchParamState
 
-        val searchPagingItems = searchListController.pharmaciesState
+        val pharmacies = searchListController.pharmacies.collectAsLazyPagingItems()
 
         val lazyListState = rememberLazyListState()
 
         val isLoading by remember {
             derivedStateOf {
-                searchPagingItems.loadState.append is LoadState.Loading ||
-                    searchPagingItems.loadState.prepend is LoadState.Loading
+                pharmacies.loadState.append is LoadState.Loading ||
+                    pharmacies.loadState.prepend is LoadState.Loading
             }
         }
 
         val onBack: () -> Unit = { navController.popBackStack() }
 
         PharmacySearchListScreenContent(
-            searchPagingItems = searchPagingItems,
+            pharmacies = pharmacies,
             searchTerm = searchTerm,
             filter = searchParam.filter,
             isLoading = isLoading,
@@ -207,7 +207,7 @@ private fun PharmacySearchListScreenContent(
     onPharmacyLoaded: () -> Unit,
     onClickChip: (Boolean, FilterType) -> Unit,
     onClickPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit,
-    searchPagingItems: LazyPagingItems<PharmacyUseCaseData.Pharmacy>,
+    pharmacies: LazyPagingItems<PharmacyUseCaseData.Pharmacy>,
     onClickFilter: () -> Unit,
     onBack: () -> Unit,
     onClickMaps: () -> Unit
@@ -237,7 +237,7 @@ private fun PharmacySearchListScreenContent(
     ) { contentPadding ->
         SearchResults(
             contentPadding = contentPadding,
-            searchPagingItems = searchPagingItems,
+            pharmacies = pharmacies,
             isAtLeastOnePharmacyLoaded = isAtLeastOnePharmacyLoaded,
             lazyListState = lazyListState,
             onPharmacyLoaded = onPharmacyLoaded,
@@ -368,22 +368,22 @@ private fun SearchResults(
     isAtLeastOnePharmacyLoaded: Boolean,
     lazyListState: LazyListState,
     onPharmacyLoaded: () -> Unit,
-    searchPagingItems: LazyPagingItems<PharmacyUseCaseData.Pharmacy>,
+    pharmacies: LazyPagingItems<PharmacyUseCaseData.Pharmacy>,
     onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit
 ) {
     val errorTitle = stringResource(R.string.search_pharmacy_error_title)
     val errorSubtitle = stringResource(R.string.search_pharmacy_error_subtitle)
     val errorAction = stringResource(R.string.search_pharmacy_error_action)
 
-    val loadState = searchPagingItems.loadState
+    val loadState = pharmacies.loadState
 
-    val noPharmacies by remember(loadState, searchPagingItems.itemCount) {
+    val noPharmacies by remember(loadState, pharmacies.itemCount) {
         derivedStateOf {
             listOf(loadState.prepend, loadState.append)
                 .all {
                     when (it) {
                         is LoadState.NotLoading ->
-                            it.endOfPaginationReached && searchPagingItems.itemCount == 0
+                            it.endOfPaginationReached && pharmacies.itemCount == 0
 
                         else -> false
                     }
@@ -391,8 +391,8 @@ private fun SearchResults(
         }
     }
 
-    val showError by remember(loadState, searchPagingItems.itemCount) {
-        derivedStateOf { searchPagingItems.itemCount <= 1 && loadState.hasError }
+    val showError by remember(loadState, pharmacies.itemCount) {
+        derivedStateOf { pharmacies.itemCount <= 1 && loadState.hasError }
     }
 
     LazyColumn(
@@ -411,15 +411,15 @@ private fun SearchResults(
                 title = errorTitle,
                 subtitle = errorSubtitle,
                 action = errorAction,
-                onClickAction = { searchPagingItems.retry() }
+                onClickAction = { pharmacies.retry() }
             )
         }
         items(
-            count = searchPagingItems.itemCount,
-            key = searchPagingItems.itemKey { it.telematikId }
+            count = pharmacies.itemCount,
+            key = pharmacies.itemKey { it.telematikId }
         ) { index ->
             Crossfade(
-                targetState = searchPagingItems[index],
+                targetState = pharmacies[index],
                 animationSpec = tween(durationMillis = 550),
                 label = "Search Loading Crossfade"
             ) { pharmacy ->
@@ -429,7 +429,7 @@ private fun SearchResults(
                         modifier = modifier
                             .fillMaxWidth()
                             .padding(PaddingDefaults.Medium),
-                        count = searchPagingItems.itemCount,
+                        count = pharmacies.itemCount,
                         index = index,
                         pharmacy = pharmacy,
                         onSelectPharmacy = onSelectPharmacy
@@ -532,7 +532,7 @@ fun PharmacySearchListScreenContentPreview(
             filter = previewData.filter,
             isLoading = previewData.isLoading,
             focusManager = LocalFocusManager.current,
-            searchPagingItems = pagingItems,
+            pharmacies = pagingItems,
             isAtLeastOnePharmacyLoaded = false,
             onSearchInputChange = {},
             onPharmacyLoaded = {},

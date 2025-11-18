@@ -68,14 +68,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
+import de.gematik.ti.erp.app.authentication.presentation.AuthReason.SUBMIT
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.eurezept.navigation.EuRoutes
 import de.gematik.ti.erp.app.navigation.Screen
-import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.redeem.model.DMCode
+import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes.REDEEM_NAV_TASK_ID
 import de.gematik.ti.erp.app.redeem.presentation.rememberLocalRedeemScreenController
 import de.gematik.ti.erp.app.redeem.ui.components.DataMatrixCodesWithSelfPayerWarning
 import de.gematik.ti.erp.app.redeem.ui.preview.LocalRedeemPreview
@@ -83,7 +84,6 @@ import de.gematik.ti.erp.app.redeem.ui.preview.LocalRedeemPreviewParameter
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.SpacerXXXLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
@@ -110,12 +110,10 @@ class LocalRedeemScreen(
 ) : Screen() {
     @Composable
     override fun Content() {
-        val taskId = navBackStackEntry.arguments?.getString("taskId")
-        val controller = rememberLocalRedeemScreenController(taskId ?: "")
-        val prescriptionDetailsController = rememberPrescriptionDetailController(taskId ?: "")
-        val profilePrescriptionData by prescriptionDetailsController.profilePrescription.collectAsStateWithLifecycle()
-        val isPrescriptionEuRedeemable = (profilePrescriptionData.data?.second as? PrescriptionData.Synced)?.isEuRedeemable ?: false
-
+        val taskId = navBackStackEntry.arguments?.getString(REDEEM_NAV_TASK_ID)
+        val controller = rememberLocalRedeemScreenController(taskId.orEmpty())
+        val euRedeemFeatureFlag by controller.euRedeemFeatureFlag.collectAsStateWithLifecycle()
+        val hasEuRedeemablePrescriptions by controller.hasEuRedeemablePrescriptions.collectAsStateWithLifecycle()
         val codes by controller.dmCodes.collectAsStateWithLifecycle()
         val showSingleCodes by controller.showSingleCodes.collectAsStateWithLifecycle()
         var sharedWarningHeight by remember { mutableIntStateOf(0) }
@@ -141,9 +139,23 @@ class LocalRedeemScreen(
             controller.redeemPrescriptions()
         }
 
+        ChooseAuthenticationNavigationEventsListener(
+            controller = controller,
+            navController = navController,
+            dialogScaffold = dialog
+        )
+        with(controller) {
+            onBiometricAuthenticationSuccessEvent.listen { reason ->
+                if (reason == SUBMIT) {
+                    navController.navigate(EuRoutes.EuConsentScreen.path(taskId))
+                }
+            }
+        }
+
         LocalRedeemScreenScaffold(
             codes = codes,
-            isPrescriptionEuRedeemable = isPrescriptionEuRedeemable,
+            hasEuRedeemablePrescriptions = hasEuRedeemablePrescriptions,
+            euRedeemFeatureFlag = euRedeemFeatureFlag,
             showSingleCodes = showSingleCodes,
             sharedWarningHeight = sharedWarningHeight,
             onClickReady = {
@@ -158,7 +170,9 @@ class LocalRedeemScreen(
                 controller.getDmCodes()
             },
             onEuPrescriptionClick = {
-                navController.navigate(EuRoutes.EuConsentScreen.path(taskId))
+                if (controller.onRedeemInEuAbroadClick()) {
+                    navController.navigate(EuRoutes.EuConsentScreen.path(taskId))
+                }
             },
             onRefreshCodes = { controller.refreshDmCodes() },
             onSharedWarningHeightUpdated = { sharedWarningHeight = it },
@@ -170,7 +184,8 @@ class LocalRedeemScreen(
 @Composable
 private fun LocalRedeemScreenScaffold(
     codes: UiState<List<DMCode>>,
-    isPrescriptionEuRedeemable: Boolean,
+    hasEuRedeemablePrescriptions: Boolean,
+    euRedeemFeatureFlag: Boolean,
     showSingleCodes: Boolean,
     sharedWarningHeight: Int,
     onClickReady: () -> Unit,
@@ -190,6 +205,11 @@ private fun LocalRedeemScreenScaffold(
         backLabel = stringResource(R.string.back),
         closeLabel = stringResource(R.string.cancel),
         onBack = onBack,
+        bottomBar = {
+            if (euRedeemFeatureFlag && hasEuRedeemablePrescriptions) {
+                EuPrescriptionBottomBar(onEuPrescriptionClick = onEuPrescriptionClick)
+            }
+        },
         actions = {
             TextButton(
                 onClick = onClickReady
@@ -215,8 +235,6 @@ private fun LocalRedeemScreenScaffold(
             onContent = { codes ->
                 LocalRedeemScreenContent(
                     sharedWarningHeight = sharedWarningHeight,
-                    isPrescriptionEuRedeemable = isPrescriptionEuRedeemable,
-                    onEuPrescriptionClick = onEuPrescriptionClick,
                     padding = padding,
                     pagerState = pagerState,
                     codes = codes,
@@ -234,8 +252,6 @@ private fun LocalRedeemScreenScaffold(
 @Composable
 private fun LocalRedeemScreenContent(
     sharedWarningHeight: Int,
-    isPrescriptionEuRedeemable: Boolean,
-    onEuPrescriptionClick: () -> Unit,
     padding: PaddingValues,
     listState: LazyListState,
     pagerState: PagerState,
@@ -286,40 +302,40 @@ private fun LocalRedeemScreenContent(
                 }
             }
         }
+    }
+}
 
-        if (isPrescriptionEuRedeemable) {
-            item {
-                SpacerXXXLarge()
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .clickable { onEuPrescriptionClick() },
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.eu_prescription_available),
-                            style = AppTheme.typography.body1,
-                            color = AppTheme.colors.primary700,
-                            textAlign = TextAlign.Start
-                        )
+@Composable
+private fun EuPrescriptionBottomBar(
+    onEuPrescriptionClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onEuPrescriptionClick() }
+            .padding(
+                horizontal = PaddingDefaults.Medium,
+                vertical = PaddingDefaults.XXLarge
+            )
+            .navigationBarsPadding(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.eu_prescription_available),
+            style = AppTheme.typography.body1,
+            color = AppTheme.colors.primary700,
+            textAlign = TextAlign.Center
+        )
 
-                        Spacer(modifier = Modifier.width(SizeDefaults.half))
+        Spacer(modifier = Modifier.width(SizeDefaults.half))
 
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
-                            contentDescription = null,
-                            tint = AppTheme.colors.primary700,
-                            modifier = Modifier.size(SizeDefaults.triple)
-                        )
-                    }
-                }
-                Spacer(Modifier.navigationBarsPadding())
-            }
-        }
+        Icon(
+            imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
+            contentDescription = null,
+            tint = AppTheme.colors.primary700,
+            modifier = Modifier.size(SizeDefaults.triple)
+        )
     }
 }
 
@@ -398,7 +414,8 @@ fun LocalRedeemScreenPreview(
     PreviewAppTheme {
         LocalRedeemScreenScaffold(
             codes = previewData.dmCodes,
-            isPrescriptionEuRedeemable = true,
+            hasEuRedeemablePrescriptions = previewData.hasEuRedeemablePrescriptions,
+            euRedeemFeatureFlag = true,
             showSingleCodes = previewData.showSingleCodes,
             sharedWarningHeight = 0,
             onEuPrescriptionClick = {},

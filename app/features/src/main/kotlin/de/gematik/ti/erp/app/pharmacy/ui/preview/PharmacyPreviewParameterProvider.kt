@@ -129,6 +129,8 @@ object PharmacyPreviewData {
                 )
             )
         ),
+        specialClosingTimes = mockSpecialClosingTimes,
+        specialOpeningTimes = mockSpecialOpeningTimes,
         telematikId = "123456789",
         contact = PharmacyContact(
             phone = "0123456789",

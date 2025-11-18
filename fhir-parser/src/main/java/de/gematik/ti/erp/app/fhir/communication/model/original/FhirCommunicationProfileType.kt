@@ -33,7 +33,8 @@ enum class CommunicationProfileType(val identifier: String) {
 
     // https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DiGA
     DIGA_DISPENSE(FhirCommunicationConstants.COMMUNICATION_DISPENSE_DIGA_WORKFLOW_PROFILE),
-    UNKNOWN("");
+    UNKNOWN("")
+    ;
 
     fun getVersionFromProfile(profile: String): String {
         val regex = when (this) {

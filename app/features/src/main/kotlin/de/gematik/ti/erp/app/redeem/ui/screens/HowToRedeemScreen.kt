@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.redeem.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -43,15 +44,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.eurezept.navigation.EuRoutes
 import de.gematik.ti.erp.app.navigation.Screen
@@ -72,6 +76,7 @@ import de.gematik.ti.erp.app.utils.compose.ErezeptText.TextAlignment
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
+import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 
 class HowToRedeemScreen(
     override val navController: NavController,
@@ -83,10 +88,27 @@ class HowToRedeemScreen(
         val listState = rememberLazyListState()
         val howToRedeemController = rememberHowToRedeemController()
         val hasEuRedeemablePrescriptions by howToRedeemController.hasEuRedeemablePrescriptions
+        val euRedeemFeatureFlag by howToRedeemController.euRedeemFeatureFlag.collectAsStateWithLifecycle()
+
+        val onBack by rememberUpdatedState { navController.popBackStack() }
+        BackHandler { onBack() }
+
+        ChooseAuthenticationNavigationEventsListener(
+            controller = howToRedeemController,
+            navController = navController,
+            dialogScaffold = LocalDialog.current
+        )
+
+        with(howToRedeemController) {
+            onBiometricAuthenticationSuccessForSubmitEvent.listen {
+                navController.navigate(EuRoutes.EuConsentScreen.path())
+            }
+        }
 
         HowToRedeemScreenScaffold(
             listState = listState,
             hasEuRedeemablePrescriptions = hasEuRedeemablePrescriptions,
+            euRedeemFeatureFlag = euRedeemFeatureFlag,
             onLocalClick = { navController.navigate(RedeemRoutes.RedeemLocal.path(taskId = "")) },
             onOnlineClick = {
                 navController.navigate(
@@ -98,10 +120,11 @@ class HowToRedeemScreen(
                 )
             },
             onEuPrescriptionClick = {
-                // TODO: check if user consent is already granted then navigate directly to EuRedeemScreen to skip redundant consent flow
-                navController.navigate(EuRoutes.EuConsentScreen.path())
+                if (howToRedeemController.onEuConsentClick()) {
+                    navController.navigate(EuRoutes.EuConsentScreen.path())
+                }
             },
-            onBack = { navController.popBackStack() }
+            onBack = { onBack() }
         )
     }
 }
@@ -110,6 +133,7 @@ class HowToRedeemScreen(
 fun HowToRedeemScreenScaffold(
     listState: LazyListState,
     hasEuRedeemablePrescriptions: Boolean,
+    euRedeemFeatureFlag: Boolean,
     onLocalClick: () -> Unit,
     onOnlineClick: () -> Unit,
     onEuPrescriptionClick: () -> Unit,
@@ -125,6 +149,7 @@ fun HowToRedeemScreenScaffold(
     ) {
         HowToRedeemScreenContent(
             listState = listState,
+            euRedeemFeatureFlag = euRedeemFeatureFlag,
             hasEuRedeemablePrescriptions = hasEuRedeemablePrescriptions,
             onLocalClick = onLocalClick,
             onOnlineClick = onOnlineClick,
@@ -137,6 +162,7 @@ fun HowToRedeemScreenScaffold(
 fun HowToRedeemScreenContent(
     listState: LazyListState,
     hasEuRedeemablePrescriptions: Boolean,
+    euRedeemFeatureFlag: Boolean,
     onLocalClick: () -> Unit,
     onOnlineClick: () -> Unit,
     onEuPrescriptionClick: () -> Unit
@@ -189,7 +215,7 @@ fun HowToRedeemScreenContent(
             Spacer(Modifier.navigationBarsPadding())
         }
 
-        if (hasEuRedeemablePrescriptions) {
+        if (euRedeemFeatureFlag && hasEuRedeemablePrescriptions) {
             item {
                 SpacerXLarge()
                 Box(
@@ -241,6 +267,7 @@ fun HowToRedeemScaffoldScreenPreview() {
         HowToRedeemScreenScaffold(
             listState = listState,
             hasEuRedeemablePrescriptions = false,
+            euRedeemFeatureFlag = true,
             onLocalClick = {},
             onOnlineClick = {},
             onEuPrescriptionClick = {},

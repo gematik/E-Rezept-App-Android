@@ -149,7 +149,9 @@ private fun List<TextBlock>.extractTextElements(
             element.boundingBox?.let { boundingBox ->
                 if (filter(boundingBox)) {
                     DetectedText(element.text, boundingBox)
-                } else null
+                } else {
+                    null
+                }
             }
         }
 }

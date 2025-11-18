@@ -65,59 +65,118 @@ class IntegrityUseCase(
         rationale = "Run integrity check against the IntegrityManagerFactory provided by Google Play Core Library."
     )
     fun runIntegrityAttestation(): Flow<Boolean> = flow {
-        val salt = provideSalt()
-        val ourNonce = generateNonce(salt, nonceData())
+        val nonce = generateSecureNonce()
+        val token = requestIntegrityToken(nonce)
+        val payload = decryptAndVerifyToken(token)
+        val meetsIntegrity = verifyDeviceIntegrity(payload)
 
+        emit(meetsIntegrity)
+    }.catch { exception ->
+        Napier.e(exception) {
+            "Integrity check failed: ${exception.message}. " +
+                "Allowing user to proceed as per fallback policy."
+        }
+        emit(true)
+    }
+
+    /**
+     * Generates a secure nonce combining timestamp and random salt.
+     * This ensures uniqueness and prevents replay attacks.
+     */
+    private fun generateSecureNonce(): String {
+        val salt = provideSalt()
+        val nonceData = createNonceData()
+        return generateNonce(salt, nonceData)
+    }
+
+    /**
+     * Requests an integrity token from Google Play Integrity API.
+     */
+    private suspend fun requestIntegrityToken(nonce: String): String {
         val integrityManager = IntegrityManagerFactory.create(context)
 
         val tokenResponse = integrityManager.requestIntegrityToken(
             IntegrityTokenRequest.builder()
                 .setCloudProjectNumber(BuildKonfig.CLOUD_PROJECT_NUMBER.toLong())
-                .setNonce(ourNonce)
+                .setNonce(nonce)
                 .build()
         ).await()
 
-        val token = tokenResponse.token()
-
-        @Requirement(
-            "O.Cryp_1#6",
-            "O.Cryp_4#8",
-            sourceSpecification = "BSI-eRp-ePA",
-            rationale = "Signature via ecdh ephemeral-static [one time usage]"
-        )
-        val decryptionKeyBytes: ByteArray = Base64.decode(BuildKonfig.INTEGRITY_API_KEY, Base64.DEFAULT)
-
-        val decryptionKey: SecretKey = SecretKeySpec(decryptionKeyBytes, AES)
-
-        val encodedVerificationKey: ByteArray = Base64.decode(BuildKonfig.INTEGRITY_VERIFICATION_KEY, Base64.DEFAULT)
-
-        val verificationKey: PublicKey = KeyFactory.getInstance(EC)
-            .generatePublic(X509EncodedKeySpec(encodedVerificationKey))
-
-        val jwe: JsonWebEncryption = JsonWebStructure.fromCompactSerialization(token) as JsonWebEncryption
-
-        jwe.key = decryptionKey
-
-        val compactJws = jwe.payload
-
-        val jws = JsonWebStructure.fromCompactSerialization(compactJws)
-
-        jws.key = verificationKey
-
-        val requestDetails = JSONObject(jws.payload).getJSONObject(DEVICE_INTEGRITY)
-
-        emit(requestDetails.toString().contains(MEETS_DEVICE_INTEGRITY))
-    }.catch {
-        Napier.e { "integrity check not done" }
-        emit(true)
+        return tokenResponse.token()
     }
 
-    private fun nonceData() = ("GmtkEPrescriptionApp: " + System.currentTimeMillis()).toByteArray()
+    /**
+     * Decrypts and verifies the integrity token using the configured keys.
+     */
+    @Requirement(
+        "O.Cryp_1#6",
+        "O.Cryp_4#8",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Signature via ecdh ephemeral-static [one time usage]"
+    )
+    private fun decryptAndVerifyToken(token: String): String {
+        val decryptionKey = createDecryptionKey()
+        val verificationKey = createVerificationKey()
 
-    private fun provideSalt() = ByteArray(REQUIRED_SALT_LENGTH).apply {
+        // Decrypt the JWE token
+        val jwe = JsonWebStructure.fromCompactSerialization(token) as JsonWebEncryption
+        jwe.key = decryptionKey
+        val compactJws = jwe.payload
+
+        // Verify the JWS signature
+        val jws = JsonWebStructure.fromCompactSerialization(compactJws)
+        jws.key = verificationKey
+
+        return jws.payload
+    }
+
+    /**
+     * Creates the AES decryption key from the configured API key.
+     */
+    private fun createDecryptionKey(): SecretKey {
+        val decryptionKeyBytes = Base64.decode(BuildKonfig.INTEGRITY_API_KEY, Base64.DEFAULT)
+        return SecretKeySpec(decryptionKeyBytes, AES)
+    }
+
+    /**
+     * Creates the EC public key for signature verification.
+     */
+    private fun createVerificationKey(): PublicKey {
+        val encodedVerificationKey = Base64.decode(BuildKonfig.INTEGRITY_VERIFICATION_KEY, Base64.DEFAULT)
+        return KeyFactory.getInstance(EC)
+            .generatePublic(X509EncodedKeySpec(encodedVerificationKey))
+    }
+
+    /**
+     * Verifies if the device meets integrity requirements.
+     */
+    private fun verifyDeviceIntegrity(payload: String): Boolean {
+        val payloadJson = JSONObject(payload)
+        val deviceIntegrity = payloadJson.optJSONObject(DEVICE_INTEGRITY)
+            ?: return false
+
+        return deviceIntegrity.toString().contains(MEETS_DEVICE_INTEGRITY)
+    }
+
+    /**
+     * Creates nonce data including app identifier and timestamp.
+     */
+    private fun createNonceData(): ByteArray =
+        "GmtkEPrescriptionApp: ${System.currentTimeMillis()}".toByteArray()
+
+    /**
+     * Provides a cryptographically secure random salt.
+     */
+    private fun provideSalt(): ByteArray = ByteArray(REQUIRED_SALT_LENGTH).apply {
         secureRandomInstance().nextBytes(this)
     }
 
+    /**
+     * Generates a SHA-256 hash of the combined nonce data and salt.
+     */
     private fun generateNonce(salt: ByteArray, word: ByteArray): String =
-        MessageDigest.getInstance(SHA_256).digest((word + salt)).toLowerCaseHex().decodeToString()
+        MessageDigest.getInstance(SHA_256)
+            .digest(word + salt)
+            .toLowerCaseHex()
+            .decodeToString()
 }

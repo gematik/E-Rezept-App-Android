@@ -69,6 +69,7 @@ fun ProfileEntityV1.toProfileData(
         insuranceType = when (this.insuranceType) {
             InsuranceTypeV1.GKV -> ProfilesData.InsuranceType.GKV
             InsuranceTypeV1.PKV -> ProfilesData.InsuranceType.PKV
+            InsuranceTypeV1.BUND -> ProfilesData.InsuranceType.BUND
             InsuranceTypeV1.None -> ProfilesData.InsuranceType.None
         },
         isConsentDrawerShown = this.isConsentDrawerShown,

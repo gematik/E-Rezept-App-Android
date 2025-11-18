@@ -25,13 +25,13 @@ package de.gematik.ti.erp.app.authentication.presentation
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
 import de.gematik.ti.erp.app.authentication.model.Biometric
 import de.gematik.ti.erp.app.authentication.model.External
-import de.gematik.ti.erp.app.cardwall.model.GidNavigationData
 import de.gematik.ti.erp.app.authentication.model.HealthCard
 import de.gematik.ti.erp.app.authentication.model.InitialAuthenticationData
 import de.gematik.ti.erp.app.authentication.model.None
 import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.cardwall.model.CardWallEventData
+import de.gematik.ti.erp.app.cardwall.model.GidNavigationData
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.presentation.GetProfileByIdController
@@ -40,7 +40,6 @@ import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
-import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -85,11 +84,7 @@ abstract class ChooseAuthenticationController(
     onActiveProfileSuccess = onActiveProfileSuccess,
     onActiveProfileFailure = onActiveProfileFailure
 ) {
-    protected val biometricAuthenticationSuccessEvent = ComposableEvent<Unit>()
-    protected val biometricAuthenticationResetErrorEvent =
-        ComposableEvent<AuthenticationResult.Error>()
-    protected val biometricAuthenticationOtherErrorEvent =
-        ComposableEvent<AuthenticationResult.Error>()
+    protected val biometricAuthenticationSuccessEvent = ComposableEvent<AuthReason>()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     protected fun Flow<ProfilesUseCaseData.Profile>.onBiometricAuthentication(): Flow<ProfilesUseCaseData.Profile?> =
@@ -105,7 +100,8 @@ abstract class ChooseAuthenticationController(
 
     fun chooseAuthenticationMethod(
         profile: ProfilesUseCaseData.Profile,
-        useBiometricPairingScope: Boolean = false
+        useBiometricPairingScope: Boolean = false,
+        authenticationReason: AuthReason = AuthReason.SUBMIT
     ) {
         controllerScope.launch {
             chooseAuthenticationDataUseCase(profile.id).first { authenticationData: InitialAuthenticationData ->
@@ -119,12 +115,12 @@ abstract class ChooseAuthenticationController(
                             when (result) {
                                 is AuthenticationResult.IdpCommunicationUpdate.IdpCommunicationSuccess -> {
                                     refreshActiveProfile()
-                                    biometricAuthenticationSuccessEvent.trigger()
+                                    biometricAuthenticationSuccessEvent.trigger(authenticationReason)
                                 }
 
                                 is AuthenticationResult.BiometricResult.BiometricError -> {
                                     Napier.e(tag = TAG, message = "Biometric authentication error: ${result.error}, code: ${result.errorCode}")
-                                    onRefreshProfileAction.trigger(false)
+                                    isProfileRefreshingEvent.trigger(false)
                                 }
 
                                 is AuthenticationResult.Error -> handleAuthenticationError(
@@ -133,15 +129,17 @@ abstract class ChooseAuthenticationController(
                                 )
 
                                 is AuthenticationResult.BiometricResult.BiometricStarted,
-                                is AuthenticationResult.BiometricResult.BiometricSuccess -> {
+                                is AuthenticationResult.BiometricResult.BiometricSuccess
+                                -> {
                                     // inform that the biometric can be successful only when the network is available
                                     if (networkStatusTracker.networkStatus.first()) {
-                                        onRefreshProfileAction.trigger(true)
+                                        isProfileRefreshingEvent.trigger(true)
                                     }
                                 }
 
                                 is AuthenticationResult.IdpCommunicationUpdate.IdpCommunicationStarted,
-                                AuthenticationResult.IdpCommunicationUpdate.IdpCommunicationUpdated -> {
+                                AuthenticationResult.IdpCommunicationUpdate.IdpCommunicationUpdated
+                                -> {
                                     // do nothing right now
                                 }
                             }
@@ -152,13 +150,20 @@ abstract class ChooseAuthenticationController(
                         ProfilesUseCaseData.InsuranceType.GKV -> chooseAuthenticationNavigationEvents.showCardWallIntroScreenWithGidEvent.trigger(
                             GidNavigationData(profile.id, authenticationData.authenticatorId, authenticationData.authenticatorName)
                         )
+
                         ProfilesUseCaseData.InsuranceType.PKV -> chooseAuthenticationNavigationEvents.showCardWallGidListScreenWithGidEvent.trigger(
                             GidNavigationData(profile.id, authenticationData.authenticatorId, authenticationData.authenticatorName)
                         )
+
+                        ProfilesUseCaseData.InsuranceType.BUND -> chooseAuthenticationNavigationEvents.showCardWallCanScreenEvent.trigger(
+                            profile.id
+                        )
+
                         ProfilesUseCaseData.InsuranceType.NONE -> chooseAuthenticationNavigationEvents.showCardWallSelectInsuranceScreenEvent.trigger(
                             profile.id
                         ) // can't be reached
                     }
+
                     is HealthCard -> chooseAuthenticationNavigationEvents.showCardWallWithFilledCanEvent.trigger(
                         CardWallEventData(
                             profile.id,
@@ -170,8 +175,10 @@ abstract class ChooseAuthenticationController(
                         ProfilesUseCaseData.InsuranceType.NONE -> chooseAuthenticationNavigationEvents.showCardWallSelectInsuranceScreenEvent.trigger(
                             profile.id
                         )
+
                         ProfilesUseCaseData.InsuranceType.GKV -> chooseAuthenticationNavigationEvents.showCardWallIntroScreenEvent.trigger(profile.id)
                         ProfilesUseCaseData.InsuranceType.PKV -> chooseAuthenticationNavigationEvents.showCardWallGidListScreenEvent.trigger(profile.id)
+                        ProfilesUseCaseData.InsuranceType.BUND -> chooseAuthenticationNavigationEvents.showCardWallCanScreenEvent.trigger(profile.id)
                     }
                 }
                 true
@@ -188,11 +195,11 @@ abstract class ChooseAuthenticationController(
                 Napier.i(tag = TAG) { "Removing authentication data from database" }
                 biometricAuthenticator.removeAuthentication(profileId)
                 refreshActiveProfile()
-                biometricAuthenticationResetErrorEvent.trigger(error)
+                chooseAuthenticationNavigationEvents.biometricAuthenticationResetErrorEvent.trigger(error)
             }
 
             else -> {
-                biometricAuthenticationOtherErrorEvent.trigger(error)
+                chooseAuthenticationNavigationEvents.biometricAuthenticationOtherErrorEvent.trigger(error)
             }
         }
     }

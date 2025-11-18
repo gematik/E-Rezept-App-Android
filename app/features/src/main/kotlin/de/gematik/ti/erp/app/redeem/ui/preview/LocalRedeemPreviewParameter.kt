@@ -29,6 +29,7 @@ import de.gematik.ti.erp.app.utils.uistate.UiState
 data class LocalRedeemPreview(
     val name: String,
     val dmCodes: UiState<List<DMCode>>,
+    val hasEuRedeemablePrescriptions: Boolean,
     val showSingleCodes: Boolean
 )
 
@@ -43,17 +44,20 @@ class LocalRedeemPreviewParameter : PreviewParameterProvider<LocalRedeemPreview>
             LocalRedeemPreview(
                 name = "EmptyState",
                 dmCodes = UiState.Empty(),
-                showSingleCodes = false
+                showSingleCodes = false,
+                hasEuRedeemablePrescriptions = false
             ),
             LocalRedeemPreview(
                 name = "ErrorState",
                 dmCodes = UiState.Error(Throwable("Error")),
-                showSingleCodes = false
+                showSingleCodes = false,
+                hasEuRedeemablePrescriptions = false
             ),
             LocalRedeemPreview(
                 name = "LoadingState",
                 dmCodes = UiState.Loading(),
-                showSingleCodes = false
+                showSingleCodes = false,
+                hasEuRedeemablePrescriptions = false
             ),
             LocalRedeemPreview(
                 name = "SingleDataMatrixCodeWithSelfPayerWarning",
@@ -68,7 +72,8 @@ class LocalRedeemPreviewParameter : PreviewParameterProvider<LocalRedeemPreview>
                         )
                     )
                 ),
-                showSingleCodes = false
+                showSingleCodes = false,
+                hasEuRedeemablePrescriptions = false
             ),
             LocalRedeemPreview(
                 name = "MultipleDataMatrixCodeWithSelfPayerWarning_Single_Codes",
@@ -83,7 +88,8 @@ class LocalRedeemPreviewParameter : PreviewParameterProvider<LocalRedeemPreview>
                         )
                     )
                 ),
-                showSingleCodes = true
+                showSingleCodes = true,
+                hasEuRedeemablePrescriptions = true
             ),
             LocalRedeemPreview(
                 name = "MultipleDataMatrixCodeWithOneSelfPayerWarning",
@@ -98,7 +104,8 @@ class LocalRedeemPreviewParameter : PreviewParameterProvider<LocalRedeemPreview>
                         )
                     )
                 ),
-                showSingleCodes = false
+                showSingleCodes = false,
+                hasEuRedeemablePrescriptions = false
             ),
             LocalRedeemPreview(
                 name = "MultipleDataMatrixCodeWithTwoSelfPayerWarning",
@@ -113,7 +120,8 @@ class LocalRedeemPreviewParameter : PreviewParameterProvider<LocalRedeemPreview>
                         )
                     )
                 ),
-                showSingleCodes = false
+                showSingleCodes = false,
+                hasEuRedeemablePrescriptions = false
             ),
             LocalRedeemPreview(
                 name = "SingleDataMatrixCode",
@@ -128,7 +136,8 @@ class LocalRedeemPreviewParameter : PreviewParameterProvider<LocalRedeemPreview>
                         )
                     )
                 ),
-                showSingleCodes = false
+                showSingleCodes = false,
+                hasEuRedeemablePrescriptions = false
             ),
             LocalRedeemPreview(
                 name = "MultipleDataMatrixCode_Single_Codes_false",
@@ -143,7 +152,8 @@ class LocalRedeemPreviewParameter : PreviewParameterProvider<LocalRedeemPreview>
                         )
                     )
                 ),
-                showSingleCodes = false
+                showSingleCodes = false,
+                hasEuRedeemablePrescriptions = false
             ),
             LocalRedeemPreview(
                 name = "MultipleDataMatrixCode_Single_Codes",
@@ -158,7 +168,8 @@ class LocalRedeemPreviewParameter : PreviewParameterProvider<LocalRedeemPreview>
                         )
                     )
                 ),
-                showSingleCodes = true
+                showSingleCodes = true,
+                hasEuRedeemablePrescriptions = true
             )
         )
 }

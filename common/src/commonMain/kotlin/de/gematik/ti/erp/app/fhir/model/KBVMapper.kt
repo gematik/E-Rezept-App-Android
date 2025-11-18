@@ -159,8 +159,19 @@ data class Identifier(
     level = DeprecationLevel.WARNING
 )
 @Suppress("LongParameterList")
-fun <Organization, Patient, Practitioner, InsuranceInformation, MedicationRequest,
-    Medication, Ingredient, MultiplePrescriptionInfo, Quantity, Ratio, Address> extractKBVBundle(
+fun <
+    Organization,
+    Patient,
+    Practitioner,
+    InsuranceInformation,
+    MedicationRequest,
+    Medication,
+    Ingredient,
+    MultiplePrescriptionInfo,
+    Quantity,
+    Ratio,
+    Address
+    > extractKBVBundle(
     bundle: JsonElement,
     processOrganization: OrganizationFn<Organization, Address>,
     processPatient: PatientFn<Patient, Address>,

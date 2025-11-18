@@ -51,6 +51,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import kotlin.time.ExperimentalTime
 
 /**
  * The Fhir documentation mentions the following formats:
@@ -71,9 +72,10 @@ enum class FhirTemporalSerializationType {
     FhirTemporalLocalDate,
     FhirTemporalLocalTime,
     FhirTemporalYearMonth,
-    FhirTemporalYear,
+    FhirTemporalYear
 }
 
+@OptIn(ExperimentalTime::class)
 @Serializable(with = FhirTemporalSerializer::class)
 sealed interface FhirTemporal {
     @Serializable
@@ -185,6 +187,7 @@ fun Year.asFhirTemporal() = FhirTemporal.Year(this)
 fun LocalTime.asFhirTemporal() = FhirTemporal.LocalTime(this)
 
 @Suppress("ReturnCount")
+@Deprecated("Use asFhirTemporal() instead")
 fun String.toFhirTemporal(): FhirTemporal {
     // going from the most specific to the least
 

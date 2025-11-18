@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.cardwall.navigation
 
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavType.Companion.StringType
 import androidx.navigation.navArgument
 import de.gematik.ti.erp.app.cardwall.model.GidNavigationData
 import de.gematik.ti.erp.app.navigation.NavigationRouteNames
@@ -40,8 +41,8 @@ object CardWallRoutes : NavigationRoutes {
 
     object CardWallIntroScreen : Routes(
         NavigationRouteNames.CardWallIntroScreen.name,
-        navArgument(CARD_WALL_NAV_PROFILE_ID) { type = androidx.navigation.NavType.StringType },
-        navArgument(CARD_WALL_NAV_GID_AUTH_INFO) { type = androidx.navigation.NavType.StringType }
+        navArgument(CARD_WALL_NAV_PROFILE_ID) { type = StringType },
+        navArgument(CARD_WALL_NAV_GID_AUTH_INFO) { type = StringType }
     ) {
         fun path(profileIdentifier: ProfileIdentifier) = path(
             CARD_WALL_NAV_PROFILE_ID to profileIdentifier,
@@ -56,11 +57,26 @@ object CardWallRoutes : NavigationRoutes {
         )
     }
 
-    object CardWallCanScreen : Routes(NavigationRouteNames.CardWallCanScreen.name)
+    object CardWallCanScreen : Routes(
+        NavigationRouteNames.CardWallCanScreen.name,
+        navArgument(CARD_WALL_NAV_PROFILE_ID) {
+            type = StringType
+            nullable = true
+            defaultValue = null
+        }
+    ) {
+        fun pathWithProfile(profileIdentifier: ProfileIdentifier) = path(
+            CARD_WALL_NAV_PROFILE_ID to profileIdentifier
+        )
+
+        fun NavBackStackEntry.getProfileIdentifier(): ProfileIdentifier? {
+            return arguments?.getString(CARD_WALL_NAV_PROFILE_ID)
+        }
+    }
     object CardWallPinScreen : Routes(
         NavigationRouteNames.CardWallPinScreen.name,
-        navArgument(CARD_WALL_NAV_CAN) { type = androidx.navigation.NavType.StringType },
-        navArgument(CARD_WALL_NAV_PROFILE_ID) { type = androidx.navigation.NavType.StringType }
+        navArgument(CARD_WALL_NAV_CAN) { type = StringType },
+        navArgument(CARD_WALL_NAV_PROFILE_ID) { type = StringType }
     ) {
         fun path(
             profileIdentifier: ProfileIdentifier,
@@ -76,8 +92,8 @@ object CardWallRoutes : NavigationRoutes {
     object CardWallReadCardScreen : Routes(NavigationRouteNames.CardWallReadCardScreen.name)
     object CardWallGidListScreen : Routes(
         NavigationRouteNames.CardWallGidListScreen.name,
-        navArgument(CARD_WALL_NAV_PROFILE_ID) { type = androidx.navigation.NavType.StringType },
-        navArgument(CARD_WALL_NAV_GID_AUTH_INFO) { type = androidx.navigation.NavType.StringType }
+        navArgument(CARD_WALL_NAV_PROFILE_ID) { type = StringType },
+        navArgument(CARD_WALL_NAV_GID_AUTH_INFO) { type = StringType }
     ) {
         fun path(profileIdentifier: ProfileIdentifier) = path(
             CARD_WALL_NAV_PROFILE_ID to profileIdentifier,
@@ -95,7 +111,7 @@ object CardWallRoutes : NavigationRoutes {
     object CardWallScannerScreen : Routes(NavigationRouteNames.CardWallScannerScreen.name)
     object CardWallSelectInsuranceTypeBottomSheetScreen : Routes(
         NavigationRouteNames.CardWallSelectInsuranceTypeBottomSheetScreen.name,
-        navArgument(CARD_WALL_NAV_PROFILE_ID) { type = androidx.navigation.NavType.StringType }
+        navArgument(CARD_WALL_NAV_PROFILE_ID) { type = StringType }
     ) {
         fun path(profileIdentifier: ProfileIdentifier) = path(
             CARD_WALL_NAV_PROFILE_ID to profileIdentifier

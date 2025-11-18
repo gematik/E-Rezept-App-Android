@@ -24,7 +24,6 @@
 
 package de.gematik.ti.erp.app.core
 
-import androidx.activity.ComponentActivity
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.splineBasedDecay
@@ -36,9 +35,7 @@ import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -65,13 +62,9 @@ import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
-import com.google.accompanist.navigation.material.BottomSheetNavigator
-import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.analytics.CardCommunicationAnalytics
-import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
 import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.base.dialog.observer.LocalDialogVisibilityObserver
 import de.gematik.ti.erp.app.base.dialog.provider.DialogVisibilityProviderHolder
@@ -88,33 +81,11 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.TimeZone
-import org.kodein.di.DI
 import kotlin.math.max
 import kotlin.math.min
 
-val LocalBiometricAuthenticator =
-    staticCompositionLocalOf<BiometricAuthenticator> { error("No BiometricAuthenticator provided!") }
-
-val LocalActivity =
-    staticCompositionLocalOf<ComponentActivity> { error("No ComponentActivity provided!") }
-
 val LocalCardCommunicationAnalytics =
     staticCompositionLocalOf<CardCommunicationAnalytics> { error("No Analytics provided!") }
-
-val LocalDi = staticCompositionLocalOf<DI> { error("No DI provided!") }
-val LocalTimeZone = staticCompositionLocalOf<TimeZone> { error("No Timezone provided!") }
-
-@OptIn(ExperimentalMaterialNavigationApi::class)
-val LocalBottomSheetNavigator =
-    staticCompositionLocalOf<BottomSheetNavigator> { error("No BottomSheetNavigator provided!") }
-
-@OptIn(ExperimentalMaterialApi::class)
-val LocalBottomSheetNavigatorSheetState =
-    staticCompositionLocalOf<ModalBottomSheetState> { error("No BottomSheetNavigator<ModalBottomSheetState> provided!") }
-
-val LocalNavController =
-    staticCompositionLocalOf<NavHostController> { error("No NavHostController provided!") }
 
 @Composable
 fun AppContent(

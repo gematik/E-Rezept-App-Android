@@ -85,6 +85,7 @@ class ContentSquareScreenMapper {
                 NavigationRouteNames.ProfileImageEmojiScreen -> "profile:editPicture:imageEmoji"
                 NavigationRouteNames.ProfileImageCameraScreen -> "profile:editPicture:imageCamera"
                 NavigationRouteNames.ProfileAuditEventsScreen -> "profile:auditEvents"
+                NavigationRouteNames.ProfileEuConsentScreen -> "profile:euConsent"
                 NavigationRouteNames.ProfilePairedDevicesScreen -> "profile:registeredDevices"
                 NavigationRouteNames.ProfileEditPictureBottomSheetScreen -> "main:editProfilePicture"
                 NavigationRouteNames.ProfileEditNameBottomSheetScreen -> "main:editName"
@@ -201,7 +202,9 @@ class ContentSquareScreenMapper {
                 NavigationRouteNames.EuRedeemScreen -> "eu:redeem"
                 NavigationRouteNames.EuCountrySelectionScreen -> "eu:countrySelection"
                 NavigationRouteNames.EuPrescriptionSelectionScreen -> "eu:prescriptionSelection"
-                NavigationRouteNames.EUAvailabilityScreen -> "eu:availability"
+                NavigationRouteNames.EuAvailabilityScreen -> "eu:availability"
+                NavigationRouteNames.EuInstructionsScreen -> "eu:instructions"
+                NavigationRouteNames.EuRedemptionCodeScreen -> "eu:redemptionCode"
             }
         }
 }

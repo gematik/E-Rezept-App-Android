@@ -43,7 +43,8 @@ object ProfilesData {
         Baby,
         MaleDoctorWithPhone,
         FemaleDoctorWithPhone,
-        FemaleDeveloper;
+        FemaleDeveloper
+        ;
 
         companion object {
             val lastIndex = entries.size - 1
@@ -132,6 +133,7 @@ object ProfilesData {
     enum class InsuranceType {
         GKV,
         PKV,
+        BUND,
         None
     }
 }

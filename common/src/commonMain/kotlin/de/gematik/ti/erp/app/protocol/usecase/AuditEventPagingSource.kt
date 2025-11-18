@@ -69,9 +69,13 @@ class AuditEventPagingSource(
                     offset = params.key.offset,
                     count = count
                 ).map {
-                    val prevKey = if (params.key.offset == 0) null else params.key.copy(
-                        offset = max(0, params.key.offset - count)
-                    )
+                    val prevKey = if (params.key.offset == 0) {
+                        null
+                    } else {
+                        params.key.copy(
+                            offset = max(0, params.key.offset - count)
+                        )
+                    }
 
                     val nextKey = AuditEventPagingKey.from(
                         currentOffset = params.key.offset,

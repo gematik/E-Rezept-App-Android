@@ -195,7 +195,8 @@ class TimeoutsLocalDataSource(
             UNSPECIFIED,
             SECONDS,
             MINUTES,
-            HOURS;
+            HOURS
+            ;
 
             companion object {
                 fun extractedUnit(input: String) =

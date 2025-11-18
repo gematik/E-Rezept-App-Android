@@ -28,8 +28,6 @@ import kotlinx.serialization.json.JsonElement
 interface PharmacyRemoteDataSource {
     suspend fun searchPharmacies(filter: PharmacyFilter, onUnauthorizedException: suspend () -> Unit): Result<JsonElement>
     suspend fun searchInsurances(filter: PharmacyFilter, onUnauthorizedException: suspend () -> Unit): Result<JsonElement>
-    suspend fun searchPharmaciesContinued(bundleId: String, offset: Int, count: Int): Result<JsonElement>
-    suspend fun searchBinaryCert(locationId: String): Result<JsonElement>
     suspend fun searchPharmacyByTelematikId(telematikId: String, onUnauthorizedException: suspend () -> Unit): Result<JsonElement>
     suspend fun searchByInsuranceProvider(institutionIdentifier: String, onUnauthorizedException: suspend () -> Unit): Result<JsonElement>
     suspend fun fetchAvailableCountries(): Result<JsonElement>

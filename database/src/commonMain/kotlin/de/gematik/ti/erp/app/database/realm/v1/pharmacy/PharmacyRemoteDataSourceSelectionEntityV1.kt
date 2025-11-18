@@ -27,9 +27,9 @@ import io.realm.kotlin.types.RealmObject
 
 class PharmacyRemoteDataSourceSelectionEntityV1 : RealmObject {
     // only for testing
-    var pharmacyService: String = PharmacyVzdService.APOVZD.name
+    var pharmacyService: String = PharmacyVzdService.FHIRVZD.name
 
     val pharmacyServiceEnum: PharmacyVzdService
         get() = runCatching { PharmacyVzdService.valueOf(pharmacyService) }
-            .getOrDefault(PharmacyVzdService.APOVZD)
+            .getOrDefault(PharmacyVzdService.FHIRVZD)
 }

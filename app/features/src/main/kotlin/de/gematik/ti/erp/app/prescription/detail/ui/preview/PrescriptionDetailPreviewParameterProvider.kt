@@ -220,7 +220,8 @@ private val mockSyncedTask = SyncedTaskData.SyncedTask(
     lastMedicationDispense = null,
     medicationDispenses = emptyList(),
     communications = emptyList(),
-    isEuRedeemable = false
+    isEuRedeemable = false,
+    isEuRedeemableByPatientAuthorization = false
 )
 
 // prescription data objects

@@ -26,6 +26,5 @@ import de.gematik.ti.erp.app.fhir.FhirAuditEventsErpModelCollection
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 
 interface AuditEventsRepository {
-    suspend fun downloadAuditEvents(profileId: ProfileIdentifier, count: Int?, offset: Int?):
-        Result<FhirAuditEventsErpModelCollection?>
+    suspend fun downloadAuditEvents(profileId: ProfileIdentifier, count: Int?, offset: Int?): Result<FhirAuditEventsErpModelCollection?>
 }

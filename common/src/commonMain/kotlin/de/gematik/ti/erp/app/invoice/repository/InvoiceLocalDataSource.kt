@@ -155,7 +155,8 @@ class InvoiceLocalDataSource(private val realm: Realm) {
                                 }
                             },
                             processInvoice = { totalAdditionalFee, totalBruttoAmount, currency,
-                                items, additionalItems, additionalInformation ->
+                                    items, additionalItems, additionalInformation
+                                ->
                                 InvoiceEntityV1().apply {
                                     this.totalAdditionalFee = totalAdditionalFee
                                     this.totalBruttoAmount = totalBruttoAmount
@@ -269,18 +270,19 @@ class InvoiceLocalDataSource(private val realm: Realm) {
                             },
                             processMedication =
                             { text,
-                                medicationCategory,
-                                form,
-                                amount,
-                                vaccine,
-                                manufacturingInstructions,
-                                packaging,
-                                normSizeCode,
-                                identifier,
-                                ingredientMedications,
-                                ingredients,
-                                _,
-                                _ ->
+                                    medicationCategory,
+                                    form,
+                                    amount,
+                                    vaccine,
+                                    manufacturingInstructions,
+                                    packaging,
+                                    normSizeCode,
+                                    identifier,
+                                    ingredientMedications,
+                                    ingredients,
+                                    _,
+                                    _
+                                ->
                                 MedicationEntityV1().apply {
                                     this.text = text ?: ""
                                     this.medicationCategory = when (medicationCategory) {
@@ -348,11 +350,12 @@ class InvoiceLocalDataSource(private val realm: Realm) {
                             },
                             savePVSIdentifier = {},
                             save = { organization,
-                                patient,
-                                practitioner,
-                                _,
-                                medication,
-                                medicationRequest ->
+                                    patient,
+                                    practitioner,
+                                    _,
+                                    medication,
+                                    medicationRequest
+                                ->
 
                                 pKVInvoiceEntityV1 = queryFirst("taskId = $0", taskId) ?: run {
                                     copyToRealm(PKVInvoiceEntityV1()).also {

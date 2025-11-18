@@ -20,7 +20,7 @@
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
-@file: Suppress("ktlint:max-line-length", "MaxLineLength")
+@file: Suppress("ktlint:standard:max-line-length", "MaxLineLength")
 
 package de.gematik.ti.erp.gradleplugins.model
 
@@ -61,12 +61,13 @@ enum class SpecificationSource(
         url = "https://gemspec.gematik.de/docs/gemSpec/gemSpec_FD_eRp/latest/index.html"
     ),
 
-    @Suppress("ktlint:max-line-length", "MaxLineLength")
+    @Suppress("ktlint:standard:max-line-length", "MaxLineLength")
     BSI_ERP_EPA(
         spec = "BSI-eRp-ePA",
         url = "https://gitlab.prod.ccs.gematik.solutions/api/v4/projects/833/repository/files/security_review%2Frequirements%2F2024.html/raw?ref=main",
         isFromGemSpec = false
-    );
+    )
+    ;
 
     companion object {
         fun fromSpec(spec: String): SpecificationSource? = values().find { it.spec == spec.trim() }

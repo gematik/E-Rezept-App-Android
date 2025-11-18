@@ -1,3 +1,31 @@
+# Release 1.34.0
+
+### fixed (3 changes)
+
+- Fixed app crashes during navigation initialization
+- Prescription sharing encoding for special characters
+- Profile menu and scanned prescription display
+
+### ⚡ enhancements (2 changes):
+
+- Improved pharmacy search with location, service filters, emergency services and special closing hours
+- Add Bundespolizei
+- Centralized biometric authentication error handling
+
+### ✨ features (1 change):
+
+- EU Prescription Integration:
+    - Support for EU prescription redeem workflow
+    - Consent management from profile settings
+    - Dispense parsing and backend integration
+    - Demo mode workflow
+
+### improvements (1 change)
+
+- Updated health insurance company name from "BKK ZF & Partner" to "ZF BKK"
+
+---
+
 # Release 1.33.0
 
 ### fixed (3 changes)

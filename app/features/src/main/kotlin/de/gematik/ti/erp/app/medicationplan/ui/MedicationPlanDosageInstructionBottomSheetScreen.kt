@@ -54,18 +54,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.medicationplan.ui.preview.MedicationPlanDosageInfoPreview
-import de.gematik.ti.erp.app.medicationplan.ui.preview.MedicationPlanDosageInfoPreviewParameter
 import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
 import de.gematik.ti.erp.app.medicationplan.presentation.rememberMedicationPlanDosageInstructionBottomSheetController
+import de.gematik.ti.erp.app.medicationplan.ui.preview.MedicationPlanDosageInfoPreview
+import de.gematik.ti.erp.app.medicationplan.ui.preview.MedicationPlanDosageInfoPreviewParameter
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.utils.compose.Body2lText
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
-import de.gematik.ti.erp.app.utils.compose.Body2lText
 import de.gematik.ti.erp.app.utils.compose.fullscreen.FullScreenLoadingIndicator
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 

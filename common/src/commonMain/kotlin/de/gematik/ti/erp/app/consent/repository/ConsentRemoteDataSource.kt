@@ -33,36 +33,63 @@ import java.net.HttpURLConnection
 class ConsentRemoteDataSource(
     private val service: ErpService
 ) {
-    suspend fun getConsent(
-        profileId: ProfileIdentifier
+    suspend fun getPkvConsent(
+        profileId: ProfileIdentifier,
+        category: String
     ) = safeApiCall(
         errorMessage = "Error getting consent information"
     ) {
-        service.getConsent(
-            profileId = profileId
+        service.getPkvConsent(
+            profileId = profileId,
+            category = category
         )
     }
 
-    suspend fun grantConsent(
+    suspend fun getEuConsent(
+        profileId: ProfileIdentifier,
+        category: String
+    ) = safeApiCall(
+        errorMessage = "Error getting consent information"
+    ) {
+        service.getEuConsent(
+            profileId = profileId,
+            category = category
+        )
+    }
+
+    suspend fun grantPkvConsent(
         profileId: ProfileIdentifier,
         consent: JsonElement
     ) = safeApiCall(
         errorMessage = "Error grant consent"
     ) {
-        service.grantConsent(
+        service.grantPkvConsent(
             profileId = profileId,
             consent = consent
         )
     }
 
-    suspend fun deleteChargeConsent(
-        profileId: ProfileIdentifier
+    suspend fun grantEuConsent(
+        profileId: ProfileIdentifier,
+        consent: JsonElement
+    ) = safeApiCall(
+        errorMessage = "Error grant EU consent"
+    ) {
+        service.grantEuConsent(
+            profileId = profileId,
+            consent = consent
+        )
+    }
+
+    suspend fun deleteConsent(
+        profileId: ProfileIdentifier,
+        category: String
     ) = safeApiCallRaw(
         errorMessage = "Error delete consent"
     ) {
         val response = service.deleteConsent(
             profileId = profileId,
-            category = "CHARGCONS"
+            category = category
         )
         if (response.code() == HttpURLConnection.HTTP_NO_CONTENT) {
             Result.success(Unit)

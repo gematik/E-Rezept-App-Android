@@ -29,6 +29,6 @@ object PharmacyScreenData {
     @Serializable
     @Immutable
     enum class OrderOption {
-        Pickup, Delivery, Online;
+        Pickup, Delivery, Online
     }
 }

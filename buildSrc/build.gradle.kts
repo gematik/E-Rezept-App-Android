@@ -18,6 +18,8 @@
 
 plugins {
     `kotlin-dsl`
+    // NOTE: The Kotlin plugin versions below are hardcoded because version catalogs are not available in buildSrc's plugins block.
+    // If you update the Kotlin version in libs.versions.toml, you MUST also update it here manually!
     id("org.jetbrains.kotlin.jvm") version "2.0.21"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.0.21"
 }

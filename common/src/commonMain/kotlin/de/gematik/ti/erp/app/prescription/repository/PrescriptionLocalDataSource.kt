@@ -40,7 +40,6 @@ import de.gematik.ti.erp.app.messages.mapper.CommunicationDatabaseMappers.toData
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import io.github.aakira.napier.Napier
 import io.realm.kotlin.MutableRealm
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
@@ -227,22 +226,6 @@ class PrescriptionLocalDataSource(
             taskIds.forEach { taskId ->
                 queryFirst<ScannedTaskEntityV1>("taskId = $0", taskId)?.let {
                     it.redeemedOn = Clock.System.now().toRealmInstant()
-                }
-            }
-        }
-    }
-
-    @Deprecated(
-        message = "FOR TESTING ONLY: Will be removed when real backend EU-flag is available",
-        level = DeprecationLevel.WARNING
-    )
-    suspend fun updateEuRedeemableStatus(taskId: String, isEuRedeemable: Boolean) {
-        realm.tryWrite {
-            queryFirst<SyncedTaskEntityV1>("taskId = $0", taskId)?.let { task ->
-                val oldValue = task.isEuRedeemableByProperties
-                task.isEuRedeemableByProperties = isEuRedeemable
-                Napier.i(tag = "EuRedeemable") {
-                    "Database updated for taskId: $taskId, EuRedeemable status changed from [$oldValue] to [$isEuRedeemable]"
                 }
             }
         }

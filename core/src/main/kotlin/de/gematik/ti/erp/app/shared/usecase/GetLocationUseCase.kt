@@ -94,8 +94,11 @@ class GetLocationUseCase(
             val location = fusedLocationClient
                 .getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, cancelTokenSource.token)
                 .await()
-            if (location != null) LocationResult.Success(location)
-            else LocationResult.LocationNotFound
+            if (location != null) {
+                LocationResult.Success(location)
+            } else {
+                LocationResult.LocationNotFound
+            }
         } catch (e: Exception) {
             Napier.e { "Location error: ${e.stackTraceToString()}" }
             LocationResult.LocationSearchFailed(e)

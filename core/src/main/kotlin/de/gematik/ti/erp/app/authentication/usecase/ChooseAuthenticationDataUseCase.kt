@@ -79,7 +79,8 @@ class ChooseAuthenticationDataUseCase(
                         )
 
                         is IdpData.AlternateAuthenticationToken,
-                        is IdpData.AlternateAuthenticationWithoutToken -> Biometric(profile = profile)
+                        is IdpData.AlternateAuthenticationWithoutToken
+                        -> Biometric(profile = profile)
 
                         is IdpData.DefaultToken -> HealthCard(
                             can = ssoTokenScope.cardAccessNumber,

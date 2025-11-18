@@ -55,7 +55,7 @@ internal annotation class LightLongPreview
     heightDp = 1400,
     showBackground = true
 )
-internal annotation class DarkLongPreview
+annotation class DarkLongPreview
 
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_NO,
@@ -71,12 +71,12 @@ private annotation class DarkPreview
 
 @LightPreview
 @DarkPreview
-annotation class LightDarkPreview
+annotation class LightDarkPreview(val name: String = "")
 
 @LightLongPreview
 @DarkLongPreview
-internal annotation class LightDarkLongPreview
+annotation class LightDarkLongPreview(val name: String = "")
 
 @BigFontLightPreview
 @BigFontDarkPreview
-internal annotation class BigFontPreview
+annotation class BigFontPreview(val name: String = "")

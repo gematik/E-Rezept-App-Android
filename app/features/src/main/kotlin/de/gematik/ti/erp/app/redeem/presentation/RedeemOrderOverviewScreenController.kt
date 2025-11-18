@@ -24,7 +24,6 @@ package de.gematik.ti.erp.app.redeem.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
 import de.gematik.ti.erp.app.authentication.presentation.ChooseAuthenticationController
 import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
@@ -64,7 +63,6 @@ class RedeemOrderOverviewScreenController(
     val showErrorOnRedeemAlertDialogEvent = ComposableEvent<ErrorOnRedeemablePrescriptionDialogParameters>()
     val showPrescriptionRedeemAlertDialogEvent = ComposableEvent<RedeemPrescriptionDialogMessageState>()
     val onBiometricAuthenticationSuccessEvent = ComposableEvent<Unit>()
-    val showAuthenticationErrorDialog = ComposableEvent<AuthenticationResult.Error>()
 
     val isProfileRefreshing = _isProfileRefreshing.asStateFlow()
     val orderHasError: StateFlow<Boolean> = _orderHasError.asStateFlow()
@@ -75,15 +73,7 @@ class RedeemOrderOverviewScreenController(
             onBiometricAuthenticationSuccessEvent.trigger()
         }
 
-        biometricAuthenticationResetErrorEvent.listen(controllerScope) { error ->
-            showAuthenticationErrorDialog.trigger(error)
-        }
-
-        biometricAuthenticationOtherErrorEvent.listen(controllerScope) { error ->
-            showAuthenticationErrorDialog.trigger(error)
-        }
-
-        onRefreshProfileAction.listen(controllerScope) { isRefreshing ->
+        isProfileRefreshingEvent.listen(controllerScope) { isRefreshing ->
             _isProfileRefreshing.value = isRefreshing
         }
     }

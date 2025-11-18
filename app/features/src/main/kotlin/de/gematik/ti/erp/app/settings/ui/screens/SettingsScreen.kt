@@ -36,7 +36,6 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -49,10 +48,10 @@ import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.analytics.navigation.TrackingScreenRoutes
-import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.cardunlock.navigation.CardUnlockRoutes
 import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.debugsettings.navigation.ShowcaseScreensRoutes
 import de.gematik.ti.erp.app.demomode.DemoModeIntent
 import de.gematik.ti.erp.app.demomode.DemoModeObserver
@@ -120,7 +119,6 @@ class SettingsScreen(
         val settingsController = rememberSettingsController()
         val listState = rememberLazyListState()
         val scaffoldState = rememberScaffoldState()
-        val hasValidDigas by settingsController.hasValidDigas.collectAsStateWithLifecycle()
 
         AllowScreenshotDialogWithListener(
             dialog = dialog,
@@ -264,8 +262,7 @@ class SettingsScreen(
             profilesState = settingsController.profiles.collectAsStateWithLifecycle().value,
             zoomState = settingsController.zoomState.collectAsStateWithLifecycle(),
             screenShotsState = settingsController.screenShotsState.collectAsStateWithLifecycle(),
-            settingsActions = settingsActions,
-            hasValidDigas = hasValidDigas
+            settingsActions = settingsActions
         )
     }
 }
@@ -280,8 +277,7 @@ private fun SettingsScreenScaffold(
     profilesState: List<Profile>,
     zoomState: State<SettingStatesData.ZoomState>,
     screenShotsState: State<Boolean>,
-    settingsActions: SettingsActions,
-    hasValidDigas: Boolean
+    settingsActions: SettingsActions
 ) {
     val padding = (localActivity as? BaseActivity)?.applicationInnerPadding
 
@@ -301,8 +297,7 @@ private fun SettingsScreenScaffold(
             buildConfig = buildConfig,
             zoomState = zoomState,
             screenShotsState = screenShotsState,
-            settingsActions = settingsActions,
-            hasValidDigas = hasValidDigas
+            settingsActions = settingsActions
         )
     }
 }
@@ -317,8 +312,7 @@ private fun SettingsScreenContent(
     buildConfig: BuildConfigInformation,
     zoomState: State<SettingStatesData.ZoomState>,
     screenShotsState: State<Boolean>,
-    settingsActions: SettingsActions,
-    hasValidDigas: Boolean
+    settingsActions: SettingsActions
 ) {
     LazyColumn(
         modifier = Modifier.testTag("settings_screen"),
@@ -369,8 +363,7 @@ private fun SettingsScreenContent(
 
         item {
             ContactSection(
-                contactClickActions = settingsActions.contactClickActions,
-                hasValidDigas = hasValidDigas
+                contactClickActions = settingsActions.contactClickActions
             )
             SpacerLarge()
         }
@@ -447,8 +440,7 @@ fun SettingsScreenPreview(
                 buildConfig = previewData.buildConfig,
                 zoomState = previewData.zoomState,
                 screenShotsState = previewData.screenShotsState,
-                settingsActions = settingsActions,
-                hasValidDigas = false
+                settingsActions = settingsActions
             )
         }
     }

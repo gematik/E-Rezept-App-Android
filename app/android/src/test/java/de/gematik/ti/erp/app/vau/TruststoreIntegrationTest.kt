@@ -112,10 +112,11 @@ class TruststoreIntegrationTest {
             VauRepository(localDataSource, VauRemoteDataSource(vauService), coroutineRule.dispatchers),
             { Clock.System.now() },
             { untrustedOCSPList: UntrustedOCSPList,
-                untrustedCertList: UntrustedCertList,
-                trustAnchor: X509CertificateHolder,
-                ocspResponseMaxAge: Duration,
-                timestamp: Instant ->
+                    untrustedCertList: UntrustedCertList,
+                    trustAnchor: X509CertificateHolder,
+                    ocspResponseMaxAge: Duration,
+                    timestamp: Instant
+                ->
                 TrustedTruststore.create(
                     untrustedOCSPList = untrustedOCSPList,
                     untrustedCertList = untrustedCertList,

@@ -29,7 +29,8 @@ enum class FhirVzdSpecialtyType(val value: String) {
     Pickup("10"),
     Delivery("30"),
     Shipment("40"),
-    Others("0");
+    Others("0")
+    ;
 
     companion object {
         private val lookup = entries.associateBy { it.value }

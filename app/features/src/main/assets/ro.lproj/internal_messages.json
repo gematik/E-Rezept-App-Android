@@ -40,5 +40,11 @@
         "text": "**📝 Câmp flexibil pentru instrucțiuni de livrare** \n Câmpul pentru instrucțiuni de livrare se ajustează acum automat în funcție de lungimea textului. \n \n **🎨 Butoane mai moderne cu Material 3** \n Butoanele au fost adaptate la noul design Material 3 al sistemului de operare Android și au acum un aspect mai modern și mai rotunjit. \n \n **📤 Partajați rețete** \n Rețetele pot fi acum partajate cu alte persoane direct din aplicație.",
         "timestamp": "2025-09-09T08:00:00.000Z",
         "version": "1.33"
+    },
+    {
+        "id": "9",
+        "text": "**🏛️ Înregistrare pentru instituțiile federale** \nÎnregistrarea este acum posibilă și pentru cei asigurați la instituții federale, cum ar fi Poliția Federală. \n \n **🕒 Program îmbunătățit al farmaciilor** \nServiciul de urgență și orele speciale de închidere pentru farmacii sunt acum afișate, dacă au fost memorate.",
+        "timestamp": "2025-11-03T08:00:00.000Z",
+        "version": "1.34"
     }
 ]

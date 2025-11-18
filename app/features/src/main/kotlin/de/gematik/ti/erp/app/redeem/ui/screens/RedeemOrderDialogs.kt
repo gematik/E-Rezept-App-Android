@@ -24,7 +24,6 @@ package de.gematik.ti.erp.app.redeem.ui.screens
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import de.gematik.ti.erp.app.authentication.ui.components.AuthenticationFailureDialog
 import de.gematik.ti.erp.app.mainscreen.presentation.AppController
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
@@ -32,6 +31,7 @@ import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemSharedViewModel
 import de.gematik.ti.erp.app.redeem.presentation.RedeemOrderOverviewScreenController
 import de.gematik.ti.erp.app.redeem.ui.components.ErrorOnRedeemablePrescriptionDialog
 import de.gematik.ti.erp.app.redeem.ui.components.PrescriptionRedeemAlertDialog
+import de.gematik.ti.erp.app.utils.compose.AuthenticationFailureDialog
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.extract
 import kotlinx.coroutines.launch
@@ -69,11 +69,6 @@ internal fun RedeemOrderDialogs(
     redeemOrder: (ProfilesUseCaseData.Profile) -> Unit
 ) {
     val scope = rememberCoroutineScope()
-
-    AuthenticationFailureDialog(
-        event = orderOverviewController.showAuthenticationErrorDialog,
-        dialogScaffold = dialog
-    )
 
     PrescriptionRedeemAlertDialog(
         event = orderOverviewController.showPrescriptionRedeemAlertDialogEvent,

@@ -40,7 +40,10 @@ object DigasRoutes : NavigationRoutes {
     object DigasMainScreen : Routes(
         NavigationRouteNames.DigasMainScreen.name,
         navArgument(DIGAS_NAV_TASK_ID) { type = NavType.StringType },
-        navArgument(DIGAS_IS_READY) { type = NavType.BoolType; defaultValue = false }
+        navArgument(DIGAS_IS_READY) {
+            type = NavType.BoolType
+            defaultValue = false
+        }
     ) {
         fun path(taskId: String, isReady: Boolean) = path(DIGAS_NAV_TASK_ID to taskId, DIGAS_IS_READY to isReady)
     }

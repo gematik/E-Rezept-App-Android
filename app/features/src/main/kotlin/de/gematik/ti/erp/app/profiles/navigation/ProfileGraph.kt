@@ -34,6 +34,7 @@ import de.gematik.ti.erp.app.profiles.ui.screens.ProfileChangeInsuranceTypeBotto
 import de.gematik.ti.erp.app.profiles.ui.screens.ProfileEditNameBottomSheetScreen
 import de.gematik.ti.erp.app.profiles.ui.screens.ProfileEditPictureBottomSheetScreen
 import de.gematik.ti.erp.app.profiles.ui.screens.ProfileEditPictureScreen
+import de.gematik.ti.erp.app.profiles.ui.screens.ProfileEuConsentScreen
 import de.gematik.ti.erp.app.profiles.ui.screens.ProfileImageCameraScreen
 import de.gematik.ti.erp.app.profiles.ui.screens.ProfileImageCropperScreen
 import de.gematik.ti.erp.app.profiles.ui.screens.ProfileImageEmojiScreen
@@ -137,6 +138,15 @@ fun NavGraphBuilder.profileGraph(
             arguments = ProfileRoutes.ProfilePairedDevicesScreen.arguments
         ) { navEntry ->
             ProfilePairedDevicesScreen(
+                navController = navController,
+                navBackStackEntry = navEntry
+            )
+        }
+        renderComposable(
+            route = ProfileRoutes.ProfileEuConsentScreen.route,
+            arguments = ProfileRoutes.ProfileEuConsentScreen.arguments
+        ) { navEntry ->
+            ProfileEuConsentScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )

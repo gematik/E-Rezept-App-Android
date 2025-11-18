@@ -82,8 +82,7 @@ class GetOrderStateUseCase(
             }
         }.flowOn(dispatcher)
 
-    private suspend fun PharmacyData.ShippingContact.updateShippingContactRepo():
-        PharmacyData.ShippingContact {
+    private suspend fun PharmacyData.ShippingContact.updateShippingContactRepo(): PharmacyData.ShippingContact {
         shippingContactRepository.saveShippingContact(this)
         return this
     }

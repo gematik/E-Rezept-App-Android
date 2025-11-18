@@ -31,12 +31,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material3.ListItem
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material3.ListItem
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -279,6 +279,9 @@ private fun InsuranceNameListItem(
                     )
                     insuranceInformation.insuranceType == ProfilesUseCaseData.InsuranceType.PKV -> stringResource(
                         R.string.profile_change_insurance_type_drawer_private_insurance_button
+                    )
+                    insuranceInformation.insuranceType == ProfilesUseCaseData.InsuranceType.BUND -> stringResource(
+                        R.string.profile_change_insurance_type_drawer_bund_insurance_button
                     )
                     else -> stringResource(R.string.profile_change_insurance_type_drawer_no_insurance_selected_button)
                 },

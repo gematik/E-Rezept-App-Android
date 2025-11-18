@@ -35,7 +35,8 @@ enum class CoverageTypeV1 {
     GPV, // Gesetzliche Pflegeversicherung
     PPV, // Private Pflegeversicherung
     BEI, // Beihilfe
-    UNKNOWN;
+    UNKNOWN
+    ;
 
     companion object {
         fun mapTo(value: String): CoverageTypeV1 =

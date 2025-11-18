@@ -35,9 +35,9 @@ import de.gematik.ti.erp.app.cardwall.ui.screens.CardWallReadCardScreen
 import de.gematik.ti.erp.app.cardwall.ui.screens.CardWallSaveCredentialsInfoScreen
 import de.gematik.ti.erp.app.cardwall.ui.screens.CardWallSaveCredentialsScreen
 import de.gematik.ti.erp.app.cardwall.ui.screens.CardWallScannerScreen
+import de.gematik.ti.erp.app.cardwall.ui.screens.CardWallSelectInsuranceTypeBottomSheetScreen
 import de.gematik.ti.erp.app.navigation.renderBottomSheet
 import de.gematik.ti.erp.app.navigation.renderComposable
-import de.gematik.ti.erp.app.cardwall.ui.screens.CardWallSelectInsuranceTypeBottomSheetScreen
 
 fun NavGraphBuilder.cardWallGraph(
     startDestination: String = CardWallRoutes.CardWallIntroScreen.route,

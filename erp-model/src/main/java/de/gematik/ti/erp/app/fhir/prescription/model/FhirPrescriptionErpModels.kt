@@ -49,7 +49,8 @@ enum class FhirTaskMedicationCategoryErpModel(val code: String, val description:
     BTM("01", "Betäubungsmittel (BTM)"),
     AMVV("02", "Arzneimittelverschreibungsverordnung (AMVV)"),
     SONSTIGES("03", "SONSTIGES"),
-    UNKNOWN("", "Unknown");
+    UNKNOWN("", "Unknown")
+    ;
 
     companion object {
         fun fromCode(code: String?): FhirTaskMedicationCategoryErpModel {

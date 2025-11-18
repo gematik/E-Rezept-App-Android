@@ -41,8 +41,8 @@ import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.compose.ClickText
-import de.gematik.ti.erp.app.utils.compose.ClickableText
+import de.gematik.ti.erp.app.utils.ClickText
+import de.gematik.ti.erp.app.utils.ClickableText
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 
 @Composable

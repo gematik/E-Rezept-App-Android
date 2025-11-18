@@ -26,6 +26,7 @@ import android.content.res.AssetManager
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
 import de.gematik.ti.erp.app.demomode.datasource.data.FunnyAppNameProvider
+import de.gematik.ti.erp.app.demomode.navigation.triggers.DemoNavigationTriggerDataStore
 import de.gematik.ti.erp.app.demomode.repository.consent.DemoConsentRepository
 import de.gematik.ti.erp.app.demomode.repository.diga.DemoDigaRepository
 import de.gematik.ti.erp.app.demomode.repository.eurezept.DemoEuRepository
@@ -47,6 +48,7 @@ import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
+import de.gematik.ti.erp.app.navigation.triggers.NavigationTriggerDataStore
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.FavouritePharmacyLocalDataSource
@@ -70,7 +72,7 @@ val demoModeModule = DI.Module("demoModeModule") {
 
 fun DI.MainBuilder.demoModeOverrides() {
     bindProvider<ProfileRepository>(overrides = true) { DemoProfilesRepository(instance()) }
-    bindProvider<ConsentRepository>(overrides = true) { DemoConsentRepository() }
+    bindSingleton<ConsentRepository>(overrides = true) { DemoConsentRepository() }
     bindProvider<PrescriptionRepository>(overrides = true) { DemoPrescriptionsRepository(instance()) }
     bindProvider<DigaRepository>(overrides = true) { DemoDigaRepository(instance()) }
     bindProvider<EuRepository>(overrides = true) { DemoEuRepository(instance()) }
@@ -87,4 +89,5 @@ fun DI.MainBuilder.demoModeOverrides() {
         DemoPharmacyRepository(instance(), instance(), assetManager)
     }
     bindProvider<ShippingContactRepository>(overrides = true) { DemoShippingContactRepository() }
+    bindSingleton<NavigationTriggerDataStore>(overrides = true) { DemoNavigationTriggerDataStore() }
 }

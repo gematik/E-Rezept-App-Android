@@ -24,14 +24,19 @@ package de.gematik.ti.erp.app.authentication.observer
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.authentication.mapper.toDialogMapper
 import de.gematik.ti.erp.app.authentication.presentation.ChooseAuthenticationController
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.utils.compose.AuthenticationFailureDialog
+import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
+import io.github.aakira.napier.Napier
 
 @Composable
 fun ChooseAuthenticationNavigationEventsListener(
     controller: ChooseAuthenticationController,
-    navController: NavController
+    navController: NavController,
+    dialogScaffold: DialogScaffold
 ) {
     with(controller) {
         chooseAuthenticationNavigationEvents.showCardWallIntroScreenEvent.listen { id ->
@@ -72,6 +77,39 @@ fun ChooseAuthenticationNavigationEventsListener(
                     gidNavigationData = gidData
                 )
             )
+        }
+        chooseAuthenticationNavigationEvents.showCardWallCanScreenEvent.listen { profileId: ProfileIdentifier ->
+            navController.navigate(
+                CardWallRoutes.CardWallCanScreen.pathWithProfile(profileId)
+            )
+        }
+
+        chooseAuthenticationNavigationEvents.biometricAuthenticationOtherErrorEvent.listen { error ->
+            error.toDialogMapper()?.let { errorParams ->
+                dialogScaffold.show {
+                    AuthenticationFailureDialog(
+                        error = errorParams
+                    ) {
+                        it.dismiss()
+                    }
+                }
+            } ?: run {
+                Napier.i { "No dialog parameters found for error: $error" }
+            }
+        }
+
+        chooseAuthenticationNavigationEvents.biometricAuthenticationResetErrorEvent.listen { error ->
+            error.toDialogMapper()?.let { errorParams ->
+                dialogScaffold.show {
+                    AuthenticationFailureDialog(
+                        error = errorParams
+                    ) {
+                        it.dismiss()
+                    }
+                }
+            } ?: run {
+                Napier.i { "No dialog parameters found for error: $error" }
+            }
         }
     }
 }

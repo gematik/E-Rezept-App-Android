@@ -27,6 +27,8 @@ import de.gematik.ti.erp.app.fhir.BundleParser
 import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirFullUrlResourceEntry.Companion.getFhirVzdResourceType
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModelPeriod
+import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVZDBundle.Companion.getBundle
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVZDHealthcareService
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVZDHealthcareService.Companion.getHealthcareService
@@ -43,7 +45,9 @@ import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdOrganization.Co
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdPosition.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdResourceType
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdTelecom.Companion.toErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.original.parseSpecialOpeningTimes
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
+import de.gematik.ti.erp.app.utils.ParserUtil.asFhirTemporal
 import de.gematik.ti.erp.app.utils.Quad
 import de.gematik.ti.erp.app.utils.letNotNullOnCondition
 import io.github.aakira.napier.Napier
@@ -67,6 +71,12 @@ class PharmacyBundleParser : BundleParser {
 
     companion object {
         const val FHIRVZD_TAG = "fhirvzd"
+
+        // Length of date string in format YYYY-MM-DD
+        private const val DATE_LENGTH = 10
+
+        // Start index for time substring in ISO date-time string
+        private const val TIME_START_INDEX = 11
     }
 
     override fun extract(bundle: JsonElement): FhirPharmacyErpModelCollection {
@@ -81,9 +91,6 @@ class PharmacyBundleParser : BundleParser {
 
             // key-value pair (id, quad(health, location, org, endpoint))
             val pharmacyMap = mutableMapOf<String, Quad<FhirVZDHealthcareService?, FhirVZDLocation?, FhirVzdOrganization?, List<FhirVzdEndpoint>?>?>()
-
-            // required only when we activate zuweisung-ohne-telematik-id
-            // val endpointsMap = entries.getEndPointsGroupedByTelematikId()
 
             entries.map { entry ->
                 val type = entry.getFhirVzdResourceType()
@@ -139,7 +146,38 @@ class PharmacyBundleParser : BundleParser {
     private fun Result<FhirPharmacyErpModelCollection>.orElseEmpty(): FhirPharmacyErpModelCollection =
         getOrElse { FhirPharmacyErpModelCollection.emptyCollection() }
 
-    private fun MutableMap<String,
+    private fun logInfo(resourceType: FhirVzdResourceType) {
+        run {
+            Napier.i(tag = FHIRVZD_TAG) { "${resourceType.name} without uid, not parsing it" }
+        }
+    }
+
+    /**
+     * Parses the notAvailable periods from a FhirVZDHealthcareService and maps them to NotAvailablePeriodErpModel.
+     * - Maps description to NotAvailableDescriptionType.
+     * - Parses start/end dates and times using constants for string indices.
+     * - Computes overlapsAvailableTime for each period.
+     * Returns an empty list if no notAvailable periods are present.
+     */
+    private fun FhirVZDHealthcareService.parseNotAvailablePeriods(): List<NotAvailablePeriodErpModel> {
+        return notAvailable.mapNotNull { notAvailableEntry ->
+            try {
+                val startDate = notAvailableEntry.during?.start?.asFhirTemporal()
+                val endDate = notAvailableEntry.during?.end?.asFhirTemporal()
+                val period = FhirPharmacyErpModelPeriod(startDate, endDate)
+                NotAvailablePeriodErpModel(
+                    description = notAvailableEntry.description,
+                    period = period
+                )
+            } catch (e: Exception) {
+                Napier.e(tag = FHIRVZD_TAG, throwable = e) { "Error parsing notAvailable periods for $id" }
+                null
+            }
+        }
+    }
+
+    private fun MutableMap<
+        String,
         Quad<FhirVZDHealthcareService?, FhirVZDLocation?, FhirVzdOrganization?, List<FhirVzdEndpoint>?>?
         >.toEntries(): List<FhirPharmacyErpModel> {
         return entries.mapNotNull { entry ->
@@ -151,6 +189,35 @@ class PharmacyBundleParser : BundleParser {
                     entry.value?.third?.identifiers?.getTelematikId() != null // always has a telematik-id to identify the pharmacy
                 }
             ) { healthcareService, location, organization ->
+                Napier.i(tag = FHIRVZD_TAG) {
+                    val telematikId = organization.identifiers.getTelematikId()
+                    val organizationName = organization.name
+                    val healthcareServiceTelecom = healthcareService.telecom
+                    val locationAddress = location.address
+
+                    val maxValLength = 45
+
+                    fun String.truncate(maxLength: Int) =
+                        if (this.length > maxLength) this.take(maxLength - 3) + "…" else this
+
+                    val header = "┌───────────────────────┬───────────────────────────────────────────────┐"
+                    val footer = "└───────────────────────┴───────────────────────────────────────────────┘"
+                    val separator = "├───────────────────────┼───────────────────────────────────────────────┤"
+                    val formatLine = { field: String, value: String ->
+                        "│ %-21s │ %-45s │".format(field, value)
+                    }
+
+                    buildString {
+                        appendLine(header)
+                        appendLine(formatLine("FIELD", "VALUE"))
+                        appendLine(separator)
+                        appendLine(formatLine("Telematik ID", telematikId ?: ",missing telematik-id"))
+                        appendLine(formatLine("Organization", organizationName.truncate(maxValLength)))
+                        appendLine(formatLine("Healthcare Service", healthcareServiceTelecom.toString().truncate(maxValLength)))
+                        appendLine(formatLine("Location", locationAddress.toString().truncate(maxValLength)))
+                        appendLine(footer)
+                    }
+                }
                 FhirPharmacyErpModel(
                     id = healthcareService.id,
                     name = organization.name,
@@ -159,15 +226,12 @@ class PharmacyBundleParser : BundleParser {
                     position = location.position?.toErpModel(),
                     contact = healthcareService.telecom.toErpModel(),
                     availableTime = healthcareService.getOpeningHours(),
-                    specialities = healthcareService.getSpecialities()
+                    specialities = healthcareService.getSpecialities(),
+                    notAvailablePeriods = healthcareService.parseNotAvailablePeriods(),
+                    specialOpeningTimes = healthcareService.parseSpecialOpeningTimes(),
+                    isClosedToday = false
                 )
             }
-        }
-    }
-
-    private fun logInfo(resourceType: FhirVzdResourceType) {
-        run {
-            Napier.i(tag = FHIRVZD_TAG) { "${resourceType.name} without uid, not parsing it" }
         }
     }
 }

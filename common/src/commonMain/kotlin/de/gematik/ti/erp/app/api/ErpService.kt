@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.api
 
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.serialization.json.JsonElement
 import retrofit2.Response
@@ -30,6 +31,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -116,14 +118,15 @@ interface ErpService {
         @Query("reference") id: String
     ): Response<JsonElement>
 
-    // PKV consent
+    // consent
     @GET("Consent")
-    suspend fun getConsent(
-        @Tag profileId: ProfileIdentifier
+    suspend fun getPkvConsent(
+        @Tag profileId: ProfileIdentifier,
+        @Query("category") category: String = ConsentCategory.PKVCONSENT.code
     ): Response<JsonElement>
 
     @POST("Consent")
-    suspend fun grantConsent(
+    suspend fun grantPkvConsent(
         @Tag profileId: ProfileIdentifier,
         @Body consent: JsonElement
     ): Response<Unit>
@@ -134,9 +137,21 @@ interface ErpService {
         @Query("category") category: String
     ): Response<Unit>
 
+    @GET("Consent")
+    suspend fun getEuConsent(
+        @Tag profileId: ProfileIdentifier,
+        @Query("category") category: String = ConsentCategory.EUCONSENT.code
+    ): Response<JsonElement>
+
+    @POST("Consent")
+    suspend fun grantEuConsent(
+        @Tag profileId: ProfileIdentifier,
+        @Body consent: JsonElement
+    ): Response<Unit>
+
     // PKV Invoices
     @GET("ChargeItem")
-    suspend fun getChargeItems(
+    suspend fun getPkvChargeItems(
         @Tag profileId: ProfileIdentifier,
         @Query("modified") lastUpdated: String?,
         @Query("_sort") sort: String = "modified",
@@ -155,4 +170,28 @@ interface ErpService {
         @Tag profileId: ProfileIdentifier,
         @Path("id") id: String
     ): Response<Unit>
+
+    // EU Redeem
+    @PATCH("Task/{id}")
+    suspend fun toggleIsEuRedeemableByPatientAuthorization(
+        @Tag profileId: ProfileIdentifier,
+        @Path("id") taskId: String,
+        @Body payload: JsonElement
+    ): Response<JsonElement>
+
+    @POST("\$grant-eu-access-permission")
+    suspend fun createEuRedeemAccessCode(
+        @Tag profileId: ProfileIdentifier,
+        @Body authorizationRequest: JsonElement
+    ): Response<JsonElement>
+
+    @GET("\$read-eu-access-permission")
+    suspend fun getEuRedeemAccessCode(
+        @Tag profileId: ProfileIdentifier
+    ): Response<JsonElement>
+
+    @DELETE("\$revoke-eu-access-permission")
+    suspend fun deleteEuRedeemAccessCode(
+        @Tag profileId: ProfileIdentifier
+    ): Response<JsonElement>
 }

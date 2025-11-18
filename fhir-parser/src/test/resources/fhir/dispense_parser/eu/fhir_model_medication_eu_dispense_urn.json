@@ -1,0 +1,40 @@
+{
+  "id": "200.000.003.588.257.69",
+  "meta": {
+    "profile": [
+      "https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_MedicationDispense|1.0"
+    ]
+  },
+  "identifier": [
+    {
+      "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+      "value": "200.000.003.588.257.69"
+    }
+  ],
+  "status": "completed",
+  "subject": {
+    "identifier": {
+      "system": "http://fhir.de/sid/gkv/kvid-10",
+      "value": "X110583717"
+    }
+  },
+  "performer": [
+    {
+      "actor": {
+        "identifier": {
+          "system": "https://gematik.de/fhir/sid/telematik-id",
+          "value": "9-2.292.12504015"
+        },
+        "reference": "urn:uuid:5581f231-583d-4105-83c8-d794313c29a3"
+      }
+    }
+  ],
+  "whenHandedOver": "2025-10-31",
+  "whenPrepared": "2025-10-31",
+  "medicationReference": {
+    "reference": "urn:uuid:2030c65c-b8c9-4e6a-a14f-ac853ea226fe"
+  },
+  "substitution": {
+    "wasSubstituted": true
+  }
+}

@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.pharmacy.ui.components
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Star
@@ -85,6 +86,7 @@ internal fun FavoriteStarButton(
                 }
             )
         },
+        shape = CircleShape,
         contentPadding = PaddingValues(PaddingDefaults.Medium)
     ) {
         Icon(

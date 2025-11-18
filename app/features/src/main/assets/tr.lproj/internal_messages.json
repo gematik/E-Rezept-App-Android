@@ -40,5 +40,11 @@
         "text": "**📝 Teslimat talimatları için esnek alan** \n Teslimat talimatları alanı artık metnin uzunluğuna göre otomatik olarak ayarlanıyor. \n \n **🎨 Material 3 ile daha modern butonlar** \n Butonlar, Android'in yeni Material 3 tasarımına uyarlandı ve artık daha modern ve yuvarlak bir görünüme sahip. \n \n **📤 Tarifleri paylaş** \n Tarifler artık doğrudan uygulama üzerinden başkalarıyla paylaşılabilir.",
         "timestamp": "2025-09-09T08:00:00.000Z",
         "version": "1.33"
+    },
+    {
+        "id": "9",
+        "text": "**🏛️ Federal kurumlar için kayıt** \nFederal Polis gibi federal kurumlarda sigortalı olanlar için de kayıt artık mümkün. \n \n **🕒 Eczane açılış saatleri iyileştirildi** \nAcil servis ve eczanelerin özel kapanış saatleri, kaydedilmişse artık görüntüleniyor.",
+        "timestamp": "2025-11-03T08:00:00.000Z",
+        "version": "1.34"
     }
 ]

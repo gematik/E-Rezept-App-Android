@@ -43,7 +43,7 @@ val debugSettingsModule = DI.Module("debugSettingsModule") {
     bindProvider { GetShowTelematikIdStateUseCase(instance()) }
     bindProvider { ToggleShowTelematikIdStateUseCase(instance()) }
     bindProvider { BreakSsoTokenUseCase(instance(), instance()) }
-    bindProvider { PharmacyBackendServiceSelectionUseCase(instance()) }
+    bindProvider { PharmacyBackendServiceSelectionUseCase() }
     bindProvider { PharmacyGetSearchAccessTokenUseCase(instance()) }
     bindProvider { PharmacySearchAccessTokenModifierUseCase(instance()) }
 }

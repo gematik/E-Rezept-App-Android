@@ -38,6 +38,12 @@ import kotlin.time.Duration.Companion.hours
     sourceSpecification = "gemSpec_Krypt",
     rationale = "Gematik Root CA 3 as trust anchor has to be setup in the program code."
 )
+@Requirement(
+    "A_25059#1",
+    sourceSpecification = "gemSpec_Krypt",
+    rationale = "12 hours time span is configured",
+    codeLines = 7
+)
 class TruststoreConfig(getTrustAnchor: () -> String) {
     fun getOcspMaxAge(): Duration = 12.hours
 

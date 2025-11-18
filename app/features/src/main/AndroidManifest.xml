@@ -88,16 +88,6 @@
                     android:pathPrefix="/open"
                     android:scheme="https"
                     tools:ignore="IntentFilterUniqueDataAttributes" />
-                <data
-                    android:host="www.erezept.gematik.de"
-                    android:pathPrefix="/prescription"
-                    android:scheme="https"
-                    tools:ignore="IntentFilterUniqueDataAttributes" />
-                <data
-                    android:host="www.erezept.gematik.de"
-                    android:pathPrefix="/open"
-                    android:scheme="https"
-                    tools:ignore="IntentFilterUniqueDataAttributes" />
             </intent-filter>
         </activity>
 

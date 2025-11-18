@@ -23,9 +23,9 @@
 package de.gematik.ti.erp.app.mocks.prescription.model
 
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
 import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
 import kotlinx.datetime.Instant
 
 private const val MOCK_COMMUNICATION_ID_01 = "CID-123-001"

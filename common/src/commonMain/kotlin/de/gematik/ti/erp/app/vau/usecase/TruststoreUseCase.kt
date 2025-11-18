@@ -262,6 +262,15 @@ class TruststoreUseCase(
         }
     }
 
+    @Requirement(
+        "A_25059#2",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = """
+            - Check validity of OCSP responses by checking that its not null and the max age. 
+            - If this fails it throws an exception which recreates the trust store and new OCSP responses are retrieved
+        """,
+        codeLines = 35
+    )
     /**
      * Gets a valid truststore, either from the cache or by creating a new one.
      *
@@ -446,7 +455,29 @@ class TrustedTruststore private constructor(
             it.checkValidity(timestamp)
         }
     }
+    /**
+     * Companion object containing factory method to create a validated truststore.
+     */
 
+    /**
+     * Creates a validated truststore from untrusted certificate and OCSP lists.
+     *
+     * This method performs the following steps:
+     * 1. Validates the subject DNs of certificates
+     * 2. Validates additional root certificates against the trust anchor
+     * 3. Finds valid OCSP responses
+     * 4. Creates certificate chains
+     * 5. Finds valid VAU and IDP certificate chains
+     * 6. Creates a TrustedTruststore with the validated certificates and OCSP responses
+     *
+     * @param untrustedOCSPList List of untrusted OCSP responses
+     * @param untrustedCertList List of untrusted certificates
+     * @param trustAnchor The trust anchor certificate (root certificate)
+     * @param ocspResponseMaxAge Maximum allowed age for OCSP responses
+     * @param timestamp Current time for validation
+     * @return A validated [TrustedTruststore]
+     * @throws IllegalArgumentException If validation fails
+     */
     @Requirement(
         "A_20623#3",
         sourceSpecification = "gemSpec_IDP_Frontend",
@@ -468,38 +499,16 @@ class TrustedTruststore private constructor(
         rationale = "Create/Update TrustedTruststore."
     )
     @Requirement(
-        "A_24469 ",
+        "A_24469",
         sourceSpecification = "gemSpec_Krypt",
-        rationale = "Create/Update TrustedTruststore."
+        rationale = "Create/Update TrustedTruststore with categories from the specification."
     )
     @Requirement(
-        "A_25058, A_25059, A_25060, A_25061, A_25062 ",
+        "A_25062, ",
         sourceSpecification = "gemSpec_Krypt",
         rationale = "Create/Update TrustedTruststore."
     )
-    /**
-     * Companion object containing factory method to create a validated truststore.
-     */
     companion object {
-        /**
-         * Creates a validated truststore from untrusted certificate and OCSP lists.
-         *
-         * This method performs the following steps:
-         * 1. Validates the subject DNs of certificates
-         * 2. Validates additional root certificates against the trust anchor
-         * 3. Finds valid OCSP responses
-         * 4. Creates certificate chains
-         * 5. Finds valid VAU and IDP certificate chains
-         * 6. Creates a TrustedTruststore with the validated certificates and OCSP responses
-         *
-         * @param untrustedOCSPList List of untrusted OCSP responses
-         * @param untrustedCertList List of untrusted certificates
-         * @param trustAnchor The trust anchor certificate (root certificate)
-         * @param ocspResponseMaxAge Maximum allowed age for OCSP responses
-         * @param timestamp Current time for validation
-         * @return A validated [TrustedTruststore]
-         * @throws IllegalArgumentException If validation fails
-         */
         fun create(
             untrustedOCSPList: UntrustedOCSPList,
             untrustedCertList: UntrustedCertList,
@@ -513,6 +522,12 @@ class TrustedTruststore private constructor(
             val filteredAddRoots = addRoots.validateSubjectDN(RCA_PREFIX)
             val filteredCaCerts = untrustedCertList.caCerts.validateSubjectDN(CA_PREFIX).distinct()
 
+            @Requirement(
+                "A_24470",
+                sourceSpecification = "gemSpec_Krypt",
+                rationale = "All the categories from A-D are present below",
+                codeLines = 48
+            )
             val currentDate = Date(timestamp.toEpochMilliseconds())
             // Category A:
             // Before adding an addRoot we check if it can be validated by the currently potential trust store.
@@ -533,6 +548,12 @@ class TrustedTruststore private constructor(
                 require(it.size >= 3)
             }
 
+            @Requirement(
+                "A_25060#1",
+                sourceSpecification = "gemSpec_Krypt",
+                rationale = "validatedCaCertificate are used to check the ocsp responses",
+                codeLines = 6
+            )
             val validOcspResponses = findValidOcspResponses(
                 ocspResponses = untrustedOCSPList.responses.map { it.responseObject as BasicOCSPResp },
                 caCertChains = validatedCaCertificate.map { ca -> listOf(ca) + validatedAddRoots },
@@ -541,6 +562,12 @@ class TrustedTruststore private constructor(
             )
 
             // Category C and D:
+            @Requirement(
+                "A_25058#1",
+                sourceSpecification = "gemSpec_Krypt",
+                rationale = "findValidVauChain and findValidIdpChains verify the certificate validity",
+                codeLines = 8
+            )
             val validVauCertChain = findValidVauChain(eeChains, validOcspResponses, timestamp)
             val validIdpCertChains = findValidIdpChains(eeChains, validOcspResponses, timestamp)
 
@@ -589,6 +616,15 @@ class TrustedTruststore private constructor(
     "A_21222#2",
     sourceSpecification = "gemSpec_Krypt",
     rationale = "X509Certificates are checked before using them."
+)
+@Requirement(
+    "A_25060#2",
+    sourceSpecification = "gemSpec_Krypt",
+    rationale = """
+       - filterBySignature, checkSignatureWith use bouncy castle to do signature verification of the OCSP responses with category B certificates
+       - checkValidity checks the timestamp based validity
+    """,
+    codeLines = 25
 )
 fun findValidOcspResponses(
     ocspResponses: List<BasicOCSPResp>,
@@ -643,6 +679,12 @@ fun findValidOcspResponses(
     sourceSpecification = "gemSpec_Krypt",
     rationale = "X509Certificates are checked before using them."
 )
+@Requirement(
+    "A_25058#2",
+    sourceSpecification = "gemSpec_Krypt",
+    rationale = "the require method breaks the code if the certificate is not present",
+    codeLines = 8
+)
 fun findValidVauChain(
     chains: List<List<X509CertificateHolder>>,
     validOcspResponses: List<BasicOCSPResp>,
@@ -678,6 +720,12 @@ fun findValidVauChain(
     "A_21222#4",
     sourceSpecification = "gemSpec_Krypt",
     rationale = "X509Certificates are checked before using them."
+)
+@Requirement(
+    "A_25058#3",
+    sourceSpecification = "gemSpec_Krypt",
+    rationale = "the require method breaks the code if the certificate is not present",
+    codeLines = 8
 )
 fun findValidIdpChains(
     chains: List<List<X509CertificateHolder>>,
@@ -737,6 +785,7 @@ internal fun getValidatedCertificates(
                 try {
                     trustedCert.canBeValidatedBy(candidateCert, currentDate)
                 } catch (e: Exception) {
+                    Napier.e(e) { "❌ Verification failed: ${e.message}" }
                     false
                 }
             }

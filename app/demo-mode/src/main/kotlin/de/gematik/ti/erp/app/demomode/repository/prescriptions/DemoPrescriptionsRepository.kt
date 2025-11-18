@@ -208,21 +208,4 @@ class DemoPrescriptionsRepository(
     }
 
     override fun loadAllTaskIds(profileId: ProfileIdentifier): Flow<List<String>> = loadTaskIds()
-
-    @Deprecated(
-        message = "FOR TESTING ONLY: Will be removed when real backend EU-flag is available",
-        level = DeprecationLevel.WARNING
-    )
-    override suspend fun updateEuRedeemableStatus(taskId: String, isEuRedeemable: Boolean) {
-        withContext(dispatcher) {
-            dataSource.syncedTasks.value = dataSource.syncedTasks.updateAndGet { syncedList ->
-                val index = syncedList.indexOfFirst { it.taskId == taskId }
-                if (index != INDEX_OUT_OF_BOUNDS) {
-                    val updatedItem = syncedList[index].copy(isEuRedeemable = isEuRedeemable)
-                    syncedList[index] = updatedItem
-                }
-                syncedList
-            }
-        }
-    }
 }

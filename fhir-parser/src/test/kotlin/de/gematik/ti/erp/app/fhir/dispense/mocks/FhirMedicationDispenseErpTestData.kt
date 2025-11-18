@@ -37,6 +37,7 @@ import de.gematik.ti.erp.app.fhir.support.FhirMedicationIdentifierErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirMedicationIngredientErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirQuantityErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirRatioErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirTaskKbvAddressErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
@@ -547,6 +548,243 @@ val medicationDispenseErpModelCollectionV15MultipleMedications = FhirMedicationD
                 )
             ),
             dispensedDeviceRequest = null
+        )
+    )
+)
+
+val medicationDispenseErpModelCollectionEuV10Single = FhirMedicationDispenseErpModelCollection(
+    dispensedMedications = listOf(
+        FhirMedicationDispenseErpModel(
+            dispenseId = "160.000.000.000.000.01",
+            patientId = "X123456789",
+            substitutionAllowed = false,
+            dosageInstruction = null,
+            performer = "",
+            handedOver = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2025-10-01")
+            ),
+            dispensedMedication = listOf(
+                DispensedEpaMedicationErpModel(
+                    text = "Sumatriptan-1a Pharma 100 mg Tabletten",
+                    category = null,
+                    form = "TAB",
+                    amount = null,
+                    isVaccine = false,
+                    lotNumber = null,
+                    expirationDate = null,
+                    contextualData = EpaContextualData(
+                        identifier = FhirMedicationIdentifierErpModel(
+                            pzn = "06313728",
+                            atc = null,
+                            ask = null,
+                            snomed = null
+                        ),
+                        normSizeCode = "N1",
+                        manufacturingInstructions = null,
+                        packaging = null,
+                        ingredients = listOf(
+                            FhirMedicationIngredientErpModel(
+                                text = "Sumatriptan",
+                                amount = null,
+                                form = null,
+                                strengthRatio = FhirRatioErpModel(
+                                    numerator = FhirQuantityErpModel(
+                                        value = "100",
+                                        unit = "mg"
+                                    ),
+                                    denominator = FhirQuantityErpModel(
+                                        value = "1",
+                                        unit = null
+                                    )
+                                ),
+                                identifier = FhirMedicationIdentifierErpModel(
+                                    pzn = "06313728",
+                                    atc = null,
+                                    ask = null,
+                                    snomed = null
+                                )
+                            )
+                        ),
+                        internalMedication = emptyList()
+                    )
+                )
+            ),
+            dispensedDeviceRequest = null,
+            pharmacyName = "Pharmacia de Santa Maria", // EU pharmacy
+            pharmacyAddress = FhirTaskKbvAddressErpModel(
+                streetName = null,
+                houseNumber = null,
+                additionalAddressInformation = null,
+                postalCode = "1234-567",
+                city = "Lisbon"
+            )
+        )
+    )
+)
+
+val medicationDispenseErpModelCollectionEuV10Multiple = FhirMedicationDispenseErpModelCollection(
+    dispensedMedications = listOf(
+        FhirMedicationDispenseErpModel(
+            dispenseId = "160.000.000.000.000.01",
+            patientId = "X123456789",
+            substitutionAllowed = false,
+            dosageInstruction = null,
+            performer = "",
+            handedOver = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2025-10-01")
+            ),
+            dispensedMedication = listOf(
+                DispensedEpaMedicationErpModel(
+                    text = "Sumatriptan-1a Pharma 100 mg Tabletten",
+                    category = null,
+                    form = "TAB",
+                    amount = null,
+                    isVaccine = false,
+                    lotNumber = null,
+                    expirationDate = null,
+                    contextualData = EpaContextualData(
+                        identifier = FhirMedicationIdentifierErpModel(
+                            pzn = "06313728",
+                            atc = null,
+                            ask = null,
+                            snomed = null
+                        ),
+                        normSizeCode = "N1",
+                        manufacturingInstructions = null,
+                        packaging = null,
+                        ingredients = listOf(
+                            FhirMedicationIngredientErpModel(
+                                text = "Sumatriptan",
+                                amount = null,
+                                form = null,
+                                strengthRatio = FhirRatioErpModel(
+                                    numerator = FhirQuantityErpModel(value = "100", unit = "mg"),
+                                    denominator = FhirQuantityErpModel(value = "1", unit = null)
+                                ),
+                                identifier = FhirMedicationIdentifierErpModel(
+                                    pzn = "06313728",
+                                    atc = null,
+                                    ask = null,
+                                    snomed = null
+                                )
+                            )
+                        ),
+                        internalMedication = emptyList()
+                    )
+                )
+            ),
+            dispensedDeviceRequest = null,
+            pharmacyName = "Pharmacia de Santa Maria",
+            pharmacyAddress = FhirTaskKbvAddressErpModel(
+                streetName = null,
+                houseNumber = null,
+                additionalAddressInformation = null,
+                postalCode = "1234-567",
+                city = "Lisbon"
+            )
+        ),
+        FhirMedicationDispenseErpModel(
+            dispenseId = "160.000.000.000.000.02",
+            patientId = "X123456789",
+            substitutionAllowed = false,
+            dosageInstruction = "1-0-1-0",
+            performer = "",
+            handedOver = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2025-10-01")
+            ),
+            dispensedMedication = listOf(
+                DispensedEpaMedicationErpModel(
+                    text = "Sumatriptan-1a Pharma 100 mg Tabletten",
+                    category = null,
+                    form = "TAB",
+                    amount = null,
+                    isVaccine = false,
+                    lotNumber = null,
+                    expirationDate = null,
+                    contextualData = EpaContextualData(
+                        identifier = FhirMedicationIdentifierErpModel(
+                            pzn = "06313728",
+                            atc = null,
+                            ask = null,
+                            snomed = null
+                        ),
+                        normSizeCode = "N1",
+                        manufacturingInstructions = null,
+                        packaging = null,
+                        ingredients = listOf(
+                            FhirMedicationIngredientErpModel(
+                                text = "Sumatriptan",
+                                amount = null,
+                                form = null,
+                                strengthRatio = FhirRatioErpModel(
+                                    numerator = FhirQuantityErpModel(value = "100", unit = "mg"),
+                                    denominator = FhirQuantityErpModel(value = "1", unit = null)
+                                ),
+                                identifier = FhirMedicationIdentifierErpModel(
+                                    pzn = "06313728",
+                                    atc = null,
+                                    ask = null,
+                                    snomed = null
+                                )
+                            )
+                        ),
+                        internalMedication = emptyList()
+                    )
+                )
+            ),
+            dispensedDeviceRequest = null,
+            pharmacyName = null,
+            pharmacyAddress = null
+        )
+    )
+)
+
+val medicationDispenseErpModelCollectionEuV10SingleUrn = FhirMedicationDispenseErpModelCollection(
+    dispensedMedications = listOf(
+        FhirMedicationDispenseErpModel(
+            dispenseId = "200.000.003.588.257.69",
+            patientId = "X110583717",
+            substitutionAllowed = true,
+            dosageInstruction = null,
+            performer = "",
+            handedOver = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2025-10-31")
+            ),
+            dispensedMedication = listOf(
+                DispensedEpaMedicationErpModel(
+                    text = null,
+                    category = null,
+                    form = "TUB",
+                    amount = null,
+                    isVaccine = false,
+                    lotNumber = "2873620872",
+                    expirationDate = FhirTemporal.Instant(
+                        Instant.parse("2025-10-31T11:00:13Z")
+                    ),
+                    contextualData = EpaContextualData(
+                        identifier = FhirMedicationIdentifierErpModel(
+                            pzn = "58621439",
+                            atc = null,
+                            ask = null,
+                            snomed = null
+                        ),
+                        normSizeCode = null,
+                        manufacturingInstructions = null,
+                        packaging = null,
+                        ingredients = emptyList(),
+                        internalMedication = emptyList()
+                    )
+                )
+            ),
+            dispensedDeviceRequest = null,
+            pharmacyName = "Fürsten Apotheke",
+            pharmacyAddress = FhirTaskKbvAddressErpModel(
+                streetName = null,
+                houseNumber = null,
+                additionalAddressInformation = null,
+                postalCode = "612855949",
+                city = "Schön Dianaland"
+            )
         )
     )
 )

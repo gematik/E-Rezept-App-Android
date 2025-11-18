@@ -22,6 +22,8 @@
 
 package de.gematik.ti.erp.app.consent.repository
 
+import de.gematik.ti.erp.app.fhir.consent.FhirConsentParser
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.fhir.model.ResourceBasePath
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -42,6 +44,9 @@ class ConsentRepositoryTest {
     @MockK
     private lateinit var remoteDataSource: ConsentRemoteDataSource
 
+    @MockK(relaxed = true)
+    private lateinit var fhirConsentParser: FhirConsentParser
+
     private lateinit var consentRepository: ConsentRepository
 
     private val consentNotGrantedJson by lazy { File("$ResourceBasePath/fhir/pkv/pkv1_2/consent_not_granted.json").readText() }
@@ -53,14 +58,15 @@ class ConsentRepositoryTest {
 
         consentRepository = DefaultConsentRepository(
             remoteDataSource = remoteDataSource,
-            localDataSource = localDataSource
+            localDataSource = localDataSource,
+            parsers = fhirConsentParser
         )
 
-        coEvery { remoteDataSource.getConsent("0") } coAnswers {
+        coEvery { remoteDataSource.getPkvConsent("0", category = any()) } coAnswers {
             Result.success(Json.parseToJsonElement(consentNotGrantedJson))
         }
 
-        coEvery { remoteDataSource.getConsent("1") } coAnswers {
+        coEvery { remoteDataSource.getPkvConsent("1", category = any()) } coAnswers {
             Result.success(Json.parseToJsonElement(consentGrantedJson))
         }
     }
@@ -68,9 +74,9 @@ class ConsentRepositoryTest {
     @Test
     fun `get consent granted should answer false`() {
         runTest {
-            val result = consentRepository.getConsent("0").map {
-                consentRepository.isConsentGranted(it)
-                assertFalse { consentRepository.isConsentGranted(it) }
+            val result = consentRepository.getPkvConsent("0", category = ConsentCategory.PKVCONSENT.code).map {
+                consentRepository.isPkvConsentGranted(it)
+                assertFalse { consentRepository.isPkvConsentGranted(it) }
             }
             assertTrue(result.isSuccess)
         }
@@ -79,9 +85,9 @@ class ConsentRepositoryTest {
     @Test
     fun `get consent granted should answer true`() {
         runTest {
-            val result = consentRepository.getConsent("1").map {
-                consentRepository.isConsentGranted(it)
-                assertTrue { consentRepository.isConsentGranted(it) }
+            val result = consentRepository.getPkvConsent("1", category = ConsentCategory.PKVCONSENT.code).map {
+                consentRepository.isPkvConsentGranted(it)
+                assertTrue { consentRepository.isPkvConsentGranted(it) }
             }
             assertTrue(result.isSuccess)
         }

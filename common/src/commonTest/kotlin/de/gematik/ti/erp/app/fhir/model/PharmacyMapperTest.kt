@@ -31,8 +31,6 @@ import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType.Pickup
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType.Shipment
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningTimeErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
-import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningTime
 import kotlinx.datetime.DayOfWeek
@@ -46,20 +44,6 @@ private val testBundle by lazy { File("$ResourceBasePath/pharmacy_result_bundle.
 private val testBundleBinaries by lazy { File("$ResourceBasePath/fhir/pharmacy_binary.json").readText() }
 
 class PharmacyMapperTest {
-    @Test
-    fun `map pharmacies from JSON bundle`() {
-        val pharmacies = extractPharmacyServices(
-            Json.parseToJsonElement(testBundle),
-            onError = { element, cause ->
-                throw cause
-            }
-        )
-
-        assertEquals(10, pharmacies.total)
-        assertEquals(pharmacyErpModel, pharmacies.entries.first())
-        val useCaseData = pharmacies.entries.toModel(type = PharmacyVzdService.APOVZD)
-        assertEquals(pharmacyUseCaseData, useCaseData.first())
-    }
 
     @Test
     fun `extract certificate`() {

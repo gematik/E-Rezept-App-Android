@@ -39,8 +39,8 @@ import de.gematik.ti.erp.app.userauthentication.presentation.AuthenticationState
 import de.gematik.ti.erp.app.userauthentication.presentation.rememberAuthenticationController
 import de.gematik.ti.erp.app.userauthentication.ui.components.GematikLogo
 import de.gematik.ti.erp.app.userauthentication.ui.components.UserAuthenticationDataScreenContent
-import de.gematik.ti.erp.app.userauthentication.ui.components.UserAuthenticationErrorScreenContent
 import de.gematik.ti.erp.app.userauthentication.ui.components.UserAuthenticationEmptyScreenContent
+import de.gematik.ti.erp.app.userauthentication.ui.components.UserAuthenticationErrorScreenContent
 import de.gematik.ti.erp.app.userauthentication.ui.preview.UserAuthenticationPreviewParameter
 import de.gematik.ti.erp.app.userauthentication.ui.preview.UserAuthenticationPreviewParameterProvider
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview

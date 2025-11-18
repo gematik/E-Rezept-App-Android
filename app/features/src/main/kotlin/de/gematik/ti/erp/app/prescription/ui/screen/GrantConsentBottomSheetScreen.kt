@@ -113,7 +113,9 @@ private fun GrantConsentScreenContent(
         primaryButtonText = stringResource(R.string.give_consent_bottom_sheet_activate),
         outlinedButtonText = stringResource(R.string.give_consent_bottom_sheet_activate_later),
         onClickPrimary = onClickGrantConsent,
-        onClickOutlined = onCancel
+        onClickOutlined = onCancel,
+        bottomLinkText = null,
+        onClickBottomLink = {}
     )
 }
 

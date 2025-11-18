@@ -62,7 +62,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
-import de.gematik.ti.erp.app.authentication.ui.components.AuthenticationFailureDialog
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
@@ -81,6 +80,7 @@ import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.utils.compose.AuthenticationFailureDialog
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
@@ -113,7 +113,7 @@ class ProfilePairedDevicesScreen(
             controller.refreshPairedDevices()
         }
 
-        ChooseAuthenticationNavigationEventsListener(controller, navController)
+        ChooseAuthenticationNavigationEventsListener(controller, navController, dialogScaffold = dialog)
 
         LaunchedEffect(Unit) {
             intentHandler.gidSuccessfulIntent.collectLatest {

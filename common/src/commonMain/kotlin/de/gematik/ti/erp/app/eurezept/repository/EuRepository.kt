@@ -22,8 +22,32 @@
 
 package de.gematik.ti.erp.app.eurezept.repository
 
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
 import de.gematik.ti.erp.app.fhir.FhirErpModel
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import kotlinx.coroutines.flow.Flow
 
 interface EuRepository {
     suspend fun fetchAvailableCountries(): Result<FhirErpModel?>
+
+    suspend fun toggleIsEuRedeemableByPatientAuthorization(
+        taskId: String,
+        profileId: ProfileIdentifier,
+        isEuRedeemableByPatientAuthorization: Boolean
+    ): Result<Unit>
+
+    suspend fun createEuRedeemAccessCode(
+        profileId: ProfileIdentifier,
+        countryCode: String,
+        relatedTaskIds: List<String>
+    ): Result<EuAccessCode>
+
+    suspend fun getLatestValidEuAccessCodeByProfileIdAndCountry(
+        profileId: ProfileIdentifier,
+        countryCode: String
+    ): Flow<EuAccessCode?>
+
+    suspend fun deleteEuRedeemAccessCode(
+        profileId: ProfileIdentifier
+    )
 }

@@ -94,8 +94,9 @@ class RessourceMapperVersion102Test {
         val result = extractPZNMedication<ReturnType, ReturnType, ReturnType, ReturnType>(
             medicationPznJson,
             processMedication = { text, medicationCategory, form, amount, vaccine,
-                manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier, ingredientMedication,
-                ingredients, lotnumber, expirationDate ->
+                    manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier, ingredientMedication,
+                    ingredients, lotnumber, expirationDate
+                ->
                 assertEquals("Ich bin in Einlösung", text)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals("IHP", form)
@@ -144,9 +145,10 @@ class RessourceMapperVersion102Test {
                 ReturnType.Ingredient
             },
             processMedication = { text, medicationCategory, form, amount, vaccine,
-                manufacturingInstructions, packaging, normSizeCode, identifier,
-                _,
-                ingredients, lotNumber, expirationDate ->
+                    manufacturingInstructions, packaging, normSizeCode, identifier,
+                    _,
+                    ingredients, lotNumber, expirationDate
+                ->
                 assertEquals(null, text)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals("Flüssigkeiten", form)
@@ -182,8 +184,9 @@ class RessourceMapperVersion102Test {
                 ReturnType.Ingredient
             },
             processMedication = { text, medicationCategory, form, amount, vaccine,
-                manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
-                ingredientMedication, ingredients, lotNumber, expirationDate ->
+                    manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
+                    ingredientMedication, ingredients, lotNumber, expirationDate
+                ->
                 assertEquals(null, text)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals("Lösung", form)
@@ -215,8 +218,9 @@ class RessourceMapperVersion102Test {
                 ReturnType.Ratio
             },
             processMedication = { text, medicationCategory, form, amount, vaccine,
-                manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
-                ingredientMedication, ingredients, lotNumber, expirationDate ->
+                    manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
+                    ingredientMedication, ingredients, lotNumber, expirationDate
+                ->
                 assertEquals("Freitext", text)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals(null, form)
@@ -256,17 +260,18 @@ class RessourceMapperVersion102Test {
                 ReturnType.MultiplePrescriptionInfo
             },
             processMedicationRequest = { authoredOn,
-                dateOfAccident,
-                location,
-                accidentType,
-                emergencyFee,
-                substitutionAllowed,
-                dosageInstruction,
-                quantity,
-                multiplePrescriptionInfo,
-                note,
-                bvg,
-                additionalFee ->
+                    dateOfAccident,
+                    location,
+                    accidentType,
+                    emergencyFee,
+                    substitutionAllowed,
+                    dosageInstruction,
+                    quantity,
+                    multiplePrescriptionInfo,
+                    note,
+                    bvg,
+                    additionalFee
+                ->
                 assertEquals(null, authoredOn)
                 assertEquals(FhirTemporal.LocalDate(LocalDate.parse("2022-06-29")), dateOfAccident)
                 assertEquals("Dummy-Betrieb", location)

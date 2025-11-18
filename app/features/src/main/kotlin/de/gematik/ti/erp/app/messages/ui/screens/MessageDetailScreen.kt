@@ -98,7 +98,8 @@ class MessageDetailScreen(
         val showTranslationFeature by messageController.showTranslationFeature.collectAsStateWithLifecycle()
 
         val handleTranslationClick: (String, String) -> Unit = remember(isTranslationsAllowed, snackbarScaffold, uiScope, view) {
-            { communicationId, message ->
+            {
+                    communicationId, message ->
                 if (isTranslationsAllowed) {
                     messageController.translateText(communicationId, message) { translatedText ->
                         view?.announceForAccessibility(translatedText)
@@ -117,7 +118,8 @@ class MessageDetailScreen(
         }
 
         val onClickReplyMessage: (OrderUseCaseData.Message) -> Unit = remember(order) {
-            { message ->
+            {
+                    message ->
                 selectedMessage = message
                 letNotNull(order.data, selectedMessage) { orderDetail, selected ->
                     navController.navigate(
@@ -131,7 +133,8 @@ class MessageDetailScreen(
         }
 
         val onClickPrescription: (String) -> Unit = remember {
-            { taskId ->
+            {
+                    taskId ->
                 navController.navigate(
                     PrescriptionDetailRoutes.PrescriptionDetailScreen.path(taskId = taskId)
                 )
@@ -139,7 +142,8 @@ class MessageDetailScreen(
         }
 
         val onClickInvoiceMessage: (String) -> Unit = remember(profileData) {
-            { taskId ->
+            {
+                    taskId ->
                 profileData?.let { profile ->
                     navController.navigate(
                         PkvRoutes.InvoiceDetailsScreen.path(taskId = taskId, profileId = profile.id)

@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.eurezept.ui.screens
 
 import android.provider.Settings
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,6 +41,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
@@ -48,6 +50,8 @@ import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
@@ -56,6 +60,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.invisibleToUser
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -66,7 +72,7 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.base.openSettingsAsNewActivity
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.eurezept.domin.model.Country
+import de.gematik.ti.erp.app.eurezept.domain.model.Country
 import de.gematik.ti.erp.app.eurezept.navigation.EuRoutes
 import de.gematik.ti.erp.app.eurezept.presentation.EuSharedViewModel
 import de.gematik.ti.erp.app.eurezept.presentation.rememberEuCountrySelectionController
@@ -92,7 +98,7 @@ import de.gematik.ti.erp.app.utils.compose.EmptyScreenComponent
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.animatedElevationStickySearchField
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
-import de.gematik.ti.erp.app.utils.extensions.LocalSnackbar
+import de.gematik.ti.erp.app.utils.extensions.show
 import de.gematik.ti.erp.app.utils.uistate.UiState
 
 internal class EuCountrySelectionScreen(
@@ -103,7 +109,8 @@ internal class EuCountrySelectionScreen(
     @Composable
     override fun Content() {
         val context = LocalContext.current
-        val snackbar = LocalSnackbar.current
+        val scope = uiScope
+        val snackbar = remember { SnackbarHostState() }
         val focusManager = LocalFocusManager.current
         val dialog = LocalDialog.current
         val screenController = rememberEuCountrySelectionController()
@@ -113,11 +120,14 @@ internal class EuCountrySelectionScreen(
         val searchQuery by screenController.searchQuery.collectAsStateWithLifecycle()
         val detectedCountrySupported by screenController.isDetectedCountrySupported.collectAsStateWithLifecycle()
 
+        val onBack by rememberUpdatedState { navController.popBackStack() }
+        BackHandler { onBack() }
+
         val locationPermissionLauncher = getLocationPermissionLauncher { isLocationEnabled ->
             screenController.onLocationPermissionResult(isLocationEnabled) { country ->
                 if (country != null) {
                     graphController.setSelectedCountry(country)
-                    navController.popBackStack()
+                    onBack()
                 }
             }
         }
@@ -141,28 +151,29 @@ internal class EuCountrySelectionScreen(
         )
 
         screenController.locationNotFoundEvent.listen {
-            snackbar.show(context.getString(R.string.location_not_found))
+            snackbar.show(context.getString(R.string.location_not_found), scope)
         }
 
         screenController.countryNotFoundEvent.listen {
-            snackbar.show(context.getString(R.string.eu_country_not_found_message))
+            snackbar.show(context.getString(R.string.eu_country_not_found_message), scope)
         }
 
         screenController.geocoderNotAvailableEvent.listen {
-            snackbar.show(context.getString(R.string.eu_geocoder_not_available_message))
+            snackbar.show(context.getString(R.string.eu_geocoder_not_available_message), scope)
         }
 
         screenController.noCountriesAvailableEvent.listen {
-            navController.navigate(EuRoutes.EUAvailabilityScreen.route)
+            navController.navigate(EuRoutes.EuAvailabilityScreen.route)
         }
 
         EuCountrySelectionScreenSection(
             listState = lazyListState,
+            snackbarHostState = snackbar,
             uiState = uiState,
             detectedCountrySupported = detectedCountrySupported,
             searchQuery = searchQuery,
             focusManager = focusManager,
-            onBack = { navController.popBackStack() },
+            onBack = { onBack() },
             onSearchQueryChange = { screenController.updateSearchQuery(it) },
             onClearSearch = { screenController.updateSearchQuery() },
             onUseLocation = {
@@ -172,7 +183,7 @@ internal class EuCountrySelectionScreen(
             onResetToContent = { screenController.onResetToContent() },
             onCountrySelect = { country ->
                 graphController.setSelectedCountry(country)
-                navController.popBackStack()
+                onBack()
             }
         )
     }
@@ -219,6 +230,7 @@ private fun EuCountrySelectionEmptyState() {
 @Composable
 fun EuCountrySelectionScreenSection(
     listState: LazyListState,
+    snackbarHostState: SnackbarHostState,
     uiState: UiState<List<Country>>,
     detectedCountrySupported: Boolean,
     searchQuery: String,
@@ -233,6 +245,7 @@ fun EuCountrySelectionScreenSection(
 ) {
     EuRedeemScaffold(
         listState = listState,
+        snackbarHostState = snackbarHostState,
         onBack = onBack,
         onCancel = {},
         cancelButtonText = "",
@@ -493,7 +506,10 @@ fun CountryListItem(
             Text(
                 text = country.flagEmoji,
                 fontSize = SizeDefaults.triple.value.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier.semantics {
+                    invisibleToUser()
+                }
             )
         }
 
@@ -514,10 +530,12 @@ fun EuCountrySelectionScreenPreview(
     previewData: EuCountrySelectionPreviewData
 ) {
     val lazyListState = rememberLazyListState()
+    val snackbarHostState = remember { SnackbarHostState() }
     val focusManager = LocalFocusManager.current
     PreviewTheme {
         EuCountrySelectionScreenSection(
             listState = lazyListState,
+            snackbarHostState = snackbarHostState,
             uiState = previewData.uiState,
             searchQuery = previewData.searchQuery,
             detectedCountrySupported = !previewData.detectedCountryNotInSupportedList,

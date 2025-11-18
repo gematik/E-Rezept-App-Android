@@ -28,7 +28,12 @@ import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
 import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
 import org.junit.Test
 
-class PharmacyDetailsFromPharmacyScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(config) {
+class PharmacyDetailsFromPharmacyScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(
+    config = object : ScreenshotConfig {
+        override val deviceConfig = config.deviceConfig.copy(screenHeight = 5000)
+        override val theme = config.theme
+    }
+) {
 
     @Test
     fun screenShotTest() {
@@ -41,8 +46,12 @@ class PharmacyDetailsFromPharmacyScreenTest(config: ScreenshotConfig) : BaseScre
     }
 }
 
-class PharmacyDetailsFromPharmacyScreenAccessibilityTest(config: ScreenshotConfig) : BaseAccessibilityTest(config) {
-
+class PharmacyDetailsFromPharmacyScreenAccessibilityTest(config: ScreenshotConfig) : BaseAccessibilityTest(
+    config = object : ScreenshotConfig {
+        override val deviceConfig = config.deviceConfig.copy(screenHeight = 5000)
+        override val theme = config.theme
+    }
+) {
     @Test
     fun screenShotTest() {
         val testParameters = PharmacyPreviewParameterProvider().values.toList()

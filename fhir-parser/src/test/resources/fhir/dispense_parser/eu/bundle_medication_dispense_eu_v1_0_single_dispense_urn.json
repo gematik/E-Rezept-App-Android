@@ -1,0 +1,222 @@
+{
+  "id": "84c4403a-14b5-41af-9d29-eabcc67dd561",
+  "type": "searchset",
+  "timestamp": "2025-10-31T12:54:56.339+00:00",
+  "resourceType": "Bundle",
+  "total": 0,
+  "entry": [
+    {
+      "fullUrl": "https://erp-dev.zentral.erp.splitdns.ti-dienste.de/MedicationDispense/200.000.003.588.257.69",
+      "resource": {
+        "resourceType": "MedicationDispense",
+        "id": "200.000.003.588.257.69",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_MedicationDispense|1.0"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            "value": "200.000.003.588.257.69"
+          }
+        ],
+        "status": "completed",
+        "medicationReference": {
+          "reference": "urn:uuid:2030c65c-b8c9-4e6a-a14f-ac853ea226fe"
+        },
+        "subject": {
+          "identifier": {
+            "system": "http://fhir.de/sid/gkv/kvid-10",
+            "value": "X110583717"
+          }
+        },
+        "performer": [
+          {
+            "actor": {
+              "identifier": {
+                "system": "https://gematik.de/fhir/sid/telematik-id",
+                "value": "9-2.292.12504015"
+              },
+              "reference": "urn:uuid:5581f231-583d-4105-83c8-d794313c29a3"
+            }
+          }
+        ],
+        "whenPrepared": "2025-10-31",
+        "whenHandedOver": "2025-10-31",
+        "substitution": {
+          "wasSubstituted": true
+        }
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:2030c65c-b8c9-4e6a-a14f-ac853ea226fe",
+      "resource": {
+        "resourceType": "Medication",
+        "id": "2030c65c-b8c9-4e6a-a14f-ac853ea226fe",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_Medication|1.0"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/epa-medication/StructureDefinition/medication-id-vaccine-extension",
+            "valueBoolean": false
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://fhir.de/CodeSystem/ifa/pzn",
+              "code": "58621439",
+              "display": "Doppelherz® aktiv 1200 mg"
+            }
+          ]
+        },
+        "form": {
+          "coding": [
+            {
+              "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM",
+              "code": "TUB"
+            }
+          ]
+        },
+        "amount": {
+          "numerator": {
+            "value": 4,
+            "unit": "Stk"
+          },
+          "denominator": {
+            "value": 1
+          }
+        },
+        "batch": {
+          "lotNumber": "2873620872",
+          "expirationDate": "2025-10-31T11:00:13+00:00"
+        }
+      },
+      "search": {
+        "mode": "include"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:59c7c66c-a613-4e92-a2e6-3e3e467cba50",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "59c7c66c-a613-4e92-a2e6-3e3e467cba50",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_Practitioner|1.0"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "http://system",
+            "value": "value-12345"
+          }
+        ],
+        "name": [
+          {
+            "text": "Benjamin Cleem",
+            "family": "Cleem",
+            "given": [
+              "Benjamin"
+            ]
+          }
+        ]
+      },
+      "search": {
+        "mode": "include"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:5581f231-583d-4105-83c8-d794313c29a3",
+      "resource": {
+        "resourceType": "PractitionerRole",
+        "id": "5581f231-583d-4105-83c8-d794313c29a3",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_PractitionerRole|1.0"
+          ]
+        },
+        "practitioner": {
+          "reference": "urn:uuid:59c7c66c-a613-4e92-a2e6-3e3e467cba50"
+        },
+        "organization": {
+          "reference": "urn:uuid:777dd151-d194-43b5-9b0d-029fd6367bab"
+        },
+        "code": [
+          {
+            "coding": [
+              {
+                "system": "urn:oid:2.16.840.1.113883.2.9.6.2.7",
+                "code": "2262",
+                "display": "Pharmacists"
+              }
+            ]
+          }
+        ]
+      },
+      "search": {
+        "mode": "include"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:777dd151-d194-43b5-9b0d-029fd6367bab",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "777dd151-d194-43b5-9b0d-029fd6367bab",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_Organization|1.0"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/ti/StructureDefinition/ncpeh-country-extension",
+            "valueCoding": {
+              "system": "urn:iso:std:iso:3166",
+              "code": "LI"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://unknown_eu-wide.system",
+            "value": "Lübke, Giesche und Rahn"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/OrganizationProfessionOID",
+                "code": "1.2.276.0.76.4.54",
+                "display": "Öffentliche Apotheke"
+              }
+            ]
+          }
+        ],
+        "name": "Fürsten Apotheke",
+        "address": [
+          {
+            "line": [
+              "Schäfershütte 12a"
+            ],
+            "city": "Schön Dianaland",
+            "state": "Rheinland-Pfalz",
+            "postalCode": "612855949",
+            "country": "BIH"
+          }
+        ]
+      },
+      "search": {
+        "mode": "include"
+      }
+    }
+  ]
+}

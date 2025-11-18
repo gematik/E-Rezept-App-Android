@@ -37,6 +37,7 @@ enum class NavigationRouteNames(
     ProfileImageEmojiScreen,
     ProfileImageCameraScreen,
     ProfileAuditEventsScreen,
+    ProfileEuConsentScreen,
     ProfilePairedDevicesScreen,
     ProfileEditPictureBottomSheetScreen,
     ProfileEditNameBottomSheetScreen,
@@ -199,5 +200,7 @@ enum class NavigationRouteNames(
     EuRedeemScreen,
     EuCountrySelectionScreen,
     EuPrescriptionSelectionScreen,
-    EUAvailabilityScreen
+    EuAvailabilityScreen,
+    EuInstructionsScreen,
+    EuRedemptionCodeScreen
 }

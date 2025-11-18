@@ -53,7 +53,8 @@ import kotlinx.serialization.json.jsonPrimitive
  * Currently supports only the "Communication" resource.
  */
 enum class FhirCommunicationResourceType {
-    Communication;
+    Communication
+    ;
 
     companion object {
         /**

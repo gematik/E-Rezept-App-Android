@@ -25,7 +25,6 @@ package de.gematik.ti.erp.app.pharmacy.repository.datasource.remote
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.HTTP_UNAUTHORIZED
 import de.gematik.ti.erp.app.api.UnauthorizedException
-import de.gematik.ti.erp.app.pharmacy.api.ApoVzdPharmacySearchService
 import de.gematik.ti.erp.app.pharmacy.api.FhirVzdService
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
 import io.mockk.coEvery
@@ -45,70 +44,16 @@ import kotlin.test.assertTrue
 
 class PharmacyRemoteDataSourceTest {
 
-    private lateinit var apoVzdRemoteDataSource: ApoVzdRemoteDataSource
     private lateinit var fhirVzdRemoteDataSource: FhirVzdRemoteDataSource
-
-    private lateinit var apoVzdSearchService: ApoVzdPharmacySearchService
     private lateinit var fhirVzdSearchService: FhirVzdService
 
     @Before
     fun setUp() {
-        apoVzdSearchService = mockk()
         fhirVzdSearchService = mockk()
-
-        apoVzdRemoteDataSource = ApoVzdRemoteDataSource(
-            searchService = apoVzdSearchService
-        )
 
         fhirVzdRemoteDataSource = FhirVzdRemoteDataSource(
             searchService = fhirVzdSearchService
         )
-    }
-
-    @Test
-    fun `ApoVzdRemoteDataSource - searchPharmacyByTelematikId + search returns success`() = runTest {
-        // Given
-        val telematikId = "123456789"
-        val mockJsonElement = mockk<JsonElement>()
-        coEvery { apoVzdSearchService.searchByTelematikId(telematikId) } returns Response.success(mockJsonElement)
-        coEvery { apoVzdSearchService.search(emptyList(), emptyMap()) } returns Response.success(mockJsonElement)
-
-        // When
-        val itemResult = apoVzdRemoteDataSource.searchPharmacyByTelematikId(telematikId) {}
-        val listResult = apoVzdRemoteDataSource.searchPharmacies(PharmacyFilter()) {}
-
-        // Then
-        coVerify { apoVzdSearchService.searchByTelematikId(telematikId) }
-        coVerify { apoVzdSearchService.search(emptyList(), emptyMap()) }
-        assertTrue(itemResult.isSuccess)
-        assertTrue(listResult.isSuccess)
-        assertEquals(mockJsonElement, itemResult.getOrNull())
-        assertEquals(mockJsonElement, listResult.getOrNull())
-    }
-
-    @Test
-    fun `ApoVzdRemoteDataSource - searchPharmacyByTelematikId + search returns failure`() = runTest {
-        // Given
-        val telematikId = "123456789"
-        val exception = RuntimeException("API Error")
-        coEvery { apoVzdSearchService.searchByTelematikId(telematikId) } throws exception
-        coEvery { apoVzdSearchService.search(emptyList(), emptyMap()) } throws exception
-
-        // When
-        val itemResult = apoVzdRemoteDataSource.searchPharmacyByTelematikId(telematikId) {}
-        val listResult = apoVzdRemoteDataSource.searchPharmacies(PharmacyFilter()) {}
-
-        // Then
-        coVerify { apoVzdSearchService.searchByTelematikId(telematikId) }
-        coVerify { apoVzdSearchService.search(emptyList(), emptyMap()) }
-
-        assertTrue(itemResult.isFailure)
-        assertTrue(listResult.isFailure)
-
-        val resultException = itemResult.exceptionOrNull()
-        val listResultException = listResult.exceptionOrNull()
-        assertTrue(resultException is IOException)
-        assertTrue(listResultException is IOException)
     }
 
     @Test

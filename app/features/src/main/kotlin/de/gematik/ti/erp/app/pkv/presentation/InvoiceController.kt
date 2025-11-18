@@ -130,16 +130,7 @@ class InvoiceController(
             invoiceListScreenEvents.getConsentEvent.trigger(profileId)
         }
 
-        biometricAuthenticationResetErrorEvent.listen(controllerScope) { error ->
-            refreshGetInvoices()
-            invoiceListScreenEvents.showAuthenticationErrorDialog.trigger(error)
-        }
-
-        biometricAuthenticationOtherErrorEvent.listen(controllerScope) { error ->
-            invoiceListScreenEvents.showAuthenticationErrorDialog.trigger(error)
-        }
-
-        onRefreshProfileAction.listen(controllerScope) {
+        isProfileRefreshingEvent.listen(controllerScope) {
             _isRefreshing.value = it
         }
     }
@@ -287,7 +278,8 @@ class InvoiceController(
             HttpErrorState.NotFound,
             HttpErrorState.TooManyRequest,
             HttpErrorState.Unauthorized,
-            HttpErrorState.RequestTimeout -> context.getString(R.string.error_message_vau_error)
+            HttpErrorState.RequestTimeout
+            -> context.getString(R.string.error_message_vau_error)
 
             HttpErrorState.ServerError -> context.getString(R.string.error_message_server_communication_failed)
                 .format(errorState.errorCode)

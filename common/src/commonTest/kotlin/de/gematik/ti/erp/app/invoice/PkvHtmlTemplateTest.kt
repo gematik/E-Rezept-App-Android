@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.invoice
 import de.gematik.ti.erp.app.invoice.model.createPkvHtmlInvoiceTemplate
-import kotlin.test.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class PkvHtmlTemplateTest {
 

@@ -26,9 +26,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
-import de.gematik.ti.erp.app.profiles.usecase.SwitchProfileToGKVUseCase
-import de.gematik.ti.erp.app.profiles.usecase.SwitchProfileToPKVUseCase
+import de.gematik.ti.erp.app.profiles.usecase.SwitchProfileInsuranceTypeUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.settings.usecase.SaveWelcomeDrawerShownUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState
@@ -41,8 +41,7 @@ import org.kodein.di.compose.rememberInstance
 class CardWallSelectInsuranceTypeBottomSheetScreenController(
     private val saveWelcomeDrawerShownUseCase: SaveWelcomeDrawerShownUseCase,
     private val getProfileByIdUseCase: GetProfileByIdUseCase,
-    private val switchProfileToPKVUseCase: SwitchProfileToPKVUseCase,
-    private val switchProfileToGKVUseCase: SwitchProfileToGKVUseCase,
+    private val switchProfileInsuranceTypeUseCase: SwitchProfileInsuranceTypeUseCase,
     private val profileIdentifier: ProfileIdentifier?
 ) : Controller() {
     private val _profileState: MutableStateFlow<UiState<ProfilesUseCaseData.Profile>> = MutableStateFlow(UiState.Loading())
@@ -67,13 +66,25 @@ class CardWallSelectInsuranceTypeBottomSheetScreenController(
 
     internal fun setProfileInsuranceTypeAsPKV() {
         controllerScope.launch {
-            profileIdentifier?.let { switchProfileToPKVUseCase.invoke(it) }
+            profileIdentifier?.let {
+                switchProfileInsuranceTypeUseCase.invoke(it, ProfilesData.InsuranceType.PKV)
+            }
         }
     }
 
     internal fun setProfileInsuranceTypeAsGKV() {
         controllerScope.launch {
-            profileIdentifier?.let { switchProfileToGKVUseCase.invoke(it) }
+            profileIdentifier?.let {
+                switchProfileInsuranceTypeUseCase.invoke(it, ProfilesData.InsuranceType.GKV)
+            }
+        }
+    }
+
+    internal fun setProfileInsuranceTypeAsBUND() {
+        controllerScope.launch {
+            profileIdentifier?.let {
+                switchProfileInsuranceTypeUseCase.invoke(it, ProfilesData.InsuranceType.BUND)
+            }
         }
     }
 }
@@ -84,14 +95,12 @@ fun rememberCardWallSelectInsuranceTypeBottomSheetScreenController(
 ): CardWallSelectInsuranceTypeBottomSheetScreenController {
     val getProfileByIdUseCase by rememberInstance<GetProfileByIdUseCase>()
     val saveWelcomeDrawerShownUseCase by rememberInstance<SaveWelcomeDrawerShownUseCase>()
-    val switchProfileToPKVUseCase by rememberInstance<SwitchProfileToPKVUseCase>()
-    val switchProfileToGKVUseCase by rememberInstance<SwitchProfileToGKVUseCase>()
+    val switchProfileInsuranceTypeUseCase by rememberInstance<SwitchProfileInsuranceTypeUseCase>()
     return remember {
         CardWallSelectInsuranceTypeBottomSheetScreenController(
             saveWelcomeDrawerShownUseCase = saveWelcomeDrawerShownUseCase,
             getProfileByIdUseCase = getProfileByIdUseCase,
-            switchProfileToPKVUseCase = switchProfileToPKVUseCase,
-            switchProfileToGKVUseCase = switchProfileToGKVUseCase,
+            switchProfileInsuranceTypeUseCase = switchProfileInsuranceTypeUseCase,
             profileIdentifier = profileIdentifier
         )
     }

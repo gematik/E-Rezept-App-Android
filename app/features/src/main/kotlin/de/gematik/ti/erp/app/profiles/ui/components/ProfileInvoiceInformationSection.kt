@@ -36,9 +36,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
-import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.listitem.GemListItemDefaults
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 

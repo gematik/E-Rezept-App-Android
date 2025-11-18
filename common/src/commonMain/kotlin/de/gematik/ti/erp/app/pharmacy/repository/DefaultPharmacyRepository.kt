@@ -24,32 +24,21 @@ package de.gematik.ti.erp.app.pharmacy.repository
 
 import de.gematik.ti.erp.app.fhir.FhirInsuranceProvider
 import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
-import de.gematik.ti.erp.app.fhir.model.extractBinaryCertificatesAsBase64
-import de.gematik.ti.erp.app.fhir.model.extractPharmacyServices
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyParsers
-import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
-import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.APOVZD
-import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.FHIRVZD
 import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.messages.repository.PharmacyCacheLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.FavouritePharmacyLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.OftenUsedPharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacyRemoteSelectorLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacySearchAccessTokenLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.ApoVzdRemoteDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.FhirVzdRemoteDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.PharmacyRemoteDataSource
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.redeem.repository.datasource.RedeemLocalDataSource
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.JsonElement
 
 class DefaultPharmacyRepository(
-    private val remoteDataSourceSelector: PharmacyRemoteSelectorLocalDataSource,
-    private val apoVzdRemoteDataSource: ApoVzdRemoteDataSource,
     private val fhirVzdRemoteDataSource: FhirVzdRemoteDataSource,
     private val searchAccessTokenLocalDataSource: PharmacySearchAccessTokenLocalDataSource,
     private val redeemLocalDataSource: RedeemLocalDataSource,
@@ -59,98 +48,7 @@ class DefaultPharmacyRepository(
     private val parsers: PharmacyParsers
 ) : PharmacyRepository {
 
-    companion object {
-        private const val MAX_LOCATION_RESULT_COUNT = 100
-        private const val MIN_ENTRIES_RETURN_THRESHOLD = 51
-        private const val MAX_ENTRIES_RETURN_THRESHOLD = 99
-    }
-
-    private val vzdServiceSelection: PharmacyVzdService = getSelectedVzdPharmacyBackend()
-
-    // repository decides which remote data source to use
-    private val remoteDataSource: PharmacyRemoteDataSource by lazy {
-        try {
-            when (vzdServiceSelection) {
-                APOVZD -> apoVzdRemoteDataSource
-                FHIRVZD -> fhirVzdRemoteDataSource
-            }
-        } catch (e: Exception) {
-            Napier.e(e) { "error on getting remote data source selection" }
-            apoVzdRemoteDataSource
-        }
-    }
-
-    private fun apoVzdExtractor(jsonElement: JsonElement): FhirPharmacyErpModelCollection = extractPharmacyServices(
-        bundle = jsonElement,
-        onError = { it, cause ->
-            Napier.e(cause) {
-                it.toString()
-            }
-        }
-    )
-
-    private fun parseData(
-        jsonElement: JsonElement
-    ): FhirPharmacyErpModelCollection =
-        when (vzdServiceSelection) {
-            APOVZD -> apoVzdExtractor(jsonElement)
-            FHIRVZD -> parsers.bundleParser.extract(jsonElement)
-        }
-
-    /**
-     * Performs a location-based pharmacy search with progressively increasing radius.
-     *
-     * - Starts with a **small radius (2km )** to optimize performance.
-     * - If results are insufficient, expands to **50km**.
-     * - Search results are increased step-by-step until 51 - 99 pharmacies are found`.
-     *
-     * @param filter The search filter containing location details.
-     * @param onUnauthorizedException A suspend function handling unauthorized API responses.
-     * @return A [Result] containing a [FhirPharmacyErpModelCollection] with pharmacies, or an error.
-     */
-    private suspend fun progressiveRadiusSearch(
-        filter: PharmacyFilter,
-        onUnauthorizedException: suspend () -> Unit
-    ): Result<FhirPharmacyErpModelCollection> = runCatching {
-        @Suppress("MagicNumber")
-        val kmRadiusLevels = listOf(2.0, 3.0, 5.0, 10.0, 20.0, 50.0) // Progressive radius search
-        var lastCollection: FhirPharmacyErpModelCollection? = null
-
-        for (radius in kmRadiusLevels) {
-            val updatedFilter = filter.copy(locationFilter = filter.locationFilter?.copy(radius = radius))
-            val collection = fetchPharmacies(updatedFilter, onUnauthorizedException)
-            when {
-                collection.entries.size in MIN_ENTRIES_RETURN_THRESHOLD..MAX_ENTRIES_RETURN_THRESHOLD -> {
-                    return@runCatching collection.copy(total = collection.entries.size)
-                }
-
-                collection.entries.size >= MAX_LOCATION_RESULT_COUNT -> {
-                    return@runCatching lastCollection ?: collection.copy(total = collection.entries.size)
-                }
-
-                else -> {
-                    lastCollection = collection.copy(total = collection.entries.size)
-                }
-            }
-        }
-        return@runCatching lastCollection ?: FhirPharmacyErpModelCollection.emptyCollection()
-    }
-
-    private suspend fun fetchPharmacies(
-        filter: PharmacyFilter,
-        onUnauthorizedException: suspend () -> Unit
-    ): FhirPharmacyErpModelCollection {
-        return remoteDataSource.searchPharmacies(filter, onUnauthorizedException)
-            .map(::parseData)
-            .getOrElse { FhirPharmacyErpModelCollection.emptyCollection() }
-    }
-
-    override fun getSelectedVzdPharmacyBackend(): PharmacyVzdService =
-        remoteDataSourceSelector.getPharmacyVzdService()
-
-    override suspend fun updateSelectedVzdPharmacyBackend(pharmacyVzdService: PharmacyVzdService) {
-        remoteDataSourceSelector.updatePharmacyService(pharmacyVzdService)
-    }
+    private fun parseData(jsonElement: JsonElement): FhirPharmacyErpModelCollection = parsers.bundleParser.extract(jsonElement)
 
     /**
      * Searches for pharmacies based on the provided filter.
@@ -166,17 +64,10 @@ class DefaultPharmacyRepository(
     ): Result<FhirPharmacyErpModelCollection> {
         val onUnauthorized = searchAccessTokenLocalDataSource::clearToken
 
-        return if (filter.locationFilter == null || vzdServiceSelection == APOVZD) {
-            remoteDataSource.searchPharmacies(
-                filter = filter,
-                onUnauthorizedException = onUnauthorized
-            ).map(::parseData)
-        } else {
-            progressiveRadiusSearch(
-                filter = filter,
-                onUnauthorizedException = onUnauthorized
-            )
-        }
+        return fhirVzdRemoteDataSource.searchPharmacies(
+            filter = filter,
+            onUnauthorizedException = onUnauthorized
+        ).map(::parseData)
     }
 
     override suspend fun searchInsurances(
@@ -184,22 +75,11 @@ class DefaultPharmacyRepository(
     ): Result<FhirPharmacyErpModelCollection> {
         val onUnauthorized = searchAccessTokenLocalDataSource::clearToken
 
-        return remoteDataSource.searchInsurances(
+        return fhirVzdRemoteDataSource.searchInsurances(
             filter = filter,
             onUnauthorizedException = onUnauthorized
         ).mapCatching(::parseData)
     }
-
-    // will only work with APOVZD
-    override suspend fun searchPharmaciesByBundle(
-        bundleId: String,
-        offset: Int,
-        count: Int
-    ): Result<FhirPharmacyErpModelCollection> = remoteDataSource.searchPharmaciesContinued(
-        bundleId = bundleId,
-        offset = offset,
-        count = count
-    ).map(::parseData)
 
     /**
      * Searches for a pharmacy by its unique `telematikId`.
@@ -216,7 +96,7 @@ class DefaultPharmacyRepository(
     override suspend fun searchPharmacyByTelematikId(
         telematikId: String
     ): Result<FhirPharmacyErpModelCollection> {
-        return remoteDataSource.searchPharmacyByTelematikId(
+        return fhirVzdRemoteDataSource.searchPharmacyByTelematikId(
             telematikId = telematikId,
             onUnauthorizedException = searchAccessTokenLocalDataSource::clearToken
         ).map(::parseData)
@@ -225,7 +105,7 @@ class DefaultPharmacyRepository(
     override suspend fun searchInsuranceProviderByInstitutionIdentifier(
         iknr: String
     ): Result<FhirInsuranceProvider?> {
-        return remoteDataSource.searchByInsuranceProvider(
+        return fhirVzdRemoteDataSource.searchByInsuranceProvider(
             institutionIdentifier = iknr,
             onUnauthorizedException = searchAccessTokenLocalDataSource::clearToken
         ).map(parsers.organizationParser::extract)
@@ -240,14 +120,6 @@ class DefaultPharmacyRepository(
 
     override fun loadCachedPharmacies(): Flow<List<CachedPharmacy>> =
         cachedPharmacyLocalDataSource.loadPharmacies()
-
-    // will only work with APOVZD
-    override suspend fun searchBinaryCerts(
-        locationId: String
-    ): Result<List<String>> = remoteDataSource.searchBinaryCert(locationId = locationId)
-        .map {
-            extractBinaryCertificatesAsBase64(bundle = it)
-        }
 
     override fun loadOftenUsedPharmacies() = oftenUsedLocalDataSource.loadOftenUsedPharmacies()
 

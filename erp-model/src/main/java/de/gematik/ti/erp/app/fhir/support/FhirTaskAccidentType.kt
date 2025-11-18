@@ -30,7 +30,8 @@ enum class FhirTaskAccidentType(val code: String) {
     Accident("1"),
     WorkAccident("2"),
     OccupationalDisease("4"),
-    None("");
+    None("")
+    ;
 
     companion object {
         fun getFhirTaskAccidentByType(type: String): FhirTaskAccidentType {

@@ -67,7 +67,10 @@ import kotlinx.html.ul
 fun HTML.pageHeader() {
     head {
         meta { charset = "utf-8" }
-        meta { name = "viewport"; content = "width=device-width, initial-scale=1" }
+        meta {
+            name = "viewport"
+            content = "width=device-width, initial-scale=1"
+        }
         title { +"Requirements" }
         // stylesheets
         link(href = "requirements/audit_style.css", rel = "stylesheet")
@@ -244,13 +247,17 @@ private fun splitRationaleLines(lines: List<String>): Triple<String, List<String
 
     val intro = if (bulletStartIndex > 0) {
         nonEmptyLines.subList(0, bulletStartIndex).joinToString(" ").trim()
-    } else ""
+    } else {
+        ""
+    }
 
     val bullets = nonEmptyLines.subList(bulletStartIndex, bulletEndIndex + 1)
 
     val outro = if (bulletEndIndex + 1 < nonEmptyLines.size) {
         nonEmptyLines.subList(bulletEndIndex + 1, nonEmptyLines.size).joinToString(" ").trim()
-    } else ""
+    } else {
+        ""
+    }
 
     return Triple(intro, bullets, outro)
 }

@@ -45,7 +45,7 @@ class GrantConsentUseCase(
         withContext(dispatcher) {
             repository.getInsuranceId(profileId)?.let { id ->
                 val consent = createConsent(id)
-                repository.grantConsent(
+                repository.grantPkvConsent(
                     profileId = profileId,
                     consent = consent
                 ).fold(

@@ -34,7 +34,7 @@ internal enum class KbvBundleVersion(val version: String) {
     V_1_1_0(KBV_BUNDLE_VERSION_110),
     V_1_2(KBV_BUNDLE_VERSION_12),
     V_1_3(KBV_BUNDLE_VERSION_13),
-    UNKNOWN("");
+    UNKNOWN("")
 }
 
 internal fun isValidKbvVersion(version: String): Boolean {

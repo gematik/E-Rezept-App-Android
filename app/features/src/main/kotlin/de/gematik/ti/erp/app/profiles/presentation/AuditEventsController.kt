@@ -26,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
 import de.gematik.ti.erp.app.authentication.presentation.ChooseAuthenticationController
 import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
@@ -71,15 +70,12 @@ class AuditEventsController(
     networkStatusTracker = networkStatusTracker,
     biometricAuthenticator = authenticator
 ) {
-    val showAuthenticationErrorDialog = ComposableEvent<AuthenticationResult.Error>()
     val refreshStartedEvent = ComposableEvent<Unit>()
 
     private val refreshTrigger = MutableStateFlow(false)
 
     init {
         biometricAuthenticationSuccessEvent.listen(controllerScope) { refreshAuditEvents() }
-        biometricAuthenticationResetErrorEvent.listen(controllerScope) { showAuthenticationErrorDialog.trigger(it) }
-        biometricAuthenticationOtherErrorEvent.listen(controllerScope) { showAuthenticationErrorDialog.trigger(it) }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

@@ -25,17 +25,17 @@ package de.gematik.ti.erp.app.cardunlock.usecase
 import android.nfc.TagLostException
 import androidx.compose.runtime.Stable
 import de.gematik.ti.erp.app.card.model.command.ResponseException
-import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcCardChannel
-import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcCardSecureChannel
 import de.gematik.ti.erp.app.card.model.command.ResponseStatus
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.card.model.exchange.unlockEgk
+import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcCardChannel
+import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcCardSecureChannel
 import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.establishTrustedChannel
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.first
-import io.github.aakira.napier.Napier
 import java.io.IOException
 
 @Stable
@@ -54,7 +54,8 @@ enum class UnlockEgkState {
     SecurityStatusNotSatisfied,
     PasswordNotFound,
     PasswordNotUsable,
-    HealthCardCommunicationFinished;
+    HealthCardCommunicationFinished
+    ;
 
     var retriesLeft: Int = -1
 
@@ -69,7 +70,8 @@ enum class UnlockEgkState {
             SecurityStatusNotSatisfied,
             PasswordNotFound,
             PasswordNotUsable,
-            HealthCardPukBlocked -> true
+            HealthCardPukBlocked
+            -> true
             else -> false
         }
 
@@ -77,7 +79,8 @@ enum class UnlockEgkState {
     fun isInProgress() =
         when (this) {
             HealthCardCommunicationChannelReady,
-            HealthCardCommunicationTrustedChannelEstablished -> true
+            HealthCardCommunicationTrustedChannelEstablished
+            -> true
 
             else -> false
         }

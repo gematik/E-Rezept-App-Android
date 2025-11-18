@@ -64,4 +64,12 @@ internal data class FhirResourceEntry(
                 it.let { versionRegex.find(it)?.groupValues?.get(1) }
             }
         }
+
+    val profile: String?
+        get() {
+            val profiles = resource.jsonObject["meta"]?.let { metaElement ->
+                SafeJson.value.decodeFromJsonElement(FhirMeta.serializer(), metaElement).profiles
+            }
+            return profiles?.firstOrNull()
+        }
 }

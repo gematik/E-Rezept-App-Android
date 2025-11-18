@@ -73,6 +73,7 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
+import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallCanScreen.getProfileIdentifier
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallScreen
 import de.gematik.ti.erp.app.cardwall.presentation.CardWallSharedViewModel
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallScaffold
@@ -110,6 +111,9 @@ class CardWallCanScreen(
 ) : CardWallScreen() {
     @Composable
     override fun Content() {
+        val profileId = navBackStackEntry.getProfileIdentifier()
+        profileId?.let { sharedViewModel.setProfileId(it) }
+
         val can by sharedViewModel.can.collectAsStateWithLifecycle()
         val scannedCan by sharedViewModel.scannedCan.collectAsStateWithLifecycle()
         val lazyListState = rememberLazyListState()

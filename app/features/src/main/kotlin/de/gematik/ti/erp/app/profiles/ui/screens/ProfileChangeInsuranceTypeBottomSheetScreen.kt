@@ -91,6 +91,18 @@ class ProfileChangeInsuranceTypeBottomSheetScreen(
                             }
                         }
                     )
+                },
+                onClickBUND = {
+                    controller.logOutProfile()
+                    controller.setProfileInsuranceTypeAsBUND()
+                    navController.navigate(
+                        CardWallRoutes.CardWallCanScreen.pathWithProfile(profile.id),
+                        navOptions = navOptions {
+                            popUpTo(CardWallRoutes.CardWallSelectInsuranceTypeBottomSheetScreen.route) {
+                                inclusive = true
+                            }
+                        }
+                    )
                 }
             )
         }
@@ -100,7 +112,8 @@ class ProfileChangeInsuranceTypeBottomSheetScreen(
 @Composable
 private fun ProfileChangeInsuranceTypeBottomSheetScreenContent(
     onClickGKV: () -> Unit,
-    onClickPKV: () -> Unit
+    onClickPKV: () -> Unit,
+    onClickBUND: () -> Unit
 ) {
     DefaultDrawerScreenContent(
         modifierOutlinedButton = Modifier
@@ -112,7 +125,9 @@ private fun ProfileChangeInsuranceTypeBottomSheetScreenContent(
         primaryButtonText = stringResource(R.string.profile_change_insurance_type_drawer_public_insurance_button),
         outlinedButtonText = stringResource(R.string.profile_change_insurance_type_drawer_private_insurance_button),
         onClickPrimary = onClickGKV,
-        onClickOutlined = onClickPKV
+        onClickOutlined = onClickPKV,
+        bottomLinkText = stringResource(R.string.cardwall_select_insurance_federal_link),
+        onClickBottomLink = onClickBUND
     )
 }
 
@@ -122,7 +137,8 @@ fun ProfileChangeInsuranceTypeBottomSheetScreenPreview() {
     PreviewAppTheme {
         ProfileChangeInsuranceTypeBottomSheetScreenContent(
             onClickGKV = {},
-            onClickPKV = {}
+            onClickPKV = {},
+            onClickBUND = {}
         )
     }
 }

@@ -40,7 +40,7 @@ class InvoiceRemoteDataSource(
     ) = safeApiCall(
         errorMessage = "Error getting all chargeItems"
     ) {
-        service.getChargeItems(
+        service.getPkvChargeItems(
             profileId = profileId,
             lastUpdated = lastUpdated,
             count = count,

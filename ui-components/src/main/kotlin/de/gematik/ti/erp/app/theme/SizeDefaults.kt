@@ -150,6 +150,9 @@ object SizeDefaults {
     /** `200dp` in design specification. */
     val twentyfivefold: Dp get() = multiple(25.0)
 
+    /** `235dp` in design specification. */
+    val twoThirtyFiveDp: Dp get() = multiple(29.375)
+
     /** `304dp` in design specification. */
     val thirtyEightfold: Dp get() = multiple(38.0)
 

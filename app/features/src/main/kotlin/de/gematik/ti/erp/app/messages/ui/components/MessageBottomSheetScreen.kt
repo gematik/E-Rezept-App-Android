@@ -131,7 +131,8 @@ fun MessageBottomSheetScreenContent(
                     OrderUseCaseData.Message.Type.All -> AllSheetContent(message)
                     OrderUseCaseData.Message.Type.Link -> LinkSheetContent(message)
                     OrderUseCaseData.Message.Type.PickUpCodeDMC,
-                    OrderUseCaseData.Message.Type.PickUpCodeHR -> CodeSheetContent(message)
+                    OrderUseCaseData.Message.Type.PickUpCodeHR
+                    -> CodeSheetContent(message)
 
                     OrderUseCaseData.Message.Type.Text -> TextSheetContent(message)
                     OrderUseCaseData.Message.Type.Empty -> EmptySheetContent(order.pharmacy.pharmacyName())

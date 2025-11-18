@@ -23,6 +23,5 @@
 package de.gematik.ti.erp.app.fhir.pharmacy.type
 
 enum class PharmacyVzdService {
-    APOVZD,
-    FHIRVZD;
+    FHIRVZD
 }

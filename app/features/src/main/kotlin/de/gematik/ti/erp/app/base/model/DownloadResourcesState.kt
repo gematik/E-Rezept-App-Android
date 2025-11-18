@@ -28,7 +28,8 @@ enum class DownloadResourcesState {
     TasksDownloaded,
     CommunicationsDownloaded,
     InvoicesDownloaded,
-    Finished;
+    Finished
+    ;
 
     companion object {
         fun DownloadResourcesState.isFinished() = listOf(Finished, NotStarted).contains(this)

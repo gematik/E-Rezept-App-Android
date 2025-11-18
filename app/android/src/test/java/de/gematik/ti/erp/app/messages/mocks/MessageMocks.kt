@@ -311,7 +311,8 @@ object MessageMocks {
         lastMedicationDispense = null,
         medicationDispenses = emptyList(),
         communications = emptyList(),
-        isEuRedeemable = false
+        isEuRedeemable = false,
+        isEuRedeemableByPatientAuthorization = false
     )
 
     internal val MOCK_SYNCED_TASK_DATA_02 = SyncedTaskData.SyncedTask(
@@ -338,7 +339,8 @@ object MessageMocks {
         lastMedicationDispense = null,
         medicationDispenses = emptyList(),
         communications = emptyList(),
-        isEuRedeemable = false
+        isEuRedeemable = false,
+        isEuRedeemableByPatientAuthorization = false
     )
 
     internal val MOCK_MESSAGE_01 = OrderUseCaseData.Message(

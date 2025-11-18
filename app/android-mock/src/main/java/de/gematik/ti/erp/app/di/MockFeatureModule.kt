@@ -74,7 +74,6 @@ val mockFeatureModule = DI.Module("featureModule", allowSilentOverride = true) {
         clientBuilderModule,
         networkModule,
         fhirVzdNetworkModule,
-        apoVzdNetworkModule,
         loggerModule,
         realmModule,
         idpModule,

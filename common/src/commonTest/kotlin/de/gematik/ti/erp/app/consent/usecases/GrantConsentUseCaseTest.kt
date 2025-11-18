@@ -29,8 +29,11 @@ import de.gematik.ti.erp.app.consent.repository.ConsentRemoteDataSource
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.consent.repository.DefaultConsentRepository
 import de.gematik.ti.erp.app.consent.usecase.GrantConsentUseCase
+import de.gematik.ti.erp.app.fhir.consent.FhirConsentParser
+import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -47,18 +50,24 @@ class GrantConsentUseCaseTest {
 
     private val localDataSource = mockk<ConsentLocalDataSource>()
 
+    @MockK(relaxed = true)
+    private lateinit var fhirConsentParser: FhirConsentParser
+
     private lateinit var repository: ConsentRepository
 
     private lateinit var useCase: GrantConsentUseCase
 
     @Before
     fun setup() {
-        coEvery { remoteDataSource.grantConsent(any(), any()) } returns Result.success(Unit)
+        MockKAnnotations.init(this)
+
+        coEvery { remoteDataSource.grantPkvConsent(any(), any()) } returns Result.success(Unit)
         coEvery { localDataSource.getInsuranceId(any()) } returns "123"
 
         repository = DefaultConsentRepository(
             remoteDataSource = remoteDataSource,
-            localDataSource = localDataSource
+            localDataSource = localDataSource,
+            parsers = fhirConsentParser
         )
 
         useCase = GrantConsentUseCase(
@@ -73,19 +82,19 @@ class GrantConsentUseCaseTest {
             val result = useCase.invoke(profileId).first()
             assertEquals(ConsentState.ValidState.Granted(ConsentContext.GrantConsent), result)
             coVerify(exactly = 1) {
-                repository.grantConsent(profileId, any())
+                repository.grantPkvConsent(profileId, any())
             }
         }
     }
 
     @Test
     fun `on consent granted failed on granting consent for a profile`() {
-        coEvery { remoteDataSource.grantConsent(any(), any()) } returns Result.failure(Throwable("server error"))
+        coEvery { remoteDataSource.grantPkvConsent(any(), any()) } returns Result.failure(Throwable("server error"))
         runTest(dispatcher) {
             val result = useCase.invoke(profileId).first()
             assertEquals(ConsentState.ConsentErrorState.Unknown, result)
             coVerify(exactly = 1) {
-                repository.grantConsent(profileId, any())
+                repository.grantPkvConsent(profileId, any())
             }
         }
     }

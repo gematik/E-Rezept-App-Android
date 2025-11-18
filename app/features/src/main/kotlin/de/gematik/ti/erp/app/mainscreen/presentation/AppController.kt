@@ -28,7 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
-import de.gematik.ti.erp.app.base.usecase.MarkNavigationTriggerConsumedUseCase
+import de.gematik.ti.erp.app.base.usecase.MarkAutoNavigationTriggerConsumedUseCase
 import de.gematik.ti.erp.app.base.usecase.ObserveNavigationTriggerUseCase
 import de.gematik.ti.erp.app.core.complexAutoSaver
 import de.gematik.ti.erp.app.messages.domain.usecase.GetUnreadMessagesCountUseCase
@@ -65,7 +65,7 @@ class AppController(
     private val getActiveProfileUseCase: GetActiveProfileUseCase,
     private val getUnreadMessagesCountUseCase: GetUnreadMessagesCountUseCase,
     private val observeNavigationTriggerUseCase: ObserveNavigationTriggerUseCase,
-    private val markNavigationTriggerConsumedUseCase: MarkNavigationTriggerConsumedUseCase,
+    private val markAutoNavigationTriggerConsumedUseCase: MarkAutoNavigationTriggerConsumedUseCase,
     private val _unreadOrders: MutableStateFlow<Long> = MutableStateFlow(0L),
     private val _orderedEvent: MutableStateFlow<OrderedEvent?> = MutableStateFlow(null)
 ) : GetActiveProfileController(
@@ -166,7 +166,7 @@ class AppController(
                 .first()
                 .let { profileId ->
                     _promptFeedback.value = false
-                    markNavigationTriggerConsumedUseCase(profileId)
+                    markAutoNavigationTriggerConsumedUseCase(profileId)
                 }
         }
     }

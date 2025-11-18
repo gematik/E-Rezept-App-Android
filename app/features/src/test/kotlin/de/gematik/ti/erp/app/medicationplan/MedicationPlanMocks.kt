@@ -237,5 +237,6 @@ val syncedTask = SyncedTaskData.SyncedTask(
     medicationDispenses = emptyList(),
     lastMedicationDispense = null,
     communications = emptyList(),
-    isEuRedeemable = false
+    isEuRedeemable = false,
+    isEuRedeemableByPatientAuthorization = false
 )

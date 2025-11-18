@@ -249,6 +249,7 @@ fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
         taskId = this.taskId,
         accessCode = this.accessCode,
         lastModified = this.lastModified.toInstant(),
+        isEuRedeemableByPatientAuthorization = this.isEuRedeemableByPatientAuthorization,
         isEuRedeemable = this.isEuRedeemableByProperties,
         organization = SyncedTaskData.Organization(
             name = this.organization?.name,
@@ -351,7 +352,7 @@ fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
                 deviceRequest = medicationDispense.deviceRequest?.toErpModel(),
                 wasSubstituted = medicationDispense.wasSubstituted,
                 dosageInstruction = medicationDispense.dosageInstruction,
-                performer = medicationDispense.performer,
+                performer = medicationDispense.pharmacyName ?: medicationDispense.performer,
                 whenHandedOver = medicationDispense.handedOverOn
             )
         },

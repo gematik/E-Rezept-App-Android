@@ -25,10 +25,14 @@ package de.gematik.ti.erp.app.profiles.presentation
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
 import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
+import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
+import de.gematik.ti.erp.app.consent.repository.ConsentRepository
+import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuPrescriptionConsentUseCase
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 import de.gematik.ti.erp.app.mocks.PROFILE_ID
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
+import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.AddProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.DeleteProfileUseCase
@@ -38,6 +42,7 @@ import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.LogoutProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.SwitchActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileUseCase
+import de.gematik.ti.erp.app.redeem.usecase.HasEuRedeemablePrescriptionsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -62,6 +67,8 @@ class ProfileScreenControllerTest {
     private val medicationPlanRepository: MedicationPlanRepository = mockk()
     private val profileRepository: ProfileRepository = mockk()
     private val idpRepository: IdpRepository = mockk()
+    private val prescriptionRepository: PrescriptionRepository = mockk()
+    private val consentRepository: ConsentRepository = mockk()
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
     private val biometricAuthenticator = mockk<BiometricAuthenticator>()
@@ -79,6 +86,9 @@ class ProfileScreenControllerTest {
     private lateinit var updateProfileUseCase: UpdateProfileUseCase
     private lateinit var getActiveProfileUseCase: GetActiveProfileUseCase
     private lateinit var chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase
+    private lateinit var hasEuRedeemablePrescriptionsUseCase: HasEuRedeemablePrescriptionsUseCase
+    private lateinit var getEuPrescriptionConsentUseCase: GetEuPrescriptionConsentUseCase
+    private lateinit var isFeatureToggleEnabledUseCase: IsFeatureToggleEnabledUseCase
 
     private val networkStatusTracker = mockk<NetworkStatusTracker>()
 
@@ -96,7 +106,14 @@ class ProfileScreenControllerTest {
         updateProfileUseCase = spyk(UpdateProfileUseCase(profileRepository, dispatcher))
         getActiveProfileUseCase = spyk(GetActiveProfileUseCase(profileRepository, dispatcher))
         chooseAuthenticationDataUseCase = spyk(ChooseAuthenticationDataUseCase(profileRepository, idpRepository, dispatcher))
+        hasEuRedeemablePrescriptionsUseCase = spyk(HasEuRedeemablePrescriptionsUseCase(prescriptionRepository, dispatcher))
+        getEuPrescriptionConsentUseCase = spyk(GetEuPrescriptionConsentUseCase(consentRepository, dispatcher))
+
+        every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
         every { networkStatusTracker.networkStatus } returns flowOf(true)
+        isFeatureToggleEnabledUseCase = mockk(relaxed = true)
+        every { isFeatureToggleEnabledUseCase.invoke(any()) } returns flowOf(true)
+
         controllerUnderTest = ProfileScreenController(
             profileId = PROFILE_ID,
             getProfileByIdUseCase = getProfileByIdUseCase,
@@ -109,7 +126,10 @@ class ProfileScreenControllerTest {
             getActiveProfileUseCase = getActiveProfileUseCase,
             chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
             biometricAuthenticator = biometricAuthenticator,
-            networkStatusTracker = networkStatusTracker
+            networkStatusTracker = networkStatusTracker,
+            hasEuRedeemablePrescriptionsUseCase = hasEuRedeemablePrescriptionsUseCase,
+            getEuPrescriptionConsentUseCase = getEuPrescriptionConsentUseCase,
+            isFeatureToggleEnabledUseCase = isFeatureToggleEnabledUseCase
         )
     }
 

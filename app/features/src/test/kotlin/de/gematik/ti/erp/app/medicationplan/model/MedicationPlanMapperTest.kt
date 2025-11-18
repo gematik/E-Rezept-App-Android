@@ -559,7 +559,7 @@ class MedicationPlanMapperTest {
 
     @Test
     fun `get calculated end date with empty dosage instructions`() {
-        val start = Instant.parse("2024-01-01T08:00:00Z")
+        val start = Instant.parse("2024-01-31T08:00:00Z")
         val schedule = MEDICATION_SCHEDULE.copy(
             amount = Ratio(
                 numerator = Quantity(value = "30", unit = "TAB"),

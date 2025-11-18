@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<countries-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <country android:name="de"/> <!-- Germany -->
+    <country android:name="at"/> <!-- Austria -->
+    <country android:name="be"/> <!-- Belgium -->
+    <country android:name="cz"/> <!-- Czech Republic -->
+    <country android:name="dk"/> <!-- Denmark -->
+    <country android:name="ee"/> <!-- Estonia -->
+    <country android:name="fi"/> <!-- Finland -->
+    <country android:name="fr"/> <!-- France -->
+    <country android:name="hr"/> <!-- Croatia -->
+    <country android:name="hu"/> <!-- Hungary -->
+    <country android:name="it"/> <!-- Italy -->
+    <country android:name="lu"/> <!-- Luxembourg -->
+    <country android:name="nl"/> <!-- Netherlands -->
+    <country android:name="pl"/> <!-- Poland -->
+    <country android:name="pt"/> <!-- Portugal -->
+    <country android:name="se"/> <!-- Sweden -->
+    <country android:name="es"/> <!-- Spain -->
+    <country android:name="li"/> <!-- Liechtenstein -->
+</countries-config>

@@ -29,8 +29,10 @@ import androidx.compose.runtime.Stable
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirContactInformationErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPositionErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodMetadata
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningTimeErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.SpecialOpeningTimeMetadata
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningTime.Companion.toModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyServiceSerializationType.DeliveryPharmacyServiceType
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyServiceSerializationType.EmergencyPharmacyServiceType
@@ -177,9 +179,11 @@ object PharmacyUseCaseData {
     object PharmacyServiceSerializer : JsonContentPolymorphicSerializer<PharmacyService>(PharmacyService::class) {
         override fun selectDeserializer(element: JsonElement): KSerializer<out PharmacyService> {
             val classType = element.jsonObject["type"]?.jsonPrimitive?.content
-            if (classType == null || classType.isEmpty()) throw SerializationException(
-                "PharmacyServiceSerializer: key 'type' not found or does not matches any module type"
-            )
+            if (classType == null || classType.isEmpty()) {
+                throw SerializationException(
+                    "PharmacyServiceSerializer: key 'type' not found or does not matches any module type"
+                )
+            }
             return when (PharmacyServiceSerializationType.valueOf(classType)) {
                 OnlinePharmacyServiceType -> PharmacyService.OnlinePharmacyService.serializer()
                 PickUpPharmacyServiceType -> PharmacyService.PickUpPharmacyService.serializer()
@@ -282,6 +286,8 @@ object PharmacyUseCaseData {
         val contact: PharmacyContact, // Telecom
         val provides: List<PharmacyService>,
         val openingHours: OpeningHours?,
+        val specialClosingTimes: List<NotAvailablePeriodMetadata> = emptyList(),
+        val specialOpeningTimes: List<SpecialOpeningTimeMetadata> = emptyList(),
         val telematikId: String
     ) {
         val isPickupService
@@ -324,8 +330,7 @@ object PharmacyUseCaseData {
     ) {
         companion object {
             fun SearchData.toPharmacyFilter() =
-                PharmacyFilter(
-                    textFilter = name.toTextFilter(),
+                PharmacyFilter.create(
                     locationFilter = if (locationMode is LocationMode.Enabled) {
                         LocationFilter(
                             latitude = locationMode.coordinates.latitude,
@@ -334,11 +339,10 @@ object PharmacyUseCaseData {
                     } else {
                         null
                     },
-                    serviceFilter = ServiceFilter(
-                        courier = filter.deliveryService,
-                        shipment = filter.onlineService,
-                        pickup = filter.nearBy
-                    )
+                    textFilter = name.toTextFilter(),
+                    courier = filter.deliveryService,
+                    shipment = filter.onlineService,
+                    pickup = filter.nearBy
                 )
         }
     }
@@ -351,9 +355,8 @@ object PharmacyUseCaseData {
         val coordinates: Coordinates?
     ) {
         companion object {
-            fun MapsSearchData.toPharmacyFilter(forcedRadius: Double?) =
-                PharmacyFilter(
-                    textFilter = name.toTextFilter(),
+            fun MapsSearchData.toPharmacyFilter(forcedRadius: Double?): PharmacyFilter {
+                return PharmacyFilter.create(
                     locationFilter = when {
                         locationMode is LocationMode.Enabled ->
                             LocationFilter(
@@ -371,12 +374,12 @@ object PharmacyUseCaseData {
 
                         else -> null
                     },
-                    serviceFilter = ServiceFilter(
-                        courier = filter.deliveryService,
-                        shipment = filter.onlineService,
-                        pickup = filter.nearBy
-                    )
+                    textFilter = name.toTextFilter(),
+                    courier = filter.deliveryService,
+                    shipment = filter.onlineService,
+                    pickup = filter.nearBy
                 )
+            }
         }
     }
 

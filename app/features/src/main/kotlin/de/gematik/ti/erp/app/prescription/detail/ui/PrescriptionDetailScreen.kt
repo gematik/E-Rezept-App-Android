@@ -38,11 +38,13 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.consent.model.ConsentContext
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isConsentGranted
 import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.demomode.DemoModeObserver
 import de.gematik.ti.erp.app.eurezept.navigation.EuRoutes
@@ -77,9 +79,8 @@ import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-
-const val MISSING_VALUE = "---"
 
 class PrescriptionDetailScreen(
     override val navController: NavController,
@@ -100,6 +101,17 @@ class PrescriptionDetailScreen(
         val isDemoMode = demoModeObserver?.isDemoMode() ?: false
         val prescriptionDetailsController = rememberPrescriptionDetailController(taskId)
         val profilePrescriptionData by prescriptionDetailsController.profilePrescription.collectAsStateWithLifecycle()
+        val onClickDeletePrescriptionEvent = ComposableEvent<Unit>()
+        ChooseAuthenticationNavigationEventsListener(prescriptionDetailsController, navController, dialogScaffold = dialog)
+        val intentHandler = LocalIntentHandler.current
+        LaunchedEffect(Unit) {
+            intentHandler.gidSuccessfulIntent.collectLatest {
+                prescriptionDetailsController.deletePrescription(
+                    isAuthenticationSuccess = true
+                )
+            }
+        }
+        val euRedeemFeatureFlag by prescriptionDetailsController.euRedeemFeatureFlag.collectAsStateWithLifecycle()
 
         UiStateMachine(
             state = profilePrescriptionData,
@@ -116,11 +128,11 @@ class PrescriptionDetailScreen(
             },
             onContent = { (profile, prescription) ->
                 // TODO: Too many controllers in one screen, consider refactoring
+
                 val consentController = rememberConsentController()
                 val invoicesController = rememberInvoiceController(profileId = profile.id)
 
-                val activeProfileIsPKVProfile =
-                    profile.insurance.insuranceType == ProfilesUseCaseData.InsuranceType.PKV
+                val activeProfileIsPKVProfile = profile.hasBundFeatures()
 
                 val invoice by produceState<InvoiceData.PKVInvoiceRecord?>(null) {
                     invoicesController.getInvoiceForTaskId(prescription.taskId).collect {
@@ -130,10 +142,7 @@ class PrescriptionDetailScreen(
 
                 val consentState by consentController.consentState.collectAsStateWithLifecycle()
                 val consentGranted = remember(consentState) { consentState.isConsentGranted() }
-                val deletePrescriptionState by
-                prescriptionDetailsController.prescriptionDeleted.collectAsStateWithLifecycle()
-                val onClickDeletePrescriptionEvent = ComposableEvent<Unit>()
-
+                val deletePrescriptionState by prescriptionDetailsController.prescriptionDeleted.collectAsStateWithLifecycle()
                 val shareHandler = rememberSharePrescriptionController(profile.id)
 
                 val mailAddress = stringResource(R.string.settings_contact_mail_address)
@@ -147,6 +156,17 @@ class PrescriptionDetailScreen(
                     }
 
                 val invoiceState = invoicesController.uiState(consentState, ssoTokenValid, invoice)
+
+                with(prescriptionDetailsController) {
+                    onBiometricAuthenticationSubmitSuccessEvent.listen {
+                        navController.navigate(EuRoutes.EuConsentScreen.path(taskId))
+                    }
+                    onBiometricAuthenticationDeletedSuccessEvent.listen {
+                        prescriptionDetailsController.deletePrescription(
+                            isAuthenticationSuccess = true
+                        )
+                    }
+                }
 
                 LaunchedEffect(Unit) {
                     if (activeProfileIsPKVProfile &&
@@ -168,7 +188,7 @@ class PrescriptionDetailScreen(
                             deletePrescriptionLocally: Boolean
                         ->
                         if (deletePrescriptionLocally) {
-                            prescriptionDetailsController.deletePrescriptionFromLocal(profile.id, taskId)
+                            prescriptionDetailsController.deletePrescriptionFromLocal()
                             navController.popBackStack(
                                 PrescriptionDetailRoutes.PrescriptionDetailScreen.route,
                                 true
@@ -185,7 +205,7 @@ class PrescriptionDetailScreen(
                         }
                     },
                     onRetry = {
-                        prescriptionDetailsController.deletePrescription(profile.id, taskId)
+                        prescriptionDetailsController.deletePrescription()
                     },
                     onDismiss = {
                         prescriptionDetailsController.resetDeletePrescriptionState()
@@ -257,10 +277,7 @@ class PrescriptionDetailScreen(
                     hasMedicationSchedule = medicationSchedule != null,
                     hasInvoice = invoice != null
                 ) {
-                    prescriptionDetailsController.deletePrescription(
-                        profile.id,
-                        prescription.taskId
-                    )
+                    prescriptionDetailsController.deletePrescription()
                 }
                 PrescriptionDetailScreenScaffold(
                     activeProfile = profile,
@@ -270,6 +287,7 @@ class PrescriptionDetailScreen(
                     scaffoldState = scaffoldState,
                     listState = listState,
                     isDemoMode = isDemoMode,
+                    euRedeemFeatureFlag = euRedeemFeatureFlag,
                     onClickMedication = { medication ->
                         navController.navigate(
                             PrescriptionDetailRoutes.PrescriptionDetailMedicationScreen.path(
@@ -428,8 +446,9 @@ class PrescriptionDetailScreen(
                         )
                     },
                     onClickRedeemInEuAbroad = {
-                        // TODO: check if user consent is already granted then navigate directly to EuRedeemScreen to skip redundant consent flow
-                        navController.navigate(EuRoutes.EuConsentScreen.path(prescription.taskId))
+                        if (prescriptionDetailsController.onRedeemInEuAbroadClick()) {
+                            navController.navigate(EuRoutes.EuConsentScreen.path(prescription.taskId))
+                        }
                     },
                     onBack = navController::popBackStack
                 )
@@ -509,6 +528,7 @@ fun PrescriptionDetailScreenPreview(
             medicationSchedule = null,
             invoiceCardState = InvoiceCardUiState.NoInvoice,
             onShowInfoBottomSheet = PrescriptionDetailBottomSheetNavigationData(),
+            euRedeemFeatureFlag = true,
             now = previewData.now,
             onSwitchRedeemed = {},
             onNavigateToRoute = {},

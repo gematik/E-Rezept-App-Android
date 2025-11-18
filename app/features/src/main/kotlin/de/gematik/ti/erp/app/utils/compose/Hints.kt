@@ -43,6 +43,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -50,6 +51,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -90,6 +92,7 @@ import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.extensions.openUriWhenValid
 import kotlinx.coroutines.delay
@@ -363,6 +366,7 @@ fun HintTextActionButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     align: Alignment.Horizontal = Alignment.Start,
+    icon: (@Composable () -> Unit)? = null,
     onClick: () -> Unit
 ) {
     val offset = if (align == Alignment.Start) {
@@ -375,9 +379,13 @@ fun HintTextActionButton(
         modifier = modifier.absoluteOffset(x = offset),
         onClick = onClick,
         enabled = enabled,
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(SizeDefaults.one)
     ) {
         Text(text = text, style = AppTheme.typography.body2)
+        if (icon != null) {
+            Spacer(modifier = Modifier.width(SizeDefaults.half))
+            icon()
+        }
     }
 }
 

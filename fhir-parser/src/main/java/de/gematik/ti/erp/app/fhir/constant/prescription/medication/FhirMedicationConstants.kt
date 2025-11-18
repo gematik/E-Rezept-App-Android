@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.fhir.constant.prescription.medication
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension.Companion.findExtensionByUrl
 
-@Suppress("ktlint:max-line-length")
+@Suppress("ktlint:standard:max-line-length")
 object FhirMedicationConstants {
     private const val MEDICATION_CATEGORY_SYSTEM = "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category"
     private const val EPA_MEDICATION_VACCINE_EXTENSION = "https://gematik.de/fhir/epa-medication/StructureDefinition/medication-id-vaccine-extension"

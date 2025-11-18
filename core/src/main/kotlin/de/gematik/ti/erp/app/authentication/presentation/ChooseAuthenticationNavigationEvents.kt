@@ -22,16 +22,20 @@
 
 package de.gematik.ti.erp.app.authentication.presentation
 
-import de.gematik.ti.erp.app.cardwall.model.GidNavigationData
+import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
 import de.gematik.ti.erp.app.cardwall.model.CardWallEventData
+import de.gematik.ti.erp.app.cardwall.model.GidNavigationData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 
 data class ChooseAuthenticationNavigationEvents(
-    val showCardWallSelectInsuranceScreenEvent: ComposableEvent<ProfileIdentifier> = ComposableEvent<ProfileIdentifier>(),
-    val showCardWallIntroScreenEvent: ComposableEvent<ProfileIdentifier> = ComposableEvent<ProfileIdentifier>(),
-    val showCardWallGidListScreenEvent: ComposableEvent<ProfileIdentifier> = ComposableEvent<ProfileIdentifier>(),
-    val showCardWallWithFilledCanEvent: ComposableEvent<CardWallEventData> = ComposableEvent<CardWallEventData>(),
-    val showCardWallIntroScreenWithGidEvent: ComposableEvent<GidNavigationData> = ComposableEvent<GidNavigationData>(),
-    val showCardWallGidListScreenWithGidEvent: ComposableEvent<GidNavigationData> = ComposableEvent<GidNavigationData>()
+    val showCardWallSelectInsuranceScreenEvent: ComposableEvent<ProfileIdentifier> = ComposableEvent(),
+    val showCardWallIntroScreenEvent: ComposableEvent<ProfileIdentifier> = ComposableEvent(),
+    val showCardWallGidListScreenEvent: ComposableEvent<ProfileIdentifier> = ComposableEvent(),
+    val showCardWallCanScreenEvent: ComposableEvent<ProfileIdentifier> = ComposableEvent(),
+    val showCardWallWithFilledCanEvent: ComposableEvent<CardWallEventData> = ComposableEvent(),
+    val showCardWallIntroScreenWithGidEvent: ComposableEvent<GidNavigationData> = ComposableEvent(),
+    val showCardWallGidListScreenWithGidEvent: ComposableEvent<GidNavigationData> = ComposableEvent(),
+    val biometricAuthenticationResetErrorEvent: ComposableEvent<AuthenticationResult.Error> = ComposableEvent(),
+    val biometricAuthenticationOtherErrorEvent: ComposableEvent<AuthenticationResult.Error> = ComposableEvent()
 )

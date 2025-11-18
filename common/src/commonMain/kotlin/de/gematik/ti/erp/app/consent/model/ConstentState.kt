@@ -81,7 +81,6 @@ sealed interface ConsentState : ErpServiceState {
     }
 }
 
-// TODO: Use http error states
 fun mapConsentErrorStates(error: Throwable, context: ConsentContext): ErpServiceState {
     Napier.e { "consent error code ${error.cause?.cause}" }
     return when (error) {

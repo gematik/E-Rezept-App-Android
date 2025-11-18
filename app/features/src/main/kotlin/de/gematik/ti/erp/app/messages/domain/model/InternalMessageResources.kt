@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.messages.domain.model
 
 import android.content.Context
 import android.os.Build
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.utils.extensions.isGooglePlayServiceAvailable
 
@@ -43,6 +44,18 @@ class InternalMessageResources(
     val welcomeMessageTag = context.getString(R.string.welcome_tag)
 
     // only show this on Android devices with access to google which are not safe anymore
+    @Requirement(
+        "O.Resi_9#2",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Determine to show warning for devices with Android version without security updates",
+        codeLines = 3
+    )
+    @Requirement(
+        "A_19178#2",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Determine to show warning for devices with Android version without security updates",
+        codeLines = 3
+    )
     val shouldShowSecurityWarningMessage = context.isGooglePlayServiceAvailable() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.S
     val securityWarningMessage = context.getString(R.string.security_warning_text)
     val securityWarningTag = context.getString(R.string.security_warning_tag)

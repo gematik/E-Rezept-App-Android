@@ -268,7 +268,8 @@ fun CardWallAuthenticationDialog(
                 when (state) {
                     AuthenticationState.HealthCardCardAccessNumberWrong -> onRetryCan()
                     AuthenticationState.HealthCardPin2RetriesLeft,
-                    AuthenticationState.HealthCardPin1RetryLeft -> onRetryPin()
+                    AuthenticationState.HealthCardPin1RetryLeft
+                    -> onRetryPin()
 
                     AuthenticationState.HealthCardBlocked -> onUnlockEgk()
                     else -> if (cardWallController.isNfcEnabled()) {
@@ -341,7 +342,8 @@ fun extractNextText(state: AuthenticationState): String =
     when (state) {
         AuthenticationState.HealthCardCardAccessNumberWrong -> stringResource(R.string.cdw_auth_retry_pin_can)
         AuthenticationState.HealthCardPin2RetriesLeft,
-        AuthenticationState.HealthCardPin1RetryLeft -> stringResource(R.string.cdw_auth_retry_pin_can)
+        AuthenticationState.HealthCardPin1RetryLeft
+        -> stringResource(R.string.cdw_auth_retry_pin_can)
 
         AuthenticationState.HealthCardBlocked -> stringResource(R.string.cdw_auth_retry_unlock_egk)
         else -> stringResource(R.string.cdw_auth_retry)
@@ -428,7 +430,8 @@ private fun AuthenticationDialog(
                     AuthenticationState.HealthCardCommunicationCertificateLoaded,
                     AuthenticationState.HealthCardCommunicationFinished,
                     AuthenticationState.IDPCommunicationFinished,
-                    AuthenticationState.AuthenticationFlowFinished -> 1
+                    AuthenticationState.AuthenticationFlowFinished
+                    -> 1
 
                     AuthenticationState.HealthCardCommunicationInterrupted -> 2
                     else -> 1

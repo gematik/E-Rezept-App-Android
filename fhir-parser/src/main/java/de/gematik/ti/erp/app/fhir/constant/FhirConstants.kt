@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.fhir.constant
 
-import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemConstant
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemConstants
 
 /**
  * **FHIR Constants for GEMATIK and KBV Bundles**
@@ -143,8 +143,8 @@ object FhirConstants {
             "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
             VALUE_CODING
         ),
-        EU_REDEEM_POSSIBLE_BY_PROPERTIES(FhirEuRedeemConstant.IS_EU_REDEEMABLE_FLAG_BY_FACHDIENST, VALUE_BOOLEAN),
-        EU_REDEEM_ALLOWED_BY_PATIENT_AUTHORIZATION(FhirEuRedeemConstant.EU_REDEEM__FLAG_BY_PATIENT, VALUE_BOOLEAN);
+        EU_REDEEM_POSSIBLE_BY_PROPERTIES(FhirEuRedeemConstants.IS_EU_REDEEMABLE_FLAG_BY_FACHDIENST, VALUE_BOOLEAN),
+        EU_REDEEM_ALLOWED_BY_PATIENT_AUTHORIZATION(FhirEuRedeemConstants.EU_REDEEM__FLAG_BY_PATIENT, VALUE_BOOLEAN);
     }
 
     /**
@@ -156,7 +156,7 @@ object FhirConstants {
          */
         FULL_URL("https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer"),
         ITEM_KEY("system"),
-        ITEM_VALUE("value");
+        ITEM_VALUE("value")
     }
 
     /**
@@ -188,6 +188,16 @@ object FhirConstants {
      * Telematik ID system used to identify organizations and practitioners in the German healthcare system.
      */
     const val TELEMATIK_ID_IDENTIFIER = "https://gematik.de/fhir/sid/telematik-id"
+
+    /**
+     * **FHIR UUID Reference Prefix**
+     *
+     * This constant represents the standard FHIR reference format using UUIDs.
+     * Used in EU bundles to reference resources within a Bundle.
+     *
+     * Example: `urn:uuid:5581f231-583d-4105-83c8-d794313c29a3`
+     */
+    const val URN_UUID_PREFIX = "urn:uuid:"
 
     /**
      * Identifier system for pharmaceutical central numbers (PZN) used in Germany.

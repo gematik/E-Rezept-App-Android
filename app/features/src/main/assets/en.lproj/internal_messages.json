@@ -40,5 +40,11 @@
         "text": "**📝 Flexible field for delivery instructions** \n The field for delivery instructions now automatically adjusts to the length of the text. \n \n **🎨 More modern buttons with Material 3** \n The buttons have been adapted to the new Material 3 design of Android and now have a more modern and rounded appearance. \n \n **📤 Share Prescriptions** \nPrescriptions can now be shared with others directly from the app.",
         "timestamp": "2025-09-09T08:00:00.000Z",
         "version": "1.33"
+    },
+    {
+        "id": "9",
+        "text": "**🏛️ Registration for federal institutions** \nRegistration is now also possible for those insured with federal institutions such as the Federal Police. \n \n **🕒 Improved pharmacy opening hours** \nEmergency service and special closing times for pharmacies are now displayed, if they have been stored.",
+        "timestamp": "2025-11-03T08:00:00.000Z",
+        "version": "1.34"
     }
 ]

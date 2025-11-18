@@ -29,7 +29,8 @@ enum class DispenseSupplyOptionsType(val value: String) {
     ON_PREMISE("onPremise"),
     SHIPMENT("shipment"),
     DELIVERY("delivery"),
-    UNKNOWN("");
+    UNKNOWN("")
+    ;
 
     companion object {
         fun fromString(value: String?): DispenseSupplyOptionsType {

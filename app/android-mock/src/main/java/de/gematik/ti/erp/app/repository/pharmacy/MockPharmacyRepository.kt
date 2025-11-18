@@ -26,7 +26,6 @@ import de.gematik.ti.erp.app.fhir.FhirInsuranceProvider
 import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.model.extractPharmacyServices
 import de.gematik.ti.erp.app.fhir.model.json
-import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
@@ -51,14 +50,6 @@ class MockPharmacyRepository(
 
     override suspend fun searchPharmacies(filter: PharmacyFilter): Result<FhirPharmacyErpModelCollection> {
         return Result.success(extractedPharmacies)
-    }
-
-    override suspend fun searchPharmaciesByBundle(bundleId: String, offset: Int, count: Int): Result<FhirPharmacyErpModelCollection> {
-        return Result.success(extractedPharmacies)
-    }
-
-    override suspend fun searchBinaryCerts(locationId: String): Result<List<String>> {
-        return Result.success(emptyList())
     }
 
     override fun loadOftenUsedPharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>> = oftenUsedLocalDataSource.loadOftenUsedPharmacies()
@@ -88,12 +79,6 @@ class MockPharmacyRepository(
     }
 
     override suspend fun markAsRedeemed(taskId: String) = redeemLocalDataSource.markAsRedeemed(taskId)
-
-    override fun getSelectedVzdPharmacyBackend(): PharmacyVzdService = PharmacyVzdService.APOVZD
-
-    override suspend fun updateSelectedVzdPharmacyBackend(pharmacyVzdService: PharmacyVzdService) {
-        // do nothing
-    }
 
     override fun loadCachedPharmacies(): Flow<List<CachedPharmacy>> {
         return flowOf(emptyList())

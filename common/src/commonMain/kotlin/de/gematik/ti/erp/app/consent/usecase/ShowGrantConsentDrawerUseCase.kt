@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.consent.usecase
 
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import kotlinx.coroutines.flow.Flow
@@ -47,5 +48,5 @@ class ShowGrantConsentDrawerUseCase(
     private fun ProfilesData.Profile.isConsentDrawerNotShown() = !consentRepository.isConsentDrawerShown(id)
 
     private suspend fun ProfilesData.Profile.isConsentNotGranted() =
-        !(consentRepository.getConsent(id).map { consentRepository.isConsentGranted(it) }.getOrNull() ?: false)
+        !(consentRepository.getPkvConsent(id, ConsentCategory.PKVCONSENT.code).map { consentRepository.isPkvConsentGranted(it) }.getOrNull() ?: false)
 }

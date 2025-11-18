@@ -267,15 +267,18 @@ private fun nextTextFromUnlockEgkState(state: UnlockEgkState): String {
     val nextText = when (state) {
         UnlockEgkState.HealthCardCardAccessNumberWrong,
         UnlockEgkState.HealthCardPinRetriesLeft,
-        UnlockEgkState.HealthCardPukRetriesLeft -> stringResource(R.string.cdw_auth_retry_pin_can)
+        UnlockEgkState.HealthCardPukRetriesLeft
+        -> stringResource(R.string.cdw_auth_retry_pin_can)
 
         UnlockEgkState.HealthCardCommunicationFinished,
         UnlockEgkState.HealthCardPasswordBlocked,
-        UnlockEgkState.HealthCardPukBlocked -> stringResource(R.string.unlock_egk_finished_ok)
+        UnlockEgkState.HealthCardPukBlocked
+        -> stringResource(R.string.unlock_egk_finished_ok)
 
         UnlockEgkState.MemoryFailure,
         UnlockEgkState.SecurityStatusNotSatisfied,
-        UnlockEgkState.PasswordNotFound -> stringResource(R.string.unlock_egk_report_error)
+        UnlockEgkState.PasswordNotFound
+        -> stringResource(R.string.unlock_egk_report_error)
 
         UnlockEgkState.PasswordNotUsable -> stringResource(R.string.unlock_egk_assign_pin)
 
@@ -385,7 +388,8 @@ private fun ResumeDialog(
     when (state) {
         UnlockEgkState.HealthCardCommunicationFinished,
         UnlockEgkState.HealthCardPasswordBlocked,
-        UnlockEgkState.HealthCardPukBlocked ->
+        UnlockEgkState.HealthCardPukBlocked
+        ->
             AcceptDialog(
                 header = resumeText.first,
                 info = resumeText.second,
@@ -409,7 +413,8 @@ private fun ResumeDialog(
                             UnlockEgkState.HealthCardPinRetriesLeft -> onRetryOldSecret()
                             UnlockEgkState.PasswordNotFound,
                             UnlockEgkState.SecurityStatusNotSatisfied,
-                            UnlockEgkState.MemoryFailure -> openMailClient(context, mailAddress, body, subject)
+                            UnlockEgkState.MemoryFailure
+                            -> openMailClient(context, mailAddress, body, subject)
 
                             UnlockEgkState.PasswordNotUsable -> onAssignPin()
                             // retry
@@ -463,11 +468,13 @@ fun CardCommunicationDialog(
                 val screen = remember(state) {
                     when (state) {
                         UnlockEgkState.None,
-                        UnlockEgkState.UnlockFlowInitialized -> 0
+                        UnlockEgkState.UnlockFlowInitialized
+                        -> 0
 
                         UnlockEgkState.HealthCardCommunicationChannelReady,
                         UnlockEgkState.HealthCardCommunicationTrustedChannelEstablished,
-                        UnlockEgkState.HealthCardCommunicationFinished -> 1
+                        UnlockEgkState.HealthCardCommunicationFinished
+                        -> 1
 
                         else -> 2
                     }

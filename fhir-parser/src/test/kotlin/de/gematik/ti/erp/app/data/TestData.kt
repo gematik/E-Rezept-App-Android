@@ -20,7 +20,7 @@
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
-@file:Suppress("ktlint:max-line-length")
+@file:Suppress("ktlint:standard:max-line-length")
 
 package de.gematik.ti.erp.app.data
 
@@ -142,6 +142,7 @@ val kbvBundle_device_request_1_4 by lazy { getResourceAsString("/fhir/kbv_parser
 
 // fhir-vzd pharmacy bundle
 val fhirVzdPharmacyBundle by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/pharamcy_bundle_fhirvzd.json") }
+val fhirVzdPharmacyNotAvailableTimesBundle by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/pharmacy_bundle_fhirvzd_not_available_times.json") }
 
 // fhir-vzd diga bundle
 val fhirVzdOrganizationBundle by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/organization_bundle_fhirvzd.json") }
@@ -150,3 +151,8 @@ val fhirVzdCountriesBundle by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd
 // speciality types pharmacy
 val bundle_speciality_simple by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/speciality_bundle_different_types.json") }
 val bundle_speciality_complex by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/speciality_bundle_duplicate_text.json") }
+
+// eu redeem
+val euRedeemAccessCodeResponseV1 by lazy { getResourceAsString("/fhir/eu_redeem_parser/EuRedeemAccessCodeResponse_v1_0.json") }
+val euRedeemAccessCodeRequestV1 by lazy { getResourceAsString("/fhir/eu_redeem_parser/EuRedeemAccessCodeRequest_v1_0.json") }
+val euRedeemTaskPatchInputRequestV1 by lazy { getResourceAsString("/fhir/eu_redeem_parser/EuRedeemTaskPatchInputRequest_v1_0.json") }

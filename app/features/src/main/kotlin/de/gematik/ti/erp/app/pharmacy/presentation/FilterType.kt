@@ -30,7 +30,8 @@ enum class FilterType {
     NEARBY,
     OPEN_NOW,
     DELIVERY_SERVICE,
-    ONLINE_SERVICE;
+    ONLINE_SERVICE
+    ;
 
     companion object {
         fun FilterType.getUpdatedFilter(filter: PharmacyUseCaseData.Filter) =

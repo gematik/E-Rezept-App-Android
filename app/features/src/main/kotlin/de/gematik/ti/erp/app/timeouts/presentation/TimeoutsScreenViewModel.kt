@@ -24,9 +24,9 @@ package de.gematik.ti.erp.app.timeouts.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutsLocalDataSource.Companion.DurationEnum
 import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.defaultInactivityValue
 import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.defaultPauseValue
+import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutsLocalDataSource.Companion.DurationEnum
 import de.gematik.ti.erp.app.timeouts.presentation.TimeoutsError.Error
 import de.gematik.ti.erp.app.timeouts.presentation.TimeoutsError.InactivityError
 import de.gematik.ti.erp.app.timeouts.presentation.TimeoutsError.NoError

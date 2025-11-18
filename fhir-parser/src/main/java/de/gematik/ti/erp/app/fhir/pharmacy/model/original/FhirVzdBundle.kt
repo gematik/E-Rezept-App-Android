@@ -47,5 +47,5 @@ internal enum class FhirVzdResourceType {
     Location,
     HealthcareService,
     Endpoint,
-    Unknown;
+    Unknown
 }

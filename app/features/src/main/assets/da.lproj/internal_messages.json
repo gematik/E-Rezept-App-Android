@@ -40,5 +40,11 @@
         "text": "**📝 Fleksibelt felt til leveringsinstruktioner** \n Feltet til leveringsinstruktioner justerer sig nu automatisk til tekstens længde. \n \n **🎨 Mere moderne knapper med Material 3** \n Knapperne er blevet tilpasset Android's nye Material 3-design og har nu et mere moderne og afrundet udseende. \n \n **📤 Del opskrifter** \nOpskrifter kan nu deles med andre direkte fra appen.",
         "timestamp": "2025-09-09T08:00:00.000Z",
         "version": "1.33"
+    },
+    {
+        "id": "9",
+        "text": "**🏛️ Registrering hos føderale institutioner** \nRegistrering er nu også mulig for dem, der er forsikret hos føderale institutioner såsom det føderale politi. \n \n **🕒 Forbedrede apotekers åbningstider** \nNødservice og særlige lukketider for apoteker vises nu, hvis de er blevet gemt.",
+        "timestamp": "2025-11-03T08:00:00.000Z",
+        "version": "1.34"
     }
 ]

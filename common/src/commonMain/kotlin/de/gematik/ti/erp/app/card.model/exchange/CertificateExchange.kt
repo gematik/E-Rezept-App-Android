@@ -60,7 +60,8 @@ fun ICardChannel.retrieveCertificate(): ByteArray {
         when (response.status) {
             ResponseStatus.SUCCESS -> { }
             ResponseStatus.END_OF_FILE_WARNING,
-            ResponseStatus.OFFSET_TOO_BIG -> break
+            ResponseStatus.OFFSET_TOO_BIG
+            -> break
             else -> error("Couldn't read certificate: ${response.status}")
         }
     }

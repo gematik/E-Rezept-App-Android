@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.eurezept.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.eurezept.domin.model.Country
+import de.gematik.ti.erp.app.eurezept.domain.model.Country
 
 data class EuRedeemPreviewData(
     val selectedPrescriptions: List<String>,

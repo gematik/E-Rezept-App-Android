@@ -56,6 +56,7 @@ class ProfilesUseCase(
                             ProfilesData.InsuranceType.None -> ProfilesUseCaseData.InsuranceType.NONE
                             ProfilesData.InsuranceType.GKV -> ProfilesUseCaseData.InsuranceType.GKV
                             ProfilesData.InsuranceType.PKV -> ProfilesUseCaseData.InsuranceType.PKV
+                            ProfilesData.InsuranceType.BUND -> ProfilesUseCaseData.InsuranceType.BUND
                         }
                     ),
                     isActive = profile.active,

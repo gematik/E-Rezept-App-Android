@@ -227,7 +227,6 @@ class DefaultIdpUseCase(
     /**
      * Initial flow fetching the sso & access token requiring the health card to sign the challenge.
      */
-    // // A_20601-01
     @Requirement(
         "A_20167-02#1",
         sourceSpecification = "gemSpec_eRp_FdV",
@@ -511,8 +510,7 @@ class DefaultIdpUseCase(
      * [de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase.authenticateWithHealthCard] will be called if a health card authentication is required
      *                                   which needs to sign [hash].
      */
-    override suspend fun getPairedDevices(profileId: ProfileIdentifier):
-        Result<List<Pair<PairingResponseEntry, PairingData>>> =
+    override suspend fun getPairedDevices(profileId: ProfileIdentifier): Result<List<Pair<PairingResponseEntry, PairingData>>> =
         redoOnce {
             val accessToken = loadAccessToken(
                 refresh = it,

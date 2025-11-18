@@ -285,5 +285,6 @@ val MOCK_SYNCED_TASK_DATA_01_NEW = SyncedTaskData.SyncedTask(
     lastMedicationDispense = null,
     medicationDispenses = emptyList(),
     communications = emptyList(),
-    isEuRedeemable = false
+    isEuRedeemable = false,
+    isEuRedeemableByPatientAuthorization = false
 )

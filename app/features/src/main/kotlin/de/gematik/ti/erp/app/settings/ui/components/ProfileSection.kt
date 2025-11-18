@@ -42,8 +42,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.ui.components.Avatar
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -51,6 +54,7 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 
 @Composable
 fun ProfileSection(
@@ -114,5 +118,31 @@ private fun ProfileCard(
             style = AppTheme.typography.body1
         )
         Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun ProfileSectionPreview() {
+    val mockProfiles = listOf(
+        ProfilesUseCaseData.Profile(
+            id = ProfileIdentifier(),
+            name = "Max Mustermann",
+            insurance = ProfileInsuranceInformation(),
+            isActive = true,
+            color = ProfilesData.ProfileColorNames.BLUE_MOON,
+            avatar = ProfilesData.Avatar.PersonalizedImage,
+            image = null,
+            lastAuthenticated = null,
+            ssoTokenScope = null
+        )
+    )
+
+    PreviewAppTheme {
+        ProfileSection(
+            profiles = mockProfiles,
+            onClickEditProfile = { profileId ->
+            }
+        )
     }
 }

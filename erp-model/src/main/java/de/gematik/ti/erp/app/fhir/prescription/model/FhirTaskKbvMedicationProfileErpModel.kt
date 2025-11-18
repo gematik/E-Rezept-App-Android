@@ -35,13 +35,19 @@ data class FhirTaskKbvMedicationProfileErpModel(
             versionString: String?
         ): FhirTaskKbvMedicationProfileErpModel {
             val type = runCatching {
-                if (!typeString.isNullOrBlank()) ErpMedicationProfileType.valueOf(typeString)
-                else ErpMedicationProfileType.Unknown
+                if (!typeString.isNullOrBlank()) {
+                    ErpMedicationProfileType.valueOf(typeString)
+                } else {
+                    ErpMedicationProfileType.Unknown
+                }
             }.getOrElse { ErpMedicationProfileType.Unknown }
 
             val version = runCatching {
-                if (!versionString.isNullOrBlank()) ErpMedicationProfileVersion.valueOf(versionString)
-                else ErpMedicationProfileVersion.Unknown
+                if (!versionString.isNullOrBlank()) {
+                    ErpMedicationProfileVersion.valueOf(versionString)
+                } else {
+                    ErpMedicationProfileVersion.Unknown
+                }
             }.getOrElse { ErpMedicationProfileVersion.Unknown }
 
             return FhirTaskKbvMedicationProfileErpModel(type, version)
@@ -55,7 +61,7 @@ enum class ErpMedicationProfileType {
     FreeText,
     Compounding,
     Ingredient,
-    Unknown;
+    Unknown
 }
 
 @Serializable
@@ -64,5 +70,5 @@ enum class ErpMedicationProfileVersion {
     V_110,
     V_12,
     V_13,
-    Unknown;
+    Unknown
 }

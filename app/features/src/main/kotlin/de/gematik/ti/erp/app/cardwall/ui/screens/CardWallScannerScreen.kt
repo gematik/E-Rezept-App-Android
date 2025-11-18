@@ -261,7 +261,8 @@ private fun ScannerEventHandlers(
 ) {
     val handleCanSelection: (String) -> Unit =
         remember(navController, sharedViewModel, cardWallScannerController) {
-            { can ->
+            {
+                    can ->
                 val previousRoute = navController.previousBackStackEntry?.destination?.route
                 cardWallScannerController.reset()
 
@@ -395,8 +396,11 @@ private fun FlashlightToggleButton(
         imageVector = if (isFlashlightOn) Icons.Outlined.FlashlightOff else Icons.Outlined.FlashlightOn,
         contentDescription = null,
         text = stringResource(
-            if (isFlashlightOn) R.string.cdw_scanner_flashlight_off
-            else R.string.cdw_scanner_flashlight_on
+            if (isFlashlightOn) {
+                R.string.cdw_scanner_flashlight_off
+            } else {
+                R.string.cdw_scanner_flashlight_on
+            }
         ),
         border = BorderStroke(1.dp, AppTheme.colors.primary700),
         colors = ButtonDefaults.outlinedButtonColors(

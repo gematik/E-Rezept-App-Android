@@ -63,10 +63,9 @@ import androidx.paging.compose.itemKey
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
-import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.authentication.ui.components.AuthenticationFailureDialog
 import de.gematik.ti.erp.app.base.ClipBoardCopy.copyToClipboardWithHaptic
 import de.gematik.ti.erp.app.core.LocalIntentHandler
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.fhir.audit.model.FhirAuditEventErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.navigation.Screen
@@ -107,7 +106,7 @@ class ProfileAuditEventsScreen(
     @Composable
     override fun Content() {
         val listState = rememberLazyListState()
-        val dialog = LocalDialog.current
+        LocalDialog.current
         val pullToRefreshState = rememberPullToRefreshState()
         val intentHandler = LocalIntentHandler.current
 
@@ -118,17 +117,16 @@ class ProfileAuditEventsScreen(
         val auditEvents = auditController.auditEvents.collectAsLazyPagingItems()
         val isSsoTokenValid by auditController.isSsoTokenValidForSelectedProfile.collectAsStateWithLifecycle()
 
-        ChooseAuthenticationNavigationEventsListener(auditController, navController)
+        ChooseAuthenticationNavigationEventsListener(
+            auditController,
+            navController,
+            dialogScaffold = LocalDialog.current
+        )
         with(auditController) {
             refreshStartedEvent.listen {
                 pullToRefreshState.endRefresh()
             }
         }
-
-        AuthenticationFailureDialog(
-            event = auditController.showAuthenticationErrorDialog,
-            dialogScaffold = dialog
-        )
 
         LaunchedEffect(Unit) {
             intentHandler.gidSuccessfulIntent.collectLatest {

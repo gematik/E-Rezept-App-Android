@@ -51,18 +51,19 @@ class RessourceMapperEpaVersion_1_4_Test {
                 ReturnType.Ingredient
             },
             processMedication = { text,
-                medicationCategory,
-                form,
-                amount,
-                vaccine,
-                manufacturingInstructions,
-                packaging,
-                normSizeCode,
-                identifier,
-                ingredientMedication,
-                ingredients,
-                lotNumber,
-                expirationDate ->
+                    medicationCategory,
+                    form,
+                    amount,
+                    vaccine,
+                    manufacturingInstructions,
+                    packaging,
+                    normSizeCode,
+                    identifier,
+                    ingredientMedication,
+                    ingredients,
+                    lotNumber,
+                    expirationDate
+                ->
                 assertEquals("82082973", text)
                 assertEquals(MedicationCategory.UNKNOWN, medicationCategory)
                 assertEquals(null, form)
@@ -100,18 +101,19 @@ class RessourceMapperEpaVersion_1_4_Test {
                 ReturnType.Ingredient
             },
             processMedication = { text,
-                medicationCategory,
-                form,
-                amount,
-                vaccine,
-                manufacturingInstructions,
-                packaging,
-                normSizeCode,
-                identifier,
-                ingredientMedication,
-                ingredients,
-                lotNumber,
-                expirationDate ->
+                    medicationCategory,
+                    form,
+                    amount,
+                    vaccine,
+                    manufacturingInstructions,
+                    packaging,
+                    normSizeCode,
+                    identifier,
+                    ingredientMedication,
+                    ingredients,
+                    lotNumber,
+                    expirationDate
+                ->
                 assertEquals("01746517-1", text)
                 assertEquals(MedicationCategory.UNKNOWN, medicationCategory)
                 assertEquals(null, form)
@@ -140,10 +142,11 @@ class RessourceMapperEpaVersion_1_4_Test {
                 ReturnType.Ratio
             },
             ingredientFn = { text,
-                form,
-                identifier,
-                amount,
-                strength ->
+                    form,
+                    identifier,
+                    amount,
+                    strength
+                ->
 
                 assertEquals("Natriumcromoglicat", text)
                 assertEquals(null, form)
@@ -172,18 +175,19 @@ class RessourceMapperEpaVersion_1_4_Test {
                 ReturnType.Ingredient
             },
             processMedication = { _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _ ->
+                    _,
+                    _,
+                    _,
+                    _,
+                    _,
+                    _,
+                    _,
+                    _,
+                    _,
+                    _,
+                    _,
+                    _
+                ->
 
                 ReturnType.Medication
             }
@@ -214,18 +218,19 @@ class RessourceMapperEpaVersion_1_4_Test {
                 ReturnType.Ingredient
             },
             processIngredientMedication = { text,
-                medicationCategory,
-                form,
-                amount,
-                vaccine,
-                manufacturingInstructions,
-                packaging,
-                normSizeCode,
-                identifier,
-                ingredientMedication,
-                ingredients,
-                lotNumber,
-                expirationDate ->
+                    medicationCategory,
+                    form,
+                    amount,
+                    vaccine,
+                    manufacturingInstructions,
+                    packaging,
+                    normSizeCode,
+                    identifier,
+                    ingredientMedication,
+                    ingredients,
+                    lotNumber,
+                    expirationDate
+                ->
 
                 assertEquals(null, text)
                 assertEquals(MedicationCategory.UNKNOWN, medicationCategory)
@@ -257,18 +262,19 @@ class RessourceMapperEpaVersion_1_4_Test {
                 ReturnType.Ingredient
             },
             processIngredientMedication = { text,
-                medicationCategory,
-                form,
-                amount,
-                vaccine,
-                manufacturingInstructions,
-                packaging,
-                normSizeCode,
-                identifier,
-                ingredientMedication,
-                ingredients,
-                lotNumber,
-                expirationDate ->
+                    medicationCategory,
+                    form,
+                    amount,
+                    vaccine,
+                    manufacturingInstructions,
+                    packaging,
+                    normSizeCode,
+                    identifier,
+                    ingredientMedication,
+                    ingredients,
+                    lotNumber,
+                    expirationDate
+                ->
 
                 assertEquals(null, text)
                 assertEquals(MedicationCategory.UNKNOWN, medicationCategory)

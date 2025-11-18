@@ -35,7 +35,7 @@ import de.gematik.ti.erp.app.demomode.datasource.data.FunnyAppNameProvider
 import de.gematik.ti.erp.app.demomode.datasource.data.internalMessageEntityV1
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfile
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfileLinkedCommunication
-import de.gematik.ti.erp.app.eurezept.domin.model.Country
+import de.gematik.ti.erp.app.eurezept.domain.model.Country
 import de.gematik.ti.erp.app.fhir.audit.model.FhirAuditEventErpModel
 import de.gematik.ti.erp.app.idp.api.models.PairingData
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
@@ -70,7 +70,8 @@ class DemoModeDataSource(
             profileIdentifier = demoProfile01.id,
             status = SyncedTaskData.TaskStatus.Ready,
             medicationNamesIndex = 0,
-            isEuRedeemable = true
+            isEuRedeemable = true,
+            isEuRedeemableByPatientAuthorization = true
         ),
         syncedTask(
             profileIdentifier = demoProfile01.id,
@@ -332,6 +333,22 @@ class DemoModeDataSource(
 
     fun getCountryFlagForDemo(countryCode: String): String {
         return countryCodeToFlagMap[countryCode.lowercase()] ?: "🇪🇺"
+    }
+
+    /**
+     * Demo data for EU redemption codes
+     */
+
+    private val demoCodeCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+    fun generateDemoRedemptionCode(): String {
+        return (1..6)
+            .map { demoCodeCharacters.random() }
+            .joinToString(" ")
+    }
+
+    fun generateDemoInsuranceNumber(): String {
+        return "M 1 2 3 4 5 6 7 8 9"
     }
 
     companion object {

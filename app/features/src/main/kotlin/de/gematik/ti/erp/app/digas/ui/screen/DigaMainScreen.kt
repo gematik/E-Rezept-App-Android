@@ -59,7 +59,7 @@ import androidx.navigation.NavController
 import com.valentinilk.shimmer.shimmer
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
-import de.gematik.ti.erp.app.authentication.ui.components.AuthenticationFailureDialog
+import de.gematik.ti.erp.app.authentication.presentation.AuthReason.SUBMIT
 import de.gematik.ti.erp.app.base.ClipBoardCopy
 import de.gematik.ti.erp.app.bottombar.AnimatedBottomBar
 import de.gematik.ti.erp.app.core.LocalIntentHandler
@@ -191,12 +191,15 @@ class DigasMainScreen(
             }
         }
 
-        ChooseAuthenticationNavigationEventsListener(controller, navController)
         with(controller) {
-            onBiometricAuthenticationSuccessEvent.listen {
-                sharedViewModel.refresh()
+            onBiometricAuthenticationSuccessEvent.listen { reason ->
+                if (reason == SUBMIT) {
+                    sharedViewModel.refresh()
+                }
             }
         }
+
+        ChooseAuthenticationNavigationEventsListener(controller, navController, dialogScaffold = LocalDialog.current)
 
         // switching from redeem to graph controller
         controller.onAutoDownloadEvent.listen { (workManager, workRequest) ->
@@ -207,11 +210,6 @@ class DigasMainScreen(
                 onWorkInfoSucceeded = sharedViewModel::refresh
             )
         }
-
-        AuthenticationFailureDialog(
-            event = controller.showAuthenticationErrorDialog,
-            dialogScaffold = dialog
-        )
 
         DigaDeleteDialog(
             dialogScaffold = dialog,
@@ -555,7 +553,9 @@ fun DigaMainScreenScaffold(
                                 onClickOnReadyForSelfArchive = { actions.onClickOnReadyForSelfArchive(state.status) },
                                 onClickOnDigaOpen = actions.onClickOnDigaOpen,
                                 onClickOnRevertArchive = { actions.onClickOnArchiveRevert(state.status) },
-                                onClickOnNavigateToInsuranceSearch = { actions.onNavigateToInsuranceSearch() }
+                                onClickOnNavigateToInsuranceSearch = {
+                                    actions.onNavigateToInsuranceSearch()
+                                }
                             )
                         }
                     }

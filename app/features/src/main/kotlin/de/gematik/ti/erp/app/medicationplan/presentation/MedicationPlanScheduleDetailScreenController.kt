@@ -41,9 +41,9 @@ import androidx.lifecycle.Lifecycle
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.core.LifecycleEventObserver
 import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
 import de.gematik.ti.erp.app.medicationplan.model.parseInstruction
 import de.gematik.ti.erp.app.medicationplan.model.toMedicationSchedule
 import de.gematik.ti.erp.app.medicationplan.usecase.DeactivateMedicationScheduleUseCase

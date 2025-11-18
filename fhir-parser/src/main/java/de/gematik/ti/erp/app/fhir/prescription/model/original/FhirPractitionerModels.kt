@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.model.original
 
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirCodeableConcept
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier.Companion.findPractitionerLanr
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier.Companion.findPractitionerTelematikId
@@ -189,4 +190,47 @@ internal data class FhirQualificationCode(
 @Serializable
 internal data class FhirQualificationText(
     @SerialName("text") val text: String? = null
+)
+
+/**
+ * Represents the FHIR `PractitionerRole` resource for EU profile version 1.0.
+ *
+ * In EU bundles, this resource acts as a bridge between:
+ * - The individual pharmacist (Practitioner)
+ * - The pharmacy organization (Organization)
+ *
+ * This is required because EU bundles use reference-based linking instead of
+ * embedded identifiers (unlike German V1.4 profile).
+ */
+@Serializable
+internal data class FhirPractitionerRole(
+    @SerialName("resourceType") val resourceType: String? = null,
+    @SerialName("id") val id: String? = null,
+    @SerialName("meta") val meta: FhirMeta? = null,
+    @SerialName("practitioner") val practitioner: FhirPractitionerRoleReference? = null,
+    @SerialName("organization") val organization: FhirPractitionerRoleReference? = null,
+    @SerialName("code") val code: List<FhirCodeableConcept>? = null
+) {
+    companion object {
+        /**
+         * Extracts a PractitionerRole for EU profile.
+         */
+        fun JsonElement.extractEuPractitionerRole(): FhirPractitionerRole? {
+            return try {
+                SafeJson.value.decodeFromJsonElement(serializer(), this)
+            } catch (e: Exception) {
+                Napier.e("Error parsing EU FHIR PractitionerRole: ${e.message}")
+                null
+            }
+        }
+    }
+}
+
+/**
+ * FHIR reference to another resource.
+ * Format: "ResourceType/id" (e.g., "Organization/6a3c8c57-0870-476e-90e3-25b7562799d3")
+ */
+@Serializable
+internal data class FhirPractitionerRoleReference(
+    @SerialName("reference") val reference: String? = null
 )

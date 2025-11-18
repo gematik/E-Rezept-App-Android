@@ -116,7 +116,8 @@ suspend fun CardCommunicationAnalytics.trackCardCommunication(state: Authenticat
                 trackAuthenticationProblem(CardCommunicationAnalytics.AuthenticationProblem.CardCommunicationInterrupted)
 
             AuthenticationState.HealthCardPin1RetryLeft,
-            AuthenticationState.HealthCardPin2RetriesLeft ->
+            AuthenticationState.HealthCardPin2RetriesLeft
+            ->
                 trackAuthenticationProblem(CardCommunicationAnalytics.AuthenticationProblem.CardPinWrong)
 
             AuthenticationState.IDPCommunicationFailed ->

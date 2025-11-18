@@ -35,6 +35,7 @@ internal fun PharmacyUseCaseData.Pharmacy.location(locationMode: PharmacyUseCase
         is PharmacyUseCaseData.LocationMode.Enabled -> copy(
             distance = coordinates?.minus(locationMode.coordinates)
         )
+
         else -> this
     }
 
@@ -50,7 +51,7 @@ internal fun PharmacyUseCaseData.Pharmacy.onlineService(isOnlineServiceFiltered:
         else -> true
     }
 
-internal fun PharmacyUseCaseData.Pharmacy.isOpenNow(isOpenNow: Boolean) =
+internal fun PharmacyUseCaseData.Pharmacy.isOpenNow(isOpenNow: Boolean): Boolean =
     if (isOpenNow) {
         openingHours?.isOpenAt(
             Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())

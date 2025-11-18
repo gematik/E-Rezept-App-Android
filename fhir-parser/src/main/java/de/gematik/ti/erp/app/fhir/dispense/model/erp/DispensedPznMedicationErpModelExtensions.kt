@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.fhir.dispense.model.erp
 
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirAddress.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension.Companion.findExtensionByUrl
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.DIGA_DEEP_LINK
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.DIGA_REDEEM_CODE
@@ -31,11 +32,12 @@ import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConsta
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.MedicationCategory.Version14
 import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispenseDeviceRequestErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.FhirMedicationDispenseErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseEuV10Model
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseMedicationModel
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseMedicationModel.Companion.toTypedErpModel
-import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseV14V15DispenseModel
-import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseV14V15DispenseModel.Companion.isDigaType
+import de.gematik.ti.erp.app.fhir.dispense.model.original.MedicationDispenseCommon
 import de.gematik.ti.erp.app.fhir.error.fhirError
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirOrganization
 import de.gematik.ti.erp.app.utils.ParserUtil.asFhirTemporal
 import de.gematik.ti.erp.app.utils.ParserUtil.asNullableFhirTemporal
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
@@ -45,17 +47,22 @@ internal fun DispenseMedicationVersionType.toCategoryVersionMapper() =
         DispenseMedicationVersionType.Pzn102,
         DispenseMedicationVersionType.Compounding102,
         DispenseMedicationVersionType.Ingredient102,
-        DispenseMedicationVersionType.FreeText102 -> Version102
+        DispenseMedicationVersionType.FreeText102
+        -> Version102
 
         DispenseMedicationVersionType.Pzn110,
         DispenseMedicationVersionType.Compounding110,
         DispenseMedicationVersionType.Ingredient110,
-        DispenseMedicationVersionType.FreeText110 -> Version110
+        DispenseMedicationVersionType.FreeText110
+        -> Version110
 
         DispenseMedicationVersionType.Epa14 -> Version14
     }
 
-internal fun FhirMedicationDispenseV14V15DispenseModel.toErpModel(
+/**
+ * Converts any MedicationDispense model (V14, V15, EU V1.0) to ERP model
+ */
+internal fun MedicationDispenseCommon.toErpModel(
     medication: FhirMedicationDispenseMedicationModel?
 ) = FhirMedicationDispenseErpModel(
     dispenseId = id ?: "",
@@ -71,19 +78,42 @@ internal fun FhirMedicationDispenseV14V15DispenseModel.toErpModel(
     }
 )
 
-// https://gemspec.gematik.de/docs/gemF/gemF_eRp_DiGA/latest/#7.7.1.2.1
-private fun FhirMedicationDispenseV14V15DispenseModel.dataAbsentCodeIfNoRedeemCode(): String? {
-    val redeemCode = extension.findExtensionByUrl(DIGA_REDEEM_CODE)?.valueString
+/**
+ * Converts EU MedicationDispense to ErpModel.
+ *
+ * @param medication The dispensed medication resource.
+ * @param organization The organization (pharmacy) that dispensed, resolved from performer reference.
+ *                     Extracts performer identifier, pharmacy name, and address.
+ * @param practitioner The practitioner who dispensed, resolved from performer reference.
+ * @return [FhirMedicationDispenseErpModel] with all dispense data including pharmacy information.
+ */
 
-    if (!redeemCode.isNullOrEmpty()) {
-        return null
-    }
-
-    val declineCode = medicationReference?.declineCode
-    return declineCode ?: fhirError("Diga medication dispense decline code rule failed: required decline code is missing")
+internal fun FhirMedicationDispenseEuV10Model.toErpModel(
+    medication: FhirMedicationDispenseMedicationModel?,
+    organization: FhirOrganization? = null
+): FhirMedicationDispenseErpModel {
+    return FhirMedicationDispenseErpModel(
+        dispenseId = id.orEmpty(),
+        patientId = subject?.identifier?.value.orEmpty(),
+        substitutionAllowed = substitution?.wasSubstituted ?: false,
+        dosageInstruction = dosageInstruction.map { it.text }.firstOrNull(),
+        // For EU: Use organization identifier if available (resolved from PractitionerRole)
+        performer = organization?.telematikId.orEmpty(),
+        pharmacyName = organization?.name,
+        pharmacyAddress = organization?.addresses?.firstOrNull()?.toErpModel(),
+        handedOver = whenHandedOver?.asFhirTemporal(),
+        dispensedMedication = medication?.toTypedErpModel()?.let(::listOf).orEmpty(),
+        dispensedDeviceRequest = when {
+            isDigaType() -> toDeviceRequestErpModel()
+            else -> null
+        }
+    )
 }
 
-private fun FhirMedicationDispenseV14V15DispenseModel.toDeviceRequestErpModel(): FhirDispenseDeviceRequestErpModel {
+/**
+ * Converts MedicationDispense to DeviceRequest ERP model for DiGA
+ */
+private fun MedicationDispenseCommon.toDeviceRequestErpModel(): FhirDispenseDeviceRequestErpModel {
     return FhirDispenseDeviceRequestErpModel(
         declineCode = dataAbsentCodeIfNoRedeemCode(),
         referencePzn = if (isRedeemCodePresent()) medicationReference!!.pzn else medicationReference?.pzn,
@@ -97,11 +127,23 @@ private fun FhirMedicationDispenseV14V15DispenseModel.toDeviceRequestErpModel():
 }
 
 // https://gemspec.gematik.de/docs/gemF/gemF_eRp_DiGA/latest/#7.7.1.2.1
-private fun FhirMedicationDispenseV14V15DispenseModel.isRedeemCodePresent() =
+private fun MedicationDispenseCommon.isRedeemCodePresent() =
     extension.findExtensionByUrl(DIGA_REDEEM_CODE)?.valueString.isNotNullOrEmpty()
 
 // https://gemspec.gematik.de/docs/gemF/gemF_eRp_DiGA/latest/#7.7.1.2.1
-private fun FhirMedicationDispenseV14V15DispenseModel.fallbackNoteIfNoActivationCode(): String? {
+private fun MedicationDispenseCommon.dataAbsentCodeIfNoRedeemCode(): String? {
+    val redeemCode = extension.findExtensionByUrl(DIGA_REDEEM_CODE)?.valueString
+
+    if (!redeemCode.isNullOrEmpty()) {
+        return null
+    }
+
+    val declineCode = medicationReference?.declineCode
+    return declineCode ?: fhirError("Diga medication dispense decline code rule failed: required decline code is missing")
+}
+
+// https://gemspec.gematik.de/docs/gemF/gemF_eRp_DiGA/latest/#7.7.1.2.1
+private fun MedicationDispenseCommon.fallbackNoteIfNoActivationCode(): String? {
     val redeemCode = extension.findExtensionByUrl(DIGA_REDEEM_CODE)?.valueString
 
     if (!redeemCode.isNullOrEmpty()) {

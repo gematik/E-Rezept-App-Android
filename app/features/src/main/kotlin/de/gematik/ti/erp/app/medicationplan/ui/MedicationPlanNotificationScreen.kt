@@ -65,8 +65,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.navOptions
-import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.base.BaseActivity
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.ErpTimeFormatter
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
 import de.gematik.ti.erp.app.fhir.temporal.toLocalDate

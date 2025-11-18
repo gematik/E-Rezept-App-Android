@@ -117,12 +117,13 @@ internal data class FhirMedicationDispenseMedicationModel(
             extensions.findExtensionByUrl(it.toCategoryVersionMapper().url)?.valueCoding?.code
         }
 
-        @Suppress("ktlint:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         private fun FhirMedicationDispenseMedicationModel.getAmountRatio(version: FhirMedicationDispenseConstants.DispenseMedicationVersionType?) =
             when (version?.toReducedVersion()) {
                 FhirMedicationDispenseConstants.DispenseMedicationReducedVersion.V_1_1_0 -> amount?.getRatio()
                 FhirMedicationDispenseConstants.DispenseMedicationReducedVersion.V_1_0_2,
-                FhirMedicationDispenseConstants.DispenseMedicationReducedVersion.V_1_4 -> amount?.getRatioSpecialVersion102()
+                FhirMedicationDispenseConstants.DispenseMedicationReducedVersion.V_1_4
+                -> amount?.getRatioSpecialVersion102()
 
                 null -> null
             }
@@ -289,7 +290,10 @@ internal data class FhirMedicationDispenseMedicationModel(
             DispenseMedicationType.Ingredient -> model.toIngredientMedicationErpModel()
             DispenseMedicationType.FreeText -> model.toFreeTextMedicationErpModel()
             DispenseMedicationType.EpaTypeI,
-            DispenseMedicationType.EpaTypeII -> model.toEpaMedicationErpModel()
+            DispenseMedicationType.EpaTypeII
+            -> model.toEpaMedicationErpModel()
+            DispenseMedicationType.EpaEuV10
+            -> model.toEpaMedicationErpModel()
 
             DispenseMedicationType.Unknown -> null
         }

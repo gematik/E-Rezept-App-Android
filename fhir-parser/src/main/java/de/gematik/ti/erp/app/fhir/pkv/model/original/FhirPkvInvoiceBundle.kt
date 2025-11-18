@@ -140,8 +140,10 @@ internal data class FhirPkvInvoiceBundle(
                 it.contains(DAV_PKV_PR_ERP_INVOICE_BUNDLE_URL) ||
                     it.contains(DAV_PR_ERP_INVOICE_BUNDLE_V_1_5_URL)
             }
-            if (!isValidInvoice) return null.also {
-                Napier.e(tag = "fhir-parser") { "Invalid invoice bundle" }
+            if (!isValidInvoice) {
+                return null.also {
+                    Napier.e(tag = "fhir-parser") { "Invalid invoice bundle" }
+                }
             }
 
             return try {

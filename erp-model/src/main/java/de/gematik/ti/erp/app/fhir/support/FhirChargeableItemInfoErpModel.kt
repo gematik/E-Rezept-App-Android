@@ -35,5 +35,5 @@ data class FhirChargeableItemCodeErpModel(
 enum class ChargeItemType {
     Pzn,
     Ta1,
-    Hmnr;
+    Hmnr
 }

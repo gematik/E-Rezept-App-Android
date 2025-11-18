@@ -39,7 +39,8 @@ import java.security.spec.ECGenParameterSpec
 
 fun deviceSupportsAuthenticationMethod(status: Int) = when (status) {
     BiometricManager.BIOMETRIC_SUCCESS,
-    BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
+    BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED
+    ->
         true
 
     else ->

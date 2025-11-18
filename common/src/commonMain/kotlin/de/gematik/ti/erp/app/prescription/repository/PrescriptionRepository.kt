@@ -69,10 +69,4 @@ interface PrescriptionRepository {
     suspend fun redeemScannedTasks(taskIds: List<String>)
 
     fun loadAllTaskIds(profileId: ProfileIdentifier): Flow<List<String>>
-
-    @Deprecated(
-        message = "FOR TESTING ONLY: Will be removed when real backend EU-flag is available",
-        level = DeprecationLevel.WARNING
-    )
-    suspend fun updateEuRedeemableStatus(taskId: String, isEuRedeemable: Boolean)
 }

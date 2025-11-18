@@ -37,9 +37,9 @@ import androidx.navigation.NavController
 import androidx.navigation.navOptions
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
+import de.gematik.ti.erp.app.cardwall.presentation.rememberCardWallSelectInsuranceTypeBottomSheetScreenController
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
-import de.gematik.ti.erp.app.cardwall.presentation.rememberCardWallSelectInsuranceTypeBottomSheetScreenController
 import de.gematik.ti.erp.app.prescription.ui.components.DefaultDrawerScreenContent
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
@@ -93,6 +93,17 @@ class CardWallSelectInsuranceTypeBottomSheetScreen(
                             }
                         }
                     )
+                },
+                onClickBUND = {
+                    controller.setProfileInsuranceTypeAsBUND()
+                    navController.navigate(
+                        CardWallRoutes.CardWallCanScreen.pathWithProfile(profile.id),
+                        navOptions = navOptions {
+                            popUpTo(CardWallRoutes.CardWallSelectInsuranceTypeBottomSheetScreen.route) {
+                                inclusive = true
+                            }
+                        }
+                    )
                 }
             )
         }
@@ -102,7 +113,8 @@ class CardWallSelectInsuranceTypeBottomSheetScreen(
 @Composable
 private fun CardWallSelectInsuranceTypeBottomSheetScreenContent(
     onClickGKV: () -> Unit,
-    onClickPKV: () -> Unit
+    onClickPKV: () -> Unit,
+    onClickBUND: () -> Unit
 ) {
     DefaultDrawerScreenContent(
         modifierPrimaryButton = Modifier.testTag(TestTag.CardWall.SelectInsuranceTypeBottomSheet.GkvButton),
@@ -113,7 +125,9 @@ private fun CardWallSelectInsuranceTypeBottomSheetScreenContent(
         primaryButtonText = stringResource(R.string.cardwall_select_insurance_type_drawer_public_insurance_button),
         outlinedButtonText = stringResource(R.string.cardwall_select_insurance_type_drawer_private_insurance_button),
         onClickPrimary = onClickGKV,
-        onClickOutlined = onClickPKV
+        onClickOutlined = onClickPKV,
+        bottomLinkText = stringResource(R.string.cardwall_select_insurance_federal_link),
+        onClickBottomLink = onClickBUND
     )
 }
 
@@ -123,7 +137,8 @@ fun CardWallSelectInsuranceTypeBottomSheetScreenPreview() {
     PreviewAppTheme {
         CardWallSelectInsuranceTypeBottomSheetScreenContent(
             onClickGKV = {},
-            onClickPKV = {}
+            onClickPKV = {},
+            onClickBUND = {}
         )
     }
 }

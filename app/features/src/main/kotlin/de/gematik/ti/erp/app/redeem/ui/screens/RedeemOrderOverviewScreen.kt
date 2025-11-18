@@ -83,7 +83,6 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
-import de.gematik.ti.erp.app.authentication.ui.components.AuthenticationFailureDialog
 import de.gematik.ti.erp.app.bottombar.AnimatedBottomBar
 import de.gematik.ti.erp.app.button.SelectionSummaryButton
 import de.gematik.ti.erp.app.button.SelectionSummaryButtonData
@@ -190,6 +189,12 @@ class RedeemOrderOverviewScreen(
         val isProfileRefreshing by orderOverviewController.isProfileRefreshing.collectAsStateWithLifecycle()
         val listState = rememberLazyListState()
         val scaffoldState = rememberScaffoldState()
+        ChooseAuthenticationNavigationEventsListener(
+            controller = orderOverviewController,
+            navController = navController,
+            dialogScaffold = LocalDialog.current
+        )
+
         val contactValidationState = remember(selectedOrderState, orderOption, hasAttemptedRedeem) {
             val option = orderOption // to allow smart-casting
             when {
@@ -227,10 +232,7 @@ class RedeemOrderOverviewScreen(
                 sharedViewModel.refreshActiveProfile()
             }
         }
-        AuthenticationFailureDialog(
-            event = orderOverviewController.showAuthenticationErrorDialog,
-            dialogScaffold = dialog
-        )
+
         val isPrescriptionError = remember(
             selectedOrderState.prescriptionsInOrder,
             hasAttemptedRedeem
@@ -312,7 +314,6 @@ class RedeemOrderOverviewScreen(
             sharedViewModel.initializePrescriptionSelectionState(taskId)
         }
 
-        ChooseAuthenticationNavigationEventsListener(orderOverviewController, navController)
         with(orderOverviewController) {
             observerProfileRefresh(isProfileRefreshing, this)
             observeRedeemState(redeemPrescriptionState, this)
@@ -545,7 +546,8 @@ fun RedeemOrderOverviewScreenScaffold(
         bottomBar = {
             AnimatedBottomBar(listState) {
                 Column(
-                    modifier = Modifier.navigationBarsPadding()
+                    modifier = Modifier
+                        .navigationBarsPadding()
                         .padding(
                             vertical = PaddingDefaults.Small,
                             horizontal = PaddingDefaults.Medium
@@ -873,7 +875,7 @@ private fun ContactSelectionSectionPreview() {
 
 @LightDarkLongPreview
 @Composable
-internal fun RedeemOrderOverviewScreenContentPreview(
+fun RedeemOrderOverviewScreenContentPreview(
     @PreviewParameter(RedeemOverviewScreenParameter::class) state: RedeemOverviewScreenPreviewData
 ) {
     PreviewTheme {

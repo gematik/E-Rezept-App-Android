@@ -55,7 +55,6 @@ dependencies {
     }
     ktlintRules(libs.quality.rules)
 }
-
 fun ktlintCreating(format: Boolean, sources: List<String>, disableLicenceRule: Boolean) =
     tasks.creating(JavaExec::class) {
         description = "Fix Kotlin code style deviations."

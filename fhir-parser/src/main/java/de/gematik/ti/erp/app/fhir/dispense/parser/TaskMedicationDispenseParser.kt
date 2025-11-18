@@ -28,19 +28,24 @@ import de.gematik.ti.erp.app.fhir.FhirMedicationDispenseErpModelCollection
 import de.gematik.ti.erp.app.fhir.FhirMedicationDispenseErpModelCollection.Companion.toCollection
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirResourceBundle.Companion.parseResourceBundle
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirResourceEntry
+import de.gematik.ti.erp.app.fhir.constant.FhirConstants
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants
-import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.MedicationDispenseVersion.Legacy
-import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.MedicationDispenseVersion.V_1_4
-import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.MedicationDispenseVersion.V_1_5
 import de.gematik.ti.erp.app.fhir.dispense.model.FhirMedicationDispenseErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.erp.toErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMediationDispenseResourceType
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMediationDispenseResourceType.Medication
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMediationDispenseResourceType.MedicationDispense
+import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseEuV10Model
+import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseEuV10Model.Companion.extractEuMedicationDispense
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseLegacyModel.Companion.getMedicationDispenseLegacy
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseLegacyModel.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseMedicationModel.Companion.extractDispensedMedication
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseV14V15DispenseModel.Companion.extractMedicationDispense
 import de.gematik.ti.erp.app.fhir.dispense.model.original.medicationDispenseResourceTypeForV14V15
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirOrganization
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirOrganization.Companion.getOrganization
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirPractitionerRole
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirPractitionerRole.Companion.extractEuPractitionerRole
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement
 
@@ -49,7 +54,7 @@ import kotlinx.serialization.json.JsonElement
     sourceSpecification = "BSI-eRp-ePA",
     rationale = """
         This parser securely processes structured FHIR `MedicationDispense` input by:
-            • Differentiating between legacy [1.2] and modern [1.4] resource versions using entry metadata.
+            • Differentiating between legacy [1.2], modern [1.4 or 1.5] and eu [1.0] resource versions using entry profile metadata.
             • Parsing `MedicationDispense` and `Medication` elements separately and safely linking them via `medicationReference`.
             • Validating `device-request` before parsing them with the meta.profile url.
             • Handling structured extensions such as redeem codes and deep links through well-defined FHIR extension URLs.
@@ -58,31 +63,111 @@ import kotlinx.serialization.json.JsonElement
     """
 )
 class TaskMedicationDispenseParser : BundleParser {
-
     override fun extract(bundle: JsonElement): FhirMedicationDispenseErpModelCollection? {
         try {
             val entries = bundle.parseResourceBundle()
-
-            // (1) Find if we are in version 1.4, 1.5 or in legacy version
-            val version = FhirMedicationDispenseConstants.MedicationDispenseVersion.fromNumber(entries.first().version)
-
-            // (2) Parse differently based on the version that we have
-            return when (version) {
-                Legacy -> {
+            // Parse differently based on the profile version that we have
+            val profile = entries.first().profile.orEmpty()
+            return when (profile) {
+                FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.EU_V_1_0.profileUrl
+                -> {
                     entries
-                        .fromLegacyMedicationDispenseToErpModel()
+                        .fromEuV10MedicationDispenseToErpModel()
                         .toCollection()
                 }
-
-                V_1_4, V_1_5 -> {
+                FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.V_1_4.profileUrl,
+                FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.V_1_5.profileUrl,
+                FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.DIGA_V_1_4.profileUrl,
+                FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.DIGA_V_1_5.profileUrl
+                -> {
                     entries
                         .fromV14V15MedicationDispenseToErpModel()
+                        .toCollection()
+                }
+                else -> {
+                    entries
+                        .fromLegacyMedicationDispenseToErpModel()
                         .toCollection()
                 }
             }
         } catch (e: Throwable) {
             Napier.e(tag = "fhir-parser", throwable = e) { "Error parsing MedicationDispense" }
             return null
+        }
+    }
+
+    /**
+     * Helper function to extract resources of a specific type from bundle entries.
+     *
+     * @param resourceType The type of resource to extract.
+     * @param extractor Function to extract and parse the resource.
+     * @return List of extracted resources.
+     */
+    private inline fun <reified T> List<FhirResourceEntry>.extractEuResources(
+        resourceType: FhirMediationDispenseResourceType,
+        extractor: (JsonElement) -> T?
+    ): List<T> {
+        return mapNotNull {
+            it.resource
+                .takeIf { _ -> it.medicationDispenseResourceTypeForV14V15() == resourceType }
+                ?.let(extractor)
+        }
+    }
+
+    private fun String.extractUuId(): String? = when {
+        startsWith(FhirConstants.URN_UUID_PREFIX) -> substringAfter(FhirConstants.URN_UUID_PREFIX)
+        contains("/") -> substringAfter("/")
+        else -> null
+    }
+
+    /**
+     * Helper function to resolve performer organization from EU V1.0 MedicationDispense bundles.
+     *
+     * Resolves the reference chain: MedicationDispense.performer → PractitionerRole → Organization
+     *
+     * Supports multiple reference formats found in EU bundles:
+     * - UUID format: `urn:uuid:5581f231-583d-4105-83c8-d794313c29a3`
+     * - Standard format: `PractitionerRole/5581f231-583d-4105-83c8-d794313c29a3`
+     *
+     * @param dispense The EU medication dispense resource containing the performer reference.
+     * @param practitionerRoleById Map of practitioner roles indexed by their ID.
+     * @param organizationById Map of organizations indexed by their ID.
+     * @return The resolved [FhirOrganization], or `null` if the organization cannot be found or resolved.
+     */
+    private fun resolvePerformerData(
+        dispense: FhirMedicationDispenseEuV10Model,
+        practitionerRoleById: Map<String?, FhirPractitionerRole>,
+        organizationById: Map<String?, FhirOrganization>
+    ): FhirOrganization? = dispense.performer.firstOrNull()?.actor?.reference
+        ?.extractUuId()
+        ?.let { practitionerRoleById[it] }
+        ?.organization?.reference?.extractUuId()
+        ?.let { organizationById[it] }
+
+    /**
+     * Map EU v1.0 medication dispense bundle into [FhirMedicationDispenseErpModel] list.
+     *
+     * This function extracts all resources, resolves references, and converts to ErpModel.
+     */
+    private fun List<FhirResourceEntry>.fromEuV10MedicationDispenseToErpModel(): List<FhirMedicationDispenseErpModel> {
+        // Extract all resources from bundle
+        val dispenses = extractEuResources(MedicationDispense) { it.extractEuMedicationDispense() }
+        val medications = extractEuResources(Medication) { it.extractDispensedMedication() }
+        val organizations = extractEuResources(FhirMediationDispenseResourceType.Organization) { it.getOrganization() }
+        val practitionerRoles = extractEuResources(FhirMediationDispenseResourceType.PractitionerRole) {
+            it.extractEuPractitionerRole()
+        }
+
+        // Create lookup maps
+        val medicationById = medications.associateBy { it.id }
+        val organizationById = organizations.associateBy { it.id }
+        val practitionerRoleById = practitionerRoles.associateBy { it.id }
+
+        // Convert each dispense to ErpModel
+        return dispenses.map { dispense ->
+            val medication = medicationById[dispense.medicationReference?.medicationReferenceId]
+            val organization = resolvePerformerData(dispense, practitionerRoleById, organizationById)
+            dispense.toErpModel(medication, organization)
         }
     }
 

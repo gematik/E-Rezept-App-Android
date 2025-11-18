@@ -23,8 +23,8 @@
 package de.gematik.ti.erp.app.messages.mappers
 
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.pharmacy.repository.model.CommunicationPayloadInbox
 import de.gematik.ti.erp.app.messages.model.Communication
+import de.gematik.ti.erp.app.pharmacy.repository.model.CommunicationPayloadInbox
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerializationException

@@ -37,8 +37,7 @@ import de.gematik.ti.erp.app.profiles.usecase.IsProfilePKVUseCase
 import de.gematik.ti.erp.app.profiles.usecase.LogoutProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.SwitchActiveProfileUseCase
-import de.gematik.ti.erp.app.profiles.usecase.SwitchProfileToGKVUseCase
-import de.gematik.ti.erp.app.profiles.usecase.SwitchProfileToPKVUseCase
+import de.gematik.ti.erp.app.profiles.usecase.SwitchProfileInsuranceTypeUseCase
 import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileUseCase
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
@@ -54,8 +53,7 @@ val profilesModule = DI.Module("profilesModule") {
     bindProvider { UpdateProfileUseCase(instance()) }
     bindProvider { DecryptAccessTokenUseCase(instance()) }
     bindProvider { LogoutProfileUseCase(instance()) }
-    bindProvider { SwitchProfileToPKVUseCase(instance()) }
-    bindProvider { SwitchProfileToGKVUseCase(instance()) }
+    bindProvider { SwitchProfileInsuranceTypeUseCase(instance()) }
     bindProvider { IsProfilePKVUseCase(instance()) }
     bindProvider { GetSelectedProfileUseCase(instance()) }
     bindProvider { GetPairedDevicesUseCase(instance()) }

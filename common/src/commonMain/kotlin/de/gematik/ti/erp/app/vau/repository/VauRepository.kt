@@ -23,11 +23,12 @@
 package de.gematik.ti.erp.app.vau.repository
 
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
-import io.github.aakira.napier.Napier
 
 class VauRepository(
     private val localDataSource: VauLocalDataSource,
@@ -60,6 +61,12 @@ class VauRepository(
             }
         }
 
+    @Requirement(
+        "A_25061#1",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "When the trust store is not valid we invalidate all the data sources and cannot call the fachdienst.",
+        codeLines = 2
+    )
     suspend fun invalidate() {
         localDataSource.deleteAll()
     }

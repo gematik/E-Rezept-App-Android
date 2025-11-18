@@ -25,11 +25,11 @@ package de.gematik.ti.erp.app.medicationplan.repository
 import de.gematik.ti.erp.app.database.realm.utils.queryFirst
 import de.gematik.ti.erp.app.database.realm.v1.medicationplan.MedicationScheduleEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.medicationplan.MedicationScheduleNotificationEntityV1
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
 import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDuration
 import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleInterval
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
 import de.gematik.ti.erp.app.medicationplan.model.toMedicationSchedule
 import de.gematik.ti.erp.app.medicationplan.model.toMedicationScheduleDurationEntityV1
 import de.gematik.ti.erp.app.medicationplan.model.toMedicationScheduleEntityV1

@@ -48,8 +48,9 @@ object SchemaVersion {
                 "Added additionalAddressInformation to AddressEntityV1"
         ),
         SchemaMigration(59, "Added zanr and telematikId to PractitionerEntityV1"),
-        SchemaMigration(60, "Added medicationProfileType and medicationProfileVersion to MedicationEntityV1")
-
+        SchemaMigration(60, "Added medicationProfileType and medicationProfileVersion to MedicationEntityV1"),
+        SchemaMigration(61, "Added PharmacyName and address to MedicationDispenseEntityV1"),
+        SchemaMigration(62, "Added EuAccessCodeEntityV1")
     )
-    val ACTUAL = 61L
+    val ACTUAL = 62L
 }

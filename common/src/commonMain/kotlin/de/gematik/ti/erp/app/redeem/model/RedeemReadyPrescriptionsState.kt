@@ -85,7 +85,8 @@ sealed class PrescriptionReadinessState {
 
                 is SyncedTaskData.SyncedTask.LaterRedeemable,
                 is SyncedTaskData.SyncedTask.Pending,
-                is SyncedTaskData.SyncedTask.InProgress -> NotRedeemable
+                is SyncedTaskData.SyncedTask.InProgress
+                -> NotRedeemable
 
                 else -> NotReady
             }

@@ -98,18 +98,7 @@ class ProfilePairedDevicesScreenController(
 ) {
     init {
         observePairedDevices()
-
         biometricAuthenticationSuccessEvent.listen(controllerScope) { refreshPairedDevices() }
-
-        biometricAuthenticationResetErrorEvent.listen(controllerScope) { error ->
-            _pairedDevices.value = UiState.Error<List<PairedDevice>>(CannotLoadPairedDevicesError)
-            showAuthenticationErrorDialog.trigger(error)
-        }
-
-        biometricAuthenticationOtherErrorEvent.listen(controllerScope) { error ->
-            _pairedDevices.value = UiState.Error<List<PairedDevice>>(CannotLoadPairedDevicesError)
-            showAuthenticationErrorDialog.trigger(error)
-        }
     }
 
     private val isNotBiometricAuthentication = MutableStateFlow(false)
@@ -143,6 +132,7 @@ class ProfilePairedDevicesScreenController(
                                             useBiometricPairingScope = true
                                         )
                                     }
+                                    UiState.Error<List<PairedDevice>>(CannotLoadPairedDevicesError)
                                     true
                                 } else {
                                     Napier.e { "error loading paired devices ${throwable.message}" }
