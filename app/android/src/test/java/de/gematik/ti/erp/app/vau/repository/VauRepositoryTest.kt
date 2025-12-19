@@ -54,7 +54,8 @@ class VauRepositoryTest {
     fun setup() {
         MockKAnnotations.init(this)
 
-        repo = VauRepository(localDataSource, remoteDataSource, coroutineRule.dispatchers)
+        val config = de.gematik.ti.erp.app.vau.usecase.TruststoreConfig { TestCertificates.RCA3.Base64 }
+        repo = VauRepository(localDataSource, remoteDataSource, coroutineRule.dispatchers.io, config)
     }
 
     @Test
@@ -62,27 +63,30 @@ class VauRepositoryTest {
         coEvery { localDataSource.loadUntrusted() } coAnswers { null }
         coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
         coEvery { localDataSource.deleteAll() } coAnswers { }
-        coEvery { remoteDataSource.loadCertificates() } coAnswers { Result.success(TestCertificates.Vau.CertList) }
-        coEvery { remoteDataSource.loadOcspResponses() } coAnswers { Result.success(TestCertificates.OCSP.OCSPList) }
+        coEvery { remoteDataSource.loadPkiCertificates(any()) } returns Result.success(TestCertificates.Vau.PkiList)
+        coEvery { remoteDataSource.loadVauCertificates() } returns Result.success(TestCertificates.Vau.VauCert)
+        coEvery { remoteDataSource.loadOcspResponse(any(), any()) } returns Result.success(TestCertificates.OCSP.OCSPList)
 
         repo.withUntrusted { certs, ocsp ->
-            assertEquals(TestCertificates.Vau.CertList, certs)
+            assertEquals(TestCertificates.Vau.PkiWithVauCertList, certs)
             assertEquals(TestCertificates.OCSP.OCSPList, ocsp)
         }
 
-        coVerify(exactly = 1) { remoteDataSource.loadCertificates() }
-        coVerify(exactly = 1) { remoteDataSource.loadOcspResponses() }
+        coVerify(exactly = 1) { remoteDataSource.loadPkiCertificates(any()) }
+        coVerify(exactly = 1) { remoteDataSource.loadVauCertificates() }
+        coVerify(exactly = 1) { remoteDataSource.loadOcspResponse(any(), any()) }
         coVerify(exactly = 1) { localDataSource.loadUntrusted() }
-        coVerify(exactly = 1) { localDataSource.saveLists(any(), any()) }
+        coVerify(exactly = 0) { localDataSource.saveLists(any(), any()) }
     }
 
     @Test
     fun `local database is empty - load from remote fails`() = runTest {
         coEvery { localDataSource.loadUntrusted() } coAnswers { null }
-        coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
         coEvery { localDataSource.deleteAll() } coAnswers { }
-        coEvery { remoteDataSource.loadCertificates() } coAnswers { Result.failure(IOException()) }
-        coEvery { remoteDataSource.loadOcspResponses() } coAnswers { Result.success(TestCertificates.OCSP.OCSPList) }
+        coEvery { remoteDataSource.loadPkiCertificates(any()) } returns Result.failure(IOException())
+        // still stub others to avoid unexpected nulls if they get called before failure bubbles
+        coEvery { remoteDataSource.loadVauCertificates() } returns Result.success(TestCertificates.Vau.VauCert)
+        coEvery { remoteDataSource.loadOcspResponse(any(), any()) } returns Result.success(TestCertificates.OCSP.OCSPList)
 
         val r = try {
             repo.withUntrusted { certs, ocsp ->
@@ -94,8 +98,9 @@ class VauRepositoryTest {
 
         assertTrue(r)
 
-        coVerify(exactly = 1) { remoteDataSource.loadCertificates() }
-        coVerify(exactly = 1) { remoteDataSource.loadOcspResponses() }
+        coVerify(exactly = 1) { remoteDataSource.loadPkiCertificates(any()) }
+        coVerify(exactly = 0) { remoteDataSource.loadVauCertificates() }
+        coVerify(exactly = 0) { remoteDataSource.loadOcspResponse(any(), any()) }
         coVerify(exactly = 1) { localDataSource.loadUntrusted() }
         coVerify(exactly = 0) { localDataSource.saveLists(any(), any()) }
     }
@@ -104,22 +109,24 @@ class VauRepositoryTest {
     fun `local database is not empty`() = runTest {
         coEvery { localDataSource.loadUntrusted() } coAnswers {
             Pair(
-                TestCertificates.Vau.CertList,
+                TestCertificates.Vau.PkiList,
                 TestCertificates.OCSP.OCSPList
             )
         }
         coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
         coEvery { localDataSource.deleteAll() } coAnswers { }
+        coEvery { remoteDataSource.loadVauCertificates() } returns Result.success(TestCertificates.Vau.VauCert)
+        coEvery { remoteDataSource.loadOcspResponse(any(), any()) } returns Result.success(TestCertificates.OCSP.OCSPList)
 
         repo.withUntrusted { certs, ocsp ->
-            assertEquals(TestCertificates.Vau.CertList, certs)
+            assertEquals(TestCertificates.Vau.PkiList, certs)
             assertEquals(TestCertificates.OCSP.OCSPList, ocsp)
         }
 
-        coVerify(exactly = 0) { remoteDataSource.loadCertificates() }
-        coVerify(exactly = 0) { remoteDataSource.loadOcspResponses() }
+        coVerify(exactly = 0) { remoteDataSource.loadPkiCertificates() }
+        coVerify(exactly = 0) { remoteDataSource.loadOcspResponse(any(), any()) }
         coVerify(exactly = 1) { localDataSource.loadUntrusted() }
-        coVerify(exactly = 1) { localDataSource.saveLists(any(), any()) }
+        coVerify(exactly = 0) { localDataSource.saveLists(any(), any()) }
     }
 
     @Test
@@ -134,12 +141,12 @@ class VauRepositoryTest {
 
             coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
             coEvery { localDataSource.deleteAll() } coAnswers { }
+            coEvery { remoteDataSource.loadVauCertificates() } returns Result.success(TestCertificates.Vau.VauCert)
 
             val r = try {
                 repo.withUntrusted { certs, ocsp ->
                     assertEquals(TestCertificates.Vau.CertList, certs)
                     assertEquals(TestCertificates.OCSP.OCSPList, ocsp)
-
                     error("fail")
                 }
             } catch (_: Exception) {
@@ -148,8 +155,8 @@ class VauRepositoryTest {
 
             assertTrue(r)
 
-            coVerify(exactly = 0) { remoteDataSource.loadCertificates() }
-            coVerify(exactly = 0) { remoteDataSource.loadOcspResponses() }
+            coVerify(exactly = 0) { remoteDataSource.loadPkiCertificates() }
+            coVerify(exactly = 0) { remoteDataSource.loadOcspResponse(any(), any()) }
             coVerify(exactly = 1) { localDataSource.loadUntrusted() }
             coVerify(exactly = 0) { localDataSource.saveLists(any(), any()) }
         }

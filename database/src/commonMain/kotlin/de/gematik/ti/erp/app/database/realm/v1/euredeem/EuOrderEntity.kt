@@ -22,7 +22,6 @@
 
 package de.gematik.ti.erp.app.database.realm.v1.euredeem
 
-import de.gematik.ti.erp.app.database.realm.v1.InternalMessageEntityV1
 import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.types.RealmList
@@ -34,8 +33,9 @@ class EuOrderEntityV1 : RealmObject {
     var orderId: String = ""
     var countryCode: String = ""
     var createdAt: RealmInstant = RealmInstant.MIN
+    var lastModifiedAt: RealmInstant = RealmInstant.MIN
     var profileId: String = ""
     var euAccessCode: EuAccessCodeEntityV1? = null
-    var messages: RealmList<InternalMessageEntityV1> = realmListOf()
+    var taskEvents: RealmList<EuTaskEventLogEntityV1> = realmListOf()
     var relatedTaskIds: RealmList<String> = realmListOf()
 }

@@ -36,6 +36,8 @@ import de.gematik.ti.erp.app.demomode.datasource.data.internalMessageEntityV1
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfile
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfileLinkedCommunication
 import de.gematik.ti.erp.app.eurezept.domain.model.Country
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
+import de.gematik.ti.erp.app.eurezept.model.EuOrder
 import de.gematik.ti.erp.app.fhir.audit.model.FhirAuditEventErpModel
 import de.gematik.ti.erp.app.idp.api.models.PairingData
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
@@ -50,6 +52,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.Clock
 import java.util.UUID
+import kotlin.math.absoluteValue
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
@@ -77,7 +80,8 @@ class DemoModeDataSource(
             profileIdentifier = demoProfile01.id,
             status = SyncedTaskData.TaskStatus.Ready,
             medicationNamesIndex = 30,
-            isEuRedeemable = true
+            isEuRedeemable = true,
+            isEuRedeemableByPatientAuthorization = true
         ),
 
         syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Completed, medicationNamesIndex = 1),
@@ -264,7 +268,7 @@ class DemoModeDataSource(
         MutableStateFlow(
             mutableListOf(
                 PairingResponseEntry(
-                    name = "Pixel 10",
+                    name = "Pixel 20",
                     creationTime = Clock.System.now().minus(10.days).toEpochMilliseconds(),
                     signedPairingData = "pairing.data"
                 ) to
@@ -279,6 +283,11 @@ class DemoModeDataSource(
                     )
             )
         )
+
+    val euOrders: MutableStateFlow<MutableList<EuOrder>> = MutableStateFlow(mutableListOf())
+    val euAccessCodes: MutableStateFlow<MutableList<EuAccessCode>> = MutableStateFlow(mutableListOf())
+    val orders: MutableStateFlow<MutableList<EuOrder>> = MutableStateFlow(mutableListOf())
+    val events: MutableStateFlow<MutableList<FhirAuditEventErpModel>> = MutableStateFlow(mutableListOf())
 
     /**
      * Data sources for EU countries prescription
@@ -301,54 +310,20 @@ class DemoModeDataSource(
         Country("Schweden", "se", "🇸🇪"),
         Country("Spanien", "es", "🇪🇸")
     ).sortedBy { it.name }
+
     val euCountries: StateFlow<List<Country>> = MutableStateFlow(euCountriesList).asStateFlow()
 
-    private val countryNameToCodeMap = mapOf(
-        "spanien" to "es", "frankreich" to "fr",
-        "italien" to "it", "österreich" to "at", "niederlande" to "nl",
-        "belgien" to "be", "portugal" to "pt", "polen" to "pl",
-        "tschechien" to "cz", "ungarn" to "hu", "dänemark" to "dk",
-        "schweden" to "se", "finnland" to "fi", "estland" to "ee",
-        "kroatien" to "hr", "luxemburg" to "lu",
+    fun generateCode(): String {
+        val uuid = UUID.randomUUID()
+        val value = uuid.mostSignificantBits xor uuid.leastSignificantBits
 
-        "spain" to "es", "france" to "fr",
-        "italy" to "it", "austria" to "at", "netherlands" to "nl",
-        "belgium" to "be", "poland" to "pl", "czech republic" to "cz",
-        "hungary" to "hu", "denmark" to "dk", "sweden" to "se",
-        "finland" to "fi", "estonia" to "ee", "croatia" to "hr",
-        "luxembourg" to "lu"
-    )
+        // Convert to positive number
+        val positive = value.absoluteValue
 
-    private val countryCodeToFlagMap = mapOf(
-        "at" to "🇦🇹", "be" to "🇧🇪", "cz" to "🇨🇿",
-        "dk" to "🇩🇰", "ee" to "🇪🇪", "fi" to "🇫🇮", "fr" to "🇫🇷",
-        "hr" to "🇭🇷", "hu" to "🇭🇺", "it" to "🇮🇹", "lu" to "🇱🇺",
-        "nl" to "🇳🇱", "pl" to "🇵🇱", "pt" to "🇵🇹", "se" to "🇸🇪",
-        "es" to "🇪🇸"
-    )
-
-    fun getCountryCode(countryName: String): String {
-        return countryNameToCodeMap[countryName.lowercase()] ?: ""
-    }
-
-    fun getCountryFlagForDemo(countryCode: String): String {
-        return countryCodeToFlagMap[countryCode.lowercase()] ?: "🇪🇺"
-    }
-
-    /**
-     * Demo data for EU redemption codes
-     */
-
-    private val demoCodeCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-    fun generateDemoRedemptionCode(): String {
-        return (1..6)
-            .map { demoCodeCharacters.random() }
-            .joinToString(" ")
-    }
-
-    fun generateDemoInsuranceNumber(): String {
-        return "M 1 2 3 4 5 6 7 8 9"
+        // Base36 = digits + uppercase letters
+        return positive.toString(36)
+            .uppercase()
+            .take(7)
     }
 
     companion object {

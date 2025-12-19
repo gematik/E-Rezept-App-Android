@@ -29,10 +29,12 @@ import de.gematik.ti.erp.app.eurezept.presentation.euSharedViewModel
 import de.gematik.ti.erp.app.eurezept.ui.screens.EuAvailabilityScreen
 import de.gematik.ti.erp.app.eurezept.ui.screens.EuConsentScreen
 import de.gematik.ti.erp.app.eurezept.ui.screens.EuCountrySelectionScreen
+import de.gematik.ti.erp.app.eurezept.ui.screens.EuDeleteAccessCodeBottomSheetScreen
 import de.gematik.ti.erp.app.eurezept.ui.screens.EuInstructionsScreen
 import de.gematik.ti.erp.app.eurezept.ui.screens.EuPrescriptionSelectionScreen
 import de.gematik.ti.erp.app.eurezept.ui.screens.EuRedeemOverviewScreen
 import de.gematik.ti.erp.app.eurezept.ui.screens.EuRedemptionCodeScreen
+import de.gematik.ti.erp.app.navigation.renderBottomSheet
 import de.gematik.ti.erp.app.navigation.renderComposable
 
 fun NavGraphBuilder.euGraph(
@@ -105,6 +107,7 @@ fun NavGraphBuilder.euGraph(
                 graphController = euSharedViewModel(navController, navEntry)
             )
         }
+
         renderComposable(
             route = EuRoutes.EuRedemptionCodeScreen.route,
             arguments = EuRoutes.EuRedemptionCodeScreen.arguments
@@ -113,6 +116,16 @@ fun NavGraphBuilder.euGraph(
                 navController = navController,
                 navBackStackEntry = navEntry,
                 graphController = euSharedViewModel(navController, navEntry)
+            )
+        }
+
+        renderBottomSheet(
+            route = EuRoutes.EuDeleteAccessCodeBottomSheetScreen.route,
+            arguments = EuRoutes.EuDeleteAccessCodeBottomSheetScreen.arguments
+        ) {
+            EuDeleteAccessCodeBottomSheetScreen(
+                navController = navController,
+                navBackStackEntry = it
             )
         }
     }

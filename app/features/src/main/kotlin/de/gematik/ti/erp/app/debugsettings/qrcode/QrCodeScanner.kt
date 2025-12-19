@@ -237,7 +237,7 @@ private fun ColumnScope.NoCameraPermissionSection() {
                     .padding(PaddingDefaults.Medium)
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                color = AppTheme.colors.neutral600,
+                color = AppTheme.colors.neutral700,
                 style = AppTheme.typography.body2,
                 text = "No camera permission"
             )
@@ -303,7 +303,7 @@ private fun QrCodeScannerBottomBar(
                 onClick = onClose
             ) {
                 Icon(
-                    tint = AppTheme.colors.neutral600,
+                    tint = AppTheme.colors.neutral700,
                     imageVector = Icons.Rounded.Close,
                     contentDescription = null
                 )
@@ -312,7 +312,7 @@ private fun QrCodeScannerBottomBar(
         SpacerSmall()
         Text(
             text = "Scan Result",
-            color = AppTheme.colors.neutral600,
+            color = AppTheme.colors.neutral700,
             maxLines = 1,
             style = AppTheme.typography.subtitle1
         )
@@ -321,7 +321,7 @@ private fun QrCodeScannerBottomBar(
             text = result,
             modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
             maxLines = 5,
-            color = AppTheme.colors.neutral600,
+            color = AppTheme.colors.neutral700,
             softWrap = true,
             style = AppTheme.typography.body2
         )

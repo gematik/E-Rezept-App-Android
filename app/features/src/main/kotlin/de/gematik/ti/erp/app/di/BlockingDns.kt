@@ -41,6 +41,12 @@ import java.net.UnknownHostException
  * - Prevent misconfigured third-party libraries from leaking metadata
  * - Align with gematik’s data minimization and security requirements
  *
+ * ## Blocked Domains
+ * - **firebaselogging.googleapis.com**: Firebase internal logging service that collects
+ *   diagnostic data, crash reports, and usage analytics.
+ * - **firebaseremoteconfig.googleapis.com**: Firebase Remote Config service used to fetch
+ *   dynamic configuration values and A/B testing parameters from the cloud.
+ *
  * ## Behavior
  * - If a hostname matches any of the configured blocked domains, a [UnknownHostException]
  *   is thrown to cancel the DNS resolution.
@@ -66,7 +72,6 @@ import java.net.UnknownHostException
  */
 internal class BlockingDns : Dns {
     private val blockedDomainSuffixes = listOf(
-        ".firebaseinstallations.googleapis.com",
         ".firebaselogging.googleapis.com",
         ".firebaseremoteconfig.googleapis.com"
     )

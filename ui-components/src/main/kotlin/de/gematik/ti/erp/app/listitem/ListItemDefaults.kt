@@ -35,8 +35,8 @@ object GemListItemDefaults {
         containerColor: Color = AppTheme.colors.neutral025,
         headlineColor: Color = AppTheme.colors.neutral900,
         leadingIconColor: Color = AppTheme.colors.primary700,
-        overlineColor: Color = AppTheme.colors.neutral600,
-        supportingColor: Color = AppTheme.colors.neutral600,
+        overlineColor: Color = AppTheme.colors.neutral700,
+        supportingColor: Color = AppTheme.colors.neutral700,
         trailingIconColor: Color = AppTheme.colors.primary700,
         disabledHeadlineColor: Color = headlineColor
             .copy(alpha = DISABLED_OPACITY),

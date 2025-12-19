@@ -68,6 +68,7 @@ import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.debugsettings.logger.presentation.rememberDbMigrationLoggerScreenController
 import de.gematik.ti.erp.app.debugsettings.logger.preview.DbMigrationLoggerScreenPreviewData
 import de.gematik.ti.erp.app.debugsettings.logger.preview.DbMigrationLoggerScreenPreviewParameterProvider
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.listitem.GemListItemDefaults
 import de.gematik.ti.erp.app.logger.model.DbMigrationLogEntry
 import de.gematik.ti.erp.app.logger.model.DbMigrationLogEntry.Companion.checkVersions
@@ -78,7 +79,6 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.topbar.AnimatedTitleContent
 import de.gematik.ti.erp.app.utils.compose.EmptyScreenComponent
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
@@ -215,7 +215,11 @@ private fun DbMigrationLoggerScreenScaffold(
                 )
             },
             onError = {
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             },
             onContent = { filteredDbMigrationLogs ->
                 DbMigrationLoggerScreenContent(
@@ -325,7 +329,7 @@ private fun DbMigrationLogEntryListItem(
                 if (dbMigrationLogEntry.checkVersions()) {
                     Icon(Icons.Rounded.Check, null, tint = AppTheme.colors.green600)
                 } else {
-                    Icon(Icons.Rounded.Close, null, tint = AppTheme.colors.red600)
+                    Icon(Icons.Rounded.Close, null, tint = AppTheme.colors.red700)
                 }
             }
         )

@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="a11y_card_wall_card_hand">Медична картка на смартфон</string>
+    <string name="a11y_card_wall_card_hand">Рука тримає картку медичного страхування біля смартфона.</string>
     <string name="a11y_cdw_health_card_image_description">Зображення медичної картки з шестизначним номером доступу у верхньому правому куті лицьової сторони картки</string>
+    <string name="a11y_datamatrix_code_description">Сканувати код</string>
+    <string name="a11y_datamatrix_code_pager_content_description">Проведіть двома пальцями, щоб перемикатися сторінки</string>
+    <string name="a11y_datamatrix_code_pager_state_description" formatted="false">Сторінка %s з %s</string>
+    <string name="a11y_datamatrix_code_zoom_in_button_description">Збільшити код</string>
+    <string name="a11y_datamatrix_code_zoom_out_button_description">Зменште розмір коду</string>
+    <string name="a11y_delete_access_code_dialog">Діалогове вікно: Видалити код доступу</string>
     <string name="a11y_deleted_text">Видалити текст</string>
     <string name="a11y_diga_arrow">доки</string>
     <string name="a11y_diga_change_insurance">Зміна страховки</string>
@@ -9,16 +15,32 @@
     <string name="a11y_diga_feedback_prompt_accessibility_label">Відгук про рецепт DiGA</string>
     <string name="a11y_diga_feedback_submit">Надіслати відгук на зовнішній вебсайт</string>
     <string name="a11y_disabled">деактивовано</string>
+    <string name="a11y_error_icon">Помилка</string>
     <string name="a11y_error_prefix">Помилка:</string>
+    <string name="a11y_eu_access_code_delete_button">Видалити код доступу</string>
+    <string name="a11y_eu_access_code_delete_button_disabled">Видалення коду доступу наразі неможливе через поточну дію.</string>
+    <string name="a11y_eu_access_code_deleted_error">Не вдалося видалити код доступу.</string>
+    <string name="a11y_eu_access_code_deleted_success">Код доступу видалено.</string>
+    <string name="a11y_eu_access_code_deleting">Код доступу буде видалено…</string>
     <string name="a11y_eu_instructions_flag_accessibility_text">Ви можете сказати наступне:</string>
     <string name="a11y_eu_instructions_open_in_browser">Відкрити у браузері</string>
+    <string name="a11y_local_redeem_back">Показати попередній код</string>
+    <string name="a11y_local_redeem_forward">Показати наступний код</string>
     <string name="a11y_medication_schedule_three_dot_menu">Показати варіанти нагадування про ліки</string>
     <string name="a11y_not_selected">не вибрано</string>
     <string name="a11y_onboarding_progress_description">Сторінка %1$d з %2$d</string>
     <string name="a11y_open_link_submit">Відкрити посилання на зовнішньому вебсайті</string>
     <string name="a11y_open_pdf_submit">Відкрити PDF на зовнішньому вебсайті</string>
+    <string name="a11y_password_input_show_password_description_off">Пароль приховано</string>
+    <string name="a11y_password_input_show_password_description_on">Пароль відображається</string>
+    <string name="a11y_password_input_show_password_description_onClick_off">Показати пароль</string>
+    <string name="a11y_password_input_show_password_description_onClick_on">Приховати пароль</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Пошук аптеки; введіть назву, місто або поштовий індекс, щоб знайти аптеку</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Пошук у списку</string>
+    <string name="a11y_pin_input_show_pin_description_off">ПІН-код приховано</string>
+    <string name="a11y_pin_input_show_pin_description_on">PIN-код відображається</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_off">Показати PIN-код</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_on">Приховати PIN-код</string>
     <string name="a11y_prescription_details_share">Поділитися рецептом</string>
     <string name="a11y_prescription_more_option">Більше опцій</string>
     <string name="a11y_prescription_not_available">Недоступно</string>
@@ -27,6 +49,7 @@
     <string name="a11y_select_all_not_selected">Вибрати все, не вибрано</string>
     <string name="a11y_select_all_selected">Вибрати все, вибрано</string>
     <string name="a11y_selected">вибраний</string>
+    <string name="a11y_success_icon">Успіх</string>
     <string name="about_buildhash">Хеш збірки: %s</string>
     <string name="about_version">Версія: %s</string>
     <string name="accept_now">Щойно прийнято</string>
@@ -166,6 +189,7 @@
     <string name="cardwall_gid_pkv_help_screen_tip_4_body_2">Для телефонів з Android 14 увімкніть відкриття посилань у налаштуваннях.</string>
     <string name="cardwall_gid_pkv_help_screen_tip_4_header">Вас не перенаправляють до застосунку вашої страхової компанії?</string>
     <string name="cardwall_gid_title">HealthID</string>
+    <string name="cardwall_intro_demo_mode_or">Або:</string>
     <string name="cardwall_select_insurance_federal_link">Застраховані по-різному</string>
     <string name="cardwall_select_insurance_type_drawer_body">Щоб отримувати рецепти в електронному вигляді, спочатку виберіть тип страхування.</string>
     <string name="cardwall_select_insurance_type_drawer_private_insurance_button">Приватне страхування</string>
@@ -404,7 +428,7 @@
     <string name="demo_mode_link_text">Демо-режим</string>
     <string name="demo_mode_settings_end_title">Вийти з демонстраційного режиму</string>
     <string name="demo_mode_settings_title">Активуйте демонстраційний режим</string>
-    <string name="demo_mode_start_text">Або: спробуйте програму в демонстраційному режимі</string>
+    <string name="demo_mode_start_text">Дослідіть %s.</string>
     <string name="demo_mode_text">Демо-режим активовано</string>
     <string name="description">Опис</string>
     <string name="diga_Insurance_is_determined">Страхування визначається:</string>
@@ -450,7 +474,7 @@
     <string name="diga_overview_how_it_works_3">3. Завантажте застосунок DiGA</string>
     <string name="diga_overview_how_it_works_4">4. Введіть код у застосунку DiGA</string>
     <string name="diga_request_unlock_code">Запит коду активації</string>
-    <string name="diga_requesting_code_from">Ми запитуємо код з: %s </string>
+    <string name="diga_requesting_code_from">Ми запитуємо код у: %s</string>
     <string name="diga_select_insurance_for_diga_discription">Виберіть страхову компанію, яка оплатить ваш рецепт на цифрове здоров\'я. Ми запросимо код активації у цієї компанії.</string>
     <string name="diga_select_insurance_for_diga_header">Оберіть страховку для DiGA</string>
     <string name="diga_server_return_code_200">Перенесено успішно.</string>
@@ -543,6 +567,11 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n Наступні рецепти більше не активуються або не доступні: %1$s \n Можливо, ви вже використали їх іншим способом або їх видалили. \n</string>
     <string name="error_redeemable_prescription_not_redeemable">Рецепт \"%1$s\" вже викуплений або знаходиться в процесі викупу.</string>
     <string name="error_redeemable_prescription_title">Рецепт не підлягає обміну</string>
+    <string name="eu_access_code_delete_body">Ви хочете скасувати доступ для всіх аптек в інших країнах ЄС?</string>
+    <string name="eu_access_code_delete_button_text">скасувати доступ</string>
+    <string name="eu_access_code_delete_failure_body">Будь ласка, спробуйте ще раз.</string>
+    <string name="eu_access_code_delete_failure_header">Доступ не вдалося скасувати.</string>
+    <string name="eu_access_code_delete_header">Скасувати доступ до рецептів</string>
     <string name="eu_access_code_error">На жаль, не вдалося згенерувати код активації. Будь ласка, спробуйте пізніше.</string>
     <string name="eu_availability_description">Країни-учасниці зараз працюють над впровадженням. Ми повідомимо вас, щойно перша країна буде готова.</string>
     <string name="eu_availability_title">Викуп коштів у ЄС буде доступний незабаром</string>
@@ -596,8 +625,23 @@
     <string name="eu_instructions_step_number">Крок %1$d</string>
     <string name="eu_instructions_title">Інструкції</string>
     <string name="eu_instructions_website_info_end">.</string>
-    <string name="eu_instructions_website_info_start">Більше інформації можна знайти на </string>
-    <string name="eu_instructions_website_link_text">Веб-сайт погашення кредитів у ЄС</string>
+    <string name="eu_instructions_website_info_start">Більше інформації ви можете знайти на %s.</string>
+    <string name="eu_instructions_website_link_text">Вебсайт для викупу коштів у ЄС</string>
+    <string name="eu_messages_code_created_again_message_title">Код активації згенеровано</string>
+    <string name="eu_messages_code_created_but_new_generated_message_body" formatted="false">Ви отримали код для активації вашого рецепту в %s.</string>
+    <string name="eu_messages_code_created_message_body" formatted="false">Ви отримали код для активації вашого рецепту в %s. %s має доступ до вибраних вами рецептів до %s години.</string>
+    <string name="eu_messages_code_created_message_title">Ласкаво просимо до %s</string>
+    <string name="eu_messages_code_created_not_present_message_body">Ви отримали код для активації вашого рецепту в %s.</string>
+    <string name="eu_messages_code_revoked_button_text">Доступ скасовано</string>
+    <string name="eu_messages_code_revoked_message_body" formatted="false">Ви отримали код для активації вашого рецепту на %s. %s більше не має доступу до вибраних вами рецептів.</string>
+    <string name="eu_messages_code_used_by_pharmacy_message_body">Аптека в %s виписала ваш рецепт.</string>
+    <string name="eu_messages_list_latest_title">Викуп ЄС</string>
+    <string name="eu_messages_prescription_added_body">Ви додали рецепт на викуп у ЄС.</string>
+    <string name="eu_messages_prescription_added_title">Рецепт додано</string>
+    <string name="eu_messages_prescription_removed_body">Ви вилучили рецепт з процесу погашення в ЄС.</string>
+    <string name="eu_messages_prescription_removed_title">Рецепт вилучено</string>
+    <string name="eu_messages_revoke_code_button_text">скасувати доступ</string>
+    <string name="eu_messages_show_code_button_text">Показати код погашення</string>
     <string name="eu_prescription_available">Використання в інших країнах ЄС</string>
     <string name="eu_prescription_search_empty_text">Спробуйте інший пошуковий термін.</string>
     <string name="eu_prescription_search_empty_title">На жаль, відповідної країни не знайдено.</string>
@@ -616,7 +660,7 @@
     <string name="eu_redeem_button">Використати</string>
     <string name="eu_redeem_country_title">країна</string>
     <string name="eu_redeem_instructions_link">Інструкції</string>
-    <string name="eu_redeem_instructions_prefix">Як ви можете скористатися рецептами в інших країнах ЄС, можна знайти в</string>
+    <string name="eu_redeem_instructions_prefix">Як ви можете скористатися рецептами в інших країнах ЄС, можна знайти в %s</string>
     <string name="eu_redeem_prescription_selection_empty_subtitle">Не вдалося завантажити жодних рецептів.</string>
     <string name="eu_redeem_prescription_selection_empty_title">Кожних рецептів</string>
     <string name="eu_redeem_prescription_selection_error_dialog_body">Сталася така помилка: %s. Ви можете спробувати ще раз, знову натиснувши на рецепт.</string>
@@ -821,7 +865,9 @@
     <string name="link_to_invoice_list">До огляду аптечних накладних</string>
     <string name="local_redeem_done">Готово</string>
     <string name="local_redeem_grouped_codes">Код колекції</string>
+    <string name="local_redeem_multi_code_page">Колективний код %s</string>
     <string name="local_redeem_self_payer_prescription_warning">Ваша страховка не покриває жодних витрат на цей рецепт.</string>
+    <string name="local_redeem_single_code">Код рецепта</string>
     <string name="local_redeem_single_codes">Індивідуальні коди</string>
     <string name="location_not_found">Розташування не знайдено</string>
     <string name="logged_in">Зареєстрований</string>
@@ -1010,7 +1056,7 @@
     <string name="onb_undo_description">Скасувати</string>
     <string name="onboarding_analytics_agree_button">Згоден</string>
     <string name="onboarding_analytics_bottom_text">Ви можете будь-коли деактивувати аналіз у налаштуваннях.</string>
-    <string name="onboarding_analytics_consent_text">За вашою згодою ми хотіли б провести аналіз використання додатка. Для цього ми хотіли б збирати та анонімно оцінювати дані про використання додатка та технічні дані, щоб:</string>
+    <string name="onboarding_analytics_consent_text">За вашої згоди ми хотіли б провести %s. З цією метою ми хотіли б збирати та анонімно аналізувати дані про використання додатка та технічні дані, і таким чином:</string>
     <string name="onboarding_analytics_consent_title">Допоможіть покращити додаток!</string>
     <string name="onboarding_analytics_link_text">Аналіз використання додатка</string>
     <string name="onboarding_analytics_optimize_user_experience_text">Оптимізуйте користувацький досвід для всього населення</string>

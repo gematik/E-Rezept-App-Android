@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="a11y_card_wall_card_hand">البطاقة الصحية على الهاتف الذكي</string>
+    <string name="a11y_card_wall_card_hand">يد تحمل بطاقة التأمين الصحي أمام هاتف ذكي.</string>
     <string name="a11y_cdw_health_card_image_description">صورة لبطاقة صحية تحتوي على رقم دخول مكون من ستة أرقام في أعلى يمين واجهة البطاقة</string>
+    <string name="a11y_datamatrix_code_description">مسح الرمز</string>
+    <string name="a11y_datamatrix_code_pager_content_description">مرر بإصبعين للتبديل بين الصفحات</string>
+    <string name="a11y_datamatrix_code_pager_state_description" formatted="false">صفحة %s من %s</string>
+    <string name="a11y_datamatrix_code_zoom_in_button_description">تكبير الكود</string>
+    <string name="a11y_datamatrix_code_zoom_out_button_description">تقليل حجم الكود</string>
+    <string name="a11y_delete_access_code_dialog">الحوار: حذف رمز الوصول</string>
     <string name="a11y_deleted_text">حذف النص</string>
     <string name="a11y_diga_arrow">حتى</string>
     <string name="a11y_diga_change_insurance">تغيير التأمين</string>
@@ -9,16 +15,32 @@
     <string name="a11y_diga_feedback_prompt_accessibility_label">تعليقات على وصفة DiGA</string>
     <string name="a11y_diga_feedback_submit">إرسال التعليقات على موقع ويب خارجي</string>
     <string name="a11y_disabled">تم تعطيله</string>
+    <string name="a11y_error_icon">خطأ</string>
     <string name="a11y_error_prefix">خطأ:</string>
+    <string name="a11y_eu_access_code_delete_button">حذف رمز الوصول</string>
+    <string name="a11y_eu_access_code_delete_button_disabled">تم تعطيل حذف رمز الوصول حاليًا بسبب إجراء مستمر.</string>
+    <string name="a11y_eu_access_code_deleted_error">فشل حذف رمز الوصول.</string>
+    <string name="a11y_eu_access_code_deleted_success">تم حذف رمز الدخول.</string>
+    <string name="a11y_eu_access_code_deleting">سيتم حذف رمز الدخول…</string>
     <string name="a11y_eu_instructions_flag_accessibility_text">يمكنك أن تقول ما يلي:</string>
     <string name="a11y_eu_instructions_open_in_browser">فتح في المتصفح</string>
+    <string name="a11y_local_redeem_back">إظهار الكود السابق</string>
+    <string name="a11y_local_redeem_forward">إظهار الكود التالي</string>
     <string name="a11y_medication_schedule_three_dot_menu">إظهار خيارات تذكير الدواء</string>
     <string name="a11y_not_selected">لم يتم اختياره</string>
     <string name="a11y_onboarding_progress_description">الصفحة %1$d من %2$d</string>
     <string name="a11y_open_link_submit">فتح الرابط على موقع خارجي</string>
     <string name="a11y_open_pdf_submit">فتح ملف PDF على موقع خارجي</string>
+    <string name="a11y_password_input_show_password_description_off">كلمة المرور مخفية</string>
+    <string name="a11y_password_input_show_password_description_on">تم عرض كلمة المرور</string>
+    <string name="a11y_password_input_show_password_description_onClick_off">إظهار كلمة المرور</string>
+    <string name="a11y_password_input_show_password_description_onClick_on">إخفاء كلمة المرور</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">البحث عن صيدلية؛ أدخل الاسم أو المدينة أو الرمز البريدي للبحث عن صيدلية</string>
     <string name="a11y_pharmacy_start_search_on_click_description">البحث في عرض القائمة</string>
+    <string name="a11y_pin_input_show_pin_description_off">رقم التعريف الشخصي مخفي</string>
+    <string name="a11y_pin_input_show_pin_description_on">تم عرض رقم التعريف الشخصي (PIN)</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_off">إظهار رقم التعريف الشخصي (PIN)</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_on">إخفاء رقم التعريف الشخصي (PIN)</string>
     <string name="a11y_prescription_details_share">شارك الوصفة</string>
     <string name="a11y_prescription_more_option">مزيد من الخيارات</string>
     <string name="a11y_prescription_not_available">غير متوفر</string>
@@ -27,6 +49,7 @@
     <string name="a11y_select_all_not_selected">تحديد الكل، غير المحدد</string>
     <string name="a11y_select_all_selected">تحديد الكل، المحدد</string>
     <string name="a11y_selected">مختارة</string>
+    <string name="a11y_success_icon">نجاح</string>
     <string name="about_buildhash">Build-Hash: %s</string>
     <string name="about_version">النسخة: %s</string>
     <string name="accept_now">قبلت للتو</string>
@@ -172,6 +195,7 @@
     <string name="cardwall_gid_pkv_help_screen_tip_4_body_2">بالنسبة للهواتف التي تعمل بنظام Android 14، قم بتمكين فتح الروابط في الإعدادات.</string>
     <string name="cardwall_gid_pkv_help_screen_tip_4_header">لم يتم إعادة توجيهك إلى تطبيق شركة التأمين الخاصة بك؟</string>
     <string name="cardwall_gid_title">معرف الصحة</string>
+    <string name="cardwall_intro_demo_mode_or">أو:</string>
     <string name="cardwall_select_insurance_federal_link">مؤمن عليه بشكل مختلف</string>
     <string name="cardwall_select_insurance_type_drawer_body">لتلقي الوصفات الطبية رقميًا، يرجى تحديد نوع التأمين الخاص بك أولاً.</string>
     <string name="cardwall_select_insurance_type_drawer_private_insurance_button">التأمين الخاص</string>
@@ -414,7 +438,7 @@
     <string name="demo_mode_link_text">الوضع التجريبي</string>
     <string name="demo_mode_settings_end_title">الخروج من الوضع التجريبي</string>
     <string name="demo_mode_settings_title">تفعيل الوضع التجريبي</string>
-    <string name="demo_mode_start_text">أو: جرب التطبيق في الوضع التجريبي</string>
+    <string name="demo_mode_start_text">استكشف %s.</string>
     <string name="demo_mode_text">تم تفعيل الوضع التجريبي</string>
     <string name="description">وصف</string>
     <string name="diga_Insurance_is_determined">يتم تحديد التأمين:</string>
@@ -460,7 +484,7 @@
     <string name="diga_overview_how_it_works_3">3. قم بتنزيل تطبيق DiGA</string>
     <string name="diga_overview_how_it_works_4">4. أدخل الرمز في تطبيق DiGA</string>
     <string name="diga_request_unlock_code">طلب رمز التفعيل</string>
-    <string name="diga_requesting_code_from">نطلب الكود من: %s </string>
+    <string name="diga_requesting_code_from">نطلب الكود من: %s</string>
     <string name="diga_select_insurance_for_diga_discription">اختر شركة التأمين التي ستدفع تكاليف وصفتك الصحية الرقمية. سنطلب رمز التفعيل من هذه الشركة.</string>
     <string name="diga_select_insurance_for_diga_header">اختر التأمين لـ DiGA</string>
     <string name="diga_server_return_code_200">تم النقل بنجاح.</string>
@@ -553,6 +577,11 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n الوصفات التالية غير قابلة للاسترداد أو لم تعد قابلة للاسترداد: %1$s \n ربما تكون قد استبدلتها بالفعل بطريقة أخرى أو ربما تم حذفها. \n</string>
     <string name="error_redeemable_prescription_not_redeemable">الوصفة الطبية \" %1$s \" تم استردادها بالفعل أو يتم استردادها حاليًا.</string>
     <string name="error_redeemable_prescription_title">لا يمكن استرداد الوصفة الطبية</string>
+    <string name="eu_access_code_delete_body">هل تريد إلغاء الوصول لجميع الصيدليات في بلدان الاتحاد الأوروبي الأخرى؟</string>
+    <string name="eu_access_code_delete_button_text">إلغاء الوصول</string>
+    <string name="eu_access_code_delete_failure_body">من فضلك حاول مرة أخرى.</string>
+    <string name="eu_access_code_delete_failure_header">لم يكن من الممكن إلغاء الوصول.</string>
+    <string name="eu_access_code_delete_header">إلغاء الوصول إلى الوصفات الطبية</string>
     <string name="eu_access_code_error">للأسف، فشل إنشاء رمز الاسترداد. يُرجى المحاولة لاحقًا.</string>
     <string name="eu_availability_description">تعمل الدول المشاركة حاليًا على التنفيذ. سنُعلمكم فور استعداد الدولة الأولى.</string>
     <string name="eu_availability_title">سوف يكون استرداد الاتحاد الأوروبي متاحًا قريبًا</string>
@@ -606,8 +635,23 @@
     <string name="eu_instructions_step_number">الخطوة %1$d</string>
     <string name="eu_instructions_title">تعليمات</string>
     <string name="eu_instructions_website_info_end">.</string>
-    <string name="eu_instructions_website_info_start">يمكن العثور على مزيد من المعلومات على </string>
-    <string name="eu_instructions_website_link_text">موقع استرداد الاتحاد الأوروبي</string>
+    <string name="eu_instructions_website_info_start">يمكنك العثور على مزيد من المعلومات حول %s.</string>
+    <string name="eu_instructions_website_link_text">موقع ويب لاسترداد الأموال في الاتحاد الأوروبي</string>
+    <string name="eu_messages_code_created_again_message_title">تم إنشاء رمز الاسترداد</string>
+    <string name="eu_messages_code_created_but_new_generated_message_body" formatted="false">لقد قمت باسترداد رمز لاسترداد وصفتك الطبية في %s.</string>
+    <string name="eu_messages_code_created_message_body" formatted="false">لقد حصلت على رمز لاسترداد الوصفة الطبية الخاصة بك في %s. يمكن لـ %s الوصول إلى الوصفات الطبية المحددة الخاصة بك حتى الساعة %s.</string>
+    <string name="eu_messages_code_created_message_title">مرحباً بكم في %s</string>
+    <string name="eu_messages_code_created_not_present_message_body">لقد قمت باسترداد رمز لاسترداد وصفتك الطبية في %s.</string>
+    <string name="eu_messages_code_revoked_button_text">تم إلغاء الوصول</string>
+    <string name="eu_messages_code_revoked_message_body" formatted="false">لقد استعدت رمزًا لاسترداد الوصفة الطبية الخاصة بك في %s. لم يعد بإمكان %s الوصول إلى الوصفات الطبية المحددة الخاصة بك.</string>
+    <string name="eu_messages_code_used_by_pharmacy_message_body">لقد قامت الصيدلية الموجودة في %s بملء وصفتك الطبية.</string>
+    <string name="eu_messages_list_latest_title">استرداد الاتحاد الأوروبي</string>
+    <string name="eu_messages_prescription_added_body">لقد قمت بإضافة وصفة طبية لاسترداد الاتحاد الأوروبي.</string>
+    <string name="eu_messages_prescription_added_title">تمت إضافة الوصفة</string>
+    <string name="eu_messages_prescription_removed_body">لقد قمت بإزالة الوصفة الطبية من عملية استرداد الاتحاد الأوروبي.</string>
+    <string name="eu_messages_prescription_removed_title">تمت إزالة الوصفة الطبية</string>
+    <string name="eu_messages_revoke_code_button_text">إلغاء الوصول</string>
+    <string name="eu_messages_show_code_button_text">إظهار رمز الاسترداد</string>
     <string name="eu_prescription_available">استرداد في بلدان الاتحاد الأوروبي الأخرى</string>
     <string name="eu_prescription_search_empty_text">حاول استخدام مصطلح بحث مختلف.</string>
     <string name="eu_prescription_search_empty_title">ولكن للأسف لم يتم العثور على بلد مناسب.</string>
@@ -626,7 +670,7 @@
     <string name="eu_redeem_button">يسترد</string>
     <string name="eu_redeem_country_title">دولة</string>
     <string name="eu_redeem_instructions_link">تعليمات</string>
-    <string name="eu_redeem_instructions_prefix">يمكن العثور على كيفية استرداد الوصفات الطبية في بلدان الاتحاد الأوروبي الأخرى في</string>
+    <string name="eu_redeem_instructions_prefix">يمكن العثور على كيفية استرداد الوصفات الطبية في بلدان الاتحاد الأوروبي الأخرى في %s</string>
     <string name="eu_redeem_prescription_selection_empty_subtitle">لم يكن من الممكن تحميل أي وصفات طبية.</string>
     <string name="eu_redeem_prescription_selection_empty_title">لا توجد وصفات طبية</string>
     <string name="eu_redeem_prescription_selection_error_dialog_body">حدث الخطأ التالي: %s. يمكنك المحاولة مرة أخرى بالنقر على الوصفة مرة أخرى.</string>
@@ -831,7 +875,9 @@
     <string name="link_to_invoice_list">إلى نظرة عامة على فواتير الصيدلة</string>
     <string name="local_redeem_done">تم</string>
     <string name="local_redeem_grouped_codes">كود الجمع</string>
+    <string name="local_redeem_multi_code_page">القانون الجماعي %s</string>
     <string name="local_redeem_self_payer_prescription_warning">لن يغطي التأمين الخاص بك أي تكاليف لهذه الوصفة الطبية.</string>
+    <string name="local_redeem_single_code">كود الوصفة الطبية</string>
     <string name="local_redeem_single_codes">رموز فردية</string>
     <string name="location_not_found">لم يتم العثور على الموقع</string>
     <string name="logged_in">مسجل</string>
@@ -1022,7 +1068,7 @@
     <string name="onb_undo_description">تراجع</string>
     <string name="onboarding_analytics_agree_button">يوافق</string>
     <string name="onboarding_analytics_bottom_text">يمكنك إلغاء تنشيط التحليل في أي وقت في الإعدادات.</string>
-    <string name="onboarding_analytics_consent_text">بموافقتك، نود إجراء تحليل لاستخدام التطبيق. للقيام بذلك، نود جمع بيانات استخدام التطبيق والبيانات التقنية وتقييمها بشكل مجهول من أجل:</string>
+    <string name="onboarding_analytics_consent_text">بموافقتكم، نود إجراء %s. لهذا الغرض، نود جمع بيانات استخدام التطبيق والبيانات التقنية وتحليلها بشكل مجهول، وبالتالي:</string>
     <string name="onboarding_analytics_consent_title">ساعد في تحسين التطبيق!</string>
     <string name="onboarding_analytics_link_text">تحليل استخدام التطبيق</string>
     <string name="onboarding_analytics_optimize_user_experience_text">تحسين تجربة المستخدم لجميع السكان</string>

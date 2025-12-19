@@ -28,15 +28,15 @@ import kotlinx.datetime.Instant
 
 object ScannedTaskData {
     data class ScannedTask(
-        val profileId: ProfileIdentifier,
-        val taskId: String,
+        override val profileId: ProfileIdentifier,
+        override val taskId: String,
         val index: Int,
         val name: String,
         val accessCode: String,
         val scannedOn: Instant,
         val redeemedOn: Instant?,
         val communications: List<Communication> = emptyList()
-    ) {
+    ) : TaskData {
         fun isRedeemable() = redeemedOn == null
     }
 }

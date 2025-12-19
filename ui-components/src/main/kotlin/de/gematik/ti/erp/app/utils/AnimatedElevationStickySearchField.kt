@@ -33,6 +33,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AppBarDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -95,6 +96,7 @@ fun LazyListScope.animatedElevationStickySearchField(
             derivedStateOf { lazyListState.firstVisibleItemIndex > indexOfPreviousItemInList }
         }
         Surface(
+            color = MaterialTheme.colors.background,
             elevation = when {
                 isHeaderElevated -> AppBarDefaults.TopAppBarElevation
                 else -> SizeDefaults.zero
@@ -134,7 +136,7 @@ fun LazyListScope.animatedElevationStickySearchField(
                         Text(
                             text = placeholderText,
                             style = AppTheme.typography.body1,
-                            color = AppTheme.colors.neutral600
+                            color = AppTheme.colors.neutral700
                         )
                     }
                 },
@@ -144,7 +146,7 @@ fun LazyListScope.animatedElevationStickySearchField(
                 keyboardActions = KeyboardActions(
                     onSearch = { focusManager.clearFocus() }
                 ),
-                shape = RoundedCornerShape(SizeDefaults.double)
+                shape = RoundedCornerShape(SizeDefaults.twelvefold)
             )
         }
     }

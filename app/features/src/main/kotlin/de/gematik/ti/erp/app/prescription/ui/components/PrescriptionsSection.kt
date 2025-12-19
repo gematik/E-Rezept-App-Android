@@ -35,15 +35,17 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.mainscreen.model.ProfileIconState
 import de.gematik.ti.erp.app.mainscreen.model.ProfileIconState.IsError.rememberProfileIconState
 import de.gematik.ti.erp.app.mainscreen.model.ProfileLifecycleState
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.uistate.UiState
@@ -87,6 +89,9 @@ internal fun PrescriptionsSection(
         },
         onError = {
             ErrorScreenComponent(
+                titleText = stringResource(R.string.generic_error_title),
+                bodyText = stringResource(R.string.generic_error_info),
+                tryAgainText = stringResource(R.string.cdw_fasttrack_try_again),
                 onClickRetry = onClickLogin
             )
         },

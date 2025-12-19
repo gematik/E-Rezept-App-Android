@@ -51,7 +51,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
-import java.time.Duration
 
 @Stable
 sealed class AuthenticationModeAndMethod {
@@ -137,7 +136,6 @@ class InactivityTimeoutObserver( // TODO: Move to different package
                     .collectLatest { timeout ->
                         currentTimeout = timeout
                         if (timeout > 0) {
-                            Napier.i { "Restarted inactivity timer for ${Duration.ofMillis(timeout)}" }
                             delay(timeout)
                             requireAuthentication()
                             @Requirement(

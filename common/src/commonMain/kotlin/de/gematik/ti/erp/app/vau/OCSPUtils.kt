@@ -27,12 +27,16 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.toKotlinInstant
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.isismtt.ocsp.CertHash
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers
+import org.bouncycastle.asn1.x9.X9ObjectIdentifiers
 import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.cert.ocsp.BasicOCSPResp
 import org.bouncycastle.cert.ocsp.SingleResp
+import org.bouncycastle.operator.ContentVerifierProvider
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder
 import org.bouncycastle.operator.bc.BcDigestCalculatorProvider
 import org.bouncycastle.operator.bc.BcECContentVerifierProviderBuilder
+import org.bouncycastle.operator.bc.BcRSAContentVerifierProviderBuilder
 import java.math.BigInteger
 import kotlin.time.Duration
 
@@ -76,9 +80,21 @@ fun SingleResp.matchesIssuer(issuerCert: X509CertificateHolder) =
  * Throws an exception if the check fails.
  */
 fun BasicOCSPResp.checkSignatureWith(signatureCertificate: X509CertificateHolder) {
-    val verifier =
-        BcECContentVerifierProviderBuilder(DefaultDigestAlgorithmIdentifierFinder())
-            .build(signatureCertificate)
+    val verifier: ContentVerifierProvider = when (signatureCertificate.subjectPublicKeyInfo.algorithm.algorithm) {
+        X9ObjectIdentifiers.id_ecPublicKey ->
+            BcECContentVerifierProviderBuilder(DefaultDigestAlgorithmIdentifierFinder()).build(signatureCertificate)
+
+        PKCSObjectIdentifiers.rsaEncryption, PKCSObjectIdentifiers.id_RSASSA_PSS ->
+            BcRSAContentVerifierProviderBuilder(DefaultDigestAlgorithmIdentifierFinder()).build(signatureCertificate)
+
+        else -> {
+            try {
+                BcECContentVerifierProviderBuilder(DefaultDigestAlgorithmIdentifierFinder()).build(signatureCertificate)
+            } catch (_: Throwable) {
+                BcRSAContentVerifierProviderBuilder(DefaultDigestAlgorithmIdentifierFinder()).build(signatureCertificate)
+            }
+        }
+    }
 
     require(this.isSignatureValid(verifier)) {
         "OCSP response signature couldn't be validated against its signer certificate"

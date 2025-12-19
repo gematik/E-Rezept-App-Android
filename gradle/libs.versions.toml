@@ -157,11 +157,13 @@ ktlint-core = "0.46.1"
 detekt = "1.23.8"
 composerules = "0.0.26"
 rules = "1.0"
+checkstyle = "12.1.1"
 
 # Plugins
 kotlin-multiplatform = "2.0.21"
 kotlin-stdlib = "2.1.21"
 kotlin-test-version = "2.2.0"
+espresso-core = "3.7.0"
 
 [libraries]
 
@@ -326,6 +328,7 @@ database-realm-plugin = { module = "io.realm.kotlin:gradle-plugin", version.ref 
 
 # kmp shared prefs
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version = "1.3.0" }
+multiplatform-settings-test = { module = "com.russhwolf:multiplatform-settings-test", version = "1.3.0" }
 
 # reactive-state
 reactive-state = { module = "com.ensody.reactivestate:reactivestate", version.ref = "reactive-state" }
@@ -384,6 +387,9 @@ gradle-license-plugin = { module = "com.jaredsburrows:gradle-license-plugin", ve
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin-stdlib" }
 kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin-stdlib" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin-test-version" }
+quality-checkstyle = { module = "com.puppycrawl.tools:checkstyle", version.ref = "checkstyle" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp-app" }
@@ -459,5 +465,5 @@ qualitydetektcomposerules = ["quality-composerules"]
 serialization = ["kotlinx-serialization-json", "kotlinx-serialization-core"]
 tracking = ["tracking-library", "tracking-compose"]
 testing = ["test-junit", "test-kotlin-test", "test-kotlin-test-common", "test-yaml", "androidx-test-junit", "json", "test-mockk-android"]
-testjunit = ["test-junit", "test-yaml", "json", "test-mockk"]
+testjunit = ["test-junit", "test-yaml", "json", "test-mockk","multiplatform-settings-test"]
 mockandroid = ["test-mockk-android"]

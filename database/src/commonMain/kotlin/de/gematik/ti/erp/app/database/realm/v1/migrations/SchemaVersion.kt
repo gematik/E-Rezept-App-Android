@@ -50,7 +50,10 @@ object SchemaVersion {
         SchemaMigration(59, "Added zanr and telematikId to PractitionerEntityV1"),
         SchemaMigration(60, "Added medicationProfileType and medicationProfileVersion to MedicationEntityV1"),
         SchemaMigration(61, "Added PharmacyName and address to MedicationDispenseEntityV1"),
-        SchemaMigration(62, "Added EuAccessCodeEntityV1")
+        SchemaMigration(62, "Added EuAccessCodeEntityV1"),
+        SchemaMigration(63, "Added EuEventLogEntityV1 and change type messages to events in EuOrderEntityV1"),
+        SchemaMigration(64, "Added isUnread flag to and change type messages to events in EuTaskEventLogEntityV1"),
+        SchemaMigration(65, "Migrate settings fields from SettingsEntityV1 to DataStore")
     )
-    val ACTUAL = 62L
+    val ACTUAL = 65L
 }

@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="a11y_card_wall_card_hand">Gezondheidskaart op smartphone</string>
+    <string name="a11y_card_wall_card_hand">Een hand houdt een zorgverzekeringspas voor een smartphone.</string>
     <string name="a11y_cdw_health_card_image_description">Afbeelding van een gezondheidskaart met een zescijferig toegangsnummer rechtsboven op de voorkant van de kaart</string>
+    <string name="a11y_datamatrix_code_description">Scancode</string>
+    <string name="a11y_datamatrix_code_pager_content_description">Veeg met twee vingers om van pagina te wisselen</string>
+    <string name="a11y_datamatrix_code_pager_state_description" formatted="false">Pagina %s van %s</string>
+    <string name="a11y_datamatrix_code_zoom_in_button_description">Vergroot code</string>
+    <string name="a11y_datamatrix_code_zoom_out_button_description">Verklein de codegrootte</string>
+    <string name="a11y_delete_access_code_dialog">Dialoog: Toegangscode verwijderen</string>
     <string name="a11y_deleted_text">Tekst verwijderen</string>
     <string name="a11y_diga_arrow">tot</string>
     <string name="a11y_diga_change_insurance">Verzekering wijzigen</string>
@@ -9,16 +15,32 @@
     <string name="a11y_diga_feedback_prompt_accessibility_label">Feedback over DiGA-recept</string>
     <string name="a11y_diga_feedback_submit">Feedback geven op een externe website</string>
     <string name="a11y_disabled">gedeactiveerd</string>
+    <string name="a11y_error_icon">Fout</string>
     <string name="a11y_error_prefix">Fout:</string>
+    <string name="a11y_eu_access_code_delete_button">Toegangscode verwijderen</string>
+    <string name="a11y_eu_access_code_delete_button_disabled">Het verwijderen van de toegangscode is momenteel niet mogelijk vanwege een lopende actie.</string>
+    <string name="a11y_eu_access_code_deleted_error">Het verwijderen van de toegangscode is mislukt.</string>
+    <string name="a11y_eu_access_code_deleted_success">Toegangscode is verwijderd.</string>
+    <string name="a11y_eu_access_code_deleting">Toegangscode wordt verwijderd…</string>
     <string name="a11y_eu_instructions_flag_accessibility_text">Je kunt het volgende zeggen:</string>
     <string name="a11y_eu_instructions_open_in_browser">Openen in browser</string>
+    <string name="a11y_local_redeem_back">Toon vorige code</string>
+    <string name="a11y_local_redeem_forward">Volgende code weergeven</string>
     <string name="a11y_medication_schedule_three_dot_menu">Opties voor medicijnherinneringen weergeven</string>
     <string name="a11y_not_selected">niet geselecteerd</string>
     <string name="a11y_onboarding_progress_description">Pagina %1$d van %2$d</string>
     <string name="a11y_open_link_submit">Open link op externe website</string>
     <string name="a11y_open_pdf_submit">PDF openen op externe website</string>
+    <string name="a11y_password_input_show_password_description_off">Wachtwoord verborgen</string>
+    <string name="a11y_password_input_show_password_description_on">Wachtwoord weergegeven</string>
+    <string name="a11y_password_input_show_password_description_onClick_off">Wachtwoord weergeven</string>
+    <string name="a11y_password_input_show_password_description_onClick_on">Wachtwoord verbergen</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Apotheek zoeken; voer naam, plaats of postcode in om naar een apotheek te zoeken</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Zoeken in lijstweergave</string>
+    <string name="a11y_pin_input_show_pin_description_off">PIN verborgen</string>
+    <string name="a11y_pin_input_show_pin_description_on">PIN weergegeven</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_off">PIN tonen</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_on">Pincode verbergen</string>
     <string name="a11y_prescription_details_share">Recept delen</string>
     <string name="a11y_prescription_more_option">Meer opties</string>
     <string name="a11y_prescription_not_available">Niet beschikbaar</string>
@@ -27,6 +49,7 @@
     <string name="a11y_select_all_not_selected">Selecteer alles, niet geselecteerd</string>
     <string name="a11y_select_all_selected">Selecteer alles, geselecteerd</string>
     <string name="a11y_selected">gekozen</string>
+    <string name="a11y_success_icon">Succes</string>
     <string name="about_buildhash">Bouw hash: %s</string>
     <string name="about_version">Versie: %s</string>
     <string name="accept_now">Gewoon geaccepteerd</string>
@@ -160,6 +183,7 @@
     <string name="cardwall_gid_pkv_help_screen_tip_4_body_2">Voor telefoons met Android 14 moet u het openen van links inschakelen in de instellingen.</string>
     <string name="cardwall_gid_pkv_help_screen_tip_4_header">Wordt u niet doorgestuurd naar de app van uw verzekeringsmaatschappij?</string>
     <string name="cardwall_gid_title">GezondheidID</string>
+    <string name="cardwall_intro_demo_mode_or">Of:</string>
     <string name="cardwall_select_insurance_federal_link">Anders verzekerd</string>
     <string name="cardwall_select_insurance_type_drawer_body">Om recepten digitaal te ontvangen, selecteert u eerst uw verzekeringstype.</string>
     <string name="cardwall_select_insurance_type_drawer_private_insurance_button">particuliere verzekering</string>
@@ -394,7 +418,7 @@
     <string name="demo_mode_link_text">Demonstratie modus</string>
     <string name="demo_mode_settings_end_title">Verlaat de demomodus</string>
     <string name="demo_mode_settings_title">Activeer de demomodus</string>
-    <string name="demo_mode_start_text">Of: Probeer de app in de demomodus</string>
+    <string name="demo_mode_start_text">Ontdek de %s.</string>
     <string name="demo_mode_text">Demomodus geactiveerd</string>
     <string name="description">Beschrijving</string>
     <string name="diga_Insurance_is_determined">De verzekering wordt bepaald:</string>
@@ -440,7 +464,7 @@
     <string name="diga_overview_how_it_works_3">3. Download de DiGA-app</string>
     <string name="diga_overview_how_it_works_4">4. Voer de code in de DiGA-app in</string>
     <string name="diga_request_unlock_code">Activeringscode aanvragen</string>
-    <string name="diga_requesting_code_from">Wij vragen de code op van: %s </string>
+    <string name="diga_requesting_code_from">Wij vragen de code op van: %s</string>
     <string name="diga_select_insurance_for_diga_discription">Selecteer de zorgverzekeraar die uw Digitaal Gezondheidsrecept vergoedt. Wij vragen de activeringscode bij deze verzekeraar op.</string>
     <string name="diga_select_insurance_for_diga_header">Kies een verzekering voor de DiGA</string>
     <string name="diga_server_return_code_200">Succesvol overgedragen.</string>
@@ -533,6 +557,11 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n De volgende recepten zijn niet (meer) inwisselbaar: %1$s \n Mogelijk hebt u ze al op een andere manier ingewisseld of zijn ze verwijderd. \n</string>
     <string name="error_redeemable_prescription_not_redeemable">Het recept \"%1$s\" is al ingewisseld of wordt momenteel ingewisseld.</string>
     <string name="error_redeemable_prescription_title">Recept niet inwisselbaar</string>
+    <string name="eu_access_code_delete_body">Wilt u de toegang voor alle apotheken in andere EU-landen intrekken?</string>
+    <string name="eu_access_code_delete_button_text">toegang intrekken</string>
+    <string name="eu_access_code_delete_failure_body">Probeer het nog eens.</string>
+    <string name="eu_access_code_delete_failure_header">De toegang kon niet worden ingetrokken.</string>
+    <string name="eu_access_code_delete_header">Toegang tot voorschriften intrekken</string>
     <string name="eu_access_code_error">Helaas is het genereren van de inwisselcode mislukt. Probeer het later opnieuw.</string>
     <string name="eu_availability_description">De deelnemende landen zijn momenteel bezig met de implementatie. We informeren u zodra het eerste land klaar is.</string>
     <string name="eu_availability_title">EU-inwisseling is binnenkort beschikbaar</string>
@@ -586,8 +615,23 @@
     <string name="eu_instructions_step_number">Stap %1$d</string>
     <string name="eu_instructions_title">Instructies</string>
     <string name="eu_instructions_website_info_end">.</string>
-    <string name="eu_instructions_website_info_start">Meer informatie vindt u op de </string>
-    <string name="eu_instructions_website_link_text">EU-inwisselingswebsite</string>
+    <string name="eu_instructions_website_info_start">Meer informatie vindt u op de %s.</string>
+    <string name="eu_instructions_website_link_text">Website voor EU-inwisselingen</string>
+    <string name="eu_messages_code_created_again_message_title">Inwisselingscode gegenereerd</string>
+    <string name="eu_messages_code_created_but_new_generated_message_body" formatted="false">U heeft een code ontvangen om uw recept in %s in te wisselen.</string>
+    <string name="eu_messages_code_created_message_body" formatted="false">U heeft een code ontvangen om uw recept in %s in te wisselen. %s heeft tot %s uur toegang tot uw geselecteerde recepten.</string>
+    <string name="eu_messages_code_created_message_title">Welkom bij %s</string>
+    <string name="eu_messages_code_created_not_present_message_body">U heeft een code ontvangen om uw recept in %s in te wisselen.</string>
+    <string name="eu_messages_code_revoked_button_text">Toegang ingetrokken</string>
+    <string name="eu_messages_code_revoked_message_body" formatted="false">U heeft een code ontvangen om uw recept in te wisselen bij %s. %s heeft geen toegang meer tot uw geselecteerde recepten.</string>
+    <string name="eu_messages_code_used_by_pharmacy_message_body">De apotheek in %s heeft uw recept klaargemaakt.</string>
+    <string name="eu_messages_list_latest_title">EU-inlossing</string>
+    <string name="eu_messages_prescription_added_body">U hebt een voorschrift voor EU-inwisseling toegevoegd.</string>
+    <string name="eu_messages_prescription_added_title">Recept toegevoegd</string>
+    <string name="eu_messages_prescription_removed_body">U hebt een recept uit het EU-inwisselingsproces verwijderd.</string>
+    <string name="eu_messages_prescription_removed_title">Recept verwijderd</string>
+    <string name="eu_messages_revoke_code_button_text">toegang intrekken</string>
+    <string name="eu_messages_show_code_button_text">Toon inwisselingscode</string>
     <string name="eu_prescription_available">Inwisselen in andere EU-landen</string>
     <string name="eu_prescription_search_empty_text">Probeer een andere zoekterm.</string>
     <string name="eu_prescription_search_empty_title">Helaas is er geen geschikt land gevonden.</string>
@@ -606,7 +650,7 @@
     <string name="eu_redeem_button">Inwisselen</string>
     <string name="eu_redeem_country_title">land</string>
     <string name="eu_redeem_instructions_link">Instructies</string>
-    <string name="eu_redeem_instructions_prefix">Hoe u recepten in andere EU-landen kunt inwisselen, vindt u in de</string>
+    <string name="eu_redeem_instructions_prefix">Hoe u recepten in andere EU-landen kunt inwisselen, vindt u in de %s</string>
     <string name="eu_redeem_prescription_selection_empty_subtitle">Er konden geen recepten worden geladen.</string>
     <string name="eu_redeem_prescription_selection_empty_title">Geen recepten</string>
     <string name="eu_redeem_prescription_selection_error_dialog_body">De volgende fout is opgetreden: %s. U kunt het opnieuw proberen door opnieuw op het recept te klikken.</string>
@@ -811,7 +855,9 @@
     <string name="link_to_invoice_list">Naar het overzicht van apotheekfacturen</string>
     <string name="local_redeem_done">Klaar</string>
     <string name="local_redeem_grouped_codes">Ophaalcode</string>
+    <string name="local_redeem_multi_code_page">Collectieve code %s</string>
     <string name="local_redeem_self_payer_prescription_warning">Uw verzekering vergoedt geen kosten voor dit recept.</string>
+    <string name="local_redeem_single_code">Voorschriftcode</string>
     <string name="local_redeem_single_codes">Individuele codes</string>
     <string name="location_not_found">Locatie niet gevonden</string>
     <string name="logged_in">Geregistreerd</string>
@@ -998,7 +1044,7 @@
     <string name="onb_undo_description">Ongedaan gemaakt</string>
     <string name="onboarding_analytics_agree_button">Mee eens zijn</string>
     <string name="onboarding_analytics_bottom_text">U kunt de analyse op elk gewenst moment via de instellingen uitschakelen.</string>
-    <string name="onboarding_analytics_consent_text">Met uw toestemming willen we een analyse van het app-gebruik uitvoeren. Hiervoor verzamelen en analyseren we app-gebruiks- en technische gegevens anoniem om:</string>
+    <string name="onboarding_analytics_consent_text">Met uw toestemming willen we een %s uitvoeren. Hiervoor willen we gegevens over app-gebruik en technische gegevens verzamelen en anoniem analyseren, en zo:</string>
     <string name="onboarding_analytics_consent_title">Help mee de app te verbeteren!</string>
     <string name="onboarding_analytics_link_text">Analyse van app-gebruik</string>
     <string name="onboarding_analytics_optimize_user_experience_text">Optimaliseer de gebruikerservaring voor de gehele bevolking</string>

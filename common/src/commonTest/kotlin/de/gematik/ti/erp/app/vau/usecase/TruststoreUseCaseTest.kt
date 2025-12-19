@@ -26,6 +26,7 @@ import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.vau.TestCertificates
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
+import de.gematik.ti.erp.app.vau.repository.VauLocalDataSource
 import de.gematik.ti.erp.app.vau.repository.VauRepository
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -61,6 +62,9 @@ class TruststoreUseCaseTest {
     lateinit var repository: VauRepository
 
     @MockK
+    lateinit var localDataSource: VauLocalDataSource
+
+    @MockK
     lateinit var timeSource: TruststoreTimeSourceProvider
 
     @MockK
@@ -90,10 +94,12 @@ class TruststoreUseCaseTest {
             TestCertificates.OCSP.OCSPList.responses.map { it.responseObject as BasicOCSPResp }
         every { trustedTruststore.checkValidity(12.hours, any()) } returns Unit
         coEvery { repository.invalidate() } returns Unit
+        coEvery { localDataSource.saveLists(any(), any()) } returns Unit
 
         truststore = TruststoreUseCase(
             config,
             repository,
+            localDataSource,
             timeSource,
             trustedTruststoreProvider
         )
@@ -130,7 +136,7 @@ class TruststoreUseCaseTest {
 
     @Test
     fun `validateIdpCertificate returns null when certificate is found`() {
-        // Given
+        // GivenAokSys&2224!
         val idpCertificate = TestCertificates.Idp1.X509Certificate
 
         // When
@@ -193,7 +199,7 @@ class TruststoreUseCaseTest {
         truststore.cachedTruststore = trustedTruststore
 
         // When
-        val result = truststore.getValidTruststore(timeSource())
+        val result = truststore.getValidTruststore(timeSource(), TestCertificates.Vau.CertList.eeCerts, TestCertificates.OCSP.OCSPList)
 
         // Then
         assertEquals(trustedTruststore, result)
@@ -208,10 +214,11 @@ class TruststoreUseCaseTest {
 
         coEvery { repository.withUntrusted<Boolean>(any()) } coAnswers {
             firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
-                TestCertificates.Vau.CertList,
-                TestCertificates.OCSP.OCSPList
+                TestCertificates.Vau.CertListWithOneEE,
+                TestCertificates.OCSP.OneOCSPList
             )
         }
+
         every {
             trustedTruststoreProvider(
                 TestCertificates.OCSP.OCSPList,
@@ -223,7 +230,11 @@ class TruststoreUseCaseTest {
         } returns trustedTruststore
 
         // When
-        val result = truststore.getValidTruststore(timeSource())
+        val result = truststore.getValidTruststore(
+            timeSource(),
+            listOf(TestCertificates.Idp1New.X509Certificate, TestCertificates.Idp2.X509Certificate),
+            TestCertificates.OCSP.TwoOCSPList
+        )
 
         // Then
         assertEquals(trustedTruststore, result)
@@ -236,10 +247,11 @@ class TruststoreUseCaseTest {
         // Given
         coEvery { repository.withUntrusted<Boolean>(any()) } coAnswers {
             firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
-                TestCertificates.Vau.CertList,
-                TestCertificates.OCSP.OCSPList
+                TestCertificates.Vau.CertListWithOneEE,
+                TestCertificates.OCSP.OneOCSPList
             )
         }
+
         every {
             trustedTruststoreProvider(
                 TestCertificates.OCSP.OCSPList,
@@ -251,7 +263,11 @@ class TruststoreUseCaseTest {
         } returns trustedTruststore
 
         // When
-        val result = truststore.createTrustedTruststore(timeSource())
+        val result = truststore.getValidTruststore(
+            timeSource(),
+            listOf(TestCertificates.Idp1New.X509Certificate, TestCertificates.Idp2.X509Certificate),
+            TestCertificates.OCSP.TwoOCSPList
+        )
 
         // Then
         assertEquals(trustedTruststore, result)
@@ -389,8 +405,8 @@ class TruststoreUseCaseTest {
         runTest {
             coEvery { repository.withUntrusted<Boolean>(any()) } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
-                    TestCertificates.Vau.CertList,
-                    TestCertificates.OCSP.OCSPList
+                    TestCertificates.Vau.CertListWithOneEE,
+                    TestCertificates.OCSP.OneOCSPList
                 )
             }
 
@@ -404,7 +420,10 @@ class TruststoreUseCaseTest {
                 )
             } returns trustedTruststore
 
-            truststore.checkIdpCertificate(TestCertificates.Idp1.X509Certificate)
+            truststore.checkIdpCertificate(
+                listOf(TestCertificates.Idp1New.X509Certificate, TestCertificates.Idp2.X509Certificate),
+                TestCertificates.OCSP.TwoOCSPList
+            )
 
             coVerifyOrder {
                 repository.withUntrusted<Boolean>(any())
@@ -422,15 +441,22 @@ class TruststoreUseCaseTest {
         runTest {
             coEvery { repository.withUntrusted<Boolean>(any()) } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
-                    TestCertificates.Vau.CertList,
-                    TestCertificates.OCSP.OCSPList
+                    TestCertificates.Vau.CertListWithOneEE,
+                    TestCertificates.OCSP.OneOCSPList
                 )
             }
-
+            val eeCers = TestCertificates.Vau.CertListWithOneEE.eeCerts ?: emptyList()
             every {
                 trustedTruststoreProvider(
                     TestCertificates.OCSP.OCSPList,
-                    TestCertificates.Vau.CertList,
+                    TestCertificates.Vau.CertListWithOneEE.copy(
+                        eeCerts = (
+                            eeCers + listOf(
+                                TestCertificates.Idp3.X509Certificate,
+                                TestCertificates.Idp2.X509Certificate
+                            )
+                            )
+                    ),
                     TestCertificates.RCA3.X509Certificate,
                     12.hours,
                     any()
@@ -438,14 +464,14 @@ class TruststoreUseCaseTest {
             } returns trustedTruststore
 
             try {
-                truststore.checkIdpCertificate(TestCertificates.Idp3.X509Certificate)
+                truststore.checkIdpCertificate(
+                    listOf(TestCertificates.Idp3.X509Certificate, TestCertificates.Idp2.X509Certificate),
+                    TestCertificates.OCSP.TwoOCSPList,
+                    true
+                )
             } finally {
-                coVerifyOrder {
-                    repository.withUntrusted<Boolean>(any())
-                    trustedTruststore.idpCertificates
-                }
                 coVerify(exactly = 1) { repository.withUntrusted(any()) }
-                coVerify(exactly = 0) { repository.invalidate() }
+                coVerify(exactly = 1) { repository.invalidate() }
                 verify(exactly = 0) { trustedTruststore.caCertificates }
                 verify(exactly = 0) { trustedTruststore.vauPublicKey }
                 verify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
@@ -457,8 +483,8 @@ class TruststoreUseCaseTest {
         runTest {
             coEvery { repository.withUntrusted<Boolean>(any()) } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
-                    TestCertificates.Vau.CertList,
-                    TestCertificates.OCSP.OCSPList
+                    TestCertificates.Vau.CertListWithOneEE,
+                    TestCertificates.OCSP.OneOCSPList
                 )
             }
 
@@ -473,15 +499,10 @@ class TruststoreUseCaseTest {
             } returns trustedTruststore
 
             try {
-                truststore.checkIdpCertificate(TestCertificates.Idp3.X509Certificate, true)
+                truststore.checkIdpCertificate(listOf(TestCertificates.Idp3.X509Certificate), TestCertificates.OCSP.OCSPList, true)
             } finally {
-                coVerifyOrder {
-                    repository.withUntrusted<Boolean>(any())
-                    trustedTruststore.idpCertificates
-                    repository.invalidate()
-                }
-                coVerify(exactly = 1) { repository.withUntrusted(any()) }
-                coVerify(exactly = 1) { repository.invalidate() }
+                coVerify(exactly = 2) { repository.withUntrusted(any()) }
+                coVerify(exactly = 2) { repository.invalidate() }
                 verify(exactly = 0) { trustedTruststore.caCertificates }
                 verify(exactly = 0) { trustedTruststore.vauPublicKey }
                 verify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }

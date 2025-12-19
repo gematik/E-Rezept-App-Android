@@ -29,6 +29,7 @@ import generated.nettyCodecHttp2Library
 import generated.nettyHandlerLibrary
 import generated.protobufJavaLibrary
 import generated.protobufJavaUtilLibrary
+import generated.qualityCheckstyleLibrary
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalog
 
@@ -41,6 +42,7 @@ fun Project.applyForcedDependencies(versionCatalog: VersionCatalog) {
                 force(versionCatalog.nettyCodecHttp2Library)
                 force(versionCatalog.nettyHandlerLibrary)
                 force(versionCatalog.guavaLibrary)
+                force(versionCatalog.qualityCheckstyleLibrary)
                 // external dependencies bring kotlin to 1.9.* transitively
                 force(versionCatalog.kotlinStdlibLibrary)
                 force(versionCatalog.kotlinStdlibJdk8Library)

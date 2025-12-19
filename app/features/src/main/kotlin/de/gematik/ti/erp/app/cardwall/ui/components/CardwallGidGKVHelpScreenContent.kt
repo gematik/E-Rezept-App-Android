@@ -89,7 +89,7 @@ private fun LazyListScope.CardWallGidGKVHelpScreenHeaderSection() {
             Text(
                 text = stringResource(R.string.cardwall_gid_help_body),
                 style = AppTheme.typography.body2,
-                color = AppTheme.colors.neutral600
+                color = AppTheme.colors.neutral700
             )
         }
     }

@@ -29,7 +29,7 @@ import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.FHIRVZD
 import de.gematik.ti.erp.app.messages.repository.PharmacyCacheLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacyRemoteSelectorLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacySearchAccessTokenLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.FhirVzdRemoteDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.DefaultPharmacyRemoteDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.PharmacyRemoteDataSource
 import de.gematik.ti.erp.app.pharmacy.usecase.model.LocationFilter
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
@@ -49,7 +49,7 @@ class DefaultPharmacyRepositoryTest {
 
     private lateinit var repository: DefaultPharmacyRepository
     private val remoteSelector = mockk<PharmacyRemoteSelectorLocalDataSource>()
-    private val fhirVzdRemoteDataSource = mockk<FhirVzdRemoteDataSource>()
+    private val defaultPharmacyRemoteDataSource = mockk<DefaultPharmacyRemoteDataSource>()
     private val searchAccessTokenLocalDataSource = mockk<PharmacySearchAccessTokenLocalDataSource>(relaxed = true)
     private val cachedPharmacyLocalDataSource = mockk<PharmacyCacheLocalDataSource>(relaxed = true)
     private val parser = mockk<PharmacyParsers>()
@@ -63,10 +63,10 @@ class DefaultPharmacyRepositoryTest {
         every { parser.bundleParser.extract(any()) } returns expectedCollection
         coEvery { cachedPharmacyLocalDataSource.savePharmacy(any(), any()) } returns Unit
         every { cachedPharmacyLocalDataSource.loadPharmacies() } returns flowOf(emptyList())
-        remoteDataSource = fhirVzdRemoteDataSource
+        remoteDataSource = defaultPharmacyRemoteDataSource
 
         repository = DefaultPharmacyRepository(
-            fhirVzdRemoteDataSource = fhirVzdRemoteDataSource,
+            pharmacyRemoteDataSource = defaultPharmacyRemoteDataSource,
             searchAccessTokenLocalDataSource = searchAccessTokenLocalDataSource,
             cachedPharmacyLocalDataSource = cachedPharmacyLocalDataSource,
             parsers = parser,

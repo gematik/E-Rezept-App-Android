@@ -63,6 +63,8 @@ val taskRepositoryModule = DI.Module("taskRepositoryModule", allowSilentOverride
             instance(),
             instance(),
             instance(),
+            instance(),
+            instance(),
             instance()
         )
     }

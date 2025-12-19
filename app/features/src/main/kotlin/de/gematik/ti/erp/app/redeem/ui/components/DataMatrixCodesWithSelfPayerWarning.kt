@@ -35,27 +35,38 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.animated.AnimationTime
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.redeem.model.DMCode
+import de.gematik.ti.erp.app.semantics.semanticsHeading
+import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
+import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import kotlinx.coroutines.delay
 
 @Composable
 fun DataMatrixCodesWithSelfPayerWarning(
     dmCode: DMCode,
+    page: Int,
     showSingleCodes: Boolean,
+    isOnlyOneMultiCode: Boolean,
     sharedWarningHeight: Int,
     onSharedWarningHeightUpdated: (Int) -> Unit
 ) {
@@ -108,6 +119,38 @@ fun DataMatrixCodesWithSelfPayerWarning(
                 .fillMaxWidth(),
             code = dmCode
         )
+        Column(
+            modifier = Modifier.fillMaxWidth()
+                .padding(horizontal = PaddingDefaults.Medium),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            val header = if (showSingleCodes) {
+                stringResource(R.string.local_redeem_single_code)
+            } else {
+                annotatedStringResource(
+                    R.string.local_redeem_multi_code_page,
+                    if (isOnlyOneMultiCode) {
+                        ""
+                    } else {
+                        page.toString()
+                    }
+                ).toString()
+            }
+            Text(
+                text = header,
+                style = AppTheme.typography.subtitle1,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.semanticsHeading()
+            )
+            dmCode.name?.let {
+                Text(
+                    text = it,
+                    style = AppTheme.typography.body2l,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
     }
 }
 
@@ -123,7 +166,9 @@ fun DataMatrixCodesWithSelfPayerWarningPreview() {
                 selfPayerPrescriptionNames = listOf("Medication"),
                 containsScanned = false
             ),
+            page = 1,
             showSingleCodes = false,
+            isOnlyOneMultiCode = false,
             sharedWarningHeight = 0,
             onSharedWarningHeightUpdated = {}
         )

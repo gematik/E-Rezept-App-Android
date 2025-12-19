@@ -23,8 +23,10 @@
 package de.gematik.ti.erp.app.cardwall.ui.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -39,6 +41,7 @@ import androidx.compose.material.IconToggleButton
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.runtime.Composable
@@ -47,11 +50,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -77,8 +80,7 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerTiny
-import de.gematik.ti.erp.app.utils.SpacerXXLarge
-import de.gematik.ti.erp.app.utils.compose.ClickableTaggedText
+import de.gematik.ti.erp.app.utils.SpacerXLarge
 import de.gematik.ti.erp.app.utils.compose.ErezeptOutlineText
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.annotatedLinkStringLight
@@ -212,22 +214,21 @@ private fun CardWallPinScreenContent(
             SpacerSmall()
         }
         item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag(TestTag.CardWall.PIN.OrderEgkButton),
-                contentAlignment = Alignment.CenterEnd
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
             ) {
-                ClickableTaggedText(
-                    text = annotatedLinkStringLight(
+                de.gematik.ti.erp.app.utils.compose.TextButton(
+                    modifier = Modifier.testTag(TestTag.CardWall.PIN.OrderEgkButton),
+                    buttonText = annotatedLinkStringLight(
                         uri = "",
                         text = stringResource(R.string.cdw_no_pin_received)
-                    ),
+                    ).toString(),
                     onClick = { onClickNoPinReceived() },
-                    style = AppTheme.typography.body2
+                    trailingIcon = Icons.AutoMirrored.Default.ArrowForward
                 )
             }
-            SpacerXXLarge()
+            SpacerXLarge()
         }
         item {
             PinInputField(
@@ -298,8 +299,17 @@ fun PinInputField(
             },
             trailingIcon = {
                 IconToggleButton(
+                    modifier = Modifier.clickable(
+                        onClick = {},
+                        role = Role.Button,
+                        onClickLabel = if (secretVisible) {
+                            stringResource(R.string.a11y_pin_input_show_pin_description_onClick_on)
+                        } else {
+                            stringResource(R.string.a11y_pin_input_show_pin_description_onClick_off)
+                        }
+                    ),
                     checked = secretVisible,
-                    onCheckedChange = { secretVisible = it }
+                    onCheckedChange = { secretVisible = !secretVisible }
                 ) {
                     Icon(
                         if (secretVisible) {
@@ -307,7 +317,11 @@ fun PinInputField(
                         } else {
                             Icons.Rounded.VisibilityOff
                         },
-                        null
+                        contentDescription = if (secretVisible) {
+                            stringResource(R.string.a11y_pin_input_show_pin_description_on)
+                        } else {
+                            stringResource(R.string.a11y_pin_input_show_pin_description_off)
+                        }
                     )
                 }
             }

@@ -22,15 +22,15 @@
 
 package de.gematik.ti.erp.app.eurezept.model
 
-import de.gematik.ti.erp.app.messages.model.InternalMessage
 import kotlinx.datetime.Instant
 
 data class EuOrder(
-    var orderId: String,
-    var countryCode: String,
-    var createdAt: Instant,
-    var profileId: String,
-    var euAccessCode: EuAccessCode?,
-    var messages: List<InternalMessage>,
-    var relatedTaskIds: List<String>
+    val orderId: String,
+    val countryCode: String,
+    val createdAt: Instant,
+    val lastModifiedAt: Instant? = null,
+    val profileId: String,
+    val euAccessCode: EuAccessCode?,
+    val events: List<EuTaskEvent>,
+    val relatedTaskIds: List<String>
 )

@@ -47,7 +47,7 @@ fun ColumnScope.OverviewHeader(data: DigaMainScreenUiModel) {
             data.prescribingPerson ?: stringResource(R.string.pres_details_no_value)
         ),
         style = AppTheme.typography.body2,
-        color = AppTheme.colors.neutral600
+        color = AppTheme.colors.neutral700
     )
 }
 

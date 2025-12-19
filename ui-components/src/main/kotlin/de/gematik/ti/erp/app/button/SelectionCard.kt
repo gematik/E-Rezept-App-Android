@@ -101,7 +101,7 @@ fun SelectionCard(
                 Text(
                     text = data.description,
                     style = AppTheme.typography.body2,
-                    color = AppTheme.colors.neutral600
+                    color = AppTheme.colors.neutral700
                 )
             }
 

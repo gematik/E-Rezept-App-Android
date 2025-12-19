@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonColors
@@ -41,6 +42,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CameraAlt
@@ -408,6 +410,38 @@ fun OutlinedIconButton(
     }
 }
 
+@Composable
+fun TextButton(
+    buttonText: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    leadingIcon: ImageVector? = null,
+    trailingIcon: ImageVector? = null
+) {
+    TextButton(
+        modifier = modifier,
+        enabled = enabled,
+        onClick = onClick
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Tiny)
+        ) {
+            leadingIcon?.let {
+                Icon(leadingIcon, null)
+            }
+            Text(
+                buttonText,
+                Modifier.weight(1f, fill = false)
+            )
+            trailingIcon?.let {
+                Icon(trailingIcon, null)
+            }
+        }
+    }
+}
+
 @LightDarkPreview
 @Composable
 fun PrimaryButtonPreview() {
@@ -466,5 +500,20 @@ fun PrimaryIconButtonPreview() {
             text = "Take Photo",
             contentDescription = "Take a photo"
         )
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun TextButtonPreview() {
+    AppTheme {
+        Column(modifier = Modifier.width(200.dp)) {
+            TextButton(
+                onClick = {},
+                buttonText = "ButtonButtonButtonButtonButtonButtonButtonButtonButton",
+                leadingIcon = Icons.Default.CameraAlt,
+                trailingIcon = Icons.Default.CameraAlt
+            )
+        }
     }
 }

@@ -86,7 +86,7 @@ fun Modifier.circularBorder(
 fun Modifier.animatedCircularBorder(
     animate: Boolean,
     startColor: Color = AppTheme.colors.neutral400,
-    endColor: Color = AppTheme.colors.neutral600
+    endColor: Color = AppTheme.colors.neutral700
 ): Modifier {
     return if (animate) {
         val infiniteTransition = rememberInfiniteTransition(label = "infiniteTransition")

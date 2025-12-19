@@ -1,0 +1,114 @@
+/*
+ * Copyright (Change Date see Readme), gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
+ * You may not use this work except in compliance with the Licence.
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
+ */
+
+package de.gematik.ti.erp.app.utils.extensions
+
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.nfc.NfcManager
+import android.os.Build
+import androidx.core.net.toUri
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.pharmacy.ui.model.MapContent
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.utils.compose.canHandleIntent
+import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
+import io.github.aakira.napier.Napier
+
+fun Context.isGooglePlayServiceAvailable(): Boolean =
+    try {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+            GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this) == ConnectionResult.SUCCESS
+    } catch (e: Throwable) {
+        // silently fail
+        Napier.e { "isGooglePlayServiceAvailable failed: ${e.message}" }
+        false
+    }
+
+fun Context.hasNFCTerminal(): Boolean =
+    this.packageManager.hasSystemFeature(PackageManager.FEATURE_NFC)
+
+fun Context.isNfcEnabled(): Boolean = if (hasNFCTerminal()) {
+    val nfcManager = getSystemService(Context.NFC_SERVICE) as? NfcManager
+    nfcManager?.defaultAdapter?.isEnabled ?: false
+} else {
+    false
+}
+
+fun Context.openAppPlayStoreLink() {
+    startActivity(
+        Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse(getString(R.string.app_playstore_link))
+        )
+    )
+}
+
+fun Context.gotoCoordinates(coordinates: Coordinates) {
+    val (component, mapIntent) = mapsSelectionLauncher(coordinates)
+    when {
+        component != null -> startActivity(mapIntent)
+        else -> openGoogleMaps(coordinates)
+    }
+}
+
+fun Context.openEmailClient(emailAddress: String) {
+    val intent = provideEmailIntent(emailAddress)
+    if (canHandleIntent(intent, packageManager)) {
+        startActivity(intent)
+    }
+}
+
+// https://developer.android.com/guide/components/google-maps-intents
+fun Context.openGoogleMaps(coordinates: Coordinates, label: String? = null) {
+    val uri = if (label != null) {
+        "geo:${coordinates.latitude},${coordinates.longitude}?q=${coordinates.latitude},${coordinates.longitude}($label)".toUri()
+    } else {
+        "geo:${coordinates.latitude},${coordinates.longitude}".toUri()
+    }
+
+    val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+        setPackage("com.google.android.apps.maps") // ensures Google Maps opens
+    }
+
+    if (intent.resolveActivity(packageManager) != null) {
+        startActivity(intent)
+    } else {
+        // fallback: open any map app or browser
+        startActivity(
+            Intent(Intent.ACTION_VIEW, uri)
+        )
+    }
+}
+
+private fun Context.mapsSelectionLauncher(coordinates: Coordinates): MapContent {
+    val uri = "https://www.google.com/maps/dir/?api=1&destination=${coordinates.latitude},${coordinates.longitude}".toUri()
+    val mapIntent = Intent(Intent.ACTION_VIEW, uri)
+    return MapContent(
+        component = mapIntent.resolveActivity(packageManager),
+        mapIntent = mapIntent
+    )
+}

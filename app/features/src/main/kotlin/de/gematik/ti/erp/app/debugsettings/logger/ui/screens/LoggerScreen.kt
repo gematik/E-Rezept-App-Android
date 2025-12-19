@@ -59,10 +59,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.BuildKonfig
-import de.gematik.ti.erp.app.base.ClipBoardCopy
+import de.gematik.ti.erp.app.core.ClipBoardCopy
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.debugsettings.logger.presentation.rememberLoggerScreenController
 import de.gematik.ti.erp.app.debugsettings.logger.ui.screens.LoggerScreen.LoggerContent
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.logger.mapper.toHar
 import de.gematik.ti.erp.app.logger.mapper.toJson
 import de.gematik.ti.erp.app.logger.model.ContentLog
@@ -86,7 +87,6 @@ import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.compose.ErezeptOutlineText
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
@@ -232,7 +232,11 @@ object LoggerScreen {
             )
 
             if (filteredLogs.isEmpty()) {
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -537,7 +541,7 @@ private fun CopyButton(
         }
     ) {
         Icon(
-            tint = AppTheme.colors.neutral600,
+            tint = AppTheme.colors.neutral700,
             imageVector = Icons.Rounded.CopyAll,
             contentDescription = null
         )

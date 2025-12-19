@@ -39,7 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import de.gematik.ti.erp.app.base.ClipBoardCopy
+import de.gematik.ti.erp.app.core.ClipBoardCopy
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.ErezeptText.TextAlignment
@@ -73,7 +73,8 @@ private fun ExceptionDialogContent(
         topBar = {
             Row {
                 ErezeptText.Title(
-                    modifier = Modifier.weight(.2f)
+                    modifier = Modifier
+                        .weight(.2f)
                         .padding(PaddingDefaults.Medium),
                     textAlignment = TextAlignment.Center,
                     text = "${error.message?.capitalizeFirstChar()}"

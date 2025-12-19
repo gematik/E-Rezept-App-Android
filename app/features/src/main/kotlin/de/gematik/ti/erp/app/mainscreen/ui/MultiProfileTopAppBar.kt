@@ -54,6 +54,7 @@ import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarWrapper
 import de.gematik.ti.erp.app.mainscreen.model.ProfileIconState.IsError.rememberProfileIconState
 import de.gematik.ti.erp.app.mainscreen.ui.components.AddProfileChip
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -111,6 +112,7 @@ internal fun MultiProfileTopAppBar(
 @Composable
 private fun MainScreenTopBarTitle() {
     Text(
+        modifier = Modifier.semanticsHeading(),
         text = stringResource(R.string.pres_bottombar_prescriptions),
         style = AppTheme.typography.h5,
         maxLines = 1,

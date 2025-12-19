@@ -484,7 +484,7 @@ private fun FailureBanner(
             },
             colors =
             ButtonDefaults.buttonColors(
-                backgroundColor = AppTheme.colors.red600,
+                backgroundColor = AppTheme.colors.red700,
                 contentColor = AppTheme.colors.neutral000
             )
         ) {

@@ -51,6 +51,7 @@ import de.gematik.ti.erp.app.pharmacy.ui.preview.mockSpecialOpeningTimes
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningTime
 import de.gematik.ti.erp.app.preview.LightDarkLongPreview
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
@@ -104,7 +105,10 @@ internal fun PharmacyContact(
 
         if (phone.isNotEmpty() || mail.isNotEmpty() || url.isNotEmpty()) {
             SpacerXXLarge()
-            ErezeptText.Title(text = stringResource(id = R.string.legal_notice_contact_header))
+            ErezeptText.Title(
+                text = stringResource(id = R.string.legal_notice_contact_header),
+                modifier = Modifier.semanticsHeading()
+            )
             SpacerMedium()
         }
 
@@ -233,7 +237,8 @@ private fun PharmacyOpeningHoursOverview(
     Column {
         Text(
             text = stringResource(R.string.pharm_detail_opening_hours),
-            style = AppTheme.typography.h6
+            style = AppTheme.typography.h6,
+            modifier = Modifier.semanticsHeading()
         )
 
         SpacerMedium()
@@ -286,8 +291,8 @@ private fun PharmacyDayOpeningHoursDisplay(
                     text = text,
                     color = when {
                         isOpenNow -> AppTheme.colors.green700
-                        isOpenToday -> AppTheme.colors.neutral600
-                        else -> AppTheme.colors.neutral600
+                        isOpenToday -> AppTheme.colors.neutral700
+                        else -> AppTheme.colors.neutral700
                     },
                     fontWeight = if (isOpenNow || isOpenToday) FontWeight.Medium else null
                 )

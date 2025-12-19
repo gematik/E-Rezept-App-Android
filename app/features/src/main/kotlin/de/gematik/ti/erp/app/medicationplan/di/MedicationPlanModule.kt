@@ -34,7 +34,7 @@ import de.gematik.ti.erp.app.medicationplan.usecase.GetAllMedicationSchedulesUse
 import de.gematik.ti.erp.app.medicationplan.usecase.GetAllProfileWithSchedulesUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.GetDosageInstructionByTaskIdUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.GetMedicationScheduleByTaskIdUseCase
-import de.gematik.ti.erp.app.medicationplan.usecase.ScheduleMedicationScheduleUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.CheckAndScheduleMedicationScheduleUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleDurationUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleIntervalUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleNotificationDosageUseCase
@@ -62,6 +62,6 @@ val medicationPlanModule = DI.Module("medicationPlanModule") {
     bindProvider { GetActiveProfileWithSchedulesUseCase(instance(), instance()) }
     bindProvider { GetAllProfileWithSchedulesUseCase(instance(), instance()) }
     bindProvider { MedicationPlanNotificationScheduler(instance()) }
-    bindProvider { ScheduleMedicationScheduleUseCase(instance()) }
+    bindProvider { CheckAndScheduleMedicationScheduleUseCase(instance(), instance()) }
     bindProvider { DeleteMedicationScheduleUseCase(instance()) }
 }

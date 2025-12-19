@@ -46,5 +46,11 @@
         "text": "**🏛️ Registratie bij federale instellingen** \nRegistratie is nu ook mogelijk voor verzekerden bij federale instellingen zoals de Federale Politie. \n \n **🕒 Verbeterde openingstijden van apotheken** \nSpoeddiensten en speciale sluitingstijden van apotheken worden nu weergegeven, indien deze zijn opgeslagen.",
         "timestamp": "2025-11-03T08:00:00.000Z",
         "version": "1.34"
+    },
+    {
+        "id": "10",
+        "text": "**🏡 Adressuggesties** \nOpgeslagen adresgegevens worden nu automatisch voorgesteld bij het invoeren van een adres. \n \n **♿️ Toegankelijkheid** \nHet contrast voor tekst, wisselknoppen, selectievakjes, foutmeldingen, pictogrammen en zoekbalken is vergroot. \nDe spraakuitvoer via TalkBack is verbeterd voor het invoeren van pincodes en wachtwoorden, de weergave van receptcodes en de herkenning van koppen. Links worden nu consistent onderstreept in lopende tekst.",
+        "timestamp": "2025-12-17T08:00:00.000Z",
+        "version": "1.35"
     }
 ]

@@ -70,7 +70,7 @@ val idpModule = DI.Module("idpModule") {
 
 val idpUseCaseModule = DI.Module("idpUseCaseModule", allowSilentOverride = true) {
     bindSingleton(IdpLockTag) { Mutex() }
-    bindSingleton { IdpBasicUseCase(instance(), instance()) }
+    bindSingleton { IdpBasicUseCase(instance(), instance(), instance()) }
     bindSingleton<IdpUseCase> {
         DefaultIdpUseCase(
             repository = instance(),

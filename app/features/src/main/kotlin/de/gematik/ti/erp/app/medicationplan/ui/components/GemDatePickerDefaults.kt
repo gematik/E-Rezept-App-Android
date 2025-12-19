@@ -42,10 +42,10 @@ object GemDatePickerDefaults {
     @Composable
     fun gemDatePickerColors(
         containerColor: Color = AppTheme.colors.neutral000,
-        titleContentColor: Color = AppTheme.colors.neutral600,
+        titleContentColor: Color = AppTheme.colors.neutral700,
         headlineContentColor: Color = AppTheme.colors.neutral900,
         weekdayContentColor: Color = AppTheme.colors.neutral900,
-        subheadContentColor: Color = AppTheme.colors.neutral600,
+        subheadContentColor: Color = AppTheme.colors.neutral700,
         navigationContentColor: Color = AppTheme.colors.neutral900,
         yearContentColor: Color = AppTheme.colors.neutral900,
         disabledYearContentColor: Color = yearContentColor.copy(alpha = disabledOpacity),
@@ -64,7 +64,7 @@ object GemDatePickerDefaults {
         todayDateBorderColor: Color = AppTheme.colors.primary400,
         dayInSelectionRangeContainerColor: Color = AppTheme.colors.primary100,
         dayInSelectionRangeContentColor: Color = AppTheme.colors.neutral900,
-        dividerColor: Color = AppTheme.colors.neutral600,
+        dividerColor: Color = AppTheme.colors.neutral700,
         dateTextFieldColors: TextFieldColors = OutlinedTextFieldDefaults.colors()
     ): DatePickerColors =
         DatePickerColors(

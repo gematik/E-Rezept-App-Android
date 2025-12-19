@@ -23,7 +23,6 @@
 package de.gematik.ti.erp.app.eurezept.ui.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +33,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -48,15 +46,14 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.eurezept.ui.component.EuLogo
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
@@ -90,7 +87,7 @@ fun EuAvailabilityScreenScaffold(
             .fillMaxSize()
             .navigationBarsPadding()
             .statusBarsPadding(),
-        backgroundColor = Color(0xFF003399),
+        backgroundColor = AppTheme.colors.euLogoColor,
         topBar = {
             Box(
                 modifier = Modifier
@@ -131,16 +128,7 @@ fun EuAvailabilityScreenContent(
     ) {
         Spacer(modifier = Modifier.height(SizeDefaults.tenfold))
 
-        Box(
-            modifier = Modifier.size(280.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.eu_flag_stars),
-                contentDescription = "EU Stars",
-                modifier = Modifier.size(280.dp)
-            )
-        }
+        EuLogo()
 
         Spacer(modifier = Modifier.height(PaddingDefaults.XXLarge))
 
@@ -158,7 +146,6 @@ fun EuAvailabilityScreenContent(
 
         Text(
             text = stringResource(R.string.eu_availability_description),
-
             style = AppTheme.typography.body2,
             color = Color.White,
             textAlign = TextAlign.Center,

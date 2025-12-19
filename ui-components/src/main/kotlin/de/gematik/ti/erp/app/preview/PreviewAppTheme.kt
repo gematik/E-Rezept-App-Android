@@ -24,8 +24,11 @@ package de.gematik.ti.erp.app.preview
 
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import de.gematik.ti.erp.app.theme.AppTheme
+import kotlinx.datetime.TimeZone
 
 @Composable
 fun PreviewTheme(
@@ -33,11 +36,17 @@ fun PreviewTheme(
     content: @Composable () -> Unit
 
 ) {
-    AppTheme {
-        Surface(
-            modifier = modifier
-        ) {
-            content()
+    CompositionLocalProvider(
+        LocalTimeZone provides TimeZone.of("Europe/Berlin")
+    ) {
+        AppTheme {
+            Surface(
+                modifier = modifier
+            ) {
+                content()
+            }
         }
     }
 }
+
+private val LocalTimeZone = staticCompositionLocalOf<TimeZone> { error("No Timezone provided!") }

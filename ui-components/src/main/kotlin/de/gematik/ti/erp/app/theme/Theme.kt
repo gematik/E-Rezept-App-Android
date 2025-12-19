@@ -48,11 +48,11 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable ()
     val fontFamily = remember { fonts }
 
     val typoColors = AppTypographyColors(
-        body1l = colors.neutral600,
-        body2l = colors.neutral600,
-        subtitle1l = colors.neutral600,
-        subtitle2l = colors.neutral600,
-        captionl = colors.neutral600
+        body1l = colors.neutral700,
+        body2l = colors.neutral700,
+        subtitle1l = colors.neutral700,
+        subtitle2l = colors.neutral700,
+        captionl = colors.neutral700
     )
 
     val materialTypo = MaterialTheme.typography.copy(

@@ -22,17 +22,19 @@
 
 package de.gematik.ti.erp.app.eurezept.controller
 
-import android.location.Location
 import de.gematik.ti.erp.app.eurezept.domain.model.Country
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetAllEuCountriesUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.LocationBasedCountryDetectionUseCase
+import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.expectedEuCountries
+import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockFhirCountryModel
+import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockLocation
 import de.gematik.ti.erp.app.eurezept.presentation.EuCountrySelectionController
+import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.shared.usecase.GetLocationUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isErrorState
-import io.mockk.clearMocks
 import io.mockk.coEvery
-import io.mockk.every
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -52,133 +54,96 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 class EuCountrySelectionControllerTest {
 
-    private val getAllEuCountriesUseCase: GetAllEuCountriesUseCase = mockk()
+    private val dispatcher = StandardTestDispatcher()
+    private val testScope = TestScope(dispatcher)
+    private val euRepository: EuRepository = mockk()
+    private var getAllEuCountriesUseCase: GetAllEuCountriesUseCase = GetAllEuCountriesUseCase(euRepository, dispatcher)
+
     private val getLocationUseCase: GetLocationUseCase = mockk()
     private val locationBasedCountryDetectionUseCase: LocationBasedCountryDetectionUseCase = mockk()
 
-    private val dispatcher = StandardTestDispatcher()
-    private val testScope = TestScope(dispatcher)
-
-    private val mockCountries = listOf(
-        Country("Germany", "DE", "🇩🇪"),
-        Country("France", "FR", "🇫🇷"),
-        Country("Italy", "IT", "🇮🇹")
-    )
-
-    private val mockLocation = mockk<Location> {
-        every { latitude } returns 10.1234
-        every { longitude } returns 10.3210
-    }
+    private lateinit var controller: EuCountrySelectionController
 
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
 
-        every { getAllEuCountriesUseCase.filterCountries(any(), any()) } answers {
-            val countries = firstArg<List<Country>>()
-            val query = secondArg<String>()
-            if (query.isEmpty()) {
-                countries
-            } else {
-                countries.filter {
-                    it.name.contains(query, ignoreCase = true) || it.code.contains(query, ignoreCase = true)
-                }
-            }
-        }
+        coEvery { euRepository.fetchAvailableCountries() } returns Result.success(mockFhirCountryModel)
+
+        coEvery { getLocationUseCase.invoke() } returns flowOf(
+            GetLocationUseCase.LocationResult.Success(mockLocation)
+        )
+
+        coEvery {
+            locationBasedCountryDetectionUseCase.detectCountryFromLocation(mockLocation, expectedEuCountries)
+        } returns flowOf(
+            LocationBasedCountryDetectionUseCase.CountryDetectionResult.Success(expectedEuCountries[0])
+        )
+
+        controller = EuCountrySelectionController(
+            getAllEuCountriesUseCase = getAllEuCountriesUseCase,
+            getLocationUseCase = getLocationUseCase,
+            locationBasedCountryDetectionUseCase = locationBasedCountryDetectionUseCase
+        )
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain()
-        clearMocks(getAllEuCountriesUseCase, getLocationUseCase, locationBasedCountryDetectionUseCase)
     }
 
     @Test
     fun `load countries successfully`() {
-        coEvery { getAllEuCountriesUseCase.invoke() } returns mockCountries
-
         testScope.runTest {
-            val controller = EuCountrySelectionController(
-                getAllEuCountriesUseCase = getAllEuCountriesUseCase,
-                getLocationUseCase = getLocationUseCase,
-                locationBasedCountryDetectionUseCase = locationBasedCountryDetectionUseCase
-            )
-
             advanceUntilIdle()
 
             val finalState = controller.uiState.value
             assertTrue(finalState.isDataState)
             assertEquals(3, finalState.data?.size)
             assertEquals("Germany", finalState.data?.get(0)?.name)
+
+            coVerify(exactly = 1) { euRepository.fetchAvailableCountries() }
         }
     }
 
     @Test
     fun `show error state on exception`() {
-        val testException = RuntimeException("Network error")
-        coEvery { getAllEuCountriesUseCase.invoke() } throws testException
+        val testException = RuntimeException()
+        coEvery { euRepository.fetchAvailableCountries() } returns Result.failure(testException)
 
         testScope.runTest {
-            val controller = EuCountrySelectionController(
-                getAllEuCountriesUseCase = getAllEuCountriesUseCase,
-                getLocationUseCase = getLocationUseCase,
-                locationBasedCountryDetectionUseCase = locationBasedCountryDetectionUseCase
-            )
-
             advanceUntilIdle()
 
             val finalState = controller.uiState.value
             assertTrue(finalState.isErrorState)
+
+            coVerify(exactly = 1) { euRepository.fetchAvailableCountries() }
         }
     }
 
     @Test
-    fun `search query filters countries correctly`() {
-        coEvery { getAllEuCountriesUseCase.invoke() } returns mockCountries
+    fun `search query filters countries correctly`() = testScope.runTest {
+        advanceUntilIdle()
 
-        testScope.runTest {
-            val controller = EuCountrySelectionController(
-                getAllEuCountriesUseCase = getAllEuCountriesUseCase,
-                getLocationUseCase = getLocationUseCase,
-                locationBasedCountryDetectionUseCase = locationBasedCountryDetectionUseCase
-            )
+        controller.updateSearchQuery("germ")
 
-            advanceUntilIdle()
+        val filteredState = controller.uiState.value
+        assertTrue(filteredState.isDataState)
+        assertEquals(1, filteredState.data?.size)
+        assertEquals("Germany", filteredState.data?.get(0)?.name)
 
-            controller.updateSearchQuery("germ")
+        controller.updateSearchQuery("")
 
-            val filteredState = controller.uiState.value
-            assertTrue(filteredState.isDataState)
-            assertEquals(1, filteredState.data?.size)
-            assertEquals("Germany", filteredState.data?.get(0)?.name)
+        val clearedState = controller.uiState.value
+        assertTrue(clearedState.isDataState)
+        assertEquals(3, clearedState.data?.size)
 
-            controller.updateSearchQuery("")
-
-            val clearedState = controller.uiState.value
-            assertTrue(clearedState.isDataState)
-            assertEquals(3, clearedState.data?.size)
-        }
+        coVerify(exactly = 1) { euRepository.fetchAvailableCountries() }
     }
 
     @Test
     fun `location permission granted triggers location detection successfully`() {
-        coEvery { getAllEuCountriesUseCase.invoke() } returns mockCountries
-        coEvery { getLocationUseCase.invoke() } returns flowOf(
-            GetLocationUseCase.LocationResult.Success(mockLocation)
-        )
-        coEvery {
-            locationBasedCountryDetectionUseCase.detectCountryFromLocation(mockLocation, mockCountries)
-        } returns flowOf(
-            LocationBasedCountryDetectionUseCase.CountryDetectionResult.Success(mockCountries[0])
-        )
-
         testScope.runTest {
-            val controller = EuCountrySelectionController(
-                getAllEuCountriesUseCase = getAllEuCountriesUseCase,
-                getLocationUseCase = getLocationUseCase,
-                locationBasedCountryDetectionUseCase = locationBasedCountryDetectionUseCase
-            )
-
             advanceUntilIdle()
 
             var resultCountry: Country? = null
@@ -188,7 +153,9 @@ class EuCountrySelectionControllerTest {
             }
             advanceUntilIdle()
 
-            assertEquals(mockCountries[0], resultCountry)
+            assertEquals(expectedEuCountries[0], resultCountry)
+
+            coVerify(exactly = 1) { euRepository.fetchAvailableCountries() }
         }
     }
 }

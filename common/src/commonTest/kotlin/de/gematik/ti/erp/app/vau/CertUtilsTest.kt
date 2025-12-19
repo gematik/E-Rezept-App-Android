@@ -53,7 +53,7 @@ class CertUtilsTest {
 
         assertArrayEquals(
             certChain.toTypedArray(),
-            listOf(certChain).filterBySignature(TestCertificates.Vau.ValidTimestamp).first()
+            listOf(certChain).filterBySignature().first()
                 .toTypedArray()
         )
     }
@@ -62,12 +62,12 @@ class CertUtilsTest {
     fun `validate cert chain by signature and expired timestamp - should return no chain`() {
         val certChain = listOf(
             TestCertificates.Vau.X509Certificate,
-            TestCertificates.CA10.X509Certificate,
+            TestCertificates.CA11Invlid.X509Certificate,
             TestCertificates.RCA3.X509Certificate
         )
 
         assertTrue(
-            listOf(certChain).filterBySignature(TestCertificates.Vau.ExpiredTimestamp).isEmpty()
+            listOf(certChain).filterBySignature().isEmpty()
         )
     }
 
@@ -80,7 +80,7 @@ class CertUtilsTest {
         )
 
         assertTrue(
-            listOf(certChain).filterBySignature(TestCertificates.Vau.ExpiredTimestamp).isEmpty()
+            listOf(certChain).filterBySignature().isEmpty()
         )
     }
 
@@ -90,35 +90,32 @@ class CertUtilsTest {
             listOf(TestCertificates.Vau.X509Certificate, TestCertificates.CA10.X509Certificate)
 
         assertTrue(
-            listOf(certChain).filterBySignature(TestCertificates.Vau.ExpiredTimestamp).isEmpty()
+            listOf(certChain).filterBySignature().isEmpty()
         )
     }
 
     @Test
     fun `filter chains by oid and ocsp response - return one chain`() {
         val certChain = listOf(
-            listOf(
-                TestCertificates.Vau.X509Certificate,
-                TestCertificates.CA10.X509Certificate,
-                TestCertificates.RCA3.X509Certificate
-            )
+            TestCertificates.Vau.X509Certificate
         )
         val ocspResp =
             OCSPResp(Base64.decode(TestCertificates.OCSP3.Base64)).responseObject as BasicOCSPResp
 
         assertArrayEquals(
             certChain.toTypedArray(),
-            certChain.filterByOIDAndOCSPResponse(
+            TestCertificates.Vau.CertList.eeCerts?.filterByOIDAndOCSPResponse(
                 TestCertificates.Vau.OID,
+                TestCertificates.Vau.CertList.caCerts,
                 listOf(ocspResp),
                 TestCertificates.OCSP3.ProducedAt
-            ).toTypedArray()
+            )?.toTypedArray()
         )
     }
 
     @Test
     fun `filter chains by oid and no ocsp response - return no chain`() {
-        val certChain = listOf(
+        listOf(
             listOf(
                 TestCertificates.Vau.X509Certificate,
                 TestCertificates.CA10.X509Certificate,
@@ -128,11 +125,12 @@ class CertUtilsTest {
 
         assertArrayEquals(
             emptyArray(),
-            certChain.filterByOIDAndOCSPResponse(
+            TestCertificates.Vau.CertList.eeCerts?.filterByOIDAndOCSPResponse(
                 TestCertificates.Vau.OID,
+                TestCertificates.Vau.CertList.caCerts,
                 listOf(),
                 TestCertificates.OCSP3.ProducedAt
-            ).toTypedArray()
+            )?.toTypedArray()
         )
     }
 
@@ -143,7 +141,7 @@ class CertUtilsTest {
         val ocspRespIdp =
             OCSPResp(Base64.decode(TestCertificates.OCSP1.Base64)).responseObject as BasicOCSPResp
 
-        val certChain = listOf(
+        listOf(
             listOf(
                 TestCertificates.Vau.X509Certificate,
                 TestCertificates.CA10.X509Certificate,
@@ -164,15 +162,14 @@ class CertUtilsTest {
         // vau
         assertArrayEquals(
             arrayOf(
-                TestCertificates.Vau.X509Certificate,
-                TestCertificates.CA10.X509Certificate,
-                TestCertificates.RCA3.X509Certificate
+                TestCertificates.Vau.X509Certificate
             ),
-            certChain.filterByOIDAndOCSPResponse(
+            TestCertificates.Vau.CertList.eeCerts?.filterByOIDAndOCSPResponse(
                 TestCertificates.Vau.OID,
+                TestCertificates.Vau.CertList.caCerts,
                 listOf(ocspRespVau, ocspRespIdp),
                 TestCertificates.OCSP3.ProducedAt
-            ).first().toTypedArray()
+            )?.toTypedArray()
         )
     }
 }

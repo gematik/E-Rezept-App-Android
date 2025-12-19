@@ -52,7 +52,7 @@ val vauModule = DI.Module("vauModule") {
     }
     bindSingleton { VauRemoteDataSource(instance()) }
     bindSingleton { VauLocalDataSource(instance()) }
-    bindSingleton { VauRepository(instance(), instance(), instance()) }
+    bindSingleton { VauRepository(instance(), instance(), instance(), instance()) }
     bindSingleton { DefaultCryptoConfig() }
     bindSingleton {
         VauChannelInterceptor(
@@ -65,13 +65,11 @@ val vauModule = DI.Module("vauModule") {
     }
     bindSingleton<TruststoreTimeSourceProvider> { { Clock.System.now() } }
     bindSingleton<TrustedTruststoreProvider> {
-        {
-                untrustedOCSPList: UntrustedOCSPList,
-                untrustedCertList: UntrustedCertList,
-                trustAnchor: X509CertificateHolder,
-                ocspResponseMaxAge: Duration,
-                timestamp: Instant
-            ->
+        { untrustedOCSPList: UntrustedOCSPList,
+            untrustedCertList: UntrustedCertList,
+            trustAnchor: X509CertificateHolder,
+            ocspResponseMaxAge: Duration,
+            timestamp: Instant ->
             TrustedTruststore.create(
                 untrustedOCSPList = untrustedOCSPList,
                 untrustedCertList = untrustedCertList,
@@ -81,5 +79,5 @@ val vauModule = DI.Module("vauModule") {
             )
         }
     }
-    bindSingleton { TruststoreUseCase(instance(), instance(), instance(), instance()) }
+    bindSingleton { TruststoreUseCase(instance(), instance(), instance(), instance(), instance()) }
 }

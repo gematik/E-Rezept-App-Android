@@ -47,6 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.material3.components.switchs.GemSwitch
 import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -113,7 +114,7 @@ private fun ScheduleActivitySection(
             )
         },
         trailing = {
-            Switch(
+            GemSwitch(
                 checked = schedule.isActive,
                 onCheckedChange = null
             )
@@ -145,7 +146,7 @@ fun IgnoreBatteryOptimizationSection(
             )
         },
         trailing = {
-            Switch(
+            GemSwitch(
                 checked = batteryOptimizationDisabled,
                 onCheckedChange = null
             )
@@ -170,7 +171,7 @@ fun DosageInfoSection(
             Text(
                 stringResource(R.string.plan_schedule_dosage_instruction_label),
                 style = AppTheme.typography.body2,
-                color = AppTheme.colors.neutral600
+                color = AppTheme.colors.neutral700
             )
         },
         text = {

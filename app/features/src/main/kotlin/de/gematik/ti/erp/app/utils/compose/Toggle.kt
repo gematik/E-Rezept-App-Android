@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import de.gematik.ti.erp.app.material3.components.switchs.GemSwitch
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerSmall
@@ -73,7 +74,7 @@ fun Toggle(
             modifier = Modifier.weight(1f)
         )
         SpacerSmall()
-        Switch(
+        GemSwitch(
             checked = checked,
             onCheckedChange = null
         )

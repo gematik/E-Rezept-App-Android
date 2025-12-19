@@ -36,12 +36,12 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
 import de.gematik.ti.erp.app.pkv.presentation.rememberConsentController
 import de.gematik.ti.erp.app.prescription.ui.components.DefaultDrawerScreenContent
 import de.gematik.ti.erp.app.profiles.presentation.rememberGetActiveProfileController
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.FullScreenLoadingIndicator
@@ -67,7 +67,11 @@ class GrantConsentBottomSheetScreen(
         UiStateMachine(
             state = profileData,
             onError = {
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             },
             onLoading = {
                 FullScreenLoadingIndicator()

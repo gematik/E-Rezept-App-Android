@@ -41,7 +41,6 @@ import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.ClickText
 import de.gematik.ti.erp.app.utils.ClickableText
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 
@@ -120,12 +119,10 @@ fun ActionSection(
                                     role = Role.Button,
                                     onClickLabel = stringResource(R.string.a11y_diga_change_insurance)
                                 ) { onClickOnNavigateToInsuranceSearch() },
-                            text = stringResource(R.string.diga_requesting_code_from, insuranceName ?: ""),
+                            leadingText = stringResource(R.string.diga_requesting_code_from).substringBefore("%s"),
                             textStyle = AppTheme.typography.caption1l.copy(textAlign = TextAlign.Center),
-                            clickText = ClickText(
-                                text = insuranceName ?: "",
-                                onClick = onClickOnNavigateToInsuranceSearch
-                            )
+                            onClick = onClickOnNavigateToInsuranceSearch,
+                            linkText = insuranceName ?: ""
                         )
                     }
                 }

@@ -75,7 +75,7 @@ private fun Year.toJavaYear(): java.time.Year = java.time.Year.of(this.year)
  * @property locale The locale used for formatting.
  * @property zoneId The time zone used for formatting. Defaults to the system's default time zone.
  */
-open class ErpTimeFormatter(val locale: Locale, val zoneId: ZoneId = ZoneId.systemDefault()) {
+open class ErpTimeFormatter(val locale: Locale = Locale.getDefault(), val zoneId: ZoneId = ZoneId.systemDefault()) {
 
     /**
      * Styles for (localized) time, date or timestamp formatter.
@@ -212,4 +212,8 @@ fun rememberErpTimeFormatter(): ErpTimeFormatter {
     return remember(appLocale) {
         ErpTimeFormatter(locale = appLocale)
     }
+}
+
+fun erpTimeFormatterFor(locale: Locale = Locale.getDefault()): ErpTimeFormatter {
+    return ErpTimeFormatter(locale = locale)
 }

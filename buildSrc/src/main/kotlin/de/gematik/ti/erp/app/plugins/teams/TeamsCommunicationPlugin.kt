@@ -20,6 +20,8 @@
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
+@file:Suppress("unused")
+
 package de.gematik.ti.erp.app.plugins.teams
 
 import de.gematik.ti.erp.app.ErpPlugin

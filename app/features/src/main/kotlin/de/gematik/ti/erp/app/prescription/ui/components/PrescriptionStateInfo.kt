@@ -88,7 +88,7 @@ fun PrescriptionStateInfo(
                         imageVector = Icons.Rounded.WarningAmber,
                         modifier = Modifier.padding(end = PaddingDefaults.Tiny),
                         contentDescription = null,
-                        tint = AppTheme.colors.red600
+                        tint = AppTheme.colors.red700
                     )
                 }
         )
@@ -121,7 +121,7 @@ fun PrescriptionStateInfo(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = AppTheme.typography.body2,
-                            color = AppTheme.colors.red600,
+                            color = AppTheme.colors.red700,
                             inlineContent = warningAmber,
                             textAlign = textAlign
                         )

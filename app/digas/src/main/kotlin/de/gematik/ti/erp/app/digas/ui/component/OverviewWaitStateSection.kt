@@ -118,13 +118,13 @@ fun OverviewWaitStateSection(
                 timeString
             ),
             style = AppTheme.typography.caption1,
-            color = AppTheme.colors.neutral600
+            color = AppTheme.colors.neutral700
         )
         Text(
             text = stringResource(R.string.diga_insurance_waiting_info),
             style = AppTheme.typography.caption1,
             textAlign = TextAlign.Center,
-            color = AppTheme.colors.neutral600
+            color = AppTheme.colors.neutral700
         )
     }
 }

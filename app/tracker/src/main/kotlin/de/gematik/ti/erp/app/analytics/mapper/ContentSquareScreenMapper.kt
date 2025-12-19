@@ -205,6 +205,8 @@ class ContentSquareScreenMapper {
                 NavigationRouteNames.EuAvailabilityScreen -> "eu:availability"
                 NavigationRouteNames.EuInstructionsScreen -> "eu:instructions"
                 NavigationRouteNames.EuRedemptionCodeScreen -> "eu:redemptionCode"
+                NavigationRouteNames.EuRedeemMessageDetailsScreen -> "eu:redeemMessageDetails"
+                NavigationRouteNames.EuDeleteAccessCodeBottomSheetScreen -> "eu:deleteAccessCode"
             }
         }
 }

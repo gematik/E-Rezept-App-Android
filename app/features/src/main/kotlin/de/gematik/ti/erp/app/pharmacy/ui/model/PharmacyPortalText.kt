@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.style.TextDecoration
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 
@@ -65,7 +66,7 @@ data class PharmacyPortalText(
             end = end
         )
         addStyle(
-            SpanStyle(color = AppTheme.colors.primary700),
+            SpanStyle(color = AppTheme.colors.primary700, textDecoration = TextDecoration.Underline),
             start,
             end
         )

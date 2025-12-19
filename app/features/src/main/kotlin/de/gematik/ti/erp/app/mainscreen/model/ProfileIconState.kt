@@ -130,7 +130,7 @@ sealed class ProfileIconState {
         override fun avatar() = ProfileAvatarAppearance(
             background = AppTheme.colors.neutral200,
             imageVector = Icons.Rounded.Close,
-            tint = AppTheme.colors.neutral600
+            tint = AppTheme.colors.neutral700
         )
     }
 

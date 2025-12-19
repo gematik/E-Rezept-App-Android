@@ -145,7 +145,7 @@ private fun DeleteInvoiceDialog(
         bodyText = stringResource(R.string.profile_delete_invoice_info),
         confirmText = stringResource(R.string.profile_delete_invoice),
         dismissText = stringResource(R.string.profile_invoices_cancel),
-        confirmTextColor = AppTheme.colors.red600,
+        confirmTextColor = AppTheme.colors.red700,
         dismissTextColor = AppTheme.colors.primary700,
         onDismissRequest = onCancel,
         onConfirmRequest = onDeleteInvoice

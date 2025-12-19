@@ -233,8 +233,8 @@ private fun InsuranceCompanySearchField(
         textStyle = AppTheme.typography.body1,
         colors = TextFieldDefaults.textFieldColors(
             textColor = AppTheme.colors.neutral900,
-            leadingIconColor = AppTheme.colors.neutral600,
-            trailingIconColor = AppTheme.colors.neutral600,
+            leadingIconColor = AppTheme.colors.neutral700,
+            trailingIconColor = AppTheme.colors.neutral700,
             backgroundColor = AppTheme.colors.neutral100,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent

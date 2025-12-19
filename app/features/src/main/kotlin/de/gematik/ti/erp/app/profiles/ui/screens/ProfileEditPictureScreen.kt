@@ -257,6 +257,7 @@ private fun AvatarSelector(
     onPickPersonalizedImage: () -> Unit,
     onSelectAvatar: (ProfilesData.Avatar) -> Unit
 ) {
+    val selectedColor = profileColor(profileColorNames = profile.color)
     val avatarDescription = figure.toDescription()
     val selectedDescription = stringResource(R.string.active_description)
     val notSelectedDescription = stringResource(R.string.inactive_description)
@@ -287,7 +288,7 @@ private fun AvatarSelector(
         border = if (selected) {
             BorderStroke(SizeDefaults.fivefoldHalf, color = AppTheme.colors.primary700)
         } else if (figure != ProfilesData.Avatar.PersonalizedImage) {
-            BorderStroke(SizeDefaults.eighth, color = AppTheme.colors.neutral300)
+            BorderStroke(SizeDefaults.eighth, color = selectedColor.borderColor)
         } else {
             null
         }
@@ -365,7 +366,7 @@ fun ColorPicker(
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Text(
                 text = currentSelectedColors.colorName,
-                color = AppTheme.colors.neutral600,
+                color = AppTheme.colors.neutral700,
                 style = AppTheme.typography.body2l
             )
         }
@@ -477,7 +478,7 @@ fun ProfileImage(
                                 TestTag.Profile.EditProfileIcon.DeleteAvatarButton
                             ),
                             imageVector = Icons.Rounded.Delete,
-                            tint = AppTheme.colors.neutral600,
+                            tint = AppTheme.colors.neutral700,
                             contentDescription = deleteDescription
                         )
                     }

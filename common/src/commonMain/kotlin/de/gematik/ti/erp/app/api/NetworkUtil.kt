@@ -82,6 +82,29 @@ suspend fun <T : Any> safeApiCall(
         e.mapToResultFailure(errorMessage)
     }
 
+suspend fun safeApiCallNoBody(
+    errorMessage: String,
+    call: suspend () -> Response<Unit>
+): Result<Unit> =
+    try {
+        val response = call()
+        if (response.isSuccessful) {
+            Result.success(Unit)
+        } else {
+            Result.failure(
+                ApiCallException(
+                    "$errorMessage (HTTP ${response.code()} ${response.message()})",
+                    response
+                )
+            )
+        }
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Napier.e("Api Call Error", e)
+        e.mapToResultFailure(errorMessage)
+    }
+
 private fun <T : Any> Exception.mapToResultFailure(errorMessage: String): Result<T> =
     when {
         isNetworkException(this) -> Result.failure(NoInternetException(errorMessage, this))

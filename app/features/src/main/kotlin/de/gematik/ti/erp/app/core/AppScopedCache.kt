@@ -22,40 +22,18 @@
 
 package de.gematik.ti.erp.app.core
 
-import androidx.compose.runtime.saveable.Saver
-import de.gematik.ti.erp.app.ErezeptApp
-import java.util.UUID
-
-class AppScopedCache {
+class AppScopedCache : AppCache {
     private val data: MutableMap<String, Any?> = mutableMapOf()
     private val lock = Any()
 
-    fun store(key: String, value: Any?) {
+    override fun store(key: String, value: Any?) {
         synchronized(lock) {
             data += key to value
         }
     }
 
-    fun recover(key: String): Any? =
+    override fun recover(key: String): Any? =
         synchronized(lock) {
             data.remove(key)
         }
 }
-
-fun <T : Any?> complexAutoSaver(): Saver<T, *> = complexAutoSaver(init = {})
-
-fun <T : Any?> complexAutoSaver(
-    key: String = UUID.randomUUID().toString(),
-    init: T.() -> Unit
-): Saver<T, *> = Saver(
-    save = { state ->
-        ErezeptApp.cache.store(key, state)
-        key
-    },
-    restore = { restoreKey ->
-        @Suppress("UNCHECKED_CAST")
-        (ErezeptApp.cache.recover(restoreKey) as? T).apply {
-            this?.init()
-        }
-    }
-)

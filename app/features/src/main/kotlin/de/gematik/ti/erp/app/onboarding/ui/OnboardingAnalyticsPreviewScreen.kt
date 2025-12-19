@@ -23,7 +23,6 @@
 package de.gematik.ti.erp.app.onboarding.ui
 
 import androidx.activity.compose.BackHandler
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -41,22 +40,17 @@ import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.sharp.AutoFixHigh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -71,7 +65,6 @@ import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.ClickText
 import de.gematik.ti.erp.app.utils.ClickableText
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
@@ -201,18 +194,20 @@ private fun LazyListScope.onboardingAnalyticsPreviewContent(
             )
 
             SpacerSmall()
-
-            AccessibleOnboardingClickableText(
-                textWithPlaceholdersRes = R.string.onboarding_analytics_consent_text,
-                textStyle = AppTheme.typography.body1l,
-                clickText = ClickText(
-                    text = stringResource(R.string.onboarding_analytics_link_text),
-                    onClick = { onAnalyticsCheckChanged() }
-                ),
-                linkTextStyle = SpanStyle(
-                    color = AppTheme.colors.primary700,
-                    textDecoration = TextDecoration.Underline
-                )
+            val fullText = stringResource(R.string.onboarding_analytics_consent_text)
+            ClickableText(
+                modifier = Modifier.semantics {
+                    this.role = Role.Button
+                    onClick {
+                        onAnalyticsCheckChanged()
+                        true
+                    }
+                },
+                leadingText = fullText.substringBefore("%s"),
+                trailingText = fullText.substringAfter("%s"),
+                linkText = stringResource(R.string.onboarding_analytics_link_text),
+                onClick = onAnalyticsCheckChanged,
+                textStyle = AppTheme.typography.body1l
             )
 
             SpacerLarge()
@@ -246,35 +241,6 @@ private fun AnalyticsInfoList() {
             text = stringResource(R.string.onboarding_analytics_resolve_errors_text)
         )
     }
-}
-
-@Composable
-private fun AccessibleOnboardingClickableText(
-    modifier: Modifier = Modifier,
-    @StringRes textWithPlaceholdersRes: Int,
-    clickText: ClickText,
-    textStyle: TextStyle,
-    linkTextStyle: SpanStyle = SpanStyle(color = AppTheme.colors.primary700),
-    text: String = stringResource(id = textWithPlaceholdersRes)
-) {
-    val accessibleText = remember(text, clickText.text) {
-        text.replace(clickText.text, clickText.text)
-    }
-
-    ClickableText(
-        modifier = modifier.semantics {
-            this.contentDescription = accessibleText
-            this.role = Role.Button
-            onClick {
-                clickText.onClick()
-                true
-            }
-        },
-        clickText = clickText,
-        textStyle = textStyle,
-        linkTextStyle = linkTextStyle,
-        text = text
-    )
 }
 
 @LightDarkPreview

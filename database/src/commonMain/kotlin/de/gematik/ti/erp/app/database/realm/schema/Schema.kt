@@ -28,13 +28,15 @@ import io.realm.kotlin.MutableRealm
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
+import io.realm.kotlin.migration.AutomaticSchemaMigration
 import io.realm.kotlin.types.RealmObject
 import kotlin.reflect.KClass
 
 class AppRealmSchema(
     val version: Long,
     val classes: Set<KClass<out RealmObject>>,
-    val migrateOrInitialize: (MutableRealm.(migrationStartedFrom: Long) -> Unit)? = null
+    val migrateData: (MutableRealm.(migrationStartedFrom: Long) -> Unit)? = null,
+    val migrateSchema: ((AutomaticSchemaMigration.MigrationContext, oldVersion: Long, newVersion: Long) -> Unit)? = null
 ) {
     override fun equals(other: Any?): Boolean {
         return (other as? AppRealmSchema)?.version == version
@@ -60,9 +62,8 @@ fun openRealmWith(
     return Realm.open(
         RealmConfiguration.Builder(latestSchema.classes + LatestManualMigration::class)
             .schemaVersion(latestSchema.version)
-            .let {
-                configuration?.invoke(it) ?: it
-            }
+            .migration(CompositeAutomaticSchemaMigration(schemas))
+            .let { configuration?.invoke(it) ?: it }
             .build()
     ).also { realm ->
         val latestManualMigration = realm.query<LatestManualMigration>().first().find() ?: run {
@@ -80,7 +81,7 @@ fun openRealmWith(
         schemas.sortedBy { it.version }.forEach {
             if (it.version > latestManualMigration.version) {
                 realm.writeBlocking {
-                    it.migrateOrInitialize?.invoke(this, migrationStartedFrom)
+                    it.migrateData?.invoke(this, migrationStartedFrom)
 
                     findLatest(latestManualMigration)?.version = it.version
                 }

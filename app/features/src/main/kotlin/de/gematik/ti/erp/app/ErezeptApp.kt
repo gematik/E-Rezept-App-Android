@@ -29,6 +29,7 @@ import coil.ImageLoaderFactory
 import com.appmattus.certificatetransparency.installCertificateTransparencyProvider
 import com.google.mlkit.common.MlKit
 import de.gematik.ti.erp.app.core.AppScopedCache
+import de.gematik.ti.erp.app.core.GlobalCacheProvider
 import de.gematik.ti.erp.app.database.settings.initSharedPrefsSettings
 import de.gematik.ti.erp.app.di.ApplicationModule
 import de.gematik.ti.erp.app.di.delayedLeakCanary
@@ -41,6 +42,7 @@ open class ErezeptApp : Application(), ImageLoaderFactory {
         super.onCreate()
         initSharedPrefsSettings(this)
         installCertificateTransparencyProvider()
+        GlobalCacheProvider.cache = AppScopedCache()
         applicationModule = ApplicationModule(this)
         debugChecks()
 
@@ -100,7 +102,6 @@ open class ErezeptApp : Application(), ImageLoaderFactory {
     }
 
     companion object {
-        val cache = AppScopedCache()
         lateinit var applicationModule: ApplicationModule
     }
 }

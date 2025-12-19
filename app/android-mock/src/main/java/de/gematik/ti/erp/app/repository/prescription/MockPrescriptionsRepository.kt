@@ -28,6 +28,7 @@ import de.gematik.ti.erp.app.model.MockSentCommunicationJson
 import de.gematik.ti.erp.app.model.toMockProfileLinkedCommunication
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData.ScannedTask
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask
+import de.gematik.ti.erp.app.prescription.model.TaskData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
@@ -176,5 +177,9 @@ class MockPrescriptionsRepository(
 
     override fun loadAllTaskIds(profileId: ProfileIdentifier): Flow<List<String>> {
         return flowOf(emptyList())
+    }
+
+    override fun getTask(taskId: String): TaskData? {
+        return null
     }
 }

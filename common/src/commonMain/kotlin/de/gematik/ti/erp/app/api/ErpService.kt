@@ -193,5 +193,5 @@ interface ErpService {
     @DELETE("\$revoke-eu-access-permission")
     suspend fun deleteEuRedeemAccessCode(
         @Tag profileId: ProfileIdentifier
-    ): Response<JsonElement>
+    ): Response<Unit>
 }

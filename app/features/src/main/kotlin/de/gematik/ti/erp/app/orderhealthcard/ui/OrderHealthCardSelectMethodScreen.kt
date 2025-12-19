@@ -176,7 +176,7 @@ private fun OrderHealthCardSelectMethodScreenContent(
                     Text(
                         text = info,
                         style = AppTheme.typography.subtitle2,
-                        color = AppTheme.colors.neutral600,
+                        color = AppTheme.colors.neutral700,
                         textAlign = TextAlign.Center
                     )
                     SpacerXXLarge()

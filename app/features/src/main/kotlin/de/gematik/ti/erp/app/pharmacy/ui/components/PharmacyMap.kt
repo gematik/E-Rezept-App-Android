@@ -134,7 +134,7 @@ class MockMap : PharmacyMap {
         Surface(
             modifier = modifier.fillMaxSize(),
             border = BorderStroke(SizeDefaults.eighth, AppTheme.colors.green600),
-            color = AppTheme.colors.neutral600
+            color = AppTheme.colors.neutral700
         ) {
             Box(
                 modifier = Modifier.fillMaxSize(),

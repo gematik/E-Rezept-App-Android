@@ -79,7 +79,7 @@ private fun LazyListScope.CardWallGidPKVHelpScreenHeaderSection() {
             Text(
                 text = stringResource(R.string.cardwall_gid_pkv_help_screen_body),
                 style = AppTheme.typography.body2,
-                color = AppTheme.colors.neutral600
+                color = AppTheme.colors.neutral700
             )
         }
     }

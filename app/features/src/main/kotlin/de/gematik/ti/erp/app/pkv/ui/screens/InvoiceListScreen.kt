@@ -415,7 +415,7 @@ private fun InvoicesHeaderThreeDotMenu(
     IconButton(
         onClick = { expanded = true }
     ) {
-        Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral600)
+        Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral700)
     }
     DropdownMenu(
         expanded = expanded,
@@ -441,7 +441,7 @@ private fun InvoicesHeaderThreeDotMenu(
                 },
                 color =
                 if (consentGranted) {
-                    AppTheme.colors.red600
+                    AppTheme.colors.red700
                 } else {
                     AppTheme.colors.neutral900
                 }

@@ -53,7 +53,23 @@ data class UntrustedCertList(
 
     // vau & idp certs
     @SerialName("ee_certs")
-    val eeCerts: List<X509CertificateHolder>
+    val eeCerts: List<X509CertificateHolder>? = null
+)
+
+@Serializable
+data class UntrustedNewCertList(
+    // additional cross roots
+    @SerialName("add_roots")
+    val addRoots: List<X509CertificateHolder>,
+
+    // ca certs
+    @SerialName("ca_certs")
+    val caCerts: List<X509CertificateHolder>
+)
+
+@Serializable
+data class UntrustedVauList(
+    val responses: List<X509CertificateHolder>
 )
 
 /**

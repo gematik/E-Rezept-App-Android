@@ -33,6 +33,7 @@ class AppDependencyNamesPlugin : ErpPlugin {
     val feature = ":app:features"
     val digas = ":app:digas"
     val eurezept = ":app:eu-rezept"
+    val messages = ":app:messages"
     val navigation = ":app:navigation"
     val tracker = ":app:tracker"
     val fhirParser = ":fhir-parser"
@@ -44,6 +45,7 @@ class AppDependencyNamesPlugin : ErpPlugin {
     val testTags = ":app:test-tags"
     val multiplatform = ":common"
     val database = ":database"
+    val mocks = ":mocks"
 
     fun moduleName(value: String) = "$appNameSpace.$value"
     fun idName(value: String) = "$appId.$value"

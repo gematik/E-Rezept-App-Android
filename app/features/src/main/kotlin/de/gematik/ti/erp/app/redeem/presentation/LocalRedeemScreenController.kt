@@ -39,6 +39,7 @@ import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.redeem.model.DMCode
+import de.gematik.ti.erp.app.redeem.ui.model.LocalRedeemTab
 import de.gematik.ti.erp.app.redeem.usecase.GetDMCodesForLocalRedeemUseCase
 import de.gematik.ti.erp.app.redeem.usecase.GetRedeemableTasksForDmCodesUseCase
 import de.gematik.ti.erp.app.redeem.usecase.HasEuRedeemablePrescriptionsUseCase
@@ -56,6 +57,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
@@ -76,7 +78,7 @@ class LocalRedeemScreenController(
     isFeatureToggleEnabledUseCase: IsFeatureToggleEnabledUseCase,
     private val _prescriptionOrders: MutableStateFlow<List<PharmacyUseCaseData.PrescriptionInOrder>> =
         MutableStateFlow(emptyList()),
-    private val _showSingleCodes: MutableStateFlow<Boolean> = MutableStateFlow(false),
+    private val _selectedTab: MutableStateFlow<LocalRedeemTab> = MutableStateFlow(LocalRedeemTab.MultiCode),
     private val _dmCodes: MutableStateFlow<UiState<List<DMCode>>> = MutableStateFlow(UiState.Loading())
 ) : ChooseAuthenticationController(
     getProfileByIdUseCase = getProfileByIdUseCase,
@@ -108,7 +110,7 @@ class LocalRedeemScreenController(
                 }
             )
             runCatching {
-                getDMCodesForLocalRedeemUseCase.invoke(_prescriptionOrders, _showSingleCodes)
+                getDMCodesForLocalRedeemUseCase.invoke(_prescriptionOrders, _selectedTab)
             }.fold(
                 onSuccess = {
                     val list = it.first()
@@ -130,7 +132,7 @@ class LocalRedeemScreenController(
         }
     }
 ) {
-    val showSingleCodes: StateFlow<Boolean> = _showSingleCodes
+    val selectedTab: StateFlow<LocalRedeemTab> = _selectedTab
     val dmCodes: StateFlow<UiState<List<DMCode>>> = _dmCodes
     val prescriptionOrders: StateFlow<List<PharmacyUseCaseData.PrescriptionInOrder>> = _prescriptionOrders
     private val _activeProfileId: MutableStateFlow<ProfileIdentifier> = MutableStateFlow("")
@@ -173,8 +175,10 @@ class LocalRedeemScreenController(
             }
         } ?: false
 
-    fun switchSingleCode() {
-        _showSingleCodes.value = !_showSingleCodes.value
+    fun onSelectTab(index: Int) {
+        _selectedTab.update {
+            LocalRedeemTab.entries.first { it.index == index }
+        }
     }
 
     fun redeemPrescriptions() {
@@ -235,7 +239,7 @@ class LocalRedeemScreenController(
     fun getDmCodes() {
         controllerScope.launch {
             runCatching {
-                getDMCodesForLocalRedeemUseCase.invoke(_prescriptionOrders, _showSingleCodes)
+                getDMCodesForLocalRedeemUseCase.invoke(_prescriptionOrders, _selectedTab)
             }.fold(
                 onSuccess = {
                     val list = it.first()

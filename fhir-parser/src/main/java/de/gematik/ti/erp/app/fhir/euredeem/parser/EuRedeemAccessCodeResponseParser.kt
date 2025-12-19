@@ -35,7 +35,7 @@ class EuRedeemAccessCodeResponseParser : BundleParser {
         return try {
             model?.toErpModel()
         } catch (e: Exception) {
-            Napier.e { "Error parsing EuRedeemAccessCodeResponse: ${e.message}" }
+            Napier.e(tag = "fhir-parser") { "Error parsing EuRedeemAccessCodeResponse: ${e.message}" }
             null
         }
     }

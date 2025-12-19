@@ -51,7 +51,6 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DataExploration
@@ -65,8 +64,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -105,6 +102,7 @@ import de.gematik.ti.erp.app.debugsettings.timeout.DebugTimeoutScreen
 import de.gematik.ti.erp.app.debugsettings.ui.components.ClearTextTrafficSection
 import de.gematik.ti.erp.app.debugsettings.ui.components.ClientIdsSection
 import de.gematik.ti.erp.app.debugsettings.ui.components.EnvironmentSelector
+import de.gematik.ti.erp.app.material3.components.switchs.GemSwitch
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -119,7 +117,6 @@ import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
 import de.gematik.ti.erp.app.utils.compose.erezeptTextFieldColors
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
-import de.gematik.ti.erp.app.utils.extensions.erezeptColors
 import kotlinx.coroutines.launch
 import org.bouncycastle.util.encoders.Base64
 import org.kodein.di.bindProvider
@@ -535,7 +532,7 @@ fun DebugScreenMain(
                                 CircularProgressIndicator(
                                     Modifier.size(SizeDefaults.triple),
                                     strokeWidth = SizeDefaults.quarter,
-                                    color = AppTheme.colors.neutral600
+                                    color = AppTheme.colors.neutral700
                                 )
                                 SpacerSmall()
                             }
@@ -571,7 +568,7 @@ fun DebugScreenMain(
                                 CircularProgressIndicator(
                                     Modifier.size(SizeDefaults.triple),
                                     strokeWidth = SizeDefaults.quarter,
-                                    color = AppTheme.colors.neutral600
+                                    color = AppTheme.colors.neutral700
                                 )
                                 SpacerSmall()
                             }
@@ -592,9 +589,8 @@ fun DebugScreenMain(
                                 text = "Original app update",
                                 modifier = Modifier.weight(1f)
                             )
-                            Switch(
+                            GemSwitch(
                                 modifier = Modifier.testTag(TestTag.DebugMenu.FakeAppUpdate),
-                                colors = SwitchDefaults.erezeptColors(),
                                 checked = appUpdateManager,
                                 onCheckedChange = { viewModel.changeAppUpdateManager(it) }
                             )
@@ -614,9 +610,8 @@ fun DebugScreenMain(
                                 modifier = Modifier
                                     .weight(1f)
                             )
-                            Switch(
+                            GemSwitch(
                                 modifier = Modifier.testTag(TestTag.DebugMenu.FakeNFCCapabilities),
-                                colors = SwitchDefaults.erezeptColors(),
                                 checked = viewModel.debugSettingsData.fakeNFCCapabilities,
                                 onCheckedChange = { viewModel.allowNfc(it) }
                             )
@@ -824,7 +819,7 @@ private fun VirtualHealthCard(
                 CircularProgressIndicator(
                     Modifier.size(24.dp),
                     strokeWidth = 2.dp,
-                    color = AppTheme.colors.neutral600
+                    color = AppTheme.colors.neutral700
                 )
                 SpacerSmall()
             }
@@ -852,7 +847,7 @@ private fun FeatureToggles(
                         .weight(1f),
                     style = MaterialTheme.typography.body1
                 )
-                Switch(
+                GemSwitch(
                     checked = feature.isActive,
                     onCheckedChange = { viewModel.toggleFeature(feature) }
                 )

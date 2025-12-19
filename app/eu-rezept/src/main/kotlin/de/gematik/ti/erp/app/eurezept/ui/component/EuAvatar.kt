@@ -91,7 +91,7 @@ fun EuAvatar(
                         Icon(
                             imageVector = emptyIcon,
                             contentDescription = null,
-                            tint = AppTheme.colors.neutral600
+                            tint = AppTheme.colors.neutral700
                         )
                     }
                 }
@@ -109,7 +109,7 @@ fun EuAvatar(
                         Icon(
                             imageVector = emptyIcon,
                             contentDescription = null,
-                            tint = AppTheme.colors.neutral600
+                            tint = AppTheme.colors.neutral700
                         )
                     }
                 }

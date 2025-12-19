@@ -106,14 +106,14 @@ fun NavigationTopAppBar(
     closeLabel: String,
     onBack: () -> Unit
 ) = TopAppBar(
-    modifier = modifier.semanticsHeading(),
+    modifier = modifier,
     title = {
         if (isTitleCentered) {
             Center {
-                Text(title, overflow = TextOverflow.Ellipsis)
+                Text(title, overflow = TextOverflow.Ellipsis, modifier = Modifier.semanticsHeading())
             }
         } else {
-            Text(title, overflow = TextOverflow.Ellipsis)
+            Text(title, overflow = TextOverflow.Ellipsis, modifier = Modifier.semanticsHeading())
         }
     },
     backgroundColor = backgroundColor,

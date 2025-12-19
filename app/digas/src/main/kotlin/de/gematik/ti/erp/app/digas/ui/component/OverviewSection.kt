@@ -56,7 +56,7 @@ fun LazyListScope.overviewSection(
     item {
         Column(
             modifier = Modifier
-                .fillParentMaxSize()
+                .fillMaxWidth()
                 .padding(bottom = PaddingDefaults.XLarge)
         ) {
             UiStateMachine(
@@ -65,16 +65,24 @@ fun LazyListScope.overviewSection(
                     OverviewLoadingSection()
                 },
                 onEmpty = {
-                    ErrorScreenComponent(
-                        titleText = errorTitle,
-                        bodyText = errorBody
-                    )
+                    Column(
+                        modifier = Modifier.fillParentMaxSize()
+                    ) {
+                        ErrorScreenComponent(
+                            titleText = errorTitle,
+                            bodyText = errorBody
+                        )
+                    }
                 },
                 onError = {
-                    ErrorScreenComponent(
-                        titleText = errorTitle,
-                        bodyText = errorBody
-                    )
+                    Column(
+                        modifier = Modifier.fillParentMaxSize()
+                    ) {
+                        ErrorScreenComponent(
+                            titleText = errorTitle,
+                            bodyText = errorBody
+                        )
+                    }
                 }
             ) { data ->
                 val current = data.status

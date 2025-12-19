@@ -23,7 +23,9 @@
 package de.gematik.ti.erp.app.base
 
 import androidx.compose.runtime.Composable
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
+import androidx.compose.ui.res.stringResource
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 
 sealed class NonNullResult<T> {
     data class Success<T>(val value: T) : NonNullResult<T>()
@@ -42,7 +44,13 @@ fun <T> requireNonNull(input: T?): NonNullResult<T> {
 @Composable
 fun <T> NonNullResult<T>.fold(
     onSuccess: @Composable (T) -> Unit,
-    onFailure: @Composable () -> Unit = { ErrorScreenComponent() }
+    onFailure: @Composable () -> Unit = {
+        ErrorScreenComponent(
+            titleText = stringResource(R.string.generic_error_title),
+            bodyText = stringResource(R.string.generic_error_info),
+            tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+        )
+    }
 ) {
     if (this is NonNullResult.Success) {
         onSuccess(value)

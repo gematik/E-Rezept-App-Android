@@ -28,12 +28,19 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
 import kotlinx.datetime.toKotlinInstant
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers
+import org.bouncycastle.asn1.x9.X9ObjectIdentifiers
 import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.cert.ocsp.BasicOCSPResp
+import org.bouncycastle.cert.ocsp.CertificateStatus
+import org.bouncycastle.cert.ocsp.RevokedStatus
+import org.bouncycastle.cert.ocsp.SingleResp
 import org.bouncycastle.jcajce.provider.asymmetric.ec.KeyFactorySpi
 import org.bouncycastle.jce.interfaces.ECPublicKey
+import org.bouncycastle.operator.ContentVerifierProvider
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder
 import org.bouncycastle.operator.bc.BcECContentVerifierProviderBuilder
+import org.bouncycastle.operator.bc.BcRSAContentVerifierProviderBuilder
 import java.util.Date
 
 /**
@@ -42,61 +49,93 @@ import java.util.Date
 fun X509CertificateHolder.containsIdentifierOid(oid: ByteArray) =
     this.getExtension(ASN1ObjectIdentifier("1.3.36.8.3.3")).encoded.contains(oid)
 
-fun List<List<X509CertificateHolder>>.filterByOIDAndOCSPResponse(
+fun List<X509CertificateHolder>.filterByOIDAndOCSPResponse(
     oid: ByteArray,
+    ca: List<X509CertificateHolder>,
     validOcspResponses: List<BasicOCSPResp>,
     timestamp: Instant
-): List<List<X509CertificateHolder>> =
-    filter { it.first().containsIdentifierOid(oid) }
+): List<X509CertificateHolder> =
+    filter { it.containsIdentifierOid(oid) }
         .filter { chain ->
             validOcspResponses.find { validOcspResponse ->
                 val producedAt = validOcspResponse.producedAt.toInstant().toKotlinInstant()
-
-                validOcspResponse.findValidCert(chain.first().serialNumber)?.let {
-                    val thisUpdate = it.thisUpdate.toInstant().toKotlinInstant()
-
+                validOcspResponse.findValidCert(chain.serialNumber)?.let { singleResp ->
+                    val thisUpdate = singleResp.thisUpdate.toInstant().toKotlinInstant()
                     (producedAt <= timestamp) && (thisUpdate <= timestamp) &&
-                        it.matchesIssuer(chain[1])
-                    // TODO not present in test responses
-                    // && it.matchesHashOfCertificate(chain[0])
+                        ca.any { singleResp.matchesIssuer(it) }
                 } ?: false
             } != null
         }
 
-fun List<List<X509CertificateHolder>>.filterBySignature(timestamp: Instant) =
+internal fun SingleResp.getOscpResponsStatus(): Boolean {
+    return when (this.certStatus) {
+        CertificateStatus.GOOD -> true
+        is RevokedStatus -> false
+        else -> false // Unknown
+    }
+}
+
+fun List<List<X509CertificateHolder>>.filterBySignature() =
     filter { it.size >= 3 }
         .mapNotNull { chain ->
             try {
                 chain.reduceRight { it, prev ->
                     it.checkSignatureWith(prev)
-                    it.checkValidity(timestamp)
                     it
                 }
-
                 chain
             } catch (e: Exception) {
                 null
             }
         }
 
+fun List<X509CertificateHolder>.filterBySignature(
+    caCertList: List<X509CertificateHolder>
+): Boolean =
+    caCertList.any { ca ->
+        this.any { ocsp ->
+            runCatching { ocsp.checkSignatureWith(ca) }.isSuccess
+        }
+    }
+
 fun List<X509CertificateHolder>.validateSubjectDN(cnPrefix: String): List<X509CertificateHolder> =
     this.filter {
         it.subjectDNContainsCNPrefixWithNumber(cnPrefix)
     }
 
-fun X509CertificateHolder.checkSignatureWith(signatureCertificate: X509CertificateHolder) {
-    val verifier =
-        BcECContentVerifierProviderBuilder(DefaultDigestAlgorithmIdentifierFinder())
-            .build(signatureCertificate)
+private fun buildContentVerifierProvider(signatureCertificate: X509CertificateHolder): ContentVerifierProvider {
+    val algOid = signatureCertificate.subjectPublicKeyInfo.algorithm.algorithm
+    return when (algOid) {
+        X9ObjectIdentifiers.id_ecPublicKey -> {
+            BcECContentVerifierProviderBuilder(DefaultDigestAlgorithmIdentifierFinder())
+                .build(signatureCertificate)
+        }
 
+        PKCSObjectIdentifiers.rsaEncryption, PKCSObjectIdentifiers.id_RSASSA_PSS -> {
+            BcRSAContentVerifierProviderBuilder(DefaultDigestAlgorithmIdentifierFinder())
+                .build(signatureCertificate)
+        }
+
+        else -> {
+            // Fallback: try EC first, then RSA to be resilient if OID mapping is unexpected
+            try {
+                BcECContentVerifierProviderBuilder(DefaultDigestAlgorithmIdentifierFinder())
+                    .build(signatureCertificate)
+            } catch (_: Throwable) {
+                BcRSAContentVerifierProviderBuilder(DefaultDigestAlgorithmIdentifierFinder())
+                    .build(signatureCertificate)
+            }
+        }
+    }
+}
+
+fun X509CertificateHolder.checkSignatureWith(signatureCertificate: X509CertificateHolder) {
+    val verifier = buildContentVerifierProvider(signatureCertificate)
     require(this.isSignatureValid(verifier))
 }
 
 fun X509CertificateHolder.canBeValidatedBy(signatureCertificate: X509CertificateHolder, date: Date): Boolean {
-    val verifier =
-        BcECContentVerifierProviderBuilder(DefaultDigestAlgorithmIdentifierFinder())
-            .build(signatureCertificate)
-
+    val verifier = buildContentVerifierProvider(signatureCertificate)
     return this.isSignatureValid(verifier) && this.isValidOn(date)
 }
 

@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.eurezept.repository
 
 import de.gematik.ti.erp.app.api.ErpService
 import de.gematik.ti.erp.app.api.safeApiCall
+import de.gematik.ti.erp.app.api.safeApiCallNoBody
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.serialization.json.JsonElement
 
@@ -65,8 +66,8 @@ class EuTaskRemoteDataSource(
 
     suspend fun deleteEuRedeemAccessCode(
         profileIdentifier: ProfileIdentifier
-    ): Result<JsonElement> =
-        safeApiCall("Error deleting EuRedeemAccessCode for $profileIdentifier.") {
+    ): Result<Unit> =
+        safeApiCallNoBody("Error deleting EuRedeemAccessCode for $profileIdentifier.") {
             service.deleteEuRedeemAccessCode(
                 profileId = profileIdentifier
             )

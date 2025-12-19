@@ -57,7 +57,7 @@ fun AboutSection(
     ) {
         CompositionLocalProvider(
             LocalTextStyle provides AppTheme.typography.body2,
-            LocalContentColor provides AppTheme.colors.neutral600
+            LocalContentColor provides AppTheme.colors.neutral700
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Rounded.PhoneAndroid, null, modifier = Modifier.size(SizeDefaults.double))

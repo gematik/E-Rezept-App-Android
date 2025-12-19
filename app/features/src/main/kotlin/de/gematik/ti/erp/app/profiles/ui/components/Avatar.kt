@@ -107,7 +107,7 @@ fun ChooseAvatar(
             } else {
                 Icon(
                     imageVector = emptyIcon,
-                    tint = AppTheme.colors.neutral600,
+                    tint = AppTheme.colors.neutral700,
                     contentDescription = null
                 )
             }
@@ -119,7 +119,7 @@ fun ChooseAvatar(
                 Icon(
                     modifier = modifier.background(profileColor.backgroundColor),
                     imageVector = emptyIcon,
-                    tint = AppTheme.colors.neutral600,
+                    tint = AppTheme.colors.neutral700,
                     contentDescription = null
                 )
             } else {

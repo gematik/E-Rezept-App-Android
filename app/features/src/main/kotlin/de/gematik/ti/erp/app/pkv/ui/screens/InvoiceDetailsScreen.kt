@@ -67,6 +67,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.invoice.model.PkvHtmlTemplate.joinMedicationInfo
 import de.gematik.ti.erp.app.labels.TextLabel
@@ -90,7 +91,6 @@ import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.TertiaryButton
@@ -114,7 +114,12 @@ class InvoiceDetailsScreen(
         val arguments = remember(navBackStackEntry.arguments) { navBackStackEntry.arguments?.getPkvNavigationArguments() }
 
         if (arguments == null) {
-            ErrorScreenComponent(onClickRetry = { navController.popBackStack() })
+            ErrorScreenComponent(
+                titleText = stringResource(R.string.generic_error_title),
+                bodyText = stringResource(R.string.generic_error_info),
+                tryAgainText = stringResource(R.string.cdw_fasttrack_try_again),
+                onClickRetry = { navController.popBackStack() }
+            )
             return
         }
 
@@ -159,8 +164,8 @@ class InvoiceDetailsScreen(
         )
 
         DeleteInvoiceDialog(
-            onEvent = deleteInvoiceEvent,
             dialogScaffold = dialog,
+            onEvent = deleteInvoiceEvent,
             onDeleteInvoice = {
                 arguments.taskId?.let {
                     controller.deleteInvoice(taskId = it)
@@ -176,7 +181,11 @@ class InvoiceDetailsScreen(
                 }
             },
             onError = {
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             }
         ) { (selectedProfile, _) ->
             InvoiceDetailScreenScaffold(

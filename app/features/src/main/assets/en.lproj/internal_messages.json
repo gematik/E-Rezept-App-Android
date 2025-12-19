@@ -46,5 +46,11 @@
         "text": "**🏛️ Registration for federal institutions** \nRegistration is now also possible for those insured with federal institutions such as the Federal Police. \n \n **🕒 Improved pharmacy opening hours** \nEmergency service and special closing times for pharmacies are now displayed, if they have been stored.",
         "timestamp": "2025-11-03T08:00:00.000Z",
         "version": "1.34"
+    },
+    {
+        "id": "10",
+        "text": "**🏡 Address Suggestions** \nStored address data is now automatically suggested when entering an address. \n \n **♿️ Accessibility** \nThe contrast for text, toggle buttons, checkboxes, error messages, icons, and search bars has been increased. \nThe speech output via TalkBack has been improved for PIN and password entry, the display of prescription codes, and the recognition of headings. Links are now consistently underlined in running text.",
+        "timestamp": "2025-12-17T08:00:00.000Z",
+        "version": "1.35"
     }
 ]

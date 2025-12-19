@@ -116,7 +116,7 @@ fun RowScope.PharmacyOrderOptionCard(
                 },
                 shape = shape,
                 color = when {
-                    isError -> AppTheme.colors.red600
+                    isError -> AppTheme.colors.red700
                     isSelected -> AppTheme.colors.primary700
                     else -> AppTheme.colors.neutral500
                 }

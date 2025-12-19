@@ -26,7 +26,10 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.redeem.ui.screens.ValidationResult
@@ -44,7 +47,10 @@ fun LazyListScope.phoneNumberInputField(
         InputField(
             modifier = Modifier
                 .scrollOnFocus(1, listState)
-                .fillParentMaxWidth(),
+                .fillParentMaxWidth()
+                .semantics() {
+                    contentType = ContentType.PhoneNumber
+                },
             value = value,
             onValueChange = onValueChange,
             onSubmit = onSubmit,
@@ -113,7 +119,9 @@ fun LazyListScope.nameInputField(
         InputField(
             modifier = Modifier
                 .scrollOnFocus(3, listState)
-                .fillParentMaxWidth(),
+                .fillParentMaxWidth().semantics() {
+                    contentType = ContentType.PersonFullName
+                },
             value = value,
             onValueChange = onValueChange,
             onSubmit = onSubmit,
@@ -142,7 +150,9 @@ fun LazyListScope.streetAndNumberInputField(
         InputField(
             modifier = Modifier
                 .scrollOnFocus(4, listState)
-                .fillParentMaxWidth(),
+                .fillParentMaxWidth().semantics() {
+                    contentType = ContentType.AddressStreet
+                },
             value = value,
             onValueChange = onValueChange,
             onSubmit = onSubmit,
@@ -171,7 +181,9 @@ fun LazyListScope.addressSupplementInputField(
         InputField(
             modifier = Modifier
                 .scrollOnFocus(5, listState)
-                .fillParentMaxWidth(),
+                .fillParentMaxWidth().semantics() {
+                    contentType = ContentType.AddressAuxiliaryDetails
+                },
             value = value,
             onValueChange = onValueChange,
             onSubmit = onSubmit,
@@ -196,7 +208,9 @@ fun LazyListScope.postalCodeInputField(
         InputField(
             modifier = Modifier
                 .scrollOnFocus(6, listState)
-                .fillParentMaxWidth(),
+                .fillParentMaxWidth().semantics() {
+                    contentType = ContentType.PostalAddress
+                },
             value = value,
             onValueChange = onValueChange,
             onSubmit = onSubmit,
@@ -226,7 +240,9 @@ fun LazyListScope.cityInputField(
         InputField(
             modifier = Modifier
                 .scrollOnFocus(7, listState)
-                .fillParentMaxWidth(),
+                .fillParentMaxWidth().semantics() {
+                    contentType = ContentType.AddressRegion
+                },
             value = value,
             onValueChange = onValueChange,
             onSubmit = onSubmit,

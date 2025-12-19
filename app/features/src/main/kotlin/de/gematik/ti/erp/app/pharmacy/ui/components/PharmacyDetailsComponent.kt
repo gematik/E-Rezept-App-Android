@@ -57,8 +57,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.base.ClipBoardCopy
+import de.gematik.ti.erp.app.core.ClipBoardCopy
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRouteBackStackEntryArguments
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyGraphController
@@ -78,7 +79,6 @@ import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkLongPreview
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
@@ -178,7 +178,11 @@ fun PharmacyDetailsComponent(
             screenType = screenType
         )
     } ?: run {
-        ErrorScreenComponent()
+        ErrorScreenComponent(
+            titleText = stringResource(R.string.generic_error_title),
+            bodyText = stringResource(R.string.generic_error_info),
+            tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+        )
     }
 }
 

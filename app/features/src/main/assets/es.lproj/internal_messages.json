@@ -46,5 +46,11 @@
         "text": "**🏛️ Inscripción en instituciones federales** \nAhora también es posible el registro para los asegurados en instituciones federales como la Policía Federal. \n \n **🕒 Horarios de farmacias mejorados** \nAhora se muestran los horarios de atención de urgencias y de cierre especial de las farmacias, si se han almacenado.",
         "timestamp": "2025-11-03T08:00:00.000Z",
         "version": "1.34"
+    },
+    {
+        "id": "10",
+        "text": "**🏡 Sugerencias de direcciones** \nLos datos de direcciones almacenados ahora se sugieren automáticamente al ingresar una dirección. \n \n **♿️ Accesibilidad** \nSe ha aumentado el contraste del texto, los botones de alternancia, las casillas de verificación, los mensajes de error, los íconos y las barras de búsqueda. \nSe ha mejorado la salida de voz a través de TalkBack para la introducción de PIN y contraseña, la visualización de códigos de recetas y el reconocimiento de encabezados. Los enlaces ahora están subrayados de manera uniforme en el texto continuo.",
+        "timestamp": "2025-12-17T08:00:00.000Z",
+        "version": "1.35"
     }
 ]

@@ -26,8 +26,12 @@ import de.gematik.ti.erp.app.database.api.TaskLocalDataSource
 import de.gematik.ti.erp.app.database.bridge.task.TaskLocalDataSourceBridge
 import de.gematik.ti.erp.app.database.realm.v1.task.datasource.TaskLocalDataSourceV1
 import de.gematik.ti.erp.app.database.realm.v2.task.datasource.TaskLocalDataSourceV2
+import de.gematik.ti.erp.app.database.settings.SettingsDataMigration
+import de.gematik.ti.erp.app.database.settings.SettingsLocalDataSource
+import de.gematik.ti.erp.app.database.settings.sharedPrefs
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
+import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
 /**
@@ -52,4 +56,6 @@ fun databaseModule(isDebug: Boolean) = DI.Module("databaseModule", allowSilentOv
             isDebug
         )
     }
+    bindSingleton { SettingsLocalDataSource(sharedPrefs) }
+    bindSingleton { SettingsDataMigration(realm = instance(), settingsLocalDataSource = instance(), settings = sharedPrefs) }
 }

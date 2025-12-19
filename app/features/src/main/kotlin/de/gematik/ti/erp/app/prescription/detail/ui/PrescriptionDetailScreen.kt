@@ -47,6 +47,7 @@ import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.demomode.DemoModeObserver
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.eurezept.navigation.EuRoutes
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
@@ -69,7 +70,6 @@ import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
@@ -121,13 +121,21 @@ class PrescriptionDetailScreen(
                 }
             },
             onEmpty = {
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             },
             onError = {
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             },
             onContent = { (profile, prescription) ->
-                // TODO: Too many controllers in one screen, consider refactoring
+                // Too many controllers in one screen, consider refactoring
 
                 val consentController = rememberConsentController()
                 val invoicesController = rememberInvoiceController(profileId = profile.id)

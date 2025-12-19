@@ -187,6 +187,7 @@ dependencies {
     implementation(project(namesPlugin.utils))
     implementation(project(namesPlugin.core))
     implementation(project(namesPlugin.feature))
+    implementation(project(namesPlugin.messages))
     implementation(project(namesPlugin.demoMode))
     implementation(project(namesPlugin.uiComponents))
     implementation(project(namesPlugin.multiplatform))
@@ -195,6 +196,7 @@ dependencies {
     androidTestImplementation(project(namesPlugin.testTags))
     testImplementation(project(namesPlugin.multiplatform))
     testImplementation(project(namesPlugin.fhirParser))
+    testImplementation(project(namesPlugin.mocks))
     androidTestImplementation(project(namesPlugin.fhirParser))
     implementation(libs.play.app.update)
 

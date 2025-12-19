@@ -81,7 +81,7 @@ fun MedicationPlanReminderCard(
                 Text(
                     text = description,
                     style = AppTheme.typography.body2,
-                    color = AppTheme.colors.neutral600,
+                    color = AppTheme.colors.neutral700,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )

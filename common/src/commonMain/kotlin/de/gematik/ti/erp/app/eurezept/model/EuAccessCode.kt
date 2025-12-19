@@ -24,7 +24,9 @@ package de.gematik.ti.erp.app.eurezept.model
 
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class EuAccessCode(
     val countryCode: String,
     val accessCode: String,

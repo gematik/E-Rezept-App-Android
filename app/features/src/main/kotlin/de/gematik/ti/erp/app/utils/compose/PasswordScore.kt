@@ -176,7 +176,7 @@ fun PasswordStrengthDescription(passwordScore: PasswordScore) {
                     style = AppTheme.typography.body2l
                 )
                 SpacerTiny()
-                Icon(Icons.Rounded.Close, null, tint = AppTheme.colors.red600)
+                Icon(Icons.Rounded.Close, null, tint = AppTheme.colors.red700)
             }
         }
     }

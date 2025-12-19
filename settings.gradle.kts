@@ -49,7 +49,7 @@ dependencyResolutionManagement {
             maven {
                 name = "nexus"
                 setUrl(nexusUrl)
-                
+
                 credentials {
                     username = nexusUsername
                     password = nexusPassword
@@ -75,6 +75,7 @@ includeBuild("rules") {
 include(":app:android")
 include(":app:android-mock")
 include(":app:features")
+include(":app:messages")
 include(":app:tracker")
 include(":app:demo-mode")
 include(":app:digas")
@@ -90,6 +91,7 @@ include(":fhir-parser")
 include(":ui-components")
 include(":utils")
 include(":ui-components")
+include(":mocks")
 include(":plugins:technical-requirements-plugin")
 
 rootProject.name = "E-Rezept"

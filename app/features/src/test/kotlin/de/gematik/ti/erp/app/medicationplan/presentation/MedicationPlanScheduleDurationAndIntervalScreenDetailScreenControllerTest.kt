@@ -28,7 +28,7 @@ import de.gematik.ti.erp.app.medicationplan.usecase.DeactivateMedicationSchedule
 import de.gematik.ti.erp.app.medicationplan.usecase.DeleteMedicationScheduleNotificationUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.DeleteMedicationScheduleUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.GetMedicationScheduleByTaskIdUseCase
-import de.gematik.ti.erp.app.medicationplan.usecase.ScheduleMedicationScheduleUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.CheckAndScheduleMedicationScheduleUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleNotificationDosageUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleNotificationTimeUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetOrCreateActiveMedicationScheduleUseCase
@@ -69,7 +69,7 @@ class MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest 
     private lateinit var deleteMedicationScheduleNotificationUseCase: DeleteMedicationScheduleNotificationUseCase
     private lateinit var setMedicationScheduleNotificationDosageUseCase: SetMedicationScheduleNotificationDosageUseCase
     private lateinit var setMedicationScheduleNotificationTimeUseCase: SetMedicationScheduleNotificationTimeUseCase
-    private lateinit var scheduleMedicationScheduleUseCase: ScheduleMedicationScheduleUseCase
+    private lateinit var checkAndScheduleMedicationScheduleUseCase: CheckAndScheduleMedicationScheduleUseCase
     private lateinit var deleteMedicationScheduleUseCase: DeleteMedicationScheduleUseCase
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -79,8 +79,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest 
         every { medicationPlanNotificationScheduler.scheduleMedicationSchedule(any()) } returns Unit
         Dispatchers.setMain(dispatcher)
         getActiveProfileUseCase = GetActiveProfileUseCase(profileRepository, dispatcher)
-        scheduleMedicationScheduleUseCase = spyk(
-            ScheduleMedicationScheduleUseCase(medicationPlanNotificationScheduler)
+        checkAndScheduleMedicationScheduleUseCase = spyk(
+            CheckAndScheduleMedicationScheduleUseCase(medicationPlanNotificationScheduler, medicationPlanRepository)
         )
         getMedicationScheduleByTaskIdUseCase = GetMedicationScheduleByTaskIdUseCase(
             medicationPlanRepository
@@ -116,7 +116,7 @@ class MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest 
             deleteMedicationScheduleNotificationUseCase = deleteMedicationScheduleNotificationUseCase,
             setMedicationScheduleNotificationDosageUseCase = setMedicationScheduleNotificationDosageUseCase,
             setMedicationScheduleNotificationTimeUseCase = setMedicationScheduleNotificationTimeUseCase,
-            scheduleMedicationScheduleUseCase = scheduleMedicationScheduleUseCase,
+            checkAndScheduleMedicationScheduleUseCase = checkAndScheduleMedicationScheduleUseCase,
             deleteMedicationScheduleUseCase = deleteMedicationScheduleUseCase,
             taskId = "taskId"
 

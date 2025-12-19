@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="a11y_card_wall_card_hand">Sundhedskort på smartphone</string>
+    <string name="a11y_card_wall_card_hand">En hånd holder et sygesikringskort op mod en smartphone.</string>
     <string name="a11y_cdw_health_card_image_description">Billede af et sundhedskort med et sekscifret adgangsnummer øverst til højre på forsiden af kortet</string>
+    <string name="a11y_datamatrix_code_description">Scan kode</string>
+    <string name="a11y_datamatrix_code_pager_content_description">Stryg med to fingre for at skifte side</string>
+    <string name="a11y_datamatrix_code_pager_state_description" formatted="false">Side %s fra %s</string>
+    <string name="a11y_datamatrix_code_zoom_in_button_description">Forstør kode</string>
+    <string name="a11y_datamatrix_code_zoom_out_button_description">Reducer kodestørrelsen</string>
+    <string name="a11y_delete_access_code_dialog">Dialog: Slet adgangskode</string>
     <string name="a11y_deleted_text">Slet tekst</string>
     <string name="a11y_diga_arrow">indtil</string>
     <string name="a11y_diga_change_insurance">Ændring af forsikring</string>
@@ -9,16 +15,32 @@
     <string name="a11y_diga_feedback_prompt_accessibility_label">Feedback om DiGA-recept</string>
     <string name="a11y_diga_feedback_submit">Indsend feedback på et eksternt websted</string>
     <string name="a11y_disabled">deaktiveret</string>
+    <string name="a11y_error_icon">Fejl</string>
     <string name="a11y_error_prefix">Fejl:</string>
+    <string name="a11y_eu_access_code_delete_button">Slet adgangskode</string>
+    <string name="a11y_eu_access_code_delete_button_disabled">Sletning af adgangskoden er i øjeblikket deaktiveret på grund af en igangværende handling.</string>
+    <string name="a11y_eu_access_code_deleted_error">Sletning af adgangskoden mislykkedes.</string>
+    <string name="a11y_eu_access_code_deleted_success">Adgangskoden er blevet slettet.</string>
+    <string name="a11y_eu_access_code_deleting">Adgangskoden vil blive slettet…</string>
     <string name="a11y_eu_instructions_flag_accessibility_text">Du kan sige følgende:</string>
     <string name="a11y_eu_instructions_open_in_browser">Åbn i browseren</string>
+    <string name="a11y_local_redeem_back">Vis forrige kode</string>
+    <string name="a11y_local_redeem_forward">Vis næste kode</string>
     <string name="a11y_medication_schedule_three_dot_menu">Vis muligheder for påmindelse om medicin</string>
     <string name="a11y_not_selected">ikke valgt</string>
     <string name="a11y_onboarding_progress_description">Side %1$d af %2$d</string>
     <string name="a11y_open_link_submit">Åbn link på ekstern hjemmeside</string>
     <string name="a11y_open_pdf_submit">Åbn PDF på ekstern hjemmeside</string>
+    <string name="a11y_password_input_show_password_description_off">Adgangskode skjult</string>
+    <string name="a11y_password_input_show_password_description_on">Adgangskode vist</string>
+    <string name="a11y_password_input_show_password_description_onClick_off">Vis adgangskode</string>
+    <string name="a11y_password_input_show_password_description_onClick_on">Skjul adgangskode</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Apotekssøgning; indtast navn, by eller postnummer for at søge efter et apotek</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Søg i listevisning</string>
+    <string name="a11y_pin_input_show_pin_description_off">PIN-kode skjult</string>
+    <string name="a11y_pin_input_show_pin_description_on">PIN-kode vises</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_off">Vis pinkode</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_on">Skjul pinkode</string>
     <string name="a11y_prescription_details_share">Del opskrift</string>
     <string name="a11y_prescription_more_option">Flere muligheder</string>
     <string name="a11y_prescription_not_available">Ikke tilgængelig</string>
@@ -27,6 +49,7 @@
     <string name="a11y_select_all_not_selected">Vælg alle, ikke valgt</string>
     <string name="a11y_select_all_selected">Vælg alle, valgt</string>
     <string name="a11y_selected">udvalgte</string>
+    <string name="a11y_success_icon">Succes</string>
     <string name="about_buildhash">Byg hash: %s</string>
     <string name="about_version">Version: %s</string>
     <string name="accept_now">Bare accepteret</string>
@@ -160,6 +183,7 @@
     <string name="cardwall_gid_pkv_help_screen_tip_4_body_2">For telefoner med Android 14 skal du aktivere åbning af links i indstillingerne.</string>
     <string name="cardwall_gid_pkv_help_screen_tip_4_header">Du bliver ikke omdirigeret til dit forsikringsselskabs app?</string>
     <string name="cardwall_gid_title">Sundheds-ID</string>
+    <string name="cardwall_intro_demo_mode_or">Eller:</string>
     <string name="cardwall_select_insurance_federal_link">Forsikret forskelligt</string>
     <string name="cardwall_select_insurance_type_drawer_body">For at modtage recepter digitalt, skal du først vælge din forsikringstype.</string>
     <string name="cardwall_select_insurance_type_drawer_private_insurance_button">Privat forsikring</string>
@@ -394,7 +418,7 @@
     <string name="demo_mode_link_text">Demo-tilstand</string>
     <string name="demo_mode_settings_end_title">Afslut demotilstand</string>
     <string name="demo_mode_settings_title">Aktiver demotilstand</string>
-    <string name="demo_mode_start_text">Eller: Prøv appen i demotilstand</string>
+    <string name="demo_mode_start_text">Udforsk %s.</string>
     <string name="demo_mode_text">Demotilstand aktiveret</string>
     <string name="description">Beskrivelse</string>
     <string name="diga_Insurance_is_determined">Forsikringen er fastsat:</string>
@@ -440,7 +464,7 @@
     <string name="diga_overview_how_it_works_3">3. Download DiGA-appen</string>
     <string name="diga_overview_how_it_works_4">4. Indtast koden i DiGA-appen</string>
     <string name="diga_request_unlock_code">Anmod om aktiveringskode</string>
-    <string name="diga_requesting_code_from">Vi anmoder om koden fra: %s </string>
+    <string name="diga_requesting_code_from">Vi anmoder om koden fra: %s</string>
     <string name="diga_select_insurance_for_diga_discription">Vælg det forsikringsselskab, der skal betale for din digitale sundhedsrecept. Vi vil anmode om aktiveringskoden fra dette selskab.</string>
     <string name="diga_select_insurance_for_diga_header">Vælg forsikring til DiGA</string>
     <string name="diga_server_return_code_200">Overført.</string>
@@ -533,6 +557,11 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n Følgende opskrifter kan ikke eller længere indløses: %1$s \n Du har muligvis allerede indløst dem på en anden måde, eller de kan være blevet slettet. \n</string>
     <string name="error_redeemable_prescription_not_redeemable">Recepten \"%1$s\" er allerede blevet indløst eller er ved at blive indløst.</string>
     <string name="error_redeemable_prescription_title">Recept kan ikke indløses</string>
+    <string name="eu_access_code_delete_body">Vil du tilbagekalde adgangen for alle apoteker i andre EU-lande?</string>
+    <string name="eu_access_code_delete_button_text">tilbagekald adgang</string>
+    <string name="eu_access_code_delete_failure_body">Prøv venligst igen.</string>
+    <string name="eu_access_code_delete_failure_header">Adgangen kunne ikke tilbagekaldes.</string>
+    <string name="eu_access_code_delete_header">Tilbagekald adgang til recepter</string>
     <string name="eu_access_code_error">Desværre mislykkedes det at generere indløsningskoden. Prøv igen senere.</string>
     <string name="eu_availability_description">De deltagende lande arbejder i øjeblikket på implementeringen. Vi informerer jer, så snart det første land er klar.</string>
     <string name="eu_availability_title">EU-indløsning vil snart være tilgængelig</string>
@@ -586,8 +615,23 @@
     <string name="eu_instructions_step_number">Trin %1$d</string>
     <string name="eu_instructions_title">Instruktioner</string>
     <string name="eu_instructions_website_info_end">.</string>
-    <string name="eu_instructions_website_info_start">Mere information kan findes på </string>
-    <string name="eu_instructions_website_link_text">EU-indløsningswebsted</string>
+    <string name="eu_instructions_website_info_start">Du kan finde mere information på %s.</string>
+    <string name="eu_instructions_website_link_text">Hjemmeside for EU-indløsninger</string>
+    <string name="eu_messages_code_created_again_message_title">Indløsningskode genereret</string>
+    <string name="eu_messages_code_created_but_new_generated_message_body" formatted="false">Du har hentet en kode til at indløse din recept i %s.</string>
+    <string name="eu_messages_code_created_message_body" formatted="false">Du har hentet en kode til at indløse din recept i %s. %s kan få adgang til dine valgte recepter indtil klokken %s.</string>
+    <string name="eu_messages_code_created_message_title">Velkommen til %s</string>
+    <string name="eu_messages_code_created_not_present_message_body">Du har hentet en kode til at indløse din recept i %s.</string>
+    <string name="eu_messages_code_revoked_button_text">Adgang tilbagekaldt</string>
+    <string name="eu_messages_code_revoked_message_body" formatted="false">Du har hentet en kode til at indløse din recept hos %s. %s har ikke længere adgang til dine valgte recepter.</string>
+    <string name="eu_messages_code_used_by_pharmacy_message_body">Apoteket i %s har udfyldt din recept.</string>
+    <string name="eu_messages_list_latest_title">EU-indfrielse</string>
+    <string name="eu_messages_prescription_added_body">Du har tilføjet en recept til EU-indløsning.</string>
+    <string name="eu_messages_prescription_added_title">Opskrift tilføjet</string>
+    <string name="eu_messages_prescription_removed_body">Du har fjernet en recept fra EU-indløsningsprocessen.</string>
+    <string name="eu_messages_prescription_removed_title">Recept fjernet</string>
+    <string name="eu_messages_revoke_code_button_text">tilbagekald adgang</string>
+    <string name="eu_messages_show_code_button_text">Vis indløsningskode</string>
     <string name="eu_prescription_available">Indløs i andre EU-lande</string>
     <string name="eu_prescription_search_empty_text">Prøv et andet søgeord.</string>
     <string name="eu_prescription_search_empty_title">Desværre blev der ikke fundet noget passende land.</string>
@@ -606,7 +650,7 @@
     <string name="eu_redeem_button">Indløs</string>
     <string name="eu_redeem_country_title">land</string>
     <string name="eu_redeem_instructions_link">Instruktioner</string>
-    <string name="eu_redeem_instructions_prefix">Sådan indløser du recepter i andre EU-lande, kan du finde i</string>
+    <string name="eu_redeem_instructions_prefix">Sådan indløser du recepter i andre EU-lande, kan du finde i %s</string>
     <string name="eu_redeem_prescription_selection_empty_subtitle">Ingen recepter kunne indlæses.</string>
     <string name="eu_redeem_prescription_selection_empty_title">Ingen opskrifter</string>
     <string name="eu_redeem_prescription_selection_error_dialog_body">Følgende fejl opstod: %s. Du kan prøve igen ved at klikke på opskriften igen.</string>
@@ -811,7 +855,9 @@
     <string name="link_to_invoice_list">Til oversigten over apoteksfakturaer</string>
     <string name="local_redeem_done">Parat</string>
     <string name="local_redeem_grouped_codes">Samlingskode</string>
+    <string name="local_redeem_multi_code_page">Kollektiv kode %s</string>
     <string name="local_redeem_self_payer_prescription_warning">Din forsikring dækker ingen omkostninger til denne recept.</string>
+    <string name="local_redeem_single_code">Receptkode</string>
     <string name="local_redeem_single_codes">Individuelle koder</string>
     <string name="location_not_found">Placering ikke fundet</string>
     <string name="logged_in">Registreret</string>
@@ -998,7 +1044,7 @@
     <string name="onb_undo_description">Fortryd</string>
     <string name="onboarding_analytics_agree_button">Enig</string>
     <string name="onboarding_analytics_bottom_text">Du kan til enhver tid deaktivere analysen i indstillingerne.</string>
-    <string name="onboarding_analytics_consent_text">Med dit samtykke vil vi gerne udføre en analyse af app-brugen. For at gøre dette vil vi gerne indsamle og anonymt evaluere app-brug og tekniske data for at:</string>
+    <string name="onboarding_analytics_consent_text">Med dit samtykke vil vi gerne udføre en %s. Til dette formål vil vi gerne indsamle og anonymt analysere data om app-brug og tekniske data, og dermed:</string>
     <string name="onboarding_analytics_consent_title">Hjælp med at forbedre appen!</string>
     <string name="onboarding_analytics_link_text">Analyse af app-brug</string>
     <string name="onboarding_analytics_optimize_user_experience_text">Optimer brugeroplevelsen for hele befolkningen</string>

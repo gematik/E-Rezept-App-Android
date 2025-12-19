@@ -195,7 +195,7 @@ class PharmacyBundleParser : BundleParser {
                     val healthcareServiceTelecom = healthcareService.telecom
                     val locationAddress = location.address
 
-                    val maxValLength = 45
+                    val maxValLength = 60
 
                     fun String.truncate(maxLength: Int) =
                         if (this.length > maxLength) this.take(maxLength - 3) + "…" else this
@@ -215,6 +215,8 @@ class PharmacyBundleParser : BundleParser {
                         appendLine(formatLine("Organization", organizationName.truncate(maxValLength)))
                         appendLine(formatLine("Healthcare Service", healthcareServiceTelecom.toString().truncate(maxValLength)))
                         appendLine(formatLine("Location", locationAddress.toString().truncate(maxValLength)))
+                        appendLine(formatLine("Latitude", location.position?.latitude.toString()))
+                        appendLine(formatLine("Longitude", location.position?.longitude.toString()))
                         appendLine(footer)
                     }
                 }

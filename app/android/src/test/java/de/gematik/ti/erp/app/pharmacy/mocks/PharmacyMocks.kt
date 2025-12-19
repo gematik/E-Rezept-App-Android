@@ -26,8 +26,8 @@ import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
 import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
-import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_SYNCED_TASK_DATA_01
-import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_SYNCED_TASK_DATA_02
+import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_SYNCED_TASK_DATA_01
+import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_SYNCED_TASK_DATA_02
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio

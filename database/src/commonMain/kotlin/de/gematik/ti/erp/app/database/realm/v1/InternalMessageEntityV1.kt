@@ -46,6 +46,7 @@ class InternalMessageEntityV1 : RealmObject {
 }
 
 // Todo Remove in 1.30.0
+@Deprecated("Use InternalMessageEntityV1 instead")
 class InternalMessageEntity : RealmObject {
     var lastVersion: String? = null
     var lastUpdatedVersion: String? = null

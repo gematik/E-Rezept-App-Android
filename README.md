@@ -1,6 +1,6 @@
 <img alt="gematik logo" align="right" width="250" height="47" src="app/features/src/main/res/drawable/gematik_logo_flag_with_background.png"/> <br/> 
 
-# E-Rezept App 
+# E-Rezept App
 
 ## Table Of Contents
 
@@ -16,29 +16,36 @@
 - [License](#license)
 - [Contact](#contact)
 - [Additional Links And Sourcecode](#additional-links-and-sourcecode)
- 
+
 ## About The Project
-Prescriptions for medicines that are only available in pharmacies can be issued as electronic prescriptions (e-prescriptions resp. E-Rezepte) for people with public health insurance from 1 July 2021.
-The official gematik E-Rezept App (electronic prescription app) is available to receive and redeem prescriptions digitally. Anyone can download the app for free:
+
+Prescriptions for medicines that are only available in pharmacies can be issued as electronic prescriptions (e-prescriptions resp. E-Rezepte) for people with
+public health insurance from 1 July 2021.
+The official gematik E-Rezept App (electronic prescription app) is available to receive and redeem prescriptions digitally. Anyone can download the app for
+free:
 
 [![Download E-Rezept on the App Store](https://user-images.githubusercontent.com/52454541/126137060-cb8c7ceb-6a72-423d-9079-f3e1a98b2638.png)](https://apps.apple.com/de/app/das-e-rezept/id1511792179)[![Download E-Rezept on the PlayStore](https://user-images.githubusercontent.com/52454541/126138350-a52e1d84-1588-4e8a-86df-189ee4df8bc8.png)](https://play.google.com/store/apps/details?id=de.gematik.ti.erp.app)[![Download E-Rezept on the App Gallery](https://user-images.githubusercontent.com/52454541/126158983-15d73f12-36c6-41ce-8de5-29d10baaed04.png)](https://appgallery.huawei.com/#/app/C104463531)
 
 or as an apk here in GitHub: [Releases](https://github.com/gematik/E-Rezept-App-Android/releases)
 
-Login is possible with the health card or the app of the users public health insurance company. In July 2021, the e-prescription started with a test phase, initially in the focus region Berlin-Brandenburg. The nationwide rollout started three month later in September 2022.
+Login is possible with the health card or the app of the users public health insurance company. In July 2021, the e-prescription started with a test phase,
+initially in the focus region Berlin-Brandenburg. The nationwide rollout started three month later in September 2022.
 
 The e-prescriptions are stored in the telematics infrastructure, for which gematik is responsible.
 
 Visit our [FAQ page](https://www.das-e-rezept-fuer-deutschland.de/faq) for more information about the e-prescription.
 
 ### Release Notes
+
 See [ReleaseNotes.md](./ReleaseNotes.md) for all information regarding the (newest) releases.
 
 ## Getting Started
-This section provides instructions on how to get started with the project, 
+
+This section provides instructions on how to get started with the project,
 including setting up the development environment and building the application.
 
 ### Prerequisites
+
 Before you can build and run the application, ensure you have the following prerequisites installed on your system:
 
 - **Android Studio:** The official IDE for Android app development.
@@ -51,39 +58,56 @@ To begin, clone the project's repository from GitHub using the following command
 "git clone https://github.com/gematik/E-Rezept-App-Android.git" or by using the version control tool of Android Studio.
 
 ### Structure
+
 The following graphic provides an overview over the more important parts of the kotlin multiplatform project:
+
 ```text
 |-- app
-|   `-- android
-|       `-- src
-|           |-- androidTest
-|           |-- main
-|           `-- test
-|   `-- android-mock
-|       `-- src
-|           |-- androidTest
-|           |-- main
-|           `-- test
-|   `-- demo-mode
-|       `-- src
-|           |-- main
-|   `-- features
-|       `-- src
-|           |-- debug
-|           |-- release
-|           |-- androidTest
-|           |-- main
-|           `-- test
-|   `-- test-actions
-|       `-- src
-|           |-- main  
-|-- common
-|   `-- src
-|       |-- androidMain
-|       |-- commonMain
-|       |-- commonTest
-`-- ui-components
-    `-- src
+|   |-- android              # Main Android application module
+|   |-- android-mock         # Mocked Android build used for testing & CI
+|   |-- demo-mode            # Demo mode with mocked datasources and flows
+|   |-- digas                # DiGA integration module
+|   |-- eu-rezept            # EU prescription UI flows and logic
+|   |-- features             # All Android features, screens, controllers, navigation
+|   |-- messages             # Unified message & timeline feature (EU + DE)
+|   |-- navigation           # Central Compose Navigation setup
+|   |-- test-actions         # UI test helpers and robot actions
+|   |-- test-tags            # UI test tags for accessibility and snapshot tests
+|   |-- tracker              # Analytics tracking
+|
+|-- buildSrc                 # Custom Gradle plugins, convention scripts, configs
+|-- ci                       # CI/CD pipelines and workflow definitions
+|
+|-- common                   # Kotlin Multiplatform shared code (models, use cases)
+|   |-- src/commonMain       # Shared business logic, FHIR helpers, domain models
+|   |-- src/androidMain      # Android-specific implementations
+|   |-- src/commonTest       # Shared tests
+|
+|-- core                     # Core utilities, networking, logging, helpers
+|
+|-- database                 # KMP database layer (Realm + Room implementations)
+|
+|-- documentation            # External documentation
+|
+|-- erp-model                # eRezept/Konnektor/FHIR model structures
+|
+|-- fastlane                 # Fastlane release pipelines for iOS/Android
+|
+|-- fhir-parser              # FHIR parsing helpers & code generation
+|
+|-- gradle                   # Gradle version catalog, build logic, settings
+|
+|-- mocks                    # Mock data
+|
+|-- plugins                  # Custom Gradle plugins used across modules
+|
+|-- requirements             # Product & functional requirement documents
+|
+|-- rules                    # Lint, detekt, ktlint rules
+|
+|-- scripts                  # Shell scripts, SBOM generator, build helpers
+|
+|-- ui-components            # Shared Compose UI components & design system
 ```
 
 - **app/android/src/main:** includes build parameters for the android app.
@@ -93,23 +117,30 @@ The following graphic provides an overview over the more important parts of the 
 - **common/src/commonMain:** includes the general logic of app. Most important the localDatasource and it's entities.
 
 ### Installation
+
 To create and install an unsigned debug.apk on your connected android device, run:
-- "./gradlew :app:android:assembleGoogleTuInternalDebug" in your terminal. 
-  - This will create an apk in the following path "app/android/build/outputs/apk/googleTuInternal/debug", which you can then install on your device
-  - run "adb install app/android/build/outputs/apk/googleTuInternal/debug/android-googleTuInternal-debug.apk"
+
+- "./gradlew :app:android:assembleGoogleTuInternalDebug" in your terminal.
+    - This will create an apk in the following path "app/android/build/outputs/apk/googleTuInternal/debug", which you can then install on your device
+    - run "adb install app/android/build/outputs/apk/googleTuInternal/debug/android-googleTuInternal-debug.apk"
 - or click on the green "run"-Button in the top right of android studio.
 
 ## Usage
-The installed debug.apk can't communicate to connected servers. It's purpose is for local testing only. To show some data, you can enter the demo-mode via the settings. 
+
+The installed debug.apk can't communicate to connected servers. It's purpose is for local testing only. To show some data, you can enter the demo-mode via the
+settings.
 If you want or need an active app, please download a live version from the sources mentioned in the [About The Project](#about-the-project) section.
 
 ## Contributing
+
 See [Contributing.md](./CONTRIBUTING.md) for all information regarding the the contributing process in this project.
 
 ## Security And Privacy
+
 See [Security.md](./SECURITY.md) for all information regarding the used security and privacy guidelines in this project.
 
 ## License
+
 Copyright 2021-2025 gematik GmbH
 
 EUROPEAN UNION PUBLIC LICENCE v. 1.2
@@ -119,14 +150,24 @@ EUPL © the European Union 2007, 2016
 See the [License.md](./LICENSE.md) for the specific language governing permissions and limitations under the License
 
 ## Additional Notes and Disclaimer from gematik GmbH
-1. Copyright notice: Each published work result is accompanied by an explicit statement of the license conditions for use. These are regularly typical conditions in connection with open source or free software. Programs described/provided/linked here are free software, unless otherwise stated.
-2. Permission notice: Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+1. Copyright notice: Each published work result is accompanied by an explicit statement of the license conditions for use. These are regularly typical
+   conditions in connection with open source or free software. Programs described/provided/linked here are free software, unless otherwise stated.
+2. Permission notice: Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "
+   Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute,
+   sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
     1. The copyright notice (Item 1) and the permission notice (Item 2) shall be included in all copies or substantial portions of the Software.
-    2. The software is provided "as is" without warranty of any kind, either express or implied, including, but not limited to, the warranties of fitness for a particular purpose, merchantability, and/or non-infringement. The authors or copyright holders shall not be liable in any manner whatsoever for any damages or other claims arising from, out of or in connection with the software or the use or other dealings with the software, whether in an action of contract, tort, or otherwise.
-    3. We take open source license compliance very seriously. We are always striving to achieve compliance at all times and to improve our processes. If you find any issues or have any suggestions or comments, or if you see any other ways in which we can improve, please reach out to: ospo@gematik.de
-3. Please note: Parts of this code may have been generated using AI-supported technology. Please take this into account, especially when troubleshooting, for security analyses and possible adjustments.
+    2. The software is provided "as is" without warranty of any kind, either express or implied, including, but not limited to, the warranties of fitness for a
+       particular purpose, merchantability, and/or non-infringement. The authors or copyright holders shall not be liable in any manner whatsoever for any
+       damages or other claims arising from, out of or in connection with the software or the use or other dealings with the software, whether in an action of
+       contract, tort, or otherwise.
+    3. We take open source license compliance very seriously. We are always striving to achieve compliance at all times and to improve our processes. If you
+       find any issues or have any suggestions or comments, or if you see any other ways in which we can improve, please reach out to: ospo@gematik.de
+3. Please note: Parts of this code may have been generated using AI-supported technology. Please take this into account, especially when troubleshooting, for
+   security analyses and possible adjustments.
 
 ## Contact
+
 For endusers and insurant:
 
 [![E-Rezept Webseite](https://img.shields.io/badge/web-E%20Rezept%20Webseite-green?logo=web.ru&style=flat-square&logoColor=white)](https://www.das-e-rezept-fuer-deutschland.de/)

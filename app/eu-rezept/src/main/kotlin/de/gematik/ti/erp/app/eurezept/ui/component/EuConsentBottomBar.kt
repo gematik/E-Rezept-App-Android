@@ -87,7 +87,7 @@ fun EuConsentBottomBar(
                 text = statusText,
                 style = AppTheme.typography.body1,
                 modifier = Modifier.fillMaxWidth(),
-                color = AppTheme.colors.neutral600,
+                color = AppTheme.colors.neutral700,
                 textAlign = TextAlign.Center
             )
 

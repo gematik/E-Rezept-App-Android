@@ -36,7 +36,7 @@ enum class TaskStatusV1 {
     Ready, InProgress, Completed, Other, Draft, Requested, Received, Accepted, Rejected, Canceled, OnHold, Failed
 }
 
-class SyncedTaskEntityV1 : RealmObject, Cascading {
+class SyncedTaskEntityV1 : TaskEntity, RealmObject, Cascading {
     // Task Entities
 
     var taskId: String = ""

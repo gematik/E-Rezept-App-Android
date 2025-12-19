@@ -44,14 +44,14 @@ import kotlin.test.assertTrue
 
 class PharmacyRemoteDataSourceTest {
 
-    private lateinit var fhirVzdRemoteDataSource: FhirVzdRemoteDataSource
+    private lateinit var defaultPharmacyRemoteDataSource: DefaultPharmacyRemoteDataSource
     private lateinit var fhirVzdSearchService: FhirVzdService
 
     @Before
     fun setUp() {
         fhirVzdSearchService = mockk()
 
-        fhirVzdRemoteDataSource = FhirVzdRemoteDataSource(
+        defaultPharmacyRemoteDataSource = DefaultPharmacyRemoteDataSource(
             searchService = fhirVzdSearchService
         )
     }
@@ -71,8 +71,8 @@ class PharmacyRemoteDataSourceTest {
         } returns mockResponse
 
         // When
-        val itemResult = fhirVzdRemoteDataSource.searchPharmacyByTelematikId(telematikId) {}
-        val listResult = fhirVzdRemoteDataSource.searchPharmacies(PharmacyFilter()) {}
+        val itemResult = defaultPharmacyRemoteDataSource.searchPharmacyByTelematikId(telematikId) {}
+        val listResult = defaultPharmacyRemoteDataSource.searchPharmacies(PharmacyFilter()) {}
 
         // Then
         coVerify { fhirVzdSearchService.searchByTelematikId(telematikId = telematikId, status = null) }
@@ -96,8 +96,8 @@ class PharmacyRemoteDataSourceTest {
         } throws unauthorizedException
 
         // When
-        val itemResult = fhirVzdRemoteDataSource.searchPharmacyByTelematikId(telematikId) {}
-        val listResult = fhirVzdRemoteDataSource.searchPharmacies(PharmacyFilter()) {}
+        val itemResult = defaultPharmacyRemoteDataSource.searchPharmacyByTelematikId(telematikId) {}
+        val listResult = defaultPharmacyRemoteDataSource.searchPharmacies(PharmacyFilter()) {}
 
         // Then
         coVerify { fhirVzdSearchService.searchByTelematikId(telematikId = telematikId, status = null) }
@@ -123,11 +123,11 @@ class PharmacyRemoteDataSourceTest {
         } returns Response.error(HTTP_UNAUTHORIZED, responseBody)
 
         // When
-        val itemResult = fhirVzdRemoteDataSource.searchPharmacyByTelematikId(telematikId) {
+        val itemResult = defaultPharmacyRemoteDataSource.searchPharmacyByTelematikId(telematikId) {
             itemTokenCleared = true // Simulating token clearance
         }
 
-        val listResult = fhirVzdRemoteDataSource.searchPharmacyByTelematikId(telematikId) {
+        val listResult = defaultPharmacyRemoteDataSource.searchPharmacyByTelematikId(telematikId) {
             listTokenCleared = true // Simulating token clearance
         }
 

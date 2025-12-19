@@ -31,7 +31,7 @@ import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.FavouritePharmacyLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.OftenUsedPharmacyLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacySearchAccessTokenLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.FhirVzdRemoteDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.PharmacyRemoteDataSource
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.redeem.repository.datasource.RedeemLocalDataSource
@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.JsonElement
 
 class DefaultPharmacyRepository(
-    private val fhirVzdRemoteDataSource: FhirVzdRemoteDataSource,
+    private val pharmacyRemoteDataSource: PharmacyRemoteDataSource,
     private val searchAccessTokenLocalDataSource: PharmacySearchAccessTokenLocalDataSource,
     private val redeemLocalDataSource: RedeemLocalDataSource,
     private val favouriteLocalDataSource: FavouritePharmacyLocalDataSource,
@@ -64,7 +64,7 @@ class DefaultPharmacyRepository(
     ): Result<FhirPharmacyErpModelCollection> {
         val onUnauthorized = searchAccessTokenLocalDataSource::clearToken
 
-        return fhirVzdRemoteDataSource.searchPharmacies(
+        return pharmacyRemoteDataSource.searchPharmacies(
             filter = filter,
             onUnauthorizedException = onUnauthorized
         ).map(::parseData)
@@ -75,7 +75,7 @@ class DefaultPharmacyRepository(
     ): Result<FhirPharmacyErpModelCollection> {
         val onUnauthorized = searchAccessTokenLocalDataSource::clearToken
 
-        return fhirVzdRemoteDataSource.searchInsurances(
+        return pharmacyRemoteDataSource.searchInsurances(
             filter = filter,
             onUnauthorizedException = onUnauthorized
         ).mapCatching(::parseData)
@@ -96,7 +96,7 @@ class DefaultPharmacyRepository(
     override suspend fun searchPharmacyByTelematikId(
         telematikId: String
     ): Result<FhirPharmacyErpModelCollection> {
-        return fhirVzdRemoteDataSource.searchPharmacyByTelematikId(
+        return pharmacyRemoteDataSource.searchPharmacyByTelematikId(
             telematikId = telematikId,
             onUnauthorizedException = searchAccessTokenLocalDataSource::clearToken
         ).map(::parseData)
@@ -105,7 +105,7 @@ class DefaultPharmacyRepository(
     override suspend fun searchInsuranceProviderByInstitutionIdentifier(
         iknr: String
     ): Result<FhirInsuranceProvider?> {
-        return fhirVzdRemoteDataSource.searchByInsuranceProvider(
+        return pharmacyRemoteDataSource.searchByInsuranceProvider(
             institutionIdentifier = iknr,
             onUnauthorizedException = searchAccessTokenLocalDataSource::clearToken
         ).map(parsers.organizationParser::extract)

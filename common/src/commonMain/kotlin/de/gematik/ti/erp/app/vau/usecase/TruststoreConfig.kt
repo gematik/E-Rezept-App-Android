@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.vau.usecase
 
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.idp.extension.issuerCommonName
 import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.util.encoders.Base64
 import kotlin.time.Duration
@@ -49,5 +50,13 @@ class TruststoreConfig(getTrustAnchor: () -> String) {
 
     val trustAnchor by lazy {
         X509CertificateHolder(Base64.decode(getTrustAnchor()))
+    }
+
+    // Extract common name (CN) of the trust anchor, e.g. "GEM.RCA3"
+    val trustAnchorName: String by lazy {
+        val subject = trustAnchor.subject
+        // Find the CN component
+        val cn = subject.issuerCommonName()
+        cn ?: "GEM.RCA3"
     }
 }

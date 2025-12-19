@@ -566,7 +566,7 @@ fun RedeemOrderOverviewScreenScaffold(
                             startIcon = BannerClickableIcon(BannerIcon.Warning) {},
                             contentColor = AppTheme.colors.red900,
                             containerColor = AppTheme.colors.red100,
-                            borderColor = AppTheme.colors.red600,
+                            borderColor = AppTheme.colors.red700,
                             text = when {
                                 isPrescriptionError -> stringResource(R.string.pharmacy_order_no_prescriptions_error)
                                 isPharmacyError -> stringResource(R.string.pharmacy_order_no_pharmacy_error)
@@ -730,7 +730,7 @@ private fun LazyListScope.pharmacySelectionSection(
             selectionSummaryButtonText(
                 text = it,
                 style = AppTheme.typography.body2,
-                color = AppTheme.colors.neutral600,
+                color = AppTheme.colors.neutral700,
                 maxLines = 3
             )
         }

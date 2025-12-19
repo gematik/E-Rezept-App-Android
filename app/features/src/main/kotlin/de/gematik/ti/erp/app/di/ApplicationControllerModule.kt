@@ -25,8 +25,10 @@ package de.gematik.ti.erp.app.di
 import android.content.Context
 import android.net.ConnectivityManager
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
+import de.gematik.ti.erp.app.datetime.ErpTimeFormatter
 import de.gematik.ti.erp.app.mainscreen.presentation.AppController
 import org.kodein.di.DI
+import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
@@ -48,4 +50,5 @@ val applicationControllerModule = DI.Module("applicationControllerModule") {
         val connectivityManager = context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         NetworkStatusTracker(connectivityManager)
     }
+    bindProvider { ErpTimeFormatter() }
 }

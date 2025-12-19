@@ -128,7 +128,7 @@ fun ProfileChip(
     val textColor = if (selected) {
         AppTheme.colors.neutral900
     } else {
-        AppTheme.colors.neutral600
+        AppTheme.colors.neutral700
     }
     val borderColor = if (selected) {
         AppTheme.colors.neutral300

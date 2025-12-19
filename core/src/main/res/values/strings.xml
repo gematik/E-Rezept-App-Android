@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="a11y_card_wall_card_hand">Gesundheitskarte am Smartphone</string>
+    <string name="a11y_card_wall_card_hand">Eine Hand hält eine Gesundheitskarte ans Smartphone</string>
     <string name="a11y_cdw_health_card_image_description">Bild einer Gesundheitskarte mit sechsstelliger Zugansnummer rechts oben auf der Vorderseite der Karte</string>
+    <string name="a11y_datamatrix_code_description">Code zum Scannen</string>
+    <string name="a11y_datamatrix_code_pager_content_description">Mit zwei Fingern wischen zum Seitenwechsel</string>
+    <string name="a11y_datamatrix_code_pager_state_description" formatted="false">Seite %s von %s</string>
+    <string name="a11y_datamatrix_code_zoom_in_button_description">Code vergrößern</string>
+    <string name="a11y_datamatrix_code_zoom_out_button_description">Code verkleinern</string>
+    <string name="a11y_delete_access_code_dialog">Dialog: Zugriffscode löschen</string>
     <string name="a11y_deleted_text">Text löschen</string>
     <string name="a11y_diga_arrow">bis</string>
     <string name="a11y_diga_change_insurance">Ändern der Versicherung</string>
@@ -9,16 +15,32 @@
     <string name="a11y_diga_feedback_prompt_accessibility_label">Feedback zur DiGA Verordnung</string>
     <string name="a11y_diga_feedback_submit">Feedback auf externer Webseite abgeben</string>
     <string name="a11y_disabled">deaktiviert</string>
+    <string name="a11y_error_icon">Fehler</string>
     <string name="a11y_error_prefix">Fehler:</string>
+    <string name="a11y_eu_access_code_delete_button">Zugriffscode löschen</string>
+    <string name="a11y_eu_access_code_delete_button_disabled">Löschen des Zugriffscodes aufgrund von laufender Aktion aktuell deaktiviert.</string>
+    <string name="a11y_eu_access_code_deleted_error">Löschen des Zugriffscodes fehlgeschlagen.</string>
+    <string name="a11y_eu_access_code_deleted_success">Zugriffscode wurde gelöscht.</string>
+    <string name="a11y_eu_access_code_deleting">Zugriffscode wird gelöscht …</string>
     <string name="a11y_eu_instructions_flag_accessibility_text">Sie können folgendes sagen</string>
     <string name="a11y_eu_instructions_open_in_browser">Im Browser öffnen</string>
+    <string name="a11y_local_redeem_back">Vorherigen Code anzeigen</string>
+    <string name="a11y_local_redeem_forward">Nächsten Code anzeigen</string>
     <string name="a11y_medication_schedule_three_dot_menu">Einnahmeerinnerungsoptionen anzeigen</string>
     <string name="a11y_not_selected">nicht ausgewählt</string>
     <string name="a11y_onboarding_progress_description">Seite %1$d von %2$d</string>
     <string name="a11y_open_link_submit">Link auf externer Webseite öffnen</string>
     <string name="a11y_open_pdf_submit">PDF auf externer Webseite öffnen</string>
+    <string name="a11y_password_input_show_password_description_off">Passwort ausgeblendet</string>
+    <string name="a11y_password_input_show_password_description_on">Passwort eingeblendet</string>
+    <string name="a11y_password_input_show_password_description_onClick_off">Passwort einblenden</string>
+    <string name="a11y_password_input_show_password_description_onClick_on">Passwort ausblenden</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Apothekensuche; Namen, Ort oder Postleitzahl eingeben, um nach einer Apotheke zu suchen</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Suchen in der Listenansicht</string>
+    <string name="a11y_pin_input_show_pin_description_off">PIN ausgeblendet</string>
+    <string name="a11y_pin_input_show_pin_description_on">PIN eingeblendet</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_off">PIN einblenden</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_on">PIN ausblenden</string>
     <string name="a11y_prescription_details_share">Rezept teilen</string>
     <string name="a11y_prescription_more_option">Mehr Optionen</string>
     <string name="a11y_prescription_not_available">Nicht verfügbar</string>
@@ -27,6 +49,7 @@
     <string name="a11y_select_all_not_selected">Alle auswählen, nicht ausgewählt</string>
     <string name="a11y_select_all_selected">Alle auswählen, ausgewählt</string>
     <string name="a11y_selected">ausgewählt</string>
+    <string name="a11y_success_icon">Erfolg</string>
     <string name="about_buildhash">Build-Hash: %s</string>
     <string name="about_version">Version: %s</string>
     <string name="accept_now">Angenommen gerade eben</string>
@@ -164,6 +187,7 @@
     <string name="cardwall_gid_pkv_help_screen_tip_4_body_2">Bei Handys mit Android 14 aktivieren Sie das Öffnen von Links in den Einstellungen.</string>
     <string name="cardwall_gid_pkv_help_screen_tip_4_header">Sie werden nicht in die App Ihrer Versicherung weitergeleitet?</string>
     <string name="cardwall_gid_title">GesundheitsID</string>
+    <string name="cardwall_intro_demo_mode_or">Oder:</string>
     <string name="cardwall_select_insurance_federal_link">Anders versichert</string>
     <string name="cardwall_select_insurance_type_drawer_body">Um Rezepte digital zu empfangen, wählen Sie bitte zunächst Ihre Versicherungsart.</string>
     <string name="cardwall_select_insurance_type_drawer_private_insurance_button">Privat versichert</string>
@@ -411,7 +435,7 @@
     <string name="demo_mode_link_text">Demo-Modus</string>
     <string name="demo_mode_settings_end_title">Demo-Modus Beenden</string>
     <string name="demo_mode_settings_title">Demo-Modus aktivieren</string>
-    <string name="demo_mode_start_text">Oder: Die App im Demo-Modus ausprobieren</string>
+    <string name="demo_mode_start_text">Erkunden Sie den %s.</string>
     <string name="demo_mode_text">Demo-Modus aktiviert</string>
     <string name="description">Beschreibung</string>
     <string name="diga_Insurance_is_determined">Versicherung wird ermittelt:</string>
@@ -458,7 +482,7 @@
     <string name="diga_overview_how_it_works_3">3. DiGA App herunterladen</string>
     <string name="diga_overview_how_it_works_4">4. Code in der DiGA App eingeben</string>
     <string name="diga_request_unlock_code">Freischaltcode anfordern</string>
-    <string name="diga_requesting_code_from">Wir fragen den Code an bei: %s </string>
+    <string name="diga_requesting_code_from">Wir fragen den Code an bei: %s</string>
     <string name="diga_select_insurance_for_diga_discription">Wählen Sie die Versicherung, die Ihnen die Digitale Gesundheitsverordnung bezahlt. Bei dieser Versicherung fragen wir den Freischaltcode an.</string>
     <string name="diga_select_insurance_for_diga_header">Versicherung für die DiGA wählen</string>
     <string name="diga_server_return_code_200">Erfolgreich übertragen.</string>
@@ -553,6 +577,11 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n    Die folgenden Rezepte sind nicht oder nicht mehr einlösbar:%1$s \n Möglicherweise haben Sie sie bereits auf anderem Weg eingelöst oder sie wurden gelöscht.\n</string>
     <string name="error_redeemable_prescription_not_redeemable">Das Rezept „%1$s“ ist bereits eingelöst oder im Moment in Einlösung.</string>
     <string name="error_redeemable_prescription_title">Rezept nicht einlösbar</string>
+    <string name="eu_access_code_delete_body">Möchten Sie den Zugriff für alle Apotheken im EU Ausland entziehen?</string>
+    <string name="eu_access_code_delete_button_text">Zugriff entziehen</string>
+    <string name="eu_access_code_delete_failure_body">Bitte probieren Sie es erneut.</string>
+    <string name="eu_access_code_delete_failure_header">Zugriff konnte nicht entzogen werden</string>
+    <string name="eu_access_code_delete_header">Zugriff für Rezepte entziehen</string>
     <string name="eu_access_code_error">Leider hat das Erstellen des Einlösecodes nicht funktioniert. Bitte versuchen Sie es später noch einmal.</string>
     <string name="eu_availability_description">Die teilnehmenden Länder arbeiten derzeit an der Umsetzung. Wir informieren Sie, sobald das erste Land bereit ist.</string>
     <string name="eu_availability_title">Die EU Einlösung ist bald verfügbar</string>
@@ -606,8 +635,23 @@
     <string name="eu_instructions_step_number">Schritt %1$d</string>
     <string name="eu_instructions_title">Anleitung</string>
     <string name="eu_instructions_website_info_end">.</string>
-    <string name="eu_instructions_website_info_start">Mehr Informationen finden Sie auf der </string>
-    <string name="eu_instructions_website_link_text">Website für EU-Einlösungen</string>
+    <string name="eu_instructions_website_info_start">Mehr Informationen finden Sie auf der %s.</string>
+    <string name="eu_instructions_website_link_text">Webseite für EU-Einlösungen</string>
+    <string name="eu_messages_code_created_again_message_title">Einlösecode generiert</string>
+    <string name="eu_messages_code_created_but_new_generated_message_body" formatted="false">Sie haben einen Code für die Einlösung Ihres Rezeptes in %s abgerufen.</string>
+    <string name="eu_messages_code_created_message_body" formatted="false">Sie haben einen Code für die Einlösung Ihres Rezeptes in %s abgerufen. %s kann bis %s Uhr auf Ihre ausgewählten Rezepte zugreifen.</string>
+    <string name="eu_messages_code_created_message_title">Willkommen in %s</string>
+    <string name="eu_messages_code_created_not_present_message_body">Sie haben einen Code für die Einlösung Ihres Rezeptes in %s abgerufen.</string>
+    <string name="eu_messages_code_revoked_button_text">Zugriff entzogen</string>
+    <string name="eu_messages_code_revoked_message_body" formatted="false">Sie haben einen Code für die Einlösung Ihres Rezeptes in %s abgerufen. %s kann nicht mehr auf Ihre ausgewählten Rezepte zugreifen.</string>
+    <string name="eu_messages_code_used_by_pharmacy_message_body">Die Apotheke in %s hat Ihr Rezept eingelöst.</string>
+    <string name="eu_messages_list_latest_title">EU Einlösung</string>
+    <string name="eu_messages_prescription_added_body">Sie haben ein Rezept zur EU Einlösung hinzugefügt.</string>
+    <string name="eu_messages_prescription_added_title">Rezept hinzugefügt</string>
+    <string name="eu_messages_prescription_removed_body">Sie haben ein Rezept aus der EU Einlösung entfernt.</string>
+    <string name="eu_messages_prescription_removed_title">Rezept entfernt</string>
+    <string name="eu_messages_revoke_code_button_text">Zugriff entziehen</string>
+    <string name="eu_messages_show_code_button_text">Einlösecode anzeigen</string>
     <string name="eu_prescription_available">Im EU Ausland einlösen</string>
     <string name="eu_prescription_search_empty_text">Versuchen Sie es mit einem anderen Suchbegriff.</string>
     <string name="eu_prescription_search_empty_title">Es wurde leider kein passendes Land gefunden.</string>
@@ -626,7 +670,7 @@
     <string name="eu_redeem_button">Einlösen</string>
     <string name="eu_redeem_country_title">Land</string>
     <string name="eu_redeem_instructions_link">Anleitung</string>
-    <string name="eu_redeem_instructions_prefix">Wie Sie im EU Ausland Rezepte einlösen können, lesen Sie in der</string>
+    <string name="eu_redeem_instructions_prefix">Wie Sie im EU Ausland Rezepte einlösen können, lesen Sie in der %s.</string>
     <string name="eu_redeem_prescription_selection_empty_subtitle">Es konnten keine Rezepte geladen werden.</string>
     <string name="eu_redeem_prescription_selection_empty_title">Keine Rezepte</string>
     <string name="eu_redeem_prescription_selection_error_dialog_body">Es trat folgender Fehler auf: %s. Durch erneutes Klicken auf das Rezept, können Sie es erneut versuchen.</string>
@@ -851,7 +895,9 @@
     <string name="link_to_invoice_list">Zur Übersicht der Apothekenrechnungen</string>
     <string name="local_redeem_done">Fertig</string>
     <string name="local_redeem_grouped_codes">Sammelcode</string>
+    <string name="local_redeem_multi_code_page">Sammelcode %s</string>
     <string name="local_redeem_self_payer_prescription_warning">Für dieses Rezept übernimmt Ihre Versicherung keine Kosten.</string>
+    <string name="local_redeem_single_code">Rezeptcode</string>
     <string name="local_redeem_single_codes">Einzelcodes</string>
     <string name="location_not_found">Standort nicht gefunden</string>
     <string name="logged_in">Angemeldet</string>
@@ -1042,7 +1088,7 @@
     <string name="onb_undo_description">Rückgängig</string>
     <string name="onboarding_analytics_agree_button">Zustimmen</string>
     <string name="onboarding_analytics_bottom_text">Sie können die Analyse in den Einstellungen jederzeit wieder deaktivieren.</string>
-    <string name="onboarding_analytics_consent_text">Mit Ihrer Zustimmung möchten wir eine Analyse der Appverwendung durchführen. Dafür möchten wir Daten zur Nutzung der App und technische Daten erfassen und anonymisiert auswerten und so:</string>
+    <string name="onboarding_analytics_consent_text">Mit Ihrer Zustimmung möchten wir eine %s durchführen. Dafür möchten wir Daten zur Nutzung der App und technische Daten erfassen und anonymisiert auswerten und so:</string>
     <string name="onboarding_analytics_consent_title">Helfen Sie, die App zu verbessern!</string>
     <string name="onboarding_analytics_link_text">Analyse der Appverwendung</string>
     <string name="onboarding_analytics_optimize_user_experience_text">Die Nutzungserfahrung für die gesamte Bevölkerung optimal ausgestalten</string>

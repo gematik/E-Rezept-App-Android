@@ -30,7 +30,7 @@ import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDuration
 import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleInterval
 import de.gematik.ti.erp.app.medicationplan.model.toMedicationSchedule
 import de.gematik.ti.erp.app.medicationplan.usecase.GetMedicationScheduleByTaskIdUseCase
-import de.gematik.ti.erp.app.medicationplan.usecase.ScheduleMedicationScheduleUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.CheckAndScheduleMedicationScheduleUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleDurationUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleIntervalUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetPrescriptionByTaskIdUseCase
@@ -52,7 +52,7 @@ class MedicationPlanScheduleDurationAndIntervalScreenController(
     private val getMedicationScheduleByTaskIdUseCase: GetMedicationScheduleByTaskIdUseCase,
     private val setMedicationScheduleDurationUseCase: SetMedicationScheduleDurationUseCase,
     private val setMedicationScheduleIntervalUseCase: SetMedicationScheduleIntervalUseCase,
-    private val scheduleMedicationScheduleUseCase: ScheduleMedicationScheduleUseCase,
+    private val checkAndScheduleMedicationScheduleUseCase: CheckAndScheduleMedicationScheduleUseCase,
     private val taskId: String,
     private val now: Instant = Clock.System.now()
 ) : Controller() {
@@ -74,7 +74,9 @@ class MedicationPlanScheduleDurationAndIntervalScreenController(
                         _medicationSchedule.update {
                             UiState.Data(medicationSchedule ?: prescription.toMedicationSchedule(now))
                         }
-                        medicationSchedule?.let { scheduleMedicationScheduleUseCase.invoke(it) }
+                        medicationSchedule?.let {
+                            checkAndScheduleMedicationScheduleUseCase.invoke(it)
+                        }
                     }
                 },
                 onFailure = { error ->
@@ -251,14 +253,14 @@ fun rememberMedicationPlanScheduleDurationAndIntervalScreenController(
     val getMedicationScheduleByTaskIdUseCase by rememberInstance<GetMedicationScheduleByTaskIdUseCase>()
     val setMedicationScheduleDurationUseCase by rememberInstance<SetMedicationScheduleDurationUseCase>()
     val setMedicationScheduleIntervalUseCase by rememberInstance<SetMedicationScheduleIntervalUseCase>()
-    val scheduleMedicationScheduleUseCase by rememberInstance<ScheduleMedicationScheduleUseCase>()
+    val checkAndScheduleMedicationScheduleUseCase by rememberInstance<CheckAndScheduleMedicationScheduleUseCase>()
     return remember {
         MedicationPlanScheduleDurationAndIntervalScreenController(
             getPrescriptionByTaskIdUseCase = getPrescriptionByTaskIdUseCase,
             getMedicationScheduleByTaskIdUseCase = getMedicationScheduleByTaskIdUseCase,
             setMedicationScheduleDurationUseCase = setMedicationScheduleDurationUseCase,
             setMedicationScheduleIntervalUseCase = setMedicationScheduleIntervalUseCase,
-            scheduleMedicationScheduleUseCase = scheduleMedicationScheduleUseCase,
+            checkAndScheduleMedicationScheduleUseCase = checkAndScheduleMedicationScheduleUseCase,
             taskId = taskId
         )
     }

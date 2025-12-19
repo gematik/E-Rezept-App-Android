@@ -43,6 +43,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -110,7 +112,9 @@ fun AnimatedElevationScaffold(
         scaffoldState = scaffoldState,
         topBar = {
             NavigationTopAppBar(
-                modifier = Modifier.padding(topBarPadding),
+                modifier = Modifier
+                    .padding(topBarPadding)
+                    .semanticsHeading(),
                 navigationMode = navigationMode,
                 backgroundColor = topBarColor,
                 title = topBarTitle,
@@ -191,7 +195,9 @@ fun AnimatedElevationScaffold(
         scaffoldState = scaffoldState,
         topBar = {
             NavigationTopAppBar(
-                modifier = Modifier.padding(topBarPadding),
+                modifier = Modifier
+                    .padding(topBarPadding)
+                    .semantics { heading() },
                 navigationMode = navigationMode,
                 backgroundColor = topBarColor,
                 title = topBarTitle,
@@ -237,9 +243,8 @@ fun AnimatedElevationScaffold(
                 title = {
                     Text(
                         modifier = Modifier
-                            .padding(
-                                top = PaddingDefaults.Medium
-                            ).semanticsHeading(),
+                            .padding(top = PaddingDefaults.Medium)
+                            .semanticsHeading(),
                         text = topBarTitle,
                         style = AppTheme.typography.h5
                     )

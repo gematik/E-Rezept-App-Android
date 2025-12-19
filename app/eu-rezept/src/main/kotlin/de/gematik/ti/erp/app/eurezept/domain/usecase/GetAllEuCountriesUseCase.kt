@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.eurezept.domain.usecase
 
+import de.gematik.ti.erp.app.eurezept.mapper.countryCodeToFlag
 import de.gematik.ti.erp.app.eurezept.domain.model.Country
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.fhir.FhirCountryErpModelCollection
@@ -29,7 +30,6 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlin.collections.filter
 
 class GetAllEuCountriesUseCase(
     private val repository: EuRepository,
@@ -62,13 +62,5 @@ class GetAllEuCountriesUseCase(
             country.name.contains(query, ignoreCase = true) ||
                 country.code.contains(query, ignoreCase = true)
         }
-    }
-
-    private fun countryCodeToFlag(countryCode: String): String {
-        if (countryCode.length != 2) return countryCode
-        val upper = countryCode.uppercase()
-        val firstChar = Character.codePointAt(upper, 0) - 0x41 + 0x1F1E6
-        val secondChar = Character.codePointAt(upper, 1) - 0x41 + 0x1F1E6
-        return String(Character.toChars(firstChar)) + String(Character.toChars(secondChar))
     }
 }

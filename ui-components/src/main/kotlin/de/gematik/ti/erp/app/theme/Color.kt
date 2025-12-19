@@ -88,7 +88,8 @@ data class AppColors(
     val scanOverlaySavedFill: Color,
 
     val scanOverlayHoldOutline: Color,
-    val scanOverlayHoldFill: Color
+    val scanOverlayHoldFill: Color,
+    val euLogoColor: Color = Color(0xFF003399)
 )
 
 val AppColorsThemeLight = AppColors(
@@ -173,8 +174,8 @@ val AppColorsThemeDark = AppColors(
     neutral300 = Color(0xFF757575),
     neutral400 = Color(0xFF9E9E9E),
     neutral500 = Color(0xFFBDBDBD),
-    neutral600 = Color(0xFFE0E0E0),
-    neutral700 = Color(0xFFEEEEEE),
+    neutral700 = Color(0xFFE0E0E0),
+    neutral600 = Color(0xFFEEEEEE),
     neutral800 = Color(0xFFF5F5F5),
     neutral900 = Color(0xFFFAFAFA),
     neutral999 = Color(0xFFFFFFFF),

@@ -229,7 +229,7 @@ private fun InformationLabel(icon: ImageVector, info: String) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = AppTheme.colors.neutral600,
+            tint = AppTheme.colors.neutral700,
             modifier = Modifier.padding(end = PaddingDefaults.Medium)
         )
         Text(

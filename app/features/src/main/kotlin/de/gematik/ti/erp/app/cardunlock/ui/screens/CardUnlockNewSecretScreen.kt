@@ -205,7 +205,7 @@ private fun CardUnlockNewSecretScreenContent(
                 Text(
                     stringResource(R.string.not_matching_entries),
                     style = AppTheme.typography.caption1,
-                    color = AppTheme.colors.red600.copy(
+                    color = AppTheme.colors.red700.copy(
                         alpha = ContentAlpha.high
                     )
                 )
@@ -266,12 +266,12 @@ fun ConformationPinInputField(
         shape = RoundedCornerShape(SizeDefaults.one),
         colors =
         if (repeatedPin.isEmpty()) {
-            erezeptTextFieldColors(unfocusedLabelColor = AppTheme.colors.neutral400)
+            erezeptTextFieldColors(unfocusedLabelColor = AppTheme.colors.neutral700)
         } else {
             if (isConsistent) {
                 textFieldColor(AppTheme.colors.green600)
             } else {
-                textFieldColor(AppTheme.colors.red500)
+                textFieldColor(AppTheme.colors.red700)
             }
         },
         keyboardActions = KeyboardActions {

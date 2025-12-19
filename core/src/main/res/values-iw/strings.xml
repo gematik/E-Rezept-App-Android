@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="a11y_card_wall_card_hand">כרטיס בריאות בסמארטפון</string>
+    <string name="a11y_card_wall_card_hand">יד מחזיקה כרטיס ביטוח בריאות מול סמארטפון.</string>
     <string name="a11y_cdw_health_card_image_description">תמונה של כרטיס בריאות עם מספר גישה בן שש ספרות בפינה הימנית העליונה של חזית הכרטיס</string>
+    <string name="a11y_datamatrix_code_description">סריקת קוד</string>
+    <string name="a11y_datamatrix_code_pager_content_description">החלק עם שתי אצבעות כדי להחליף עמודים</string>
+    <string name="a11y_datamatrix_code_pager_state_description" formatted="false">עַמוּד %s מִן %s</string>
+    <string name="a11y_datamatrix_code_zoom_in_button_description">הגדלת קוד</string>
+    <string name="a11y_datamatrix_code_zoom_out_button_description">צמצום גודל הקוד</string>
+    <string name="a11y_delete_access_code_dialog">דיאלוג: מחיקת קוד גישה</string>
     <string name="a11y_deleted_text">מחיקת טקסט</string>
     <string name="a11y_diga_arrow">עַד</string>
     <string name="a11y_diga_change_insurance">החלפת ביטוח</string>
@@ -9,16 +15,32 @@
     <string name="a11y_diga_feedback_prompt_accessibility_label">משוב על מרשם DiGA</string>
     <string name="a11y_diga_feedback_submit">שליחת משוב באתר חיצוני</string>
     <string name="a11y_disabled">מושבת</string>
+    <string name="a11y_error_icon">טָעוּת</string>
     <string name="a11y_error_prefix">טָעוּת:</string>
+    <string name="a11y_eu_access_code_delete_button">מחיקת קוד גישה</string>
+    <string name="a11y_eu_access_code_delete_button_disabled">מחיקת קוד הגישה מושבתת כעת עקב פעולה מתמשכת.</string>
+    <string name="a11y_eu_access_code_deleted_error">מחיקת קוד הגישה נכשלה.</string>
+    <string name="a11y_eu_access_code_deleted_success">קוד הגישה נמחק.</string>
+    <string name="a11y_eu_access_code_deleting">קוד הגישה יימחק…</string>
     <string name="a11y_eu_instructions_flag_accessibility_text">אתה יכול לומר את הדברים הבאים:</string>
     <string name="a11y_eu_instructions_open_in_browser">פתח בדפדפן</string>
+    <string name="a11y_local_redeem_back">הצג קוד קודם</string>
+    <string name="a11y_local_redeem_forward">הצג את הקוד הבא</string>
     <string name="a11y_medication_schedule_three_dot_menu">הצג אפשרויות תזכורת תרופות</string>
     <string name="a11y_not_selected">לא נבחר</string>
     <string name="a11y_onboarding_progress_description">עמוד %1$d מתוך %2$d</string>
     <string name="a11y_open_link_submit">פתח קישור באתר חיצוני</string>
     <string name="a11y_open_pdf_submit">פתיחת קובץ PDF באתר חיצוני</string>
+    <string name="a11y_password_input_show_password_description_off">סיסמה מוסתרת</string>
+    <string name="a11y_password_input_show_password_description_on">סיסמה מוצגת</string>
+    <string name="a11y_password_input_show_password_description_onClick_off">הצג סיסמה</string>
+    <string name="a11y_password_input_show_password_description_onClick_on">הסתר סיסמה</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">חיפוש בית מרקחת; הזן שם, עיר או מיקוד כדי לחפש בית מרקחת</string>
     <string name="a11y_pharmacy_start_search_on_click_description">חיפוש בתצוגת רשימה</string>
+    <string name="a11y_pin_input_show_pin_description_off">קוד סודי מוסתר</string>
+    <string name="a11y_pin_input_show_pin_description_on">קוד סודי מוצג</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_off">הצג קוד סודי</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_on">הסתר את ה-PIN</string>
     <string name="a11y_prescription_details_share">שתף מתכון</string>
     <string name="a11y_prescription_more_option">אפשרויות נוספות</string>
     <string name="a11y_prescription_not_available">לא זמין</string>
@@ -27,6 +49,7 @@
     <string name="a11y_select_all_not_selected">בחר הכל, לא נבחר</string>
     <string name="a11y_select_all_selected">בחר הכל, נבחר</string>
     <string name="a11y_selected">נִבחָר</string>
+    <string name="a11y_success_icon">הַצלָחָה</string>
     <string name="about_buildhash">בניית hash: %s</string>
     <string name="about_version">גרסה: %s</string>
     <string name="accept_now">פשוט התקבל</string>
@@ -166,6 +189,7 @@
     <string name="cardwall_gid_pkv_help_screen_tip_4_body_2">עבור טלפונים עם אנדרואיד 14, יש להפעיל פתיחת קישורים בהגדרות.</string>
     <string name="cardwall_gid_pkv_help_screen_tip_4_header">לא הופנית לאפליקציה של חברת הביטוח שלך?</string>
     <string name="cardwall_gid_title">HealthID</string>
+    <string name="cardwall_intro_demo_mode_or">אוֹ:</string>
     <string name="cardwall_select_insurance_federal_link">מבוטח בצורה שונה</string>
     <string name="cardwall_select_insurance_type_drawer_body">כדי לקבל מרשמים באופן דיגיטלי, אנא בחרו תחילה את סוג הביטוח שלכם.</string>
     <string name="cardwall_select_insurance_type_drawer_private_insurance_button">ביטוח פרטי</string>
@@ -404,7 +428,7 @@
     <string name="demo_mode_link_text">במצב הדגמה</string>
     <string name="demo_mode_settings_end_title">צא ממצב הדגמה</string>
     <string name="demo_mode_settings_title">הפעל מצב הדגמה</string>
-    <string name="demo_mode_start_text">או: נסה את האפליקציה במצב הדגמה</string>
+    <string name="demo_mode_start_text">חקור את %s.</string>
     <string name="demo_mode_text">מצב הדגמה הופעל</string>
     <string name="description">תֵאוּר</string>
     <string name="diga_Insurance_is_determined">הביטוח נקבע:</string>
@@ -450,7 +474,7 @@
     <string name="diga_overview_how_it_works_3">3. הורידו את אפליקציית DiGA</string>
     <string name="diga_overview_how_it_works_4">4. הזינו את הקוד באפליקציית DiGA</string>
     <string name="diga_request_unlock_code">בקשת קוד הפעלה</string>
-    <string name="diga_requesting_code_from">אנו מבקשים את הקוד מ: %s </string>
+    <string name="diga_requesting_code_from">אנו מבקשים את הקוד מ: %s</string>
     <string name="diga_select_insurance_for_diga_discription">בחר את חברת הביטוח שתשלם עבור מרשם הבריאות הדיגיטלי שלך. נבקש את קוד ההפעלה מחברה זו.</string>
     <string name="diga_select_insurance_for_diga_header">בחירת ביטוח עבור DiGA</string>
     <string name="diga_server_return_code_200">הועבר בהצלחה.</string>
@@ -543,6 +567,11 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n המתכונים הבאים אינם ניתנים או לא ניתנים עוד למימוש: %1$s \n ייתכן שכבר מימשת אותם בדרך אחרת או שהם נמחקו. \n</string>
     <string name="error_redeemable_prescription_not_redeemable">המרשם \" %1$s \" כבר מומש או נמצא כעת במימוש.</string>
     <string name="error_redeemable_prescription_title">לא ניתן לממש מרשם</string>
+    <string name="eu_access_code_delete_body">האם ברצונך לבטל גישה לכל בתי המרקחת במדינות אחרות באיחוד האירופי?</string>
+    <string name="eu_access_code_delete_button_text">לבטל גישה</string>
+    <string name="eu_access_code_delete_failure_body">אנא נסה שוב.</string>
+    <string name="eu_access_code_delete_failure_header">לא ניתן היה לבטל את הגישה.</string>
+    <string name="eu_access_code_delete_header">ביטול גישה למרשמים</string>
     <string name="eu_access_code_error">לצערנו, יצירת קוד המימוש נכשלה. אנא נסה שוב מאוחר יותר.</string>
     <string name="eu_availability_description">המדינות המשתתפות עובדות כעת על יישום. נעדכן אתכם ברגע שהמדינה הראשונה תהיה מוכנה.</string>
     <string name="eu_availability_title">מימוש האיחוד האירופי יהיה זמין בקרוב</string>
@@ -596,8 +625,23 @@
     <string name="eu_instructions_step_number">שלב %1$d</string>
     <string name="eu_instructions_title">הוראות</string>
     <string name="eu_instructions_website_info_end">.</string>
-    <string name="eu_instructions_website_info_start">ניתן למצוא מידע נוסף באתר </string>
-    <string name="eu_instructions_website_link_text">אתר האינטרנט של האיחוד האירופי לפדיון</string>
+    <string name="eu_instructions_website_info_start">ניתן למצוא מידע נוסף על %s.</string>
+    <string name="eu_instructions_website_link_text">אתר אינטרנט לפדיון כספים מהאיחוד האירופי</string>
+    <string name="eu_messages_code_created_again_message_title">קוד מימוש נוצר</string>
+    <string name="eu_messages_code_created_but_new_generated_message_body" formatted="false">קיבלת קוד למימוש המרשם שלך ב %s.</string>
+    <string name="eu_messages_code_created_message_body" formatted="false">קיבלת קוד למימוש המרשם שלך ב %s. %s יכול לגשת למרשמים שבחרת עד השעה %s.</string>
+    <string name="eu_messages_code_created_message_title">ברוכים הבאים ל- %s</string>
+    <string name="eu_messages_code_created_not_present_message_body">קיבלת קוד למימוש המרשם שלך ב %s.</string>
+    <string name="eu_messages_code_revoked_button_text">הגישה בוטלה</string>
+    <string name="eu_messages_code_revoked_message_body" formatted="false">איחרת קוד למימוש המרשם שלך ב %s. %s אינו יכול עוד לגשת למרשמים שבחרת.</string>
+    <string name="eu_messages_code_used_by_pharmacy_message_body">בית המרקחת ב %s מילא את המרשם שלך.</string>
+    <string name="eu_messages_list_latest_title">גאולת האיחוד האירופי</string>
+    <string name="eu_messages_prescription_added_body">הוספת מרשם לפדיון האיחוד האירופי.</string>
+    <string name="eu_messages_prescription_added_title">מתכון נוסף</string>
+    <string name="eu_messages_prescription_removed_body">הסרת מרשם מתהליך מימוש התרופה באיחוד האירופי.</string>
+    <string name="eu_messages_prescription_removed_title">המרשם הוסר</string>
+    <string name="eu_messages_revoke_code_button_text">לבטל גישה</string>
+    <string name="eu_messages_show_code_button_text">הצג קוד מימוש</string>
     <string name="eu_prescription_available">מימוש במדינות אחרות באיחוד האירופי</string>
     <string name="eu_prescription_search_empty_text">נסה מונח חיפוש אחר.</string>
     <string name="eu_prescription_search_empty_title">למרבה הצער, לא נמצאה מדינה מתאימה.</string>
@@ -616,7 +660,7 @@
     <string name="eu_redeem_button">לִפְדוֹת</string>
     <string name="eu_redeem_country_title">מְדִינָה</string>
     <string name="eu_redeem_instructions_link">הוראות</string>
-    <string name="eu_redeem_instructions_prefix">כיצד ניתן לממש מרשמים במדינות אחרות באיחוד האירופי ניתן למצוא ב</string>
+    <string name="eu_redeem_instructions_prefix">כיצד ניתן לממש מרשמים במדינות אחרות באיחוד האירופי ניתן למצוא ב %s</string>
     <string name="eu_redeem_prescription_selection_empty_subtitle">לא ניתן היה לטעון מרשמים.</string>
     <string name="eu_redeem_prescription_selection_empty_title">אין מתכונים</string>
     <string name="eu_redeem_prescription_selection_error_dialog_body">אירעה השגיאה הבאה: %s. באפשרותך לנסות שוב על ידי לחיצה נוספת על המתכון.</string>
@@ -821,7 +865,9 @@
     <string name="link_to_invoice_list">לסקירת חשבוניות בית מרקחת</string>
     <string name="local_redeem_done">מוּכָן</string>
     <string name="local_redeem_grouped_codes">קוד איסוף</string>
+    <string name="local_redeem_multi_code_page">קוד קולקטיבי %s</string>
     <string name="local_redeem_self_payer_prescription_warning">הביטוח שלך לא יכסה כל עלויות עבור מרשם זה.</string>
+    <string name="local_redeem_single_code">קוד מרשם</string>
     <string name="local_redeem_single_codes">קודים בודדים</string>
     <string name="location_not_found">המיקום לא נמצא</string>
     <string name="logged_in">רָשׁוּם</string>
@@ -1010,7 +1056,7 @@
     <string name="onb_undo_description">בטל</string>
     <string name="onboarding_analytics_agree_button">לְהַסכִּים</string>
     <string name="onboarding_analytics_bottom_text">ניתן לבטל את הניתוח בכל עת בהגדרות.</string>
-    <string name="onboarding_analytics_consent_text">בהסכמתך, נרצה לבצע ניתוח של השימוש באפליקציות. לשם כך, נרצה לאסוף ולהעריך באופן אנונימי נתונים טכניים ושימוש באפליקציות על מנת:</string>
+    <string name="onboarding_analytics_consent_text">בהסכמתך, נרצה לערוך  %s . למטרה זו, נרצה לאסוף ולנתח באופן אנונימי נתונים על שימוש באפליקציה ונתונים טכניים, וכך:</string>
     <string name="onboarding_analytics_consent_title">עזרו לשפר את האפליקציה!</string>
     <string name="onboarding_analytics_link_text">ניתוח השימוש באפליקציה</string>
     <string name="onboarding_analytics_optimize_user_experience_text">אופטימיזציה של חוויית המשתמש עבור כלל האוכלוסייה</string>

@@ -22,13 +22,13 @@
 
 package de.gematik.ti.erp.app.fhir.euredeem.model
 
+import de.gematik.ti.erp.app.fhir.FhirEuRedeemAccessCodeResponseErpModel
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirParameter
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirParameter.Companion.findParameterByName
 import de.gematik.ti.erp.app.fhir.common.model.original.extractProfilesFromResourceMeta
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeResponseConstants
-import de.gematik.ti.erp.app.fhir.FhirEuRedeemAccessCodeResponseErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.Instant
@@ -88,22 +88,22 @@ data class FhirEuRedeemAccessCodeResponseModel(
         }
 
         private fun List<FhirParameter>.getValidUntil(): FhirTemporal.Instant? {
-            val parameter = this.findParameterByName(FhirEuRedeemAccessCodeResponseConstants.ValidUntilParameter.NAME)
+            val parameter = findParameterByName(FhirEuRedeemAccessCodeResponseConstants.ValidUntilParameter.NAME)
             return parameter?.valueInstant?.let { FhirTemporal.Instant(Instant.parse(it)) }
         }
 
         private fun List<FhirParameter>.getCreatedAt(): FhirTemporal.Instant? {
-            val parameter = this.findParameterByName(FhirEuRedeemAccessCodeResponseConstants.CreatedAtParameter.NAME)
+            val parameter = findParameterByName(FhirEuRedeemAccessCodeResponseConstants.CreatedAtParameter.NAME)
             return parameter?.valueInstant?.let { FhirTemporal.Instant(Instant.parse(it)) }
         }
 
         internal fun FhirEuRedeemAccessCodeResponseModel.toErpModel(): FhirEuRedeemAccessCodeResponseErpModel? {
             return try {
                 FhirEuRedeemAccessCodeResponseErpModel(
-                    countryCode = this.parameters.getCountryCode() ?: throw Exception("CountryCode could not be parsed"),
-                    accessCode = this.parameters.getAccessCode() ?: throw Exception("AccessCode could not be parsed"),
-                    validUntil = this.parameters.getValidUntil() ?: throw Exception("ValidUntil could not be parsed"),
-                    createdAt = this.parameters.getCreatedAt() ?: throw Exception("CreatedAt could not be parsed")
+                    countryCode = parameters.getCountryCode() ?: throw Exception("CountryCode could not be parsed"),
+                    accessCode = parameters.getAccessCode() ?: throw Exception("AccessCode could not be parsed"),
+                    validUntil = parameters.getValidUntil() ?: throw Exception("ValidUntil could not be parsed"),
+                    createdAt = parameters.getCreatedAt() ?: throw Exception("CreatedAt could not be parsed")
                 )
             } catch (e: Exception) {
                 Napier.e(

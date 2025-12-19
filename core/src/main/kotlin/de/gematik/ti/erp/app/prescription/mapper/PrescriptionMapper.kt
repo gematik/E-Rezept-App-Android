@@ -1,0 +1,99 @@
+/*
+ * Copyright (Change Date see Readme), gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
+ * You may not use this work except in compliance with the Licence.
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
+ */
+
+package de.gematik.ti.erp.app.prescription.mapper
+
+import de.gematik.ti.erp.app.digas.mapper.mapToDigaStatus
+import de.gematik.ti.erp.app.prescription.model.ScannedTaskData.ScannedTask
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask
+import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+
+fun ScannedTask.toPrescription() = Prescription.ScannedPrescription(
+    taskId = taskId,
+    scannedOn = scannedOn,
+    name = name,
+    index = index,
+    redeemedOn = redeemedOn,
+    communications = communications
+)
+
+fun SyncedTask.toPrescription(): Prescription.SyncedPrescription {
+    val dispenseDeviceRequest = medicationDispenses.firstOrNull()?.deviceRequest
+
+    return Prescription.SyncedPrescription(
+        taskId = taskId,
+        isIncomplete = isIncomplete,
+        name = deviceRequest?.appName ?: medicationName(),
+        organization = practitioner.name ?: organization.name ?: "",
+        authoredOn = authoredOn,
+        redeemedOn = redeemedOn(),
+        expiresOn = expiresOn,
+        acceptUntil = acceptUntil,
+        state = state(),
+        isDiga = deviceRequest != null,
+        deviceRequestState = status.mapToDigaStatus(
+            userActionState = deviceRequest?.userActionState,
+            sentOn = deviceRequest?.sentOn?.toInstant() ?: lastModified,
+            isDeclined = dispenseDeviceRequest?.isDeclined ?: false,
+            isRedeemed = dispenseDeviceRequest?.isRedeemed ?: false
+        ),
+        isNew = deviceRequest?.isNew ?: false,
+        isArchived = deviceRequest?.isArchived ?: false,
+        isDirectAssignment = isDirectAssignment(),
+        lastModified = lastModified,
+        prescriptionChipInformation = Prescription.PrescriptionChipInformation(
+            isSelfPayPrescription = insuranceInformation
+                .coverageType == SyncedTaskData.CoverageType.SEL,
+            isPartOfMultiplePrescription = medicationRequest
+                .multiplePrescriptionInfo.indicator,
+            numerator = medicationRequest.multiplePrescriptionInfo
+                .numbering?.numerator?.value,
+            denominator = medicationRequest.multiplePrescriptionInfo
+                .numbering?.denominator?.value,
+            start = medicationRequest.multiplePrescriptionInfo.start
+        )
+    )
+}
+
+@JvmName("filterScannedNonActiveTasks")
+fun List<ScannedTask>.filterNonActiveTasks() =
+    filter { it.redeemedOn != null }
+
+@JvmName("filterScannedActiveTasks")
+fun List<ScannedTask>.filterActiveTasks() =
+    filter { it.redeemedOn == null }
+
+@JvmName("filterSyncedNonActiveTasks")
+fun List<SyncedTask>.filterNonActiveTasks() = filter { !it.isActive() }
+
+@JvmName("filterSyncedActiveTasks")
+fun List<SyncedTask>.filterActiveTasks() = filter { it.isActive() }
+
+fun List<SyncedTask>.sortByExpiredDateAndAuthoredDate() =
+    sortedWith(compareBy<SyncedTask> { it.expiresOn }.thenBy { it.authoredOn })
+
+fun List<SyncedTask>.groupByHospitalsOrDoctors() =
+    groupBy { it.practitioner.name ?: it.organization.name }
+
+fun Map<String?, List<SyncedTask>>.flatMapToPrescriptions() =
+    flatMap { (_, tasks) -> tasks.map(SyncedTask::toPrescription) }

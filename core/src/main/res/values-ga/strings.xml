@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="a11y_card_wall_card_hand">Cárta sláinte a chuig do smartphone</string>
+    <string name="a11y_card_wall_card_hand">Tá lámh ag coinneáil cárta árachais sláinte suas go dtí fón cliste.</string>
     <string name="a11y_cdw_health_card_image_description">Íomhá de chárta sláinte le huimhir rochtana sé dhigit ag barr ar dheis tosaigh an chárta</string>
+    <string name="a11y_datamatrix_code_description">Scanadh cód</string>
+    <string name="a11y_datamatrix_code_pager_content_description">Svaidhpeáil le dhá mhéar chun leathanaigh a athrú</string>
+    <string name="a11y_datamatrix_code_pager_state_description" formatted="false">Leathanach %s ó %s</string>
+    <string name="a11y_datamatrix_code_zoom_in_button_description">Cód méadaithe</string>
+    <string name="a11y_datamatrix_code_zoom_out_button_description">Laghdaigh méid an chóid</string>
+    <string name="a11y_delete_access_code_dialog">Dialóg: Scrios an cód rochtana</string>
     <string name="a11y_deleted_text">Scrios téacs</string>
     <string name="a11y_diga_arrow">go dtí</string>
     <string name="a11y_diga_change_insurance">Árachas a athrú</string>
@@ -9,16 +15,32 @@
     <string name="a11y_diga_feedback_prompt_accessibility_label">Aiseolas ar Oideas DiGA</string>
     <string name="a11y_diga_feedback_submit">Cuir aiseolas isteach ar shuíomh gréasáin seachtrach</string>
     <string name="a11y_disabled">díghníomhachtaithe</string>
+    <string name="a11y_error_icon">Botún</string>
     <string name="a11y_error_prefix">Botún:</string>
+    <string name="a11y_eu_access_code_delete_button">Scrios an cód rochtana</string>
+    <string name="a11y_eu_access_code_delete_button_disabled">Tá scriosadh an chóid rochtana díchumasaithe faoi láthair mar gheall ar ghníomh atá ar siúl.</string>
+    <string name="a11y_eu_access_code_deleted_error">Theip ar scriosadh an chóid rochtana.</string>
+    <string name="a11y_eu_access_code_deleted_success">Scriosadh an cód rochtana.</string>
+    <string name="a11y_eu_access_code_deleting">Scriosfar an cód rochtana…</string>
     <string name="a11y_eu_instructions_flag_accessibility_text">Is féidir leat an méid seo a leanas a rá:</string>
     <string name="a11y_eu_instructions_open_in_browser">Oscail sa bhrabhsálaí</string>
+    <string name="a11y_local_redeem_back">Taispeáin an cód roimhe seo</string>
+    <string name="a11y_local_redeem_forward">Taispeáin an chéad chód eile</string>
     <string name="a11y_medication_schedule_three_dot_menu">Taispeáin roghanna meabhrúcháin cógais</string>
     <string name="a11y_not_selected">níor roghnaíodh</string>
     <string name="a11y_onboarding_progress_description">Leathanach %1$d de %2$d</string>
     <string name="a11y_open_link_submit">Oscail nasc ar shuíomh gréasáin seachtrach</string>
     <string name="a11y_open_pdf_submit">Oscail PDF ar shuíomh gréasáin seachtrach</string>
+    <string name="a11y_password_input_show_password_description_off">Pasfhocal i bhfolach</string>
+    <string name="a11y_password_input_show_password_description_on">Pasfhocal taispeánta</string>
+    <string name="a11y_password_input_show_password_description_onClick_off">Taispeáin an focal faire</string>
+    <string name="a11y_password_input_show_password_description_onClick_on">Folaigh an focal faire</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Cuardach cógaisíochta; cuir isteach ainm, cathair nó cód poist chun cógaslann a chuardach</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Cuardaigh i radharc liosta</string>
+    <string name="a11y_pin_input_show_pin_description_off">UAP i bhfolach</string>
+    <string name="a11y_pin_input_show_pin_description_on">PIN ar taispeáint</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_off">Taispeáin an PIN</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_on">Folaigh an PIN</string>
     <string name="a11y_prescription_details_share">Roinn an t-oideas</string>
     <string name="a11y_prescription_more_option">Tuilleadh roghanna</string>
     <string name="a11y_prescription_not_available">Níl sé ar fáil</string>
@@ -27,6 +49,7 @@
     <string name="a11y_select_all_not_selected">Roghnaigh gach rud, níor roghnaíodh</string>
     <string name="a11y_select_all_selected">Roghnaigh gach rud, roghnaithe</string>
     <string name="a11y_selected">roghnaithe</string>
+    <string name="a11y_success_icon">Rath</string>
     <string name="about_buildhash">Tóg hais: %s</string>
     <string name="about_version">Leagan: %s</string>
     <string name="accept_now">Just a glacadh</string>
@@ -135,7 +158,7 @@
         <item quantity="many">%s Sábháil oidis</item>
         <item quantity="other">%s Sábháil oidis</item>
     </plurals>
-    <string name="can_input_field_label">FÉIDIR</string>
+    <string name="can_input_field_label">Uimhir rochtana</string>
     <string name="cancel">Cealaigh</string>
     <string name="cardwall_gid_help_body">Tá do chuideachta árachais freagrach as an ID sláinte. Déan teagmháil leo le do thoil má tá aon cheist agat faoi chlárú. Seo roinnt leideanna triailte agus tástálaithe:</string>
     <string name="cardwall_gid_help_button">Cabhrú</string>
@@ -169,6 +192,7 @@
     <string name="cardwall_gid_pkv_help_screen_tip_4_body_2">I gcás fóin le Android 14, cumasaigh oscailt naisc sna socruithe.</string>
     <string name="cardwall_gid_pkv_help_screen_tip_4_header">Nach ndéantar tú a atreorú chuig aip do chuideachta árachais?</string>
     <string name="cardwall_gid_title">ID Sláinte</string>
+    <string name="cardwall_intro_demo_mode_or">Nó:</string>
     <string name="cardwall_select_insurance_federal_link">Árachaithe ar bhealach difriúil</string>
     <string name="cardwall_select_insurance_type_drawer_body">Chun oidis a fháil go digiteach, roghnaigh do chineál árachais ar dtús.</string>
     <string name="cardwall_select_insurance_type_drawer_private_insurance_button">Árachas príobháideach</string>
@@ -409,7 +433,7 @@
     <string name="demo_mode_link_text">Mód taispeána</string>
     <string name="demo_mode_settings_end_title">Scoir mód taispeána</string>
     <string name="demo_mode_settings_title">Gníomhachtaigh mód taispeána</string>
-    <string name="demo_mode_start_text">Nó: Bain triail as an app i mód taispeána</string>
+    <string name="demo_mode_start_text">Taiscéal an %s.</string>
     <string name="demo_mode_text">Mód taispeána cumasaithe</string>
     <string name="description">Cur síos</string>
     <string name="diga_Insurance_is_determined">Cinntear an t-árachas:</string>
@@ -455,7 +479,7 @@
     <string name="diga_overview_how_it_works_3">3. Íoslódáil an aip DiGA</string>
     <string name="diga_overview_how_it_works_4">4. Cuir isteach an cód san aip DiGA</string>
     <string name="diga_request_unlock_code">Iarr cód gníomhachtaithe</string>
-    <string name="diga_requesting_code_from">Iarraimid an cód ó: %s </string>
+    <string name="diga_requesting_code_from">Iarraimid an cód ó: %s</string>
     <string name="diga_select_insurance_for_diga_discription">Roghnaigh an comhlacht árachais a íocfaidh as d’Oideas Sláinte Digiteach. Iarrfaimid an cód gníomhachtaithe ón gcomhlacht seo.</string>
     <string name="diga_select_insurance_for_diga_header">Roghnaigh árachas don DiGA</string>
     <string name="diga_server_return_code_200">Aistrithe go rathúil.</string>
@@ -548,6 +572,11 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n Níl na hoidis seo a leanas infhuascailte nó ní féidir iad a fhuascailt a thuilleadh: %1$s \n Seans go bhfuil tú tar éis iad a fhuascailt ar bhealach eile cheana féin nó seans gur scriosadh iad. \n</string>
     <string name="error_redeemable_prescription_not_redeemable">Tá an oideas “ %1$s ” fuascailte cheana nó á fhuascailt faoi láthair.</string>
     <string name="error_redeemable_prescription_title">ní féidir oideas a fhuascailt</string>
+    <string name="eu_access_code_delete_body">Ar mhaith leat rochtain a chúlghairm do gach cógaslann i dtíortha eile an AE?</string>
+    <string name="eu_access_code_delete_button_text">rochtain a chúlghairm</string>
+    <string name="eu_access_code_delete_failure_body">Déan iarracht arís.</string>
+    <string name="eu_access_code_delete_failure_header">Níorbh fhéidir rochtain a chúlghairm.</string>
+    <string name="eu_access_code_delete_header">Rochtain ar oidis a chúlghairm</string>
     <string name="eu_access_code_error">Ar an drochuair, theip ar an gcód fuascailte a ghiniúint. Déan iarracht arís ar ball.</string>
     <string name="eu_availability_description">Tá na tíortha rannpháirteacha ag obair ar chur i bhfeidhm faoi láthair. Cuirfimid ar an eolas thú a luaithe a bheidh an chéad tír réidh.</string>
     <string name="eu_availability_title">Beidh fuascailt AE ar fáil go luath</string>
@@ -601,8 +630,23 @@
     <string name="eu_instructions_step_number">Céim %1$d</string>
     <string name="eu_instructions_title">Treoracha</string>
     <string name="eu_instructions_website_info_end">.</string>
-    <string name="eu_instructions_website_info_start">Is féidir tuilleadh eolais a fháil ar an </string>
-    <string name="eu_instructions_website_link_text">Suíomh Gréasáin fuascailte an AE</string>
+    <string name="eu_instructions_website_info_start">Is féidir leat tuilleadh eolais a fháil ar an %s.</string>
+    <string name="eu_instructions_website_link_text">Suíomh Gréasáin le haghaidh fuascailtí AE</string>
+    <string name="eu_messages_code_created_again_message_title">Cód fuascailte ginte</string>
+    <string name="eu_messages_code_created_but_new_generated_message_body" formatted="false">Tá cód faighte agat chun d’oideas a fhuascailt i %s.</string>
+    <string name="eu_messages_code_created_message_body" formatted="false">Tá cód faighte agat chun d’oideas a fhuascailt i %s. Is féidir le %s rochtain a fháil ar d’oidis roghnaithe go dtí %s a chlog.</string>
+    <string name="eu_messages_code_created_message_title">Fáilte go %s</string>
+    <string name="eu_messages_code_created_not_present_message_body">Tá cód faighte agat chun d’oideas a fhuascailt i %s.</string>
+    <string name="eu_messages_code_revoked_button_text">Rochtain curtha ar ceal</string>
+    <string name="eu_messages_code_revoked_message_body" formatted="false">Tá cód faighte agat chun d’oideas a fhuascailt ag %s. Ní féidir le %s rochtain a fháil ar na hoidis a roghnaigh tú a thuilleadh.</string>
+    <string name="eu_messages_code_used_by_pharmacy_message_body">Tá d’oideas líonta ag an gcógaslann i %s.</string>
+    <string name="eu_messages_list_latest_title">Fuascailt AE</string>
+    <string name="eu_messages_prescription_added_body">Chuir tú oideas leis le haghaidh fuascailte AE.</string>
+    <string name="eu_messages_prescription_added_title">Oideas curtha leis</string>
+    <string name="eu_messages_prescription_removed_body">Bhain tú oideas as próiseas fuascailte an AE.</string>
+    <string name="eu_messages_prescription_removed_title">Oideas bainte</string>
+    <string name="eu_messages_revoke_code_button_text">rochtain a chúlghairm</string>
+    <string name="eu_messages_show_code_button_text">Taispeáin cód fuascailte</string>
     <string name="eu_prescription_available">Fuascail i dtíortha eile an AE</string>
     <string name="eu_prescription_search_empty_text">Bain triail as téarma cuardaigh difriúil.</string>
     <string name="eu_prescription_search_empty_title">Ar an drochuair, ní bhfuarthas aon tír oiriúnach.</string>
@@ -621,7 +665,7 @@
     <string name="eu_redeem_button">Fuascail</string>
     <string name="eu_redeem_country_title">tír</string>
     <string name="eu_redeem_instructions_link">Treoracha</string>
-    <string name="eu_redeem_instructions_prefix">Is féidir teacht ar an eolas faoi conas is féidir leat oidis a fhuascailt i dtíortha eile an AE sa</string>
+    <string name="eu_redeem_instructions_prefix">Is féidir teacht ar an eolas faoi conas is féidir leat oidis a fhuascailt i dtíortha eile an AE sa %s</string>
     <string name="eu_redeem_prescription_selection_empty_subtitle">Ní fhéadfaí aon oidis a luchtú.</string>
     <string name="eu_redeem_prescription_selection_empty_title">Gan oidis</string>
     <string name="eu_redeem_prescription_selection_error_dialog_body">Tharla an earráid seo a leanas: %s. Is féidir leat iarracht eile a dhéanamh trí chliceáil ar an oideas arís.</string>
@@ -732,7 +776,7 @@
     <string name="insurance_information_header">Sonraí sealbhóir polasaí</string>
     <string name="insurance_information_insurance_identifier">Uimhir sealbhóir polasaí</string>
     <string name="insurance_information_insurance_name">Árachas</string>
-    <string name="insurance_information_insurant_can">FÉIDIR</string>
+    <string name="insurance_information_insurant_can">Uimhir rochtana</string>
     <string name="insurance_information_insurant_name">Ainm</string>
     <string name="insurance_information_login">Clár</string>
     <string name="insurance_information_logout">Logáil amach</string>
@@ -826,7 +870,9 @@
     <string name="link_to_invoice_list">Chun an forbhreathnú ar shonraisc cógaisíochta</string>
     <string name="local_redeem_done">Déanta</string>
     <string name="local_redeem_grouped_codes">Cód bailiúcháin</string>
+    <string name="local_redeem_multi_code_page">Cód comhchoiteann %s</string>
     <string name="local_redeem_self_payer_prescription_warning">Ní chlúdóidh d’árachas costas an oideas seo.</string>
+    <string name="local_redeem_single_code">Cód oideas</string>
     <string name="local_redeem_single_codes">Cóid aonair</string>
     <string name="location_not_found">Suíomh gan aimsiú</string>
     <string name="logged_in">Logáilte isteach</string>
@@ -1016,7 +1062,7 @@
     <string name="onb_undo_description">Cealaigh</string>
     <string name="onboarding_analytics_agree_button">Aontaigh</string>
     <string name="onboarding_analytics_bottom_text">Is féidir leat an anailís a dhíghníomhachtú tráth ar bith sna socruithe.</string>
-    <string name="onboarding_analytics_consent_text">Le do thoiliú, ba mhaith linn anailís a dhéanamh ar úsáid aipeanna. Chun seo a dhéanamh, ba mhaith linn sonraí úsáide aipeanna agus sonraí teicniúla a bhailiú agus a mheas go hanaithnid chun:</string>
+    <string name="onboarding_analytics_consent_text">Le do thoiliú, ba mhaith linn %s a dhéanamh. Chun na críche seo, ba mhaith linn sonraí faoi úsáid aipeanna agus sonraí teicniúla a bhailiú agus a anailísiú go hanaithnid, agus ar an gcaoi sin:</string>
     <string name="onboarding_analytics_consent_title">Cabhraigh leis an aip a fheabhsú!</string>
     <string name="onboarding_analytics_link_text">Anailís ar úsáid aipeanna</string>
     <string name="onboarding_analytics_optimize_user_experience_text">An taithí úsáideora a bharrfheabhsú don daonra ar fad</string>

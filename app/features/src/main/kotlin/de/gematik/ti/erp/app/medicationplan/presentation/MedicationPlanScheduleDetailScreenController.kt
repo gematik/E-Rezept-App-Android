@@ -50,7 +50,7 @@ import de.gematik.ti.erp.app.medicationplan.usecase.DeactivateMedicationSchedule
 import de.gematik.ti.erp.app.medicationplan.usecase.DeleteMedicationScheduleNotificationUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.DeleteMedicationScheduleUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.GetMedicationScheduleByTaskIdUseCase
-import de.gematik.ti.erp.app.medicationplan.usecase.ScheduleMedicationScheduleUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.CheckAndScheduleMedicationScheduleUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleNotificationDosageUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleNotificationTimeUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetOrCreateActiveMedicationScheduleUseCase
@@ -67,6 +67,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalTime
 import org.kodein.di.compose.rememberInstance
 import java.util.UUID
+import kotlin.getValue
 
 class MedicationPlanScheduleDetailScreenController(
     private val getPrescriptionByTaskIdUseCase: GetPrescriptionByTaskIdUseCase,
@@ -78,7 +79,7 @@ class MedicationPlanScheduleDetailScreenController(
     private val deleteMedicationScheduleNotificationUseCase: DeleteMedicationScheduleNotificationUseCase,
     private val setMedicationScheduleNotificationDosageUseCase: SetMedicationScheduleNotificationDosageUseCase,
     private val setMedicationScheduleNotificationTimeUseCase: SetMedicationScheduleNotificationTimeUseCase,
-    private val scheduleMedicationScheduleUseCase: ScheduleMedicationScheduleUseCase,
+    private val checkAndScheduleMedicationScheduleUseCase: CheckAndScheduleMedicationScheduleUseCase,
     private val taskId: String
 ) : Controller() {
     val changeMedicationScheduleNotificationTimeEvent = ComposableEvent<MedicationScheduleNotification>()
@@ -115,7 +116,9 @@ class MedicationPlanScheduleDetailScreenController(
                                 medicationSchedule ?: prescription.toMedicationSchedule()
                             )
                         }
-                        medicationSchedule?.let { scheduleMedicationScheduleUseCase.invoke(it) }
+                        medicationSchedule?.let {
+                            checkAndScheduleMedicationScheduleUseCase.invoke(it)
+                        }
                     }
                 },
                 onFailure = { error ->
@@ -227,7 +230,7 @@ fun rememberMedicationPlanScheduleDetailScreenController(
     val deleteMedicationScheduleNotificationUseCase by rememberInstance<DeleteMedicationScheduleNotificationUseCase>()
     val setMedicationScheduleNotificationDosageUseCase by rememberInstance<SetMedicationScheduleNotificationDosageUseCase>()
     val setMedicationScheduleNotificationTimeUseCase by rememberInstance<SetMedicationScheduleNotificationTimeUseCase>()
-    val scheduleMedicationScheduleUseCase by rememberInstance<ScheduleMedicationScheduleUseCase>()
+    val checkAndScheduleMedicationScheduleUseCase by rememberInstance<CheckAndScheduleMedicationScheduleUseCase>()
     return remember {
         MedicationPlanScheduleDetailScreenController(
             getPrescriptionByTaskIdUseCase = getPrescriptionByTaskIdUseCase,
@@ -239,7 +242,7 @@ fun rememberMedicationPlanScheduleDetailScreenController(
             deleteMedicationScheduleNotificationUseCase = deleteMedicationScheduleNotificationUseCase,
             setMedicationScheduleNotificationDosageUseCase = setMedicationScheduleNotificationDosageUseCase,
             setMedicationScheduleNotificationTimeUseCase = setMedicationScheduleNotificationTimeUseCase,
-            scheduleMedicationScheduleUseCase = scheduleMedicationScheduleUseCase,
+            checkAndScheduleMedicationScheduleUseCase = checkAndScheduleMedicationScheduleUseCase,
             taskId = taskId
         )
     }

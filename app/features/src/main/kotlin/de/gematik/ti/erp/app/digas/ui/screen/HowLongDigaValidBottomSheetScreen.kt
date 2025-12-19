@@ -43,6 +43,7 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberGetPrescriptionByTaskIdController
@@ -52,7 +53,6 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.FullScreenLoadingIndicator
 import kotlinx.datetime.Instant
@@ -77,10 +77,18 @@ class HowLongDigaValidBottomSheetScreen(
             state = prescriptionState,
             onLoading = { FullScreenLoadingIndicator() },
             onEmpty = {
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             },
             onError = {
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             },
             onContent = { content ->
                 val prescription = content as PrescriptionData.Synced

@@ -40,6 +40,7 @@ enum class SettingsAuthenticationMethodV1 {
     Unspecified
 }
 
+@Deprecated("Removed after migration 38, use AuthenticationEntityV1")
 class PasswordEntityV1 : RealmObject {
     var _salt: String = ""
 
@@ -94,9 +95,6 @@ class SettingsEntityV1 : RealmObject, Cascading {
 
     var authentication: AuthenticationEntityV1? = AuthenticationEntityV1()
 
-    var zoomEnabled: Boolean = false
-    var welcomeDrawerShown: Boolean = false
-
     // last updated time
     var time: RealmInstant = LocalDateTime(2021, 10, 15, 0, 0).toRealmInstant()
 
@@ -104,11 +102,29 @@ class SettingsEntityV1 : RealmObject, Cascading {
 
     var pharmacySearch: PharmacySearchEntityV1? = PharmacySearchEntityV1()
 
+    @Deprecated("Migrated to SettingsLocalDataSource in v63")
+    var zoomEnabled: Boolean = false
+
+    @Deprecated("Migrated to SettingsLocalDataSource in v63")
+    var welcomeDrawerShown: Boolean = false
+
+    @Deprecated("Migrated to SettingsLocalDataSource in v63")
     var userHasAcceptedInsecureDevice: Boolean = false
 
+    @Deprecated("Migrated to SettingsLocalDataSource in v63")
     var userHasAcceptedIntegrityNotOk: Boolean = false
 
+    @Deprecated("Migrated to SettingsLocalDataSource in v63")
     var dataProtectionVersionAccepted: RealmInstant = LocalDateTime(2021, 10, 15, 0, 0).toRealmInstant()
+
+    @Deprecated("Migrated to SettingsLocalDataSource in v63")
+    var mlKitAccepted: Boolean = false
+
+    @Deprecated("Migrated to SettingsLocalDataSource in v63")
+    var screenshotsAllowed: Boolean = false
+
+    @Deprecated("Migrated to SettingsLocalDataSource in v63")
+    var trackingAllowed: Boolean = false
 
     var latestAppVersionName: String = ""
     var latestAppVersionCode: Int = -1
@@ -117,7 +133,6 @@ class SettingsEntityV1 : RealmObject, Cascading {
     var onboardingLatestAppVersionCode: Int = -1
 
     var shippingContact: ShippingContactEntityV1? = null
-    var mlKitAccepted: Boolean = false
 
     @Requirement(
         "O.Data_13#1",
@@ -134,10 +149,6 @@ class SettingsEntityV1 : RealmObject, Cascading {
         rationale = "Default settings does not allow screenshots",
         codeLines = 3
     )
-    var screenshotsAllowed: Boolean = false
-
-    var trackingAllowed: Boolean = false
-
     override fun objectsToFollow(): Iterator<Deleteable> =
         iterator {
             pharmacySearch?.let { yield(it) }

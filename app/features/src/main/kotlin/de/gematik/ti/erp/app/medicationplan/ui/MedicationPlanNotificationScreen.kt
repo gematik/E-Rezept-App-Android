@@ -69,6 +69,7 @@ import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.ErpTimeFormatter
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.fhir.temporal.toLocalDate
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
 import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
@@ -87,7 +88,6 @@ import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import de.gematik.ti.erp.app.utils.compose.EmptyScreenComponent
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
@@ -191,7 +191,11 @@ fun MedicationPlanNotificationScreenScaffold(
                     ) {}
                 },
                 onError = {
-                    ErrorScreenComponent()
+                    ErrorScreenComponent(
+                        titleText = stringResource(R.string.generic_error_title),
+                        bodyText = stringResource(R.string.generic_error_info),
+                        tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                    )
                 },
                 onContent = { profilesWithSchedules ->
                     MedicationNotificationSuccessScreenContent(
@@ -318,7 +322,7 @@ private fun NotificationsSection(medicationSchedule: MedicationSchedule) {
                             formatter = formatter
                         ),
                         style = AppTheme.typography.body2,
-                        color = AppTheme.colors.neutral600,
+                        color = AppTheme.colors.neutral700,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )

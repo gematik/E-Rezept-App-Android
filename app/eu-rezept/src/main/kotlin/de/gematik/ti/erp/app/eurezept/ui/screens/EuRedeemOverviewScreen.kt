@@ -87,7 +87,6 @@ import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.ClickText
 import de.gematik.ti.erp.app.utils.ClickableText
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
@@ -118,7 +117,7 @@ internal class EuRedeemOverviewScreen(
                 onStartRedemption = {
                     graphController.generateEuAccessCode(
                         onSuccessfulCodeGeneration = {
-                            navController.navigate(EuRoutes.EuRedemptionCodeScreen.route)
+                            navController.navigate(EuRoutes.EuRedemptionCodeScreen.path(""))
                         },
                         onFailure = { error ->
                             snackbarHostState.showWithDismissButton(
@@ -293,11 +292,10 @@ fun EuRedeemScreenContent(
                 ClickableText(
                     modifier = Modifier,
                     textStyle = AppTheme.typography.body1l,
-                    text = stringResource(R.string.eu_redeem_instructions_prefix),
-                    clickText = ClickText(
-                        text = stringResource(R.string.eu_redeem_instructions_link),
-                        onClick = onInstructionsClick
-                    )
+                    leadingText = stringResource(R.string.eu_redeem_instructions_prefix).substringBefore("%s"),
+                    linkText = stringResource(R.string.eu_redeem_instructions_link),
+                    trailingText = stringResource(R.string.eu_redeem_instructions_prefix).substringAfter("%s"),
+                    onClick = onInstructionsClick
                 )
 
                 SpacerLarge()
@@ -395,7 +393,7 @@ fun EuRedeemBottomBar(
                 backgroundColor = AppTheme.colors.primary700,
                 contentColor = AppTheme.colors.neutral000,
                 disabledBackgroundColor = AppTheme.colors.neutral300,
-                disabledContentColor = AppTheme.colors.neutral600
+                disabledContentColor = AppTheme.colors.neutral700
             )
         ) {
             if (isRedeeming) {

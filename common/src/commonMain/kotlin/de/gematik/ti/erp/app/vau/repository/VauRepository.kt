@@ -22,43 +22,103 @@
 
 package de.gematik.ti.erp.app.vau.repository
 
-import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.idp.extension.issuerCommonName
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
+import de.gematik.ti.erp.app.vau.api.model.UntrustedVauList
+import de.gematik.ti.erp.app.vau.usecase.TruststoreConfig
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 
 class VauRepository(
     private val localDataSource: VauLocalDataSource,
     private val remoteDataSource: VauRemoteDataSource,
-    private val dispatchers: DispatchProvider
+    private val dispatchers: CoroutineDispatcher = Dispatchers.IO,
+    private val config: TruststoreConfig
 ) {
-    /**
-     * Catches all exceptions originating from [block], deletes the locally saved untrusted store and
-     * rethrows the exception.
-     */
-    suspend fun <R> withUntrusted(block: suspend (UntrustedCertList, UntrustedOCSPList) -> R) =
-        withContext(dispatchers.io) {
-            val (untrustedCertList, untrustedOCSPList) = localDataSource.loadUntrusted() ?: run {
-                Napier.d("GET cert & ocsp from backend...")
 
-                val certsResult = async { remoteDataSource.loadCertificates() }
-                val ocspResult = async { remoteDataSource.loadOcspResponses() }
+    suspend fun <R> withUntrusted(
+        block: suspend (pkiCerts: UntrustedCertList, ocspList: UntrustedOCSPList) -> R
+    ): R = withContext(dispatchers) {
+        val cached = localDataSource.loadUntrusted()
 
-                val certs = certsResult.await().getOrThrow()
+        if (cached == null) {
+            Napier.d("GET PKI, VAU certs & OCSP from backend...")
 
-                val ocsp = ocspResult.await().getOrThrow()
+            val (pkiCerts, ocspList) = loadFreshUntrustedFromBackend()
 
-                Napier.d("...GET cert & ocsp from backend was successful")
+            Napier.d("...GET PKI, VAU certs & OCSP from backend was successful")
 
-                Pair(certs, ocsp)
+            block(pkiCerts, ocspList)
+        } else {
+            val (untrustedCertList, untrustedOCSPList) = cached
+            block(untrustedCertList, untrustedOCSPList)
+        }
+    }
+
+    private suspend fun loadFreshUntrustedFromBackend(): Pair<UntrustedCertList, UntrustedOCSPList> =
+        coroutineScope {
+            var pkiDeferred = async {
+                remoteDataSource.loadPkiCertificates(config.trustAnchorName).getOrThrow()
+            }
+            val vauDeferred = async {
+                remoteDataSource.loadVauCertificates().getOrThrow()
             }
 
-            block(untrustedCertList, untrustedOCSPList).also {
-                localDataSource.saveLists(untrustedCertList, untrustedOCSPList)
+            val ocspDeferred = async {
+                val vauCerts = vauDeferred.await()
+                val eeCert = vauCerts.responses.firstOrNull()
+                    ?: error("No VAU EE certificate available")
+
+                val issuerCn = eeCert.issuer.issuerCommonName()
+                require(issuerCn.isNotEmpty()) {
+                    "Issuer CN could not be determined from VAU certificate"
+                }
+
+                val serialNr = eeCert.serialNumber.toString()
+                remoteDataSource
+                    .loadOcspResponse(issuerCn, serialNr)
+                    .getOrThrow()
             }
+
+            val pkiCerts = pkiDeferred.await()
+            val vauCerts = vauDeferred.await()
+            val ocspList = ocspDeferred.await()
+
+            val allCerts = pkiCerts.copy(eeCerts = vauCerts.responses)
+            Pair(allCerts, ocspList)
+        }
+
+    private suspend fun loadVauAndOcsp(): Pair<UntrustedVauList, UntrustedOCSPList> =
+        coroutineScope {
+            val vauDeferred = async {
+                remoteDataSource.loadVauCertificates().getOrThrow()
+            }
+            val ocspDeferred = async {
+                val vauCerts = vauDeferred.await()
+                val eeCert = vauCerts.responses.firstOrNull()
+                    ?: error("No VAU EE certificate available")
+
+                val issuerCn = eeCert.issuer.issuerCommonName()
+                require(issuerCn.isNotEmpty()) {
+                    "Issuer CN could not be determined from VAU certificate"
+                }
+
+                val serialNr = eeCert.serialNumber.toString()
+                remoteDataSource
+                    .loadOcspResponse(issuerCn, serialNr)
+                    .getOrThrow()
+            }
+
+            val vauCerts = vauDeferred.await()
+            val ocspList = ocspDeferred.await()
+
+            vauCerts to ocspList
         }
 
     @Requirement(

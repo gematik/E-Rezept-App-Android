@@ -45,6 +45,7 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
 import de.gematik.ti.erp.app.digas.ui.component.Label
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
@@ -54,7 +55,6 @@ import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
@@ -87,10 +87,18 @@ class PrescriptionDetailAccidentInfoScreen(
                 }
             },
             onEmpty = {
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             },
             onError = {
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             },
             onContent = { (_, prescription) ->
                 val syncedPrescription = prescription as? PrescriptionData.Synced

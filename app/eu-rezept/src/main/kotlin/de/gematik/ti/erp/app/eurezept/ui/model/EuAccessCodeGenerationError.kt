@@ -29,4 +29,5 @@ sealed class EuAccessCodeGenerationError(@param:StringRes open val messageResId:
     data object MissingConsent : EuAccessCodeGenerationError(R.string.eu_consent_missing)
     data object ErrorGeneratingCode : EuAccessCodeGenerationError(R.string.eu_access_code_error)
     data object ErrorWithInvalidProfile : EuAccessCodeGenerationError(R.string.eu_retry_required)
+    data object ErrorOnCountryCode : EuAccessCodeGenerationError(R.string.eu_retry_required)
 }

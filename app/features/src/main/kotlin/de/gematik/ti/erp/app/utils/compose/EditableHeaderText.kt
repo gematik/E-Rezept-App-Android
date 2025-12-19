@@ -114,7 +114,7 @@ private fun EditIconButton(
     IconButton(
         onClick = onClick
     ) {
-        Icon(Icons.Outlined.Edit, null, tint = AppTheme.colors.neutral600)
+        Icon(Icons.Outlined.Edit, null, tint = AppTheme.colors.neutral700)
     }
 }
 

@@ -27,13 +27,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.consent.model.ConsentState
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.pkv.presentation.ConsentValidator
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.pulltorefresh.extensions.trigger
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.uistate.UiState
@@ -52,6 +54,9 @@ internal fun ProfileLoadingSection(
         state = profileData,
         onError = {
             ErrorScreenComponent(
+                titleText = stringResource(R.string.generic_error_title),
+                bodyText = stringResource(R.string.generic_error_info),
+                tryAgainText = stringResource(R.string.cdw_fasttrack_try_again),
                 onClickRetry = onRefresh
             )
         },

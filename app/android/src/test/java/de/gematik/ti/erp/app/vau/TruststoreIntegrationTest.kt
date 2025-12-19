@@ -107,9 +107,12 @@ class TruststoreIntegrationTest {
             .build()
             .create(VauService::class.java)
 
+        val config = TruststoreConfig { return@TruststoreConfig BuildKonfig.APP_TRUST_ANCHOR_BASE64 }
+
         val useCase = TruststoreUseCase(
-            TruststoreConfig { return@TruststoreConfig BuildKonfig.APP_TRUST_ANCHOR_BASE64 },
-            VauRepository(localDataSource, VauRemoteDataSource(vauService), coroutineRule.dispatchers),
+            config,
+            VauRepository(localDataSource, VauRemoteDataSource(vauService), coroutineRule.dispatchers.io, config),
+            localDataSource,
             { Clock.System.now() },
             { untrustedOCSPList: UntrustedOCSPList,
                     untrustedCertList: UntrustedCertList,

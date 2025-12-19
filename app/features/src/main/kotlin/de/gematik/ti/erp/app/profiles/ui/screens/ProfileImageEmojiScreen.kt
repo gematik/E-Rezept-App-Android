@@ -29,7 +29,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.RectF
 import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -117,6 +116,7 @@ import de.gematik.ti.erp.app.utils.extensions.showKeyboardOnNotOpen
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
+import androidx.core.graphics.createBitmap
 
 private const val TEXT_SIZE = 64f
 private const val DIAMETER_X = 2f
@@ -252,8 +252,7 @@ fun ProfileImageEmojiComponent(
                     createCircularBitmapFromText(
                         context = context,
                         text = textData,
-                        isDarkMode = isDarkMode,
-                        backgroundColor = backgroundColor
+                        isDarkMode = isDarkMode
                     )?.let { bitmap ->
                         controller.updateProfileImageBitmap(bitmap)
                     }
@@ -364,8 +363,7 @@ private fun ProfileImageEmojiScreenContent(
                     createCircularBitmapFromText(
                         context = context,
                         text = textData,
-                        isDarkMode = isDarkMode,
-                        backgroundColor = profile?.color?.color()?.backgroundColor ?: Color.White
+                        isDarkMode = isDarkMode
                     )?.let { bitmap ->
                         CircularBitmapImage(
                             modifier = Modifier
@@ -449,52 +447,33 @@ private fun createCircularBitmapFromText(
     context: Context,
     text: String,
     sizeDp: Int = SIZE_DP,
-    isDarkMode: Boolean,
-    backgroundColor: Color
+    isDarkMode: Boolean
 ): Bitmap? {
     try {
         val density = context.resources.displayMetrics.density
         val textSizeSp = TEXT_SIZE
-        val backgroundPaint = Paint().apply {
-            color = backgroundColor.toArgb()
-            textSize = textSizeSp * density
-            isAntiAlias = true // For smooth edges
-        }
 
-        val colouredPaint = Paint().apply {
+        val textPaint = Paint().apply {
             color = when {
                 isDarkMode -> Color(0xFFE0E0E0).toArgb()
                 else -> Color(0xFF757575).toArgb()
             }
             textSize = textSizeSp * density
+            textAlign = Paint.Align.CENTER
             isAntiAlias = true // For smooth edges
         }
 
         // Calculate the diameter of the circular bounding box
         val diameter = sizeDp * density
 
-        val bitmap = Bitmap.createBitmap(diameter.toInt(), diameter.toInt(), Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(diameter.toInt(), diameter.toInt())
         val canvas = Canvas(bitmap)
 
-        // Calculate the horizontal position (x) to center the text // diameter / DIAMETER_X
-        val x = when {
-            containsEmoji(text) -> 95f
-            else -> 90f
-        }
-
-        val ascent = -backgroundPaint.ascent()
-        val descent = backgroundPaint.descent()
-        val textHeight = ascent + descent
-        // Calculate the vertical position (y) to center the text
-        val y = (diameter - textHeight) / DIAMETER_Y + ascent
-
-        val rect = RectF(0f, 0f, diameter, diameter)
-
-        // Draw the white circle
-        canvas.drawOval(rect, backgroundPaint)
+        val xPos = (canvas.width / 2).toFloat()
+        val yPos = (canvas.height / 2) - ((textPaint.ascent() + textPaint.descent()) / 2)
 
         // Draw the text
-        canvas.drawText(text, x, y, colouredPaint)
+        canvas.drawText(text, xPos, yPos, textPaint)
 
         return bitmap
     } catch (e: Exception) {

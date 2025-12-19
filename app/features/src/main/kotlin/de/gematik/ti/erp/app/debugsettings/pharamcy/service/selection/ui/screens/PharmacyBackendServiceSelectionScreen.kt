@@ -47,8 +47,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import de.gematik.ti.erp.app.base.ClipBoardCopy
 import de.gematik.ti.erp.app.checkbox.LabeledCheckbox
+import de.gematik.ti.erp.app.core.ClipBoardCopy
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.presentation.PharmacyBackendServiceSelectionViewModel
 import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.presentation.pharmacyBackendServiceSelectionViewModel

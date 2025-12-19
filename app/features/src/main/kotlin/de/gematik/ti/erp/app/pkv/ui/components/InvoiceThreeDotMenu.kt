@@ -61,7 +61,7 @@ fun InvoiceThreeDotMenu(
     IconButton(
         onClick = { isMenuExpanded = true }
     ) {
-        Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral600)
+        Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral700)
     }
     DropdownMenu(
         expanded = isMenuExpanded,
@@ -128,7 +128,7 @@ fun InvoiceThreeDotMenu(
         ) {
             Text(
                 text = stringResource(R.string.invoice_header_delete),
-                color = AppTheme.colors.red600
+                color = AppTheme.colors.red700
             )
         }
     }

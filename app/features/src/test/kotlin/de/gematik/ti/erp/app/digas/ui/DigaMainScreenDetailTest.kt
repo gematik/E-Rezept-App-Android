@@ -29,7 +29,13 @@ import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
 import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
 import org.junit.Test
 
-class DigaMainScreenDetailTest(config: ScreenshotConfig) : BaseScreenshotTest(config) {
+class DigaMainScreenDetailTest(config: ScreenshotConfig) : BaseScreenshotTest(
+    config = object : ScreenshotConfig {
+        override val deviceConfig = config.deviceConfig.copy(screenHeight = 5000)
+        override val theme = config.theme
+    }
+) {
+
     @Test
     fun screenShotTest() {
         val testParameters = DigaDetailPreviewParameterProvider().values.toList()
@@ -41,7 +47,12 @@ class DigaMainScreenDetailTest(config: ScreenshotConfig) : BaseScreenshotTest(co
     }
 }
 
-class DigaMainScreenDetailAccessibilityTest(config: ScreenshotConfig) : BaseAccessibilityTest(config) {
+class DigaMainScreenDetailAccessibilityTest(config: ScreenshotConfig) : BaseAccessibilityTest(
+    config = object : ScreenshotConfig {
+        override val deviceConfig = config.deviceConfig.copy(screenHeight = 5000)
+        override val theme = config.theme
+    }
+) {
     @Test
     fun screenShotTest() {
         val testParameters = DigaDetailPreviewParameterProvider().values.toList()

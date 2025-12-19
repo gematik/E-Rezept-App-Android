@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.medicationplan.presentation
 import de.gematik.ti.erp.app.medicationplan.alarm.MedicationPlanNotificationScheduler
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 import de.gematik.ti.erp.app.medicationplan.usecase.GetMedicationScheduleByTaskIdUseCase
-import de.gematik.ti.erp.app.medicationplan.usecase.ScheduleMedicationScheduleUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.CheckAndScheduleMedicationScheduleUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleDurationUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleIntervalUseCase
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
@@ -43,7 +43,6 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Instant
-import kotlinx.datetime.plus
 import org.junit.After
 import org.junit.Before
 
@@ -61,7 +60,7 @@ class MedicationPlanScheduleDurationAndIntervalScreenDurationAndIntervalScreenCo
     private lateinit var getMedicationScheduleByTaskIdUseCase: GetMedicationScheduleByTaskIdUseCase
     private lateinit var setMedicationScheduleIntervalUseCase: SetMedicationScheduleIntervalUseCase
     private lateinit var setMedicationScheduleDurationUseCase: SetMedicationScheduleDurationUseCase
-    private lateinit var scheduleMedicationScheduleUseCase: ScheduleMedicationScheduleUseCase
+    private lateinit var checkAndScheduleMedicationScheduleUseCase: CheckAndScheduleMedicationScheduleUseCase
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
@@ -71,8 +70,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDurationAndIntervalScreenCo
         Dispatchers.setMain(dispatcher)
 
         getActiveProfileUseCase = GetActiveProfileUseCase(profileRepository, dispatcher)
-        scheduleMedicationScheduleUseCase = spyk(
-            ScheduleMedicationScheduleUseCase(medicationPlanNotificationScheduler)
+        checkAndScheduleMedicationScheduleUseCase = spyk(
+            CheckAndScheduleMedicationScheduleUseCase(medicationPlanNotificationScheduler, medicationPlanRepository)
         )
         getMedicationScheduleByTaskIdUseCase = GetMedicationScheduleByTaskIdUseCase(
             medicationPlanRepository
@@ -87,7 +86,7 @@ class MedicationPlanScheduleDurationAndIntervalScreenDurationAndIntervalScreenCo
             getMedicationScheduleByTaskIdUseCase = getMedicationScheduleByTaskIdUseCase,
             setMedicationScheduleIntervalUseCase = setMedicationScheduleIntervalUseCase,
             setMedicationScheduleDurationUseCase = setMedicationScheduleDurationUseCase,
-            scheduleMedicationScheduleUseCase = scheduleMedicationScheduleUseCase,
+            checkAndScheduleMedicationScheduleUseCase = checkAndScheduleMedicationScheduleUseCase,
             taskId = "taskId",
             now = now
         )

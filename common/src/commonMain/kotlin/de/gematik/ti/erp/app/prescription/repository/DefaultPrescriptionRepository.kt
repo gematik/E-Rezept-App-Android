@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.prescription.repository
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.prescription.model.TaskData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -62,6 +63,8 @@ class DefaultPrescriptionRepository(
 
     override fun syncedTasks(profileId: ProfileIdentifier) =
         localDataSource.loadSyncedTasks(profileId)
+
+    override fun getTask(taskId: String): TaskData? = localDataSource.getPrescription(taskId)
 
     override suspend fun redeem(
         profileId: ProfileIdentifier,

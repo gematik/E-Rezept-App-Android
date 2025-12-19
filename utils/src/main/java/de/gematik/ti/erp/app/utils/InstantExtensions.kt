@@ -54,4 +54,7 @@ fun Instant?.toFachdienstTimestampString(): String? = this?.let {
     "gt$truncated"
 }
 
+fun Instant.plusDuration(duration: kotlin.time.Duration): Instant =
+    this + duration
+
 private const val dateFormat = "dd.MM.yyyy"
