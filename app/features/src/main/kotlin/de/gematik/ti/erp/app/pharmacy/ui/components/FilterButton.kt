@@ -57,7 +57,7 @@ internal fun FilterButton(
         Icon(
             icon,
             null,
-            tint = AppTheme.colors.neutral600
+            tint = AppTheme.colors.neutral700
         )
         SpacerMedium()
         Text(

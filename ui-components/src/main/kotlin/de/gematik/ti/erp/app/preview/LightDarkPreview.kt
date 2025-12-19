@@ -61,7 +61,7 @@ annotation class DarkLongPreview
     uiMode = Configuration.UI_MODE_NIGHT_NO,
     showBackground = true
 )
-private annotation class LightPreview
+annotation class LightPreview
 
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,

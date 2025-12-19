@@ -46,5 +46,11 @@
         "text": "**🏛️ Registrace u federálních institucí** \nRegistrace je nyní možná i pro osoby pojištěné u federálních institucí, jako je federální policie. \n \n **🕒 Vylepšená otevírací doba lékáren** \nNyní se zobrazuje pohotovostní služba a zvláštní zavírací doba lékáren, pokud byly uloženy.",
         "timestamp": "2025-11-03T08:00:00.000Z",
         "version": "1.34"
+    },
+    {
+        "id": "10",
+        "text": "**🏡 Návrhy adres** \nUložené adresní údaje se nyní automaticky navrhují při zadávání adresy. \n \n **♿️ Přístupnost** \nByl zvýšen kontrast textu, přepínacích tlačítek, zaškrtávacích políček, chybových zpráv, ikon a vyhledávacích panelů. \nByl vylepšen hlasový výstup prostřednictvím TalkBacku pro zadávání PINu a hesla, zobrazení kódů předpisu a rozpoznávání nadpisů. Odkazy jsou nyní v běžícím textu konzistentně podtržené.",
+        "timestamp": "2025-12-17T08:00:00.000Z",
+        "version": "1.35"
     }
 ]

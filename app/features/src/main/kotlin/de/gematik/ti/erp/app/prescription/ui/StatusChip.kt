@@ -183,7 +183,7 @@ fun PendingStatusChip() =
                 strokeWidth = 2.dp
             )
         },
-        labelColor = AppTheme.colors.neutral600,
+        labelColor = AppTheme.colors.neutral700,
         containerColor = AppTheme.colors.neutral200,
         modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionWaitForResponse)
     )
@@ -214,7 +214,7 @@ fun CompletedStatusChip() =
     GemNonInteractiveAssistChip(
         text = stringResource(R.string.prescription_status_completed),
         trailingIcon = { Icon(Icons.Rounded.DoneAll, null) },
-        labelColor = AppTheme.colors.neutral600,
+        labelColor = AppTheme.colors.neutral700,
         containerColor = AppTheme.colors.neutral200,
         iconColor = AppTheme.colors.neutral500,
         modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionRedeemed)
@@ -225,7 +225,7 @@ fun ProvidedStatusChip() =
     GemNonInteractiveAssistChip(
         text = stringResource(R.string.provided),
         trailingIcon = { Icon(Icons.Rounded.DoneAll, null) },
-        labelColor = AppTheme.colors.neutral600,
+        labelColor = AppTheme.colors.neutral700,
         containerColor = AppTheme.colors.neutral200,
         iconColor = AppTheme.colors.neutral500,
         modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionProvided)
@@ -236,7 +236,7 @@ fun DeletedStatusChip() =
     GemNonInteractiveAssistChip(
         text = stringResource(R.string.prescription_status_deleted),
         trailingIcon = { Icon(Icons.Outlined.Delete, null) },
-        labelColor = AppTheme.colors.neutral600,
+        labelColor = AppTheme.colors.neutral700,
         containerColor = AppTheme.colors.neutral200,
         iconColor = AppTheme.colors.neutral500,
         modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionDeleted)
@@ -247,7 +247,7 @@ fun ExpiredStatusChip() =
     GemNonInteractiveAssistChip(
         text = stringResource(R.string.prescription_status_expired),
         trailingIcon = { Icon(Icons.Rounded.EventBusy, null) },
-        labelColor = AppTheme.colors.neutral600,
+        labelColor = AppTheme.colors.neutral700,
         containerColor = AppTheme.colors.neutral200,
         iconColor = AppTheme.colors.neutral500
     )
@@ -273,7 +273,7 @@ fun NumeratorChip(numerator: String, denominator: String) {
     GemNonInteractiveAssistChip(
         text = text,
         containerColor = AppTheme.colors.neutral200,
-        labelColor = AppTheme.colors.neutral600
+        labelColor = AppTheme.colors.neutral700
     )
 }
 
@@ -281,7 +281,7 @@ fun NumeratorChip(numerator: String, denominator: String) {
 fun UnknownStatusChip() =
     GemNonInteractiveAssistChip(
         text = stringResource(R.string.prescription_status_unknown),
-        labelColor = AppTheme.colors.neutral600,
+        labelColor = AppTheme.colors.neutral700,
         containerColor = AppTheme.colors.neutral100,
         iconColor = AppTheme.colors.neutral500
     )
@@ -295,7 +295,7 @@ fun DirectAssignmentStatusChip(redeemed: Boolean) {
     }
     GemNonInteractiveAssistChip(
         text = text,
-        labelColor = AppTheme.colors.neutral600,
+        labelColor = AppTheme.colors.neutral700,
         containerColor = AppTheme.colors.neutral200,
         iconColor = AppTheme.colors.neutral500
     )
@@ -350,7 +350,7 @@ fun FailureDetailsStatusChip(
 fun SelfPayerPrescriptionChip() =
     GemNonInteractiveAssistChip(
         text = stringResource(R.string.prescription_status_self_pay),
-        labelColor = AppTheme.colors.neutral600,
+        labelColor = AppTheme.colors.neutral700,
         containerColor = AppTheme.colors.neutral100
     )
 
@@ -426,7 +426,7 @@ fun ArchivedChip() =
     DigaStatusChip(
         text = stringResource(R.string.diga_status_archived),
         icon = Icons.Outlined.Archive,
-        labelColor = AppTheme.colors.neutral600,
+        labelColor = AppTheme.colors.neutral700,
         containerColor = AppTheme.colors.neutral200,
         iconColor = AppTheme.colors.neutral500
     )
@@ -436,7 +436,7 @@ fun NotLongerValidChip() =
     DigaStatusChip(
         text = stringResource(R.string.diga_status_not_valid),
         icon = Icons.Outlined.AccessTime,
-        labelColor = AppTheme.colors.neutral600,
+        labelColor = AppTheme.colors.neutral700,
         containerColor = AppTheme.colors.neutral200,
         iconColor = AppTheme.colors.neutral500
     )
@@ -539,7 +539,7 @@ fun AssistChipsPreview() {
             GemAssistChip(
                 text = stringResource(R.string.prescription_status_deleted),
                 trailingIcon = null,
-                labelColor = AppTheme.colors.neutral600,
+                labelColor = AppTheme.colors.neutral700,
                 containerColor = AppTheme.colors.neutral200,
                 iconColor = AppTheme.colors.neutral500,
                 modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionDeleted),
@@ -555,7 +555,7 @@ fun AssistChipsPreview() {
             GemNonInteractiveAssistChip(
                 text = stringResource(R.string.prescription_status_deleted),
                 trailingIcon = null,
-                labelColor = AppTheme.colors.neutral600,
+                labelColor = AppTheme.colors.neutral700,
                 containerColor = AppTheme.colors.neutral200,
                 iconColor = AppTheme.colors.neutral500,
                 modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionDeleted)

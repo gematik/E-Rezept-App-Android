@@ -102,7 +102,7 @@ internal fun PharmacyResultCard(
 
             Text(
                 text = pharmacy.singleLineAddress(),
-                color = AppTheme.colors.neutral600,
+                color = AppTheme.colors.neutral700,
                 style = AppTheme.typography.body2l,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1
@@ -112,7 +112,7 @@ internal fun PharmacyResultCard(
                 Text(
                     stringResource(R.string.search_pharmacy_closed),
                     style = AppTheme.typography.subtitle2l,
-                    color = AppTheme.colors.neutral600
+                    color = AppTheme.colors.neutral700
                 )
             } else {
                 val pharmacyLocalServices =

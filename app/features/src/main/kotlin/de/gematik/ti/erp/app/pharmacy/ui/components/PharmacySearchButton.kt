@@ -25,6 +25,7 @@
 package de.gematik.ti.erp.app.pharmacy.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -42,6 +43,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -55,10 +57,12 @@ internal fun LazyListScope.PharmacySearchButton(
     item {
         val onClickDescription = stringResource(R.string.a11y_pharmacy_start_search_on_click_description)
         val description = stringResource(R.string.pharmacy_search_searchbar)
+
         Row(
             modifier = modifier
-                .clip(RoundedCornerShape(SizeDefaults.double))
-                .background(color = AppTheme.colors.neutral100, shape = RoundedCornerShape(SizeDefaults.double))
+                .clip(RoundedCornerShape(SizeDefaults.twelvefold))
+                .background(color = AppTheme.colors.neutral000, shape = RoundedCornerShape(SizeDefaults.twelvefold))
+                .border(1.dp, AppTheme.colors.neutral600, RoundedCornerShape(SizeDefaults.twelvefold))
                 .clickable(
                     role = Role.Button,
                     onClickLabel = onClickDescription
@@ -70,16 +74,16 @@ internal fun LazyListScope.PharmacySearchButton(
         ) {
             Icon(
                 Icons.Rounded.Search,
-                tint = AppTheme.colors.neutral600,
+                tint = AppTheme.colors.neutral700,
                 contentDescription = null
             )
             SpacerSmall()
             Text(
-                modifier = Modifier.weight(1f).clearAndSetSemantics { contentDescription = description },
+                modifier = Modifier.weight(1f).clearAndSetSemantics { contentDescription = description }.padding(vertical = PaddingDefaults.Tiny),
                 text = stringResource(R.string.pharmacy_start_search_text),
                 overflow = TextOverflow.Ellipsis,
                 style = AppTheme.typography.body1,
-                color = AppTheme.colors.neutral600
+                color = AppTheme.colors.neutral700
             )
         }
     }

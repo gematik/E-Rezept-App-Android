@@ -26,7 +26,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import de.gematik.ti.erp.app.medicationplan.usecase.GetAllMedicationSchedulesUseCase
-import de.gematik.ti.erp.app.medicationplan.usecase.ScheduleMedicationScheduleUseCase
+import de.gematik.ti.erp.app.medicationplan.usecase.CheckAndScheduleMedicationScheduleUseCase
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.firstOrNull
 import org.kodein.di.DIAware
@@ -40,7 +40,7 @@ class MedicationPlanRescheduleAllSchedulesWorker(
 ) : CoroutineWorker(context, params), DIAware {
     override val di by context.subDI(closestDI()) {}
     private val loadAllMedicationSchedulesUseCase by instance<GetAllMedicationSchedulesUseCase>()
-    private val scheduleMedicationScheduleUseCase by instance<ScheduleMedicationScheduleUseCase>()
+    private val scheduleMedicationScheduleUseCase by instance<CheckAndScheduleMedicationScheduleUseCase>()
 
     override suspend fun doWork(): Result = runCatching {
         val schedules = loadAllMedicationSchedulesUseCase.invoke().firstOrNull()

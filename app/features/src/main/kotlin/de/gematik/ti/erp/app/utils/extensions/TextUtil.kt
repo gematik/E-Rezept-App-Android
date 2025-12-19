@@ -46,5 +46,3 @@ fun String.sanitizeProfileName() =
             }
         }
         .joinToString("")
-
-fun String.sanitizeMarkdownText() = this.replace("*", "")

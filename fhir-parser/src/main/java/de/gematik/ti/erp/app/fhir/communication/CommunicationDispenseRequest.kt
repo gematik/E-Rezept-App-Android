@@ -54,7 +54,7 @@ object CommunicationDispenseRequest {
         val request = CommunicationDispenseRequest(
             meta = FhirMeta(
                 profiles = listOf(
-                    "${FhirCommunicationConstants.COMMUNICATION_DISPENSE_WORKFLOW_PROFILE}|${FhirCommunicationVersions.COMMUNICATION_VERSION_1_4}"
+                    "${FhirCommunicationConstants.COMMUNICATION_DISPENSE_WORKFLOW_PROFILE}|${FhirCommunicationVersions.COMMUNICATION_VERSION_1_5}"
                 )
             ),
             identifier = listOf(

@@ -202,5 +202,7 @@ enum class NavigationRouteNames(
     EuPrescriptionSelectionScreen,
     EuAvailabilityScreen,
     EuInstructionsScreen,
-    EuRedemptionCodeScreen
+    EuRedemptionCodeScreen,
+    EuRedeemMessageDetailsScreen,
+    EuDeleteAccessCodeBottomSheetScreen
 }

@@ -74,6 +74,7 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
 import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
@@ -99,7 +100,6 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.EmptyScreenComponent
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
@@ -308,7 +308,11 @@ fun MedicationPlanScheduleDetailScreenScaffold(
                 )
             },
             onError = {
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             },
             onContent = { prescriptionSchedule ->
                 MedicationPlanScheduleDetailScreenContent(
@@ -422,7 +426,7 @@ private fun ThreeDotMenu(
         modifier = Modifier.testTag(TestTag.Profile.ThreeDotMenuButton)
             .semantics { contentDescription = description }
     ) {
-        Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral600)
+        Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral700)
     }
     DropdownMenu(
         expanded = expanded,
@@ -439,7 +443,7 @@ private fun ThreeDotMenu(
         ) {
             Text(
                 text = stringResource(R.string.remove_medication_schedule),
-                color = AppTheme.colors.red600
+                color = AppTheme.colors.red700
             )
         }
     }

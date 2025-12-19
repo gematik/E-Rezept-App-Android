@@ -39,6 +39,7 @@ import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntr
 import de.gematik.ti.erp.app.messages.mapper.CommunicationDatabaseMappers.toDatabaseModel
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.prescription.model.TaskData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import io.realm.kotlin.MutableRealm
 import io.realm.kotlin.Realm
@@ -171,6 +172,18 @@ class PrescriptionLocalDataSource(
                     task.toScannedTask()
                 }
             }
+
+    fun getPrescription(taskId: String): TaskData? {
+        val synced = realm.query<SyncedTaskEntityV1>("taskId == $0", taskId)
+            .first()
+            .find()?.toSyncedTask()
+
+        if (synced != null) return synced
+
+        return realm.query<ScannedTaskEntityV1>("taskId == $0", taskId)
+            .first()
+            .find()?.toScannedTask()
+    }
 
     @Requirement(
         "A_19229-01#2",

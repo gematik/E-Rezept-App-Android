@@ -65,18 +65,6 @@ inline fun <A, R> letNotNullOnCondition(first: A?, condition: () -> Boolean, tra
     }
 }
 
-suspend inline fun <A, R> letWhen(
-    first: A?,
-    condition: () -> Boolean,
-    crossinline transform: suspend (A) -> R
-): R? {
-    return if (first != null && condition()) {
-        transform(first)
-    } else {
-        null
-    }
-}
-
 inline fun <A, B, R> letNotNullOnCondition(
     first: A?,
     second: B?,

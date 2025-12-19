@@ -46,5 +46,11 @@
         "text": "**🏛️ Clárú le haghaidh institiúidí cónaidhme** \nIs féidir clárú anois freisin dóibh siúd atá árachaithe le hinstitiúidí cónaidhme amhail na Póilíní Cónaidhme. \n \n **🕒 Uaireanta oscailte feabhsaithe na gcógaslann** \nTaispeántar seirbhís éigeandála agus amanna dúnta speisialta do chógaslanna anois, má tá siad stóráilte.",
         "timestamp": "2025-11-03T08:00:00.000Z",
         "version": "1.34"
+    },
+    {
+        "id": "10",
+        "text": "**🏡 Moltaí Seolta** \nMoltar sonraí seolta stóráilte go huathoibríoch anois agus seoladh á iontráil. \n \n **♿️ Inrochtaineacht** \nTá méadú tagtha ar an gcodarsnacht le haghaidh téacs, cnaipí scoránaithe, boscaí seiceála, teachtaireachtaí earráide, deilbhíní agus barraí cuardaigh. \nTá feabhas curtha ar an aschur cainte trí TalkBack le haghaidh iontráil PIN agus pasfhocal, taispeáint cóid oidis, agus aitheantas ceannteidil. Tá naisc faoi líne go comhsheasmhach i dtéacs reatha anois.",
+        "timestamp": "2025-12-17T08:00:00.000Z",
+        "version": "1.35"
     }
 ]

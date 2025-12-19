@@ -133,14 +133,14 @@ private fun ScheduleDateRangeCard(
                         Text(
                             text = text,
                             style = AppTheme.typography.body1,
-                            color = AppTheme.colors.neutral600,
+                            color = AppTheme.colors.neutral700,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                         Icon(
                             Icons.Rounded.ChevronRight,
                             contentDescription = null,
-                            tint = AppTheme.colors.neutral600
+                            tint = AppTheme.colors.neutral700
                         )
                     }
                 }
@@ -202,7 +202,7 @@ private fun ScheduleTimeCard(
                             },
                             imageVector = Icons.Filled.DoDisturbOn,
                             contentDescription = null,
-                            tint = AppTheme.colors.red600
+                            tint = AppTheme.colors.red700
                         )
                     },
                     text = {

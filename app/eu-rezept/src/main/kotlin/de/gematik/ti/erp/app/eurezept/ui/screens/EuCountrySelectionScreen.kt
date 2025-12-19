@@ -204,7 +204,7 @@ private fun EuCountrySelectionHeader() {
             text = stringResource(R.string.eu_country_selection_select_country_desc),
             style = AppTheme.typography.body2,
             fontWeight = FontWeight.Medium,
-            color = AppTheme.colors.neutral600
+            color = AppTheme.colors.neutral700
         )
         SpacerMedium()
     }
@@ -339,7 +339,7 @@ fun EuCountrySelectionErrorContent(
             Text(
                 text = stringResource(R.string.eu_country_server_not_responding_message),
                 style = AppTheme.typography.body2,
-                color = AppTheme.colors.neutral600,
+                color = AppTheme.colors.neutral700,
                 textAlign = TextAlign.Center
             )
 
@@ -402,7 +402,7 @@ fun EuCountrySelectionDetectedCountryNotSupportedContent(
             text = stringResource(R.string.eu_country_detected_not_supported_message),
             style = AppTheme.typography.body2,
             textAlign = TextAlign.Center,
-            color = AppTheme.colors.neutral600,
+            color = AppTheme.colors.neutral700,
             modifier = Modifier.fillMaxWidth()
         )
     }

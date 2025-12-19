@@ -35,6 +35,7 @@ import de.gematik.ti.erp.app.idp.repository.IdpLocalDataSource
 import de.gematik.ti.erp.app.idp.repository.IdpPairingRepository
 import de.gematik.ti.erp.app.idp.repository.IdpRemoteDataSource
 import de.gematik.ti.erp.app.profiles.repository.DefaultProfilesRepository
+import de.gematik.ti.erp.app.vau.repository.VauRemoteDataSource
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -83,6 +84,9 @@ class IdpIntegrationTest {
 
     @MockK
     private lateinit var cryptoProvider: IdpCryptoProvider
+
+    @MockK
+    private lateinit var remoteDataSource: VauRemoteDataSource
 
     private val accessTokenDataSource: AccessTokenDataSource = mockk()
 
@@ -148,6 +152,7 @@ class IdpIntegrationTest {
 
         basicUseCase = IdpBasicUseCase(
             repository = idpRepository,
+            remoteDataSource = remoteDataSource,
             truststoreUseCase = truststoreUseCase
         )
 

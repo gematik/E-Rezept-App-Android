@@ -283,7 +283,7 @@ private fun BannerPreview() {
                 title = "The big banner with the warning text",
                 contentColor = AppTheme.colors.red900,
                 containerColor = AppTheme.colors.red100,
-                borderColor = AppTheme.colors.red600
+                borderColor = AppTheme.colors.red700
             )
         }
     }

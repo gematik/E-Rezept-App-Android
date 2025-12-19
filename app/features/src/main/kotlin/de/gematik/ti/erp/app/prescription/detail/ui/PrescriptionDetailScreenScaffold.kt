@@ -186,7 +186,7 @@ private fun PrescriptionDetailsDropdownMenu(
         onClick = { dropdownExpanded = true },
         modifier = Modifier.testTag(TestTag.Prescriptions.Details.MoreButton)
     ) {
-        Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.a11y_prescription_more_option), tint = AppTheme.colors.neutral600)
+        Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.a11y_prescription_more_option), tint = AppTheme.colors.neutral700)
     }
     DropdownMenu(
         expanded = dropdownExpanded,
@@ -221,7 +221,7 @@ private fun PrescriptionDetailsDropdownMenu(
                 text = stringResource(R.string.pres_detail_dropdown_delete),
                 color =
                 if (isDeletable) {
-                    AppTheme.colors.red600
+                    AppTheme.colors.red700
                 } else {
                     AppTheme.colors.neutral400
                 }

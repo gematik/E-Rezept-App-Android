@@ -24,9 +24,11 @@ package de.gematik.ti.erp.app.vau.api
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
-import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Query
+import retrofit2.http.Streaming
 
 @Requirement(
     "O.Purp_8#3",
@@ -34,9 +36,30 @@ import retrofit2.http.GET
     rationale = "Interface of vau service"
 )
 interface VauService {
-    @GET("CertList")
-    suspend fun getCertList(): Response<UntrustedCertList>
 
-    @GET("OCSPList")
-    suspend fun getOcspResponses(): Response<UntrustedOCSPList>
+    @GET("PKICertificates")
+    suspend fun getPkiCertList(
+        @Query("currentRoot") currentRoot: String
+    ): Response<UntrustedCertList>
+
+    @Requirement(
+        "A_21216",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "Client must fetch VAU certificate from /VAUCertificate for TSL-based validation."
+    )
+    @Streaming
+    @GET("VAUCertificate")
+    suspend fun getVauCertList(): Response<ResponseBody>
+
+    @Requirement(
+        "A_21216",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "Client must fetch OCSP response for VAU certificate from /OCSPResponse and use it for validation (TUC_PKI_018)."
+    )
+    @Streaming
+    @GET("OCSPResponse")
+    suspend fun getOcspResponseRaw(
+        @Query("issuer-cn") issuerCn: String,
+        @Query("serial-nr") serialNr: String
+    ): Response<ResponseBody>
 }

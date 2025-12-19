@@ -63,7 +63,7 @@ import androidx.paging.compose.itemKey
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
-import de.gematik.ti.erp.app.base.ClipBoardCopy.copyToClipboardWithHaptic
+import de.gematik.ti.erp.app.core.ClipBoardCopy.copyToClipboardWithHaptic
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.fhir.audit.model.FhirAuditEventErpModel

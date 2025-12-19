@@ -58,8 +58,8 @@ data class MedicationSchedule(
 ) {
     fun shouldBeScheduled(localDateNow: LocalDate): Boolean =
         this.isActive &&
-                this.duration.endDate >= localDateNow &&
-                this.notifications.isNotEmpty()
+            this.duration.endDate >= localDateNow &&
+            this.notifications.isNotEmpty()
 
     fun calculateEndOfPack(
         currentDateTime: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -131,11 +131,11 @@ data class MedicationSchedule(
         val firstNotificationOfADayOffsetInMilliSeconds =
             sortedNotification.first().toMillisecondOfDay().toLong()
         val timeTillEndOfDayOffsetInMilliSeconds = 1.days.inWholeMilliseconds -
-                currentTime.toMillisecondOfDay().toLong()
+            currentTime.toMillisecondOfDay().toLong()
 
         val calculatedOffSetInMilliseconds = if (this.duration.startDate > currentDate) {
             val startDateOffsetInMilliSeconds = this.duration.startDate.atStartOfDayIn(timeZone).toEpochMilliseconds() -
-                    currentDate.atStartOfDayIn(timeZone).toEpochMilliseconds()
+                currentDate.atStartOfDayIn(timeZone).toEpochMilliseconds()
             timeTillEndOfDayOffsetInMilliSeconds + startDateOffsetInMilliSeconds + firstNotificationOfADayOffsetInMilliSeconds
         } else {
             val nextNotificationOfADayOffsetInMilliSeconds = sortedNotification.firstOrNull { it > currentTime }?.toMillisecondOfDay()?.toLong()

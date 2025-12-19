@@ -69,6 +69,9 @@ object SizeDefaults {
     /** `16dp` in design specification. */
     val double: Dp get() = multiple(2.0)
 
+    /** `18dp` in design specification. */
+    val doubleQuarter: Dp get() = multiple(2.25)
+
     /** `20dp` in design specification. */
     val doubleHalf: Dp get() = multiple(2.5)
 
@@ -152,6 +155,9 @@ object SizeDefaults {
 
     /** `235dp` in design specification. */
     val twoThirtyFiveDp: Dp get() = multiple(29.375)
+
+    /** `280dp` in design specification. */
+    val thirtyfivefold: Dp get() = multiple(35.0)
 
     /** `304dp` in design specification. */
     val thirtyEightfold: Dp get() = multiple(38.0)

@@ -196,7 +196,7 @@ private fun InsuranceSearchSection(
             Text(
                 text = stringResource(R.string.diga_select_insurance_for_diga_discription),
                 style = AppTheme.typography.body2,
-                color = AppTheme.colors.neutral600,
+                color = AppTheme.colors.neutral700,
                 modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
             )
             SpacerMedium()

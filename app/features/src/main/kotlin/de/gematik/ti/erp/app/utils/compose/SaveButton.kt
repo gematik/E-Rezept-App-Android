@@ -23,7 +23,6 @@
 package de.gematik.ti.erp.app.utils.compose
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -37,7 +36,6 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.theme.SizeDefaults
 
 @Composable
 fun SaveButton(
@@ -52,9 +50,7 @@ fun SaveButton(
     ) {
         Button(
             modifier = modifier
-                .fillMaxWidth()
-                .padding(horizontal = SizeDefaults.tenfold)
-                .padding(vertical = PaddingDefaults.XXLargeMedium)
+                .padding(PaddingDefaults.Medium)
                 .imePadding()
                 .testTag(TestTag.Profile.EditProfileIcon.EmojiSaveButton),
             colors = erezeptButtonColors(),

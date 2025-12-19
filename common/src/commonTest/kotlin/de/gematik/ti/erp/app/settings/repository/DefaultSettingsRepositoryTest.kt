@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.settings.repository
 
+import com.russhwolf.settings.MapSettings
 import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.database.realm.utils.queryFirst
 import de.gematik.ti.erp.app.database.realm.v1.AddressEntityV1
@@ -32,6 +33,7 @@ import de.gematik.ti.erp.app.database.realm.v1.PharmacySearchEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.ShippingContactEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.migrations.SchemaVersion
+import de.gematik.ti.erp.app.database.settings.SettingsLocalDataSource
 import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import io.realm.kotlin.Realm
@@ -53,8 +55,8 @@ class DefaultSettingsRepositoryTest : TestDB() {
     val coroutineRule = CoroutineTestRule()
 
     lateinit var realm: Realm
-
     private lateinit var repo: DefaultSettingsRepository
+    private lateinit var settingsLocalDataSource: SettingsLocalDataSource
 
     @Before
     fun setUp() {
@@ -80,9 +82,12 @@ class DefaultSettingsRepositoryTest : TestDB() {
             }
         }
 
+        settingsLocalDataSource = SettingsLocalDataSource(MapSettings())
+
         repo = DefaultSettingsRepository(
             dispatchers = StandardTestDispatcher(),
-            realm = realm
+            realm = realm,
+            settingsLocalDataSource = settingsLocalDataSource
         )
     }
 
@@ -90,26 +95,48 @@ class DefaultSettingsRepositoryTest : TestDB() {
     fun `general settings`() = runTest {
         repo.general.first().also {
             assertEquals(false, it.zoomEnabled)
-            assertEquals(false, it.mlKitAccepted)
+            assertEquals(false, it.welcomeDrawerShown)
             assertEquals(false, it.userHasAcceptedInsecureDevice)
+            assertEquals(false, it.userHasAcceptedIntegrityNotOk)
+            assertEquals(false, it.mlKitAccepted)
+            assertEquals(false, it.screenShotsAllowed)
+            assertEquals(false, it.trackingAllowed)
         }
-
-        repo.acceptInsecureDevice()
-
-        repo.acceptUpdatedDataTerms(Instant.fromEpochSeconds(123456))
 
         repo.saveZoomPreference(true)
+        repo.saveWelcomeDrawerShown()
+        repo.acceptInsecureDevice()
+        repo.acceptIntegrityNotOk()
         repo.acceptMlKit()
+        repo.saveAllowScreenshots(true)
+        repo.saveAllowTracking(true)
+
+        val testTimestamp = Instant.fromEpochSeconds(123456)
+        repo.acceptUpdatedDataTerms(testTimestamp)
 
         repo.general.first().also {
             assertEquals(true, it.zoomEnabled)
-            assertEquals(true, it.mlKitAccepted)
+            assertEquals(true, it.welcomeDrawerShown)
             assertEquals(true, it.userHasAcceptedInsecureDevice)
+            assertEquals(true, it.userHasAcceptedIntegrityNotOk)
+            assertEquals(true, it.mlKitAccepted)
+            assertEquals(true, it.screenShotsAllowed)
+            assertEquals(true, it.trackingAllowed)
         }
 
+        settingsLocalDataSource.dataProtectionVersionAccepted.first().also {
+            assertEquals(testTimestamp, it)
+        }
+
+        repo.saveZoomPreference(false)
+        repo.saveAllowScreenshots(false)
+        repo.saveAllowTracking(false)
         repo.general.first().also {
-            assertEquals(true, it.zoomEnabled)
-            assertEquals(true, it.userHasAcceptedInsecureDevice)
+            assertEquals(false, it.zoomEnabled)
+            assertEquals(true, it.welcomeDrawerShown)
+            assertEquals(false, it.screenShotsAllowed)
+            assertEquals(false, it.trackingAllowed)
+            assertEquals(true, it.mlKitAccepted)
         }
     }
 
@@ -151,7 +178,6 @@ class DefaultSettingsRepositoryTest : TestDB() {
         }
 
         repo.enableDeviceSecurity()
-
         repo.authentication.first().also {
             assertTrue {
                 it.methodIsDeviceSecurity
@@ -160,11 +186,11 @@ class DefaultSettingsRepositoryTest : TestDB() {
 
         repo.disableDeviceSecurity()
         repo.setPassword(SettingsData.Authentication.Password("password"))
-
         repo.authentication.first().also {
             assertTrue {
                 it.methodIsPassword
             }
+
             it.password?.let { password ->
                 assertEquals(false, password.isValid("Test123456"))
                 assertEquals(true, password.isValid("password"))
@@ -175,19 +201,18 @@ class DefaultSettingsRepositoryTest : TestDB() {
     @Test
     fun `authentication mode set to both`() = runTest {
         repo.setPassword(SettingsData.Authentication.Password("password"))
-
         realm.queryFirst<AuthenticationPasswordEntityV1>()!!.also {
             assertEquals(true, it.hash.isNotEmpty())
             assertEquals(true, it.salt.isNotEmpty())
         }
 
         repo.enableDeviceSecurity()
-
         repo.authentication.first().also {
             assertTrue {
                 it.bothMethodsAvailable
             }
         }
+
         realm.queryFirst<AuthenticationPasswordEntityV1>()!!.also {
             assertEquals(true, it.hash.isNotEmpty())
             assertEquals(true, it.salt.isNotEmpty())
@@ -202,13 +227,11 @@ class DefaultSettingsRepositoryTest : TestDB() {
 
         repo.incrementNumberOfAuthenticationFailures()
         repo.incrementNumberOfAuthenticationFailures()
-
         repo.authentication.first().also {
             assertEquals(2, it.failedAuthenticationAttempts)
         }
 
         repo.resetNumberOfAuthenticationFailures()
-
         repo.authentication.first().also {
             assertEquals(0, it.failedAuthenticationAttempts)
         }

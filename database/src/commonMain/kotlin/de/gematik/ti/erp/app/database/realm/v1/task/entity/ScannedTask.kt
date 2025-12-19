@@ -30,7 +30,7 @@ import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
 
-class ScannedTaskEntityV1 : RealmObject, Cascading {
+class ScannedTaskEntityV1 : TaskEntity, RealmObject, Cascading {
     var taskId: String = ""
     var accessCode: String = ""
     var name: String? = ""

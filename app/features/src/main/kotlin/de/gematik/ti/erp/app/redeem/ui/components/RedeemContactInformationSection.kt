@@ -66,7 +66,7 @@ internal fun RedeemContactInformationSection(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                tint = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral600,
+                tint = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral700,
                 contentDescription = null
             )
         }
@@ -79,7 +79,7 @@ internal fun RedeemContactMissingSection(isError: Boolean) {
         Text(
             text = stringResource(R.string.pharmacy_order_no_contacts),
             style = AppTheme.typography.subtitle1,
-            color = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral600
+            color = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral700
         )
         Spacer(modifier = Modifier.weight(0.5f))
         Box(
@@ -88,7 +88,7 @@ internal fun RedeemContactMissingSection(isError: Boolean) {
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                tint = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral600,
+                tint = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral700,
                 contentDescription = null
             )
         }
@@ -102,7 +102,7 @@ private fun ContactDetails(
     selectedOrderOption: PharmacyScreenData.OrderOption?,
     isError: Boolean = false
 ) {
-    val textColor = if (isError) AppTheme.colors.red600 else AppTheme.colors.neutral900
+    val textColor = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral900
     val title = when (selectedOrderOption) {
         null -> ""
         PharmacyScreenData.OrderOption.Pickup -> stringResource(R.string.pharmacy_order_contact_ordertype_pickup_subtitle)
@@ -115,7 +115,7 @@ private fun ContactDetails(
             Text(
                 text = title,
                 style = AppTheme.typography.caption1,
-                color = if (isError) AppTheme.colors.red600 else AppTheme.colors.neutral600
+                color = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral700
             )
         }
         // Name
@@ -163,7 +163,7 @@ private fun ContactDetails(
             Text(
                 text = contact.deliveryInformation,
                 style = AppTheme.typography.caption1,
-                color = AppTheme.colors.neutral600
+                color = AppTheme.colors.neutral700
             )
         }
     }

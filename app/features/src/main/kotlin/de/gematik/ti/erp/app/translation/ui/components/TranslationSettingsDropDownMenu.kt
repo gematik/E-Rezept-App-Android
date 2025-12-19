@@ -58,7 +58,7 @@ internal fun TranslationSettingsDropDownMenu(onClick: () -> Unit) {
             .testTag(TestTag.Prescriptions.Details.MoreButton)
             .semantics { contentDescription = description }
     ) {
-        Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral600)
+        Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral700)
     }
     DropdownMenu(
         expanded = isMenuExpanded,

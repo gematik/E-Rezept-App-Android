@@ -24,7 +24,6 @@ package de.gematik.ti.erp.app.eurezept.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,13 +49,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -80,6 +81,7 @@ import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.utils.ClickableText
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
@@ -112,7 +114,7 @@ internal class EuInstructionsScreen(
         fun generateEuAccessCode() {
             graphController.generateEuAccessCode(
                 onSuccessfulCodeGeneration = {
-                    navController.navigate(EuRoutes.EuRedemptionCodeScreen.route)
+                    navController.navigate(EuRoutes.EuRedemptionCodeScreen.path(""))
                 },
                 onFailure = { error ->
                     snackbarHostState.showWithDismissButton(
@@ -205,6 +207,7 @@ fun EuInstructionsContent(
     onWebsiteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val onClickDescription = stringResource(R.string.a11y_eu_instructions_open_in_browser)
     val instructionSteps = listOf(
         InstructionStep(
             stepNumber = 1,
@@ -251,35 +254,23 @@ fun EuInstructionsContent(
 
                 SpacerTiny()
 
-                val websiteLinkText = buildAnnotatedString {
-                    append(stringResource(R.string.eu_instructions_website_info_start))
-
-                    pushStringAnnotation(tag = "website_link", annotation = "website")
-                    withStyle(
-                        style = SpanStyle(
-                            color = AppTheme.colors.primary700,
-                            textDecoration = TextDecoration.Underline,
-                            fontSize = AppTheme.typography.body2.fontSize
-                        )
-                    ) {
-                        append(stringResource(R.string.eu_instructions_website_link_text))
-                    }
-                    pop()
-
-                    append(stringResource(R.string.eu_instructions_website_info_end))
-                }
-
-                Text(
-                    text = websiteLinkText,
-                    style = MaterialTheme.typography.body2,
+                ClickableText(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable(
-                            onClickLabel = stringResource(R.string.a11y_eu_instructions_open_in_browser)
-                        ) { onWebsiteClick() },
-                    color = AppTheme.colors.neutral600
+                        .semantics {
+                            this.contentDescription = onClickDescription
+                            this.role = Role.Button
+                            onClick {
+                                onWebsiteClick()
+                                true
+                            }
+                        },
+                    leadingText = stringResource(R.string.eu_instructions_website_info_start).substringBefore("%s"),
+                    textStyle = AppTheme.typography.body2.copy(AppTheme.colors.neutral700),
+                    onClick = onWebsiteClick,
+                    linkText = stringResource(R.string.eu_instructions_website_link_text),
+                    trailingText = stringResource(R.string.eu_instructions_website_info_end)
                 )
-
                 SpacerLarge()
             }
         }
@@ -326,7 +317,7 @@ internal fun InstructionStepItem(
             Text(
                 text = fullText,
                 style = MaterialTheme.typography.body2,
-                color = AppTheme.colors.neutral600,
+                color = AppTheme.colors.neutral700,
                 modifier = Modifier.semantics {
                     contentDescription = "${step.title} $flagAccessibilityText \"${step.phraseText}\""
                 }
@@ -335,7 +326,7 @@ internal fun InstructionStepItem(
             Text(
                 text = step.title,
                 style = MaterialTheme.typography.body2,
-                color = AppTheme.colors.neutral600
+                color = AppTheme.colors.neutral700
             )
         }
     }
@@ -370,7 +361,7 @@ fun InstructionsBottomBar(
                 backgroundColor = AppTheme.colors.primary700,
                 contentColor = AppTheme.colors.neutral000,
                 disabledBackgroundColor = AppTheme.colors.neutral300,
-                disabledContentColor = AppTheme.colors.neutral600
+                disabledContentColor = AppTheme.colors.neutral700
             )
         ) {
             Text(
@@ -386,7 +377,7 @@ fun InstructionsBottomBar(
             text = stringResource(R.string.eu_instructions_code_validity_info),
             style = MaterialTheme.typography.caption,
             textAlign = TextAlign.Center,
-            color = AppTheme.colors.neutral600,
+            color = AppTheme.colors.neutral700,
             modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
         )
 

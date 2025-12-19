@@ -36,8 +36,10 @@ fun DataMatrixCode(
     code: DMCode
 ) {
     val matrix = remember(code) { createBitMatrix(code.payload) }
-
-    DataMatrix(modifier, matrix, code.name)
+    DataMatrix(
+        modifier = modifier,
+        matrix = matrix
+    )
 }
 
 @LightDarkPreview

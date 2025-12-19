@@ -184,7 +184,7 @@ private fun LazyListScope.dataProtectionAndTermsOfUseOverviewScreenContent(
             text = stringResource(R.string.onboarding_data_and_terms_use_use_text),
             style = AppTheme.typography.body1,
             textAlign = TextAlign.Start,
-            color = AppTheme.colors.neutral600
+            color = AppTheme.colors.neutral700
         )
         SpacerLarge()
     }

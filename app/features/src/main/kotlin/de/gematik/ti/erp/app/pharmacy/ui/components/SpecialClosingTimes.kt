@@ -25,12 +25,14 @@ package de.gematik.ti.erp.app.pharmacy.ui.components
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.sp
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodMetadata
 import de.gematik.ti.erp.app.fhir.pharmacy.model.sortedByPeriodStart
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
@@ -51,7 +53,10 @@ internal fun SpecialClosingTimes(
         return
     }
 
-    ErezeptText.Title(text = stringResource(id = R.string.pharm_detail_special_closing_times))
+    ErezeptText.Title(
+        text = stringResource(id = R.string.pharm_detail_special_closing_times),
+        modifier = Modifier.semanticsHeading()
+    )
     SpacerSmall()
 
     upcomingOrActive.forEachIndexed { index, specialClosingTime ->
@@ -69,7 +74,7 @@ private fun SpecialClosingTime(
     if (!specialClosingTime.isInPast) {
         val currentColor = when {
             specialClosingTime.isActive -> AppTheme.colors.green700
-            else -> AppTheme.colors.neutral600
+            else -> AppTheme.colors.neutral700
         }
 
         letNotNull(

@@ -42,7 +42,7 @@ object FhirVersions {
      * - Adding Meta profile version 1.5 (https://simplifier.net/packages/de.gematik.erezept-workflow.r4/1.5.0-rc1/~introduction)
      */
     // TODO: Remove versions 1.2, 1.3 after 15 Jul 2025
-    private val SUPPORTED_TASK_VERSIONS = listOf("1.2", "1.3", "1.4", "1.5")
+    private val SUPPORTED_TASK_VERSIONS = listOf("1.2", "1.3", "1.4", "1.5", "1.6")
 
     /**
      * **Supported KBV Bundle Versions**
@@ -100,7 +100,8 @@ object FhirVersions {
         V_1_2("1.2"),
         V_1_3("1.3"),
         V_1_4("1.4"),
-        V_1_5("1.5")
+        V_1_5("1.5"),
+        V_1_6("1.6")
     }
 
     val SUPPORTED_TASK_ENTRY_PROFILE_VERSIONS = SupportedFhirTaskEntryProfileVersions.entries.map { it.version }

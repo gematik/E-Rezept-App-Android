@@ -49,6 +49,7 @@ import de.gematik.ti.erp.app.database.realm.v1.TruststoreEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.debugsettings.DebugSettingsEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.euredeem.EuAccessCodeEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.euredeem.EuOrderEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.euredeem.EuTaskEventLogEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.ChargeableItemV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.PKVInvoiceEntityV1
@@ -151,10 +152,12 @@ fun appSchemas(profileName: String): Set<AppRealmSchema> {
                 // support for digas
                 DeviceRequestEntityV1::class,
                 DeviceRequestDispenseEntityV1::class,
+                // support for euredeem
                 EuAccessCodeEntityV1::class,
-                EuOrderEntityV1::class
+                EuOrderEntityV1::class,
+                EuTaskEventLogEntityV1::class
             ),
-            migrateOrInitialize = { migrationStartedFrom ->
+            migrateData = { migrationStartedFrom ->
                 queryFirst<SettingsEntityV1>() ?: run {
                     copyToRealm(
                         SettingsEntityV1()
@@ -385,7 +388,8 @@ fun appSchemas(profileName: String): Set<AppRealmSchema> {
                         medicationDispense.address = null
                     }
                 }
-            }
+            },
+            migrateSchema = { _, _, _ -> }
         )
     )
 }

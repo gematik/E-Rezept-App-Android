@@ -30,6 +30,7 @@ import de.gematik.ti.erp.app.demomode.model.toDemoModeProfileLinkedCommunication
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData.ScannedTask
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask
+import de.gematik.ti.erp.app.prescription.model.TaskData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
@@ -208,4 +209,11 @@ class DemoPrescriptionsRepository(
     }
 
     override fun loadAllTaskIds(profileId: ProfileIdentifier): Flow<List<String>> = loadTaskIds()
+
+    override fun getTask(taskId: String): TaskData? {
+        val synced = dataSource.syncedTasks.value.find { it.taskId == taskId }
+        if (synced != null) return synced
+        val scanned = dataSource.scannedTasks.value.find { it.taskId == taskId }
+        return scanned
+    }
 }

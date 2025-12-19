@@ -22,9 +22,12 @@
 
 package de.gematik.ti.erp.app.eurezept.di
 
+import de.gematik.ti.erp.app.eurezept.domain.usecase.DeleteEuAccessCodeUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GenerateEuAccessCodeUseCase
+import de.gematik.ti.erp.app.eurezept.domain.usecase.GenerateEuQrCodeUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetAllEuCountriesUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetCountryLocaleRedemptionCodeUseCase
+import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuAccessCodeUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuPrescriptionConsentUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuPrescriptionsUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetPrescriptionPhrasesUseCase
@@ -58,6 +61,7 @@ val euModule = DI.Module("euModule", allowSilentOverride = true) {
         )
     }
     bindProvider { GenerateEuAccessCodeUseCase(instance(), instance()) }
+    bindProvider { GenerateEuQrCodeUseCase(instance()) }
     bindProvider { EuTaskRemoteDataSource(instance()) }
     bindProvider { EuTaskLocalDataSource(instance()) }
     bindProvider { GetEuPrescriptionConsentUseCase(instance()) }
@@ -70,6 +74,8 @@ val euModule = DI.Module("euModule", allowSilentOverride = true) {
     bindProvider { QrCodeGenerator() }
     bindProvider { GetPrescriptionPhrasesUseCase(instance()) }
     bindProvider { GetCountryLocaleRedemptionCodeUseCase(instance()) }
+    bindProvider { GetEuAccessCodeUseCase(instance()) }
+    bindProvider { DeleteEuAccessCodeUseCase(instance()) }
     bindProvider { EuRedeemAccessCodeResponseParser() }
 
     bindProvider<GetSupportedCountriesFromXmlUseCase> {

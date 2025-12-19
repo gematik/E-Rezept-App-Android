@@ -22,17 +22,18 @@
 
 package de.gematik.ti.erp.app.utils.compose
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
+import androidx.compose.material.IconToggleButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Visibility
-import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Visibility
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,6 +50,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalAutofill
 import androidx.compose.ui.platform.LocalAutofillTree
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
@@ -144,19 +146,31 @@ fun PasswordTextField(
                         stringResource(R.string.consistent_password)
                     )
                 } else if (allowVisiblePassword) {
-                    IconButton(
-                        onClick = { passwordVisible = !passwordVisible }
+                    IconToggleButton(
+                        modifier = Modifier.clickable(
+                            onClick = {},
+                            role = Role.Button,
+                            onClickLabel = if (passwordVisible) {
+                                stringResource(R.string.a11y_password_input_show_password_description_onClick_on)
+                            } else {
+                                stringResource(R.string.a11y_password_input_show_password_description_onClick_off)
+                            }
+                        ),
+                        checked = passwordVisible,
+                        onCheckedChange = { passwordVisible = !passwordVisible }
                     ) {
-                        when (passwordVisible) {
-                            true -> Icon(
-                                Icons.Outlined.Visibility,
-                                stringResource(R.string.settings_password_show_password_toggle)
-                            )
-                            false -> Icon(
-                                Icons.Outlined.VisibilityOff,
-                                stringResource(R.string.settings_password_show_password_toggle)
-                            )
-                        }
+                        Icon(
+                            if (passwordVisible) {
+                                Icons.Rounded.Visibility
+                            } else {
+                                Icons.Rounded.VisibilityOff
+                            },
+                            contentDescription = if (passwordVisible) {
+                                stringResource(R.string.a11y_password_input_show_password_description_on)
+                            } else {
+                                stringResource(R.string.a11y_password_input_show_password_description_off)
+                            }
+                        )
                     }
                 }
             },

@@ -1,3 +1,26 @@
+# Release 1.35.0
+
+### fixed (2 changes)
+
+- Fixed google map opening issues on non-google devices
+- Fixed medication reminder freeze issue
+
+### ⚡ enhancements (3 changes):
+
+- EU Prescription Integration:
+    - Add debug flag to enable/disable EU workflow
+    - Added EU-messages
+    - Eu workflow can be tested in demo mode
+
+### improvements (3 change)
+
+- Adjusted medication reminder behavior (End-of-Pack not auto-applied)
+- Updated communication module to FHIR v1.5
+- Add support for FHIR version 1.6 on task bundles
+- Accessibility improvements
+
+---
+
 # Release 1.34.0
 
 ### fixed (3 changes)
@@ -37,7 +60,7 @@
 ### ⚡ enhancements (3 changes):
 
 - show security warnings for Android <= 12
-- new fhir parsing mechanism 
+- new fhir parsing mechanism
 - support for newer fhir versions
 
 ### ✨ features (1 change):

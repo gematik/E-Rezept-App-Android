@@ -69,13 +69,12 @@ fun VideoContent(
         mutableFloatStateOf(aspectRatioOverwrite ?: 0f)
     }
     var isSurfaceValid by remember { mutableStateOf(false) }
-
     // Maintain player outside SurfaceHolder.Callback
     val player = remember(source) {
         MediaPlayer().apply {
             setDataSource(context.resources.openRawResourceFd(source))
             setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING)
-            isLooping = true
+            isLooping = false
         }
     }
 

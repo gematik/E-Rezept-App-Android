@@ -46,5 +46,11 @@
         "text": "**🏛️ Rejestracja w instytucjach federalnych** \nRejestracja jest teraz możliwa również dla osób ubezpieczonych w instytucjach federalnych, takich jak Policja Federalna. \n \n **🕒 Ulepszone godziny otwarcia aptek** \nTeraz wyświetlane są godziny dyżurów i specjalne godziny zamknięcia aptek, jeśli zostały zapisane.",
         "timestamp": "2025-11-03T08:00:00.000Z",
         "version": "1.34"
+    },
+    {
+        "id": "10",
+        "text": "**🏡 Sugestie adresów** \nZapisane dane adresowe są teraz automatycznie podpowiadane podczas wprowadzania adresu. \n \n **♿️ Ułatwienia dostępu** \nZwiększono kontrast tekstu, przycisków przełączających, pól wyboru, komunikatów o błędach, ikon i pasków wyszukiwania. \nUlepszono odczytywanie mowy w TalkBack podczas wprowadzania kodu PIN i hasła, wyświetlania kodów recept oraz rozpoznawania nagłówków. Linki są teraz konsekwentnie podkreślane w tekście.",
+        "timestamp": "2025-12-17T08:00:00.000Z",
+        "version": "1.35"
     }
 ]

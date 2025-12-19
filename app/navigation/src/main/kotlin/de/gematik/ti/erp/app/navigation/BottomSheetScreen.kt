@@ -93,7 +93,7 @@ private fun Content(
         dragHandle = {
             when {
                 withCloseButton -> DragHandleWithCloseButton { navController.navigateUp() }
-                else -> DragHandle(color = AppTheme.colors.neutral600)
+                else -> DragHandle(color = AppTheme.colors.neutral700)
             }
         }
     ) {

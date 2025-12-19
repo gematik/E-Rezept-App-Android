@@ -107,7 +107,7 @@ internal fun EuRedemptionQrCodeCard(
                     } ?: Text(
                         text = stringResource(R.string.eu_redemption_qr_code_generating),
                         style = AppTheme.typography.body1,
-                        color = AppTheme.colors.neutral600
+                        color = AppTheme.colors.neutral700
                     )
                 }
 

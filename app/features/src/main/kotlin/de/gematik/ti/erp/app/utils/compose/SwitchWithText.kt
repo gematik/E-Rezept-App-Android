@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import de.gematik.ti.erp.app.material3.components.switchs.GemSwitch
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerSmall
@@ -66,7 +67,7 @@ fun SwitchLeftWithText(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
     ) {
-        Switch(
+        GemSwitch(
             checked = checked,
             onCheckedChange = onCheckedChange,
             interactionSource = interactionSource
@@ -110,7 +111,7 @@ fun SwitchRightWithText(
             style = AppTheme.typography.body1,
             text = text
         )
-        Switch(
+        GemSwitch(
             checked = checked,
             onCheckedChange = null,
             enabled = enabled

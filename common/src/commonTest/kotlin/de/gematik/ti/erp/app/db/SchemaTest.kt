@@ -64,35 +64,35 @@ class SchemaTest : TestDB() {
             AppRealmSchema(
                 version = 0,
                 classes = setOf(RealmA_V1::class),
-                migrateOrInitialize = { migrationStartedFrom ->
+                migrateData = { migrationStartedFrom ->
                     assertEquals(-1, migrationStartedFrom)
                 }
             ),
             AppRealmSchema(
                 version = 1,
                 classes = setOf(RealmA_V1::class),
-                migrateOrInitialize = { migrationStartedFrom ->
+                migrateData = { migrationStartedFrom ->
                     assertEquals(-1, migrationStartedFrom)
                 }
             ),
             AppRealmSchema(
                 version = 2,
                 classes = setOf(RealmA_V1::class),
-                migrateOrInitialize = { migrationStartedFrom ->
+                migrateData = { migrationStartedFrom ->
                     assertEquals(-1, migrationStartedFrom)
                 }
             ),
             AppRealmSchema(
                 version = 3,
                 classes = setOf(RealmA_V1::class, RealmB_V1::class),
-                migrateOrInitialize = { migrationStartedFrom ->
+                migrateData = { migrationStartedFrom ->
                     assertEquals(-1, migrationStartedFrom)
                 }
             ),
             AppRealmSchema(
                 version = 4,
                 classes = setOf(RealmA_V1::class, RealmB_V1::class, RealmA_V2::class),
-                migrateOrInitialize = { migrationStartedFrom ->
+                migrateData = { migrationStartedFrom ->
                     assertEquals(-1, migrationStartedFrom)
                 }
             )
@@ -142,20 +142,20 @@ class SchemaTest : TestDB() {
             AppRealmSchema(
                 version = 0,
                 classes = setOf(RealmA_V1::class),
-                migrateOrInitialize = {
+                migrateData = {
                 }
             ),
             AppRealmSchema(
                 version = 1,
                 classes = setOf(RealmA_V1::class),
-                migrateOrInitialize = { migrationStartedFrom ->
+                migrateData = { migrationStartedFrom ->
                     assertEquals(0, migrationStartedFrom)
                 }
             ),
             AppRealmSchema(
                 version = 2,
                 classes = setOf(RealmA_V1::class, RealmA_V2::class),
-                migrateOrInitialize = { migrationStartedFrom ->
+                migrateData = { migrationStartedFrom ->
                     assertEquals(0, migrationStartedFrom)
 
                     val v1 = query<RealmA_V1>().first().find()
@@ -178,7 +178,7 @@ class SchemaTest : TestDB() {
             AppRealmSchema(
                 version = 3,
                 classes = setOf(RealmA_V1::class, RealmA_V2::class),
-                migrateOrInitialize = { migrationStartedFrom ->
+                migrateData = { migrationStartedFrom ->
                     assertEquals(0, migrationStartedFrom)
                     assertEquals(null, query<RealmA_V1>().first().find())
                 }
@@ -186,7 +186,7 @@ class SchemaTest : TestDB() {
             AppRealmSchema(
                 version = 4,
                 classes = setOf(RealmA_V1::class, RealmA_V2::class, RealmA_V3::class),
-                migrateOrInitialize = { migrationStartedFrom ->
+                migrateData = { migrationStartedFrom ->
                     assertEquals(0, migrationStartedFrom)
 
                     val v2 = query<RealmA_V2>().first().find()

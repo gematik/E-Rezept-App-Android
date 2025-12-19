@@ -92,8 +92,8 @@ object SyncedTaskData {
     }
 
     data class SyncedTask(
-        val profileId: String,
-        val taskId: String,
+        override val profileId: String,
+        override val taskId: String,
         val accessCode: String,
         val lastModified: Instant,
         val isEuRedeemable: Boolean,
@@ -115,7 +115,7 @@ object SyncedTaskData {
         val lastMedicationDispense: Instant?,
         val deviceRequest: FhirTaskKbvDeviceRequestErpModel? = null,
         val communications: List<Communication> = emptyList()
-    ) {
+    ) : TaskData {
         @Serializable(with = TaskStateSyncedTaskDataSerializer::class)
         sealed interface TaskState {
             val type: TaskStateSerializationType
@@ -253,8 +253,7 @@ object SyncedTaskData {
         enum class RedeemState {
             NotRedeemable,
             RedeemableAndValid,
-            RedeemableAfterDelta
-            ;
+            RedeemableAfterDelta;
 
             fun isRedeemable() = this == RedeemableAndValid
         }

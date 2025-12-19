@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="a11y_card_wall_card_hand">Здравна карта на смартфон</string>
+    <string name="a11y_card_wall_card_hand">Ръка държи здравноосигурителна карта пред смартфон.</string>
     <string name="a11y_cdw_health_card_image_description">Изображение на здравна карта с шестцифрен номер за достъп в горния десен ъгъл на лицевата страна на картата</string>
+    <string name="a11y_datamatrix_code_description">Сканиране на код</string>
+    <string name="a11y_datamatrix_code_pager_content_description">Плъзнете с два пръста, за да превключвате страници</string>
+    <string name="a11y_datamatrix_code_pager_state_description" formatted="false">Страница %s от %s</string>
+    <string name="a11y_datamatrix_code_zoom_in_button_description">Уголемяване на кода</string>
+    <string name="a11y_datamatrix_code_zoom_out_button_description">Намалете размера на кода</string>
+    <string name="a11y_delete_access_code_dialog">Диалогов прозорец: Изтриване на код за достъп</string>
     <string name="a11y_deleted_text">Изтриване на текст</string>
     <string name="a11y_diga_arrow">докато</string>
     <string name="a11y_diga_change_insurance">Смяна на застраховка</string>
@@ -9,16 +15,32 @@
     <string name="a11y_diga_feedback_prompt_accessibility_label">Обратна връзка относно рецептата за DiGA</string>
     <string name="a11y_diga_feedback_submit">Изпратете обратна връзка на външен уебсайт</string>
     <string name="a11y_disabled">деактивиран</string>
+    <string name="a11y_error_icon">Грешка</string>
     <string name="a11y_error_prefix">Грешка:</string>
+    <string name="a11y_eu_access_code_delete_button">Изтриване на код за достъп</string>
+    <string name="a11y_eu_access_code_delete_button_disabled">Изтриването на кода за достъп е деактивирано поради текущо действие.</string>
+    <string name="a11y_eu_access_code_deleted_error">Изтриването на кода за достъп не бе успешно.</string>
+    <string name="a11y_eu_access_code_deleted_success">Кодът за достъп е изтрит.</string>
+    <string name="a11y_eu_access_code_deleting">Кодът за достъп ще бъде изтрит…</string>
     <string name="a11y_eu_instructions_flag_accessibility_text">Можете да кажете следното:</string>
     <string name="a11y_eu_instructions_open_in_browser">Отвори в браузър</string>
+    <string name="a11y_local_redeem_back">Покажи предишния код</string>
+    <string name="a11y_local_redeem_forward">Покажи следващия код</string>
     <string name="a11y_medication_schedule_three_dot_menu">Показване на опции за напомняне за лекарства</string>
     <string name="a11y_not_selected">не е избрано</string>
     <string name="a11y_onboarding_progress_description">Страница %1$d от %2$d</string>
     <string name="a11y_open_link_submit">Отваряне на връзката на външен уебсайт</string>
     <string name="a11y_open_pdf_submit">Отваряне на PDF файл на външен уебсайт</string>
+    <string name="a11y_password_input_show_password_description_off">Паролата е скрита</string>
+    <string name="a11y_password_input_show_password_description_on">Показана парола</string>
+    <string name="a11y_password_input_show_password_description_onClick_off">Покажи паролата</string>
+    <string name="a11y_password_input_show_password_description_onClick_on">Скриване на парола</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Търсене на аптека; въведете име, град или пощенски код, за да търсите аптека</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Търсене в списъчен изглед</string>
+    <string name="a11y_pin_input_show_pin_description_off">ПИН кодът е скрит</string>
+    <string name="a11y_pin_input_show_pin_description_on">Показан е ПИН код</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_off">Покажи ПИН код</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_on">Скриване на ПИН код</string>
     <string name="a11y_prescription_details_share">Сподели рецептата</string>
     <string name="a11y_prescription_more_option">Още опции</string>
     <string name="a11y_prescription_not_available">Не е налично</string>
@@ -27,6 +49,7 @@
     <string name="a11y_select_all_not_selected">Избери всички, не е избрано</string>
     <string name="a11y_select_all_selected">Избери всички, избрани</string>
     <string name="a11y_selected">избран</string>
+    <string name="a11y_success_icon">Успех</string>
     <string name="about_buildhash">Хеш компилация: %s</string>
     <string name="about_version">Версия: %s</string>
     <string name="accept_now">Току-що прието</string>
@@ -160,6 +183,7 @@
     <string name="cardwall_gid_pkv_help_screen_tip_4_body_2">За телефони с Android 14, активирайте отварянето на връзки в настройките.</string>
     <string name="cardwall_gid_pkv_help_screen_tip_4_header">Не сте пренасочени към приложението на вашата застрахователна компания?</string>
     <string name="cardwall_gid_title">HealthID</string>
+    <string name="cardwall_intro_demo_mode_or">Или:</string>
     <string name="cardwall_select_insurance_federal_link">Застраховани по различен начин</string>
     <string name="cardwall_select_insurance_type_drawer_body">За да получавате рецепти дигитално, моля, първо изберете вида на здравната си застраховка.</string>
     <string name="cardwall_select_insurance_type_drawer_private_insurance_button">Частно осигуряване</string>
@@ -394,7 +418,7 @@
     <string name="demo_mode_link_text">Демо режим</string>
     <string name="demo_mode_settings_end_title">Излезте от демонстрационния режим</string>
     <string name="demo_mode_settings_title">Активиране на демо режим</string>
-    <string name="demo_mode_start_text">Или: Опитайте приложението в демо режим</string>
+    <string name="demo_mode_start_text">Разгледайте %s.</string>
     <string name="demo_mode_text">Демо режимът е активиран</string>
     <string name="description">Описание</string>
     <string name="diga_Insurance_is_determined">Застраховката се определя:</string>
@@ -440,7 +464,7 @@
     <string name="diga_overview_how_it_works_3">3. Изтеглете приложението DiGA</string>
     <string name="diga_overview_how_it_works_4">4. Въведете кода в приложението DiGA</string>
     <string name="diga_request_unlock_code">Заявка за активационен код</string>
-    <string name="diga_requesting_code_from">Искаме кода от: %s </string>
+    <string name="diga_requesting_code_from">Искаме кода от: %s</string>
     <string name="diga_select_insurance_for_diga_discription">Изберете здравноосигурителната компания, която ще плати за вашата рецепта за дигитално здраве. Ще поискаме активационния код от тази компания.</string>
     <string name="diga_select_insurance_for_diga_header">Изберете застраховка за DiGA</string>
     <string name="diga_server_return_code_200">Прехвърлено успешно.</string>
@@ -533,6 +557,11 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n Следните рецепти не са или вече не могат да бъдат използвани: %1$s \n Може вече да сте ги използвали по друг начин или може да са били изтрити. \n</string>
     <string name="error_redeemable_prescription_not_redeemable">Рецептата „ %1$s ” вече е осребрена или в момента се изкупува.</string>
     <string name="error_redeemable_prescription_title">рецептата не може да бъде осребрена</string>
+    <string name="eu_access_code_delete_body">Искате ли да отмените достъпа за всички аптеки в други страни от ЕС?</string>
+    <string name="eu_access_code_delete_button_text">отмяна на достъп</string>
+    <string name="eu_access_code_delete_failure_body">Моля, опитайте отново.</string>
+    <string name="eu_access_code_delete_failure_header">Достъпът не можа да бъде отменен.</string>
+    <string name="eu_access_code_delete_header">Отмяна на достъпа до рецепти</string>
     <string name="eu_access_code_error">За съжаление, генерирането на кода за осребряване не бе успешно. Моля, опитайте отново по-късно.</string>
     <string name="eu_availability_description">Участващите страни в момента работят по внедряването. Ще ви информираме веднага щом първата страна е готова.</string>
     <string name="eu_availability_title">Осребряването в ЕС ще бъде налично скоро</string>
@@ -586,8 +615,23 @@
     <string name="eu_instructions_step_number">Стъпка %1$d</string>
     <string name="eu_instructions_title">Инструкции</string>
     <string name="eu_instructions_website_info_end">.</string>
-    <string name="eu_instructions_website_info_start">Повече информация можете да намерите на </string>
-    <string name="eu_instructions_website_link_text">Уебсайт за осребряване в ЕС</string>
+    <string name="eu_instructions_website_info_start">Можете да намерите повече информация за %s.</string>
+    <string name="eu_instructions_website_link_text">Уебсайт за обратно изкупуване на активи в ЕС</string>
+    <string name="eu_messages_code_created_again_message_title">Генериран е код за осребряване</string>
+    <string name="eu_messages_code_created_but_new_generated_message_body" formatted="false">Получихте код за осребряване на рецептата си в %s.</string>
+    <string name="eu_messages_code_created_message_body" formatted="false">Получихте код за осребряване на вашата рецепта в %s. %s може да получи достъп до избраните от вас рецепти до %s часа.</string>
+    <string name="eu_messages_code_created_message_title">Добре дошли в %s</string>
+    <string name="eu_messages_code_created_not_present_message_body">Получихте код за осребряване на рецептата си в %s.</string>
+    <string name="eu_messages_code_revoked_button_text">Достъпът е отменен</string>
+    <string name="eu_messages_code_revoked_message_body" formatted="false">Получихте код за осребряване на вашата рецепта на %s. %s вече няма достъп до избраните от вас рецепти.</string>
+    <string name="eu_messages_code_used_by_pharmacy_message_body">Аптеката в %s е изпълнила рецептата ви.</string>
+    <string name="eu_messages_list_latest_title">Обратно изкупуване от ЕС</string>
+    <string name="eu_messages_prescription_added_body">Добавили сте предписание за обратно изкупуване в ЕС.</string>
+    <string name="eu_messages_prescription_added_title">Рецептата е добавена</string>
+    <string name="eu_messages_prescription_removed_body">Премахнали сте рецепта от процеса на обратно изкупуване в ЕС.</string>
+    <string name="eu_messages_prescription_removed_title">Рецептата е премахната</string>
+    <string name="eu_messages_revoke_code_button_text">отмяна на достъп</string>
+    <string name="eu_messages_show_code_button_text">Показване на код за осребряване</string>
     <string name="eu_prescription_available">Осребряване в други страни от ЕС</string>
     <string name="eu_prescription_search_empty_text">Опитайте с друг термин за търсене.</string>
     <string name="eu_prescription_search_empty_title">За съжаление, не беше намерена подходяща държава.</string>
@@ -606,7 +650,7 @@
     <string name="eu_redeem_button">Осребряване</string>
     <string name="eu_redeem_country_title">страна</string>
     <string name="eu_redeem_instructions_link">Инструкции</string>
-    <string name="eu_redeem_instructions_prefix">Как можете да осребрите рецепти в други страни от ЕС можете да намерите в</string>
+    <string name="eu_redeem_instructions_prefix">Как можете да осребрите рецепти в други страни от ЕС можете да намерите в %s</string>
     <string name="eu_redeem_prescription_selection_empty_subtitle">Не можеха да се заредят рецепти.</string>
     <string name="eu_redeem_prescription_selection_empty_title">Няма рецепти</string>
     <string name="eu_redeem_prescription_selection_error_dialog_body">Възникна следната грешка: %s. Можете да опитате отново, като кликнете отново върху рецептата.</string>
@@ -811,7 +855,9 @@
     <string name="link_to_invoice_list">Към преглед на аптечните фактури</string>
     <string name="local_redeem_done">Готов</string>
     <string name="local_redeem_grouped_codes">Код на колекцията</string>
+    <string name="local_redeem_multi_code_page">Колективен код %s</string>
     <string name="local_redeem_self_payer_prescription_warning">Вашата застраховка няма да покрие никакви разходи за тази рецепта.</string>
+    <string name="local_redeem_single_code">Код на рецептата</string>
     <string name="local_redeem_single_codes">Индивидуални кодове</string>
     <string name="location_not_found">Местоположението не е намерено</string>
     <string name="logged_in">Регистриран</string>
@@ -998,7 +1044,7 @@
     <string name="onb_undo_description">Отменено</string>
     <string name="onboarding_analytics_agree_button">Съгласен/а</string>
     <string name="onboarding_analytics_bottom_text">Можете да деактивирате анализа по всяко време в настройките.</string>
-    <string name="onboarding_analytics_consent_text">С Ваше съгласие бихме искали да извършим анализ на използването на приложението. За целта бихме искали да събираме и анонимно оценяваме данни за използването на приложението и технически данни, за да:</string>
+    <string name="onboarding_analytics_consent_text">С Ваше съгласие бихме искали да извършим %s. За тази цел бихме искали да събираме и анонимно анализираме данни за използването на приложението и технически данни и по този начин:</string>
     <string name="onboarding_analytics_consent_title">Помогнете за подобряването на приложението!</string>
     <string name="onboarding_analytics_link_text">Анализ на използването на приложението</string>
     <string name="onboarding_analytics_optimize_user_experience_text">Оптимизирайте потребителското изживяване за цялото население</string>

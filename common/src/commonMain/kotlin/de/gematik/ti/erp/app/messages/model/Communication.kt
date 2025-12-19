@@ -45,14 +45,9 @@ enum class CommunicationProfile {
     ErxCommunicationDispReq, ErxCommunicationReply, InApp, EuOrder;
 
     fun toEntityValue() = when (this) {
-        ErxCommunicationDispReq ->
-            CommunicationProfileV1.ErxCommunicationDispReq
-
-        ErxCommunicationReply ->
-            CommunicationProfileV1.ErxCommunicationReply
-
+        ErxCommunicationDispReq -> CommunicationProfileV1.ErxCommunicationDispReq
+        ErxCommunicationReply -> CommunicationProfileV1.ErxCommunicationReply
         InApp -> CommunicationProfileV1.InApp
-
-        EuOrder -> CommunicationProfileV1.EuOrder
-    }.name
+        EuOrder -> null // Eu-order is a different business flow
+    }?.name
 }

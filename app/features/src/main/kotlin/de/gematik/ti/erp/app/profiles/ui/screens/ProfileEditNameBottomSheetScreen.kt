@@ -63,6 +63,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
@@ -75,7 +76,6 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.ErezeptOutlineText
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
@@ -99,9 +99,27 @@ class ProfileEditNameBottomSheetScreen(
 
         UiStateMachine(
             state = combinedProfileData,
-            onEmpty = { ComposeCenter { ErrorScreenComponent(noMaxSize = true) } },
+            onEmpty = {
+                ComposeCenter {
+                    ErrorScreenComponent(
+                        titleText = stringResource(R.string.generic_error_title),
+                        bodyText = stringResource(R.string.generic_error_info),
+                        tryAgainText = stringResource(R.string.cdw_fasttrack_try_again),
+                        noMaxSize = true
+                    )
+                }
+            },
             onLoading = { FullScreenLoadingIndicator() },
-            onError = { ComposeCenter { ErrorScreenComponent(noMaxSize = true) } }
+            onError = {
+                ComposeCenter {
+                    ErrorScreenComponent(
+                        titleText = stringResource(R.string.generic_error_title),
+                        bodyText = stringResource(R.string.generic_error_info),
+                        tryAgainText = stringResource(R.string.cdw_fasttrack_try_again),
+                        noMaxSize = true
+                    )
+                }
+            }
         ) { data ->
             ProfileEditNameBottomSheetScreenContent(
                 existingProfiles = data.profiles,
@@ -227,7 +245,7 @@ internal fun ProfileEditNameBottomSheetScreenContent(
         AnimatedVisibility(showError) {
             Text(
                 text = stringResource(R.string.edit_profile_empty_profile_name),
-                color = AppTheme.colors.red600,
+                color = AppTheme.colors.red700,
                 style = AppTheme.typography.caption1,
                 modifier = Modifier.padding(
                     top = PaddingDefaults.Medium,

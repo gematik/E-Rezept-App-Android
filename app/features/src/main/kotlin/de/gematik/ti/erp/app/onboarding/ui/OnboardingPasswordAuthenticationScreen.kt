@@ -300,7 +300,7 @@ private fun PasswordAuthentication(
             Text(
                 stringResource(R.string.not_matching_entries),
                 style = AppTheme.typography.caption1,
-                color = AppTheme.colors.red600.copy(alpha = ContentAlpha.high)
+                color = AppTheme.colors.red700.copy(alpha = ContentAlpha.high)
             )
         }
     }

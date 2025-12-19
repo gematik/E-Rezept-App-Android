@@ -76,7 +76,7 @@ fun DragHandleWithCloseButton(
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Close",
-                    tint = AppTheme.colors.neutral600
+                    tint = AppTheme.colors.neutral700
                 )
             }
         }

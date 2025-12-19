@@ -31,6 +31,7 @@ import de.gematik.ti.erp.app.navigation.NavigationRoutes
 import de.gematik.ti.erp.app.navigation.Routes
 import de.gematik.ti.erp.app.navigation.fromNavigationString
 import de.gematik.ti.erp.app.navigation.toNavigationString
+import kotlinx.datetime.Instant
 
 object MessagesRoutes : NavigationRoutes {
     override fun subGraphName() = "messages"
@@ -38,6 +39,8 @@ object MessagesRoutes : NavigationRoutes {
     const val MESSAGE_NAV_ORDER_DETAIL = "MESSAGE_NAV_ORDER_DETAIL"
     const val MESSAGE_NAV_SELECTED_MESSAGE = "MESSAGE_NAV_SELECTED_MESSAGE"
     const val MESSAGE_NAV_IS_LOCAL_MESSAGE = "MESSAGE_NAV_IS_LOCAL_MESSAGE"
+    const val MESSAGE_NAV_THREAD_START = "MESSAGE_NAV_THREAD_START"
+    const val MESSAGE_NAV_THREAD_END = "MESSAGE_NAV_THREAD_END"
 
     object MessageListScreen : Routes(NavigationRouteNames.MessageListScreen.name)
 
@@ -47,7 +50,10 @@ object MessagesRoutes : NavigationRoutes {
         navArgument(MESSAGE_NAV_IS_LOCAL_MESSAGE) { type = NavType.BoolType }
     ) {
         fun path(orderId: String, isLocalMessage: Boolean = false) =
-            MessageDetailScreen.path(MESSAGE_NAV_ORDER_ID to orderId, MESSAGE_NAV_IS_LOCAL_MESSAGE to isLocalMessage)
+            path(
+                MESSAGE_NAV_ORDER_ID to orderId,
+                MESSAGE_NAV_IS_LOCAL_MESSAGE to isLocalMessage
+            )
     }
 
     object MessageBottomSheetScreen : Routes(
@@ -56,10 +62,27 @@ object MessagesRoutes : NavigationRoutes {
         navArgument(MESSAGE_NAV_SELECTED_MESSAGE) { type = NavType.StringType }
     ) {
         fun path(orderDetail: OrderUseCaseData.OrderDetail, selectedMessage: OrderUseCaseData.Message) =
-            MessageBottomSheetScreen.path(
+            path(
                 MESSAGE_NAV_ORDER_DETAIL to orderDetail.toNavigationString(),
                 MESSAGE_NAV_SELECTED_MESSAGE to selectedMessage.toNavigationString()
             )
+    }
+
+    object EuRedeemMessageDetailsScreen : Routes(
+        NavigationRouteNames.EuRedeemMessageDetailsScreen.name,
+        navArgument(MESSAGE_NAV_ORDER_ID) { type = NavType.StringType },
+        navArgument(MESSAGE_NAV_THREAD_START) { type = NavType.LongType },
+        navArgument(MESSAGE_NAV_THREAD_END) { type = NavType.LongType }
+    ) {
+        fun path(
+            orderId: String?,
+            threadStart: Instant?,
+            threadEnd: Instant?
+        ) = path(
+            MESSAGE_NAV_ORDER_ID to orderId,
+            MESSAGE_NAV_THREAD_START to threadStart?.toEpochMilliseconds(),
+            MESSAGE_NAV_THREAD_END to threadEnd?.toEpochMilliseconds()
+        )
     }
 }
 
@@ -87,4 +110,10 @@ data class MessagesRoutesBackStackEntryArguments(
                     fromNavigationString<OrderUseCaseData.Message>(it)
                 }
             }
+
+    val threadStart
+        get() = requireNotNull(navBackStackEntry.arguments?.getLong(MessagesRoutes.MESSAGE_NAV_THREAD_START)?.let { Instant.fromEpochMilliseconds(it) })
+
+    val threadEnd
+        get() = requireNotNull(navBackStackEntry.arguments?.getLong(MessagesRoutes.MESSAGE_NAV_THREAD_END)?.let { Instant.fromEpochMilliseconds(it) })
 }

@@ -93,7 +93,7 @@ data class SelectionSummaryButtonText(
  *
  * @param text The visible text to display in the button content area.
  * @param style The text style to apply (default is [AppTheme.typography.subtitle1]).
- * @param color The color of the text (default is [AppTheme.colors.neutral600]).
+ * @param color The color of the text (default is [AppTheme.colors.neutral700]).
  * @param maxLines The maximum number of lines this text may occupy.
  *
  * @return A [SelectionSummaryButtonText] model used in [SelectionSummaryButtonData].
@@ -162,7 +162,7 @@ fun SelectionSummaryButton(
 ) {
     val borderColor = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral300
     val contentColor = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral900
-    val hintColor = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral600
+    val hintColor = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral700
 
     val hasContent = data.buttonTexts.isNotEmpty()
 
@@ -203,7 +203,7 @@ fun SelectionSummaryButton(
                             Text(
                                 text = data.buttonTitleText,
                                 style = AppTheme.typography.caption1,
-                                color = AppTheme.colors.neutral600,
+                                color = AppTheme.colors.neutral700,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -236,7 +236,7 @@ fun SelectionSummaryButton(
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                tint = if (isError) AppTheme.colors.red900 else AppTheme.colors.neutral600,
+                                tint = if (isError) AppTheme.colors.red900 else AppTheme.colors.neutral700,
                                 contentDescription = null
                             )
                         }

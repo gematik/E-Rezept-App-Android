@@ -23,13 +23,15 @@
 package de.gematik.ti.erp.app.eurezept.repository
 
 import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
+import de.gematik.ti.erp.app.eurezept.model.EuOrder
 import de.gematik.ti.erp.app.fhir.FhirErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
 
 interface EuRepository {
     suspend fun fetchAvailableCountries(): Result<FhirErpModel?>
-
+    fun observeEuOrder(orderId: String): Flow<EuOrder?>
+    fun observeAllEuOrders(): Flow<List<EuOrder>>
     suspend fun toggleIsEuRedeemableByPatientAuthorization(
         taskId: String,
         profileId: ProfileIdentifier,
@@ -48,6 +50,12 @@ interface EuRepository {
     ): Flow<EuAccessCode?>
 
     suspend fun deleteEuRedeemAccessCode(
-        profileId: ProfileIdentifier
+        profileId: ProfileIdentifier,
+        inProgress: () -> Unit,
+        failed: (Throwable) -> Unit,
+        completed: () -> Unit
     )
+
+    suspend fun markEventsAsRead(eventIds: List<String>)
+    fun getEuAccessCode(accessCode: String): Flow<EuAccessCode?>
 }

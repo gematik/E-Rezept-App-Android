@@ -113,7 +113,7 @@ fun FullDetailMedication(
             elevation = SizeDefaults.zero,
             onClick = onClick
         ) {
-            val textColor = AppTheme.colors.neutral800
+            val textColor = AppTheme.colors.neutral900
             Row(modifier = Modifier.padding(PaddingDefaults.Medium)) {
                 Column(modifier = Modifier.weight(1f)) {
                     val medicationName =
@@ -187,7 +187,7 @@ fun FullDetailMedication(
                 Icon(
                     Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     null,
-                    tint = AppTheme.colors.neutral400,
+                    tint = AppTheme.colors.neutral700,
                     modifier =
                     Modifier
                         .size(SizeDefaults.triple)

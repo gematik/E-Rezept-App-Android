@@ -147,7 +147,7 @@ fun MainScreenAvatar(
                 )
                 if (isRegistered) {
                     SpacerMedium()
-                    var fontColor = AppTheme.colors.neutral600
+                    var fontColor = AppTheme.colors.neutral700
                     var statusText = stringResource(R.string.not_logged_in)
                     when {
                         profileIconState is IsError -> {
@@ -156,7 +156,7 @@ fun MainScreenAvatar(
                         }
 
                         profileIconState is IsOffline -> {
-                            fontColor = AppTheme.colors.neutral600
+                            fontColor = AppTheme.colors.neutral700
                             statusText = stringResource(R.string.not_logged_in)
                         }
 
@@ -316,7 +316,7 @@ fun ProfileStatePreviews(
                     Text(
                         text = "ProfileChip",
                         style = AppTheme.typography.subtitle2,
-                        color = AppTheme.colors.neutral600
+                        color = AppTheme.colors.neutral700
                     )
                     SpacerTiny()
                     ProfileChip(
@@ -331,7 +331,7 @@ fun ProfileStatePreviews(
                     Text(
                         text = "Default size",
                         style = AppTheme.typography.subtitle2,
-                        color = AppTheme.colors.neutral600
+                        color = AppTheme.colors.neutral700
                     )
                     SpacerTiny()
                     MainScreenAvatar(
@@ -353,7 +353,7 @@ fun ProfileStatePreviews(
                     Text(
                         text = "Small size",
                         style = AppTheme.typography.subtitle2,
-                        color = AppTheme.colors.neutral600
+                        color = AppTheme.colors.neutral700
                     )
                     SpacerTiny()
                     ProfileConnectionSection(

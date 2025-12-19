@@ -81,7 +81,7 @@ fun LoadingButton(
         enabled = enabled && !loading
     ) {
         if (loading) {
-            CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp, color = AppTheme.colors.neutral600)
+            CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp, color = AppTheme.colors.neutral700)
             SpacerSmall()
         }
         Text(text, textAlign = TextAlign.Center)

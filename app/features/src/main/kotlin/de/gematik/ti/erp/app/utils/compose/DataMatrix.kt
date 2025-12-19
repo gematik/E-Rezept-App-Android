@@ -22,7 +22,6 @@
 
 package de.gematik.ti.erp.app.utils.compose
 
-import android.graphics.Bitmap
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -36,7 +35,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ZoomIn
 import androidx.compose.material.icons.rounded.ZoomOut
@@ -47,32 +45,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.text.style.TextOverflow
-import com.google.zxing.BarcodeFormat
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.google.zxing.common.BitMatrix
-import com.google.zxing.datamatrix.DataMatrixWriter
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
-import kotlin.math.max
-import kotlin.math.roundToInt
+import de.gematik.ti.erp.app.core.R
 
-private const val BitmapMinSize = 10
 private const val ScaleOutValue = 0.7f
 private const val ScaleInValue = 1f
 
 @Composable
 fun DataMatrix(
     modifier: Modifier,
-    matrix: BitMatrix,
-    codeName: String? = null
+    matrix: BitMatrix
 ) {
     var isZoomedOut by remember { mutableStateOf(false) }
-
+    val dataMatrixCodeDescription = stringResource(R.string.a11y_datamatrix_code_description)
     // Animating the scale factor
     val scale by animateFloatAsState(targetValue = if (isZoomedOut) ScaleOutValue else ScaleInValue)
 
@@ -87,6 +80,9 @@ fun DataMatrix(
         ) {
             Box(
                 modifier = Modifier
+                    .semantics() {
+                        contentDescription = dataMatrixCodeDescription
+                    }
                     .scale(scale)
                     .drawDataMatrix(matrix)
                     .aspectRatio(1f)
@@ -94,62 +90,18 @@ fun DataMatrix(
             )
             SpacerMedium()
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                if (codeName != null) {
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        text = codeName,
-                        style = AppTheme.typography.h6,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color = AppTheme.colors.neutral999
-                    )
-                } else {
-                    Spacer(Modifier.weight(1f))
-                }
-                SpacerMedium()
+                Spacer(Modifier.weight(1f))
                 TertiaryButton(
                     onClick = { isZoomedOut = !isZoomedOut }
                 ) {
                     Crossfade(targetState = isZoomedOut) { isZoomedOut ->
                         when {
-                            isZoomedOut -> Icon(Icons.Rounded.ZoomIn, null)
-                            else -> Icon(Icons.Rounded.ZoomOut, null)
+                            isZoomedOut -> Icon(Icons.Rounded.ZoomIn, stringResource(R.string.a11y_datamatrix_code_zoom_in_button_description))
+                            else -> Icon(Icons.Rounded.ZoomOut, stringResource(R.string.a11y_datamatrix_code_zoom_out_button_description))
                         }
                     }
                 }
             }
         }
     }
-}
-
-fun Modifier.drawDataMatrix(matrix: BitMatrix) =
-    drawWithCache {
-        val bitmap = Bitmap.createScaledBitmap(
-            matrix.toBitmap(),
-            max(size.width.roundToInt(), BitmapMinSize),
-            max(size.height.roundToInt(), BitmapMinSize),
-            false
-        )
-
-        onDrawBehind {
-            drawImage(bitmap.asImageBitmap())
-        }
-    }
-
-fun createBitMatrix(data: String): BitMatrix =
-    // width & height is unused in the underlying implementation
-    DataMatrixWriter().encode(data, BarcodeFormat.DATA_MATRIX, 1, 1)
-
-fun BitMatrix.toBitmap(): Bitmap {
-    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
-    for (x in 0 until width) {
-        for (y in 0 until height) {
-            bitmap.setPixel(
-                x,
-                y,
-                if (get(x, y)) android.graphics.Color.BLACK else android.graphics.Color.WHITE
-            )
-        }
-    }
-    return bitmap
 }

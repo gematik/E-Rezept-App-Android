@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.pharmacy.usecase
 
-import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_SYNCED_TASK_DATA_01
-import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_SYNCED_TASK_DATA_02
+import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_SYNCED_TASK_DATA_01
+import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_SYNCED_TASK_DATA_02
 import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_ACTIVE_PROFILE
 import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_SCANNED_TASK_DATA_REDEEMABLE_01
 import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_SCANNED_TASK_DATA_REDEEMABLE_02

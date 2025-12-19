@@ -25,7 +25,6 @@ package de.gematik.ti.erp.app.vau
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
 import de.gematik.ti.erp.app.vau.api.model.X509Serializer
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import kotlin.test.Test
@@ -45,7 +44,7 @@ class AdapterTest {
         Json.decodeFromString<UntrustedCertList>(TestCertificates.Vau.JsonCertList).let {
             assertEquals(3, it.addRoots.size)
             assertEquals(1, it.caCerts.size)
-            assertEquals(3, it.eeCerts.size)
+            assertEquals(3, it.eeCerts?.size)
         }
     }
 

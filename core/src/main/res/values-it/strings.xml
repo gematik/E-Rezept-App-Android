@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="a11y_card_wall_card_hand">Tessera sanitaria sullo smartphone</string>
+    <string name="a11y_card_wall_card_hand">Una mano tiene una tessera sanitaria vicino a uno smartphone.</string>
     <string name="a11y_cdw_health_card_image_description">Immagine di una tessera sanitaria con un numero di accesso a sei cifre in alto a destra sul fronte della tessera</string>
+    <string name="a11y_datamatrix_code_description">Codice di scansione</string>
+    <string name="a11y_datamatrix_code_pager_content_description">Scorri con due dita per cambiare pagina</string>
+    <string name="a11y_datamatrix_code_pager_state_description" formatted="false">Pagina %s da %s</string>
+    <string name="a11y_datamatrix_code_zoom_in_button_description">Ingrandisci il codice</string>
+    <string name="a11y_datamatrix_code_zoom_out_button_description">Ridurre le dimensioni del codice</string>
+    <string name="a11y_delete_access_code_dialog">Finestra di dialogo: Elimina codice di accesso</string>
     <string name="a11y_deleted_text">Elimina testo</string>
     <string name="a11y_diga_arrow">Fino a</string>
     <string name="a11y_diga_change_insurance">Cambiare assicurazione</string>
@@ -9,16 +15,32 @@
     <string name="a11y_diga_feedback_prompt_accessibility_label">Feedback sulla prescrizione DiGA</string>
     <string name="a11y_diga_feedback_submit">Invia feedback su un sito web esterno</string>
     <string name="a11y_disabled">disattivato</string>
+    <string name="a11y_error_icon">Errore</string>
     <string name="a11y_error_prefix">Errore:</string>
+    <string name="a11y_eu_access_code_delete_button">Elimina il codice di accesso</string>
+    <string name="a11y_eu_access_code_delete_button_disabled">L\'eliminazione del codice di accesso è attualmente disabilitata a causa di un\'azione in corso.</string>
+    <string name="a11y_eu_access_code_deleted_error">Eliminazione del codice di accesso non riuscita.</string>
+    <string name="a11y_eu_access_code_deleted_success">Il codice di accesso è stato eliminato.</string>
+    <string name="a11y_eu_access_code_deleting">Il codice di accesso verrà eliminato…</string>
     <string name="a11y_eu_instructions_flag_accessibility_text">Puoi dire quanto segue:</string>
     <string name="a11y_eu_instructions_open_in_browser">Apri nel browser</string>
+    <string name="a11y_local_redeem_back">Mostra il codice precedente</string>
+    <string name="a11y_local_redeem_forward">Mostra il codice successivo</string>
     <string name="a11y_medication_schedule_three_dot_menu">Mostra le opzioni di promemoria per i farmaci</string>
     <string name="a11y_not_selected">non selezionato</string>
     <string name="a11y_onboarding_progress_description">Pagina %1$d di %2$d</string>
     <string name="a11y_open_link_submit">Apri il collegamento sul sito web esterno</string>
     <string name="a11y_open_pdf_submit">Apri PDF su sito web esterno</string>
+    <string name="a11y_password_input_show_password_description_off">Password nascosta</string>
+    <string name="a11y_password_input_show_password_description_on">Password visualizzata</string>
+    <string name="a11y_password_input_show_password_description_onClick_off">Mostra password</string>
+    <string name="a11y_password_input_show_password_description_onClick_on">Nascondi password</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Ricerca farmacia; inserisci nome, città o codice postale per cercare una farmacia</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Cerca nella vista elenco</string>
+    <string name="a11y_pin_input_show_pin_description_off">PIN nascosto</string>
+    <string name="a11y_pin_input_show_pin_description_on">PIN visualizzato</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_off">Mostra PIN</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_on">Nascondi PIN</string>
     <string name="a11y_prescription_details_share">Condividi la ricetta</string>
     <string name="a11y_prescription_more_option">Altre opzioni</string>
     <string name="a11y_prescription_not_available">Non disponibile</string>
@@ -27,6 +49,7 @@
     <string name="a11y_select_all_not_selected">Seleziona tutto, non selezionato</string>
     <string name="a11y_select_all_selected">Seleziona tutto, selezionato</string>
     <string name="a11y_selected">selezionato</string>
+    <string name="a11y_success_icon">Successo</string>
     <string name="about_buildhash">Crea hash: %s</string>
     <string name="about_version">Versione: %s</string>
     <string name="accept_now">Appena accettato</string>
@@ -160,6 +183,7 @@
     <string name="cardwall_gid_pkv_help_screen_tip_4_body_2">Per i telefoni con Android 14, abilita l\'apertura dei link nelle impostazioni.</string>
     <string name="cardwall_gid_pkv_help_screen_tip_4_header">Non vieni reindirizzato all\'app della tua compagnia assicurativa?</string>
     <string name="cardwall_gid_title">IDsalute</string>
+    <string name="cardwall_intro_demo_mode_or">O:</string>
     <string name="cardwall_select_insurance_federal_link">Assicurato diversamente</string>
     <string name="cardwall_select_insurance_type_drawer_body">Per ricevere le prescrizioni in formato digitale, seleziona prima il tuo tipo di assicurazione.</string>
     <string name="cardwall_select_insurance_type_drawer_private_insurance_button">Assicurazione privata</string>
@@ -394,7 +418,7 @@
     <string name="demo_mode_link_text">Modalità demo</string>
     <string name="demo_mode_settings_end_title">Uscire dalla modalità demo</string>
     <string name="demo_mode_settings_title">Attiva la modalità demo</string>
-    <string name="demo_mode_start_text">Oppure: prova l\'app in modalità demo</string>
+    <string name="demo_mode_start_text">Esplora il %s.</string>
     <string name="demo_mode_text">Modalità demo attivata</string>
     <string name="description">Descrizione</string>
     <string name="diga_Insurance_is_determined">L\'assicurazione è determinata:</string>
@@ -440,7 +464,7 @@
     <string name="diga_overview_how_it_works_3">3. Scarica l\'app DiGA</string>
     <string name="diga_overview_how_it_works_4">4. Inserisci il codice nell\'app DiGA</string>
     <string name="diga_request_unlock_code">Richiedi il codice di attivazione</string>
-    <string name="diga_requesting_code_from">Richiediamo il codice da: %s </string>
+    <string name="diga_requesting_code_from">Richiediamo il codice da: %s</string>
     <string name="diga_select_insurance_for_diga_discription">Seleziona la compagnia assicurativa che pagherà la tua prescrizione sanitaria digitale. Richiederemo il codice di attivazione a questa compagnia.</string>
     <string name="diga_select_insurance_for_diga_header">Scegli l\'assicurazione per la DiGA</string>
     <string name="diga_server_return_code_200">Trasferito con successo.</string>
@@ -533,6 +557,11 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n Le seguenti ricette non sono o non sono più riscattabili: %1$s \n Potresti averle già riscattate in un altro modo oppure potrebbero essere state eliminate. \n</string>
     <string name="error_redeemable_prescription_not_redeemable">La ricetta \"%1$s\" è già stata riscattata o è in corso di riscossione.</string>
     <string name="error_redeemable_prescription_title">Prescrizione non rimborsabile</string>
+    <string name="eu_access_code_delete_body">Vuoi revocare l\'accesso a tutte le farmacie degli altri paesi dell\'UE?</string>
+    <string name="eu_access_code_delete_button_text">revocare l\'accesso</string>
+    <string name="eu_access_code_delete_failure_body">Riprova per favore.</string>
+    <string name="eu_access_code_delete_failure_header">L\'accesso non può essere revocato.</string>
+    <string name="eu_access_code_delete_header">Revoca l\'accesso alle prescrizioni</string>
     <string name="eu_access_code_error">Purtroppo la generazione del codice di riscatto non è riuscita. Riprova più tardi.</string>
     <string name="eu_availability_description">I paesi partecipanti stanno attualmente lavorando all\'implementazione. Vi informeremo non appena il primo paese sarà pronto.</string>
     <string name="eu_availability_title">Il riscatto UE sarà disponibile a breve</string>
@@ -586,8 +615,23 @@
     <string name="eu_instructions_step_number">Passaggio %1$d</string>
     <string name="eu_instructions_title">Istruzioni</string>
     <string name="eu_instructions_website_info_end">.</string>
-    <string name="eu_instructions_website_info_start">Ulteriori informazioni possono essere trovate sul </string>
-    <string name="eu_instructions_website_link_text">Sito web di riscatto UE</string>
+    <string name="eu_instructions_website_info_start">Puoi trovare maggiori informazioni su %s.</string>
+    <string name="eu_instructions_website_link_text">Sito web per i riscatti UE</string>
+    <string name="eu_messages_code_created_again_message_title">Codice di riscatto generato</string>
+    <string name="eu_messages_code_created_but_new_generated_message_body" formatted="false">Hai recuperato un codice per riscattare la tua prescrizione in %s.</string>
+    <string name="eu_messages_code_created_message_body" formatted="false">Hai recuperato un codice per riscattare la tua prescrizione in %s. %s potrà accedere alle prescrizioni selezionate fino alle ore %s.</string>
+    <string name="eu_messages_code_created_message_title">Benvenuti a %s</string>
+    <string name="eu_messages_code_created_not_present_message_body">Hai recuperato un codice per riscattare la tua prescrizione in %s.</string>
+    <string name="eu_messages_code_revoked_button_text">Accesso revocato</string>
+    <string name="eu_messages_code_revoked_message_body" formatted="false">Hai recuperato un codice per riscattare la tua prescrizione presso %s. %s non può più accedere alle prescrizioni selezionate.</string>
+    <string name="eu_messages_code_used_by_pharmacy_message_body">La farmacia in %s ha evaso la tua prescrizione.</string>
+    <string name="eu_messages_list_latest_title">Riscatto UE</string>
+    <string name="eu_messages_prescription_added_body">Hai aggiunto una ricetta per il riscatto nell\'UE.</string>
+    <string name="eu_messages_prescription_added_title">Ricetta aggiunta</string>
+    <string name="eu_messages_prescription_removed_body">Hai rimosso una prescrizione dal processo di riscatto UE.</string>
+    <string name="eu_messages_prescription_removed_title">Prescrizione rimossa</string>
+    <string name="eu_messages_revoke_code_button_text">revocare l\'accesso</string>
+    <string name="eu_messages_show_code_button_text">Mostra il codice di riscatto</string>
     <string name="eu_prescription_available">Riscatta in altri paesi dell\'UE</string>
     <string name="eu_prescription_search_empty_text">Prova un termine di ricerca diverso.</string>
     <string name="eu_prescription_search_empty_title">Purtroppo non è stato trovato alcun paese adatto.</string>
@@ -606,7 +650,7 @@
     <string name="eu_redeem_button">Riscatta</string>
     <string name="eu_redeem_country_title">Paese</string>
     <string name="eu_redeem_instructions_link">Istruzioni</string>
-    <string name="eu_redeem_instructions_prefix">Come puoi riscattare le prescrizioni in altri paesi dell\'UE può essere trovato nel</string>
+    <string name="eu_redeem_instructions_prefix">Come puoi riscattare le prescrizioni in altri paesi dell\'UE può essere trovato nel %s</string>
     <string name="eu_redeem_prescription_selection_empty_subtitle">Non è stato possibile caricare alcuna prescrizione.</string>
     <string name="eu_redeem_prescription_selection_empty_title">Nessuna ricetta</string>
     <string name="eu_redeem_prescription_selection_error_dialog_body">Si è verificato il seguente errore: %s. Puoi riprovare cliccando nuovamente sulla ricetta.</string>
@@ -811,7 +855,9 @@
     <string name="link_to_invoice_list">Alla panoramica delle fatture della farmacia</string>
     <string name="local_redeem_done">Pronto</string>
     <string name="local_redeem_grouped_codes">Codice di raccolta</string>
+    <string name="local_redeem_multi_code_page">Codice collettivo %s</string>
     <string name="local_redeem_self_payer_prescription_warning">La tua assicurazione non coprirà alcun costo per questa prescrizione.</string>
+    <string name="local_redeem_single_code">Codice di prescrizione</string>
     <string name="local_redeem_single_codes">Codici individuali</string>
     <string name="location_not_found">Posizione non trovata</string>
     <string name="logged_in">Registrato</string>
@@ -998,7 +1044,7 @@
     <string name="onb_undo_description">Annullato</string>
     <string name="onboarding_analytics_agree_button">Essere d\'accordo</string>
     <string name="onboarding_analytics_bottom_text">Puoi disattivare l\'analisi in qualsiasi momento nelle impostazioni.</string>
-    <string name="onboarding_analytics_consent_text">Con il tuo consenso, vorremmo condurre un\'analisi dell\'utilizzo dell\'app. A tal fine, vorremmo raccogliere e valutare in forma anonima dati tecnici e di utilizzo dell\'app per:</string>
+    <string name="onboarding_analytics_consent_text">Con il tuo consenso, vorremmo condurre un\'%s. A tal fine, vorremmo raccogliere e analizzare in forma anonima dati sull\'utilizzo dell\'app e dati tecnici, e quindi:</string>
     <string name="onboarding_analytics_consent_title">Aiutaci a migliorare l\'app!</string>
     <string name="onboarding_analytics_link_text">Analisi dell\'utilizzo delle app</string>
     <string name="onboarding_analytics_optimize_user_experience_text">Ottimizzare l\'esperienza utente per l\'intera popolazione</string>

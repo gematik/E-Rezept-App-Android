@@ -27,19 +27,13 @@ package de.gematik.ti.erp.app.utils.compose
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
-import android.content.res.Resources
 import android.net.Uri
 import android.text.format.DateFormat
-import android.util.Patterns
-import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,11 +44,9 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
@@ -74,11 +66,8 @@ import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -86,11 +75,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -100,23 +86,14 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.net.toUri
@@ -125,6 +102,7 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.ErpTimeFormatter.Style
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
+import de.gematik.ti.erp.app.material3.components.switchs.GemSwitch
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -154,31 +132,6 @@ fun Modifier.testId(id: String) =
         }
     } else {
         this
-    }
-
-fun String.toAnnotatedString() =
-    buildAnnotatedString { append(this@toAnnotatedString) }
-
-@Composable
-fun annotatedLinkString(uri: String, text: String, tag: String = "URL"): AnnotatedString =
-    buildAnnotatedString {
-        pushStringAnnotation(tag, uri)
-        pushStyle(AppTheme.typography.subtitle2.toSpanStyle())
-        pushStyle(SpanStyle(color = AppTheme.colors.primary700))
-        append(text)
-        pop()
-        pop()
-        pop()
-    }
-
-@Composable
-fun annotatedLinkStringLight(uri: String, text: String, tag: String = "URL"): AnnotatedString =
-    buildAnnotatedString {
-        pushStringAnnotation(tag, uri)
-        pushStyle(SpanStyle(color = AppTheme.colors.primary700))
-        append(text)
-        pop()
-        pop()
     }
 
 @Composable
@@ -228,8 +181,8 @@ fun LabeledSwitch(
         enabled = enabled
     ) {
         val iconColorTint = if (enabled) AppTheme.colors.primary700 else AppTheme.colors.primary300
-        val textColor = if (enabled) AppTheme.colors.neutral900 else AppTheme.colors.neutral600
-        val descriptionColor = if (enabled) AppTheme.colors.neutral600 else AppTheme.colors.neutral400
+        val textColor = if (enabled) AppTheme.colors.neutral900 else AppTheme.colors.neutral700
+        val descriptionColor = if (enabled) AppTheme.colors.neutral700 else AppTheme.colors.neutral400
 
         Row(
             modifier = Modifier.weight(1.0f)
@@ -286,7 +239,7 @@ fun LabeledSwitch(
 
         // for better visibility in dark mode
         CompositionLocalProvider(LocalAbsoluteElevation provides SizeDefaults.one) {
-            Switch(
+            GemSwitch(
                 checked = checked,
                 onCheckedChange = null,
                 enabled = enabled
@@ -354,65 +307,6 @@ fun LabelButton(
         Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
     }
 }
-
-@Suppress("SpreadOperator")
-@Composable
-fun annotatedStringResource(@StringRes id: Int, vararg args: Any): AnnotatedString =
-    annotatedStringResource(id, *(args.map { AnnotatedString(it.toString()) }.toTypedArray()))
-
-@Composable
-fun annotatedStringResource(@StringRes id: Int, vararg args: AnnotatedString): AnnotatedString =
-    buildAnnotatedString {
-        val res = stringResource(id)
-        appendSubStrings(args, res)
-    }
-
-@Composable
-private fun resources(): Resources {
-    LocalConfiguration.current
-    return LocalContext.current.resources
-}
-
-@Composable
-fun annotatedPluralsResource(
-    @PluralsRes id: Int,
-    quantity: Int,
-    vararg args: AnnotatedString
-): AnnotatedString =
-    buildAnnotatedString {
-        val res = resources().getQuantityString(id, quantity)
-
-        appendSubStrings(args, res)
-    }
-
-private fun AnnotatedString.Builder.appendSubStrings(
-    args: Array<out AnnotatedString>,
-    res: String
-) {
-    val argIt = args.iterator()
-    var i = 0
-    while (i <= res.length) {
-        val j = res.indexOf("%s", i)
-        if (j != -1) {
-            append(res.substring(i, j))
-            if (argIt.hasNext()) {
-                append(argIt.next())
-            }
-            i = j + 2
-        } else {
-            append(res.substring(i, res.length))
-            break
-        }
-    }
-}
-
-@Composable
-fun annotatedStringBold(text: String) =
-    buildAnnotatedString {
-        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-            append(text)
-        }
-    }
 
 @Deprecated(
     "Please do not use this function anymore. Use ErezeptAlertDialog instead.",
@@ -543,17 +437,6 @@ fun AcceptDialog(
         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
     )
 
-fun provideEmailIntent(address: String, subject: String? = null, body: String? = null) =
-    Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:")).apply {
-        putExtra(Intent.EXTRA_EMAIL, arrayOf(address))
-        subject?.let {
-            putExtra(Intent.EXTRA_SUBJECT, it)
-        }
-        body?.let { text ->
-            putExtra(Intent.EXTRA_TEXT, text)
-        }
-    }
-
 fun provideWebIntent(address: String) = Intent(Intent.ACTION_VIEW, Uri.parse(address))
 
 fun provideWebIntentAsNewTask(url: String): Intent {
@@ -565,14 +448,6 @@ fun provideWebIntentAsNewTask(url: String): Intent {
 fun providePhoneIntent(phoneNumber: String) =
     Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneNumber"))
 
-fun canHandleIntent(intent: Intent, packageManager: PackageManager): Boolean {
-    val activities: List<ResolveInfo> = packageManager.queryIntentActivities(
-        intent,
-        PackageManager.MATCH_DEFAULT_ONLY
-    )
-    return activities.isNotEmpty()
-}
-
 fun Context.handleIntent(
     intent: Intent,
     onCouldNotHandleIntent: (() -> Unit)? = null
@@ -582,85 +457,6 @@ fun Context.handleIntent(
     } catch (e: ActivityNotFoundException) {
         Napier.e("Couldn't start intent", e)
         onCouldNotHandleIntent?.let { it() }
-    }
-}
-
-/**
- * Measures all inlined composables upfront and applies the size to the actual placeable of the [Text].
- */
-@Composable
-fun DynamicText(
-    text: AnnotatedString,
-    modifier: Modifier = Modifier,
-    color: Color = Color.Unspecified,
-    fontSize: TextUnit = TextUnit.Unspecified,
-    fontStyle: FontStyle? = null,
-    fontWeight: FontWeight? = null,
-    fontFamily: FontFamily? = null,
-    letterSpacing: TextUnit = TextUnit.Unspecified,
-    textDecoration: TextDecoration? = null,
-    textAlign: TextAlign? = null,
-    lineHeight: TextUnit = TextUnit.Unspecified,
-    overflow: TextOverflow = TextOverflow.Clip,
-    softWrap: Boolean = true,
-    maxLines: Int = Int.MAX_VALUE,
-    inlineContent: Map<String, InlineTextContent>,
-    onTextLayout: (TextLayoutResult) -> Unit = {},
-    style: TextStyle = LocalTextStyle.current
-) {
-    CompositionLocalProvider(LocalTextStyle provides AppTheme.typography.subtitle1) {
-        SubcomposeLayout(modifier = Modifier.wrapContentSize()) { constraints ->
-            val contentPlaceables = inlineContent.mapValues { (key, content) ->
-                val maxSize = subcompose(key, content = { content.children(key) }).map {
-                    it.measure(constraints)
-                }.fold(IntSize.Zero) { acc, p ->
-                    IntSize(
-                        width = maxOf(acc.width, p.width),
-                        height = maxOf(acc.height, p.height)
-                    )
-                }
-
-                Pair(content, maxSize)
-            }
-
-            val main = subcompose(1) {
-                Text(
-                    text = text,
-                    modifier = modifier,
-                    color = color,
-                    fontSize = fontSize,
-                    fontStyle = fontStyle,
-                    fontWeight = fontWeight,
-                    fontFamily = fontFamily,
-                    letterSpacing = letterSpacing,
-                    textDecoration = textDecoration,
-                    textAlign = textAlign,
-                    lineHeight = lineHeight,
-                    overflow = overflow,
-                    softWrap = softWrap,
-                    maxLines = maxLines,
-                    inlineContent = with(LocalDensity.current) {
-                        contentPlaceables.mapValues { (_, value) ->
-                            val (content, maxSize) = value
-
-                            InlineTextContent(
-                                placeholder = content.placeholder.copy(
-                                    width = maxSize.width.toSp(),
-                                    height = maxSize.height.toSp()
-                                ),
-                                children = content.children
-                            )
-                        }
-                    },
-                    onTextLayout = onTextLayout,
-                    style = style
-                )
-            }.first().measure(constraints)
-
-            layout(main.measuredWidth, main.measuredHeight) {
-                main.placeRelative(0, 0)
-            }
-        }
     }
 }
 
@@ -735,7 +531,7 @@ fun InputField(
             errorText?.let {
                 CompositionLocalProvider(
                     LocalTextStyle provides AppTheme.typography.caption1,
-                    LocalContentColor provides AppTheme.colors.red600
+                    LocalContentColor provides AppTheme.colors.red700
                 ) {
                     Box(Modifier.padding(start = PaddingDefaults.Medium, top = PaddingDefaults.Small)) {
                         errorText()
@@ -824,89 +620,6 @@ fun rememberContentPadding(innerPadding: PaddingValues) = remember(innerPadding)
             bottom = PaddingDefaults.Medium + innerPadding.calculateBottomPadding(),
             start = PaddingDefaults.Medium,
             end = PaddingDefaults.Medium
-        )
-    }
-}
-
-@Composable
-fun createPhoneNumberAnnotations(
-    text: String,
-    textColor: Color = LocalContentColor.current,
-    phoneNumberColor: Color = AppTheme.colors.primary600,
-    tag: String = TestTag.Orders.Messages.PhoneNumber
-): AnnotatedString = remember(text, textColor, phoneNumberColor) {
-    buildAnnotatedString {
-        val matcher = Patterns.PHONE.matcher(text)
-        var lastIndex = 0
-
-        while (matcher.find()) {
-            if (matcher.start() > lastIndex) {
-                withStyle(SpanStyle(color = textColor)) {
-                    append(text.substring(lastIndex, matcher.start()))
-                }
-            }
-
-            val phoneNumber = matcher.group()
-            pushStringAnnotation(tag, phoneNumber)
-            withStyle(
-                style = SpanStyle(
-                    color = phoneNumberColor,
-                    textDecoration = TextDecoration.Underline
-                )
-            ) {
-                append(phoneNumber)
-            }
-            pop()
-
-            lastIndex = matcher.end()
-        }
-
-        if (lastIndex < text.length) {
-            withStyle(SpanStyle(color = textColor)) {
-                append(text.substring(lastIndex))
-            }
-        }
-    }
-}
-
-@Composable
-fun ClickableAnnotatedText(
-    text: AnnotatedString,
-    modifier: Modifier = Modifier,
-    style: TextStyle = TextStyle.Default,
-    softWrap: Boolean = true,
-    overflow: TextOverflow = TextOverflow.Clip,
-    maxLines: Int = Int.MAX_VALUE,
-    onClick: (AnnotatedString.Range<String>) -> Unit,
-    onLongPress: (() -> Unit)? = null
-) {
-    val textColor = style.color.takeOrElse {
-        LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
-    }
-
-    var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
-
-    Box(
-        modifier = modifier.pointerInput(Unit) {
-            detectTapGestures(
-                onTap = { offset ->
-                    textLayoutResult?.let { layout ->
-                        val position = layout.getOffsetForPosition(offset)
-                        text.getStringAnnotations(position, position)
-                            .firstOrNull()?.let(onClick)
-                    }
-                },
-                onLongPress = { onLongPress?.invoke() }
-            )
-        }
-    ) {
-        Text(
-            onTextLayout = { textLayoutResult = it },
-            text = text,
-            style = style.copy(color = textColor),
-            softWrap = softWrap,
-            overflow = overflow,
-            maxLines = maxLines
         )
     }
 }

@@ -81,6 +81,7 @@ import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigat
 import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
 import de.gematik.ti.erp.app.profiles.model.ProfileCombinedData
@@ -100,7 +101,6 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkLongPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonLarge
@@ -278,10 +278,18 @@ internal fun ProfileScreenScaffold(
         UiStateMachine(
             state = profileState,
             onError = {
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             },
             onEmpty = {
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             },
             onLoading = {
                 FullScreenLoadingIndicator()
@@ -461,7 +469,7 @@ internal fun ThreeDotMenu(
             .testTag(TestTag.Profile.ThreeDotMenuButton)
             .semantics { contentDescription = description }
     ) {
-        Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral600)
+        Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral700)
     }
     DropdownMenu(
         expanded = expanded,
@@ -507,7 +515,7 @@ internal fun ThreeDotMenu(
         ) {
             Text(
                 text = stringResource(R.string.remove_profile),
-                color = AppTheme.colors.red600
+                color = AppTheme.colors.red700
             )
         }
     }

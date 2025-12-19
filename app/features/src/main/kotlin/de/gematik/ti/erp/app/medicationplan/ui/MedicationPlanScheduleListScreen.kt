@@ -54,6 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
 import de.gematik.ti.erp.app.medicationplan.model.ProfileWithSchedules
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
@@ -68,7 +69,6 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.EmptyScreenComponent
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
@@ -143,7 +143,11 @@ private fun MedicationPlanScheduleListScreenScaffold(
                     )
                 },
                 onError = {
-                    ErrorScreenComponent()
+                    ErrorScreenComponent(
+                        titleText = stringResource(R.string.generic_error_title),
+                        bodyText = stringResource(R.string.generic_error_info),
+                        tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                    )
                 },
                 onContent = { profilesWithSchedules ->
                     MedicationPlanScheduleListScreenContent(
@@ -231,7 +235,7 @@ private fun MedicationPlanOverviewSection(
         trailing = {
             Icon(
                 Icons.Rounded.ChevronRight,
-                tint = AppTheme.colors.neutral600,
+                tint = AppTheme.colors.neutral700,
                 contentDescription = null
             )
         }
@@ -268,9 +272,9 @@ private fun SchedulesSection(
                     Text(
                         text = info,
                         style = AppTheme.typography.body1,
-                        color = AppTheme.colors.neutral600
+                        color = AppTheme.colors.neutral700
                     )
-                    Icon(Icons.Rounded.ChevronRight, null, tint = AppTheme.colors.neutral600)
+                    Icon(Icons.Rounded.ChevronRight, null, tint = AppTheme.colors.neutral700)
                 }
             }
         )

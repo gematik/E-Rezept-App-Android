@@ -76,6 +76,7 @@ import de.gematik.ti.erp.app.cardwall.ui.components.GematikErrorDialog
 import de.gematik.ti.erp.app.cardwall.ui.preview.HealthInsuranceDataPreviewParameterProvider
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.idp.model.HealthInsuranceData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.semantics.semanticsHeading
@@ -88,7 +89,6 @@ import de.gematik.ti.erp.app.topbar.AnimatedTitleContent
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.EmptyScreenComponent
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.LoadingDialog
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
@@ -326,8 +326,9 @@ private fun LazyListScope.gidListScreenContent(
             onError = {
                 ErrorScreenComponent(
                     modifier = Modifier.padding(top = PaddingDefaults.XXLarge),
-                    title = stringResource(R.string.cdw_fasttrack_error_title),
-                    body = stringResource(R.string.cdw_fasttrack_error_info),
+                    titleText = stringResource(R.string.cdw_fasttrack_error_title),
+                    bodyText = stringResource(R.string.cdw_fasttrack_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again),
                     onClickRetry = reloadHealthInsuranceAppList
                 )
             },
@@ -374,7 +375,7 @@ private fun LazyListScope.cardWallGidListScreenTitleSection(
             Text(
                 stringResource(R.string.cardwall_gid_list_body),
                 style = AppTheme.typography.body2,
-                color = AppTheme.colors.neutral600
+                color = AppTheme.colors.neutral700
             )
             TextButton(
                 modifier = Modifier.align(Alignment.End),
@@ -466,7 +467,7 @@ private fun CardWallGidListScreenInsuranceListContentComponent(
                         Icon(
                             Icons.Rounded.ChevronRight,
                             null,
-                            tint = AppTheme.colors.neutral600
+                            tint = AppTheme.colors.neutral700
                         )
                     }
                 )
@@ -495,7 +496,7 @@ private fun CardWallGidListScreenInsuranceListLoadingComponent() {
                     Icon(
                         Icons.Rounded.ChevronRight,
                         null,
-                        tint = AppTheme.colors.neutral600
+                        tint = AppTheme.colors.neutral700
                     )
                 }
             )

@@ -76,9 +76,32 @@ class JWSKeyConverter : Converter<ResponseBody, JWSKey> {
 }
 
 class JWSPublicKeyConverter : Converter<ResponseBody, JWSPublicKey> {
+
     override fun convert(value: ResponseBody): JWSPublicKey {
-        return JWSPublicKey(
-            PublicJsonWebKey.Factory.newPublicJwk(value.string())
-        )
+        val body = value.string()
+        val jwk = parseJwkWithFallback(body)
+        return JWSPublicKey(jwk)
+    }
+
+    private fun parseJwkWithFallback(body: String): PublicJsonWebKey {
+        return try {
+            parseJwk(body)
+        } catch (e: Exception) {
+            // Fallback: try the opposite format once
+            parseJwk(body, forceOpposite = true)
+        }
+    }
+
+    private fun parseJwk(body: String, forceOpposite: Boolean = false): PublicJsonWebKey {
+        val isJws = body.count { it == '.' } == 2
+
+        return if ((isJws && !forceOpposite) || (!isJws && forceOpposite)) {
+            // Parse compact JWS: extract payload first
+            val jws = JsonWebStructure.fromCompactSerialization(body) as JsonWebSignature
+            PublicJsonWebKey.Factory.newPublicJwk(jws.payload)
+        } else {
+            // Parse raw JWK JSON
+            PublicJsonWebKey.Factory.newPublicJwk(body)
+        }
     }
 }

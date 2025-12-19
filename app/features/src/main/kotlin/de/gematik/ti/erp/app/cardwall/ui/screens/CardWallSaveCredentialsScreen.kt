@@ -244,7 +244,7 @@ private fun SelectableCard(
     val checkIconTint = if (selected) {
         AppTheme.colors.primary700
     } else {
-        AppTheme.colors.neutral400
+        AppTheme.colors.neutral700
     }
 
     val cardBorderStroke = if (selected) {

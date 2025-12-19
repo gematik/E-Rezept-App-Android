@@ -106,7 +106,7 @@ internal fun GemTimePickerDialog(
                         Icons.Rounded.AccessTime
                     },
                     contentDescription = showPickerDescription,
-                    tint = AppTheme.colors.neutral600
+                    tint = AppTheme.colors.neutral700
                 )
             }
             Spacer(Modifier.weight(1f))

@@ -37,7 +37,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 
 /**
  * A composable that animates the visibility of a title based on the scroll state of a LazyList.
@@ -88,7 +90,8 @@ fun AnimatedTitleContent(
         val animatedTitle = if (elevated) title else ""
         Text(
             animatedTitle,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.semanticsHeading()
         )
     }
 }

@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.prescription.repository
 
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.prescription.model.TaskData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
@@ -64,9 +65,14 @@ interface PrescriptionRepository {
     fun loadScannedTaskByTaskId(taskId: String): Flow<ScannedTaskData.ScannedTask?>
 
     fun loadTaskIds(): Flow<List<String>>
+
     suspend fun deleteLocalTaskById(taskId: String)
+
     suspend fun wasProfileEverAuthenticated(profileId: ProfileIdentifier): Boolean
+
     suspend fun redeemScannedTasks(taskIds: List<String>)
 
     fun loadAllTaskIds(profileId: ProfileIdentifier): Flow<List<String>>
+
+    fun getTask(taskId: String): TaskData?
 }

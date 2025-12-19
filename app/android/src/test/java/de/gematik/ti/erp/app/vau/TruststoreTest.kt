@@ -25,17 +25,19 @@
 package de.gematik.ti.erp.app.vau
 
 import de.gematik.ti.erp.app.CoroutineTestRule
+import de.gematik.ti.erp.app.vau.TestCertificates.Vau.X509Certificate
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
+import de.gematik.ti.erp.app.vau.repository.VauLocalDataSource
 import de.gematik.ti.erp.app.vau.repository.VauRepository
 import de.gematik.ti.erp.app.vau.usecase.TrustedTruststore
 import de.gematik.ti.erp.app.vau.usecase.TrustedTruststoreProvider
 import de.gematik.ti.erp.app.vau.usecase.TruststoreConfig
 import de.gematik.ti.erp.app.vau.usecase.TruststoreTimeSourceProvider
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
+import de.gematik.ti.erp.app.vau.usecase.findNewValidVauChain
 import de.gematik.ti.erp.app.vau.usecase.findValidIdpChains
 import de.gematik.ti.erp.app.vau.usecase.findValidOcspResponses
-import de.gematik.ti.erp.app.vau.usecase.findValidVauChain
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -72,6 +74,9 @@ class TruststoreTest {
     lateinit var repository: VauRepository
 
     @MockK
+    lateinit var localDataSource: VauLocalDataSource
+
+    @MockK
     lateinit var timeSource: TruststoreTimeSourceProvider
 
     @MockK
@@ -81,7 +86,7 @@ class TruststoreTest {
     lateinit var trustedTruststore: TrustedTruststore
 
     private val vauPublicKey =
-        KeyFactorySpi.EC().generatePublic(TestCertificates.Vau.X509Certificate.subjectPublicKeyInfo)!! as ECPublicKey
+        KeyFactorySpi.EC().generatePublic(X509Certificate.subjectPublicKeyInfo)!! as ECPublicKey
     private val ocspProducedAt = TestCertificates.OCSP1.ProducedAt
 
     lateinit var truststore: TruststoreUseCase
@@ -94,17 +99,18 @@ class TruststoreTest {
         every { config.trustAnchor } returns TestCertificates.RCA3.X509Certificate
         every { timeSource() } returns ocspProducedAt + 2.hours
         every { trustedTruststore.vauPublicKey } returns vauPublicKey
-        every { trustedTruststore.idpCertificates } returns
-            listOf(TestCertificates.Idp1.X509Certificate, TestCertificates.Idp2.X509Certificate)
+        every { trustedTruststore.idpCertificates } returns listOf(TestCertificates.Idp1.X509Certificate, TestCertificates.Idp2.X509Certificate)
         every { trustedTruststore.caCertificates } returns listOf(TestCertificates.CA10.X509Certificate)
         every { trustedTruststore.ocspResponses } returns
             TestCertificates.OCSP.OCSPList.responses.map { it.responseObject as BasicOCSPResp }
         every { trustedTruststore.checkValidity(12.hours, ocspProducedAt) } coAnswers { }
         coEvery { repository.invalidate() } coAnswers { }
+        coEvery { localDataSource.saveLists(any(), any()) } returns Unit
 
         truststore = TruststoreUseCase(
             config,
             repository,
+            localDataSource,
             timeSource,
             trustedTruststoreProvider
         )
@@ -116,14 +122,22 @@ class TruststoreTest {
             Base64.getDecoder().decode(TestCertificates.OCSP3.Base64)
         ).responseObject as BasicOCSPResp
         val certChain = listOf(
-            TestCertificates.Vau.X509Certificate,
             TestCertificates.CA10.X509Certificate,
             TestCertificates.RCA3.X509Certificate
         )
 
+        val eeChain = listOf(
+            X509Certificate,
+            TestCertificates.Idp1.X509Certificate,
+            TestCertificates.Idp2.X509Certificate
+        )
+        val eeExpChain = listOf(
+            X509Certificate
+        )
+
         assertArrayEquals(
-            certChain.toTypedArray(),
-            findValidVauChain(listOf(certChain), listOf(ocspResp), TestCertificates.OCSP3.ProducedAt).toTypedArray()
+            eeExpChain.toTypedArray(),
+            findNewValidVauChain(eeChain, certChain, listOf(ocspResp), TestCertificates.OCSP3.ProducedAt).toTypedArray()
         )
     }
 
@@ -133,24 +147,26 @@ class TruststoreTest {
             OCSPResp(Base64.getDecoder().decode(TestCertificates.OCSP1.Base64)).responseObject as BasicOCSPResp,
             OCSPResp(Base64.getDecoder().decode(TestCertificates.OCSP2.Base64)).responseObject as BasicOCSPResp
         )
-        val certChains = listOf(
-            listOf(
-                TestCertificates.Idp1.X509Certificate,
-                TestCertificates.CA10.X509Certificate,
-                TestCertificates.RCA3.X509Certificate
-            ),
-            listOf(
-                TestCertificates.Idp2.X509Certificate,
-                TestCertificates.CA10.X509Certificate,
-                TestCertificates.RCA3.X509Certificate
-            )
+        val certChain = listOf(
+            TestCertificates.CA10.X509Certificate,
+            TestCertificates.RCA3.X509Certificate
         )
 
-        val chains = findValidIdpChains(certChains, ocspResp, TestCertificates.OCSP1.ProducedAt)
+        val eeChain = listOf(
+            X509Certificate,
+            TestCertificates.Idp1.X509Certificate,
+            TestCertificates.Idp2.X509Certificate
+        )
+        val eeExpChain = listOf(
+            TestCertificates.Idp1.X509Certificate,
+            TestCertificates.Idp2.X509Certificate
+        )
+
+        val chains = findValidIdpChains(eeChain, certChain, ocspResp, TestCertificates.OCSP1.ProducedAt)
 
         assertArrayEquals(
-            certChains[0].toTypedArray(),
-            chains[0].toTypedArray()
+            eeExpChain.toTypedArray(),
+            chains.toTypedArray()
         )
     }
 
@@ -166,7 +182,7 @@ class TruststoreTest {
             ocspResps.toTypedArray(),
             findValidOcspResponses(
                 ocspResps,
-                listOf(certChain),
+                certChain,
                 12.hours,
                 TestCertificates.OCSP2.ProducedAt
             ).toTypedArray()
@@ -185,7 +201,7 @@ class TruststoreTest {
             emptyArray(),
             findValidOcspResponses(
                 ocspResps,
-                listOf(certChain),
+                certChain,
                 12.hours,
                 TestCertificates.OCSP2.ProducedAt
             ).toTypedArray()
@@ -218,14 +234,14 @@ class TruststoreTest {
         runTest {
             coEvery { repository.withUntrusted<Boolean>(any()) } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
-                    TestCertificates.Vau.CertList,
+                    TestCertificates.Vau.PkiList,
                     TestCertificates.OCSP.OCSPList
                 )
             }
             every {
                 trustedTruststoreProvider(
                     TestCertificates.OCSP.OCSPList,
-                    TestCertificates.Vau.CertList,
+                    TestCertificates.Vau.PkiList,
                     TestCertificates.RCA3.X509Certificate,
                     12.hours,
                     any()
@@ -249,7 +265,7 @@ class TruststoreTest {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
-                    TestCertificates.Vau.CertList,
+                    TestCertificates.Vau.PkiList,
                     TestCertificates.OCSP.OCSPList
                 )
             }
@@ -257,7 +273,7 @@ class TruststoreTest {
             every {
                 trustedTruststoreProvider(
                     TestCertificates.OCSP.OCSPList,
-                    TestCertificates.Vau.CertList,
+                    TestCertificates.Vau.PkiList,
                     TestCertificates.RCA3.X509Certificate,
                     12.hours,
                     any()
@@ -291,7 +307,7 @@ class TruststoreTest {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
-                    TestCertificates.Vau.CertList,
+                    TestCertificates.Vau.PkiList,
                     TestCertificates.OCSP.OCSPList
                 )
             }
@@ -299,7 +315,7 @@ class TruststoreTest {
             every {
                 trustedTruststoreProvider(
                     TestCertificates.OCSP.OCSPList,
-                    TestCertificates.Vau.CertList,
+                    TestCertificates.Vau.PkiList,
                     TestCertificates.RCA3.X509Certificate,
                     12.hours,
                     any()
@@ -341,81 +357,81 @@ class TruststoreTest {
         }
 
     @Test(expected = Exception::class)
-    fun `truststore creation finally fails`() =
-        runTest {
-            coEvery {
-                repository.withUntrusted<Boolean>(any())
-            } coAnswers {
-                firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
-                    TestCertificates.Vau.CertList,
-                    TestCertificates.OCSP.OCSPList
-                )
-            }
-
-            every {
-                trustedTruststoreProvider(
-                    TestCertificates.OCSP.OCSPList,
-                    TestCertificates.Vau.CertList,
-                    TestCertificates.RCA3.X509Certificate,
-                    12.hours,
-                    ocspProducedAt
-                )
-            } throws IllegalStateException()
-
-            try {
-                truststore.withValidVauPublicKey {
-                    assertFalse(true) // should never be called
-                }
-            } finally {
-                coVerifyOrder {
-                    repository.withUntrusted<Boolean>(any())
-                    repository.invalidate()
-                    repository.withUntrusted<Boolean>(any())
-                    repository.invalidate()
-                }
-                coVerify(exactly = 2) { repository.withUntrusted(any()) }
-                coVerify(exactly = 2) { repository.invalidate() }
-                verify(exactly = 0) { trustedTruststore.vauPublicKey }
-                coVerify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
-            }
+    fun `truststore creation finally fails`() = runTest {
+        coEvery {
+            repository.withUntrusted<Boolean>(any())
+        } coAnswers {
+            firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
+                TestCertificates.Vau.PkiList,
+                TestCertificates.OCSP.OCSPList
+            )
         }
+        val expectedCertList = TestCertificates.Vau.PkiList.copy(
+            eeCerts = (TestCertificates.Vau.VauCert.responses + listOf(TestCertificates.Idp1.X509Certificate))
+        )
+        val expectedOcspList = UntrustedOCSPList(
+            TestCertificates.OCSP.OCSPList.responses + TestCertificates.OCSP.OCSPList.responses
+        )
 
-    @Test
-    fun `truststore creation succeeds - idp certificate found`() =
-        runTest {
-            coEvery {
-                repository.withUntrusted<Boolean>(any())
-            } coAnswers {
-                firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
-                    TestCertificates.Vau.CertList,
-                    TestCertificates.OCSP.OCSPList
-                )
+        every {
+            trustedTruststoreProvider(
+                expectedOcspList,
+                expectedCertList,
+                TestCertificates.RCA3.X509Certificate,
+                12.hours,
+                ocspProducedAt
+            )
+        } throws IllegalStateException()
+
+        try {
+            truststore.withValidVauPublicKey {
+                assertFalse(true) // should never be called
             }
-
-            every {
-                trustedTruststoreProvider(
-                    TestCertificates.OCSP.OCSPList,
-                    TestCertificates.Vau.CertList,
-                    TestCertificates.RCA3.X509Certificate,
-                    12.hours,
-                    any()
-                )
-            } answers {
-                trustedTruststore
-            }
-
-            truststore.checkIdpCertificate(TestCertificates.Idp1.X509Certificate)
-
+        } finally {
             coVerifyOrder {
                 repository.withUntrusted<Boolean>(any())
-                trustedTruststore.idpCertificates
+                repository.invalidate()
+                repository.withUntrusted<Boolean>(any())
+                repository.invalidate()
             }
-            coVerify(exactly = 1) { repository.withUntrusted(any()) }
-            coVerify(exactly = 0) { repository.invalidate() }
-            verify(exactly = 0) { trustedTruststore.caCertificates }
+            coVerify(exactly = 2) { repository.withUntrusted(any()) }
+            coVerify(exactly = 2) { repository.invalidate() }
             verify(exactly = 0) { trustedTruststore.vauPublicKey }
-            verify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
+            coVerify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
         }
+    }
+
+    @Test
+    fun `truststore creation succeeds - idp certificate found`() = runTest {
+        coEvery {
+            repository.withUntrusted<Boolean>(any())
+        } coAnswers {
+            firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
+                TestCertificates.Vau.PkiList,
+                TestCertificates.OCSP.OCSPList
+            )
+        }
+
+        every {
+            trustedTruststoreProvider(
+                any(),
+                any(),
+                TestCertificates.RCA3.X509Certificate,
+                12.hours,
+                any()
+            )
+        } answers {
+            trustedTruststore
+        }
+
+        truststore.checkIdpCertificate(listOf(TestCertificates.Idp1.X509Certificate), TestCertificates.OCSP.OCSPList, false)
+
+        coVerify(exactly = 1) { repository.withUntrusted(any()) }
+        coVerify(exactly = 0) { repository.invalidate() }
+        verify(exactly = 0) { trustedTruststore.caCertificates }
+        verify(exactly = 0) { trustedTruststore.vauPublicKey }
+        verify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
+    }
 
     @Test(expected = IllegalArgumentException::class)
     fun `truststore creation succeeds - idp certificate not found`() =
@@ -424,15 +440,14 @@ class TruststoreTest {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
-                    TestCertificates.Vau.CertList,
+                    TestCertificates.Vau.PkiList,
                     TestCertificates.OCSP.OCSPList
                 )
             }
-
             every {
                 trustedTruststoreProvider(
                     TestCertificates.OCSP.OCSPList,
-                    TestCertificates.Vau.CertList,
+                    TestCertificates.Vau.PkiList,
                     TestCertificates.RCA3.X509Certificate,
                     12.hours,
                     any()
@@ -441,19 +456,14 @@ class TruststoreTest {
                 trustedTruststore
             }
 
-            try {
-                truststore.checkIdpCertificate(TestCertificates.Idp3.X509Certificate)
-            } finally {
-                coVerifyOrder {
-                    repository.withUntrusted<Boolean>(any())
-                    trustedTruststore.idpCertificates
-                }
-                coVerify(exactly = 1) { repository.withUntrusted(any()) }
-                coVerify(exactly = 0) { repository.invalidate() }
-                verify(exactly = 0) { trustedTruststore.caCertificates }
-                verify(exactly = 0) { trustedTruststore.vauPublicKey }
-                verify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
-            }
+            val eeCertList = TestCertificates.Vau.PkiWithVauCertList.eeCerts ?: listOf(X509Certificate)
+            truststore.checkIdpCertificate(eeCertList, TestCertificates.OCSPNotValid.OCSP, false)
+
+            coVerify(exactly = 1) { repository.withUntrusted(any()) }
+            coVerify(exactly = 0) { repository.invalidate() }
+            verify(exactly = 0) { trustedTruststore.caCertificates }
+            verify(exactly = 0) { trustedTruststore.vauPublicKey }
+            verify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
         }
 
     @Test(expected = Exception::class)
@@ -480,19 +490,14 @@ class TruststoreTest {
                 trustedTruststore
             }
 
-            try {
-                truststore.checkIdpCertificate(TestCertificates.Idp3.X509Certificate, true)
-            } finally {
-                coVerifyOrder {
-                    repository.withUntrusted<Boolean>(any())
-                    trustedTruststore.idpCertificates
-                    repository.invalidate()
-                }
-                coVerify(exactly = 1) { repository.withUntrusted(any()) }
-                coVerify(exactly = 1) { repository.invalidate() }
-                verify(exactly = 0) { trustedTruststore.caCertificates }
-                verify(exactly = 0) { trustedTruststore.vauPublicKey }
-                verify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
-            }
+            val eeCertList = TestCertificates.Vau.PkiWithVauCertList.eeCerts ?: listOf(X509Certificate)
+
+            truststore.checkIdpCertificate(eeCertList, TestCertificates.OCSPNotValid.OCSP, true)
+
+            coVerify(exactly = 1) { repository.withUntrusted(any()) }
+            coVerify(exactly = 1) { repository.invalidate() }
+            verify(exactly = 0) { trustedTruststore.caCertificates }
+            verify(exactly = 0) { trustedTruststore.vauPublicKey }
+            verify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
         }
 }

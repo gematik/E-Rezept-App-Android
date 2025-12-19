@@ -23,7 +23,9 @@
 package de.gematik.ti.erp.app.redeem.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,7 +35,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -46,32 +47,44 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
+import androidx.compose.material3.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
 import de.gematik.ti.erp.app.authentication.presentation.AuthReason.SUBMIT
+import de.gematik.ti.erp.app.button.GemIconButtonDefaults
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.digas.ui.component.CustomSegmentedButton
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.eurezept.navigation.EuRoutes
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
@@ -79,25 +92,30 @@ import de.gematik.ti.erp.app.redeem.model.DMCode
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes.REDEEM_NAV_TASK_ID
 import de.gematik.ti.erp.app.redeem.presentation.rememberLocalRedeemScreenController
 import de.gematik.ti.erp.app.redeem.ui.components.DataMatrixCodesWithSelfPayerWarning
+import de.gematik.ti.erp.app.redeem.ui.model.LocalRedeemTab
 import de.gematik.ti.erp.app.redeem.ui.preview.LocalRedeemPreview
 import de.gematik.ti.erp.app.redeem.ui.preview.LocalRedeemPreviewParameter
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.utils.SpacerMedium
+import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.TertiaryButton
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
+import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.forceBrightness
 import de.gematik.ti.erp.app.utils.uistate.UiState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlin.compareTo
 
 @Requirement(
     "A_20181-01#1",
@@ -115,9 +133,9 @@ class LocalRedeemScreen(
         val euRedeemFeatureFlag by controller.euRedeemFeatureFlag.collectAsStateWithLifecycle()
         val hasEuRedeemablePrescriptions by controller.hasEuRedeemablePrescriptions.collectAsStateWithLifecycle()
         val codes by controller.dmCodes.collectAsStateWithLifecycle()
-        val showSingleCodes by controller.showSingleCodes.collectAsStateWithLifecycle()
+        val selectedTab by controller.selectedTab.collectAsStateWithLifecycle()
         var sharedWarningHeight by remember { mutableIntStateOf(0) }
-
+        val coroutineScope = rememberCoroutineScope()
         val activity = LocalActivity.current
         activity.forceBrightness()
 
@@ -154,9 +172,10 @@ class LocalRedeemScreen(
 
         LocalRedeemScreenScaffold(
             codes = codes,
+            coroutineScope = coroutineScope,
             hasEuRedeemablePrescriptions = hasEuRedeemablePrescriptions,
             euRedeemFeatureFlag = euRedeemFeatureFlag,
-            showSingleCodes = showSingleCodes,
+            selectedTab = selectedTab,
             sharedWarningHeight = sharedWarningHeight,
             onClickReady = {
                 if (codes.data?.any { it.containsScanned } == true) {
@@ -165,8 +184,8 @@ class LocalRedeemScreen(
                     onClose()
                 }
             },
-            onSwitchSingleCodes = {
-                controller.switchSingleCode()
+            onTabChange = { index ->
+                controller.onSelectTab(index = index)
                 controller.getDmCodes()
             },
             onEuPrescriptionClick = {
@@ -184,12 +203,13 @@ class LocalRedeemScreen(
 @Composable
 private fun LocalRedeemScreenScaffold(
     codes: UiState<List<DMCode>>,
+    coroutineScope: CoroutineScope,
     hasEuRedeemablePrescriptions: Boolean,
     euRedeemFeatureFlag: Boolean,
-    showSingleCodes: Boolean,
+    selectedTab: LocalRedeemTab,
     sharedWarningHeight: Int,
     onClickReady: () -> Unit,
-    onSwitchSingleCodes: () -> Unit,
+    onTabChange: (Int) -> Unit,
     onEuPrescriptionClick: () -> Unit,
     onRefreshCodes: () -> Unit,
     onSharedWarningHeightUpdated: (Int) -> Unit,
@@ -227,38 +247,48 @@ private fun LocalRedeemScreenScaffold(
                 }
             },
             onError = {
-                ErrorScreenComponent { onRefreshCodes() }
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                ) { onRefreshCodes() }
             },
             onEmpty = {
-                ErrorScreenComponent { onRefreshCodes() }
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                ) { onRefreshCodes() }
             },
             onContent = { codes ->
                 LocalRedeemScreenContent(
                     sharedWarningHeight = sharedWarningHeight,
+                    coroutineScope = coroutineScope,
                     padding = padding,
                     pagerState = pagerState,
                     codes = codes,
                     listState = listState,
-                    showSingleCodes = showSingleCodes,
-                    onSharedWarningHeightUpdated = onSharedWarningHeightUpdated
-                ) {
-                    onSwitchSingleCodes()
-                }
+                    selectedTab = selectedTab,
+                    onSharedWarningHeightUpdated = onSharedWarningHeightUpdated,
+                    onTabChange = onTabChange
+                )
             }
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LocalRedeemScreenContent(
     sharedWarningHeight: Int,
     padding: PaddingValues,
+    coroutineScope: CoroutineScope,
     listState: LazyListState,
     pagerState: PagerState,
     codes: List<DMCode>,
-    showSingleCodes: Boolean,
+    selectedTab: LocalRedeemTab,
     onSharedWarningHeightUpdated: (Int) -> Unit,
-    onClick: () -> Unit
+    onTabChange: (Int) -> Unit
 ) {
     LazyColumn(
         Modifier
@@ -267,6 +297,28 @@ private fun LocalRedeemScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         state = listState
     ) {
+        if (codes.size > 1 || (codes.size == 1 && codes.first().nrOfCodes > 1)) {
+            item {
+                SpacerMedium()
+                val options = listOf(stringResource(R.string.local_redeem_grouped_codes), stringResource(R.string.local_redeem_single_codes))
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = PaddingDefaults.Medium)
+                ) {
+                    options.forEachIndexed { index, label ->
+                        CustomSegmentedButton(
+                            index = index,
+                            options = options,
+                            selectedIndex = selectedTab.index,
+                            label = label,
+                            onClick = { onTabChange(index) }
+                        )
+                    }
+                }
+            }
+        }
+
         item {
             HorizontalPager(
                 state = pagerState
@@ -274,7 +326,9 @@ private fun LocalRedeemScreenContent(
                 if (page in codes.indices) {
                     DataMatrixCodesWithSelfPayerWarning(
                         dmCode = codes[page],
-                        showSingleCodes = showSingleCodes,
+                        page = page + 1,
+                        isOnlyOneMultiCode = codes.size > 1 || (codes.size == 1 && codes.first().nrOfCodes > 1),
+                        showSingleCodes = selectedTab == LocalRedeemTab.SingleCode,
                         sharedWarningHeight = sharedWarningHeight,
                         onSharedWarningHeightUpdated = onSharedWarningHeightUpdated
                     )
@@ -283,21 +337,53 @@ private fun LocalRedeemScreenContent(
         }
         item {
             if (codes.size > 1 || (codes.size == 1 && codes.first().nrOfCodes > 1)) {
-                PageIndicator(
-                    modifier = Modifier,
-                    pagerState = pagerState
-                )
-                Spacer(Modifier.fillMaxWidth())
-                TertiaryButton(
-                    modifier = Modifier
-                        .padding(bottom = PaddingDefaults.XXLarge)
-                        .navigationBarsPadding(),
-                    onClick = onClick
-                ) {
-                    if (showSingleCodes) {
-                        Text(stringResource(R.string.local_redeem_grouped_codes))
-                    } else {
-                        Text(stringResource(R.string.local_redeem_single_codes))
+                if (pagerState.pageCount > 1) {
+                    SpacerXXLarge()
+                    val backDescription = stringResource(R.string.a11y_local_redeem_back)
+                    val forwardDescription = stringResource(R.string.a11y_local_redeem_forward)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = PaddingDefaults.Medium),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            enabled = pagerState.canScrollBackward,
+                            colors = GemIconButtonDefaults.gemIconButtonColors(
+                                containerColor = MaterialTheme.colors.background
+                            ),
+                            onClick = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                                }
+                            }
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Default.ArrowBack,
+                                backDescription
+                            )
+                        }
+                        PageIndicator(
+                            modifier = Modifier,
+                            pagerState = pagerState
+                        )
+                        IconButton(
+                            enabled = pagerState.canScrollForward,
+                            colors = GemIconButtonDefaults.gemIconButtonColors(
+                                containerColor = MaterialTheme.colors.background
+                            ),
+                            onClick = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                }
+                            }
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Default.ArrowForward,
+                                forwardDescription
+                            )
+                        }
                     }
                 }
             }
@@ -344,36 +430,61 @@ private fun PageIndicator(
     modifier: Modifier,
     pagerState: PagerState
 ) {
+    val pagerStateDescription = annotatedStringResource(
+        R.string.a11y_datamatrix_code_pager_state_description,
+        (pagerState.currentPage + 1).toString(),
+        pagerState.pageCount.toString()
+    )
+    val pagerContentDescription = stringResource(R.string.a11y_datamatrix_code_pager_content_description)
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(SizeDefaults.one))
-            .background(AppTheme.colors.neutral100)
+            .semantics() {
+                contentDescription = pagerContentDescription
+                stateDescription = pagerStateDescription.toString()
+            }
+            .clip(RoundedCornerShape(SizeDefaults.twelvefold))
+            .background(AppTheme.colors.neutral000)
+            .border(
+                BorderStroke(SizeDefaults.eighth, color = AppTheme.colors.neutral300),
+                RoundedCornerShape(SizeDefaults.twelvefold)
+            )
             .padding(vertical = PaddingDefaults.Small, horizontal = PaddingDefaults.Medium)
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
         ) {
             repeat(pagerState.pageCount) {
-                Dot(color = AppTheme.colors.neutral300)
+                Dot(
+                    isSelected = it == pagerState.currentPage
+                )
             }
         }
-
-        val fraction = pagerState.currentPage + pagerState.currentPageOffsetFraction
-        val offsetX = with(LocalDensity.current) {
-            val gap = PaddingDefaults.Small.roundToPx()
-            val size = SizeDefaults.one.roundToPx()
-            (fraction * (size + gap)).toDp()
-        }
-        Dot(modifier = Modifier.offset(x = offsetX), color = AppTheme.colors.primary500)
     }
 }
 
 @Composable
-private fun Dot(modifier: Modifier = Modifier, color: Color) {
+private fun Dot(
+    modifier: Modifier = Modifier,
+    isSelected: Boolean
+) {
     Box(
         modifier = modifier
             .clip(CircleShape)
-            .background(color)
+            .background(
+                if (isSelected) {
+                    AppTheme.colors.primary700
+                } else {
+                    AppTheme.colors.neutral000
+                }
+            )
+            .border(
+                if (isSelected) {
+                    BorderStroke(0.dp, color = AppTheme.colors.neutral600)
+                } else {
+                    BorderStroke(SizeDefaults.eighth, color = AppTheme.colors.neutral600)
+                },
+                CircleShape
+            )
             .size(SizeDefaults.one)
     )
 }
@@ -414,13 +525,14 @@ fun LocalRedeemScreenPreview(
     PreviewAppTheme {
         LocalRedeemScreenScaffold(
             codes = previewData.dmCodes,
+            coroutineScope = rememberCoroutineScope(),
             hasEuRedeemablePrescriptions = previewData.hasEuRedeemablePrescriptions,
             euRedeemFeatureFlag = true,
-            showSingleCodes = previewData.showSingleCodes,
+            selectedTab = LocalRedeemTab.SingleCode,
             sharedWarningHeight = 0,
             onEuPrescriptionClick = {},
             onClickReady = {},
-            onSwitchSingleCodes = {},
+            onTabChange = {},
             onRefreshCodes = {},
             onSharedWarningHeightUpdated = {},
             onBack = {}

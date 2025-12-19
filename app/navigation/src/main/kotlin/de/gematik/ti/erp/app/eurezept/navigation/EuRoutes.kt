@@ -32,6 +32,7 @@ object EuRoutes : NavigationRoutes {
     override fun subGraphName(): String = "eu"
 
     const val EU_NAV_TASK_ID = "taskId"
+    const val EU_NAV_ACCESS_CODE = "euAccessCode"
     const val EU_NAV_REDEEM_BUTTON = "euShowRedeemButton"
 
     object EuConsentScreen : Routes(
@@ -85,5 +86,16 @@ object EuRoutes : NavigationRoutes {
         }
     }
 
-    object EuRedemptionCodeScreen : Routes(NavigationRouteNames.EuRedemptionCodeScreen.name)
+    object EuRedemptionCodeScreen : Routes(
+        NavigationRouteNames.EuRedemptionCodeScreen.name,
+        navArgument(EU_NAV_ACCESS_CODE) {
+            type = NavType.StringType
+        }
+    ) {
+        fun path(accessCode: String = ""): String {
+            return path(EU_NAV_ACCESS_CODE to accessCode)
+        }
+    }
+
+    object EuDeleteAccessCodeBottomSheetScreen : Routes(NavigationRouteNames.EuDeleteAccessCodeBottomSheetScreen.name)
 }

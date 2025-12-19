@@ -34,6 +34,7 @@ import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.fhir.pharmacy.model.SpecialOpeningTimeMetadata
 import de.gematik.ti.erp.app.fhir.pharmacy.model.sortedByPeriodStart
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
@@ -53,7 +54,10 @@ internal fun SpecialOpeningTimes(
         return
     }
 
-    ErezeptText.Title(text = stringResource(id = R.string.pharm_detail_emergency_service_opening_times))
+    ErezeptText.Title(
+        text = stringResource(id = R.string.pharm_detail_emergency_service_opening_times),
+        modifier = Modifier.semanticsHeading()
+    )
     SpacerSmall()
 
     upcomingOrActive.forEachIndexed { index, specialTime ->
@@ -73,7 +77,7 @@ private fun SpecialOpeningTime(
     if (!specialTimeMetadata.isInPast) {
         val currentColor = when {
             specialTimeMetadata.isActive -> AppTheme.colors.green700
-            else -> AppTheme.colors.neutral600
+            else -> AppTheme.colors.neutral700
         }
 
         Row(

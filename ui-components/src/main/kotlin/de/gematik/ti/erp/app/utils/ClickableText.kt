@@ -22,15 +22,20 @@
 
 package de.gematik.ti.erp.app.utils
 
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.withLink
+import de.gematik.ti.erp.app.preview.LightDarkPreview
+import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.theme.AppTheme
 
 /**
@@ -40,60 +45,56 @@ import de.gematik.ti.erp.app.theme.AppTheme
 @Composable
 fun ClickableText(
     modifier: Modifier = Modifier,
-    clickText: ClickText,
-    textStyle: TextStyle = TextStyle(color = AppTheme.colors.neutral600),
-    linkTextStyle: SpanStyle = SpanStyle(color = AppTheme.colors.primary700, textDecoration = TextDecoration.Underline),
-    text: String
+    leadingText: String? = null,
+    trailingText: String? = null,
+    linkText: String,
+    onClick: () -> Unit,
+    textStyle: TextStyle,
+    linkTextStyle: SpanStyle = SpanStyle(
+        color = AppTheme.colors.primary700,
+        textDecoration = TextDecoration.Underline
+    )
 ) {
-    val annotatedString = remember(clickText, text) {
+    val annotatedString = remember(linkText) {
         buildAnnotatedString {
-            val clickableText = clickText.text
-            val startIndex = text.indexOf(clickableText, ignoreCase = true)
-            val endIndex = startIndex + clickableText.length
-
-            if (startIndex != -1) {
-                if (startIndex > 0) {
-                    withStyle(textStyle.toSpanStyle()) {
-                        append(text.substring(0, startIndex))
-                    }
+            leadingText?.let {
+                append(it)
+            }
+            withLink(
+                LinkAnnotation.Clickable(
+                    tag = linkText,
+                    styles = TextLinkStyles(
+                        style = linkTextStyle
+                    )
+                ) {
+                    onClick()
                 }
-
-                pushStringAnnotation(tag = "clickable_link", annotation = "clickable_link")
-                withStyle(linkTextStyle) {
-                    append(clickableText)
-                }
-                pop()
-
-                if (endIndex < text.length) {
-                    withStyle(textStyle.toSpanStyle()) {
-                        append(text.substring(endIndex))
-                    }
-                }
-            } else {
-                withStyle(textStyle.toSpanStyle()) {
-                    append(text)
-                }
+            ) {
+                append(linkText)
+            }
+            trailingText?.let {
+                append(it)
             }
         }
     }
 
-    ClickableText(
-        text = annotatedString,
+    Text(
+        annotatedString,
         style = textStyle,
-        modifier = modifier,
-        onClick = { offset ->
-            annotatedString.getStringAnnotations(
-                tag = "clickable_link",
-                start = offset,
-                end = offset
-            ).firstOrNull()?.let {
-                clickText.onClick()
-            }
-        }
+        modifier = modifier.fillMaxWidth()
     )
 }
 
-data class ClickText(
-    val text: String,
-    val onClick: () -> Unit
-)
+@LightDarkPreview
+@Composable
+private fun ClickableTextPreview() {
+    PreviewTheme {
+        ClickableText(
+            leadingText = "Prefix: ",
+            trailingText = " :Suffix",
+            linkText = "Link",
+            onClick = {},
+            textStyle = AppTheme.typography.body2l
+        )
+    }
+}

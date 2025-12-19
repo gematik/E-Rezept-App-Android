@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="a11y_card_wall_card_hand">Zdravotní karta na smartphonu</string>
+    <string name="a11y_card_wall_card_hand">Ruka drží kartu zdravotního pojištění u smartphonu.</string>
     <string name="a11y_cdw_health_card_image_description">Obrázek zdravotní karty s šestimístným přístupovým číslem v pravém horním rohu přední strany karty</string>
+    <string name="a11y_datamatrix_code_description">Naskenujte kód</string>
+    <string name="a11y_datamatrix_code_pager_content_description">Přejetím dvěma prsty přepínáte stránky</string>
+    <string name="a11y_datamatrix_code_pager_state_description" formatted="false">Strana %s z %s</string>
+    <string name="a11y_datamatrix_code_zoom_in_button_description">Zvětšit kód</string>
+    <string name="a11y_datamatrix_code_zoom_out_button_description">Zmenšete velikost kódu</string>
+    <string name="a11y_delete_access_code_dialog">Dialog: Smazat přístupový kód</string>
     <string name="a11y_deleted_text">Smazat text</string>
     <string name="a11y_diga_arrow">až</string>
     <string name="a11y_diga_change_insurance">Změna pojištění</string>
@@ -9,16 +15,32 @@
     <string name="a11y_diga_feedback_prompt_accessibility_label">Zpětná vazba k předpisu DiGA</string>
     <string name="a11y_diga_feedback_submit">Odeslat zpětnou vazbu na externí webové stránky</string>
     <string name="a11y_disabled">deaktivováno</string>
+    <string name="a11y_error_icon">Chyba</string>
     <string name="a11y_error_prefix">Chyba:</string>
+    <string name="a11y_eu_access_code_delete_button">Smazat přístupový kód</string>
+    <string name="a11y_eu_access_code_delete_button_disabled">Smazání přístupového kódu je momentálně zakázáno z důvodu probíhající akce.</string>
+    <string name="a11y_eu_access_code_deleted_error">Smazání přístupového kódu se nezdařilo.</string>
+    <string name="a11y_eu_access_code_deleted_success">Přístupový kód byl smazán.</string>
+    <string name="a11y_eu_access_code_deleting">Přístupový kód bude smazán…</string>
     <string name="a11y_eu_instructions_flag_accessibility_text">Můžete říci následující:</string>
     <string name="a11y_eu_instructions_open_in_browser">Otevřít v prohlížeči</string>
+    <string name="a11y_local_redeem_back">Zobrazit předchozí kód</string>
+    <string name="a11y_local_redeem_forward">Zobrazit další kód</string>
     <string name="a11y_medication_schedule_three_dot_menu">Zobrazit možnosti připomenutí léků</string>
     <string name="a11y_not_selected">nevybráno</string>
     <string name="a11y_onboarding_progress_description">Stránka %1$d z %2$d</string>
     <string name="a11y_open_link_submit">Otevřít odkaz na externím webu</string>
     <string name="a11y_open_pdf_submit">Otevřít PDF na externím webu</string>
+    <string name="a11y_password_input_show_password_description_off">Heslo skryté</string>
+    <string name="a11y_password_input_show_password_description_on">Zobrazeno heslo</string>
+    <string name="a11y_password_input_show_password_description_onClick_off">Zobrazit heslo</string>
+    <string name="a11y_password_input_show_password_description_onClick_on">Skrýt heslo</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Vyhledávání lékárny; zadejte název, město nebo PSČ pro vyhledání lékárny</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Hledat v zobrazení seznamu</string>
+    <string name="a11y_pin_input_show_pin_description_off">PIN skrytý</string>
+    <string name="a11y_pin_input_show_pin_description_on">Zobrazen PIN</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_off">Zobrazit PIN</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_on">Skrýt PIN</string>
     <string name="a11y_prescription_details_share">Sdílet recept</string>
     <string name="a11y_prescription_more_option">Více možností</string>
     <string name="a11y_prescription_not_available">Není k dispozici</string>
@@ -27,6 +49,7 @@
     <string name="a11y_select_all_not_selected">Vybrat vše, nevybrané</string>
     <string name="a11y_select_all_selected">Vybrat vše, vybrané</string>
     <string name="a11y_selected">vybraný</string>
+    <string name="a11y_success_icon">Úspěch</string>
     <string name="about_buildhash">Sestavit hash: %s</string>
     <string name="about_version">Verze: %s</string>
     <string name="accept_now">Právě přijato</string>
@@ -166,6 +189,7 @@
     <string name="cardwall_gid_pkv_help_screen_tip_4_body_2">U telefonů s Androidem 14 povolte v nastavení otevírání odkazů.</string>
     <string name="cardwall_gid_pkv_help_screen_tip_4_header">Nejste přesměrováni do aplikace vaší pojišťovny?</string>
     <string name="cardwall_gid_title">HealthID</string>
+    <string name="cardwall_intro_demo_mode_or">Nebo:</string>
     <string name="cardwall_select_insurance_federal_link">Pojištěni jinak</string>
     <string name="cardwall_select_insurance_type_drawer_body">Chcete-li přijímat recepty digitálně, nejprve si vyberte typ pojištění.</string>
     <string name="cardwall_select_insurance_type_drawer_private_insurance_button">Soukromé pojištění</string>
@@ -404,7 +428,7 @@
     <string name="demo_mode_link_text">Demo režim</string>
     <string name="demo_mode_settings_end_title">Ukončete demo režim</string>
     <string name="demo_mode_settings_title">Aktivujte demo režim</string>
-    <string name="demo_mode_start_text">Nebo: Vyzkoušejte aplikaci v demo režimu</string>
+    <string name="demo_mode_start_text">Prozkoumejte %s.</string>
     <string name="demo_mode_text">Demo režim aktivován</string>
     <string name="description">Popis</string>
     <string name="diga_Insurance_is_determined">Pojištění se určuje:</string>
@@ -450,7 +474,7 @@
     <string name="diga_overview_how_it_works_3">3. Stáhněte si aplikaci DiGA</string>
     <string name="diga_overview_how_it_works_4">4. Zadejte kód do aplikace DiGA</string>
     <string name="diga_request_unlock_code">Vyžádat aktivační kód</string>
-    <string name="diga_requesting_code_from">Žádáme o kód z: %s </string>
+    <string name="diga_requesting_code_from">Žádáme o kód od: %s</string>
     <string name="diga_select_insurance_for_diga_discription">Vyberte pojišťovnu, která vám uhradí váš digitální zdravotní předpis. Od této společnosti si vyžádáme aktivační kód.</string>
     <string name="diga_select_insurance_for_diga_header">Vyberte si pojištění pro DiGA</string>
     <string name="diga_server_return_code_200">Úspěšně převedeno.</string>
@@ -543,6 +567,11 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n Následující recepty nelze nebo již nelze uplatnit: %1$s \n Možná jste je již uplatnili jiným způsobem nebo byly smazány. \n</string>
     <string name="error_redeemable_prescription_not_redeemable">Předpis „ %1$s “ již byl uplatněn nebo se právě uplatňuje.</string>
     <string name="error_redeemable_prescription_title">recept nelze proplatit</string>
+    <string name="eu_access_code_delete_body">Chcete zrušit přístup všem lékárnám v ostatních zemích EU?</string>
+    <string name="eu_access_code_delete_button_text">zrušit přístup</string>
+    <string name="eu_access_code_delete_failure_body">Zkuste to prosím znovu.</string>
+    <string name="eu_access_code_delete_failure_header">Přístup se nepodařilo zrušit.</string>
+    <string name="eu_access_code_delete_header">Zrušit přístup k receptům</string>
     <string name="eu_access_code_error">Bohužel se nepodařilo vygenerovat aktivační kód. Zkuste to prosím znovu později.</string>
     <string name="eu_availability_description">Zúčastněné země v současné době pracují na implementaci. Jakmile bude první země připravena, budeme vás informovat.</string>
     <string name="eu_availability_title">Uplatnění v EU bude brzy k dispozici</string>
@@ -596,8 +625,23 @@
     <string name="eu_instructions_step_number">Krok %1$d</string>
     <string name="eu_instructions_title">Instrukce</string>
     <string name="eu_instructions_website_info_end">.</string>
-    <string name="eu_instructions_website_info_start">Více informací naleznete na </string>
-    <string name="eu_instructions_website_link_text">Webové stránky pro uplatnění v EU</string>
+    <string name="eu_instructions_website_info_start">Více informací naleznete na %s.</string>
+    <string name="eu_instructions_website_link_text">Webové stránky pro splácení dluhopisů z EU</string>
+    <string name="eu_messages_code_created_again_message_title">Vygenerován kód pro uplatnění</string>
+    <string name="eu_messages_code_created_but_new_generated_message_body" formatted="false">Získali jste kód pro uplatnění vašeho předpisu v %s.</string>
+    <string name="eu_messages_code_created_message_body" formatted="false">Získali jste kód pro uplatnění vašeho předpisu v %s. %s má přístup k vašim vybraným receptům do %s hodin.</string>
+    <string name="eu_messages_code_created_message_title">Vítejte v %s</string>
+    <string name="eu_messages_code_created_not_present_message_body">Získali jste kód pro uplatnění vašeho předpisu v %s.</string>
+    <string name="eu_messages_code_revoked_button_text">Přístup zrušen</string>
+    <string name="eu_messages_code_revoked_message_body" formatted="false">Získali jste kód pro uplatnění vašeho předpisu na %s. %s již nemá přístup k vašim vybraným receptům.</string>
+    <string name="eu_messages_code_used_by_pharmacy_message_body">Lékárna v %s vám vystavila recept.</string>
+    <string name="eu_messages_list_latest_title">Vykoupení z EU</string>
+    <string name="eu_messages_prescription_added_body">Přidali jste předpis pro uplatnění v EU.</string>
+    <string name="eu_messages_prescription_added_title">Recept přidán</string>
+    <string name="eu_messages_prescription_removed_body">Odstranili jste recept z procesu uplatnění v EU.</string>
+    <string name="eu_messages_prescription_removed_title">Předpis odstraněn</string>
+    <string name="eu_messages_revoke_code_button_text">zrušit přístup</string>
+    <string name="eu_messages_show_code_button_text">Zobrazit kód pro uplatnění</string>
     <string name="eu_prescription_available">Uplatnění v jiných zemích EU</string>
     <string name="eu_prescription_search_empty_text">Zkuste jiný hledaný výraz.</string>
     <string name="eu_prescription_search_empty_title">Bohužel nebyla nalezena žádná vhodná země.</string>
@@ -616,7 +660,7 @@
     <string name="eu_redeem_button">Vykoupit</string>
     <string name="eu_redeem_country_title">země</string>
     <string name="eu_redeem_instructions_link">Instrukce</string>
-    <string name="eu_redeem_instructions_prefix">Jak můžete uplatnit léky na předpis v jiných zemích EU, naleznete v</string>
+    <string name="eu_redeem_instructions_prefix">Jak můžete uplatnit léky na předpis v jiných zemích EU, naleznete v %s</string>
     <string name="eu_redeem_prescription_selection_empty_subtitle">Nebylo možné načíst žádné recepty.</string>
     <string name="eu_redeem_prescription_selection_empty_title">Žádné recepty</string>
     <string name="eu_redeem_prescription_selection_error_dialog_body">Došlo k následující chybě: %s. Můžete to zkusit znovu kliknutím na recept.</string>
@@ -821,7 +865,9 @@
     <string name="link_to_invoice_list">K přehledu faktur lékáren</string>
     <string name="local_redeem_done">Připraveno</string>
     <string name="local_redeem_grouped_codes">Kód sbírky</string>
+    <string name="local_redeem_multi_code_page">Kolektivní kód %s</string>
     <string name="local_redeem_self_payer_prescription_warning">Vaše pojištění nebude hradit žádné náklady na tento předpis.</string>
+    <string name="local_redeem_single_code">Kód léku na předpis</string>
     <string name="local_redeem_single_codes">Jednotlivé kódy</string>
     <string name="location_not_found">Poloha nenalezena</string>
     <string name="logged_in">Registrovaný</string>
@@ -1010,7 +1056,7 @@
     <string name="onb_undo_description">Nehotový</string>
     <string name="onboarding_analytics_agree_button">Souhlasím</string>
     <string name="onboarding_analytics_bottom_text">Analýzu můžete kdykoli deaktivovat v nastavení.</string>
-    <string name="onboarding_analytics_consent_text">S vaším souhlasem bychom rádi provedli analýzu používání aplikace. Za tímto účelem bychom rádi shromažďovali a anonymně vyhodnocovali údaje o používání aplikace a technické údaje za účelem:</string>
+    <string name="onboarding_analytics_consent_text">S vaším souhlasem bychom rádi provedli %s. Za tímto účelem bychom rádi shromažďovali a anonymně analyzovali data o používání aplikace a technická data, a tedy:</string>
     <string name="onboarding_analytics_consent_title">Pomozte vylepšit aplikaci!</string>
     <string name="onboarding_analytics_link_text">Analýza používání aplikace</string>
     <string name="onboarding_analytics_optimize_user_experience_text">Optimalizujte uživatelský zážitek pro celou populaci</string>

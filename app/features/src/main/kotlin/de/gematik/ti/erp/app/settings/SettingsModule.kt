@@ -38,6 +38,7 @@ import de.gematik.ti.erp.app.settings.usecase.GetOrganDonationRegisterHostsUseCa
 import de.gematik.ti.erp.app.settings.usecase.GetScreenShotsAllowedUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetShowWelcomeDrawerUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetZoomStateUseCase
+import de.gematik.ti.erp.app.settings.usecase.PerformSettingsMigrationUseCase
 import de.gematik.ti.erp.app.settings.usecase.ResetPasswordUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveToolTipsShownUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveWelcomeDrawerShownUseCase
@@ -65,6 +66,7 @@ val settingsModule = DI.Module("settingsModule") {
     bindProvider { ResetPasswordUseCase(instance()) }
     bindProvider { SaveZoomPreferenceUseCase(instance()) }
     bindProvider { GetOrganDonationRegisterHostsUseCase(instance()) }
+    bindProvider { PerformSettingsMigrationUseCase(instance()) }
 
     bindProvider {
         val context = instance<android.content.Context>()
@@ -81,5 +83,7 @@ val settingsModule = DI.Module("settingsModule") {
 
 val settingsRepositoryModule = DI.Module("settingsRepositoryModule") {
     bindProvider { CardWallRepository(prefs = instance(ApplicationPreferencesTag)) }
-    bindProvider<SettingsRepository> { DefaultSettingsRepository(instance(), instance()) }
+    bindProvider<SettingsRepository> {
+        DefaultSettingsRepository(realm = instance(), settingsLocalDataSource = instance())
+    }
 }

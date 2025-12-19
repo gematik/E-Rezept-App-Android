@@ -119,7 +119,7 @@ fun LowDetailMedication(
             Icon(
                 Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 null,
-                tint = AppTheme.colors.neutral400,
+                tint = AppTheme.colors.neutral700,
                 modifier =
                 Modifier
                     .size(24.dp)

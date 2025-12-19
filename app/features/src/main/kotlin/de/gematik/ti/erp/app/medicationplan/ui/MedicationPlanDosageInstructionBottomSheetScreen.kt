@@ -62,8 +62,8 @@ import de.gematik.ti.erp.app.navigation.BottomSheetScreen
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.Body2lText
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.FullScreenLoadingIndicator
@@ -82,7 +82,11 @@ class MedicationPlanDosageInstructionBottomSheetScreen(
         UiStateMachine(
             state = dosageInstructionState,
             onError = { _ ->
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             },
             onLoading = {
                 FullScreenLoadingIndicator()
@@ -91,7 +95,11 @@ class MedicationPlanDosageInstructionBottomSheetScreen(
                 MedicationPlanDosageInstructionBottomSheetContent(dosageInstruction = dosageInstruction)
             },
             onEmpty = {
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             }
         )
     }
@@ -164,12 +172,12 @@ private fun InfoContent(dosageText: String, body: String, footer: (@Composable (
         Text(
             dosageText,
             style = AppTheme.typography.body2,
-            color = AppTheme.colors.neutral600
+            color = AppTheme.colors.neutral700
         )
         Text(
             body,
             style = AppTheme.typography.body2,
-            color = AppTheme.colors.neutral600
+            color = AppTheme.colors.neutral700
         )
         footer?.invoke()
     }

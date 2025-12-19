@@ -60,8 +60,8 @@ import com.valentinilk.shimmer.shimmer
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
 import de.gematik.ti.erp.app.authentication.presentation.AuthReason.SUBMIT
-import de.gematik.ti.erp.app.base.ClipBoardCopy
 import de.gematik.ti.erp.app.bottombar.AnimatedBottomBar
+import de.gematik.ti.erp.app.core.ClipBoardCopy
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.diga.model.DigaStatus
@@ -536,7 +536,7 @@ fun DigaMainScreenScaffold(
                                     startIcon = BannerClickableIcon(BannerIcon.Warning) {},
                                     contentColor = AppTheme.colors.neutral900,
                                     containerColor = AppTheme.colors.neutral100,
-                                    borderColor = AppTheme.colors.neutral600,
+                                    borderColor = AppTheme.colors.neutral700,
                                     text = stringResource(R.string.diga_error_no_internet)
                                 )
                             }

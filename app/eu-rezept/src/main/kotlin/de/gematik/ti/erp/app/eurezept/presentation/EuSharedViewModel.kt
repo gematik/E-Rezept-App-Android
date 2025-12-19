@@ -25,11 +25,14 @@ package de.gematik.ti.erp.app.eurezept.presentation
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.eurezept.mapper.countryCodeToFlag
 import de.gematik.ti.erp.app.eurezept.domain.model.Country
 import de.gematik.ti.erp.app.eurezept.domain.model.EuPrescription
 import de.gematik.ti.erp.app.eurezept.domain.model.EuRedemptionDetails
 import de.gematik.ti.erp.app.eurezept.domain.model.PrescriptionFilter
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GenerateEuAccessCodeUseCase
+import de.gematik.ti.erp.app.eurezept.domain.usecase.GenerateEuQrCodeUseCase
+import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuAccessCodeUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuPrescriptionConsentUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuPrescriptionsUseCase
 import de.gematik.ti.erp.app.eurezept.navigation.EuRoutes
@@ -38,6 +41,7 @@ import de.gematik.ti.erp.app.profiles.model.ProfileValidityResult.Companion.fold
 import de.gematik.ti.erp.app.profiles.model.ProfileValidityResult.Companion.withValidSSOToken
 import de.gematik.ti.erp.app.profiles.presentation.GetActiveProfileController
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
+import de.gematik.ti.erp.app.utils.letNotNull
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import de.gematik.ti.erp.app.viewmodel.rememberGraphScopedViewModel
 import io.github.aakira.napier.Napier
@@ -48,6 +52,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
@@ -78,13 +83,16 @@ internal abstract class EuSharedViewModel(
     abstract fun setSelectedCountry(country: Country?)
     abstract fun setEuRedemptionCode(code: EuRedemptionDetails?)
     abstract fun clearSelection()
+    abstract fun overrideEuAccessCode(euAccessCodeString: String)
 }
 
 internal class DefaultEuSharedViewModel(
     private val getEuPrescriptionConsentUseCase: GetEuPrescriptionConsentUseCase,
     private val generateEuAccessCodeUseCase: GenerateEuAccessCodeUseCase,
+    private val generateEuQrCodeUseCase: GenerateEuQrCodeUseCase,
     private val getEuPrescriptionsUseCase: GetEuPrescriptionsUseCase,
-    getActiveProfileUseCase: GetActiveProfileUseCase
+    private val getEuAccessCodeUseCase: GetEuAccessCodeUseCase,
+    private val getActiveProfileUseCase: GetActiveProfileUseCase
 ) : EuSharedViewModel(
     getActiveProfileUseCase = getActiveProfileUseCase
 ) {
@@ -127,19 +135,51 @@ internal class DefaultEuSharedViewModel(
     )
 
     init {
-        loadMarkedEuPrescriptions()
+        controllerScope.launch {
+            loadMarkedEuPrescriptions()?.let {
+                _selectedPrescriptions.value = it
+            }
+        }
     }
 
-    private fun loadMarkedEuPrescriptions() {
+    override fun overrideEuAccessCode(euAccessCodeString: String) {
         controllerScope.launch {
-            try {
-                getEuPrescriptionsUseCase(PrescriptionFilter.EU_REDEEMABLE_ONLY)
-                    .collect { euPrescriptions ->
-                        _selectedPrescriptions.update { euPrescriptions.filter { it.isMarkedAsEuRedeemableByPatientAuthorization } }
+            loadMarkedEuPrescriptions()?.let { _selectedPrescriptions.value = it }
+            val euAccessCode = getEuAccessCodeUseCase.invoke(accessCode = euAccessCodeString).firstOrNull()
+            val activeProfile = getActiveProfileUseCase.invoke().firstOrNull()
+            letNotNull(euAccessCode, activeProfile) { euAccessCode, profile ->
+                euAccessCode.countryCode.let { code ->
+                    val flagEmoji = countryCodeToFlag(code)
+                    _selectedCountry.update {
+                        Country(
+                            name = "", // should we fetch the name from FhirVzd ?
+                            code = code,
+                            flagEmoji = flagEmoji
+                        )
                     }
-            } catch (e: Exception) {
-                Napier.e { "failed to load maarked EuPrescriptions ${e.message}" }
+                }
+                val qr = generateEuQrCodeUseCase(euAccessCode = euAccessCode, insuranceNumber = profile.insurance.insuranceIdentifier).firstOrNull()
+                _euRedemptionCode.update {
+                    UiState.Data(
+                        EuRedemptionDetails(
+                            euAccessCode = euAccessCode,
+                            insuranceNumber = profile.insurance.insuranceIdentifier,
+                            qrCodeBitmap = qr
+                        )
+                    )
+                }
             }
+        }
+    }
+
+    private suspend fun loadMarkedEuPrescriptions(): List<EuPrescription>? {
+        return try {
+            getEuPrescriptionsUseCase(PrescriptionFilter.EU_REDEEMABLE_ONLY)
+                .firstOrNull()
+                ?.filter { it.isMarkedAsEuRedeemableByPatientAuthorization }
+        } catch (e: Exception) {
+            Napier.e { "failed to load marked EuPrescriptions ${e.message}" }
+            emptyList()
         }
     }
 
@@ -156,28 +196,38 @@ internal class DefaultEuSharedViewModel(
                             getEuPrescriptionConsentUseCase.invoke(profile.id)
                                 .fold(
                                     onSuccess = { consent ->
-                                        if (consent.isActive()) {
-                                            generateEuAccessCodeUseCase.invoke(
-                                                profile = profile,
-                                                countryCode = selectedCountry.value?.code ?: "",
-                                                relatedTaskIds = selectedPrescriptions.value.map { it.id }
-                                            ).fold(
-                                                onSuccess = { code ->
-                                                    _isRedemptionInProgress.update { false }
-                                                    _euRedemptionCode.update { UiState.Data(code) }
-                                                    onSuccessfulCodeGeneration?.invoke()
-                                                },
-                                                onFailure = { error ->
-                                                    onFailure?.invoke(EuAccessCodeGenerationError.ErrorGeneratingCode)
-                                                    _isRedemptionInProgress.update { false }
-                                                    _euRedemptionCode.update { UiState.Error(error) }
-                                                }
-                                            )
-                                        } else {
-                                            onFailure?.invoke(EuAccessCodeGenerationError.MissingConsent)
-                                            _isRedemptionInProgress.update { false }
-                                            Napier.e { "Content is missing, cannot generate code" }
+                                        val countryCode = _selectedCountry.value?.code
+                                        val consentOk = consent.isActive()
+
+                                        if (countryCode == null) {
+                                            Napier.e(tag = "eu-order") { "Country missing" }
+                                            onFailure?.invoke(EuAccessCodeGenerationError.ErrorOnCountryCode)
+                                            return@launch
                                         }
+
+                                        if (!consentOk) {
+                                            Napier.e(tag = "eu-order") { "Consent missing" }
+                                            onFailure?.invoke(EuAccessCodeGenerationError.MissingConsent)
+                                            return@launch
+                                        }
+
+                                        generateEuAccessCodeUseCase.invoke(
+                                            profile = profile,
+                                            countryCode = countryCode,
+                                            relatedTaskIds = selectedPrescriptions.value.map { it.id }
+                                        ).fold(
+                                            onSuccess = { code ->
+                                                _isRedemptionInProgress.update { false }
+                                                _euRedemptionCode.update { UiState.Data(code) }
+                                                onSuccessfulCodeGeneration?.invoke()
+                                            },
+                                            onFailure = { error ->
+                                                onFailure?.invoke(EuAccessCodeGenerationError.ErrorGeneratingCode)
+                                                Napier.e(error) { "Error on code generation" }
+                                                _isRedemptionInProgress.update { false }
+                                                _euRedemptionCode.update { UiState.Error(error) }
+                                            }
+                                        )
                                     },
                                     onFailure = { error ->
                                         onFailure?.invoke(EuAccessCodeGenerationError.MissingConsent)
@@ -228,7 +278,9 @@ internal fun euSharedViewModel(
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
     val getEuPrescriptionConsentUseCase by rememberInstance<GetEuPrescriptionConsentUseCase>()
     val generateEuAccessCodeUseCase by rememberInstance<GenerateEuAccessCodeUseCase>()
+    val generateEuQrCodeUseCase by rememberInstance<GenerateEuQrCodeUseCase>()
     val getEuPrescriptionsUseCase by rememberInstance<GetEuPrescriptionsUseCase>()
+    val getEuAccessCodeUseCase by rememberInstance<GetEuAccessCodeUseCase>()
 
     return rememberGraphScopedViewModel(
         navController = navController,
@@ -239,7 +291,9 @@ internal fun euSharedViewModel(
             getActiveProfileUseCase = getActiveProfileUseCase,
             getEuPrescriptionConsentUseCase = getEuPrescriptionConsentUseCase,
             generateEuAccessCodeUseCase = generateEuAccessCodeUseCase,
-            getEuPrescriptionsUseCase = getEuPrescriptionsUseCase
+            generateEuQrCodeUseCase = generateEuQrCodeUseCase,
+            getEuPrescriptionsUseCase = getEuPrescriptionsUseCase,
+            getEuAccessCodeUseCase = getEuAccessCodeUseCase
         )
     }
 }

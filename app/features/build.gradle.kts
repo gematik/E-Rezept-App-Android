@@ -24,6 +24,7 @@ dependencies {
     implementation(project(namesPlugin.demoMode))
     implementation(project(namesPlugin.digas))
     implementation(project(namesPlugin.eurezept))
+    implementation(project(namesPlugin.messages))
     implementation(project(namesPlugin.tracker))
     implementation(project(namesPlugin.navigation))
     implementation(project(namesPlugin.testTags))
@@ -35,6 +36,7 @@ dependencies {
     debugImplementation(libs.chucker)
     debugImplementation(libs.leak.canary)
     testImplementation(libs.test.turbine)
+    testImplementation(project(namesPlugin.mocks))
     testImplementation(project(namesPlugin.multiplatform))
     implementation(libs.text.recognition)
 }

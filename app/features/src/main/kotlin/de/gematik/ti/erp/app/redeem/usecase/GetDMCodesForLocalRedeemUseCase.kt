@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.redeem.usecase
 
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.redeem.model.DMCode
+import de.gematik.ti.erp.app.redeem.ui.model.LocalRedeemTab
 import de.gematik.ti.erp.app.utils.createDMPayload
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -36,12 +37,12 @@ class GetDMCodesForLocalRedeemUseCase {
 
     operator fun invoke(
         prescriptionOrders: Flow<List<PharmacyUseCaseData.PrescriptionInOrder>>,
-        showSingleCodes: Flow<Boolean>
-    ): Flow<List<DMCode>> = combine(prescriptionOrders, showSingleCodes) { orders, showSingleCode ->
+        selectedTab: Flow<LocalRedeemTab>
+    ): Flow<List<DMCode>> = combine(prescriptionOrders, selectedTab) { orders, selectedTab ->
 
         val maxTasks =
             when {
-                showSingleCode -> 1
+                selectedTab == LocalRedeemTab.SingleCode -> 1
                 orders.size == Four -> 2 // split to 2x2 codes
                 else -> MaxTasks
             }

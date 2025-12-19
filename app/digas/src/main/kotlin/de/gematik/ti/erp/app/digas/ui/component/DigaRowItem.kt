@@ -28,9 +28,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -49,13 +47,13 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import de.gematik.ti.erp.app.animated.RotatingHourglassIcon
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.diga.model.DigaStatusSteps
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerSmall
 
 @Composable
@@ -190,11 +188,11 @@ fun DigaRowItem(
             .padding(vertical = PaddingDefaults.Small, horizontal = PaddingDefaults.ShortMedium)
             .semantics(mergeDescendants = true) {}
     ) {
-        Row {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Column(
-                Modifier
-                    .width(SizeDefaults.doubleHalf)
-                    .height(SizeDefaults.doubleHalf),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 when {
@@ -219,22 +217,34 @@ fun DigaRowItem(
                     )
                 }
             }
+
             SpacerSmall()
-            Text(
-                modifier = Modifier.clearAndSetSemantics {
-                    contentDescription = contentDescr ?: text
-                },
-                text = text,
-                style = AppTheme.typography.body2,
-                color = contentColor
-            )
-            if (onClick != null && copyCode.isNotBlank()) {
-                @Suppress("MagicNumber")
+
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+            ) {
                 Text(
-                    text = copyCode,
+                    modifier = Modifier.clearAndSetSemantics {
+                        contentDescription = contentDescr ?: text
+                    },
+                    text = text,
                     style = AppTheme.typography.body2,
-                    fontWeight = FontWeight(800)
+                    color = contentColor
                 )
+                SpacerSmall()
+
+                if (copyCode.isNotBlank()) {
+                    @Suppress("MagicNumber")
+                    Text(
+                        text = copyCode,
+                        style = AppTheme.typography.body2,
+                        fontWeight = FontWeight(800)
+                    )
+                }
+            }
+
+            if (onClick != null && copyCode.isNotBlank()) {
                 SpacerSmall()
                 Icon(
                     modifier = Modifier.clickable(onClick = onClick::invoke, role = Role.Button),
@@ -242,6 +252,72 @@ fun DigaRowItem(
                     contentDescription = stringResource(R.string.copy_code)
                 )
             }
+        }
+    }
+}
+
+// ===== Previews for DigaRowItem in different states =====
+@Preview(name = "DigaRowItem – Completed", showBackground = true)
+@Composable
+private fun Preview_DigaRowItem_Completed() {
+    AppTheme {
+        DigaRowItem(text = "Completed step")
+    }
+}
+
+@Preview(name = "DigaRowItem – Current Step", showBackground = true)
+@Composable
+private fun Preview_DigaRowItem_Current() {
+    AppTheme {
+        DigaRowItem(
+            text = "Current step",
+            stepNumber = 2,
+            isCurrent = true,
+            backgroundColor = AppTheme.colors.primary100
+        )
+    }
+}
+
+@Preview(name = "DigaRowItem – Waiting", showBackground = true)
+@Composable
+private fun Preview_DigaRowItem_Waiting() {
+    AppTheme {
+        DigaRowItem(
+            text = "Waiting for confirmation…",
+            isWaiting = true
+        )
+    }
+}
+
+@Preview(name = "DigaRowItem – With Copy Code", showBackground = true)
+@Composable
+private fun Preview_DigaRowItem_Copy() {
+    AppTheme {
+        DigaRowItem(
+            text = "Enter code:",
+            copyCode = "ABCD-1234",
+            onClick = {}
+        )
+    }
+}
+
+@Preview(name = "DigaRowItem – All States", showBackground = true)
+@Composable
+private fun Preview_DigaRowItem_All() {
+    AppTheme {
+        Column {
+            DigaRowItem(text = "Completed step")
+            SpacerSmall()
+            DigaRowItem(
+                text = "Current step",
+                stepNumber = 2,
+                isCurrent = true,
+                backgroundColor = AppTheme.colors.primary100
+            )
+            SpacerSmall()
+            DigaRowItem(text = "Waiting for confirmation…", isWaiting = true)
+            SpacerSmall()
+            DigaRowItem(text = "Enter code:", copyCode = "ABCD-1234", onClick = {})
         }
     }
 }

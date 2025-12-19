@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="a11y_card_wall_card_hand">Akıllı telefonda sağlık kartı</string>
+    <string name="a11y_card_wall_card_hand">Bir el, sağlık sigortası kartını akıllı telefona doğru tutuyor.</string>
     <string name="a11y_cdw_health_card_image_description">Kartın ön yüzünün sağ üst kısmında altı haneli erişim numarası bulunan bir sağlık kartının görüntüsü</string>
+    <string name="a11y_datamatrix_code_description">Tarama kodu</string>
+    <string name="a11y_datamatrix_code_pager_content_description">Sayfalar arasında geçiş yapmak için iki parmağınızla kaydırın</string>
+    <string name="a11y_datamatrix_code_pager_state_description" formatted="false">Sayfa %s itibaren %s</string>
+    <string name="a11y_datamatrix_code_zoom_in_button_description">Kodu büyüt</string>
+    <string name="a11y_datamatrix_code_zoom_out_button_description">Kod boyutunu azaltın</string>
+    <string name="a11y_delete_access_code_dialog">İletişim Kutusu: Erişim kodunu sil</string>
     <string name="a11y_deleted_text">Metni sil</string>
     <string name="a11y_diga_arrow">değin</string>
     <string name="a11y_diga_change_insurance">Sigortayı değiştirmek</string>
@@ -9,16 +15,32 @@
     <string name="a11y_diga_feedback_prompt_accessibility_label">DiGA Reçetesi Hakkında Geri Bildirim</string>
     <string name="a11y_diga_feedback_submit">Harici bir web sitesinde geri bildirim gönderin</string>
     <string name="a11y_disabled">devre dışı bırakıldı</string>
+    <string name="a11y_error_icon">Hata</string>
     <string name="a11y_error_prefix">Hata:</string>
+    <string name="a11y_eu_access_code_delete_button">Erişim kodunu sil</string>
+    <string name="a11y_eu_access_code_delete_button_disabled">Erişim kodunun silinmesi, devam eden bir işlem nedeniyle şu anda devre dışıdır.</string>
+    <string name="a11y_eu_access_code_deleted_error">Erişim kodunun silinmesi başarısız oldu.</string>
+    <string name="a11y_eu_access_code_deleted_success">Erişim kodu silindi.</string>
+    <string name="a11y_eu_access_code_deleting">Erişim kodu silinecek…</string>
     <string name="a11y_eu_instructions_flag_accessibility_text">Şunu söyleyebilirsiniz:</string>
     <string name="a11y_eu_instructions_open_in_browser">Tarayıcıda aç</string>
+    <string name="a11y_local_redeem_back">Önceki kodu göster</string>
+    <string name="a11y_local_redeem_forward">Sonraki kodu göster</string>
     <string name="a11y_medication_schedule_three_dot_menu">İlaç hatırlatma seçeneklerini göster</string>
     <string name="a11y_not_selected">seçilmedi</string>
     <string name="a11y_onboarding_progress_description">Sayfa %1$d / %2$d</string>
     <string name="a11y_open_link_submit">Bağlantıyı harici web sitesinde aç</string>
     <string name="a11y_open_pdf_submit">PDF\'yi harici web sitesinde açın</string>
+    <string name="a11y_password_input_show_password_description_off">Şifre gizli</string>
+    <string name="a11y_password_input_show_password_description_on">Şifre görüntülendi</string>
+    <string name="a11y_password_input_show_password_description_onClick_off">Şifreyi göster</string>
+    <string name="a11y_password_input_show_password_description_onClick_on">Şifreyi gizle</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Eczane araması; eczane aramak için isim, şehir veya posta kodunu girin</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Liste görünümünde ara</string>
+    <string name="a11y_pin_input_show_pin_description_off">PIN gizli</string>
+    <string name="a11y_pin_input_show_pin_description_on">PIN görüntülendi</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_off">PIN\'i göster</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_on">PIN\'i gizle</string>
     <string name="a11y_prescription_details_share">Tarifi paylaş</string>
     <string name="a11y_prescription_more_option">Daha fazla seçenek</string>
     <string name="a11y_prescription_not_available">Müsait değil</string>
@@ -27,6 +49,7 @@
     <string name="a11y_select_all_not_selected">Tümünü seç, seçilmemiş</string>
     <string name="a11y_select_all_selected">Tümünü seç, seçili</string>
     <string name="a11y_selected">seçilmiş</string>
+    <string name="a11y_success_icon">Başarı</string>
     <string name="about_buildhash">Build-Hash: %s</string>
     <string name="about_version">Sürüm: %s</string>
     <string name="accept_now">Yeni kabul edildi</string>
@@ -160,6 +183,7 @@
     <string name="cardwall_gid_pkv_help_screen_tip_4_body_2">Android 14 işletim sistemine sahip telefonlarda ayarlar kısmından bağlantı açma özelliğini aktifleştirin.</string>
     <string name="cardwall_gid_pkv_help_screen_tip_4_header">Sigorta şirketinizin uygulamasına yönlendirilmiyorsunuz?</string>
     <string name="cardwall_gid_title">Sağlık Kimliği</string>
+    <string name="cardwall_intro_demo_mode_or">Veya:</string>
     <string name="cardwall_select_insurance_federal_link">Farklı şekilde sigortalandı</string>
     <string name="cardwall_select_insurance_type_drawer_body">Reçetelerinizi dijital olarak almak için lütfen öncelikle sigorta türünüzü seçin.</string>
     <string name="cardwall_select_insurance_type_drawer_private_insurance_button">Özel sigorta</string>
@@ -394,7 +418,7 @@
     <string name="demo_mode_link_text">Demo modu</string>
     <string name="demo_mode_settings_end_title">Demo modundan çık</string>
     <string name="demo_mode_settings_title">Demo modunu etkinleştir</string>
-    <string name="demo_mode_start_text">Veya: Uygulamayı demo modunda deneyin</string>
+    <string name="demo_mode_start_text">Keşfet %s.</string>
     <string name="demo_mode_text">Demo modu etkinleştirildi</string>
     <string name="description">Tanım</string>
     <string name="diga_Insurance_is_determined">Sigorta belirlenir:</string>
@@ -440,7 +464,7 @@
     <string name="diga_overview_how_it_works_3">3. DiGA uygulamasını indirin</string>
     <string name="diga_overview_how_it_works_4">4. DiGA uygulamasında kodu girin</string>
     <string name="diga_request_unlock_code">Aktivasyon kodu isteği</string>
-    <string name="diga_requesting_code_from">Kodu şu adresten istiyoruz: %s </string>
+    <string name="diga_requesting_code_from">Kodu şuradan talep ediyoruz: %s</string>
     <string name="diga_select_insurance_for_diga_discription">Dijital Sağlık Reçetenizi ödeyecek sigorta şirketini seçin. Bu şirketten aktivasyon kodunu isteyeceğiz.</string>
     <string name="diga_select_insurance_for_diga_header">DiGA için sigorta seçin</string>
     <string name="diga_server_return_code_200">Başarıyla aktarıldı.</string>
@@ -533,6 +557,11 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n Aşağıdaki tarifler kullanılamaz veya artık kullanılamaz: %1$s \n Bunları başka bir şekilde kullanmış olabilirsiniz veya silinmiş olabilirler. \n</string>
     <string name="error_redeemable_prescription_not_redeemable">“ %1$s ” reçetesi zaten kullanılmış veya şu anda kullanılıyor.</string>
     <string name="error_redeemable_prescription_title">reçete kullanılamaz</string>
+    <string name="eu_access_code_delete_body">Diğer AB ülkelerindeki tüm eczanelere erişimi iptal etmek istiyor musunuz?</string>
+    <string name="eu_access_code_delete_button_text">erişimi iptal et</string>
+    <string name="eu_access_code_delete_failure_body">Lütfen tekrar deneyin.</string>
+    <string name="eu_access_code_delete_failure_header">Erişim iptal edilemedi.</string>
+    <string name="eu_access_code_delete_header">Reçetelere erişimi iptal edin</string>
     <string name="eu_access_code_error">Maalesef, kullanım kodu oluşturulamadı. Lütfen daha sonra tekrar deneyin.</string>
     <string name="eu_availability_description">Katılımcı ülkeler şu anda uygulama üzerinde çalışmaktadır. İlk ülke hazır olduğunda sizi bilgilendireceğiz.</string>
     <string name="eu_availability_title">AB\'den yararlanma olanağı yakında sunulacak</string>
@@ -586,8 +615,23 @@
     <string name="eu_instructions_step_number">Adım %1$d</string>
     <string name="eu_instructions_title">Talimatlar</string>
     <string name="eu_instructions_website_info_end">.</string>
-    <string name="eu_instructions_website_info_start">Daha fazla bilgiyi şurada bulabilirsiniz: </string>
-    <string name="eu_instructions_website_link_text">AB itfa web sitesi</string>
+    <string name="eu_instructions_website_info_start">Daha fazla bilgiyi şurada bulabilirsiniz: %s.</string>
+    <string name="eu_instructions_website_link_text">AB ödülleri için web sitesi</string>
+    <string name="eu_messages_code_created_again_message_title">Kurtarma kodu oluşturuldu</string>
+    <string name="eu_messages_code_created_but_new_generated_message_body" formatted="false">%s içindeki reçetenizi kullanmak için bir kod aldınız.</string>
+    <string name="eu_messages_code_created_message_body" formatted="false">Reçetenizi %s içinde kullanmak için bir kod aldınız. %s %s saatine kadar seçili reçetelerinize erişebilir.</string>
+    <string name="eu_messages_code_created_message_title">%s \'e hoş geldiniz</string>
+    <string name="eu_messages_code_created_not_present_message_body">%s içindeki reçetenizi kullanmak için bir kod aldınız.</string>
+    <string name="eu_messages_code_revoked_button_text">Erişim iptal edildi</string>
+    <string name="eu_messages_code_revoked_message_body" formatted="false">Reçetenizi %s adresinden kullanmak için bir kod aldınız. %s artık seçili reçetelerinize erişemez.</string>
+    <string name="eu_messages_code_used_by_pharmacy_message_body">%s eczanesi reçetenizi doldurdu.</string>
+    <string name="eu_messages_list_latest_title">AB kurtarma</string>
+    <string name="eu_messages_prescription_added_body">AB geri ödemesi için bir reçete eklediniz.</string>
+    <string name="eu_messages_prescription_added_title">Tarif eklendi</string>
+    <string name="eu_messages_prescription_removed_body">Bir reçeteyi AB kullanım sürecinden çıkardınız.</string>
+    <string name="eu_messages_prescription_removed_title">Reçete kaldırıldı</string>
+    <string name="eu_messages_revoke_code_button_text">erişimi iptal et</string>
+    <string name="eu_messages_show_code_button_text">Kurtarma kodunu göster</string>
     <string name="eu_prescription_available">Diğer AB ülkelerinde kullanın</string>
     <string name="eu_prescription_search_empty_text">Farklı bir arama terimi deneyin.</string>
     <string name="eu_prescription_search_empty_title">Maalesef uygun bir ülke bulunamadı.</string>
@@ -606,7 +650,7 @@
     <string name="eu_redeem_button">Kurtar</string>
     <string name="eu_redeem_country_title">ülke</string>
     <string name="eu_redeem_instructions_link">Talimatlar</string>
-    <string name="eu_redeem_instructions_prefix">Reçetelerinizi diğer AB ülkelerinde nasıl kullanabileceğinizi şu adreste bulabilirsiniz:</string>
+    <string name="eu_redeem_instructions_prefix">Reçetelerinizi diğer AB ülkelerinde nasıl kullanabileceğinizi şu adreste bulabilirsiniz: %s</string>
     <string name="eu_redeem_prescription_selection_empty_subtitle">Hiçbir reçete yüklenemedi.</string>
     <string name="eu_redeem_prescription_selection_empty_title">Reçete yok</string>
     <string name="eu_redeem_prescription_selection_error_dialog_body">Aşağıdaki hata oluştu: %s. Tarife tekrar tıklayarak tekrar deneyebilirsiniz.</string>
@@ -811,7 +855,9 @@
     <string name="link_to_invoice_list">Eczane faturalarının genel görünümüne</string>
     <string name="local_redeem_done">Hazır</string>
     <string name="local_redeem_grouped_codes">Koleksiyon kodu</string>
+    <string name="local_redeem_multi_code_page">Toplu kod %s</string>
     <string name="local_redeem_self_payer_prescription_warning">Sigortanız bu reçeteye ilişkin herhangi bir masrafı karşılamayacaktır.</string>
+    <string name="local_redeem_single_code">Reçete kodu</string>
     <string name="local_redeem_single_codes">Bireysel kodlar</string>
     <string name="location_not_found">Konum bulunamadı</string>
     <string name="logged_in">Kayıtlı</string>
@@ -998,7 +1044,7 @@
     <string name="onb_undo_description">Geri al</string>
     <string name="onboarding_analytics_agree_button">Kabul etmek</string>
     <string name="onboarding_analytics_bottom_text">Analizi dilediğiniz zaman ayarlardan devre dışı bırakabilirsiniz.</string>
-    <string name="onboarding_analytics_consent_text">Onayınızla, uygulama kullanımının bir analizini yapmak istiyoruz. Bunu yapmak için, uygulama kullanımını ve teknik verileri toplamak ve anonim olarak değerlendirmek istiyoruz:</string>
+    <string name="onboarding_analytics_consent_text">Onayınızla, bir %s gerçekleştirmek istiyoruz. Bu amaçla, uygulama kullanımı ve teknik verilerle ilgili verileri toplayıp anonim olarak analiz etmek istiyoruz ve bu sayede:</string>
     <string name="onboarding_analytics_consent_title">Uygulamayı geliştirmemize yardımcı olun!</string>
     <string name="onboarding_analytics_link_text">Uygulama kullanımının analizi</string>
     <string name="onboarding_analytics_optimize_user_experience_text">Kullanıcı deneyimini tüm nüfus için optimize edin</string>

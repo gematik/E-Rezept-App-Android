@@ -121,7 +121,7 @@ private fun TranslationConsentContent(
             Text(
                 text = stringResource(R.string.offline_translation_consent_text, currentLanguage),
                 style = AppTheme.typography.body2,
-                color = AppTheme.colors.neutral600
+                color = AppTheme.colors.neutral700
             )
 
             SpacerMedium()

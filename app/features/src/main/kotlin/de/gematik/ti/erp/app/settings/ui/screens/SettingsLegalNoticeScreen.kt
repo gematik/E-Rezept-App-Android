@@ -56,6 +56,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
@@ -140,6 +141,7 @@ private fun LegalNoticeScreenContent(
 private fun IssuerSection() {
     SpacerXLarge()
     Text(
+        modifier = Modifier.semanticsHeading(),
         text = stringResource(id = R.string.legal_notice_issuer),
         style = AppTheme.typography.h6
     )
@@ -153,6 +155,7 @@ private fun IssuerSection() {
 private fun ResponsibilitySection() {
     SpacerLarge()
     Text(
+        modifier = Modifier.semanticsHeading(),
         text = stringResource(id = R.string.legal_notice_responsible_header),
         style = AppTheme.typography.h6
     )
@@ -164,6 +167,7 @@ private fun ResponsibilitySection() {
 private fun HintSection() {
     SpacerLarge()
     Text(
+        modifier = Modifier.semanticsHeading(),
         text = stringResource(id = R.string.legal_notice_hint_header),
         style = AppTheme.typography.h6
     )
@@ -195,6 +199,7 @@ private fun ContactOptionsSection() {
     val context = LocalContext.current
     SpacerLarge()
     Text(
+        modifier = Modifier.semanticsHeading(),
         text = stringResource(id = R.string.legal_notice_contact_header),
         style = AppTheme.typography.h6
     )

@@ -63,7 +63,11 @@ fun SelfPayerPrescriptionWarning(
         }
         Banner(
             modifier = Modifier
-                .padding(PaddingDefaults.Medium)
+                .padding(
+                    end = PaddingDefaults.Medium,
+                    start = PaddingDefaults.Medium,
+                    top = PaddingDefaults.Medium
+                )
                 .then(modifier),
             startIcon = BannerClickableIcon(
                 BannerIcon.Custom(

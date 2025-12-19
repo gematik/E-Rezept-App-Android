@@ -54,7 +54,7 @@ fun Chip(
     closable: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    val textColor = if (checked) AppTheme.colors.neutral000 else AppTheme.colors.neutral600
+    val textColor = if (checked) AppTheme.colors.neutral000 else AppTheme.colors.neutral700
     val backgroundColor = if (checked) AppTheme.colors.primary700 else AppTheme.colors.neutral100
     Row(
         modifier = modifier
@@ -76,7 +76,7 @@ fun Chip(
             Icon(
                 Icons.Rounded.Close,
                 null,
-                tint = AppTheme.colors.neutral600,
+                tint = AppTheme.colors.neutral700,
                 modifier = Modifier.size(16.dp)
             )
         }

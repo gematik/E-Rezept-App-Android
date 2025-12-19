@@ -23,11 +23,16 @@
 package de.gematik.ti.erp.app.prescription.repository
 
 import de.gematik.ti.erp.app.api.FhirPagination
+import de.gematik.ti.erp.app.eurezept.model.EuEventType
+import de.gematik.ti.erp.app.eurezept.repository.EuTaskLocalDataSource
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEPrescriptionParsers
 import de.gematik.ti.erp.app.fhir.support.FhirTaskEntryDataErpModel
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.prescription.model.TaskData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.task.model.TaskStatus
 import de.gematik.ti.erp.app.utils.toFachdienstTimestampString
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -44,7 +49,9 @@ import kotlinx.serialization.json.JsonElement
  */
 class DefaultTaskRepository(
     private val remoteDataSource: TaskRemoteDataSource,
-    private val localDataSource: LegacyTaskLocalDataSource,
+    private val taskLocalDataSource: LegacyTaskLocalDataSource,
+    private val prescriptionLocalDataSource: PrescriptionLocalDataSource,
+    private val euTaskLocalDataSource: EuTaskLocalDataSource,
     private val parsers: TaskEPrescriptionParsers,
     private val paginator: FhirPagination,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -66,7 +73,7 @@ class DefaultTaskRepository(
      * Query the latest modified timestamp from the local store for the given profile.
      */
     override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =
-        localDataSource.latestTaskModifiedTimestamp(profileId).first()
+        taskLocalDataSource.latestTaskModifiedTimestamp(profileId).first()
 
     /**
      * Fetches all task bundles via pagination, processes each page on arrival,
@@ -103,7 +110,7 @@ class DefaultTaskRepository(
         return data.lastModified?.let { lastModified ->
             if (data.status == TaskStatus.Canceled) {
                 // If canceled, update local status only
-                localDataSource.updateTaskStatus(data.id, data.status, lastModified)
+                taskLocalDataSource.updateTaskStatus(data.id, data.status, lastModified)
                 Result.success(Unit)
             } else {
                 // Otherwise, fetch KBV bundle and process
@@ -124,7 +131,7 @@ class DefaultTaskRepository(
             // 1) Process metadata
             val metaData = metaDataBundle.value.let(parsers.taskMetadataParser::extract)
             if (metaData != null) {
-                localDataSource.saveTaskEPrescriptionMetaData(profileId, metaData)
+                taskLocalDataSource.saveTaskEPrescriptionMetaData(profileId, metaData)
             } else {
                 Result.failure(IllegalStateException("Failed to parse meta task bundle for taskId: $taskId"))
             }
@@ -134,17 +141,17 @@ class DefaultTaskRepository(
             when {
                 // Parsing failed -> mark incomplete
                 medicalData == null -> {
-                    localDataSource.markTaskAsIncomplete(taskId, IllegalStateException("Failed to parse KBV bundle for taskId: $taskId"))
+                    taskLocalDataSource.markTaskAsIncomplete(taskId, IllegalStateException("Failed to parse KBV bundle for taskId: $taskId"))
                     Result.failure(IllegalStateException("Failed to parse task bundle on null kbv data for taskId: $taskId"))
                 }
 
                 // Partial data -> mark incomplete and save what we have
                 medicalData.getMissingProperties().isNotEmpty() -> {
-                    localDataSource.markTaskAsIncomplete(
+                    taskLocalDataSource.markTaskAsIncomplete(
                         taskId,
                         IllegalStateException("Failed to parse KBV bundle fields: ${medicalData.getMissingProperties()}")
                     )
-                    localDataSource.saveTaskEPrescriptionMedicalData(taskId, medicalData)
+                    taskLocalDataSource.saveTaskEPrescriptionMedicalData(taskId, medicalData)
                         .map { taskResult ->
                             if (taskResult.isCompleted || taskResult.lastMedicationDispense != null) {
                                 downloadMedicationDispenses(profileId, taskId)
@@ -154,7 +161,7 @@ class DefaultTaskRepository(
 
                 // Full data -> save and possibly fetch dispenses
                 else -> {
-                    localDataSource.saveTaskEPrescriptionMedicalData(taskId, medicalData)
+                    taskLocalDataSource.saveTaskEPrescriptionMedicalData(taskId, medicalData)
                         .map { taskResult ->
                             if (taskResult.isCompleted || taskResult.lastMedicationDispense != null) {
                                 downloadMedicationDispenses(profileId, taskId)
@@ -186,8 +193,27 @@ class DefaultTaskRepository(
             .map { bundle ->
                 val medicationDispenseCollection = parsers.taskDispenseParser.extract(bundle)
                 if (medicationDispenseCollection != null) {
-                    localDataSource.saveTaskMedicationDispense(taskId, medicationDispenseCollection)
+                    addEventIfEuOrder(profileId, taskId)
+                    taskLocalDataSource.saveTaskMedicationDispense(taskId, medicationDispenseCollection)
                 }
             }
     }
+
+    private suspend fun addEventIfEuOrder(profileId: ProfileIdentifier, taskId: String) {
+        try {
+            prescriptionLocalDataSource.getPrescription(taskId)?.let { prescription ->
+                if (prescription.isEuRedeemable()) {
+                    euTaskLocalDataSource.addEventToValidOrders(
+                        profileId = profileId,
+                        taskIds = listOf(taskId),
+                        eventType = EuEventType.TASK_REDEEMED
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            Napier.e("Error adding event to latest order for task $taskId for profile $profileId", e)
+        }
+    }
+
+    private fun TaskData.isEuRedeemable() = this is SyncedTaskData.SyncedTask && isEuRedeemable && isEuRedeemableByPatientAuthorization
 }

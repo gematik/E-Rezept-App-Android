@@ -68,7 +68,7 @@ fun LoadingIndicatorLine(isLoading: Boolean) {
         modifier = Modifier
             .fillMaxWidth()
             .height(SizeDefaults.half) // Adjust thickness
-            .background(AppTheme.colors.neutral600.copy(alpha = 0.3f))
+            .background(AppTheme.colors.neutral700.copy(alpha = 0.3f))
     ) {
         // the moving blue line
         Box(

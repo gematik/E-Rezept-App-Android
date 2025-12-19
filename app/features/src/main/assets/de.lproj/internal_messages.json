@@ -46,5 +46,11 @@
         "text": "**🏛️ Anmeldung für Bundeseinrichtungen**\nDie Anmeldung ist jetzt auch für Versicherte bei Bundeseinrichtungen wie der Bundespolizei möglich.\n\n**🕒 Bessere Apothekenöffnungszeiten**\nNotdienst- und Sonderschließzeiten von Apotheken werden jetzt angezeigt, sofern diese hinterlegt sind.",
         "timestamp": "2025-11-03T08:00:00.000Z",
         "version": "1.34"
+    },
+    {
+        "id": "10",
+        "text": "**🏡 Vorschläge bei Adresseingaben**\nHinterlegte Adressdaten werden jetzt bei der Adresseingabe automatisch vorgeschlagen.\n\n**♿️ Barrierefreiheit**\nDie Kontraste für Text, Umschaltbuttons, Auswahlkästchen, Fehlerhinweise, Icons, und Suchleisten wurden erhöht. \nDie Sprachausgabe über TalkBack wurde bei der PIN- und Passworteingabe, der Anzeige von Rezeptcodes und dem Erkennen von Überschriften verbessert. Links werden im Fließtext konsequent unterstrichen.",
+        "timestamp": "2025-12-17T08:00:00.000Z",
+        "version": "1.35"
     }
 ]

@@ -321,8 +321,8 @@ object DemoPrescriptionInfo {
         category = SyncedTaskData.MedicationCategory.entries.toTypedArray().random(),
         vaccine = Random.nextBoolean(),
         text = when (index) {
-            0 -> "\uD83C\uDDEA\uD83C\uDDFA EU Medikament Prescription"
-            30 -> "\uD83C\uDDEA\uD83C\uDDFA EU Aspirin 500mg"
+            0 -> "\uD83C\uDDEA\uD83C\uDDFA FreeMovementin"
+            30 -> "\uD83C\uDDEA\uD83C\uDDFA Schengenadol"
             else -> SYNCED_MEDICATION_NAMES.elementAtOrElse(index) { SYNCED_MEDICATION_NAMES.random() }
         },
         form = codeToFormMapping.random(),
@@ -357,7 +357,7 @@ object DemoPrescriptionInfo {
 
     @Suppress("ktlint:max-line-length")
     private fun deviceRequestDispense(isCompleted: Boolean) = FhirDispenseDeviceRequestErpModel(
-        deepLink = "intent://maps.google.com/maps?q=Friedrichstraße+136+Berlin+Germany#Intent;scheme=https;package=com.google.android.apps.maps;S.browser_fallback_url=https://maps.google.com?q=Friedrichstraße+136+Berlin+Germany;end",
+        deepLink = "intent://maps.google.com/maps?q=Rosenthaler+Str.+30,+13127+Berlin#Intent;scheme=https;package=com.google.android.apps.maps;S.browser_fallback_url=https://maps.google.com?q=Rosenthaler+Str.+30,+13127+Berlin;end",
         redeemCode = FUNNY_REDEEM_CODES.random(),
         declineCode = null,
         note = null,
@@ -386,11 +386,9 @@ object DemoPrescriptionInfo {
         "NO_REFUNDS",
         "REDEEM_AND_REGRET",
         "DONT_TELL_SUPPORT",
-        "YOLO2025",
         "ITS_FINE_PROBABLY",
         "TOTALLY_LEGAL",
         "SECRET_SAUCE",
-        "REDEEM_YOUR_FAITH",
         "VALID_UNTIL_YESTERDAY",
         "FAKECODE123",
         "IM_NOT_A_ROBOT"
@@ -452,7 +450,7 @@ object DemoPrescriptionInfo {
     )
 
     private val FUNNY_APP_NAMES = listOf(
-        "Demo DiGa App",
+        "A cheap DiGa App :D",
         "TotallyNotSpyware",
         "MediLOL",
         "Prescription Impossible",

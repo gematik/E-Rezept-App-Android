@@ -326,7 +326,7 @@ private fun PrescriptionListItemInContainer(
                     EuPrescriptionType.Unknown -> stringResource(R.string.eu_prescription_selection_not_available)
                 },
                 style = AppTheme.typography.body2,
-                color = AppTheme.colors.neutral600
+                color = AppTheme.colors.neutral700
             )
         }
     )
@@ -366,7 +366,7 @@ private fun PrescriptionIcon(prescription: EuPrescription) {
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = null,
-                tint = AppTheme.colors.red600,
+                tint = AppTheme.colors.red700,
                 modifier = Modifier.size(SizeDefaults.triple)
             )
         }

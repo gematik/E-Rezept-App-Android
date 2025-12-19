@@ -30,12 +30,16 @@ import de.gematik.ti.erp.app.database.realm.v1.AuthenticationEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.AuthenticationPasswordEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
+import de.gematik.ti.erp.app.database.settings.SettingsLocalDataSource
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
@@ -44,9 +48,11 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 @Suppress("TooManyFunctions")
+@OptIn(ExperimentalCoroutinesApi::class)
 class DefaultSettingsRepository(
     private val dispatchers: CoroutineDispatcher = Dispatchers.IO,
-    private val realm: Realm
+    private val realm: Realm,
+    private val settingsLocalDataSource: SettingsLocalDataSource
 ) : SettingsRepository(
     dispatchers = dispatchers,
     realm = realm
@@ -60,38 +66,57 @@ class DefaultSettingsRepository(
 
     override val general: Flow<SettingsData.General>
         get() = realm.query<SettingsEntityV1>().first().asFlow().mapNotNull { query ->
-            query.obj?.let {
+            query.obj
+        }.flatMapLatest { settings ->
+            combine(
+                settingsLocalDataSource.zoomEnabled,
+                settingsLocalDataSource.welcomeDrawerShown,
+                settingsLocalDataSource.userHasAcceptedInsecureDevice,
+                settingsLocalDataSource.userHasAcceptedIntegrityNotOk,
+                settingsLocalDataSource.mlKitAccepted,
+                settingsLocalDataSource.screenshotsAllowed,
+                settingsLocalDataSource.trackingAllowed
+            ) { flows ->
+                val zoomEnabled = flows[0]
+                val welcomeDrawerShown = flows[1]
+                val userHasAcceptedInsecureDevice = flows[2]
+                val userHasAcceptedIntegrityNotOk = flows[3]
+                val mlKitAccepted = flows[4]
+                val screenShotsAllowed = flows[5]
+                val trackingAllowed = flows[6]
+
                 SettingsData.General(
                     latestAppVersion = SettingsData.AppVersion(
-                        code = it.latestAppVersionCode,
-                        name = it.latestAppVersionName
+                        code = settings.latestAppVersionCode,
+                        name = settings.latestAppVersionName
                     ),
-                    onboardingShownIn = if (it.onboardingLatestAppVersionCode != -1) {
-                        SettingsData.AppVersion(
-                            code = it.onboardingLatestAppVersionCode,
-                            name = it.onboardingLatestAppVersionName
-                        )
-                    } else {
-                        null
-                    },
-                    welcomeDrawerShown = it.welcomeDrawerShown,
-                    zoomEnabled = it.zoomEnabled,
-                    userHasAcceptedInsecureDevice = it.userHasAcceptedInsecureDevice,
-                    mainScreenTooltipsShown = it.mainScreenTooltipsShown,
-                    mlKitAccepted = it.mlKitAccepted,
-                    screenShotsAllowed = it.screenshotsAllowed,
-                    trackingAllowed = it.trackingAllowed,
-                    userHasAcceptedIntegrityNotOk = it.userHasAcceptedIntegrityNotOk
+                    onboardingShownIn = settings.onboardingLatestAppVersionCode
+                        .takeIf { it != -1 }
+                        ?.let {
+                            SettingsData.AppVersion(
+                                code = it,
+                                name = settings.onboardingLatestAppVersionName
+                            )
+                        },
+                    mainScreenTooltipsShown = settings.mainScreenTooltipsShown,
+                    zoomEnabled = zoomEnabled,
+                    welcomeDrawerShown = welcomeDrawerShown,
+                    userHasAcceptedInsecureDevice = userHasAcceptedInsecureDevice,
+                    userHasAcceptedIntegrityNotOk = userHasAcceptedIntegrityNotOk,
+                    mlKitAccepted = mlKitAccepted,
+                    screenShotsAllowed = screenShotsAllowed,
+                    trackingAllowed = trackingAllowed
                 )
-            }
-        }.flowOn(dispatchers)
+            }.flowOn(dispatchers)
+        }
 
     @Requirement(
         "A_24525#2",
         sourceSpecification = "gemSpec_eRp_FdV",
         rationale = "Check if analytics is allowed."
     )
-    override fun isAnalyticsAllowed(): Flow<Boolean> = realm.query<SettingsEntityV1>().asFlow().map { it.list.first().trackingAllowed }
+
+    override fun isAnalyticsAllowed(): Flow<Boolean> = settingsLocalDataSource.trackingAllowed
 
     override val pharmacySearch: Flow<SettingsData.PharmacySearch>
         get() = settings.mapNotNull { settings ->
@@ -120,9 +145,7 @@ class DefaultSettingsRepository(
     }
 
     override suspend fun saveZoomPreference(enabled: Boolean) {
-        writeToRealm {
-            this.zoomEnabled = enabled
-        }
+        settingsLocalDataSource.saveZoomEnabled(enabled)
     }
 
     override val authentication: Flow<SettingsData.Authentication>
@@ -172,9 +195,9 @@ class DefaultSettingsRepository(
                     }
                 )
                 settings.setAuthentication(authentication)
-                settings.setAcceptedUpdatedDataTerms(now)
                 settings.setOnboardingAppVersion()
             }
+            settingsLocalDataSource.acceptUpdatedDataTerms(now)
         }
     }
 
@@ -239,9 +262,7 @@ class DefaultSettingsRepository(
     }
 
     override suspend fun saveWelcomeDrawerShown() {
-        writeToRealm {
-            this.welcomeDrawerShown = true
-        }
+        settingsLocalDataSource.saveWelcomeDrawerShown()
     }
 
     override suspend fun saveMainScreenTooltipShown() {
@@ -251,15 +272,11 @@ class DefaultSettingsRepository(
     }
 
     override suspend fun acceptMlKit() {
-        writeToRealm {
-            this.mlKitAccepted = true
-        }
+        settingsLocalDataSource.acceptMlKit()
     }
 
     override suspend fun saveAllowScreenshots(allow: Boolean) {
-        writeToRealm {
-            this.screenshotsAllowed = allow
-        }
+        settingsLocalDataSource.saveAllowScreenshots(allow)
     }
 
     @Requirement(
@@ -273,27 +290,19 @@ class DefaultSettingsRepository(
         rationale = "Save the user's decision to allow or disallow tracking."
     )
     override suspend fun saveAllowTracking(allow: Boolean) {
-        writeToRealm {
-            this.trackingAllowed = allow
-        }
+        settingsLocalDataSource.saveAllowTracking(allow)
     }
 
     override suspend fun acceptInsecureDevice() {
-        writeToRealm {
-            this.userHasAcceptedInsecureDevice = true
-        }
+        settingsLocalDataSource.acceptInsecureDevice()
     }
 
     override suspend fun acceptIntegrityNotOk() {
-        writeToRealm {
-            this.userHasAcceptedIntegrityNotOk = true
-        }
+        settingsLocalDataSource.acceptIntegrityNotOk()
     }
 
     override suspend fun acceptUpdatedDataTerms(now: Instant) {
-        writeToRealm {
-            this.setAcceptedUpdatedDataTerms(now)
-        }
+        settingsLocalDataSource.acceptUpdatedDataTerms(now)
     }
 
     override suspend fun updateRefreshTime() {
@@ -303,10 +312,6 @@ class DefaultSettingsRepository(
     }
 
     override fun getLastRefreshedTime(): Flow<Instant> = lastRefreshed
-
-    private fun SettingsEntityV1.setAcceptedUpdatedDataTerms(now: Instant) {
-        this.dataProtectionVersionAccepted = now.toRealmInstant()
-    }
 
     private fun SettingsEntityV1.setOnboardingAppVersion() {
         this.onboardingLatestAppVersionName = this.latestAppVersionName

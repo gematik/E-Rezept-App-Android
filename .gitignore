@@ -25,6 +25,10 @@ ci/local_play_store_credentials.json
 downloads/
 /venv-sbom/
 /tools-java-1.1.7-jar-with-dependencies.jar
+/.ai-code-tracking.json
+/.github/prompts/
+/.github/prompt-index.md
+/.github/prompt-naming-guidelines.md
 
 Jenkinsfile
 Nightly.Jenkinsfile

@@ -379,7 +379,7 @@ private fun CircularIconButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = AppTheme.colors.neutral600,
+            tint = AppTheme.colors.neutral700,
             modifier = Modifier.size(SizeDefaults.triple)
         )
     }

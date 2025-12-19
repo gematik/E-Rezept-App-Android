@@ -85,37 +85,46 @@ object TestTag {
         object Debug {
             val SkipOnboardingButton by tagName()
         }
+
         object WelcomeScreen {
             val StartButton = "onb_btn_start"
         }
+
         object DataProtectionAndTermsOfUseScreen {
             val PrivacyButton = "onb_txt_terms_of_privacy"
             val TermsOfUseButton = "onb_txt_terms_of_use"
             val NextButton = "onb_btn_next"
         }
+
         object SelectAppLoginScreen {
             val DeviceSecurityButton = "onb_auth_btn_face_id"
             val PasswordButton = "onb_auth_btn_password"
         }
+
         object PasswordAuthenticationScreen {
             val PasswordFieldA = "onb_auth_inp_passwordA"
             val PasswordFieldB = "onb_auth_inp_passwordB"
             val SaveButton = "onb_auth_btn_password"
             val BackButton = "onb_auth_btn_back"
         }
+
         object AnalyticsPreviewScreen {
             val AllowButton = "onb_ana_btn_allow"
             val DenyButton = "onb_ana_btn_deny"
         }
+
         object AnalyticsAllowScreen {
             val AllowButton = "onb_ana_btn_allow"
             val DenyButton = "onb_ana_btn_deny"
         }
+
         object DataProtectionScreen
         object TermsOfUseScreen
     }
+
     object CardWall {
         val ContinueButton by tagName()
+
         object SelectInsuranceTypeBottomSheet {
             val GkvButton = "wlcd_btn_gkv_user"
             val PkvButton = "wlcd_btn_pkv_user"
@@ -322,6 +331,7 @@ object TestTag {
         }
 
         object Messages {
+            val EuMessageDetails by tagName()
             val Content by tagName()
             val Link by tagName()
             val LinkButton by tagName()

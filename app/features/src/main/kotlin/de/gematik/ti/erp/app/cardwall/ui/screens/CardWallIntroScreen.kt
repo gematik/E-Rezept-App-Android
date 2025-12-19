@@ -41,11 +41,13 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -90,26 +92,22 @@ import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.demomode.DemoModeIntent
 import de.gematik.ti.erp.app.demomode.startAppWithDemoMode
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.orderhealthcard.navigation.OrderHealthCardRoutes
-import de.gematik.ti.erp.app.semantics.semanticsButton
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.semantics.semanticsMergeDescendants
 import de.gematik.ti.erp.app.semantics.semanticsMergedButton
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.ClickText
 import de.gematik.ti.erp.app.utils.ClickableText
-import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.SpacerXLarge
-import de.gematik.ti.erp.app.utils.SpacerXXXLarge
+import de.gematik.ti.erp.app.utils.SpacerXXLargeMedium
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
-import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.LoadingDialog
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
@@ -133,7 +131,11 @@ class CardWallIntroScreen(
             )
         ).fold(
             onFailure = {
-                ErrorScreenComponent()
+                ErrorScreenComponent(
+                    titleText = stringResource(R.string.generic_error_title),
+                    bodyText = stringResource(R.string.generic_error_info),
+                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+                )
             },
             onSuccess = { profileId ->
                 // this information is available on the screen only when the process wants gid authentication
@@ -361,7 +363,7 @@ private fun LazyListScope.SubTitleHeader() {
             stringResource(R.string.cdw_intro_info),
             style = AppTheme.typography.subtitle2,
             textAlign = TextAlign.Center,
-            color = AppTheme.colors.neutral600
+            color = AppTheme.colors.neutral700
         )
     }
     item { SpacerXLarge() }
@@ -439,7 +441,7 @@ private fun LazyListScope.HealthCardLoginSection(
                             },
                             style = AppTheme.typography.body2l,
                             color = when {
-                                isNfcAvailable -> AppTheme.colors.neutral600
+                                isNfcAvailable -> AppTheme.colors.neutral700
                                 else -> AppTheme.colors.neutral400
                             }
                         )
@@ -504,7 +506,7 @@ private fun LazyListScope.GidLoginSection(
                             stringResource(R.string.cdw_intro_auth_additional_app_required)
                         },
                         style = AppTheme.typography.body2l,
-                        color = AppTheme.colors.neutral600
+                        color = AppTheme.colors.neutral700
                     )
                 }
                 Icon(
@@ -531,16 +533,14 @@ private fun LazyListScope.OrderHealthCardHintSection(
                 text = stringResource(R.string.cdw_have_no_card_with_pin),
                 style = AppTheme.typography.body2l
             )
-            HintTextActionButton(
-                text = stringResource(R.string.cdw_intro_order_now),
-                align = Alignment.End,
+            de.gematik.ti.erp.app.utils.compose.TextButton(
+                buttonText = stringResource(R.string.cdw_intro_order_now),
+                onClick = onClickOrderNow,
+                trailingIcon = Icons.AutoMirrored.Default.ArrowForward,
                 modifier = Modifier
-                    .semanticsButton()
-                    .align(Alignment.End)
                     .testTag(TestTag.CardWall.Intro.OrderEgkButton)
-            ) {
-                onClickOrderNow()
-            }
+                    .align(Alignment.End)
+            )
         }
     }
 }
@@ -549,19 +549,28 @@ private fun LazyListScope.OrderHealthCardHintSection(
 private fun LazyListScope.TryDemomodeSection(onClickDemoMode: () -> Unit) {
     item {
         Column(
-            modifier = Modifier.semanticsMergedButton()
+            modifier = Modifier,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SpacerMedium()
+            SpacerXXLargeMedium()
+            Divider(
+                color = AppTheme.colors.neutral300
+            )
+            Text(
+                stringResource(R.string.cardwall_intro_demo_mode_or),
+                style = AppTheme.typography.body2l,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(vertical = PaddingDefaults.Tiny)
+            )
             ClickableText(
                 modifier = Modifier.padding(horizontal = PaddingDefaults.Large),
-                textStyle = AppTheme.typography.body1l,
-                text = stringResource(R.string.demo_mode_start_text),
-                clickText = ClickText(
-                    text = stringResource(R.string.demo_mode_link_text),
-                    onClick = onClickDemoMode
-                )
+                textStyle = AppTheme.typography.body2l.copy(textAlign = TextAlign.Center),
+                leadingText = stringResource(R.string.demo_mode_start_text).substringBefore("%s"),
+                linkText = stringResource(R.string.demo_mode_link_text),
+                trailingText = stringResource(R.string.demo_mode_start_text).substringAfter("%s"),
+                onClick = onClickDemoMode
             )
-            SpacerXXXLarge()
+            SpacerXLarge()
         }
     }
 }

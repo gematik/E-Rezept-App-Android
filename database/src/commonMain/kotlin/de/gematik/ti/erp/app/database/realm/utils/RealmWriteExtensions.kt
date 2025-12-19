@@ -80,7 +80,7 @@ suspend inline fun <reified T : RealmObject> Realm.updateOrCreate(
     safeWrite {
         val entity = queryBlock(this)?.let { findLatest(it) }
             ?: T::class.primaryConstructor?.call()?.let {
-                Napier.d(tag = "PharmacySearchAccessTokenProvider") { "Creating new Realm object of type ${T::class.qualifiedName}" }
+                Napier.d(tag = "RealmOperation") { "Creating new Realm object of type ${T::class.qualifiedName}" }
                 copyToRealm(it)
             }
             ?: throw IllegalArgumentException("No primary constructor available for ${T::class.qualifiedName}")

@@ -30,7 +30,8 @@ import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.DefaultFavouri
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.DefaultOftenUsePharmacyLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.FavouritePharmacyLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.OftenUsedPharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.FhirVzdRemoteDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.DefaultPharmacyRemoteDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.PharmacyRemoteDataSource
 import de.gematik.ti.erp.app.redeem.repository.datasource.DefaultRedeemLocalDataSource
 import de.gematik.ti.erp.app.redeem.repository.datasource.RedeemLocalDataSource
 import de.gematik.ti.erp.app.repository.MockShippingContactRepository
@@ -41,7 +42,7 @@ import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
 val mockPharmacyRepositoryModule = DI.Module("mockPharmacyModule") {
-    bindProvider { FhirVzdRemoteDataSource(instance()) }
+    bindProvider<PharmacyRemoteDataSource> { DefaultPharmacyRemoteDataSource(instance()) }
     bindProvider<RedeemLocalDataSource> { DefaultRedeemLocalDataSource(instance()) }
     bindProvider<OftenUsedPharmacyLocalDataSource> { DefaultOftenUsePharmacyLocalDataSource(instance()) }
     bindProvider<FavouritePharmacyLocalDataSource> { DefaultFavouritePharmacyLocalDataSource(instance()) }

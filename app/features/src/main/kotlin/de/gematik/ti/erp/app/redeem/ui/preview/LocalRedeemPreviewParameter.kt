@@ -170,6 +170,36 @@ class LocalRedeemPreviewParameter : PreviewParameterProvider<LocalRedeemPreview>
                 ),
                 showSingleCodes = true,
                 hasEuRedeemablePrescriptions = true
+            ),
+            LocalRedeemPreview(
+                name = "MultipleDataMatrixCode_Single_Codes",
+                dmCodes = UiState.Data(
+                    listOf(
+                        DMCode(
+                            payload = PAYLOAD,
+                            nrOfCodes = 2,
+                            name = "$MEDICATION_NAME_1, $MEDICATION_NAME_2",
+                            selfPayerPrescriptionNames = listOf(),
+                            containsScanned = false
+                        ),
+                        DMCode(
+                            payload = PAYLOAD,
+                            nrOfCodes = 2,
+                            name = "$MEDICATION_NAME_1, $MEDICATION_NAME_2",
+                            selfPayerPrescriptionNames = listOf(),
+                            containsScanned = false
+                        ),
+                        DMCode(
+                            payload = PAYLOAD,
+                            nrOfCodes = 2,
+                            name = "$MEDICATION_NAME_1, $MEDICATION_NAME_2",
+                            selfPayerPrescriptionNames = listOf(),
+                            containsScanned = false
+                        )
+                    )
+                ),
+                showSingleCodes = true,
+                hasEuRedeemablePrescriptions = true
             )
         )
 }

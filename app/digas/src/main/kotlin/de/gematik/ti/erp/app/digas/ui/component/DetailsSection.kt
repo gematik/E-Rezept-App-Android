@@ -53,7 +53,6 @@ import de.gematik.ti.erp.app.utils.compose.BannerClickableIcon
 import de.gematik.ti.erp.app.utils.compose.BannerIcon
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.annotatedLinkUnderlined
-import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.format
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isEmptyState
@@ -83,24 +82,20 @@ fun LazyListScope.detailSection(
                     Column(
                         modifier = Modifier.fillParentMaxSize()
                     ) {
-                        Center {
-                            ErrorScreenComponent(
-                                titleText = errorTitle,
-                                bodyText = errorBody
-                            )
-                        }
+                        ErrorScreenComponent(
+                            titleText = errorTitle,
+                            bodyText = errorBody
+                        )
                     }
                 },
                 onError = {
                     Column(
                         modifier = Modifier.fillParentMaxSize()
                     ) {
-                        Center {
-                            ErrorScreenComponent(
-                                titleText = errorTitle,
-                                bodyText = errorBody
-                            )
-                        }
+                        ErrorScreenComponent(
+                            titleText = errorTitle,
+                            bodyText = errorBody
+                        )
                     }
                 }
             ) { state ->

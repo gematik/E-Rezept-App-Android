@@ -25,11 +25,13 @@ package de.gematik.ti.erp.app.prescription.ui.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.prescription.ui.screen.PrescriptionsArchiveEmptyScreenContent
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
 import de.gematik.ti.erp.app.utils.SpacerMedium
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.uistate.UiState
@@ -43,7 +45,11 @@ fun DigaSection(
     UiStateMachine(
         state = prescriptions,
         onError = {
-            ErrorScreenComponent()
+            ErrorScreenComponent(
+                titleText = stringResource(R.string.generic_error_title),
+                bodyText = stringResource(R.string.generic_error_info),
+                tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
+            )
         },
         onEmpty = {
             PrescriptionsArchiveEmptyScreenContent()

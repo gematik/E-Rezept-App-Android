@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="a11y_card_wall_card_hand">Health card on your smartphone</string>
+    <string name="a11y_card_wall_card_hand">A hand holds a health insurance card up to a smartphone.</string>
     <string name="a11y_cdw_health_card_image_description">Image of a health card with six-digit access number on the top right of the front of the card</string>
+    <string name="a11y_datamatrix_code_description">Scan code</string>
+    <string name="a11y_datamatrix_code_pager_content_description">Swipe with two fingers to switch pages</string>
+    <string name="a11y_datamatrix_code_pager_state_description" formatted="false">Page %s from %s</string>
+    <string name="a11y_datamatrix_code_zoom_in_button_description">Enlarge code</string>
+    <string name="a11y_datamatrix_code_zoom_out_button_description">Reduce code size</string>
+    <string name="a11y_delete_access_code_dialog">Dialog: Delete access code</string>
     <string name="a11y_deleted_text">Delete text</string>
     <string name="a11y_diga_arrow">until</string>
     <string name="a11y_diga_change_insurance">Changing insurance</string>
@@ -9,16 +15,32 @@
     <string name="a11y_diga_feedback_prompt_accessibility_label">Feedback on DiGA Prescription</string>
     <string name="a11y_diga_feedback_submit">Submit feedback on an external website</string>
     <string name="a11y_disabled">deactivated</string>
+    <string name="a11y_error_icon">Error</string>
     <string name="a11y_error_prefix">Error:</string>
+    <string name="a11y_eu_access_code_delete_button">Delete access code</string>
+    <string name="a11y_eu_access_code_delete_button_disabled">Deleting the access code is currently disabled due to an ongoing action.</string>
+    <string name="a11y_eu_access_code_deleted_error">Deletion of the access code failed.</string>
+    <string name="a11y_eu_access_code_deleted_success">Access code has been deleted.</string>
+    <string name="a11y_eu_access_code_deleting">Access code will be deleted…</string>
     <string name="a11y_eu_instructions_flag_accessibility_text">You can say the following things:</string>
     <string name="a11y_eu_instructions_open_in_browser">Open in a browser</string>
+    <string name="a11y_local_redeem_back">Show previous code</string>
+    <string name="a11y_local_redeem_forward">Show next code</string>
     <string name="a11y_medication_schedule_three_dot_menu">Show medication reminder options</string>
     <string name="a11y_not_selected">not selected</string>
     <string name="a11y_onboarding_progress_description">Page %1$d of %2$d</string>
     <string name="a11y_open_link_submit">Open link on external website</string>
     <string name="a11y_open_pdf_submit">Open PDF on external website</string>
+    <string name="a11y_password_input_show_password_description_off">Password hidden</string>
+    <string name="a11y_password_input_show_password_description_on">Password displayed</string>
+    <string name="a11y_password_input_show_password_description_onClick_off">Show password</string>
+    <string name="a11y_password_input_show_password_description_onClick_on">Hide password</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Pharmacy search; enter name, city or postal code to search for a pharmacy</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Search in list view</string>
+    <string name="a11y_pin_input_show_pin_description_off">PIN hidden</string>
+    <string name="a11y_pin_input_show_pin_description_on">PIN displayed</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_off">Show PIN</string>
+    <string name="a11y_pin_input_show_pin_description_onClick_on">Hide PIN</string>
     <string name="a11y_prescription_details_share">Share prescription</string>
     <string name="a11y_prescription_more_option">More options</string>
     <string name="a11y_prescription_not_available">Not available</string>
@@ -27,6 +49,7 @@
     <string name="a11y_select_all_not_selected">Select all, not selected</string>
     <string name="a11y_select_all_selected">Select all, selected</string>
     <string name="a11y_selected">selected</string>
+    <string name="a11y_success_icon">Success</string>
     <string name="about_buildhash">Build hash: %s</string>
     <string name="about_version">Version: %s</string>
     <string name="accept_now">Just accepted</string>
@@ -126,7 +149,7 @@
         <item quantity="one">%s Save prescription</item>
         <item quantity="other">%s Save prescriptions</item>
     </plurals>
-    <string name="can_input_field_label">CAN</string>
+    <string name="can_input_field_label">Access number</string>
     <string name="cancel">Cancel</string>
     <string name="cardwall_gid_help_body">Your insurance company is responsible for the health ID. Please contact them if you have any questions about registration. Here are some tried and tested tips:</string>
     <string name="cardwall_gid_help_button">Help</string>
@@ -160,6 +183,7 @@
     <string name="cardwall_gid_pkv_help_screen_tip_4_body_2">For phones with Android 14, enable opening links in the settings.</string>
     <string name="cardwall_gid_pkv_help_screen_tip_4_header">You are not redirected to your insurance company’s app?</string>
     <string name="cardwall_gid_title">Health ID</string>
+    <string name="cardwall_intro_demo_mode_or">Or:</string>
     <string name="cardwall_select_insurance_federal_link">Insured differently</string>
     <string name="cardwall_select_insurance_type_drawer_body">To receive prescriptions digitally, please first select your insurance type.</string>
     <string name="cardwall_select_insurance_type_drawer_private_insurance_button">Private insurance</string>
@@ -394,7 +418,7 @@
     <string name="demo_mode_link_text">Demo mode</string>
     <string name="demo_mode_settings_end_title">Exit demo mode</string>
     <string name="demo_mode_settings_title">Activate demo mode</string>
-    <string name="demo_mode_start_text">Or: Try the app in demo mode</string>
+    <string name="demo_mode_start_text">Explore the %s.</string>
     <string name="demo_mode_text">Demo mode enabled</string>
     <string name="description">Description</string>
     <string name="diga_Insurance_is_determined">Insurance is determined:</string>
@@ -440,7 +464,7 @@
     <string name="diga_overview_how_it_works_3">3. Download the DiGA app</string>
     <string name="diga_overview_how_it_works_4">4. Enter code in the DiGA app</string>
     <string name="diga_request_unlock_code">Request activation code</string>
-    <string name="diga_requesting_code_from">We request the code from: %s </string>
+    <string name="diga_requesting_code_from">We request the code from: %s</string>
     <string name="diga_select_insurance_for_diga_discription">Select the insurance company that will pay for your Digital Health Prescription. We will request the activation code from this company.</string>
     <string name="diga_select_insurance_for_diga_header">Choose insurance for the DiGA</string>
     <string name="diga_server_return_code_200">Transferred successfully.</string>
@@ -533,6 +557,11 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n The following prescriptions are not or no longer redeemable: %1$s \n You may have already redeemed them in another way, or they may have been deleted. \n</string>
     <string name="error_redeemable_prescription_not_redeemable">The prescription \"%1$s\" has already been redeemed or is currently being redeemed.</string>
     <string name="error_redeemable_prescription_title">Prescription cannot be redeemed</string>
+    <string name="eu_access_code_delete_body">Do you want to revoke access for all pharmacies in other EU countries?</string>
+    <string name="eu_access_code_delete_button_text">Revoke access</string>
+    <string name="eu_access_code_delete_failure_body">Please try again.</string>
+    <string name="eu_access_code_delete_failure_header">Access could not be revoked.</string>
+    <string name="eu_access_code_delete_header">Revoke access to prescriptions</string>
     <string name="eu_access_code_error">Unfortunately, generating the redemption code failed. Please try again later.</string>
     <string name="eu_availability_description">The participating countries are currently working on implementation. We will inform you as soon as the first country is ready.</string>
     <string name="eu_availability_title">EU redemption will be available soon</string>
@@ -586,8 +615,23 @@
     <string name="eu_instructions_step_number">Step %1$d</string>
     <string name="eu_instructions_title">Instructions</string>
     <string name="eu_instructions_website_info_end">.</string>
-    <string name="eu_instructions_website_info_start">More information can be found on the </string>
-    <string name="eu_instructions_website_link_text">EU redemption website</string>
+    <string name="eu_instructions_website_info_start">You can find more information on the %s.</string>
+    <string name="eu_instructions_website_link_text">Website for EU redemptions</string>
+    <string name="eu_messages_code_created_again_message_title">Redemption code generated</string>
+    <string name="eu_messages_code_created_but_new_generated_message_body" formatted="false">You have retrieved a code to redeem your prescription in %s.</string>
+    <string name="eu_messages_code_created_message_body" formatted="false">You have retrieved a code to redeem your prescription in %s. %s can access your selected prescriptions until %s o\'clock.</string>
+    <string name="eu_messages_code_created_message_title">Welcome to %s</string>
+    <string name="eu_messages_code_created_not_present_message_body">You have retrieved a code to redeem your prescription in %s.</string>
+    <string name="eu_messages_code_revoked_button_text">Access revoked</string>
+    <string name="eu_messages_code_revoked_message_body" formatted="false">You have retrieved a code to redeem your prescription at %s. %s can no longer access your selected prescriptions.</string>
+    <string name="eu_messages_code_used_by_pharmacy_message_body">The pharmacy in %s has filled your prescription.</string>
+    <string name="eu_messages_list_latest_title">EU redemption</string>
+    <string name="eu_messages_prescription_added_body">You have added a prescription for EU redemption.</string>
+    <string name="eu_messages_prescription_added_title">Prescription added</string>
+    <string name="eu_messages_prescription_removed_body">You have removed a prescription from the EU redemption process.</string>
+    <string name="eu_messages_prescription_removed_title">Prescription removed</string>
+    <string name="eu_messages_revoke_code_button_text">Revoke access</string>
+    <string name="eu_messages_show_code_button_text">Show redemption code</string>
     <string name="eu_prescription_available">Redeem in other EU countries</string>
     <string name="eu_prescription_search_empty_text">Try a different search term.</string>
     <string name="eu_prescription_search_empty_title">Unfortunately, no suitable country was found.</string>
@@ -606,7 +650,7 @@
     <string name="eu_redeem_button">Redeem</string>
     <string name="eu_redeem_country_title">Country</string>
     <string name="eu_redeem_instructions_link">Instructions</string>
-    <string name="eu_redeem_instructions_prefix">How you can redeem prescriptions in other EU countries can be found in the</string>
+    <string name="eu_redeem_instructions_prefix">How you can redeem prescriptions in other EU countries can be found in the %s</string>
     <string name="eu_redeem_prescription_selection_empty_subtitle">No prescriptions could be loaded.</string>
     <string name="eu_redeem_prescription_selection_empty_title">No prescriptions</string>
     <string name="eu_redeem_prescription_selection_error_dialog_body">The following error occurred: %s. You can try again by clicking on the prescription again.</string>
@@ -717,7 +761,7 @@
     <string name="insurance_information_header">Policyholder details</string>
     <string name="insurance_information_insurance_identifier">Policyholder number</string>
     <string name="insurance_information_insurance_name">Insurance</string>
-    <string name="insurance_information_insurant_can">CAN</string>
+    <string name="insurance_information_insurant_can">Access number</string>
     <string name="insurance_information_insurant_name">Name</string>
     <string name="insurance_information_login">Register</string>
     <string name="insurance_information_logout">Log out</string>
@@ -811,7 +855,9 @@
     <string name="link_to_invoice_list">To the overview of pharmacy bills</string>
     <string name="local_redeem_done">Done</string>
     <string name="local_redeem_grouped_codes">Collection code</string>
+    <string name="local_redeem_multi_code_page">Collective code %s</string>
     <string name="local_redeem_self_payer_prescription_warning">Your insurance will not cover the cost of this prescription.</string>
+    <string name="local_redeem_single_code">Prescription code</string>
     <string name="local_redeem_single_codes">Individual codes</string>
     <string name="location_not_found">Location not found</string>
     <string name="logged_in">Logged in</string>
@@ -998,7 +1044,7 @@
     <string name="onb_undo_description">Undo</string>
     <string name="onboarding_analytics_agree_button">Agree</string>
     <string name="onboarding_analytics_bottom_text">You can deactivate the analytics at any time in the settings.</string>
-    <string name="onboarding_analytics_consent_text">With your consent, we would like to conduct an analysis of app usage. To do so, we would like to collect and anonymously evaluate app usage and technical data to:</string>
+    <string name="onboarding_analytics_consent_text">With your consent, we would like to conduct an %s. For this purpose, we would like to collect and anonymously analyze data on app usage and technical data, and thus:</string>
     <string name="onboarding_analytics_consent_title">Help us improve your app!</string>
     <string name="onboarding_analytics_link_text">Analysis of app usage</string>
     <string name="onboarding_analytics_optimize_user_experience_text">Optimize the user experience for everyone</string>

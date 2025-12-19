@@ -24,20 +24,14 @@ package de.gematik.ti.erp.app.cardwall.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -45,7 +39,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
@@ -55,7 +48,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
@@ -65,7 +57,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
@@ -254,25 +245,11 @@ fun CanDescription(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            Row(
-                modifier = Modifier.clickable {
-                    onClickScanNow()
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.CameraAlt,
-                    contentDescription = null,
-                    tint = AppTheme.colors.primary700,
-                    modifier = Modifier
-                        .size(SizeDefaults.double)
-                        .offset(x = (-SizeDefaults.one), y = SizeDefaults.quarter)
-                )
-                Text(
-                    text = stringResource(R.string.cdw_scan_with_card),
-                    color = AppTheme.colors.primary700,
-                    style = AppTheme.typography.body2
-                )
-            }
+            de.gematik.ti.erp.app.utils.compose.TextButton(
+                onClick = onClickScanNow,
+                buttonText = stringResource(R.string.cdw_scan_with_card),
+                leadingIcon = Icons.Outlined.CameraAlt
+            )
         }
         SpacerMedium()
     }
@@ -299,33 +276,17 @@ fun CanInputFieldWithLink(
             next = next
         )
         SpacerMedium()
-        Box(
+        Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .testTag(TestTag.CardWall.CAN.OrderEgkButton)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
         ) {
-            Row(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .clickable { onClickLearnMore() },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.cdw_no_can_on_card),
-                    style = AppTheme.typography.body1,
-                    color = AppTheme.colors.primary700,
-                    textAlign = TextAlign.Start
-                )
-
-                Spacer(modifier = Modifier.width(SizeDefaults.half))
-
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
-                    contentDescription = null,
-                    tint = AppTheme.colors.primary700,
-                    modifier = Modifier.size(SizeDefaults.triple)
-                )
-            }
+            de.gematik.ti.erp.app.utils.compose.TextButton(
+                modifier = Modifier.testTag(TestTag.CardWall.CAN.OrderEgkButton),
+                buttonText = stringResource(R.string.cdw_no_can_on_card),
+                onClick = onClickLearnMore,
+                trailingIcon = Icons.AutoMirrored.Outlined.ArrowForward
+            )
         }
     }
 }
@@ -349,7 +310,7 @@ fun CanInputField(
             }
         },
         label = stringResource(R.string.can_input_field_label),
-        placeholder = stringResource(R.string.can_input_field_label),
+        placeholder = null,
         keyboardOptions = KeyboardOptions(
             autoCorrect = false,
             keyboardType = KeyboardType.NumberPassword,
@@ -366,7 +327,7 @@ fun CanInputField(
     Text(
         text = stringResource(R.string.cdw_puk_info),
         style = AppTheme.typography.caption1l,
-        color = AppTheme.colors.neutral600
+        color = AppTheme.colors.neutral700
     )
 }
 

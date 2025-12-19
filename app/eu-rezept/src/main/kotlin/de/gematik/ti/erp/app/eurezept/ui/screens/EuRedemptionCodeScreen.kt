@@ -20,6 +20,8 @@
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
+@file:Suppress("unused")
+
 package de.gematik.ti.erp.app.eurezept.ui.screens
 
 import androidx.activity.compose.BackHandler
@@ -46,6 +48,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -64,6 +67,7 @@ import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.eurezept.domain.model.CountrySpecificLabels
 import de.gematik.ti.erp.app.eurezept.domain.model.EuRedemptionDetails
 import de.gematik.ti.erp.app.eurezept.navigation.EuRoutes
+import de.gematik.ti.erp.app.eurezept.navigation.EuRoutes.EU_NAV_ACCESS_CODE
 import de.gematik.ti.erp.app.eurezept.presentation.EuSharedViewModel
 import de.gematik.ti.erp.app.eurezept.presentation.rememberEuRedemptionCodeController
 import de.gematik.ti.erp.app.eurezept.ui.component.TogglableRedemptionCodeCard
@@ -89,6 +93,7 @@ import de.gematik.ti.erp.app.utils.compose.PrimaryIconButton
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.showWithDismissButton
+import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import de.gematik.ti.erp.app.utils.uistate.UiState
 
 internal class EuRedemptionCodeScreen(
@@ -101,6 +106,17 @@ internal class EuRedemptionCodeScreen(
         val snackbarHostState = remember { SnackbarHostState() }
         val context = LocalContext.current
         val scope = uiScope
+
+        // update the access code in the shared view model if this screen
+        // is accessed with an access code and it is not obtained from the shared view model
+        val accessCodeToOverride = navBackStackEntry.arguments?.getString(EU_NAV_ACCESS_CODE)
+
+        LaunchedEffect(accessCodeToOverride) {
+            accessCodeToOverride
+                .takeIf { it.isNotNullOrEmpty() }
+                ?.let { graphController.overrideEuAccessCode(it) }
+        }
+
         val selectedCountry by graphController.selectedCountry.collectAsStateWithLifecycle()
 
         val controller = rememberEuRedemptionCodeController(selectedCountryCode = selectedCountry?.code ?: "")
@@ -252,7 +268,7 @@ private fun EuRedemptionCodeScreenContent(
                 Text(
                     text = stringResource(R.string.eu_redemption_instruction),
                     style = AppTheme.typography.body2,
-                    color = AppTheme.colors.neutral600
+                    color = AppTheme.colors.neutral700
                 )
 
                 SpacerXXLarge()

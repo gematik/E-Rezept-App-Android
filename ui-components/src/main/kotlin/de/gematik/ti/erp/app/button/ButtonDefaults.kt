@@ -35,7 +35,7 @@ object GemButtonDefaults {
         backgroundColor: Color = AppTheme.colors.primary700,
         contentColor: Color = AppTheme.colors.neutral000,
         disabledBackgroundColor: Color = AppTheme.colors.neutral300,
-        disabledContentColor: Color = AppTheme.colors.neutral600
+        disabledContentColor: Color = AppTheme.colors.neutral700
     ): ButtonColors = ButtonDefaults.buttonColors(
         backgroundColor = backgroundColor,
         contentColor = contentColor,
@@ -48,7 +48,7 @@ object GemButtonDefaults {
         backgroundColor: Color = AppTheme.colors.neutral100,
         contentColor: Color = AppTheme.colors.primary700,
         disabledBackgroundColor: Color = AppTheme.colors.neutral300,
-        disabledContentColor: Color = AppTheme.colors.neutral600
+        disabledContentColor: Color = AppTheme.colors.neutral700
     ): ButtonColors = ButtonDefaults.buttonColors(
         backgroundColor = backgroundColor,
         contentColor = contentColor,
@@ -61,7 +61,7 @@ object GemButtonDefaults {
         backgroundColor: Color = AppTheme.colors.neutral025,
         contentColor: Color = AppTheme.colors.primary700,
         disabledBackgroundColor: Color = AppTheme.colors.neutral300,
-        disabledContentColor: Color = AppTheme.colors.neutral600
+        disabledContentColor: Color = AppTheme.colors.neutral700
     ): ButtonColors = ButtonDefaults.buttonColors(
         backgroundColor = backgroundColor,
         contentColor = contentColor,
@@ -74,7 +74,7 @@ object GemButtonDefaults {
         backgroundColor: Color = AppTheme.colors.neutral000,
         contentColor: Color = AppTheme.colors.primary700,
         disabledBackgroundColor: Color = AppTheme.colors.neutral300,
-        disabledContentColor: Color = AppTheme.colors.neutral600
+        disabledContentColor: Color = AppTheme.colors.neutral700
     ): ButtonColors = ButtonDefaults.outlinedButtonColors(
         backgroundColor = backgroundColor,
         contentColor = contentColor,

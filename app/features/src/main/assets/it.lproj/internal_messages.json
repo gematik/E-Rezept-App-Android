@@ -46,5 +46,11 @@
         "text": "**🏛️ Registrazione per le istituzioni federali** \nLa registrazione è ora possibile anche per gli assicurati presso istituzioni federali come la Polizia Federale. \n \n **🕒 Orari di apertura delle farmacie migliorati** \nIl servizio di emergenza e gli orari di chiusura speciali delle farmacie vengono ora visualizzati, se sono stati memorizzati.",
         "timestamp": "2025-11-03T08:00:00.000Z",
         "version": "1.34"
+    },
+    {
+        "id": "10",
+        "text": "**🏡 Suggerimenti per l'indirizzo** \nI dati dell'indirizzo memorizzati vengono ora suggeriti automaticamente quando si inserisce un indirizzo. \n \n **♿️ Accessibilità** \nIl contrasto per testo, pulsanti di attivazione\/disattivazione, caselle di controllo, messaggi di errore, icone e barre di ricerca è stato aumentato. \nL'output vocale tramite TalkBack è stato migliorato per l'inserimento di PIN e password, la visualizzazione dei codici di prescrizione e il riconoscimento delle intestazioni. I link sono ora sottolineati in modo coerente nel testo scorrevole.",
+        "timestamp": "2025-12-17T08:00:00.000Z",
+        "version": "1.35"
     }
 ]

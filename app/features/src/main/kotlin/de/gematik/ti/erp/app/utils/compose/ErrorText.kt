@@ -35,7 +35,7 @@ fun ErrorText(
     Text(
         modifier = modifier,
         text = text,
-        color = AppTheme.colors.red600,
+        color = AppTheme.colors.red700,
         style = AppTheme.typography.caption1
     )
 }
