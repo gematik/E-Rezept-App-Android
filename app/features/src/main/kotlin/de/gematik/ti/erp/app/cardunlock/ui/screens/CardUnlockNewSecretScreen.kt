@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.cardunlock.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,6 +53,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -287,8 +289,19 @@ fun ConformationPinInputField(
                 )
             } else {
                 IconToggleButton(
+                    modifier = Modifier.clickable(
+                        onClick = {
+                            secretVisible = !secretVisible
+                        },
+                        role = Role.Button,
+                        onClickLabel = if (secretVisible) {
+                            stringResource(R.string.a11y_pin_input_show_pin_description_onClick_on)
+                        } else {
+                            stringResource(R.string.a11y_pin_input_show_pin_description_onClick_off)
+                        }
+                    ),
                     checked = secretVisible,
-                    onCheckedChange = { secretVisible = it }
+                    onCheckedChange = { secretVisible = !secretVisible }
                 ) {
                     Icon(
                         if (secretVisible) {
@@ -296,7 +309,11 @@ fun ConformationPinInputField(
                         } else {
                             Icons.Rounded.VisibilityOff
                         },
-                        null
+                        contentDescription = if (secretVisible) {
+                            stringResource(R.string.a11y_pin_input_show_pin_description_on)
+                        } else {
+                            stringResource(R.string.a11y_pin_input_show_pin_description_off)
+                        }
                     )
                 }
             }

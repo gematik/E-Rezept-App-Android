@@ -443,7 +443,8 @@ object PharmacyUseCaseData {
     data class OrderState(
         val prescriptionsInOrder: List<PrescriptionInOrder>,
         val selfPayerPrescriptionIds: List<String>,
-        val contact: ShippingContact
+        val contact: ShippingContact,
+        val isLoading: Boolean = false
     ) {
         val selfPayerPrescriptionNames = prescriptionsInOrder
             .filter { it.taskId in this.selfPayerPrescriptionIds }
@@ -453,7 +454,8 @@ object PharmacyUseCaseData {
             val Empty = OrderState(
                 prescriptionsInOrder = emptyList(),
                 selfPayerPrescriptionIds = emptyList(),
-                contact = ShippingContact.EmptyShippingContact
+                contact = ShippingContact.EmptyShippingContact,
+                isLoading = true
             )
         }
     }

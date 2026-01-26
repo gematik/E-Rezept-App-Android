@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="a11y_card_wall_card_hand">Ръка държи здравноосигурителна карта пред смартфон.</string>
+    <string name="a11y_card_wall_save_credentials_off">не е избрано</string>
+    <string name="a11y_card_wall_save_credentials_on">избран</string>
     <string name="a11y_cdw_health_card_image_description">Изображение на здравна карта с шестцифрен номер за достъп в горния десен ъгъл на лицевата страна на картата</string>
     <string name="a11y_datamatrix_code_description">Сканиране на код</string>
     <string name="a11y_datamatrix_code_pager_content_description">Плъзнете с два пръста, за да превключвате страници</string>
@@ -26,7 +28,11 @@
     <string name="a11y_eu_instructions_open_in_browser">Отвори в браузър</string>
     <string name="a11y_local_redeem_back">Покажи предишния код</string>
     <string name="a11y_local_redeem_forward">Покажи следващия код</string>
+    <string name="a11y_long_press_copy">Копиране</string>
     <string name="a11y_medication_schedule_three_dot_menu">Показване на опции за напомняне за лекарства</string>
+    <string name="a11y_messages_empty_state">Няма съобщения</string>
+    <string name="a11y_messages_error_state">Грешка при зареждане на съобщенията</string>
+    <string name="a11y_messages_loading">Съобщенията се зареждат</string>
     <string name="a11y_not_selected">не е избрано</string>
     <string name="a11y_onboarding_progress_description">Страница %1$d от %2$d</string>
     <string name="a11y_open_link_submit">Отваряне на връзката на външен уебсайт</string>
@@ -35,6 +41,7 @@
     <string name="a11y_password_input_show_password_description_on">Показана парола</string>
     <string name="a11y_password_input_show_password_description_onClick_off">Покажи паролата</string>
     <string name="a11y_password_input_show_password_description_onClick_on">Скриване на парола</string>
+    <string name="a11y_pharmacy_search_pharmacy_card_click_description">Отворете подробности за аптеката</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Търсене на аптека; въведете име, град или пощенски код, за да търсите аптека</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Търсене в списъчен изглед</string>
     <string name="a11y_pin_input_show_pin_description_off">ПИН кодът е скрит</string>
@@ -512,14 +519,14 @@
     <string name="edit_shipping_contact_empty_name">Моля, посочете име и фамилия, за да се свържете с нас.</string>
     <string name="edit_shipping_contact_empty_phone">Моля, посочете телефонен номер за връзка с нас.</string>
     <string name="edit_shipping_contact_empty_postal_code">Моля, посочете вашия пощенски код, за да се свържете с нас.</string>
-    <string name="edit_shipping_contact_invalid_city">Въведеният от вас текст е невалиден. (твърде дълго, невалидни знаци)</string>
-    <string name="edit_shipping_contact_invalid_delivery_information">Въведеният от вас текст е невалиден. (твърде дълго, невалидни знаци)</string>
-    <string name="edit_shipping_contact_invalid_line1">Въведеният от вас текст е невалиден. (твърде дълго, невалидни знаци)</string>
-    <string name="edit_shipping_contact_invalid_line2">Въведеният от вас текст е невалиден. (твърде дълго, невалидни знаци)</string>
+    <string name="edit_shipping_contact_invalid_city">Моля, въведете максимум 50 знака.</string>
+    <string name="edit_shipping_contact_invalid_delivery_information">Моля, въведете максимум 500 знака.</string>
+    <string name="edit_shipping_contact_invalid_line1">Моля, въведете максимум 50 знака.</string>
+    <string name="edit_shipping_contact_invalid_line2">Моля, въведете максимум 50 знака.</string>
     <string name="edit_shipping_contact_invalid_mail">Въведеният имейл адрес е невалиден.</string>
-    <string name="edit_shipping_contact_invalid_name">Въведеният от вас текст е невалиден. (твърде дълго, невалидни знаци)</string>
-    <string name="edit_shipping_contact_invalid_phone">Въведеният от вас телефонен номер е невалиден. (твърде кратки, твърде дълги, невалидни знаци)</string>
-    <string name="edit_shipping_contact_invalid_postal_code">Въведеният от вас текст е невалиден. (твърде дълги, твърде къси, невалидни знаци)</string>
+    <string name="edit_shipping_contact_invalid_name">Моля, въведете максимум 50 знака.</string>
+    <string name="edit_shipping_contact_invalid_phone">Моля, въведете максимум 25 знака. Допускат се само цифри и символите - + \' /.</string>
+    <string name="edit_shipping_contact_invalid_postal_code">Моля, въведете максимум 8 цифри без специални символи.</string>
     <string name="edit_shipping_contact_line2">Допълнителен адрес (по избор)</string>
     <string name="edit_shipping_contact_mail">Имейл адрес (по избор)</string>
     <string name="edit_shipping_contact_name">Име и фамилия</string>
@@ -1041,7 +1048,7 @@
     <string name="onb_page_4_header">Защита на данните и използване</string>
     <string name="onb_page_5_header">Помогнете ни да направим това приложение по-добро</string>
     <string name="onb_terms_of_use">Условия за ползване</string>
-    <string name="onb_undo_description">Отменено</string>
+    <string name="onb_undo_description">Изтриване на запис</string>
     <string name="onboarding_analytics_agree_button">Съгласен/а</string>
     <string name="onboarding_analytics_bottom_text">Можете да деактивирате анализа по всяко време в настройките.</string>
     <string name="onboarding_analytics_consent_text">С Ваше съгласие бихме искали да извършим %s. За тази цел бихме искали да събираме и анонимно анализираме данни за използването на приложението и технически данни и по този начин:</string>
@@ -1053,7 +1060,7 @@
     <string name="onboarding_analytics_resolve_errors_text">Откриване и коригиране на грешки на ранен етап</string>
     <string name="onboarding_analytics_we_want">Ние ще:</string>
     <string name="onboarding_auth_biometric_info">Приложението използва най-безопасния метод, който сте задали на вашето устройство.</string>
-    <string name="onboarding_bottom_app_safety_button_next">По-нататък</string>
+    <string name="onboarding_bottom_app_safety_button_next">Следващо</string>
     <string name="onboarding_bottom_button_accept">Приеми</string>
     <string name="onboarding_bottom_button_choose">Избирам</string>
     <string name="onboarding_bottom_button_save">Запазване</string>
@@ -1230,6 +1237,7 @@
     <string name="pharmacy_search_favorite_toggle">Добавяне към любими</string>
     <string name="pharmacy_search_favorite_toggle_active">активен</string>
     <string name="pharmacy_search_favorite_toggle_inactive">неактивен</string>
+    <string name="pharmacy_search_placeholder">Търсене</string>
     <string name="pharmacy_search_searchbar">Търсене в аптека</string>
     <string name="pharmacy_start_search_text">Търсене</string>
     <string name="pkv_invoices_total_of_year" formatted="false">Общо: %s %s</string>
@@ -1594,6 +1602,11 @@
     <string name="settings_show_audit_events_info">Тук можете да видите кой е и кога е имал достъп до вашите рецепти.</string>
     <string name="settings_show_token">Показване на жетони</string>
     <string name="settings_show_token_info">Ключ за достъп до услугата по рецепта</string>
+    <string name="settings_theme_dark">Тъмно</string>
+    <string name="settings_theme_label">дизайн</string>
+    <string name="settings_theme_light">Ярко</string>
+    <string name="settings_theme_system">Системни настройки</string>
+    <string name="settings_theme_title">дизайн</string>
     <string name="settings_tracking_allow_button">Приеми</string>
     <string name="settings_tracking_allow_info">%s Благодарим ви за подкрепата!</string>
     <string name="settings_tracking_allow_title">Подобрете приложението</string>

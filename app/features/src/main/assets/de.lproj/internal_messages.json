@@ -52,5 +52,11 @@
         "text": "**🏡 Vorschläge bei Adresseingaben**\nHinterlegte Adressdaten werden jetzt bei der Adresseingabe automatisch vorgeschlagen.\n\n**♿️ Barrierefreiheit**\nDie Kontraste für Text, Umschaltbuttons, Auswahlkästchen, Fehlerhinweise, Icons, und Suchleisten wurden erhöht. \nDie Sprachausgabe über TalkBack wurde bei der PIN- und Passworteingabe, der Anzeige von Rezeptcodes und dem Erkennen von Überschriften verbessert. Links werden im Fließtext konsequent unterstrichen.",
         "timestamp": "2025-12-17T08:00:00.000Z",
         "version": "1.35"
+    },
+    {
+        "id": "11",
+        "text": "**✨ Rezeptcodes anzeigen**\nDer Screen für Sammel- und Einzelcodes wurde überarbeitet, um die Nutzung intuitiver zu gestalten.\n\n**📋 Kopierfunktion**\nInformationen von Medikamenten können durch langes Drücken kopiert werden.\n\n**♿ Barrierefreiheit**\nDie Talkback- und Tastaturbedienung funktioniert besser, Buttons sind klarer erkennbar und Listenelemente sind logischer aufgebaut. Animierte Videos werden nur einmal abgespielt, um kognitiv eingeschränkte Nutzende zu unterstützen.",
+        "timestamp": "2026-01-22T08:00:00.000Z",
+        "version": "1.36"
     }
 ]

@@ -37,9 +37,11 @@ import de.gematik.ti.erp.app.settings.usecase.GetMLKitAcceptedUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetOrganDonationRegisterHostsUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetScreenShotsAllowedUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetShowWelcomeDrawerUseCase
+import de.gematik.ti.erp.app.settings.usecase.GetThemeModeUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetZoomStateUseCase
 import de.gematik.ti.erp.app.settings.usecase.PerformSettingsMigrationUseCase
 import de.gematik.ti.erp.app.settings.usecase.ResetPasswordUseCase
+import de.gematik.ti.erp.app.settings.usecase.SaveThemeModeUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveToolTipsShownUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveWelcomeDrawerShownUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveZoomPreferenceUseCase
@@ -65,6 +67,8 @@ val settingsModule = DI.Module("settingsModule") {
     bindProvider { DisableDeviceSecurityUseCase(instance()) }
     bindProvider { ResetPasswordUseCase(instance()) }
     bindProvider { SaveZoomPreferenceUseCase(instance()) }
+    bindProvider { GetThemeModeUseCase(instance()) }
+    bindProvider { SaveThemeModeUseCase(instance()) }
     bindProvider { GetOrganDonationRegisterHostsUseCase(instance()) }
     bindProvider { PerformSettingsMigrationUseCase(instance()) }
 

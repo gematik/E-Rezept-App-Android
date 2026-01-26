@@ -52,5 +52,11 @@
         "text": "**🏡 Adressuggesties** \nOpgeslagen adresgegevens worden nu automatisch voorgesteld bij het invoeren van een adres. \n \n **♿️ Toegankelijkheid** \nHet contrast voor tekst, wisselknoppen, selectievakjes, foutmeldingen, pictogrammen en zoekbalken is vergroot. \nDe spraakuitvoer via TalkBack is verbeterd voor het invoeren van pincodes en wachtwoorden, de weergave van receptcodes en de herkenning van koppen. Links worden nu consistent onderstreept in lopende tekst.",
         "timestamp": "2025-12-17T08:00:00.000Z",
         "version": "1.35"
+    },
+    {
+        "id": "11",
+        "text": "**✨ Receptcodes weergeven** \nHet scherm voor batch- en individuele codes is opnieuw ontworpen voor een intuïtiever gebruik. \n \n **📋 Kopieerfunctie** \nMedicatiegegevens kunnen worden gekopieerd door lang ingedrukt te houden. \n \n **♿ Toegankelijkheid** \nTalkback en toetsenbordnavigatie werken beter, knoppen zijn duidelijker en lijstitems zijn logischer gestructureerd. Geanimeerde video's worden slechts één keer afgespeeld om gebruikers met cognitieve beperkingen te ondersteunen.",
+        "timestamp": "2026-01-22T08:00:00.000Z",
+        "version": "1.36"
     }
 ]

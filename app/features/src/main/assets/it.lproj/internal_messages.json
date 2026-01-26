@@ -52,5 +52,11 @@
         "text": "**🏡 Suggerimenti per l'indirizzo** \nI dati dell'indirizzo memorizzati vengono ora suggeriti automaticamente quando si inserisce un indirizzo. \n \n **♿️ Accessibilità** \nIl contrasto per testo, pulsanti di attivazione\/disattivazione, caselle di controllo, messaggi di errore, icone e barre di ricerca è stato aumentato. \nL'output vocale tramite TalkBack è stato migliorato per l'inserimento di PIN e password, la visualizzazione dei codici di prescrizione e il riconoscimento delle intestazioni. I link sono ora sottolineati in modo coerente nel testo scorrevole.",
         "timestamp": "2025-12-17T08:00:00.000Z",
         "version": "1.35"
+    },
+    {
+        "id": "11",
+        "text": "**✨ Visualizza i codici di prescrizione** \nLa schermata per i codici batch e singoli è stata riprogettata per un utilizzo più intuitivo. \n \n **📋 Funzione Copia** \nLe informazioni sui farmaci possono essere copiate premendo a lungo. \n \n **♿ Accessibilità** \nLa navigazione tramite tastiera e il talkback funzionano meglio, i pulsanti sono più chiari e le voci dell'elenco sono strutturate in modo più logico. I video animati vengono riprodotti una sola volta per supportare gli utenti con disabilità cognitive.",
+        "timestamp": "2026-01-22T08:00:00.000Z",
+        "version": "1.36"
     }
 ]

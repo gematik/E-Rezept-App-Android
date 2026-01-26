@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="a11y_card_wall_card_hand">יד מחזיקה כרטיס ביטוח בריאות מול סמארטפון.</string>
+    <string name="a11y_card_wall_save_credentials_off">לא נבחר</string>
+    <string name="a11y_card_wall_save_credentials_on">נִבחָר</string>
     <string name="a11y_cdw_health_card_image_description">תמונה של כרטיס בריאות עם מספר גישה בן שש ספרות בפינה הימנית העליונה של חזית הכרטיס</string>
     <string name="a11y_datamatrix_code_description">סריקת קוד</string>
     <string name="a11y_datamatrix_code_pager_content_description">החלק עם שתי אצבעות כדי להחליף עמודים</string>
@@ -26,7 +28,11 @@
     <string name="a11y_eu_instructions_open_in_browser">פתח בדפדפן</string>
     <string name="a11y_local_redeem_back">הצג קוד קודם</string>
     <string name="a11y_local_redeem_forward">הצג את הקוד הבא</string>
+    <string name="a11y_long_press_copy">לְהַעְתִיק</string>
     <string name="a11y_medication_schedule_three_dot_menu">הצג אפשרויות תזכורת תרופות</string>
+    <string name="a11y_messages_empty_state">אין הודעות</string>
+    <string name="a11y_messages_error_state">שגיאה בטעינת הודעות</string>
+    <string name="a11y_messages_loading">ההודעות נטענות</string>
     <string name="a11y_not_selected">לא נבחר</string>
     <string name="a11y_onboarding_progress_description">עמוד %1$d מתוך %2$d</string>
     <string name="a11y_open_link_submit">פתח קישור באתר חיצוני</string>
@@ -35,6 +41,7 @@
     <string name="a11y_password_input_show_password_description_on">סיסמה מוצגת</string>
     <string name="a11y_password_input_show_password_description_onClick_off">הצג סיסמה</string>
     <string name="a11y_password_input_show_password_description_onClick_on">הסתר סיסמה</string>
+    <string name="a11y_pharmacy_search_pharmacy_card_click_description">פתיחת פרטי בית המרקחת</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">חיפוש בית מרקחת; הזן שם, עיר או מיקוד כדי לחפש בית מרקחת</string>
     <string name="a11y_pharmacy_start_search_on_click_description">חיפוש בתצוגת רשימה</string>
     <string name="a11y_pin_input_show_pin_description_off">קוד סודי מוסתר</string>
@@ -522,14 +529,14 @@
     <string name="edit_shipping_contact_empty_name">אנא ספק שם פרטי ושם משפחה כדי ליצור איתנו קשר.</string>
     <string name="edit_shipping_contact_empty_phone">אנא ספק מספר טלפון ליצירת קשר.</string>
     <string name="edit_shipping_contact_empty_postal_code">אנא ספק את המיקוד שלך כדי ליצור איתנו קשר.</string>
-    <string name="edit_shipping_contact_invalid_city">הטקסט שהזנת אינו חוקי. (ארוכים מדי, תווים לא חוקיים)</string>
-    <string name="edit_shipping_contact_invalid_delivery_information">הטקסט שהזנת אינו חוקי. (ארוכים מדי, תווים לא חוקיים)</string>
-    <string name="edit_shipping_contact_invalid_line1">הטקסט שהזנת אינו חוקי. (ארוכים מדי, תווים לא חוקיים)</string>
-    <string name="edit_shipping_contact_invalid_line2">הטקסט שהזנת אינו חוקי. (ארוכים מדי, תווים לא חוקיים)</string>
+    <string name="edit_shipping_contact_invalid_city">אנא הזן מקסימום 50 תווים.</string>
+    <string name="edit_shipping_contact_invalid_delivery_information">אנא הזן מקסימום 500 תווים.</string>
+    <string name="edit_shipping_contact_invalid_line1">אנא הזן מקסימום 50 תווים.</string>
+    <string name="edit_shipping_contact_invalid_line2">אנא הזן מקסימום 50 תווים.</string>
     <string name="edit_shipping_contact_invalid_mail">כתובת האימייל שהוזנה אינה חוקית.</string>
-    <string name="edit_shipping_contact_invalid_name">הטקסט שהזנת אינו חוקי. (ארוכים מדי, תווים לא חוקיים)</string>
-    <string name="edit_shipping_contact_invalid_phone">מספר הטלפון שהזנת אינו חוקי. (תווים קצרים מדי, ארוכים מדי, לא חוקיים)</string>
-    <string name="edit_shipping_contact_invalid_postal_code">הטקסט שהזנת אינו חוקי. (ארוכים מדי, קצרים מדי, תווים לא חוקיים)</string>
+    <string name="edit_shipping_contact_invalid_name">אנא הזן מקסימום 50 תווים.</string>
+    <string name="edit_shipping_contact_invalid_phone">נא להזין עד 25 תווים. מותר להשתמש רק במספרים ובתווים - + \' /.</string>
+    <string name="edit_shipping_contact_invalid_postal_code">אנא הזן מקסימום 8 ספרות ללא תווים מיוחדים.</string>
     <string name="edit_shipping_contact_line2">כתובת נוספת (אופציונלי)</string>
     <string name="edit_shipping_contact_mail">כתובת אימייל (אופציונלי)</string>
     <string name="edit_shipping_contact_name">שם פרטי ושם משפחה</string>
@@ -1053,7 +1060,7 @@
     <string name="onb_page_4_header">הגנת מידע ושימוש</string>
     <string name="onb_page_5_header">עזרו לנו לשפר את האפליקציה הזו</string>
     <string name="onb_terms_of_use">תנאי שימוש</string>
-    <string name="onb_undo_description">בטל</string>
+    <string name="onb_undo_description">מחיקת ערך</string>
     <string name="onboarding_analytics_agree_button">לְהַסכִּים</string>
     <string name="onboarding_analytics_bottom_text">ניתן לבטל את הניתוח בכל עת בהגדרות.</string>
     <string name="onboarding_analytics_consent_text">בהסכמתך, נרצה לערוך  %s . למטרה זו, נרצה לאסוף ולנתח באופן אנונימי נתונים על שימוש באפליקציה ונתונים טכניים, וכך:</string>
@@ -1065,7 +1072,7 @@
     <string name="onboarding_analytics_resolve_errors_text">לזהות ולתקן שגיאות מוקדם</string>
     <string name="onboarding_analytics_we_want">אנחנו נהיה:</string>
     <string name="onboarding_auth_biometric_info">האפליקציה משתמשת בשיטה הבטוחה ביותר שהגדרת במכשיר שלך.</string>
-    <string name="onboarding_bottom_app_safety_button_next">לְקַדֵם</string>
+    <string name="onboarding_bottom_app_safety_button_next">הַבָּא</string>
     <string name="onboarding_bottom_button_accept">לְקַבֵּל</string>
     <string name="onboarding_bottom_button_choose">בחר</string>
     <string name="onboarding_bottom_button_save">להציל</string>
@@ -1248,6 +1255,7 @@
     <string name="pharmacy_search_favorite_toggle">הוסף למועדפים</string>
     <string name="pharmacy_search_favorite_toggle_active">פָּעִיל</string>
     <string name="pharmacy_search_favorite_toggle_inactive">לֹא פָּעִיל</string>
+    <string name="pharmacy_search_placeholder">לְחַפֵּשׂ</string>
     <string name="pharmacy_search_searchbar">חיפוש בבית מרקחת</string>
     <string name="pharmacy_start_search_text">לְחַפֵּשׂ</string>
     <string name="pkv_invoices_total_of_year" formatted="false">סה\"כ: %s %s</string>
@@ -1614,6 +1622,11 @@
     <string name="settings_show_audit_events_info">כאן תוכל לראות מי ראה את המרשמים שלך ומתי.</string>
     <string name="settings_show_token">הצג אסימונים</string>
     <string name="settings_show_token_info">מפתח גישה לשירות המרשם</string>
+    <string name="settings_theme_dark">כֵּהֶה</string>
+    <string name="settings_theme_label">לְעַצֵב</string>
+    <string name="settings_theme_light">בָּהִיר</string>
+    <string name="settings_theme_system">הגדרות מערכת</string>
+    <string name="settings_theme_title">לְעַצֵב</string>
     <string name="settings_tracking_allow_button">לְקַבֵּל</string>
     <string name="settings_tracking_allow_info">%s תודה על תמיכתך!</string>
     <string name="settings_tracking_allow_title">שפר את האפליקציה</string>

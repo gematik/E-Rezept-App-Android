@@ -61,6 +61,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -210,20 +211,23 @@ class RedeemOrderOverviewScreen(
             }
         }
 
-        val isRedeemEnabled = remember(
+        val isRedeemEnabled by remember(
             pharmacy,
             contactValidationState,
             orderOption,
             selectedOrderState,
             hasAttemptedRedeem
         ) {
-            when {
-                !hasAttemptedRedeem -> true
-                else ->
-                    pharmacy != null &&
-                        orderOption != null &&
-                        contactValidationState.isValid() &&
-                        selectedOrderState.prescriptionsInOrder.isNotEmpty()
+            derivedStateOf {
+                when {
+                    !hasAttemptedRedeem -> true
+                    else ->
+
+                        pharmacy != null &&
+                            orderOption != null &&
+                            contactValidationState.isValid() &&
+                            selectedOrderState.prescriptionsInOrder.isNotEmpty()
+                }
             }
         }
         val intentHandler = LocalIntentHandler.current
@@ -233,36 +237,43 @@ class RedeemOrderOverviewScreen(
             }
         }
 
-        val isPrescriptionError = remember(
+        val isPrescriptionError by remember(
             selectedOrderState.prescriptionsInOrder,
             hasAttemptedRedeem
         ) {
-            when {
-                !hasAttemptedRedeem -> false
-                else -> selectedOrderState.prescriptionsInOrder.isEmpty()
+            derivedStateOf {
+                when {
+                    selectedOrderState.isLoading -> false
+                    !hasAttemptedRedeem -> false
+                    else -> selectedOrderState.prescriptionsInOrder.isEmpty()
+                }
             }
         }
 
-        val isPharmacyError = remember(
+        val isPharmacyError by remember(
             pharmacy,
             hasAttemptedRedeem
         ) {
-            when {
-                !hasAttemptedRedeem -> false
-                else -> pharmacy == null || pharmacy.name.isEmpty() || pharmacy.address?.isEmpty() == true
+            derivedStateOf {
+                when {
+                    !hasAttemptedRedeem -> false
+                    else -> pharmacy == null || pharmacy.name.isEmpty() || pharmacy.address?.isEmpty() == true
+                }
             }
         }
 
-        val isContactError = remember(
+        val isContactError by remember(
             orderOption,
             contactValidationState,
             selectedOrderState.contact,
             hasAttemptedRedeem
         ) {
-            when {
-                !hasAttemptedRedeem || orderOption == null -> false
-                orderOption == PharmacyScreenData.OrderOption.Pickup -> !contactValidationState.isValid()
-                else -> !contactValidationState.isValid() || selectedOrderState.contact.isEmpty()
+            derivedStateOf {
+                when {
+                    !hasAttemptedRedeem || orderOption == null -> false
+                    orderOption == PharmacyScreenData.OrderOption.Pickup -> !contactValidationState.isValid()
+                    else -> !contactValidationState.isValid() || selectedOrderState.contact.isEmpty()
+                }
             }
         }
 
@@ -832,7 +843,7 @@ private fun PrescriptionSelectionSectionPreview(
 ) {
     PreviewTheme {
         LazyColumn {
-            prescriptionSelectionSection(state, false, {})
+            prescriptionSelectionSection(state, false) {}
         }
     }
 }

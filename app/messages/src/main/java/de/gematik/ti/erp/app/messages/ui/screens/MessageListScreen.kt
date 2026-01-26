@@ -55,7 +55,7 @@ class MessageListScreen(
         val listState = rememberLazyListState()
         val messagesList by messagesController.messagesList.collectAsStateWithLifecycle()
 
-        DisposableEffect(Unit) {
+        DisposableEffect(messagesList) {
             onDispose {
                 messagesController.trackMessageCount()
             }

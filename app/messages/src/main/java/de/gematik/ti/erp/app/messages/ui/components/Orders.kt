@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -45,6 +46,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.TestTag
@@ -53,6 +58,9 @@ import de.gematik.ti.erp.app.datetime.timeStateParser
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import de.gematik.ti.erp.app.messages.model.InAppMessage
+import de.gematik.ti.erp.app.messages.ui.preview.communicationInAppPreview
+import de.gematik.ti.erp.app.preview.LightDarkPreview
+import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -74,26 +82,57 @@ internal fun Orders(
     onClickEuOrder: (threadOrderId: String?, threadStart: Instant?, threadEnd: Instant?) -> Unit,
     onClickRetry: () -> Unit
 ) {
+    val emptyStateDescription = stringResource(R.string.a11y_messages_empty_state)
+    val loadingDescription = stringResource(R.string.a11y_messages_loading)
+    val errorStateDescription = stringResource(R.string.a11y_messages_error_state)
+
     Box(modifier = Modifier.fillMaxSize()) {
         UiStateMachine(
             state = ordersData,
             onEmpty = {
-                Center {
-                    NoOrders { onClickRetry() }
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .semantics {
+                            contentDescription = emptyStateDescription
+                            liveRegion = LiveRegionMode.Polite
+                        }
+                ) {
+                    Center {
+                        NoOrders { onClickRetry() }
+                    }
                 }
             },
             onLoading = {
-                Center {
-                    MessagesLoadingShimmer()
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .semantics {
+                            contentDescription = loadingDescription
+                            liveRegion = LiveRegionMode.Polite
+                        }
+                ) {
+                    Center {
+                        MessagesLoadingShimmer()
+                    }
                 }
             },
             onError = {
-                ErrorScreenComponent(
-                    titleText = stringResource(R.string.generic_error_title),
-                    bodyText = stringResource(R.string.generic_error_info),
-                    tryAgainText = stringResource(R.string.cdw_fasttrack_try_again),
-                    onClickRetry = onClickRetry
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .semantics {
+                            contentDescription = errorStateDescription
+                            liveRegion = LiveRegionMode.Assertive
+                        }
+                ) {
+                    ErrorScreenComponent(
+                        titleText = stringResource(R.string.generic_error_title),
+                        bodyText = stringResource(R.string.generic_error_info),
+                        tryAgainText = stringResource(R.string.cdw_fasttrack_try_again),
+                        onClickRetry = onClickRetry
+                    )
+                }
             }
         ) { orders ->
             LazyColumn(
@@ -101,9 +140,9 @@ internal fun Orders(
                 state = listState
             ) {
                 orders.forEachIndexed { index, order ->
-                    item {
+                    item(key = "${order.id}-$index") {
                         val date = timeStateParser(timeState = order.timeState)
-                        Order(
+                        OrderItem(
                             pharmacy = order.from,
                             date = date,
                             hasUnreadMessages = order.isUnread,
@@ -133,7 +172,7 @@ internal fun Orders(
 }
 
 @Composable
-private fun Order(
+private fun OrderItem(
     modifier: Modifier = Modifier,
     pharmacy: String,
     date: String,
@@ -223,6 +262,37 @@ private fun PrescriptionCountLabel(count: Int) {
             ),
             style = AppTheme.typography.caption2,
             color = AppTheme.colors.neutral700
+        )
+    }
+}
+
+@LightDarkPreview
+@Composable
+private fun OrderItemItemPreview() {
+    PreviewTheme {
+        OrderItem(
+            pharmacy = "Pharmacy",
+            date = "12.03.2025",
+            text = "Text",
+            hasUnreadMessages = true,
+            prescriptionsCount = 1,
+            onClick = {}
+        )
+    }
+}
+
+@LightDarkPreview
+@Composable
+private fun OrdersPreview() {
+    PreviewTheme {
+        Orders(
+            ordersData = UiState.Data(communicationInAppPreview),
+            listState = rememberLazyListState(),
+            onClickEuOrder = { _, _, _ ->
+            },
+            onClickOrder = { _, _ ->
+            },
+            onClickRetry = {}
         )
     }
 }

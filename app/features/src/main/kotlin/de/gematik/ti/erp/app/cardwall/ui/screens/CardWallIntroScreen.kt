@@ -350,7 +350,9 @@ private fun LazyListScope.Header() {
             stringResource(R.string.cdw_intro_header),
             style = AppTheme.typography.h5,
             color = AppTheme.colors.neutral900,
-            modifier = Modifier.testTag("cdw_txt_intro_header_bottom")
+            modifier = Modifier
+                .testTag("cdw_txt_intro_header_bottom")
+                .semanticsHeading()
         )
     }
 }
@@ -396,7 +398,15 @@ private fun LazyListScope.HealthCardLoginSection(
             Card(
                 modifier = Modifier
                     .padding(bottom = PaddingDefaults.Medium)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .semanticsMergeDescendants {
+                        if (isNfcAvailable) {
+                            role = Role.Button
+                        } else {
+                            disabled()
+                            invisibleToUser()
+                        }
+                    },
                 shape = RoundedCornerShape(SizeDefaults.double),
                 border = if (isNfcAvailable) BorderStroke(SizeDefaults.quarter, color = AppTheme.colors.primary700) else null,
                 elevation = SizeDefaults.zero,
@@ -416,14 +426,6 @@ private fun LazyListScope.HealthCardLoginSection(
                     Column(
                         modifier = Modifier
                             .weight(1f)
-                            .semanticsMergeDescendants {
-                                if (isNfcAvailable) {
-                                    role = Role.Button
-                                } else {
-                                    disabled()
-                                    invisibleToUser()
-                                }
-                            }
                     ) {
                         Text(
                             stringResource(R.string.cdw_intro_auth_health_card),
@@ -472,7 +474,8 @@ private fun LazyListScope.GidLoginSection(
         Card(
             modifier = Modifier
                 .padding(bottom = PaddingDefaults.Medium)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .semanticsMergedButton(),
             shape = RoundedCornerShape(SizeDefaults.double),
             border = BorderStroke(SizeDefaults.eighth, color = AppTheme.colors.neutral300),
             elevation = SizeDefaults.zero,
@@ -486,8 +489,7 @@ private fun LazyListScope.GidLoginSection(
         ) {
             Row(
                 modifier = Modifier
-                    .padding(PaddingDefaults.Medium)
-                    .semanticsMergedButton(),
+                    .padding(PaddingDefaults.Medium),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(

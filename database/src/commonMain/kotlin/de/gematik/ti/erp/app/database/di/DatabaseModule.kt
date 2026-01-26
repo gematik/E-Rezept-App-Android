@@ -29,6 +29,7 @@ import de.gematik.ti.erp.app.database.realm.v2.task.datasource.TaskLocalDataSour
 import de.gematik.ti.erp.app.database.settings.SettingsDataMigration
 import de.gematik.ti.erp.app.database.settings.SettingsLocalDataSource
 import de.gematik.ti.erp.app.database.settings.sharedPrefs
+import de.gematik.ti.erp.app.database.settings.ThemePreferencesDataStore
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
@@ -47,6 +48,7 @@ import org.kodein.di.instance
  * @return A Kodein `DI.Module` containing bindings for V1, V2, and bridge data sources.
  */
 fun databaseModule(isDebug: Boolean) = DI.Module("databaseModule", allowSilentOverride = true) {
+    bindSingleton { ThemePreferencesDataStore(sharedPrefs) }
     bindProvider<TaskLocalDataSource>(tag = ModuleTags.TASK_V1) { TaskLocalDataSourceV1(instance()) }
     bindProvider<TaskLocalDataSource>(tag = ModuleTags.TASK_V2) { TaskLocalDataSourceV2(instance()) }
     bindProvider<TaskLocalDataSource> {
@@ -56,6 +58,8 @@ fun databaseModule(isDebug: Boolean) = DI.Module("databaseModule", allowSilentOv
             isDebug
         )
     }
+
+    bindSingleton { SettingsDataMigration(realm = instance(), settings = sharedPrefs) }
+
     bindSingleton { SettingsLocalDataSource(sharedPrefs) }
-    bindSingleton { SettingsDataMigration(realm = instance(), settingsLocalDataSource = instance(), settings = sharedPrefs) }
 }

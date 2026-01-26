@@ -35,12 +35,9 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -49,22 +46,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.LocalAbsoluteElevation
+import androidx.compose.material3.ListItem
 import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.LocalContentColor
-import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.rounded.Undo
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -102,10 +98,10 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.ErpTimeFormatter.Style
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
+import de.gematik.ti.erp.app.listitem.GemListItemDefaults
 import de.gematik.ti.erp.app.material3.components.switchs.GemSwitch
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
@@ -164,6 +160,7 @@ fun ClickableTaggedText(
     )
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LabeledSwitch(
     checked: Boolean,
@@ -174,52 +171,15 @@ fun LabeledSwitch(
     header: String,
     description: String? = null
 ) {
-    LabeledSwitch(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-        modifier = modifier,
-        enabled = enabled
-    ) {
-        val iconColorTint = if (enabled) AppTheme.colors.primary700 else AppTheme.colors.primary300
-        val textColor = if (enabled) AppTheme.colors.neutral900 else AppTheme.colors.neutral700
-        val descriptionColor = if (enabled) AppTheme.colors.neutral700 else AppTheme.colors.neutral400
-
-        Row(
-            modifier = Modifier.weight(1.0f)
-        ) {
-            Icon(icon, null, tint = iconColorTint)
-            SpacerSmall()
-            Column(
-                modifier = Modifier
-                    .weight(1.0f)
-                    .padding(horizontal = PaddingDefaults.Small)
-            ) {
-                Text(
-                    text = header,
-                    style = AppTheme.typography.body1,
-                    color = textColor
-                )
-                if (description != null) {
-                    Text(
-                        text = description,
-                        style = AppTheme.typography.body2l,
-                        color = descriptionColor
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun LabeledSwitch(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    label: @Composable RowScope.() -> Unit
-) {
-    Row(
+    val iconColorTint = if (enabled) AppTheme.colors.primary700 else AppTheme.colors.primary300
+    val textColor = if (enabled) AppTheme.colors.neutral900 else AppTheme.colors.neutral700
+    val descriptionColor = if (enabled) AppTheme.colors.neutral700 else AppTheme.colors.neutral400
+    ListItem(
+        colors = GemListItemDefaults.gemListItemColors(
+            leadingIconColor = iconColorTint,
+            headlineColor = textColor,
+            supportingColor = descriptionColor
+        ),
         modifier = modifier
             .toggleable(
                 value = checked,
@@ -230,22 +190,34 @@ fun LabeledSwitch(
                 indication = LocalIndication.current
             )
             .fillMaxWidth()
-            .padding(SizeDefaults.double)
             .semantics(true) {},
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SizeDefaults.one)
-    ) {
-        label()
-
-        // for better visibility in dark mode
-        CompositionLocalProvider(LocalAbsoluteElevation provides SizeDefaults.one) {
+        headlineContent = {
+            Text(
+                text = header,
+                style = AppTheme.typography.body1,
+                color = textColor
+            )
+        },
+        trailingContent = {
             GemSwitch(
                 checked = checked,
                 onCheckedChange = null,
                 enabled = enabled
             )
+        },
+        leadingContent = {
+            Icon(icon, null, tint = iconColorTint)
+        },
+        supportingContent = description?.let {
+            {
+                Text(
+                    text = description,
+                    style = AppTheme.typography.body2l,
+                    color = descriptionColor
+                )
+            }
         }
-    }
+    )
 }
 
 @Composable
@@ -256,29 +228,38 @@ fun LabelButton(
     contentDescription: String = text,
     onClick: () -> Unit
 ) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
+    val iconColorTint = AppTheme.colors.primary700
+    val textColor = AppTheme.colors.neutral900
+    val descriptionColor = AppTheme.colors.neutral700
+    ListItem(
+        colors = GemListItemDefaults.gemListItemColors(
+            leadingIconColor = iconColorTint,
+            headlineColor = textColor,
+            supportingColor = descriptionColor
+        ),
         modifier = modifier
             .fillMaxWidth()
             .clickable(
                 onClick = onClick
             )
-            .padding(PaddingDefaults.Medium)
             .clearAndSetSemantics {
                 this.contentDescription = contentDescription
                 role = Role.Button
-            }
-    ) {
-        Icon(icon, null, tint = AppTheme.colors.primary700)
-        SpacerMedium()
-        Text(
-            modifier = Modifier.weight(1f),
-            text = text,
-            style = AppTheme.typography.body1
-        )
-        Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
-    }
+            },
+        headlineContent = {
+            Text(
+                text = text,
+                style = AppTheme.typography.body1,
+                color = textColor
+            )
+        },
+        trailingContent = {
+            Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral600)
+        },
+        leadingContent = {
+            Icon(icon, null, tint = iconColorTint)
+        }
+    )
 }
 
 @Composable
@@ -286,26 +267,41 @@ fun LabelButton(
     icon: Painter,
     text: String,
     modifier: Modifier = Modifier,
+    contentDescription: String = text,
     onClick: () -> Unit
 ) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
+    val iconColorTint = AppTheme.colors.primary700
+    val textColor = AppTheme.colors.neutral900
+    val descriptionColor = AppTheme.colors.neutral700
+    ListItem(
+        colors = GemListItemDefaults.gemListItemColors(
+            leadingIconColor = iconColorTint,
+            headlineColor = textColor,
+            supportingColor = descriptionColor
+        ),
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(PaddingDefaults.Medium)
-            .semantics(mergeDescendants = true) {}
-    ) {
-        Image(painter = icon, contentDescription = null)
-        SpacerMedium()
-        Text(
-            modifier = Modifier.weight(1f),
-            text = text,
-            style = AppTheme.typography.body1
-        )
-        Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
-    }
+            .clickable(
+                onClick = onClick
+            )
+            .clearAndSetSemantics {
+                this.contentDescription = contentDescription
+                role = Role.Button
+            },
+        headlineContent = {
+            Text(
+                text = text,
+                style = AppTheme.typography.body1,
+                color = textColor
+            )
+        },
+        trailingContent = {
+            Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
+        },
+        leadingContent = {
+            Image(icon, null)
+        }
+    )
 }
 
 @Deprecated(
@@ -520,25 +516,18 @@ fun InputField(
                             .semantics { contentDescription = undoDescription },
                         onClick = { onValueChange(initialValue) }
                     ) {
-                        Icon(Icons.AutoMirrored.Rounded.Undo, null)
+                        Icon(Icons.Rounded.Close, null)
                     }
                 }
             } else {
                 null
-            }
-        )
-        if (isError) {
-            errorText?.let {
-                CompositionLocalProvider(
-                    LocalTextStyle provides AppTheme.typography.caption1,
-                    LocalContentColor provides AppTheme.colors.red700
-                ) {
-                    Box(Modifier.padding(start = PaddingDefaults.Medium, top = PaddingDefaults.Small)) {
-                        errorText()
-                    }
+            },
+            supportingText = {
+                if (isError) {
+                    errorText?.let { it() }
                 }
             }
-        }
+        )
     }
 }
 

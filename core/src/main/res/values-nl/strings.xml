@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="a11y_card_wall_card_hand">Een hand houdt een zorgverzekeringspas voor een smartphone.</string>
+    <string name="a11y_card_wall_save_credentials_off">niet geselecteerd</string>
+    <string name="a11y_card_wall_save_credentials_on">gekozen</string>
     <string name="a11y_cdw_health_card_image_description">Afbeelding van een gezondheidskaart met een zescijferig toegangsnummer rechtsboven op de voorkant van de kaart</string>
     <string name="a11y_datamatrix_code_description">Scancode</string>
     <string name="a11y_datamatrix_code_pager_content_description">Veeg met twee vingers om van pagina te wisselen</string>
@@ -26,7 +28,11 @@
     <string name="a11y_eu_instructions_open_in_browser">Openen in browser</string>
     <string name="a11y_local_redeem_back">Toon vorige code</string>
     <string name="a11y_local_redeem_forward">Volgende code weergeven</string>
+    <string name="a11y_long_press_copy">Kopiëren</string>
     <string name="a11y_medication_schedule_three_dot_menu">Opties voor medicijnherinneringen weergeven</string>
+    <string name="a11y_messages_empty_state">Geen berichten</string>
+    <string name="a11y_messages_error_state">Fout bij het laden van berichten</string>
+    <string name="a11y_messages_loading">Berichten worden geladen</string>
     <string name="a11y_not_selected">niet geselecteerd</string>
     <string name="a11y_onboarding_progress_description">Pagina %1$d van %2$d</string>
     <string name="a11y_open_link_submit">Open link op externe website</string>
@@ -35,6 +41,7 @@
     <string name="a11y_password_input_show_password_description_on">Wachtwoord weergegeven</string>
     <string name="a11y_password_input_show_password_description_onClick_off">Wachtwoord weergeven</string>
     <string name="a11y_password_input_show_password_description_onClick_on">Wachtwoord verbergen</string>
+    <string name="a11y_pharmacy_search_pharmacy_card_click_description">Open apotheekgegevens</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Apotheek zoeken; voer naam, plaats of postcode in om naar een apotheek te zoeken</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Zoeken in lijstweergave</string>
     <string name="a11y_pin_input_show_pin_description_off">PIN verborgen</string>
@@ -512,14 +519,14 @@
     <string name="edit_shipping_contact_empty_name">Geef een voor- en achternaam op om contact met ons op te nemen.</string>
     <string name="edit_shipping_contact_empty_phone">Geef een telefoonnummer op om contact met ons op te nemen.</string>
     <string name="edit_shipping_contact_empty_postal_code">Geef uw postcode op om contact met ons op te nemen.</string>
-    <string name="edit_shipping_contact_invalid_city">De tekst die u heeft ingevoerd is ongeldig. (te lang, ongeldige tekens)</string>
-    <string name="edit_shipping_contact_invalid_delivery_information">De tekst die u heeft ingevoerd is ongeldig. (te lang, ongeldige tekens)</string>
-    <string name="edit_shipping_contact_invalid_line1">De tekst die u heeft ingevoerd is ongeldig. (te lang, ongeldige tekens)</string>
-    <string name="edit_shipping_contact_invalid_line2">De tekst die u heeft ingevoerd is ongeldig. (te lang, ongeldige tekens)</string>
+    <string name="edit_shipping_contact_invalid_city">Voer maximaal 50 tekens in.</string>
+    <string name="edit_shipping_contact_invalid_delivery_information">Voer maximaal 500 tekens in.</string>
+    <string name="edit_shipping_contact_invalid_line1">Voer maximaal 50 tekens in.</string>
+    <string name="edit_shipping_contact_invalid_line2">Voer maximaal 50 tekens in.</string>
     <string name="edit_shipping_contact_invalid_mail">Het ingevoerde e-mailadres is ongeldig.</string>
-    <string name="edit_shipping_contact_invalid_name">De tekst die u heeft ingevoerd is ongeldig. (te lang, ongeldige tekens)</string>
-    <string name="edit_shipping_contact_invalid_phone">Het telefoonnummer dat u heeft ingevoerd, is ongeldig. (te kort, te lang, ongeldige tekens)</string>
-    <string name="edit_shipping_contact_invalid_postal_code">De tekst die u heeft ingevoerd is ongeldig. (te lang, te kort, ongeldige tekens)</string>
+    <string name="edit_shipping_contact_invalid_name">Voer maximaal 50 tekens in.</string>
+    <string name="edit_shipping_contact_invalid_phone">Voer maximaal 25 tekens in. Alleen cijfers en de tekens - + \' / zijn toegestaan.</string>
+    <string name="edit_shipping_contact_invalid_postal_code">Voer maximaal 8 cijfers in, zonder speciale tekens.</string>
     <string name="edit_shipping_contact_line2">Extra adres (optioneel)</string>
     <string name="edit_shipping_contact_mail">E-mailadres (optioneel)</string>
     <string name="edit_shipping_contact_name">Voornaam en achternaam</string>
@@ -1041,7 +1048,7 @@
     <string name="onb_page_4_header">Gegevensbescherming en gebruik</string>
     <string name="onb_page_5_header">Help ons deze app beter te maken</string>
     <string name="onb_terms_of_use">Gebruiksvoorwaarden</string>
-    <string name="onb_undo_description">Ongedaan gemaakt</string>
+    <string name="onb_undo_description">Verwijder item</string>
     <string name="onboarding_analytics_agree_button">Mee eens zijn</string>
     <string name="onboarding_analytics_bottom_text">U kunt de analyse op elk gewenst moment via de instellingen uitschakelen.</string>
     <string name="onboarding_analytics_consent_text">Met uw toestemming willen we een %s uitvoeren. Hiervoor willen we gegevens over app-gebruik en technische gegevens verzamelen en anoniem analyseren, en zo:</string>
@@ -1053,7 +1060,7 @@
     <string name="onboarding_analytics_resolve_errors_text">Fouten vroegtijdig detecteren en corrigeren</string>
     <string name="onboarding_analytics_we_want">Wij zullen:</string>
     <string name="onboarding_auth_biometric_info">De app gebruikt de veiligste methode die u op uw apparaat heeft ingesteld.</string>
-    <string name="onboarding_bottom_app_safety_button_next">Verder</string>
+    <string name="onboarding_bottom_app_safety_button_next">Volgende</string>
     <string name="onboarding_bottom_button_accept">Aanvaarden</string>
     <string name="onboarding_bottom_button_choose">Kiezen</string>
     <string name="onboarding_bottom_button_save">Redden</string>
@@ -1230,6 +1237,7 @@
     <string name="pharmacy_search_favorite_toggle">Toevoegen aan favorieten</string>
     <string name="pharmacy_search_favorite_toggle_active">actief</string>
     <string name="pharmacy_search_favorite_toggle_inactive">inactief</string>
+    <string name="pharmacy_search_placeholder">Zoekopdracht</string>
     <string name="pharmacy_search_searchbar">Apotheek zoeken</string>
     <string name="pharmacy_start_search_text">Zoeken</string>
     <string name="pkv_invoices_total_of_year" formatted="false">Totaal: %s %s</string>
@@ -1594,6 +1602,11 @@
     <string name="settings_show_audit_events_info">Hier kunt u zien wie uw voorschriften heeft geraadpleegd en wanneer.</string>
     <string name="settings_show_token">Toon tokens</string>
     <string name="settings_show_token_info">Toegangssleutel tot de receptenservice</string>
+    <string name="settings_theme_dark">Donker</string>
+    <string name="settings_theme_label">ontwerp</string>
+    <string name="settings_theme_light">Helder</string>
+    <string name="settings_theme_system">Systeeminstellingen</string>
+    <string name="settings_theme_title">ontwerp</string>
     <string name="settings_tracking_allow_button">Aanvaarden</string>
     <string name="settings_tracking_allow_info">%s Bedankt voor uw steun!</string>
     <string name="settings_tracking_allow_title">Verbeter app</string>

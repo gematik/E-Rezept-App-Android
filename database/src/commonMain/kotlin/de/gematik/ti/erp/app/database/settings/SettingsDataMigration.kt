@@ -25,18 +25,22 @@ package de.gematik.ti.erp.app.database.settings
 import com.russhwolf.settings.Settings
 import de.gematik.ti.erp.app.database.realm.utils.toInstant
 import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
+import de.gematik.ti.erp.app.database.settings.SettingsKeys.DATA_PROTECTION_VERSION_ACCEPTED
+import de.gematik.ti.erp.app.database.settings.SettingsKeys.MIGRATION_FLAG_KEY
+import de.gematik.ti.erp.app.database.settings.SettingsKeys.MLKIT_ACCEPTED
+import de.gematik.ti.erp.app.database.settings.SettingsKeys.SCREENSHOTS_ALLOWED
+import de.gematik.ti.erp.app.database.settings.SettingsKeys.TRACKING_ALLOWED
+import de.gematik.ti.erp.app.database.settings.SettingsKeys.USER_ACCEPTED_INSECURE_DEVICE
+import de.gematik.ti.erp.app.database.settings.SettingsKeys.USER_ACCEPTED_INTEGRITY_NOT_OK
+import de.gematik.ti.erp.app.database.settings.SettingsKeys.WELCOME_DRAWER_SHOWN
+import de.gematik.ti.erp.app.database.settings.SettingsKeys.ZOOM_ENABLED
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 
 class SettingsDataMigration(
     private val realm: Realm,
-    private val settingsLocalDataSource: SettingsLocalDataSource,
     private val settings: Settings
 ) {
-    companion object {
-        private const val MIGRATION_FLAG_KEY = "settings_datastore_migration"
-    }
-
     fun performMigrationIfNeeded() {
         val migrationCompleted = settings.getBoolean(MIGRATION_FLAG_KEY, false)
 
@@ -47,26 +51,29 @@ class SettingsDataMigration(
 
             settings.putBoolean(MIGRATION_FLAG_KEY, true)
         }
-
-        settingsLocalDataSource.refreshAllValues()
     }
 
     private fun migrateFromRealmToSharedPreferences(realmSettings: SettingsEntityV1) {
-        settingsLocalDataSource.saveZoomEnabled(realmSettings.zoomEnabled)
-        settingsLocalDataSource.saveWelcomeDrawerShown()
+        settings.putBoolean(ZOOM_ENABLED, realmSettings.zoomEnabled)
+
+        if (realmSettings.welcomeDrawerShown) {
+            settings.putBoolean(WELCOME_DRAWER_SHOWN, true)
+        }
 
         if (realmSettings.userHasAcceptedInsecureDevice) {
-            settingsLocalDataSource.acceptInsecureDevice()
-        }
-        if (realmSettings.userHasAcceptedIntegrityNotOk) {
-            settingsLocalDataSource.acceptIntegrityNotOk()
-        }
-        if (realmSettings.mlKitAccepted) {
-            settingsLocalDataSource.acceptMlKit()
+            settings.putBoolean(USER_ACCEPTED_INSECURE_DEVICE, true)
         }
 
-        settingsLocalDataSource.saveAllowScreenshots(realmSettings.screenshotsAllowed)
-        settingsLocalDataSource.saveAllowTracking(realmSettings.trackingAllowed)
-        settingsLocalDataSource.acceptUpdatedDataTerms(realmSettings.dataProtectionVersionAccepted.toInstant())
+        if (realmSettings.userHasAcceptedIntegrityNotOk) {
+            settings.putBoolean(USER_ACCEPTED_INTEGRITY_NOT_OK, true)
+        }
+
+        if (realmSettings.mlKitAccepted) {
+            settings.putBoolean(MLKIT_ACCEPTED, true)
+        }
+
+        settings.putBoolean(SCREENSHOTS_ALLOWED, realmSettings.screenshotsAllowed)
+        settings.putBoolean(TRACKING_ALLOWED, realmSettings.trackingAllowed)
+        settings.putLong(DATA_PROTECTION_VERSION_ACCEPTED, realmSettings.dataProtectionVersionAccepted.toInstant().epochSeconds)
     }
 }

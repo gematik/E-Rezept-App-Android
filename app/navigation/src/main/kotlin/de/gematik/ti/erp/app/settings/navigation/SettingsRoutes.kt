@@ -39,4 +39,5 @@ object SettingsRoutes : NavigationRoutes {
     object SettingsOpenSourceLicencesScreen : Routes(NavigationRouteNames.SettingsOpenSourceLicencesScreen.name)
     object SettingsAdditionalLicencesScreen : Routes(NavigationRouteNames.SettingsAdditionalLicencesScreen.name)
     object SettingsLanguageScreen : Routes(NavigationRouteNames.SettingsLanguageScreen.name)
+    object SettingsThemeScreen : Routes(NavigationRouteNames.SettingsThemeScreen.name)
 }

@@ -69,6 +69,7 @@ data class PersonalSettingsClickActions(
     val onClickProductImprovementSettings: () -> Unit,
     val onClickDeviceSecuritySettings: () -> Unit,
     val onClickLanguageSettings: () -> Unit,
+    val onClickThemeSettings: () -> Unit,
     val onClickMedicationPlan: () -> Unit
 )
 

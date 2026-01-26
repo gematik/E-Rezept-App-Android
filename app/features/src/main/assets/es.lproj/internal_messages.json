@@ -52,5 +52,11 @@
         "text": "**🏡 Sugerencias de direcciones** \nLos datos de direcciones almacenados ahora se sugieren automáticamente al ingresar una dirección. \n \n **♿️ Accesibilidad** \nSe ha aumentado el contraste del texto, los botones de alternancia, las casillas de verificación, los mensajes de error, los íconos y las barras de búsqueda. \nSe ha mejorado la salida de voz a través de TalkBack para la introducción de PIN y contraseña, la visualización de códigos de recetas y el reconocimiento de encabezados. Los enlaces ahora están subrayados de manera uniforme en el texto continuo.",
         "timestamp": "2025-12-17T08:00:00.000Z",
         "version": "1.35"
+    },
+    {
+        "id": "11",
+        "text": "**✨ Mostrar códigos de prescripción** \nLa pantalla para códigos de lote y únicos se ha rediseñado para un uso más intuitivo. \n \n **📋 Función de copia** \nLa información del medicamento se puede copiar con una pulsación larga. \n \n **♿ Accesibilidad** \nLa función Talkback y la navegación con el teclado funcionan mejor, los botones son más claros y los elementos de la lista están estructurados de forma más lógica. Los vídeos animados se reproducen solo una vez para ayudar a los usuarios con discapacidades cognitivas.",
+        "timestamp": "2026-01-22T08:00:00.000Z",
+        "version": "1.36"
     }
 ]

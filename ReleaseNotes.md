@@ -1,4 +1,18 @@
-# Release 1.35.0
+# Release 1.36.0
+
+### fixed (2 changes)
+- Bug fixes
+- Accessibility enhancements
+
+### ⚡ enhancements (1 changes):
+- Update COUNTRY EXTENSION URL
+
+### improvements (1 change)
+- Add light-dark mode selection from settings screen
+
+--- 
+
+# Release 1.35.1
 
 ### fixed (2 changes)
 

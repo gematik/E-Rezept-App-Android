@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="a11y_card_wall_card_hand">Eine Hand hält eine Gesundheitskarte ans Smartphone</string>
+    <string name="a11y_card_wall_save_credentials_off">nicht ausgewählt</string>
+    <string name="a11y_card_wall_save_credentials_on">ausgewählt</string>
     <string name="a11y_cdw_health_card_image_description">Bild einer Gesundheitskarte mit sechsstelliger Zugansnummer rechts oben auf der Vorderseite der Karte</string>
     <string name="a11y_datamatrix_code_description">Code zum Scannen</string>
     <string name="a11y_datamatrix_code_pager_content_description">Mit zwei Fingern wischen zum Seitenwechsel</string>
@@ -26,7 +28,11 @@
     <string name="a11y_eu_instructions_open_in_browser">Im Browser öffnen</string>
     <string name="a11y_local_redeem_back">Vorherigen Code anzeigen</string>
     <string name="a11y_local_redeem_forward">Nächsten Code anzeigen</string>
+    <string name="a11y_long_press_copy">Kopieren</string>
     <string name="a11y_medication_schedule_three_dot_menu">Einnahmeerinnerungsoptionen anzeigen</string>
+    <string name="a11y_messages_empty_state">Keine Nachrichten</string>
+    <string name="a11y_messages_error_state">Fehler beim Laden der Nachrichten</string>
+    <string name="a11y_messages_loading">Nachrichten werden geladen</string>
     <string name="a11y_not_selected">nicht ausgewählt</string>
     <string name="a11y_onboarding_progress_description">Seite %1$d von %2$d</string>
     <string name="a11y_open_link_submit">Link auf externer Webseite öffnen</string>
@@ -35,6 +41,7 @@
     <string name="a11y_password_input_show_password_description_on">Passwort eingeblendet</string>
     <string name="a11y_password_input_show_password_description_onClick_off">Passwort einblenden</string>
     <string name="a11y_password_input_show_password_description_onClick_on">Passwort ausblenden</string>
+    <string name="a11y_pharmacy_search_pharmacy_card_click_description">Apothekendetails öffnen</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Apothekensuche; Namen, Ort oder Postleitzahl eingeben, um nach einer Apotheke zu suchen</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Suchen in der Listenansicht</string>
     <string name="a11y_pin_input_show_pin_description_off">PIN ausgeblendet</string>
@@ -528,18 +535,18 @@
     <string name="edit_shipping_contact_delivery_information">Lieferanweisung (optional)</string>
     <string name="edit_shipping_contact_empty_city">Bitte geben Sie für die Kontaktaufnahme Ihren Wohnort an.</string>
     <string name="edit_shipping_contact_empty_line1">Bitte geben Sie für die Kontaktaufnahme eine Straße und Hausnummer an.</string>
-    <string name="edit_shipping_contact_empty_mail">Bitte geben Sie Für die Kontaktaufnahme eine Mailadresse ein</string>
+    <string name="edit_shipping_contact_empty_mail">Bitte geben Sie für die Kontaktaufnahme eine Mailadresse ein</string>
     <string name="edit_shipping_contact_empty_name">Bitte geben Sie für die Kontaktaufnahme einen Vor- und Nachnamen an.</string>
     <string name="edit_shipping_contact_empty_phone">Bitte geben Sie für die Kontaktaufnahme eine Telefonnummer an.</string>
     <string name="edit_shipping_contact_empty_postal_code">Bitte geben Sie für die Kontaktaufnahme Ihre Postleitzahl an.</string>
-    <string name="edit_shipping_contact_invalid_city">Dir eingegebene Text ist ungültig. (zu lang, ungültige Zeichen)</string>
-    <string name="edit_shipping_contact_invalid_delivery_information">Dir eingegebene Text ist ungültig. (zu lang, ungültige Zeichen)</string>
-    <string name="edit_shipping_contact_invalid_line1">Dir eingegebene Text ist ungültig. (zu lang, ungültige Zeichen)</string>
-    <string name="edit_shipping_contact_invalid_line2">Dir eingegebene Text ist ungültig. (zu lang, ungültige Zeichen)</string>
+    <string name="edit_shipping_contact_invalid_city">Bitte maximal 50 Zeichen eingeben.</string>
+    <string name="edit_shipping_contact_invalid_delivery_information">Bitte maximal 500 Zeichen eingeben.</string>
+    <string name="edit_shipping_contact_invalid_line1">Bitte maximal 50 Zeichen eingeben.</string>
+    <string name="edit_shipping_contact_invalid_line2">Bitte maximal 50 Zeichen eingeben.</string>
     <string name="edit_shipping_contact_invalid_mail">Die eingegebene Mailadresse ist ungültig.</string>
-    <string name="edit_shipping_contact_invalid_name">Dir eingegebene Text ist ungültig. (zu lang, ungültige Zeichen)</string>
-    <string name="edit_shipping_contact_invalid_phone">Die eingegebene Telefonnummer ist ungültig. (zu kurz, zu lang, ungültige Zeichen)</string>
-    <string name="edit_shipping_contact_invalid_postal_code">Dir eingegebene Text ist ungültig. (zu lang, zu kurz, ungültige Zeichen)</string>
+    <string name="edit_shipping_contact_invalid_name">Bitte maximal 50 Zeichen eingeben.</string>
+    <string name="edit_shipping_contact_invalid_phone">Bitte maximal 25 Zeichen eingeben. Erlaubt sind Ziffern und die Zeichen - + \' /.</string>
+    <string name="edit_shipping_contact_invalid_postal_code">Bitte maximal 8 Zahlen ohne Sonderzeichen eingeben.</string>
     <string name="edit_shipping_contact_line2">Adresszusatz (optional)</string>
     <string name="edit_shipping_contact_mail">Mailadresse (optional)</string>
     <string name="edit_shipping_contact_name">Vorname und Nachname</string>
@@ -1085,7 +1092,7 @@
     <string name="onb_page_4_header">Datenschutz &amp; Nutzung</string>
     <string name="onb_page_5_header">Helfen Sie uns, diese App besser zu machen</string>
     <string name="onb_terms_of_use">Nutzungsbedingungen</string>
-    <string name="onb_undo_description">Rückgängig</string>
+    <string name="onb_undo_description">Eingabe löschen</string>
     <string name="onboarding_analytics_agree_button">Zustimmen</string>
     <string name="onboarding_analytics_bottom_text">Sie können die Analyse in den Einstellungen jederzeit wieder deaktivieren.</string>
     <string name="onboarding_analytics_consent_text">Mit Ihrer Zustimmung möchten wir eine %s durchführen. Dafür möchten wir Daten zur Nutzung der App und technische Daten erfassen und anonymisiert auswerten und so:</string>
@@ -1277,6 +1284,7 @@
     <string name="pharmacy_search_favorite_toggle">Zu Favoriten hinzufügen</string>
     <string name="pharmacy_search_favorite_toggle_active">aktiv</string>
     <string name="pharmacy_search_favorite_toggle_inactive">inaktiv</string>
+    <string name="pharmacy_search_placeholder">Suchen</string>
     <string name="pharmacy_search_searchbar">Apothekensuche</string>
     <string name="pharmacy_start_search_text">Suchen</string>
     <string name="pkv_invoices_total_of_year" formatted="false">Gesamt: %s %s</string>
@@ -1648,6 +1656,11 @@
     <string name="settings_show_audit_events_info">Hier können Sie sehen, wer wann auf Ihre Rezepte zugegriffen hat.</string>
     <string name="settings_show_token">Tokens anzeigen</string>
     <string name="settings_show_token_info">Zugangsschlüssel zum Rezeptdienst</string>
+    <string name="settings_theme_dark">Dunkel</string>
+    <string name="settings_theme_label">Design</string>
+    <string name="settings_theme_light">Hell</string>
+    <string name="settings_theme_system">Systemeinstellung</string>
+    <string name="settings_theme_title">Design</string>
     <string name="settings_tracking_allow_button">Akzeptieren</string>
     <string name="settings_tracking_allow_emoji" translatable="false">\u2661</string>
     <string name="settings_tracking_allow_info">%s Vielen Dank für Ihre Unterstützung!</string>

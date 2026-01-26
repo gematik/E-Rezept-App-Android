@@ -31,8 +31,10 @@ import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.settings.model.ThemeMode
 import de.gematik.ti.erp.app.settings.usecase.AllowScreenshotsUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetScreenShotsAllowedUseCase
+import de.gematik.ti.erp.app.settings.usecase.GetThemeModeUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetZoomStateUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveZoomPreferenceUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
@@ -50,6 +52,7 @@ class SettingsController(
     getProfilesUseCase: GetProfilesUseCase,
     getScreenShotsAllowedUseCase: GetScreenShotsAllowedUseCase,
     getZoomStateUseCase: GetZoomStateUseCase,
+    getThemeModeUseCase: GetThemeModeUseCase,
     private val allowScreenshotsUseCase: AllowScreenshotsUseCase,
     private val saveZoomPreferenceUseCase: SaveZoomPreferenceUseCase,
     private val getActiveProfileUseCase: GetActiveProfileUseCase,
@@ -72,6 +75,12 @@ class SettingsController(
         controllerScope,
         SharingStarted.WhileSubscribed(),
         false
+    )
+
+    val themeMode: StateFlow<ThemeMode> = getThemeModeUseCase().stateIn(
+        controllerScope,
+        SharingStarted.WhileSubscribed(),
+        ThemeMode.SYSTEM
     )
 
     val allowScreenshotsEvent = ComposableEvent<Unit>()
@@ -121,6 +130,7 @@ fun rememberSettingsController(): SettingsController {
     val getScreenShotsAllowedUseCase by rememberInstance<GetScreenShotsAllowedUseCase>()
     val allowScreenshotsUseCase by rememberInstance<AllowScreenshotsUseCase>()
     val getZoomStateUseCase by rememberInstance<GetZoomStateUseCase>()
+    val getThemeModeUseCase by rememberInstance<GetThemeModeUseCase>()
     val saveZoomPreferenceUseCase by rememberInstance<SaveZoomPreferenceUseCase>()
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
     val endpointHelper by rememberInstance<EndpointHelper>()
@@ -132,6 +142,7 @@ fun rememberSettingsController(): SettingsController {
             allowScreenshotsUseCase = allowScreenshotsUseCase,
             saveZoomPreferenceUseCase = saveZoomPreferenceUseCase,
             getZoomStateUseCase = getZoomStateUseCase,
+            getThemeModeUseCase = getThemeModeUseCase,
             getActiveProfileUseCase = getActiveProfileUseCase,
             endpointHelper = endpointHelper
         )

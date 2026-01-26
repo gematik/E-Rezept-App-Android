@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="a11y_card_wall_card_hand">Рука тримає картку медичного страхування біля смартфона.</string>
+    <string name="a11y_card_wall_save_credentials_off">не вибрано</string>
+    <string name="a11y_card_wall_save_credentials_on">вибраний</string>
     <string name="a11y_cdw_health_card_image_description">Зображення медичної картки з шестизначним номером доступу у верхньому правому куті лицьової сторони картки</string>
     <string name="a11y_datamatrix_code_description">Сканувати код</string>
     <string name="a11y_datamatrix_code_pager_content_description">Проведіть двома пальцями, щоб перемикатися сторінки</string>
@@ -26,7 +28,11 @@
     <string name="a11y_eu_instructions_open_in_browser">Відкрити у браузері</string>
     <string name="a11y_local_redeem_back">Показати попередній код</string>
     <string name="a11y_local_redeem_forward">Показати наступний код</string>
+    <string name="a11y_long_press_copy">Копіювати</string>
     <string name="a11y_medication_schedule_three_dot_menu">Показати варіанти нагадування про ліки</string>
+    <string name="a11y_messages_empty_state">Немає повідомлень</string>
+    <string name="a11y_messages_error_state">Помилка завантаження повідомлень</string>
+    <string name="a11y_messages_loading">Повідомлення завантажуються</string>
     <string name="a11y_not_selected">не вибрано</string>
     <string name="a11y_onboarding_progress_description">Сторінка %1$d з %2$d</string>
     <string name="a11y_open_link_submit">Відкрити посилання на зовнішньому вебсайті</string>
@@ -35,6 +41,7 @@
     <string name="a11y_password_input_show_password_description_on">Пароль відображається</string>
     <string name="a11y_password_input_show_password_description_onClick_off">Показати пароль</string>
     <string name="a11y_password_input_show_password_description_onClick_on">Приховати пароль</string>
+    <string name="a11y_pharmacy_search_pharmacy_card_click_description">Відкрити інформацію про аптеку</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Пошук аптеки; введіть назву, місто або поштовий індекс, щоб знайти аптеку</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Пошук у списку</string>
     <string name="a11y_pin_input_show_pin_description_off">ПІН-код приховано</string>
@@ -522,14 +529,14 @@
     <string name="edit_shipping_contact_empty_name">Введіть ім\'я та прізвище для контакту.</string>
     <string name="edit_shipping_contact_empty_phone">Введіть номер телефону для контакту.</string>
     <string name="edit_shipping_contact_empty_postal_code">Будь ласка, вкажіть свій поштовий індекс, щоб зв’язатися з нами.</string>
-    <string name="edit_shipping_contact_invalid_city">Введений текст недійсний. (задовгий, недійсні символи)</string>
-    <string name="edit_shipping_contact_invalid_delivery_information">Введений текст недійсний. (задовгий, недійсні символи)</string>
-    <string name="edit_shipping_contact_invalid_line1">Введений текст недійсний. (задовгий, недійсні символи)</string>
-    <string name="edit_shipping_contact_invalid_line2">Введений текст недійсний. (задовгий, недійсні символи)</string>
+    <string name="edit_shipping_contact_invalid_city">Будь ласка, введіть максимум 50 символів.</string>
+    <string name="edit_shipping_contact_invalid_delivery_information">Будь ласка, введіть максимум 500 символів.</string>
+    <string name="edit_shipping_contact_invalid_line1">Будь ласка, введіть максимум 50 символів.</string>
+    <string name="edit_shipping_contact_invalid_line2">Будь ласка, введіть максимум 50 символів.</string>
     <string name="edit_shipping_contact_invalid_mail">Введена адреса електронної пошти недійсна.</string>
-    <string name="edit_shipping_contact_invalid_name">Введений текст недійсний. (задовгий, недійсні символи)</string>
-    <string name="edit_shipping_contact_invalid_phone">Введений номер телефону недійсний. (закороткі, задовгі, недійсні символи)</string>
-    <string name="edit_shipping_contact_invalid_postal_code">Введений текст недійсний. (занадто довгі, надто короткі, недійсні символи)</string>
+    <string name="edit_shipping_contact_invalid_name">Будь ласка, введіть максимум 50 символів.</string>
+    <string name="edit_shipping_contact_invalid_phone">Будь ласка, введіть максимум 25 символів. Дозволено використовувати лише цифри та символи - + \' /.</string>
+    <string name="edit_shipping_contact_invalid_postal_code">Будь ласка, введіть максимум 8 цифр без спеціальних символів.</string>
     <string name="edit_shipping_contact_line2">Додаток до адреси (опція)</string>
     <string name="edit_shipping_contact_mail">Адреса ел. пошти (опція)</string>
     <string name="edit_shipping_contact_name">ПІБ</string>
@@ -1053,7 +1060,7 @@
     <string name="onb_page_4_header">Конфіденційність і використання</string>
     <string name="onb_page_5_header">Допоможіть нам зробити цю програму кращою</string>
     <string name="onb_terms_of_use">Умови використання</string>
-    <string name="onb_undo_description">Скасувати</string>
+    <string name="onb_undo_description">Видалити запис</string>
     <string name="onboarding_analytics_agree_button">Згоден</string>
     <string name="onboarding_analytics_bottom_text">Ви можете будь-коли деактивувати аналіз у налаштуваннях.</string>
     <string name="onboarding_analytics_consent_text">За вашої згоди ми хотіли б провести %s. З цією метою ми хотіли б збирати та анонімно аналізувати дані про використання додатка та технічні дані, і таким чином:</string>
@@ -1248,6 +1255,7 @@
     <string name="pharmacy_search_favorite_toggle">Додати в обране</string>
     <string name="pharmacy_search_favorite_toggle_active">активний</string>
     <string name="pharmacy_search_favorite_toggle_inactive">неактивний</string>
+    <string name="pharmacy_search_placeholder">Пошук</string>
     <string name="pharmacy_search_searchbar">Пошук в аптеці</string>
     <string name="pharmacy_start_search_text">шукати</string>
     <string name="pkv_invoices_total_of_year" formatted="false">Усього: %s %s</string>
@@ -1614,6 +1622,11 @@
     <string name="settings_show_audit_events_info">Тут ви можете побачити, хто і коли користувався вашими рецептами.</string>
     <string name="settings_show_token">Показати токени</string>
     <string name="settings_show_token_info">Ключ доступу до сервісу рецептів</string>
+    <string name="settings_theme_dark">Темний</string>
+    <string name="settings_theme_label">дизайн</string>
+    <string name="settings_theme_light">Яскравий</string>
+    <string name="settings_theme_system">Системні налаштування</string>
+    <string name="settings_theme_title">дизайн</string>
     <string name="settings_tracking_allow_button">прийняти</string>
     <string name="settings_tracking_allow_info">%s Дякуємо за Вашу підтримку!</string>
     <string name="settings_tracking_allow_title">Покращити застосунок</string>

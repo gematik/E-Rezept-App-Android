@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="a11y_card_wall_card_hand">يد تحمل بطاقة التأمين الصحي أمام هاتف ذكي.</string>
+    <string name="a11y_card_wall_save_credentials_off">لم يتم اختياره</string>
+    <string name="a11y_card_wall_save_credentials_on">مختارة</string>
     <string name="a11y_cdw_health_card_image_description">صورة لبطاقة صحية تحتوي على رقم دخول مكون من ستة أرقام في أعلى يمين واجهة البطاقة</string>
     <string name="a11y_datamatrix_code_description">مسح الرمز</string>
     <string name="a11y_datamatrix_code_pager_content_description">مرر بإصبعين للتبديل بين الصفحات</string>
@@ -26,7 +28,11 @@
     <string name="a11y_eu_instructions_open_in_browser">فتح في المتصفح</string>
     <string name="a11y_local_redeem_back">إظهار الكود السابق</string>
     <string name="a11y_local_redeem_forward">إظهار الكود التالي</string>
+    <string name="a11y_long_press_copy">ينسخ</string>
     <string name="a11y_medication_schedule_three_dot_menu">إظهار خيارات تذكير الدواء</string>
+    <string name="a11y_messages_empty_state">لا توجد رسائل</string>
+    <string name="a11y_messages_error_state">رسائل خطأ في التحميل</string>
+    <string name="a11y_messages_loading">جارٍ تحميل الرسائل</string>
     <string name="a11y_not_selected">لم يتم اختياره</string>
     <string name="a11y_onboarding_progress_description">الصفحة %1$d من %2$d</string>
     <string name="a11y_open_link_submit">فتح الرابط على موقع خارجي</string>
@@ -35,6 +41,7 @@
     <string name="a11y_password_input_show_password_description_on">تم عرض كلمة المرور</string>
     <string name="a11y_password_input_show_password_description_onClick_off">إظهار كلمة المرور</string>
     <string name="a11y_password_input_show_password_description_onClick_on">إخفاء كلمة المرور</string>
+    <string name="a11y_pharmacy_search_pharmacy_card_click_description">تفاصيل الصيدلية المفتوحة</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">البحث عن صيدلية؛ أدخل الاسم أو المدينة أو الرمز البريدي للبحث عن صيدلية</string>
     <string name="a11y_pharmacy_start_search_on_click_description">البحث في عرض القائمة</string>
     <string name="a11y_pin_input_show_pin_description_off">رقم التعريف الشخصي مخفي</string>
@@ -532,14 +539,14 @@
     <string name="edit_shipping_contact_empty_name">يُرجى إدخال الاسم الأول والأخير من أجل التواصل معك.</string>
     <string name="edit_shipping_contact_empty_phone">يُرجى إدخال رقم الهاتف من أجل التواصل معك.</string>
     <string name="edit_shipping_contact_empty_postal_code">يرجى تقديم الرمز البريدي الخاص بك للاتصال بنا.</string>
-    <string name="edit_shipping_contact_invalid_city">النص الذي أدخلته غير صالح. (أحرف طويلة جدًا، غير صالحة)</string>
-    <string name="edit_shipping_contact_invalid_delivery_information">النص الذي أدخلته غير صالح. (أحرف طويلة جدًا، غير صالحة)</string>
-    <string name="edit_shipping_contact_invalid_line1">النص الذي أدخلته غير صالح. (أحرف طويلة جدًا، غير صالحة)</string>
-    <string name="edit_shipping_contact_invalid_line2">النص الذي أدخلته غير صالح. (أحرف طويلة جدًا، غير صالحة)</string>
+    <string name="edit_shipping_contact_invalid_city">يرجى إدخال 50 حرفًا كحد أقصى.</string>
+    <string name="edit_shipping_contact_invalid_delivery_information">يرجى إدخال 500 حرف كحد أقصى.</string>
+    <string name="edit_shipping_contact_invalid_line1">يرجى إدخال 50 حرفًا كحد أقصى.</string>
+    <string name="edit_shipping_contact_invalid_line2">يرجى إدخال 50 حرفًا كحد أقصى.</string>
     <string name="edit_shipping_contact_invalid_mail">عنوان البريد الإلكتروني الذي تم إدخاله غير صالح.</string>
-    <string name="edit_shipping_contact_invalid_name">النص الذي أدخلته غير صالح. (أحرف طويلة جدًا، غير صالحة)</string>
-    <string name="edit_shipping_contact_invalid_phone">رقم الهاتف الذي أدخلته غير صالح. (أحرف قصيرة جدًا، طويلة جدًا، غير صالحة)</string>
-    <string name="edit_shipping_contact_invalid_postal_code">النص الذي أدخلته غير صالح. (طويلة جدًا، قصيرة جدًا، أحرف غير صالحة)</string>
+    <string name="edit_shipping_contact_invalid_name">يرجى إدخال 50 حرفًا كحد أقصى.</string>
+    <string name="edit_shipping_contact_invalid_phone">يرجى إدخال 25 حرفًا كحد أقصى. يُسمح فقط بالأرقام والأحرف - + \' /.</string>
+    <string name="edit_shipping_contact_invalid_postal_code">يرجى إدخال 8 أرقام كحد أقصى بدون رموز خاصة.</string>
     <string name="edit_shipping_contact_line2">العنوان التكميلي (اختياري)</string>
     <string name="edit_shipping_contact_mail">البريد الإليكتروني (اختياري)</string>
     <string name="edit_shipping_contact_name">الاسم الأول والأخير</string>
@@ -1065,7 +1072,7 @@
     <string name="onb_page_4_header">الخصوصية والاستخدام</string>
     <string name="onb_page_5_header">ساعدنا في جعل هذا التطبيق أفضل</string>
     <string name="onb_terms_of_use">شروط الاستخدام</string>
-    <string name="onb_undo_description">تراجع</string>
+    <string name="onb_undo_description">إدخال البيانات</string>
     <string name="onboarding_analytics_agree_button">يوافق</string>
     <string name="onboarding_analytics_bottom_text">يمكنك إلغاء تنشيط التحليل في أي وقت في الإعدادات.</string>
     <string name="onboarding_analytics_consent_text">بموافقتكم، نود إجراء %s. لهذا الغرض، نود جمع بيانات استخدام التطبيق والبيانات التقنية وتحليلها بشكل مجهول، وبالتالي:</string>
@@ -1077,7 +1084,7 @@
     <string name="onboarding_analytics_resolve_errors_text">اكتشاف الأخطاء وتصحيحها في وقت مبكر</string>
     <string name="onboarding_analytics_we_want">نحن سوف:</string>
     <string name="onboarding_auth_biometric_info">يستخدم التطبيق الطريقة الأكثر أمانًا التي قمت بإعدادها على جهازك.</string>
-    <string name="onboarding_bottom_app_safety_button_next">إضافي</string>
+    <string name="onboarding_bottom_app_safety_button_next">التالي</string>
     <string name="onboarding_bottom_button_accept">استعرض - قبل - قبول</string>
     <string name="onboarding_bottom_button_choose">يختار</string>
     <string name="onboarding_bottom_button_save">حفظ</string>
@@ -1266,6 +1273,7 @@
     <string name="pharmacy_search_favorite_toggle">أضف إلى المفضلة</string>
     <string name="pharmacy_search_favorite_toggle_active">نشيط</string>
     <string name="pharmacy_search_favorite_toggle_inactive">غير نشط</string>
+    <string name="pharmacy_search_placeholder">يبحث</string>
     <string name="pharmacy_search_searchbar">بحث الصيدلة</string>
     <string name="pharmacy_start_search_text">يطلب</string>
     <string name="pkv_invoices_total_of_year" formatted="false">الإجمالي: %s %s</string>
@@ -1634,6 +1642,11 @@
     <string name="settings_show_audit_events_info">هنا يمكنك رؤية من قام بالوصول إلى وصفاتك الطبية ومتى قام بذلك.</string>
     <string name="settings_show_token">إظهار الرمز المميز</string>
     <string name="settings_show_token_info">مفتاح الوصول إلى خدمة الوصفات الطبية</string>
+    <string name="settings_theme_dark">مظلم</string>
+    <string name="settings_theme_label">تصميم</string>
+    <string name="settings_theme_light">ساطع</string>
+    <string name="settings_theme_system">إعدادات النظام</string>
+    <string name="settings_theme_title">تصميم</string>
     <string name="settings_tracking_allow_button">استعرض - قبل - قبول</string>
     <string name="settings_tracking_allow_info">%s شكرًا لك على المساعدة!</string>
     <string name="settings_tracking_allow_title">تحسين التطبيق</string>

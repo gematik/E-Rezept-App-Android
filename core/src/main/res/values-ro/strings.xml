@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="a11y_card_wall_card_hand">O mână ține un card de asigurare medicală în fața unui smartphone.</string>
+    <string name="a11y_card_wall_save_credentials_off">neselectat</string>
+    <string name="a11y_card_wall_save_credentials_on">selectat</string>
     <string name="a11y_cdw_health_card_image_description">Imagine a unui card de sănătate cu un număr de acces din șase cifre în partea dreaptă sus a feței cardului</string>
     <string name="a11y_datamatrix_code_description">Scanați codul</string>
     <string name="a11y_datamatrix_code_pager_content_description">Glisați cu două degete pentru a schimba paginile</string>
@@ -26,7 +28,11 @@
     <string name="a11y_eu_instructions_open_in_browser">Deschide în browser</string>
     <string name="a11y_local_redeem_back">Afișează codul anterior</string>
     <string name="a11y_local_redeem_forward">Afișează următorul cod</string>
+    <string name="a11y_long_press_copy">Copie</string>
     <string name="a11y_medication_schedule_three_dot_menu">Afișați opțiunile de reamintire a medicamentelor</string>
+    <string name="a11y_messages_empty_state">Niciun mesaj</string>
+    <string name="a11y_messages_error_state">Eroare la încărcarea mesajelor</string>
+    <string name="a11y_messages_loading">Mesajele se încarcă</string>
     <string name="a11y_not_selected">neselectat</string>
     <string name="a11y_onboarding_progress_description">Pagina %1$d din %2$d</string>
     <string name="a11y_open_link_submit">Deschide linkul pe un site web extern</string>
@@ -35,6 +41,7 @@
     <string name="a11y_password_input_show_password_description_on">Parola afișată</string>
     <string name="a11y_password_input_show_password_description_onClick_off">Afișează parola</string>
     <string name="a11y_password_input_show_password_description_onClick_on">Ascunde parola</string>
+    <string name="a11y_pharmacy_search_pharmacy_card_click_description">Detalii despre farmacie deschisă</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Căutare farmacie; introduceți numele, orașul sau codul poștal pentru a căuta o farmacie</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Căutare în vizualizarea listă</string>
     <string name="a11y_pin_input_show_pin_description_off">PIN ascuns</string>
@@ -517,14 +524,14 @@
     <string name="edit_shipping_contact_empty_name">Vă rugăm să furnizați un nume și un prenume pentru a ne contacta.</string>
     <string name="edit_shipping_contact_empty_phone">Vă rugăm să furnizați un număr de telefon pentru a ne contacta.</string>
     <string name="edit_shipping_contact_empty_postal_code">Vă rugăm să furnizați codul poștal pentru a ne contacta.</string>
-    <string name="edit_shipping_contact_invalid_city">Textul introdus este nevalid. (prea lungi, caractere nevalide)</string>
-    <string name="edit_shipping_contact_invalid_delivery_information">Textul introdus este nevalid. (prea lungi, caractere nevalide)</string>
-    <string name="edit_shipping_contact_invalid_line1">Textul introdus este nevalid. (prea lungi, caractere nevalide)</string>
-    <string name="edit_shipping_contact_invalid_line2">Textul introdus este nevalid. (prea lungi, caractere nevalide)</string>
+    <string name="edit_shipping_contact_invalid_city">Vă rugăm să introduceți maximum 50 de caractere.</string>
+    <string name="edit_shipping_contact_invalid_delivery_information">Vă rugăm să introduceți maximum 500 de caractere.</string>
+    <string name="edit_shipping_contact_invalid_line1">Vă rugăm să introduceți maximum 50 de caractere.</string>
+    <string name="edit_shipping_contact_invalid_line2">Vă rugăm să introduceți maximum 50 de caractere.</string>
     <string name="edit_shipping_contact_invalid_mail">Adresa de e-mail introdusă este nevalidă.</string>
-    <string name="edit_shipping_contact_invalid_name">Textul introdus este nevalid. (prea lungi, caractere nevalide)</string>
-    <string name="edit_shipping_contact_invalid_phone">Numărul de telefon introdus este nevalid. (prea scurte, prea lungi, caractere nevalide)</string>
-    <string name="edit_shipping_contact_invalid_postal_code">Textul introdus este nevalid. (prea lungi, prea scurte, caractere nevalide)</string>
+    <string name="edit_shipping_contact_invalid_name">Vă rugăm să introduceți maximum 50 de caractere.</string>
+    <string name="edit_shipping_contact_invalid_phone">Vă rugăm să introduceți maximum 25 de caractere. Sunt permise doar numere și caracterele - + \' /.</string>
+    <string name="edit_shipping_contact_invalid_postal_code">Vă rugăm să introduceți maximum 8 numere fără caractere speciale.</string>
     <string name="edit_shipping_contact_line2">Adresă suplimentară (opțional)</string>
     <string name="edit_shipping_contact_mail">Adresă de e-mail (opțional)</string>
     <string name="edit_shipping_contact_name">Primul nume si ultimul nume</string>
@@ -1047,7 +1054,7 @@
     <string name="onb_page_4_header">Protecția și utilizarea datelor</string>
     <string name="onb_page_5_header">Ajutați-ne să îmbunătățim această aplicație</string>
     <string name="onb_terms_of_use">Termeni de utilizare</string>
-    <string name="onb_undo_description">Anulat</string>
+    <string name="onb_undo_description">Ștergeți intrarea</string>
     <string name="onboarding_analytics_agree_button">De acord</string>
     <string name="onboarding_analytics_bottom_text">Puteți dezactiva analiza oricând din setări.</string>
     <string name="onboarding_analytics_consent_text">Cu consimțământul dumneavoastră, dorim să efectuăm o %s. În acest scop, dorim să colectăm și să analizăm anonim date privind utilizarea aplicației și date tehnice și, astfel:</string>
@@ -1059,7 +1066,7 @@
     <string name="onboarding_analytics_resolve_errors_text">Detectează și corectează erorile din timp</string>
     <string name="onboarding_analytics_we_want">Vom:</string>
     <string name="onboarding_auth_biometric_info">Aplicația folosește cea mai sigură metodă pe care ați configurat-o pe dispozitivul dvs.</string>
-    <string name="onboarding_bottom_app_safety_button_next">Mai departe</string>
+    <string name="onboarding_bottom_app_safety_button_next">Următorul</string>
     <string name="onboarding_bottom_button_accept">Accept</string>
     <string name="onboarding_bottom_button_choose">Alege</string>
     <string name="onboarding_bottom_button_save">Salvați</string>
@@ -1239,6 +1246,7 @@
     <string name="pharmacy_search_favorite_toggle">Adăugați la favorite</string>
     <string name="pharmacy_search_favorite_toggle_active">activ</string>
     <string name="pharmacy_search_favorite_toggle_inactive">inactiv</string>
+    <string name="pharmacy_search_placeholder">Căutare</string>
     <string name="pharmacy_search_searchbar">Căutare farmacie</string>
     <string name="pharmacy_start_search_text">Căuta</string>
     <string name="pkv_invoices_total_of_year" formatted="false">Total: %s %s</string>
@@ -1604,6 +1612,11 @@
     <string name="settings_show_audit_events_info">Aici puteți vedea cine și când a accesat rețetele dumneavoastră.</string>
     <string name="settings_show_token">Afișați jetoane</string>
     <string name="settings_show_token_info">Cheie de acces la serviciul de prescripție medicală</string>
+    <string name="settings_theme_dark">Întuneric</string>
+    <string name="settings_theme_label">proiecta</string>
+    <string name="settings_theme_light">Luminos</string>
+    <string name="settings_theme_system">Setări de sistem</string>
+    <string name="settings_theme_title">proiecta</string>
     <string name="settings_tracking_allow_button">Accept</string>
     <string name="settings_tracking_allow_info">%s Vă mulțumim pentru sprijin!</string>
     <string name="settings_tracking_allow_title">Îmbunătățiți aplicația</string>

@@ -30,11 +30,13 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material3.ListItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.core.R
@@ -43,6 +45,7 @@ import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodMetadata
 import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodMetadata.Companion.isCurrentlyClosed
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.listitem.GemListItemDefaults
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyImagePlaceholder
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours
@@ -54,7 +57,6 @@ import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
 import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
@@ -81,98 +83,109 @@ internal fun PharmacyResultCard(
     pharmacy: Pharmacy,
     onClick: () -> Unit
 ) {
-    Row(
+    val clickDescription = stringResource(R.string.a11y_pharmacy_search_pharmacy_card_click_description)
+    ListItem(
+        colors = GemListItemDefaults.gemListItemColors(),
         modifier = Modifier
-            .clickable(onClick = onClick)
+            .clickable(
+                onClick = onClick,
+                role = Role.Button,
+                onClickLabel = clickDescription
+            )
             .then(modifier),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val distanceTxt = pharmacy.distance?.let { distance ->
-            formattedDistance(distance)
-        }
-
-        PharmacyImagePlaceholder(Modifier)
-        SpacerMedium()
-        Column(modifier = Modifier.weight(1f)) {
+        headlineContent = {
             Text(
                 text = pharmacy.name,
                 color = AppTheme.colors.neutral999,
                 style = AppTheme.typography.subtitle1
             )
-
-            Text(
-                text = pharmacy.singleLineAddress(),
-                color = AppTheme.colors.neutral700,
-                style = AppTheme.typography.body2l,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1
-            )
-
-            if (pharmacy.specialClosingTimes.isCurrentlyClosed()) {
-                Text(
-                    stringResource(R.string.search_pharmacy_closed),
-                    style = AppTheme.typography.subtitle2l,
-                    color = AppTheme.colors.neutral700
-                )
-            } else {
-                val pharmacyLocalServices =
-                    pharmacy.provides.find { it is LocalPharmacyService } as? LocalPharmacyService
-                val now =
-                    remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()) }
-
-                if (pharmacyLocalServices?.isOpenAt(now) == true) {
-                    val text = if (pharmacyLocalServices.isAllDayOpen(now.dayOfWeek)) {
-                        stringResource(R.string.search_pharmacy_continuous_open)
-                    } else {
-                        stringResource(
-                            R.string.search_pharmacy_open_until,
-                            requireNotNull(pharmacyLocalServices.openUntil(now)).toString()
-                        )
-                    }
+        },
+        leadingContent = {
+            PharmacyImagePlaceholder(Modifier)
+        },
+        trailingContent = {
+            Row(
+                modifier = Modifier,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val distanceTxt = pharmacy.distance?.let { distance ->
+                    formattedDistance(distance)
+                }
+                if (distanceTxt != null) {
                     Text(
-                        text,
+                        distanceTxt,
+                        style = AppTheme.typography.body2l,
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically),
+                        textAlign = TextAlign.End
+                    )
+                }
+                Icon(
+                    Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                    null,
+                    tint = AppTheme.colors.neutral400,
+                    modifier = Modifier
+                        .size(SizeDefaults.triple)
+                        .align(Alignment.CenterVertically)
+                )
+            }
+        },
+        supportingContent = {
+            Column() {
+                Text(
+                    text = pharmacy.singleLineAddress(),
+                    color = AppTheme.colors.neutral700,
+                    style = AppTheme.typography.body2l,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
+                )
+
+                if (pharmacy.specialClosingTimes.isCurrentlyClosed()) {
+                    Text(
+                        stringResource(R.string.search_pharmacy_closed),
                         style = AppTheme.typography.subtitle2l,
-                        color = AppTheme.colors.green600
+                        color = AppTheme.colors.neutral700
                     )
                 } else {
-                    val text =
-                        pharmacyLocalServices?.opensAt(now)?.let {
+                    val pharmacyLocalServices =
+                        pharmacy.provides.find { it is LocalPharmacyService } as? LocalPharmacyService
+                    val now =
+                        remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()) }
+
+                    if (pharmacyLocalServices?.isOpenAt(now) == true) {
+                        val text = if (pharmacyLocalServices.isAllDayOpen(now.dayOfWeek)) {
+                            stringResource(R.string.search_pharmacy_continuous_open)
+                        } else {
                             stringResource(
-                                R.string.search_pharmacy_opens_at,
-                                it.toString()
+                                R.string.search_pharmacy_open_until,
+                                requireNotNull(pharmacyLocalServices.openUntil(now)).toString()
                             )
                         }
-                    if (text != null) {
                         Text(
                             text,
                             style = AppTheme.typography.subtitle2l,
-                            color = AppTheme.colors.yellow600
+                            color = AppTheme.colors.green600
                         )
+                    } else {
+                        val text =
+                            pharmacyLocalServices?.opensAt(now)?.let {
+                                stringResource(
+                                    R.string.search_pharmacy_opens_at,
+                                    it.toString()
+                                )
+                            }
+                        if (text != null) {
+                            Text(
+                                text,
+                                style = AppTheme.typography.subtitle2l,
+                                color = AppTheme.colors.yellow600
+                            )
+                        }
                     }
                 }
             }
         }
-
-        SpacerMedium()
-
-        if (distanceTxt != null) {
-            Text(
-                distanceTxt,
-                style = AppTheme.typography.body2l,
-                modifier = Modifier
-                    .align(Alignment.CenterVertically),
-                textAlign = TextAlign.End
-            )
-        }
-        Icon(
-            Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-            null,
-            tint = AppTheme.colors.neutral400,
-            modifier = Modifier
-                .size(SizeDefaults.triple)
-                .align(Alignment.CenterVertically)
-        )
-    }
+    )
 }
 
 @LightDarkPreview

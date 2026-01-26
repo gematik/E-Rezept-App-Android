@@ -373,8 +373,7 @@ object SyncedTaskData {
     ) {
         fun joinToString(): String =
             listOf(
-                this.line1,
-                this.line2,
+                this.line1 + " " + this.line2,
                 this.postalCode + " " + this.city
             ).filter {
                 it.isNotEmpty()
@@ -382,8 +381,7 @@ object SyncedTaskData {
 
         fun joinToHtmlString(): String =
             listOf(
-                this.line1,
-                this.line2,
+                this.line1 + " " + this.line2,
                 this.postalCode + " " + this.city
             ).filter {
                 it.isNotEmpty()

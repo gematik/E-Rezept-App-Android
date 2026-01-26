@@ -25,7 +25,6 @@ package de.gematik.ti.erp.app.cardwall.ui.screens
 import android.content.Context
 import androidx.biometric.BiometricManager
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +32,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
@@ -56,6 +56,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -182,7 +185,8 @@ private fun CardWallSaveCredentialsScreenContent(
         }
         item {
             SelectableCard(
-                modifier = Modifier.testTag(TestTag.CardWall.StoreCredentials.Save),
+                modifier = Modifier
+                    .testTag(TestTag.CardWall.StoreCredentials.Save),
                 selected = selectedAuthMode == AuthenticationMethod.Alternative,
                 startIcon = Icons.Rounded.Check,
                 text = stringResource(R.string.cdw_selection_save)
@@ -252,7 +256,8 @@ private fun SelectableCard(
     } else {
         BorderStroke(SizeDefaults.eighth, AppTheme.colors.neutral300)
     }
-
+    val contentDescriptionOn = stringResource(R.string.a11y_card_wall_save_credentials_on)
+    val contentDescriptionOff = stringResource(R.string.a11y_card_wall_save_credentials_off)
     Card(
         border = cardBorderStroke,
         backgroundColor = AppTheme.colors.neutral000,
@@ -264,10 +269,14 @@ private fun SelectableCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(
+                .toggleable(
                     enabled = true,
-                    onClick = onCardSelected
-                )
+                    role = Role.Checkbox,
+                    value = selected,
+                    onValueChange = { onCardSelected() }
+                ).semantics(mergeDescendants = true) {
+                    stateDescription = if (selected) contentDescriptionOn else contentDescriptionOff
+                }
                 .padding(PaddingDefaults.Medium),
             verticalAlignment = Alignment.CenterVertically
         ) {

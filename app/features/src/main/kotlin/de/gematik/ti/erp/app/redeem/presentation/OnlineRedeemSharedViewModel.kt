@@ -25,7 +25,6 @@ package de.gematik.ti.erp.app.redeem.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -54,6 +53,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
@@ -126,6 +126,7 @@ class DefaultOnlineRedeemSharedViewModel(
     private val orderState: Flow<OrderState> by lazy {
         refreshTrigger.flatMapLatest {
             getOrderStateUseCase()
+                .distinctUntilChanged()
         }
     }
 
@@ -288,7 +289,7 @@ class DefaultOnlineRedeemSharedViewModel(
 
     override val selectedOrderState
         @Composable
-        get() = selectedOrderStateFlow.collectAsState(OrderState.Empty)
+        get() = selectedOrderStateFlow.collectAsStateWithLifecycle(OrderState.Empty)
 
     // all orders that are available for redeeming
     override val redeemableOrderState

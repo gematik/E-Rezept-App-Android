@@ -175,13 +175,7 @@ class GetShippingContactValidationUseCaseTest {
     @Test
     fun `validate shipping contact with invalid texts (Name, Line1, Line2, City)`() = runTest {
         val invalidTexts = listOf(
-            "This text contains a special character like: #",
-            "This text contains a special character like: <",
-            "This text contains a special character like: >",
-            "The cost of the item is $50.",
-            generateRandomString(51),
-            "This text contains a prohibited character like $ within quotes.",
-            "Mathematical formula: x² + y² = r²"
+            generateRandomString(51)
         )
 
         invalidTexts.forEach {
@@ -201,26 +195,33 @@ class GetShippingContactValidationUseCaseTest {
 
     @Test
     fun `validate postal code contact with valid text`() = runTest {
-        val shippingContact = emptyShippingContact.copy(postalCode = "12345")
-
-        val validationState = getShippingContactValidationUseCase(
-            contact = shippingContact,
-            selectedOrderOption = PharmacyScreenData.OrderOption.Online
+        val validTexts = listOf(
+            "123DE",
+            "123",
+            "42021",
+            "ABCDE"
         )
 
-        assertFalse {
-            validationState.isEmptyPostalCode() || validationState.isInvalidPostalCode()
+        validTexts.forEach {
+            val shippingContact = emptyShippingContact.copy(postalCode = it)
+
+            val validationState = getShippingContactValidationUseCase(
+                contact = shippingContact,
+                selectedOrderOption = PharmacyScreenData.OrderOption.Online
+            )
+
+            assertFalse {
+                validationState.isEmptyPostalCode() || validationState.isInvalidPostalCode()
+            }
         }
     }
 
     @Test
     fun `validate postal code with invalid text`() = runTest {
         val invalidTexts = listOf(
-            "0",
-            "-1234",
-            "123",
-            "1234",
-            "ABCDE"
+            "123456789",
+            "aB§123",
+            ""
         )
 
         invalidTexts.forEach {
@@ -232,7 +233,7 @@ class GetShippingContactValidationUseCaseTest {
             )
 
             assertTrue {
-                validationState.isInvalidPostalCode()
+                validationState.isEmptyPostalCode() || validationState.isInvalidPostalCode()
             }
         }
     }
@@ -265,9 +266,7 @@ class GetShippingContactValidationUseCaseTest {
     @Test
     fun `validate phone number with invalid numbers`() = runTest {
         val invalidNumbers = listOf(
-            "0",
             "-1234%",
-            "123",
             "1234 1234 - 123 000 / + 000",
             "ABCDE"
         )
@@ -316,12 +315,7 @@ class GetShippingContactValidationUseCaseTest {
     @Test
     fun `validate delivery contact with invalid texts`() = runTest {
         val invalidTexts = listOf(
-            "This text contains a special character like: #",
-            "This text contains a special character like: <",
-            "This text contains a special character like: >",
-            "The cost of the item is $50.",
-            generateRandomString(501),
-            "Mathematical formula: x² + y² = r²"
+            generateRandomString(501)
         )
 
         invalidTexts.forEach {

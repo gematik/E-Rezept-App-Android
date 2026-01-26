@@ -33,6 +33,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.redeem.ui.screens.ValidationResult
+import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.InputField
 import de.gematik.ti.erp.app.utils.compose.scrollOnFocus
 
@@ -56,19 +57,15 @@ fun LazyListScope.phoneNumberInputField(
             onSubmit = onSubmit,
             label = {
                 Text(
-                    if (!validationResult.isEmpty) {
-                        stringResource(R.string.edit_shipping_contact_phone_optional)
-                    } else {
-                        stringResource(R.string.edit_shipping_contact_phone)
-                    }
+                    stringResource(R.string.edit_shipping_contact_phone)
                 )
             },
             isError = validationResult.isEmpty || validationResult.isInvalid,
             errorText = {
-                if (validationResult.isEmpty) {
-                    Text(stringResource(R.string.edit_shipping_contact_empty_phone))
-                } else {
-                    Text(stringResource(R.string.edit_shipping_contact_invalid_phone))
+                when {
+                    validationResult.isEmpty -> Text(stringResource(R.string.edit_shipping_contact_empty_phone), color = AppTheme.colors.red700)
+                    validationResult.isInvalid -> Text(stringResource(R.string.edit_shipping_contact_invalid_phone), color = AppTheme.colors.red700)
+                    else -> null
                 }
             },
             keyBoardType = KeyboardType.Phone
@@ -95,10 +92,10 @@ fun LazyListScope.mailInputField(
                 stringResource(R.string.edit_shipping_contact_mail)
             },
             errorText = {
-                if (validationResult.isEmpty) {
-                    Text(stringResource(R.string.edit_shipping_contact_empty_mail))
-                } else {
-                    Text(stringResource(R.string.edit_shipping_contact_invalid_mail))
+                when {
+                    validationResult.isEmpty -> Text(stringResource(R.string.edit_shipping_contact_empty_mail), color = AppTheme.colors.red700)
+                    validationResult.isInvalid -> Text(stringResource(R.string.edit_shipping_contact_invalid_mail), color = AppTheme.colors.red700)
+                    else -> null
                 }
             },
             isError = validationResult.isEmpty || validationResult.isInvalid,
@@ -128,10 +125,18 @@ fun LazyListScope.nameInputField(
             label = { Text(stringResource(R.string.edit_shipping_contact_name)) },
             isError = validationResult.isEmpty || validationResult.isInvalid,
             errorText = {
-                if (validationResult.isEmpty) {
-                    Text(stringResource(R.string.edit_shipping_contact_empty_name))
-                } else {
-                    Text(stringResource(R.string.edit_shipping_contact_invalid_name))
+                when {
+                    validationResult.isEmpty -> Text(
+                        stringResource(R.string.edit_shipping_contact_empty_name),
+                        color = AppTheme.colors.red700,
+                        style = AppTheme.typography.caption1
+                    )
+                    validationResult.isInvalid -> Text(
+                        stringResource(R.string.edit_shipping_contact_invalid_name),
+                        color = AppTheme.colors.red700,
+                        style = AppTheme.typography.caption1
+                    )
+                    else -> null
                 }
             }
         )
@@ -159,10 +164,18 @@ fun LazyListScope.streetAndNumberInputField(
             label = { Text(stringResource(R.string.edit_shipping_contact_title_line1)) },
             isError = validationResult.isEmpty || validationResult.isInvalid,
             errorText = {
-                if (validationResult.isEmpty) {
-                    Text(stringResource(R.string.edit_shipping_contact_empty_line1))
-                } else {
-                    Text(stringResource(R.string.edit_shipping_contact_invalid_line1))
+                when {
+                    validationResult.isEmpty -> Text(
+                        stringResource(R.string.edit_shipping_contact_empty_line1),
+                        color = AppTheme.colors.red700,
+                        style = AppTheme.typography.caption1
+                    )
+                    validationResult.isInvalid -> Text(
+                        stringResource(R.string.edit_shipping_contact_invalid_line1),
+                        color = AppTheme.colors.red700,
+                        style = AppTheme.typography.caption1
+                    )
+                    else -> null
                 }
             }
         )
@@ -190,7 +203,15 @@ fun LazyListScope.addressSupplementInputField(
             label = { Text(stringResource(R.string.edit_shipping_contact_line2)) },
             isError = validationResult.isInvalid,
             errorText = {
-                Text(stringResource(R.string.edit_shipping_contact_invalid_line2))
+                when {
+                    validationResult.isEmpty -> null
+                    validationResult.isInvalid -> Text(
+                        stringResource(R.string.edit_shipping_contact_invalid_line2),
+                        color = AppTheme.colors.red700,
+                        style = AppTheme.typography.caption1
+                    )
+                    else -> null
+                }
             }
         )
     }
@@ -217,10 +238,18 @@ fun LazyListScope.postalCodeInputField(
             label = { Text(stringResource(R.string.edit_shipping_contact_postal_code)) },
             isError = validationResult.isEmpty || validationResult.isInvalid,
             errorText = {
-                if (validationResult.isEmpty) {
-                    Text(stringResource(R.string.edit_shipping_contact_empty_postal_code))
-                } else {
-                    Text(stringResource(R.string.edit_shipping_contact_invalid_postal_code))
+                when {
+                    validationResult.isEmpty -> Text(
+                        stringResource(R.string.edit_shipping_contact_empty_postal_code),
+                        color = AppTheme.colors.red700,
+                        style = AppTheme.typography.caption1
+                    )
+                    validationResult.isInvalid -> Text(
+                        stringResource(R.string.edit_shipping_contact_invalid_postal_code),
+                        color = AppTheme.colors.red700,
+                        style = AppTheme.typography.caption1
+                    )
+                    else -> null
                 }
             },
             keyBoardType = KeyboardType.Number
@@ -249,10 +278,18 @@ fun LazyListScope.cityInputField(
             label = { Text(stringResource(R.string.edit_shipping_contact_city)) },
             isError = validationResult.isEmpty || validationResult.isInvalid,
             errorText = {
-                if (validationResult.isEmpty) {
-                    Text(stringResource(R.string.edit_shipping_contact_empty_city))
-                } else {
-                    Text(stringResource(R.string.edit_shipping_contact_invalid_city))
+                when {
+                    validationResult.isEmpty -> Text(
+                        stringResource(R.string.edit_shipping_contact_empty_city),
+                        color = AppTheme.colors.red700,
+                        style = AppTheme.typography.caption1
+                    )
+                    validationResult.isInvalid -> Text(
+                        stringResource(R.string.edit_shipping_contact_invalid_city),
+                        color = AppTheme.colors.red700,
+                        style = AppTheme.typography.caption1
+                    )
+                    else -> null
                 }
             }
         )
@@ -279,7 +316,15 @@ fun LazyListScope.deliveryInformationInputField(
             label = { Text(stringResource(R.string.edit_shipping_contact_delivery_information)) },
             isError = validationResult.isInvalid,
             errorText = {
-                Text(stringResource(R.string.edit_shipping_contact_invalid_delivery_information))
+                when {
+                    validationResult.isEmpty -> null
+                    validationResult.isInvalid -> Text(
+                        stringResource(R.string.edit_shipping_contact_invalid_delivery_information),
+                        color = AppTheme.colors.red700,
+                        style = AppTheme.typography.caption1
+                    )
+                    else -> null
+                }
             }
         )
     }

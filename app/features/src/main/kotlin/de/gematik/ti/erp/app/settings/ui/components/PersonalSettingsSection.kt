@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Alarm
+import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Timeline
 import androidx.compose.material.icons.rounded.Camera
@@ -50,13 +51,16 @@ fun PersonalSettingsSection(
     zoomState: State<SettingStatesData.ZoomState>,
     screenShotState: State<Boolean>,
     isDemoMode: Boolean,
+    isDebug: Boolean,
     personalSettingsClickActions: PersonalSettingsClickActions
 ) {
     Column {
         Text(
             text = stringResource(R.string.settings_personal_settings_header),
             style = AppTheme.typography.h6,
-            modifier = Modifier.sectionPadding().semanticsHeading()
+            modifier = Modifier
+                .sectionPadding()
+                .semanticsHeading()
         )
         if (!isDemoMode) {
             LabelButton(
@@ -68,6 +72,11 @@ fun PersonalSettingsSection(
         }
         LabelButton(icon = Icons.Rounded.Language, text = stringResource(R.string.settings_language_label)) {
             personalSettingsClickActions.onClickLanguageSettings()
+        }
+        if (isDebug) {
+            LabelButton(icon = Icons.Outlined.DarkMode, text = stringResource(R.string.settings_theme_label)) {
+                personalSettingsClickActions.onClickThemeSettings()
+            }
         }
         LabelButton(
             Icons.Outlined.Timeline,

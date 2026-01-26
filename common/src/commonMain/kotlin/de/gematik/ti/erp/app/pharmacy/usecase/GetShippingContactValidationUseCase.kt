@@ -60,14 +60,16 @@ class GetShippingContactValidationUseCase {
         private const val MAX_TEXT_LENGTH = 50
         private const val MAX_HINT_TEXT_LENGTH = 500
         private const val MAX_PHONE_LENGTH = 25
-        private const val MIN_PHONE_LENGTH = 4
+        private const val MIN_PHONE_LENGTH = 1
+
+        private const val MAX_POSTAL_CODE_LENGTH = 8
 
         // allows letters from any language, numbers and some restricted symbols
-        val textRegex = Regex("[\\p{L}0-9\\-.,:!@_%+'/\"\\s]{1,$MAX_TEXT_LENGTH}")
-        private val hintRegex = Regex("[\\p{L}0-9\\-.,:!@_%+?'/\"\\s]{1,$MAX_HINT_TEXT_LENGTH}")
+        val textRegex = Regex("[\\p{L}0-9\\-.,:!@_%+'/\"\\s]{1,$MAX_TEXT_LENGTH}$")
+        private val hintRegex = Regex("[\\p{L}0-9\\-.,:!@_%+?'/\"\\s]{1,$MAX_HINT_TEXT_LENGTH}$")
 
-        val postalCodeRegex = Regex("^\\d{5}$")
-        val phoneNumberRegex = Regex("[0-9\\-+'/\"\\s]{$MIN_PHONE_LENGTH,$MAX_PHONE_LENGTH}")
+        val postalCodeRegex = Regex("^[a-zA-Z0-9\\s]{1,$MAX_POSTAL_CODE_LENGTH}$")
+        val phoneNumberRegex = Regex("^[0-9\\-+'/\"\\s]{$MIN_PHONE_LENGTH,$MAX_PHONE_LENGTH}$")
 
         val mailRegex = Regex(
             "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{1,}\$"
@@ -202,7 +204,7 @@ class GetShippingContactValidationUseCase {
     ) {
         when {
             name.isEmpty() -> onNameIsEmpty(ShippingContactState.ShippingContactError.EmptyName)
-            !name.matches(textRegex) -> onNameIsInvalid(ShippingContactState.ShippingContactError.InvalidName)
+            name.length > MAX_TEXT_LENGTH -> onNameIsInvalid(ShippingContactState.ShippingContactError.InvalidName)
         }
     }
 
@@ -213,7 +215,7 @@ class GetShippingContactValidationUseCase {
     ) {
         when {
             line1.isEmpty() -> onLine1IsEmpty(ShippingContactState.ShippingContactError.EmptyLine1)
-            !line1.matches(textRegex) -> onLine1IsInvalid(ShippingContactState.ShippingContactError.InvalidLine1)
+            line1.length > MAX_TEXT_LENGTH -> onLine1IsInvalid(ShippingContactState.ShippingContactError.InvalidLine1)
         }
     }
 
@@ -221,7 +223,7 @@ class GetShippingContactValidationUseCase {
         line2: String,
         onLine2IsInvalid: (ShippingContactState.ShippingContactError) -> Unit
     ) {
-        if (line2.isNotEmpty() && !line2.matches(textRegex)) {
+        if (line2.isNotEmpty() && line2.length > MAX_TEXT_LENGTH) {
             onLine2IsInvalid(ShippingContactState.ShippingContactError.InvalidLine2)
         }
     }
@@ -246,7 +248,7 @@ class GetShippingContactValidationUseCase {
     ) {
         when {
             city.isEmpty() -> onCityIsEmpty(ShippingContactState.ShippingContactError.EmptyCity)
-            !city.matches(textRegex) -> onCityIsInvalid(ShippingContactState.ShippingContactError.InvalidCity)
+            city.length > MAX_TEXT_LENGTH -> onCityIsInvalid(ShippingContactState.ShippingContactError.InvalidCity)
         }
     }
 
@@ -289,7 +291,7 @@ class GetShippingContactValidationUseCase {
         deliveryInformation: String,
         onDeliveryInformationIsInvalid: (ShippingContactState.ShippingContactError) -> Unit
     ) {
-        if (deliveryInformation.isNotEmpty() && !deliveryInformation.matches(hintRegex)) {
+        if (deliveryInformation.isNotEmpty() && deliveryInformation.length > MAX_HINT_TEXT_LENGTH) {
             onDeliveryInformationIsInvalid(ShippingContactState.ShippingContactError.InvalidDeliveryInformation)
         }
     }

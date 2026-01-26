@@ -33,6 +33,7 @@ import androidx.compose.foundation.gestures.calculateCentroidSize
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.forEachGesture
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.MaterialTheme
@@ -73,6 +74,7 @@ import de.gematik.ti.erp.app.demomode.DemoModeIntent
 import de.gematik.ti.erp.app.demomode.startAppWithNormalMode
 import de.gematik.ti.erp.app.demomode.ui.DemoModeStatusBar
 import de.gematik.ti.erp.app.demomode.ui.checkForDemoMode
+import de.gematik.ti.erp.app.settings.model.ThemeMode
 import de.gematik.ti.erp.app.settings.presentation.rememberSettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -93,11 +95,20 @@ fun AppContent(
 ) {
     val settingsController = rememberSettingsController()
     val zoomState by settingsController.zoomState.collectAsStateWithLifecycle()
+    val themeMode by settingsController.themeMode.collectAsStateWithLifecycle()
+
+    // Determine if dark theme should be applied based on user's theme mode selection
+    val systemInDarkTheme = isSystemInDarkTheme()
+    val darkTheme = when (themeMode) {
+        ThemeMode.SYSTEM -> systemInDarkTheme
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+    }
 
     CompositionLocalProvider(
         LocalDialogVisibilityObserver provides DialogVisibilityProviderHolder.provider
     ) {
-        AppTheme {
+        AppTheme(darkTheme = darkTheme) {
             val systemUiController = rememberSystemUiController()
             val useDarkIcons = MaterialTheme.colors.isLight
             val activity = LocalActivity.current as? BaseActivity

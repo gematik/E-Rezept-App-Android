@@ -23,17 +23,15 @@
 package de.gematik.ti.erp.app.digas.ui.component
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -42,76 +40,71 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.listitem.GemListItemDefaults
 import de.gematik.ti.erp.app.theme.AppTheme
-import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.SpacerMedium
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun Label(
     modifier: Modifier = Modifier,
     text: String?,
     label: String? = null,
     onClick: (() -> Unit)? = null,
-    setHorizontalPadding: Boolean = true,
     imageVector: ImageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-    iconTint: Color = AppTheme.colors.neutral400,
+    iconTint: Color = AppTheme.colors.neutral600,
     iconContentDescription: String? = null
 ) {
     val haptic = LocalHapticFeedback.current
     val clipboardManager = LocalClipboardManager.current
-
-    val verticalPadding = if (label != null) PaddingDefaults.ShortMedium else PaddingDefaults.Medium
-
-    val horizontalPadding = if (setHorizontalPadding) PaddingDefaults.Medium else SizeDefaults.zero
+    val longClickLabel = stringResource(R.string.a11y_long_press_copy)
     val noValueText = stringResource(R.string.pres_details_no_value)
 
     val rowModifier = modifier.then(
         if (onClick != null) {
-            Modifier.combinedClickable(
+            Modifier.clickable(
                 onClick = {
                     onClick.invoke()
                 },
+                role = Role.Button
+            )
+        } else {
+            Modifier.combinedClickable(
+                onClick = {},
+                onLongClickLabel = longClickLabel,
                 onLongClick = {
-                    if (text.isNotNullOrEmpty() && text != null) {
+                    if (!text.isNullOrEmpty()) {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         clipboardManager.setText(AnnotatedString(text))
                     }
                 },
                 role = Role.Button
             )
-        } else {
-            Modifier.semantics(mergeDescendants = true) {}
         }
     )
 
-    Row(
-        modifier = rowModifier
-            .padding(horizontal = horizontalPadding, vertical = verticalPadding)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(Modifier.weight(1f)) {
+    ListItem(
+        modifier = rowModifier,
+        colors = GemListItemDefaults.gemListItemColors(),
+        overlineContent = {
+            label?.let {
+                Text(
+                    text = label,
+                    style = AppTheme.typography.body2
+                )
+            }
+        },
+        headlineContent = {
             Text(
                 text = text ?: noValueText,
                 style = AppTheme.typography.body1
             )
-            if (label != null) {
-                Text(
-                    text = label,
-                    style = AppTheme.typography.body2l
-                )
+        },
+        trailingContent = {
+            onClick?.let {
+                Icon(imageVector, iconContentDescription, tint = iconTint)
             }
         }
-        if (onClick != null) {
-            SpacerMedium()
-            Icon(imageVector, iconContentDescription, tint = iconTint)
-        }
-    }
+    )
 }
-
-private fun String?.isNotNullOrEmpty() = !isNullOrEmpty() && this != ""

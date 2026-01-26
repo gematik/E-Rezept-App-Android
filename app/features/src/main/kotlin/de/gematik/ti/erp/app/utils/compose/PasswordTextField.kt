@@ -148,7 +148,9 @@ fun PasswordTextField(
                 } else if (allowVisiblePassword) {
                     IconToggleButton(
                         modifier = Modifier.clickable(
-                            onClick = {},
+                            onClick = {
+                                passwordVisible = !passwordVisible
+                            },
                             role = Role.Button,
                             onClickLabel = if (passwordVisible) {
                                 stringResource(R.string.a11y_password_input_show_password_description_onClick_on)

@@ -22,21 +22,34 @@
 
 package de.gematik.ti.erp.app.preview
 
+import android.content.res.Configuration
+import android.os.LocaleList
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import de.gematik.ti.erp.app.theme.AppTheme
 import kotlinx.datetime.TimeZone
+import java.util.Locale
 
 @Composable
 fun PreviewTheme(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
-
 ) {
+    val baseConfig = LocalConfiguration.current
+
+    val configWithLocale = Configuration(baseConfig).apply {
+        setLocales(LocaleList(Locale.ENGLISH))
+    }
+
     CompositionLocalProvider(
+        LocalLayoutDirection provides LayoutDirection.Ltr,
+        LocalConfiguration provides configWithLocale,
         LocalTimeZone provides TimeZone.of("Europe/Berlin")
     ) {
         AppTheme {

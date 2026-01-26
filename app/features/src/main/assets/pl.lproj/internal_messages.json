@@ -52,5 +52,11 @@
         "text": "**🏡 Sugestie adresów** \nZapisane dane adresowe są teraz automatycznie podpowiadane podczas wprowadzania adresu. \n \n **♿️ Ułatwienia dostępu** \nZwiększono kontrast tekstu, przycisków przełączających, pól wyboru, komunikatów o błędach, ikon i pasków wyszukiwania. \nUlepszono odczytywanie mowy w TalkBack podczas wprowadzania kodu PIN i hasła, wyświetlania kodów recept oraz rozpoznawania nagłówków. Linki są teraz konsekwentnie podkreślane w tekście.",
         "timestamp": "2025-12-17T08:00:00.000Z",
         "version": "1.35"
+    },
+    {
+        "id": "11",
+        "text": "**✨ Wyświetlanie kodów recept** \nEkran kodów partii i pojedynczych został przeprojektowany, aby zapewnić bardziej intuicyjną obsługę. \n \n **📋 Funkcja kopiowania** \nInformacje o lekach można skopiować poprzez długie naciśnięcie. \n \n **♿ Ułatwienia dostępu** \nTalkback i nawigacja za pomocą klawiatury działają lepiej, przyciski są bardziej przejrzyste, a elementy listy są bardziej logicznie ułożone. Animowane filmy odtwarzają się tylko raz, aby ułatwić korzystanie z nich użytkownikom z upośledzeniem funkcji poznawczych.",
+        "timestamp": "2026-01-22T08:00:00.000Z",
+        "version": "1.36"
     }
 ]

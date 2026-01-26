@@ -26,7 +26,9 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.style.TextDecoration
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -59,16 +61,13 @@ data class PharmacyPortalText(
     @Composable
     fun urlText() = with(AnnotatedString.Builder()) {
         append(infoText)
-        addStringAnnotation(
-            tag = "URL",
-            annotation = portalUri,
+        addLink(
+            url = LinkAnnotation.Url(
+                portalUri,
+                styles = TextLinkStyles(SpanStyle(color = AppTheme.colors.primary700, textDecoration = TextDecoration.Underline))
+            ),
             start = start,
             end = end
-        )
-        addStyle(
-            SpanStyle(color = AppTheme.colors.primary700, textDecoration = TextDecoration.Underline),
-            start,
-            end
         )
         toAnnotatedString()
     }

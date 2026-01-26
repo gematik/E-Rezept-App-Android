@@ -52,5 +52,11 @@
         "text": "**🏡 Address Suggestions** \nStored address data is now automatically suggested when entering an address. \n \n **♿️ Accessibility** \nThe contrast for text, toggle buttons, checkboxes, error messages, icons, and search bars has been increased. \nThe speech output via TalkBack has been improved for PIN and password entry, the display of prescription codes, and the recognition of headings. Links are now consistently underlined in running text.",
         "timestamp": "2025-12-17T08:00:00.000Z",
         "version": "1.35"
+    },
+    {
+        "id": "11",
+        "text": "**✨ Display Prescription Codes** \nThe screen for batch and single codes has been redesigned for more intuitive use. \n \n **📋 Copy Function** \nMedication information can be copied by long-pressing. \n \n **♿ Accessibility** \nTalkback and keyboard navigation work better, buttons are clearer, and list items are structured more logically. Animated videos play only once to support users with cognitive impairments.",
+        "timestamp": "2026-01-22T08:00:00.000Z",
+        "version": "1.36"
     }
 ]

@@ -145,6 +145,7 @@ class ContentSquareScreenMapper {
                 NavigationRouteNames.SettingsOpenSourceLicencesScreen -> "settings:openSourceLicence"
                 NavigationRouteNames.SettingsAdditionalLicencesScreen -> "settings:additionalLicence"
                 NavigationRouteNames.SettingsLanguageScreen -> "settings:language"
+                NavigationRouteNames.SettingsThemeScreen -> "settings:theme"
 
                 NavigationRouteNames.PrescriptionListScreen -> "main"
                 NavigationRouteNames.PrescriptionsArchiveScreen -> "main:prescriptionArchive"

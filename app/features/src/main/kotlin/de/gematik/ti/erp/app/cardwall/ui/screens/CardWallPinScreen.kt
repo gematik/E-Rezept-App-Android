@@ -300,7 +300,9 @@ fun PinInputField(
             trailingIcon = {
                 IconToggleButton(
                     modifier = Modifier.clickable(
-                        onClick = {},
+                        onClick = {
+                            secretVisible = !secretVisible
+                        },
                         role = Role.Button,
                         onClickLabel = if (secretVisible) {
                             stringResource(R.string.a11y_pin_input_show_pin_description_onClick_on)

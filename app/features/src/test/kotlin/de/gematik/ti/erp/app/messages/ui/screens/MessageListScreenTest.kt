@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.messages.ui.screens
 
 import de.gematik.ti.erp.app.messages.ui.preview.MessageListParameterProvider
+import de.gematik.ti.erp.app.screenshot.BaseAccessibilityTest
 import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
 import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
 import org.junit.Test
@@ -34,6 +35,19 @@ class MessageListScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(confi
         val parameters = MessageListParameterProvider().values.toList()
         parameters.forEachIndexed { index, orderData ->
             paparazzi.snapshot("$index") {
+                MessageScreenContentPreview(orderData)
+            }
+        }
+    }
+}
+
+class MessageListScreenAccessibilityTest(config: ScreenshotConfig) : BaseAccessibilityTest(config) {
+
+    @Test
+    fun screenShotTest() {
+        val parameters = MessageListParameterProvider().values.toList()
+        parameters.forEachIndexed { index, orderData ->
+            paparazzi.accessibilitySnapshot("$index") {
                 MessageScreenContentPreview(orderData)
             }
         }

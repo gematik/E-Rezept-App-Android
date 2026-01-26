@@ -628,7 +628,7 @@ private fun ScanOverlay(
             CameraTopBar(
                 flashEnabled = flashEnabled,
                 onClickClose = onClickClose,
-                onFlashClick = onFlashClick
+                onFlashClick = { onFlashClick(!flashEnabled) }
             )
             Spacer(modifier = Modifier.size(24.dp))
             InfoCard(

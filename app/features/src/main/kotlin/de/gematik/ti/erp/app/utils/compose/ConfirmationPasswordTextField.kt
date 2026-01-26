@@ -57,11 +57,11 @@ fun ConfirmationPasswordTextField(
         },
         colors = if (passwordIsValidAndConsistent) {
             erezeptTextFieldColors(
-                focussedBorderColor = AppTheme.colors.green600,
-                focussedLabelColor = AppTheme.colors.green600,
-                unfocusedBorderColor = AppTheme.colors.green600,
-                unfocusedLabelColor = AppTheme.colors.green600,
-                focusedTrailingIconColor = AppTheme.colors.green600
+                focussedBorderColor = AppTheme.colors.green700,
+                focussedLabelColor = AppTheme.colors.green700,
+                unfocusedBorderColor = AppTheme.colors.green700,
+                unfocusedLabelColor = AppTheme.colors.green700,
+                focusedTrailingIconColor = AppTheme.colors.green700
             )
         } else {
             erezeptTextFieldColors()

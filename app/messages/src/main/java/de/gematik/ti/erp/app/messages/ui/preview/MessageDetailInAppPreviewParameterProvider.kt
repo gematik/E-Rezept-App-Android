@@ -30,7 +30,8 @@ import kotlinx.datetime.Instant
 
 class MessageDetailInAppPreviewParameterProvider : PreviewParameterProvider<List<InAppMessage>> {
     override val values = sequenceOf(
-        inAppPreview
+        inAppPreview,
+        communicationInAppPreview
     )
 }
 
@@ -38,7 +39,10 @@ const val IN_APP_MESSAGE =
     "Nutzen Sie ab sofort die E-Rezept App, um Ihre Entscheidung zur Organspende im **digitalen Organspenderegister** festzuhalten – sicher und " +
         "#unkompliziert.\u2028\n\nAktuell warten 9.192 Menschen in Deutschland dringend auf ein Organ – jede Entscheidung zählt und kann Leben retten.\n\n"
 
-private val inAppPreview = listOf(
+const val COMMUNICATION_DISPENSE = "Prescription sent to Apotheke Adelheid Ulmendorfer TEST-ONLY. Some pharmacies do not yet have a digital response option." +
+    " If you do not receive a response by tomorrow, please call as a precaution"
+
+internal val inAppPreview = listOf(
     InAppMessage(
         id = "123",
         from = "Team",
@@ -62,5 +66,20 @@ private val inAppPreview = listOf(
         lastMessage = null,
         messageProfile = CommunicationProfile.InApp,
         version = "1.27.0"
+    )
+)
+
+internal val communicationInAppPreview = listOf(
+    InAppMessage(
+        id = "129",
+        from = "Apotheke Adelheid Ulmendorfer TEST-ONLY",
+        text = COMMUNICATION_DISPENSE,
+        timeState = TimeState.ShowDate(Instant.parse("2024-11-08T15:20:00Z")),
+        prescriptionsCount = 0,
+        tag = "PZN Rx for Remdeem",
+        isUnread = true,
+        lastMessage = null,
+        messageProfile = CommunicationProfile.ErxCommunicationDispReq,
+        version = "1.26.0"
     )
 )

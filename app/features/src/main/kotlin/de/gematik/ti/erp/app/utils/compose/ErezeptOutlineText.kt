@@ -293,7 +293,7 @@ fun erezeptTextFieldColors(
 ) =
     TextFieldColors(
         focusedTextColor = textColor,
-        unfocusedTextColor = AppTheme.colors.neutral700,
+        unfocusedTextColor = textColor,
         disabledTextColor = AppTheme.colors.neutral300,
         errorTextColor = AppTheme.colors.red700,
         focusedContainerColor = focusedContainerColor,

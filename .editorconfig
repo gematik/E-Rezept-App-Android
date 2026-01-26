@@ -4,6 +4,10 @@
 disabled_rules = import-ordering, filename
 wildcard_import_limit = 999
 
+[*.{kt,kts}]
+ktlint_standard_package-name = disabled
+ktlint_package-name = disabled
+
 # Kotlin rules
 ij_kotlin_name_count_to_use_star_import = 999
 ij_kotlin_name_count_to_use_star_import_for_members = 999

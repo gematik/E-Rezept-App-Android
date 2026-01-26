@@ -52,5 +52,11 @@
         "text": "**🏡 Návrhy adres** \nUložené adresní údaje se nyní automaticky navrhují při zadávání adresy. \n \n **♿️ Přístupnost** \nByl zvýšen kontrast textu, přepínacích tlačítek, zaškrtávacích políček, chybových zpráv, ikon a vyhledávacích panelů. \nByl vylepšen hlasový výstup prostřednictvím TalkBacku pro zadávání PINu a hesla, zobrazení kódů předpisu a rozpoznávání nadpisů. Odkazy jsou nyní v běžícím textu konzistentně podtržené.",
         "timestamp": "2025-12-17T08:00:00.000Z",
         "version": "1.35"
+    },
+    {
+        "id": "11",
+        "text": "**✨ Zobrazení kódů léků na předpis** \nObrazovka pro dávkové a jednotlivé kódy byla přepracována pro intuitivnější použití. \n \n **📋 Funkce kopírování** \nInformace o lécích lze kopírovat dlouhým stisknutím. \n \n **♿ Přístupnost** \nFunkce Talkback a navigace pomocí klávesnice fungují lépe, tlačítka jsou přehlednější a položky seznamu jsou strukturovány logičtěji. Animovaná videa se přehrávají pouze jednou, aby podpořila uživatele s kognitivním postižením.",
+        "timestamp": "2026-01-22T08:00:00.000Z",
+        "version": "1.36"
     }
 ]

@@ -221,7 +221,7 @@
         },
         "extension": [
           {
-            "url": "https://gematik.de/fhir/directory/StructureDefinition/ncpeh-country-ex",
+            "url": "https://gematik.de/fhir/ti/StructureDefinition/ncpeh-country-extension",
             "valueCoding": {
               "system": "urn:iso:std:iso:3166",
               "code": "LI",
@@ -298,7 +298,7 @@
         },
         "extension": [
           {
-            "url": "https://gematik.de/fhir/directory/StructureDefinition/ncpeh-country-ex",
+            "url": "https://gematik.de/fhir/ti/StructureDefinition/ncpeh-country-extension",
             "valueCoding": {
               "system": "urn:iso:std:iso:3166",
               "code": "SI",
@@ -375,7 +375,7 @@
         },
         "extension": [
           {
-            "url": "https://gematik.de/fhir/directory/StructureDefinition/ncpeh-country-ex",
+            "url": "https://gematik.de/fhir/ti/StructureDefinition/ncpeh-country-extension",
             "valueCoding": {
               "system": "urn:iso:std:iso:3166",
               "code": "LT",

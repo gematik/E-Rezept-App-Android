@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="a11y_card_wall_card_hand">Una mano tiene una tessera sanitaria vicino a uno smartphone.</string>
+    <string name="a11y_card_wall_save_credentials_off">non selezionato</string>
+    <string name="a11y_card_wall_save_credentials_on">selezionato</string>
     <string name="a11y_cdw_health_card_image_description">Immagine di una tessera sanitaria con un numero di accesso a sei cifre in alto a destra sul fronte della tessera</string>
     <string name="a11y_datamatrix_code_description">Codice di scansione</string>
     <string name="a11y_datamatrix_code_pager_content_description">Scorri con due dita per cambiare pagina</string>
@@ -26,7 +28,11 @@
     <string name="a11y_eu_instructions_open_in_browser">Apri nel browser</string>
     <string name="a11y_local_redeem_back">Mostra il codice precedente</string>
     <string name="a11y_local_redeem_forward">Mostra il codice successivo</string>
+    <string name="a11y_long_press_copy">Copia</string>
     <string name="a11y_medication_schedule_three_dot_menu">Mostra le opzioni di promemoria per i farmaci</string>
+    <string name="a11y_messages_empty_state">Nessun messaggio</string>
+    <string name="a11y_messages_error_state">Errore durante il caricamento dei messaggi</string>
+    <string name="a11y_messages_loading">I messaggi si stanno caricando</string>
     <string name="a11y_not_selected">non selezionato</string>
     <string name="a11y_onboarding_progress_description">Pagina %1$d di %2$d</string>
     <string name="a11y_open_link_submit">Apri il collegamento sul sito web esterno</string>
@@ -35,6 +41,7 @@
     <string name="a11y_password_input_show_password_description_on">Password visualizzata</string>
     <string name="a11y_password_input_show_password_description_onClick_off">Mostra password</string>
     <string name="a11y_password_input_show_password_description_onClick_on">Nascondi password</string>
+    <string name="a11y_pharmacy_search_pharmacy_card_click_description">Apri i dettagli della farmacia</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Ricerca farmacia; inserisci nome, città o codice postale per cercare una farmacia</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Cerca nella vista elenco</string>
     <string name="a11y_pin_input_show_pin_description_off">PIN nascosto</string>
@@ -512,14 +519,14 @@
     <string name="edit_shipping_contact_empty_name">Si prega di fornire un nome e cognome per contattarci.</string>
     <string name="edit_shipping_contact_empty_phone">Si prega di fornire un numero di telefono per contattarci.</string>
     <string name="edit_shipping_contact_empty_postal_code">Fornisci il tuo codice postale per contattarci.</string>
-    <string name="edit_shipping_contact_invalid_city">Il testo inserito non è valido. (caratteri troppo lunghi e non validi)</string>
-    <string name="edit_shipping_contact_invalid_delivery_information">Il testo inserito non è valido. (caratteri troppo lunghi e non validi)</string>
-    <string name="edit_shipping_contact_invalid_line1">Il testo inserito non è valido. (caratteri troppo lunghi e non validi)</string>
-    <string name="edit_shipping_contact_invalid_line2">Il testo inserito non è valido. (caratteri troppo lunghi e non validi)</string>
+    <string name="edit_shipping_contact_invalid_city">Inserisci un massimo di 50 caratteri.</string>
+    <string name="edit_shipping_contact_invalid_delivery_information">Inserisci un massimo di 500 caratteri.</string>
+    <string name="edit_shipping_contact_invalid_line1">Inserisci un massimo di 50 caratteri.</string>
+    <string name="edit_shipping_contact_invalid_line2">Inserisci un massimo di 50 caratteri.</string>
     <string name="edit_shipping_contact_invalid_mail">L\'indirizzo email inserito non è valido.</string>
-    <string name="edit_shipping_contact_invalid_name">Il testo inserito non è valido. (caratteri troppo lunghi e non validi)</string>
-    <string name="edit_shipping_contact_invalid_phone">Il numero di telefono inserito non è valido. (caratteri troppo corti, troppo lunghi, non validi)</string>
-    <string name="edit_shipping_contact_invalid_postal_code">Il testo inserito non è valido. (caratteri troppo lunghi, troppo corti, non validi)</string>
+    <string name="edit_shipping_contact_invalid_name">Inserisci un massimo di 50 caratteri.</string>
+    <string name="edit_shipping_contact_invalid_phone">Inserisci un massimo di 25 caratteri. Sono consentiti solo numeri e i caratteri - + \' /.</string>
+    <string name="edit_shipping_contact_invalid_postal_code">Inserisci un massimo di 8 numeri senza caratteri speciali.</string>
     <string name="edit_shipping_contact_line2">Indirizzo aggiuntivo (facoltativo)</string>
     <string name="edit_shipping_contact_mail">Indirizzo e-mail (facoltativo)</string>
     <string name="edit_shipping_contact_name">Nome e cognome</string>
@@ -1041,7 +1048,7 @@
     <string name="onb_page_4_header">Protezione e utilizzo dei dati</string>
     <string name="onb_page_5_header">Aiutaci a migliorare questa app</string>
     <string name="onb_terms_of_use">Termini di utilizzo</string>
-    <string name="onb_undo_description">Annullato</string>
+    <string name="onb_undo_description">Elimina voce</string>
     <string name="onboarding_analytics_agree_button">Essere d\'accordo</string>
     <string name="onboarding_analytics_bottom_text">Puoi disattivare l\'analisi in qualsiasi momento nelle impostazioni.</string>
     <string name="onboarding_analytics_consent_text">Con il tuo consenso, vorremmo condurre un\'%s. A tal fine, vorremmo raccogliere e analizzare in forma anonima dati sull\'utilizzo dell\'app e dati tecnici, e quindi:</string>
@@ -1053,7 +1060,7 @@
     <string name="onboarding_analytics_resolve_errors_text">Rilevare e correggere gli errori in anticipo</string>
     <string name="onboarding_analytics_we_want">Noi:</string>
     <string name="onboarding_auth_biometric_info">L\'app utilizza il metodo più sicuro che hai impostato sul tuo dispositivo.</string>
-    <string name="onboarding_bottom_app_safety_button_next">Ulteriore</string>
+    <string name="onboarding_bottom_app_safety_button_next">Prossimo</string>
     <string name="onboarding_bottom_button_accept">Accettare</string>
     <string name="onboarding_bottom_button_choose">Scegliere</string>
     <string name="onboarding_bottom_button_save">Salva</string>
@@ -1230,6 +1237,7 @@
     <string name="pharmacy_search_favorite_toggle">Aggiungi ai preferiti</string>
     <string name="pharmacy_search_favorite_toggle_active">attivo</string>
     <string name="pharmacy_search_favorite_toggle_inactive">inattivo</string>
+    <string name="pharmacy_search_placeholder">Ricerca</string>
     <string name="pharmacy_search_searchbar">Ricerca in farmacia</string>
     <string name="pharmacy_start_search_text">Cercare</string>
     <string name="pkv_invoices_total_of_year" formatted="false">Totale: %s %s</string>
@@ -1594,6 +1602,11 @@
     <string name="settings_show_audit_events_info">Qui puoi vedere chi ha avuto accesso alle tue prescrizioni e quando.</string>
     <string name="settings_show_token">Mostra gettoni</string>
     <string name="settings_show_token_info">Chiave di accesso al servizio di prescrizione</string>
+    <string name="settings_theme_dark">Buio</string>
+    <string name="settings_theme_label">progetto</string>
+    <string name="settings_theme_light">Luminoso</string>
+    <string name="settings_theme_system">Impostazioni di sistema</string>
+    <string name="settings_theme_title">progetto</string>
     <string name="settings_tracking_allow_button">Accettare</string>
     <string name="settings_tracking_allow_info">%s Grazie per il tuo supporto!</string>
     <string name="settings_tracking_allow_title">Migliora l\'app</string>

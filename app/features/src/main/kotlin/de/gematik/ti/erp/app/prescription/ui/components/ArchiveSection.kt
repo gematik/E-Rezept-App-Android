@@ -23,14 +23,17 @@
 package de.gematik.ti.erp.app.prescription.ui.components
 
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.rounded.Inventory2
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.utils.SpacerLarge
+import de.gematik.ti.erp.app.utils.compose.TextButton
 
 fun LazyListScope.archiveSection(
     isArchiveEmpty: Boolean,
@@ -41,10 +44,10 @@ fun LazyListScope.archiveSection(
             SpacerLarge()
             TextButton(
                 onClick = onClickArchive,
+                buttonText = stringResource(R.string.archived_prescriptions_button),
+                leadingIcon = Icons.Outlined.Inventory2,
                 modifier = Modifier.testTag(TestTag.Prescriptions.ArchiveButton)
-            ) {
-                Text(stringResource(R.string.archived_prescriptions_button))
-            }
+            )
             SpacerLarge()
         }
     }

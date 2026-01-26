@@ -36,6 +36,7 @@ interface GeneralSettings {
         profileName: String,
         now: Instant = Clock.System.now()
     )
+
     suspend fun saveZoomPreference(enabled: Boolean)
     suspend fun acceptInsecureDevice()
     suspend fun saveWelcomeDrawerShown()
