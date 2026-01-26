@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="a11y_card_wall_card_hand">Ruka drží kartu zdravotního pojištění u smartphonu.</string>
+    <string name="a11y_card_wall_save_credentials_off">nevybráno</string>
+    <string name="a11y_card_wall_save_credentials_on">vybraný</string>
     <string name="a11y_cdw_health_card_image_description">Obrázek zdravotní karty s šestimístným přístupovým číslem v pravém horním rohu přední strany karty</string>
     <string name="a11y_datamatrix_code_description">Naskenujte kód</string>
     <string name="a11y_datamatrix_code_pager_content_description">Přejetím dvěma prsty přepínáte stránky</string>
@@ -26,7 +28,11 @@
     <string name="a11y_eu_instructions_open_in_browser">Otevřít v prohlížeči</string>
     <string name="a11y_local_redeem_back">Zobrazit předchozí kód</string>
     <string name="a11y_local_redeem_forward">Zobrazit další kód</string>
+    <string name="a11y_long_press_copy">Kopie</string>
     <string name="a11y_medication_schedule_three_dot_menu">Zobrazit možnosti připomenutí léků</string>
+    <string name="a11y_messages_empty_state">Žádné zprávy</string>
+    <string name="a11y_messages_error_state">Chyba při načítání zpráv</string>
+    <string name="a11y_messages_loading">Zprávy se načítají</string>
     <string name="a11y_not_selected">nevybráno</string>
     <string name="a11y_onboarding_progress_description">Stránka %1$d z %2$d</string>
     <string name="a11y_open_link_submit">Otevřít odkaz na externím webu</string>
@@ -35,6 +41,7 @@
     <string name="a11y_password_input_show_password_description_on">Zobrazeno heslo</string>
     <string name="a11y_password_input_show_password_description_onClick_off">Zobrazit heslo</string>
     <string name="a11y_password_input_show_password_description_onClick_on">Skrýt heslo</string>
+    <string name="a11y_pharmacy_search_pharmacy_card_click_description">Otevřít podrobnosti o lékárně</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Vyhledávání lékárny; zadejte název, město nebo PSČ pro vyhledání lékárny</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Hledat v zobrazení seznamu</string>
     <string name="a11y_pin_input_show_pin_description_off">PIN skrytý</string>
@@ -522,14 +529,14 @@
     <string name="edit_shipping_contact_empty_name">Chcete-li nás kontaktovat, uveďte prosím jméno a příjmení.</string>
     <string name="edit_shipping_contact_empty_phone">Uveďte prosím telefonní číslo, na kterém nás můžete kontaktovat.</string>
     <string name="edit_shipping_contact_empty_postal_code">Chcete-li nás kontaktovat, zadejte své PSČ.</string>
-    <string name="edit_shipping_contact_invalid_city">Zadaný text je neplatný. (příliš dlouhé, neplatné znaky)</string>
-    <string name="edit_shipping_contact_invalid_delivery_information">Zadaný text je neplatný. (příliš dlouhé, neplatné znaky)</string>
-    <string name="edit_shipping_contact_invalid_line1">Zadaný text je neplatný. (příliš dlouhé, neplatné znaky)</string>
-    <string name="edit_shipping_contact_invalid_line2">Zadaný text je neplatný. (příliš dlouhé, neplatné znaky)</string>
+    <string name="edit_shipping_contact_invalid_city">Zadejte prosím maximálně 50 znaků.</string>
+    <string name="edit_shipping_contact_invalid_delivery_information">Zadejte prosím maximálně 500 znaků.</string>
+    <string name="edit_shipping_contact_invalid_line1">Zadejte prosím maximálně 50 znaků.</string>
+    <string name="edit_shipping_contact_invalid_line2">Zadejte prosím maximálně 50 znaků.</string>
     <string name="edit_shipping_contact_invalid_mail">Zadaná e-mailová adresa je neplatná.</string>
-    <string name="edit_shipping_contact_invalid_name">Zadaný text je neplatný. (příliš dlouhé, neplatné znaky)</string>
-    <string name="edit_shipping_contact_invalid_phone">Zadané telefonní číslo je neplatné. (příliš krátké, příliš dlouhé, neplatné znaky)</string>
-    <string name="edit_shipping_contact_invalid_postal_code">Zadaný text je neplatný. (příliš dlouhé, příliš krátké, neplatné znaky)</string>
+    <string name="edit_shipping_contact_invalid_name">Zadejte prosím maximálně 50 znaků.</string>
+    <string name="edit_shipping_contact_invalid_phone">Zadejte maximálně 25 znaků. Povoleny jsou pouze číslice a znaky - + \' /.</string>
+    <string name="edit_shipping_contact_invalid_postal_code">Zadejte prosím maximálně 8 čísel bez speciálních znaků.</string>
     <string name="edit_shipping_contact_line2">Další adresa (volitelné)</string>
     <string name="edit_shipping_contact_mail">E-mailová adresa (volitelné)</string>
     <string name="edit_shipping_contact_name">Jméno a příjmení</string>
@@ -1053,7 +1060,7 @@
     <string name="onb_page_4_header">Ochrana dat a použití</string>
     <string name="onb_page_5_header">Pomozte nám tuto aplikaci vylepšit</string>
     <string name="onb_terms_of_use">Podmínky použití</string>
-    <string name="onb_undo_description">Nehotový</string>
+    <string name="onb_undo_description">Smazat položku</string>
     <string name="onboarding_analytics_agree_button">Souhlasím</string>
     <string name="onboarding_analytics_bottom_text">Analýzu můžete kdykoli deaktivovat v nastavení.</string>
     <string name="onboarding_analytics_consent_text">S vaším souhlasem bychom rádi provedli %s. Za tímto účelem bychom rádi shromažďovali a anonymně analyzovali data o používání aplikace a technická data, a tedy:</string>
@@ -1248,6 +1255,7 @@
     <string name="pharmacy_search_favorite_toggle">Přidat k oblíbeným</string>
     <string name="pharmacy_search_favorite_toggle_active">aktivní</string>
     <string name="pharmacy_search_favorite_toggle_inactive">neaktivní</string>
+    <string name="pharmacy_search_placeholder">´</string>
     <string name="pharmacy_search_searchbar">Hledání v lékárně</string>
     <string name="pharmacy_start_search_text">Hledat</string>
     <string name="pkv_invoices_total_of_year" formatted="false">Celkem: %s %s</string>
@@ -1614,6 +1622,11 @@
     <string name="settings_show_audit_events_info">Zde vidíte, kdo a kdy si vaše recepty přečetl.</string>
     <string name="settings_show_token">Zobrazit žetony</string>
     <string name="settings_show_token_info">Přístupový klíč ke službě předpisu</string>
+    <string name="settings_theme_dark">Tmavý</string>
+    <string name="settings_theme_label">design</string>
+    <string name="settings_theme_light">Jasný</string>
+    <string name="settings_theme_system">Nastavení systému</string>
+    <string name="settings_theme_title">design</string>
     <string name="settings_tracking_allow_button">Akceptovat</string>
     <string name="settings_tracking_allow_info">%s Děkujeme za vaši podporu!</string>
     <string name="settings_tracking_allow_title">Vylepšete aplikaci</string>

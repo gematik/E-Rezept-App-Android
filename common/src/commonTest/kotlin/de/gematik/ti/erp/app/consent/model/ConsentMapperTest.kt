@@ -46,7 +46,7 @@ class ConsentMapperTest {
         val insuranceId = consent.contained("patient")
             .contained("identifier").contained("value").containedString()
 
-        assertEquals("https://gematik.de/fhir/erpchrg/StructureDefinition/GEM_ERPCHRG_PR_Consent|1.0", profileString)
+        assertEquals("https://gematik.de/fhir/erpchrg/StructureDefinition/GEM_ERPCHRG_PR_Consent|1.1", profileString)
         assertEquals(expectedInsuranceId, insuranceId)
     }
 

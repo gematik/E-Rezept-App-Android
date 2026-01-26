@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.prescription.ui.SentStatusChip
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.ScannedPrescription
+import de.gematik.ti.erp.app.semantics.semanticsMergedButton
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerSmall
@@ -85,7 +86,8 @@ fun LowDetailMedication(
         }
 
     Card(
-        modifier = modifier,
+        modifier = modifier
+            .semanticsMergedButton(),
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(1.dp, color = AppTheme.colors.neutral300),
         elevation = 0.dp,

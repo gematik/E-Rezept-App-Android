@@ -23,5 +23,5 @@
 package de.gematik.ti.erp.app.fhir.constant.euprescription
 
 object FhirEuExtensions {
-    const val COUNTRY_EXTENSION_URL = "https://gematik.de/fhir/directory/StructureDefinition/ncpeh-country-ex"
+    const val COUNTRY_EXTENSION_URL = "https://gematik.de/fhir/ti/StructureDefinition/ncpeh-country-extension"
 }

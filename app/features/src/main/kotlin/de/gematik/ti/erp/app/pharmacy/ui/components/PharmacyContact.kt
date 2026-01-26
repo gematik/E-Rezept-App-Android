@@ -29,7 +29,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -79,7 +79,6 @@ internal fun PharmacyContact(
     onPhoneClicked: (String) -> Unit,
     onMailClicked: (String) -> Unit,
     onUrlClicked: (String) -> Unit,
-    onTextClicked: (Int) -> Unit,
     onHintClicked: () -> Unit,
     currentDateTime: LocalDateTime
 ) {
@@ -143,7 +142,6 @@ internal fun PharmacyContact(
         DataInfoSection(
             modifier = Modifier.align(Alignment.End),
             detailedInfoText = detailedInfoText,
-            onTextClicked = onTextClicked,
             onHintClicked = onHintClicked
         )
     }
@@ -191,15 +189,13 @@ private fun ContactLabel(
 private fun DataInfoSection(
     modifier: Modifier,
     detailedInfoText: AnnotatedString,
-    onTextClicked: (Int) -> Unit,
     onHintClicked: () -> Unit
 ) {
-    ClickableText(
+    BasicText(
         modifier = modifier
             .fillMaxWidth(),
         text = detailedInfoText,
-        style = AppTheme.typography.body2l,
-        onClick = onTextClicked
+        style = AppTheme.typography.body2l
     )
     SpacerSmall()
     Row(modifier = modifier) {
@@ -337,7 +333,6 @@ fun PreviewPharmacyContact() {
             onPhoneClicked = {},
             onMailClicked = {},
             onUrlClicked = {},
-            onTextClicked = {},
             onHintClicked = {},
             currentDateTime = LocalDateTime(2024, 7, 31, 10, 0)
         )

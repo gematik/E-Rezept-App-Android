@@ -45,7 +45,13 @@ class PharmacySearchListScreenPreviewParameterProvider : PreviewParameterProvide
             ),
             searchTerm = "Apotheke",
             isLoading = false,
-            pagingData = flowOf(PagingData.empty())
+            pagingData = flowOf(
+                PagingData.from(
+                    listOf(
+                        PharmacyPreviewData.ALL_PRESENT_DATA
+                    )
+                )
+            )
         ),
         PharmacySearchListScreenPreviewData(
             filter = PharmacyUseCaseData.Filter(),

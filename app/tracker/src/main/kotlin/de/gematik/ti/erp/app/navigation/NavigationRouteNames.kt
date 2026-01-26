@@ -97,6 +97,7 @@ enum class NavigationRouteNames(
     SettingsOpenSourceLicencesScreen,
     SettingsAdditionalLicencesScreen,
     SettingsLanguageScreen,
+    SettingsThemeScreen,
 
     // MlKit
     MlKit,

@@ -40,30 +40,20 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.with
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.FlashlightOff
-import androidx.compose.material.icons.outlined.FlashlightOn
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -82,7 +72,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -121,8 +110,8 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.AccessToCameraDenied
+import de.gematik.ti.erp.app.utils.compose.CameraTopBar
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
-import de.gematik.ti.erp.app.utils.compose.OutlinedIconButton
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import java.util.concurrent.Executors
@@ -313,13 +302,13 @@ fun ScannerScreenContent(
             detectedCan = state.detectedCan
         )
 
-        TopControlIcons(
+        CameraTopBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.TopCenter),
-            isFlashlightOn = state.isFlashlightOn,
-            onCloseClicked = callbacks.onClose,
-            onFlashlightToggle = callbacks.onFlashlightToggle
+            flashEnabled = state.isFlashlightOn,
+            onClickClose = callbacks.onClose,
+            onFlashClick = callbacks.onFlashlightToggle
         )
 
         BottomActionButton(
@@ -330,88 +319,6 @@ fun ScannerScreenContent(
             onCanSelected = callbacks.onCanSelected
         )
     }
-}
-
-@Composable
-private fun TopControlIcons(
-    modifier: Modifier = Modifier,
-    isFlashlightOn: Boolean,
-    onCloseClicked: () -> Unit,
-    onFlashlightToggle: () -> Unit
-) {
-    Row(
-        modifier = modifier.padding(PaddingDefaults.Medium),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.Top
-    ) {
-        CircularIconButton(
-            onClick = onCloseClicked,
-            icon = Icons.Rounded.Close,
-            contentDescription = stringResource(R.string.health_card_order_close)
-        )
-
-        FlashlightToggleButton(
-            isFlashlightOn = isFlashlightOn,
-            onToggle = onFlashlightToggle
-        )
-    }
-}
-
-@Composable
-private fun CircularIconButton(
-    onClick: () -> Unit,
-    icon: ImageVector,
-    contentDescription: String?,
-    modifier: Modifier = Modifier
-) {
-    IconButton(
-        onClick = onClick,
-        modifier = modifier
-            .size(SizeDefaults.sixfold)
-            .background(
-                color = AppTheme.colors.neutral050,
-                shape = CircleShape
-            )
-            .semantics {
-                traversalIndex = 1f
-            }
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = AppTheme.colors.neutral700,
-            modifier = Modifier.size(SizeDefaults.triple)
-        )
-    }
-}
-
-@Composable
-private fun FlashlightToggleButton(
-    isFlashlightOn: Boolean,
-    onToggle: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    OutlinedIconButton(
-        onClick = onToggle,
-        imageVector = if (isFlashlightOn) Icons.Outlined.FlashlightOff else Icons.Outlined.FlashlightOn,
-        contentDescription = null,
-        text = stringResource(
-            if (isFlashlightOn) {
-                R.string.cdw_scanner_flashlight_off
-            } else {
-                R.string.cdw_scanner_flashlight_on
-            }
-        ),
-        border = BorderStroke(1.dp, AppTheme.colors.primary700),
-        colors = ButtonDefaults.outlinedButtonColors(
-            backgroundColor = AppTheme.colors.neutral000,
-            contentColor = AppTheme.colors.primary700
-        ),
-        shape = RoundedCornerShape(SizeDefaults.triple),
-        modifier = modifier.semantics {
-            traversalIndex = 2f
-        }
-    )
 }
 
 @Composable

@@ -180,6 +180,9 @@ class SettingsScreen(
                         context.startActivity(intent)
                     }
                 },
+                onClickThemeSettings = {
+                    navController.navigate(SettingsRoutes.SettingsThemeScreen.path())
+                },
                 onClickProductImprovementSettings = {
                     navController.navigate(SettingsRoutes.SettingsProductImprovementsScreen.path())
                 },
@@ -348,6 +351,7 @@ private fun SettingsScreenContent(
                 zoomState = zoomState,
                 screenShotState = screenShotsState,
                 isDemoMode = isDemoMode,
+                isDebug = isDebug,
                 personalSettingsClickActions = settingsActions.personalSettingsClickActions
             )
             SpacerLarge()
@@ -398,6 +402,7 @@ fun SettingsScreenPreview(
                     onToggleEnableZoom = {},
                     onToggleScreenshots = {},
                     onClickLanguageSettings = {},
+                    onClickThemeSettings = {},
                     onClickProductImprovementSettings = {},
                     onClickDeviceSecuritySettings = {},
                     onClickMedicationPlan = {}

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="a11y_card_wall_card_hand">Une main présente une carte d\'assurance maladie à un smartphone.</string>
+    <string name="a11y_card_wall_save_credentials_off">non sélectionné</string>
+    <string name="a11y_card_wall_save_credentials_on">choisi</string>
     <string name="a11y_cdw_health_card_image_description">Image d\'une carte de santé avec un numéro d\'accès à six chiffres en haut à droite du recto de la carte</string>
     <string name="a11y_datamatrix_code_description">Code de scan</string>
     <string name="a11y_datamatrix_code_pager_content_description">Faites glisser deux doigts pour changer de page.</string>
@@ -26,7 +28,11 @@
     <string name="a11y_eu_instructions_open_in_browser">Ouvrir dans le navigateur</string>
     <string name="a11y_local_redeem_back">Afficher le code précédent</string>
     <string name="a11y_local_redeem_forward">Afficher le code suivant</string>
+    <string name="a11y_long_press_copy">Copie</string>
     <string name="a11y_medication_schedule_three_dot_menu">Afficher les options de rappel de prise de médicaments</string>
+    <string name="a11y_messages_empty_state">Aucun message</string>
+    <string name="a11y_messages_error_state">Erreur lors du chargement des messages</string>
+    <string name="a11y_messages_loading">Les messages sont en cours de chargement</string>
     <string name="a11y_not_selected">non sélectionné</string>
     <string name="a11y_onboarding_progress_description">Page %1$d sur %2$d</string>
     <string name="a11y_open_link_submit">Ouvrir le lien sur un site Web externe</string>
@@ -35,6 +41,7 @@
     <string name="a11y_password_input_show_password_description_on">Mot de passe affiché</string>
     <string name="a11y_password_input_show_password_description_onClick_off">Afficher le mot de passe</string>
     <string name="a11y_password_input_show_password_description_onClick_on">Masquer le mot de passe</string>
+    <string name="a11y_pharmacy_search_pharmacy_card_click_description">Détails de la pharmacie ouverte</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Recherche de pharmacie ; saisissez le nom, la ville ou le code postal pour rechercher une pharmacie</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Rechercher dans la vue liste</string>
     <string name="a11y_pin_input_show_pin_description_off">Code PIN caché</string>
@@ -512,14 +519,14 @@
     <string name="edit_shipping_contact_empty_name">Veuillez indiquer votre nom et prénom pour nous contacter.</string>
     <string name="edit_shipping_contact_empty_phone">Veuillez fournir un numéro de téléphone pour nous contacter.</string>
     <string name="edit_shipping_contact_empty_postal_code">Veuillez fournir votre code postal pour nous contacter.</string>
-    <string name="edit_shipping_contact_invalid_city">Le texte que vous avez saisi n\'est pas valide. (trop long, caractères invalides)</string>
-    <string name="edit_shipping_contact_invalid_delivery_information">Le texte que vous avez saisi n\'est pas valide. (trop long, caractères invalides)</string>
-    <string name="edit_shipping_contact_invalid_line1">Le texte que vous avez saisi n\'est pas valide. (trop long, caractères invalides)</string>
-    <string name="edit_shipping_contact_invalid_line2">Le texte que vous avez saisi n\'est pas valide. (trop long, caractères invalides)</string>
+    <string name="edit_shipping_contact_invalid_city">Veuillez saisir un maximum de 50 caractères.</string>
+    <string name="edit_shipping_contact_invalid_delivery_information">Veuillez saisir un maximum de 500 caractères.</string>
+    <string name="edit_shipping_contact_invalid_line1">Veuillez saisir un maximum de 50 caractères.</string>
+    <string name="edit_shipping_contact_invalid_line2">Veuillez saisir un maximum de 50 caractères.</string>
     <string name="edit_shipping_contact_invalid_mail">L\'adresse email saisie n\'est pas valide.</string>
-    <string name="edit_shipping_contact_invalid_name">Le texte que vous avez saisi n\'est pas valide. (trop long, caractères invalides)</string>
-    <string name="edit_shipping_contact_invalid_phone">Le numéro de téléphone que vous avez entré n\'est pas valide. (trop court, trop long, caractères invalides)</string>
-    <string name="edit_shipping_contact_invalid_postal_code">Le texte que vous avez saisi n\'est pas valide. (trop long, trop court, caractères invalides)</string>
+    <string name="edit_shipping_contact_invalid_name">Veuillez saisir un maximum de 50 caractères.</string>
+    <string name="edit_shipping_contact_invalid_phone">Veuillez saisir un maximum de 25 caractères. Seuls les chiffres et les caractères - + \' / sont autorisés.</string>
+    <string name="edit_shipping_contact_invalid_postal_code">Veuillez saisir un maximum de 8 chiffres sans caractères spéciaux.</string>
     <string name="edit_shipping_contact_line2">Adresse supplémentaire (facultatif)</string>
     <string name="edit_shipping_contact_mail">Adresse e-mail (facultatif)</string>
     <string name="edit_shipping_contact_name">Prénom et nom</string>
@@ -1041,7 +1048,7 @@
     <string name="onb_page_4_header">Protection et utilisation des données</string>
     <string name="onb_page_5_header">Aidez-nous à améliorer cette application</string>
     <string name="onb_terms_of_use">Conditions d\'utilisation</string>
-    <string name="onb_undo_description">Défait</string>
+    <string name="onb_undo_description">Supprimer l\'entrée</string>
     <string name="onboarding_analytics_agree_button">Accepter</string>
     <string name="onboarding_analytics_bottom_text">Vous pouvez désactiver l\'analyse à tout moment dans les paramètres.</string>
     <string name="onboarding_analytics_consent_text">Avec votre consentement, nous aimerions %s Pour ce faire, nous souhaitons collecter et analyser de manière anonyme des données sur l\'utilisation de l\'application et des données techniques, et ainsi:</string>
@@ -1053,7 +1060,7 @@
     <string name="onboarding_analytics_resolve_errors_text">Détecter et corriger les erreurs à un stade précoce</string>
     <string name="onboarding_analytics_we_want">Nous allons:</string>
     <string name="onboarding_auth_biometric_info">L\'application utilise la méthode la plus sûre que vous avez configurée sur votre appareil.</string>
-    <string name="onboarding_bottom_app_safety_button_next">Plus loin</string>
+    <string name="onboarding_bottom_app_safety_button_next">Suivant</string>
     <string name="onboarding_bottom_button_accept">Accepter</string>
     <string name="onboarding_bottom_button_choose">Choisir</string>
     <string name="onboarding_bottom_button_save">Sauvegarder</string>
@@ -1230,6 +1237,7 @@
     <string name="pharmacy_search_favorite_toggle">Ajouter aux favoris</string>
     <string name="pharmacy_search_favorite_toggle_active">actif</string>
     <string name="pharmacy_search_favorite_toggle_inactive">inactif</string>
+    <string name="pharmacy_search_placeholder">Recherche</string>
     <string name="pharmacy_search_searchbar">Recherche de pharmacie</string>
     <string name="pharmacy_start_search_text">Chercher</string>
     <string name="pkv_invoices_total_of_year" formatted="false">Total : %s %s</string>
@@ -1594,6 +1602,11 @@
     <string name="settings_show_audit_events_info">Ici, vous pouvez voir qui a accédé à vos ordonnances et quand.</string>
     <string name="settings_show_token">Afficher les jetons</string>
     <string name="settings_show_token_info">Clé d\'accès au service de prescription</string>
+    <string name="settings_theme_dark">Sombre</string>
+    <string name="settings_theme_label">conception</string>
+    <string name="settings_theme_light">Brillant</string>
+    <string name="settings_theme_system">Paramètres système</string>
+    <string name="settings_theme_title">conception</string>
     <string name="settings_tracking_allow_button">Accepter</string>
     <string name="settings_tracking_allow_info">%s Merci pour votre soutien !</string>
     <string name="settings_tracking_allow_title">Améliorer l\'application</string>

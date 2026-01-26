@@ -44,6 +44,7 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
@@ -61,6 +62,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -92,7 +95,6 @@ import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyMapButton
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyResultCard
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacySearchErrorHint
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacySearchLoading
-import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyPreviewData
 import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacySearchListScreenPreviewData
 import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacySearchListScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
@@ -100,7 +102,6 @@ import de.gematik.ti.erp.app.pharmacyId
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.BorderDivider
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
@@ -122,7 +123,7 @@ class PharmacySearchListScreen(
         val filter by graphController.filter()
         val focusManager = LocalFocusManager.current
         val location by graphController.coordinates()
-
+        val focusRequester = remember { FocusRequester() }
         var searchTerm by remember { mutableStateOf(TextFieldValue(WILDCARD)) }
 
         var isAtLeastOnePharmacyLoaded by remember { mutableStateOf(false) }
@@ -147,13 +148,16 @@ class PharmacySearchListScreen(
         }
 
         val onBack: () -> Unit = { navController.popBackStack() }
-
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
         PharmacySearchListScreenContent(
             pharmacies = pharmacies,
             searchTerm = searchTerm,
             filter = searchParam.filter,
             isLoading = isLoading,
             focusManager = focusManager,
+            focusRequester = focusRequester,
             lazyListState = lazyListState,
             isAtLeastOnePharmacyLoaded = isAtLeastOnePharmacyLoaded,
             onSearchInputChange = {
@@ -202,6 +206,7 @@ private fun PharmacySearchListScreenContent(
     isAtLeastOnePharmacyLoaded: Boolean,
     isLoading: Boolean,
     focusManager: FocusManager,
+    focusRequester: FocusRequester,
     lazyListState: LazyListState,
     onPharmacyLoaded: () -> Unit,
     onClickChip: (Boolean, FilterType) -> Unit,
@@ -220,6 +225,7 @@ private fun PharmacySearchListScreenContent(
                     focusManager = focusManager,
                     onSearchInputChange = onSearchInputChange,
                     isLoading = isLoading,
+                    focusRequester = focusRequester,
                     onBack = onBack
                 )
                 FilterButtonSection(
@@ -251,6 +257,7 @@ fun SearchTopAppBar(
     searchValue: TextFieldValue,
     onSearchInputChange: (TextFieldValue) -> Unit,
     isLoading: Boolean,
+    focusRequester: FocusRequester,
     focusManager: FocusManager,
     onBack: () -> Unit
 ) {
@@ -265,6 +272,7 @@ fun SearchTopAppBar(
                     onBack = onBack,
                     isLoading = isLoading,
                     focusManager = focusManager,
+                    focusRequester = focusRequester,
                     searchValue = searchValue,
                     onSearchInputChange = onSearchInputChange
                 )
@@ -279,6 +287,7 @@ fun PharmacySearchInput(
     isLoading: Boolean,
     searchValue: TextFieldValue,
     focusManager: FocusManager,
+    focusRequester: FocusRequester,
     onSearchInputChange: (TextFieldValue) -> Unit,
     onBack: () -> Unit
 ) {
@@ -300,7 +309,8 @@ fun PharmacySearchInput(
             .semantics {
                 contentDescription = description
             }
-            .padding(horizontal = PaddingDefaults.Medium),
+            .padding(horizontal = PaddingDefaults.Medium)
+            .focusRequester(focusRequester = focusRequester),
         keyboardOptions = KeyboardOptions(
             autoCorrect = true,
             keyboardType = KeyboardType.Text,
@@ -309,6 +319,9 @@ fun PharmacySearchInput(
         keyboardActions = KeyboardActions {
             onSearchInputChange(searchValue)
             focusManager.clearFocus()
+        },
+        placeholder = {
+            Text(stringResource(R.string.pharmacy_search_placeholder))
         },
         shape = RoundedCornerShape(SizeDefaults.twelvefold),
         textStyle = AppTheme.typography.body1,
@@ -426,8 +439,7 @@ private fun SearchResults(
                     onPharmacyLoaded()
                     PharmacyListSearchResult(
                         modifier = modifier
-                            .fillMaxWidth()
-                            .padding(PaddingDefaults.Medium),
+                            .fillMaxWidth(),
                         count = pharmacies.itemCount,
                         index = index,
                         pharmacy = pharmacy,
@@ -468,7 +480,6 @@ private fun PharmacyListSearchResult(
         ) {
             onSelectPharmacy(pharmacy)
         }
-        BorderDivider()
         if (index < count - 1) {
             BorderDivider()
         }
@@ -531,6 +542,7 @@ fun PharmacySearchListScreenContentPreview(
             filter = previewData.filter,
             isLoading = previewData.isLoading,
             focusManager = LocalFocusManager.current,
+            focusRequester = FocusRequester(),
             pharmacies = pagingItems,
             isAtLeastOnePharmacyLoaded = false,
             onSearchInputChange = {},
@@ -541,48 +553,5 @@ fun PharmacySearchListScreenContentPreview(
             onBack = {},
             onClickMaps = {}
         )
-    }
-}
-
-@LightDarkPreview
-@Composable
-fun PharmacyListSearchResultPreview() {
-    PreviewAppTheme {
-        Column(
-            modifier = Modifier.padding(PaddingDefaults.Small)
-        ) {
-            PharmacyListSearchResult(
-                modifier = Modifier,
-                count = 3,
-                index = 0,
-                pharmacy = PharmacyPreviewData.ALL_PRESENT_DATA,
-                onSelectPharmacy = {}
-            )
-            SpacerMedium()
-            PharmacyListSearchResult(
-                modifier = Modifier,
-                count = 3,
-                index = 1,
-                pharmacy = PharmacyPreviewData.ONLINE_ONLY_DATA,
-                onSelectPharmacy = {}
-            )
-            SpacerMedium()
-            PharmacyListSearchResult(
-                modifier = Modifier,
-                count = 3,
-                index = 2,
-                pharmacy = PharmacyPreviewData.ONLINE_ONLY_DATA,
-                onSelectPharmacy = {}
-            )
-            SpacerMedium()
-            PharmacyListSearchResult(
-                modifier = Modifier,
-                count = 3,
-                index = 3,
-                pharmacy = PharmacyPreviewData.ONLINE_ONLY_DATA,
-                onSelectPharmacy = {}
-            )
-            SpacerMedium()
-        }
     }
 }

@@ -1463,6 +1463,594 @@
     }
   },
   {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy A34 5G",
+    "modelNames": [
+      "SM-A3460",
+      "SM-A346B",
+      "SM-A346E",
+      "SM-A346M",
+      "SM-A346N"
+    ],
+    "nfcPos": {
+      "x0": 0.04054054054054057,
+      "y0": 0.016835016835016835,
+      "x1": 0.7297297297297297,
+      "y1": 0.27946127946127947
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy S23 Ultra",
+    "modelNames": [
+      "SC-52D",
+      "SM-S9180",
+      "SM-S918B",
+      "SM-S918N",
+      "SM-S918U",
+      "SM-S918U1",
+      "SM-S918W"
+    ],
+    "nfcPos": {
+      "x0": 0.05405405405405406,
+      "y0": 0.3468013468013468,
+      "x1": 0.9324324324324325,
+      "y1": 0.8316498316498316
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy S23+",
+    "modelNames": [
+      "SM-S9160",
+      "SM-S916B",
+      "SM-S916N",
+      "SM-S916U",
+      "SM-S916U1",
+      "SM-S916W"
+    ],
+    "nfcPos": {
+      "x0": 0.03355704697986572,
+      "y0": 0.33557046979865773,
+      "x1": 0.9463087248322147,
+      "y1": 0.7550335570469798
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy S23",
+    "modelNames": [
+      "SC-51D",
+      "SM-S9110",
+      "SM-S911B",
+      "SM-S911C",
+      "SM-S911N",
+      "SM-S911U",
+      "SM-S911U1",
+      "SM-S911W"
+    ],
+    "nfcPos": {
+      "x0": 0.04054054054054057,
+      "y0": 0.34459459459459457,
+      "x1": 0.9459459459459459,
+      "y1": 0.7533783783783784
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy S23 FE 5G",
+    "modelNames": [
+      "SM-S7110",
+      "SM-S711U",
+      "SM-S711U1",
+      "SM-S711W",
+      "SM-S711B",
+      "SM-S711N"
+    ],
+    "nfcPos": {
+      "x0": 0.046666666666666634,
+      "y0": 0.3967741935483871,
+      "x1": 0.9333333333333333,
+      "y1": 0.7419354838709677
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy Z Flip5 5G",
+    "modelNames": [
+      "SC-54D",
+      "SCG23",
+      "SM-F7310",
+      "SM-F731B",
+      "SM-F731N",
+      "SM-F731U",
+      "SM-F731U1",
+      "SM-F731W",
+      "SM-F731Q"
+    ],
+    "nfcPos": {
+      "x0": 0.0948905109489051,
+      "y0": 0.5870967741935483,
+      "x1": 0.8978102189781022,
+      "y1": 0.9354838709677419
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy Z Fold5 5G",
+    "modelNames": [
+      "SC-55D",
+      "SCG22",
+      "SM-F9460",
+      "SM-F946B",
+      "SM-F946N",
+      "SM-F946U",
+      "SM-F946U1",
+      "SM-F946W",
+      "SM-F946Q"
+    ],
+    "nfcPos": {
+      "x0": 0.0692307692307692,
+      "y0": 0.3967741935483871,
+      "x1": 0.9461538461538461,
+      "y1": 0.7903225806451613
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy A13 5G",
+    "modelNames": [
+      "SM-A136B",
+      "SM-A136M",
+      "SM-A136S",
+      "SM-A136U",
+      "SM-A136U1",
+      "SM-A136W",
+      "SM-S136DL"
+    ],
+    "nfcPos": {
+      "x0": 0.07586206896551728,
+      "y0": 0.020134228187919462,
+      "x1": 0.6206896551724138,
+      "y1": 0.24496644295302014
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy A14 5G",
+    "modelNames": [
+      "SM-A146B",
+      "SM-A146M",
+      "SM-A146P",
+      "SM-A146U",
+      "SM-A146U1",
+      "SM-A146W",
+      "SM-S146VL"
+    ],
+    "nfcPos": {
+      "x0": 0.09589041095890416,
+      "y0": 0.07096774193548387,
+      "x1": 0.6095890410958904,
+      "y1": 0.2838709677419355
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy A15 5G",
+    "modelNames": [
+      "SM-A1560",
+      "SM-A156B",
+      "SM-A156E",
+      "SM-A156M",
+      "SM-A156U",
+      "SM-A156U1",
+      "SM-A156W",
+      "SM-S156V"
+    ],
+    "nfcPos": {
+      "x0": 0.1258278145695364,
+      "y0": 0.07096774193548387,
+      "x1": 0.576158940397351,
+      "y1": 0.2903225806451613
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy A22 5G",
+    "modelNames": [
+      "SC-56B",
+      "SM-A226B",
+      "SM-A226BR"
+    ],
+    "nfcPos": {
+      "x0": 0.14598540145985406,
+      "y0": 0.11290322580645161,
+      "x1": 0.5985401459854014,
+      "y1": 0.3161290322580645
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy A23 5G",
+    "modelNames": [
+      "SC-56C",
+      "SCG18",
+      "SM-A233C",
+      "SM-A2360",
+      "SM-A236B",
+      "SM-A236E",
+      "SM-A236M",
+      "SM-A236U",
+      "SM-A236U1",
+      "SM-S236DL",
+      "SM-S237VL"
+    ],
+    "nfcPos": {
+      "x0": 0.08843537414965985,
+      "y0": 0.06129032258064516,
+      "x1": 0.5170068027210885,
+      "y1": 0.2709677419354839
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy A25 5G",
+    "modelNames": [
+      "SM-A2560",
+      "SM-A256B",
+      "SM-A256E",
+      "SM-A256N",
+      "SM-A256U",
+      "SM-A256U1",
+      "SM-S256VL"
+    ],
+    "nfcPos": {
+      "x0": 0.09999999999999998,
+      "y0": 0.06451612903225806,
+      "x1": 0.6,
+      "y1": 0.2967741935483871
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy A33 5G",
+    "modelNames": [
+      "SM-A3360",
+      "SM-A336B",
+      "SM-A336E",
+      "SM-A336M",
+      "SM-A336N"
+    ],
+    "nfcPos": {
+      "x0": 0.11688111888111885,
+      "y0": 0.06551612903225806,
+      "x1": 0.6433566433566433,
+      "y1": 0.3064516129032258
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy A35 5G",
+    "modelNames": [
+      "SM-A3560",
+      "SM-A356B",
+      "SM-A356E",
+      "SM-A356N",
+      "SM-A356U",
+      "SM-A356U1",
+      "SM-A356W",
+      "SM-S356V"
+    ],
+    "nfcPos": {
+      "x0": 0.09459459459459463,
+      "y0": 0.08387096774193549,
+      "x1": 0.5945945945945945,
+      "y1": 0.3193548387096774
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy A53 5G",
+    "modelNames": [
+      "SC-53C",
+      "SCG15",
+      "SM-A5360",
+      "SM-A536B",
+      "SM-A536E",
+      "SM-A536N",
+      "SM-A536U",
+      "SM-A536U1",
+      "SM-A536W",
+      "SM-S536DL"
+    ],
+    "nfcPos": {
+      "x0": 0.014285714285714235,
+      "y0": 0.054838709677419356,
+      "x1": 0.55,
+      "y1": 0.32903225806451614
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy A54 5G",
+    "modelNames": [
+      "SC-53D",
+      "SCG21",
+      "SM-A5460",
+      "SM-A546B",
+      "SM-A546E",
+      "SM-A546U",
+      "SM-A546U1",
+      "SM-A546V",
+      "SM-A546W",
+      "SM-S546VL"
+    ],
+    "nfcPos": {
+      "x0": 0.04054054054054057,
+      "y0": 0.016835016835016835,
+      "x1": 0.7297297297297297,
+      "y1": 0.27946127946127947
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy A55 5G",
+    "modelNames": [
+      "SC-53E",
+      "SCG27",
+      "SM-A5560",
+      "SM-A556B",
+      "SM-A556E"
+    ],
+    "nfcPos": {
+      "x0": 0.11888111888111885,
+      "y0": 0.06451612903225806,
+      "x1": 0.6433566433566433,
+      "y1": 0.3064516129032258
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy M33 5G",
+    "modelNames": [
+      "SM-M336B",
+      "SM-M336BU"
+    ],
+    "nfcPos": {
+      "x0": 0.07482993197278909,
+      "y0": 0.06129032258064516,
+      "x1": 0.4965986394557823,
+      "y1": 0.23548387096774193
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy M34 5G",
+    "modelNames": [
+      "SM-M346B",
+      "SM-M346B1",
+      "SM-M346B2"
+    ],
+    "nfcPos": {
+      "x0": 0.04166666666666663,
+      "y0": 0.06129032258064516,
+      "x1": 0.6041666666666667,
+      "y1": 0.2838709677419355
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy S24 Ultra",
+    "modelNames": [
+      "SC-52E",
+      "SCG26",
+      "SM-S9280",
+      "SM-S928B",
+      "SM-S928N",
+      "SM-S928Q",
+      "SM-S928U",
+      "SM-S928U1",
+      "SM-S928W"
+    ],
+    "nfcPos": {
+      "x0": 0.04575163398692805,
+      "y0": 0.010033444816053512,
+      "x1": 0.6862745098039216,
+      "y1": 0.3377926421404682
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy S24+",
+    "modelNames": [
+      "SM-S9260",
+      "SM-S926U",
+      "SM-S926U1",
+      "SM-S926W",
+      "SM-S926B",
+      "SM-S926N"
+    ],
+    "nfcPos": {
+      "x0": 0.03355704697986572,
+      "y0": 0.02903225806451613,
+      "x1": 0.7248322147651007,
+      "y1": 0.3580645161290323
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy S24",
+    "modelNames": [
+      "SC-51E",
+      "SCG25",
+      "SM-S9210",
+      "SM-S921Q",
+      "SM-S921U",
+      "SM-S921U1",
+      "SM-S921W",
+      "SM-S921B",
+      "SM-S921N"
+    ],
+    "nfcPos": {
+      "x0": 0.027972027972028024,
+      "y0": 0.06774193548387097,
+      "x1": 0.6993006993006994,
+      "y1": 0.3419354838709677
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy S25",
+    "modelNames": [
+      "SC-51F",
+      "SCG31",
+      "SM-S9310",
+      "SM-S931B",
+      "SM-S931N",
+      "SM-S931Q",
+      "SM-S931U",
+      "SM-S931U1",
+      "SM-S931W",
+      "SM-S931Z"
+    ],
+    "nfcPos": {
+      "x0": 0.06932773109243695,
+      "y0": 0.15015015015015015,
+      "x1": 0.6785714285714286,
+      "y1": 0.4014014014014014
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy S25+",
+    "modelNames": [
+      "SM-S9360",
+      "SM-S936B",
+      "SM-S936N",
+      "SM-S936U",
+      "SM-S936U1",
+      "SM-S936W"
+    ],
+    "nfcPos": {
+      "x0": 0.0703125,
+      "y0": 0.15784671532846714,
+      "x1": 0.6875,
+      "y1": 0.4005474452554745
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy S25 Ultra",
+    "modelNames": [
+      "SC-52F",
+      "SCG32",
+      "SM-S9380",
+      "SM-S938B",
+      "SM-S938N",
+      "SM-S938Q",
+      "SM-S938U",
+      "SM-S938U1",
+      "SM-S938W",
+      "SM-S938Z"
+    ],
+    "nfcPos": {
+      "x0": 0.07721280602636538,
+      "y0": 0.16106194690265488,
+      "x1": 0.6967984934086628,
+      "y1": 0.42389380530973453
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy A56 5G",
+    "modelNames": [
+      "SM-A5660",
+      "SM-A566B",
+      "SM-A566E",
+      "SM-A566U1",
+      "SM-A566W"
+    ],
+    "nfcPos": {
+      "x0": 0.06887052341597799,
+      "y0": 0.02890932982917214,
+      "x1": 0.6639118457300275,
+      "y1": 0.31537450722733246
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy S25 Edge",
+    "modelNames": [
+      "SM-S9370",
+      "SM-S937B",
+      "SM-S937N",
+      "SM-S937U",
+      "SM-S937U1",
+      "SM-S937W"
+    ],
+    "nfcPos": {
+      "x0": 0.022508038585209,
+      "y0": 0.05279034690799397,
+      "x1": 0.6237942122186495,
+      "y1": 0.3559577677224736
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy S24 FE",
+    "modelNames": [
+      "SCG30",
+      "SM-S7210",
+      "SM-S721B",
+      "SM-S721N",
+      "SM-S721Q",
+      "SM-S721U",
+      "SM-S721U1",
+      "SM-S721W"
+    ],
+    "nfcPos": {
+      "x0": 0.06164383561643838,
+      "y0": 0.053691275167785234,
+      "x1": 0.589041095890411,
+      "y1": 0.2751677852348993
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy A36 5G",
+    "modelNames": [
+      "SC-54F",
+      "SM-A3660",
+      "SM-A366B",
+      "SM-A366E",
+      "SM-A366N",
+      "SM-A366Q",
+      "SM-A366U",
+      "SM-A366U1",
+      "SM-A366W",
+      "SM-S366V"
+    ],
+    "nfcPos": {
+      "x0": 0.07397260273972606,
+      "y0": 0.03795811518324607,
+      "x1": 0.6493150684931507,
+      "y1": 0.2879581151832461
+    }
+  },
+  {
+    "manufacturer": "Google",
+    "marketingName": "Pixel 9a",
+    "modelNames": [
+      "Pixel 9a"
+    ],
+    "nfcPos": {
+      "x0": 0.0,
+      "y0": 0.35655737704918034,
+      "x1": 0.0,
+      "y1": 0.42008196721311475
+    }
+  },
+  {
     "manufacturer": "Google",
     "marketingName": "Pixel (2016)",
     "modelNames": [
@@ -1625,10 +2213,10 @@
       "Pixel 7 Pro"
     ],
     "nfcPos": {
-      "x0": 0.4296028880866426,
-      "y0": 0.3403141361256545,
-      "x1": 0.5667870036101084,
-      "y1": 0.40663176265270506
+      "x0": 0.4097222222222222,
+      "y0": 0.2602291325695581,
+      "x1": 0.5902777777777778,
+      "y1": 0.3453355155482815
     }
   },
   {
@@ -1638,144 +2226,10 @@
       "Pixel 7"
     ],
     "nfcPos": {
-      "x0": 0.4296028880866426,
-      "y0": 0.3403141361256545,
-      "x1": 0.5667870036101084,
-      "y1": 0.40663176265270506
-    }
-  },
-  {
-    "manufacturer": "Samsung",
-    "marketingName": "Samsung Galaxy A34 5G",
-    "modelNames": [
-      "SM-A3460",
-      "SM-A346B",
-      "SM-A346E",
-      "SM-A346M",
-      "SM-A346N"
-    ],
-    "nfcPos": {
-      "x0": 0.04054054054054057,
-      "y0": 0.016835016835016835,
-      "x1": 0.7297297297297297,
-      "y1": 0.27946127946127947
-    }
-  },
-  {
-    "manufacturer": "Samsung",
-    "marketingName": "Samsung Galaxy S23 Ultra",
-    "modelNames": [
-      "SC-52D",
-      "SM-S9180",
-      "SM-S918B",
-      "SM-S918N",
-      "SM-S918U",
-      "SM-S918U1",
-      "SM-S918W"
-    ],
-    "nfcPos": {
-      "x0": 0.05405405405405406,
-      "y0": 0.3468013468013468,
-      "x1": 0.9324324324324325,
-      "y1": 0.8316498316498316
-    }
-  },
-  {
-    "manufacturer": "Samsung",
-    "marketingName": "Samsung Galaxy S23+",
-    "modelNames": [
-      "SM-S9160",
-      "SM-S916B",
-      "SM-S916N",
-      "SM-S916U",
-      "SM-S916U1",
-      "SM-S916W"
-    ],
-    "nfcPos": {
-      "x0": 0.03355704697986572,
-      "y0": 0.33557046979865773,
-      "x1": 0.9463087248322147,
-      "y1": 0.7550335570469798
-    }
-  },
-  {
-    "manufacturer": "Samsung",
-    "marketingName": "Samsung Galaxy S23",
-    "modelNames": [
-      "SC-51D",
-      "SM-S9110",
-      "SM-S911B",
-      "SM-S911C",
-      "SM-S911N",
-      "SM-S911U",
-      "SM-S911U1",
-      "SM-S911W"
-    ],
-    "nfcPos": {
-      "x0": 0.04054054054054057,
-      "y0": 0.34459459459459457,
-      "x1": 0.9459459459459459,
-      "y1": 0.7533783783783784
-    }
-  },
-  {
-    "manufacturer": "Samsung",
-    "marketingName": "Samsung Galaxy S23 FE 5G",
-    "modelNames": [
-      "SM-S7110",
-      "SM-S711U",
-      "SM-S711U1",
-      "SM-S711W",
-      "SM-S711B",
-      "SM-S711N"
-    ],
-    "nfcPos": {
-      "x0": 0.046666666666666634,
-      "y0": 0.3967741935483871,
-      "x1": 0.9333333333333333,
-      "y1": 0.7419354838709677
-    }
-  },
-  {
-    "manufacturer": "Samsung",
-    "marketingName": "Samsung Galaxy Z Flip5 5G",
-    "modelNames": [
-      "SC-54D",
-      "SCG23",
-      "SM-F7310",
-      "SM-F731B",
-      "SM-F731N",
-      "SM-F731U",
-      "SM-F731U1",
-      "SM-F731W",
-      "SM-F731Q"
-    ],
-    "nfcPos": {
-      "x0": 0.0948905109489051,
-      "y0": 0.5870967741935483,
-      "x1": 0.8978102189781022,
-      "y1": 0.9354838709677419
-    }
-  },
-  {
-    "manufacturer": "Samsung",
-    "marketingName": "Samsung Galaxy Z Fold5 5G",
-    "modelNames": [
-      "SC-55D",
-      "SCG22",
-      "SM-F9460",
-      "SM-F946B",
-      "SM-F946N",
-      "SM-F946U",
-      "SM-F946U1",
-      "SM-F946W",
-      "SM-F946Q"
-    ],
-    "nfcPos": {
-      "x0": 0.0692307692307692,
-      "y0": 0.3967741935483871,
-      "x1": 0.9461538461538461,
-      "y1": 0.7903225806451613
+      "x0": 0.40909090909090906,
+      "y0": 0.26143790849673204,
+      "x1": 0.6,
+      "y1": 0.35294117647058826
     }
   },
   {
@@ -1793,9 +2247,61 @@
   },
   {
     "manufacturer": "Google",
-    "marketingName": "Pixel 8 ",
+    "marketingName": "Pixel Fold",
+    "modelNames": [
+      "Pixel Fold"
+    ],
+    "nfcPos": {
+      "x0": 0.41233766233766234,
+      "y0": 0.26242236024844723,
+      "x1": 0.5974025974025974,
+      "y1": 0.35093167701863354
+    }
+  },
+  {
+    "manufacturer": "Google",
+    "marketingName": "Pixel 8",
     "modelNames": [
       "Pixel 8"
+    ],
+    "nfcPos": {
+      "x0": 0.41233766233766234,
+      "y0": 0.26242236024844723,
+      "x1": 0.5974025974025974,
+      "y1": 0.35093167701863354
+    }
+  },
+  {
+    "manufacturer": "Google",
+    "marketingName": "Pixel 8 Pro",
+    "modelNames": [
+      "Pixel 8 Pro"
+    ],
+    "nfcPos": {
+      "x0": 0.41509433962264153,
+      "y0": 0.2585438335809807,
+      "x1": 0.5943396226415094,
+      "y1": 0.34323922734026746
+    }
+  },
+  {
+    "manufacturer": "Google",
+    "marketingName": "Pixel 8a",
+    "modelNames": [
+      "Pixel 8a"
+    ],
+    "nfcPos": {
+      "x0": 0.4326923076923077,
+      "y0": 0.3325526932084309,
+      "x1": 0.5769230769230769,
+      "y1": 0.4028103044496487
+    }
+  },
+  {
+    "manufacturer": "Google",
+    "marketingName": "Pixel 10 Pro Fold",
+    "modelNames": [
+      "Pixel 10 Pro Fold"
     ],
     "nfcPos": {
       "x0": 0.4296028880866426,
@@ -1806,9 +2312,74 @@
   },
   {
     "manufacturer": "Google",
-    "marketingName": "Pixel 8 Pro",
+    "marketingName": "Pixel 9",
     "modelNames": [
-      "Pixel 8 Pro"
+      "Pixel 9"
+    ],
+    "nfcPos": {
+      "x0": 0.45,
+      "y0": 0.2611764705882353,
+      "x1": 0.55,
+      "y1": 0.3552941176470588
+    }
+  },
+  {
+    "manufacturer": "Google",
+    "marketingName": "Pixel 9 Pro XL",
+    "modelNames": [
+      "Pixel 9 Pro XL"
+    ],
+    "nfcPos": {
+      "x0": 0.5,
+      "y0": 0.24557522123893805,
+      "x1": 0.5,
+      "y1": 0.334070796460177
+    }
+  },
+  {
+    "manufacturer": "Google",
+    "marketingName": "Pixel 9 Pro Fold",
+    "modelNames": [
+      "Pixel 9 Pro Fold"
+    ],
+    "nfcPos": {
+      "x0": 0.42268170426065168,
+      "y0": 0.26066350710900477,
+      "x1": 0.5864661654135339,
+      "y1": 0.3567961165048544
+    }
+  },
+  {
+    "manufacturer": "Google",
+    "marketingName": "Pixel 10 Pro",
+    "modelNames": [
+      "Pixel 10 Pro"
+    ],
+    "nfcPos": {
+      "x0": 0.4296028880866426,
+      "y0": 0.3403141361256545,
+      "x1": 0.5667870036101084,
+      "y1": 0.40663176265270506
+    }
+  },
+  {
+    "manufacturer": "Google",
+    "marketingName": "Pixel 9 Pro",
+    "modelNames": [
+      "Pixel 9 Pro"
+    ],
+    "nfcPos": {
+      "x0": 0.5,
+      "y0": 0.26066350710900477,
+      "x1": 0.5,
+      "y1": 0.35545023696682465
+    }
+  },
+  {
+    "manufacturer": "Google",
+    "marketingName": "Pixel 10 Pro XL",
+    "modelNames": [
+      "Pixel 10 Pro XL"
     ],
     "nfcPos": {
       "x0": 0.4296028880866426,

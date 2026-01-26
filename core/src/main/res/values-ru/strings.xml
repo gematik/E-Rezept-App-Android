@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="a11y_card_wall_card_hand">Рука подносит карточку медицинского страхования к смартфону.</string>
+    <string name="a11y_card_wall_save_credentials_off">не выбрано</string>
+    <string name="a11y_card_wall_save_credentials_on">выбранный</string>
     <string name="a11y_cdw_health_card_image_description">Изображение медицинской карты с шестизначным номером доступа в правом верхнем углу лицевой стороны карты</string>
     <string name="a11y_datamatrix_code_description">Скан-код</string>
     <string name="a11y_datamatrix_code_pager_content_description">Проведите двумя пальцами, чтобы переключить страницы</string>
@@ -26,7 +28,11 @@
     <string name="a11y_eu_instructions_open_in_browser">Открыть в браузере</string>
     <string name="a11y_local_redeem_back">Показать предыдущий код</string>
     <string name="a11y_local_redeem_forward">Показать следующий код</string>
+    <string name="a11y_long_press_copy">Копировать</string>
     <string name="a11y_medication_schedule_three_dot_menu">Показывать варианты напоминаний о приеме лекарств</string>
+    <string name="a11y_messages_empty_state">Сообщений нет</string>
+    <string name="a11y_messages_error_state">Сообщения об ошибке загрузки</string>
+    <string name="a11y_messages_loading">Сообщения загружаются</string>
     <string name="a11y_not_selected">не выбрано</string>
     <string name="a11y_onboarding_progress_description">Страница %1$d из %2$d</string>
     <string name="a11y_open_link_submit">Открыть ссылку на внешнем сайте</string>
@@ -35,6 +41,7 @@
     <string name="a11y_password_input_show_password_description_on">Пароль отображается</string>
     <string name="a11y_password_input_show_password_description_onClick_off">Показать пароль</string>
     <string name="a11y_password_input_show_password_description_onClick_on">Скрыть пароль</string>
+    <string name="a11y_pharmacy_search_pharmacy_card_click_description">Открыть информацию об аптеке</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Поиск аптеки: введите название, город или почтовый индекс, чтобы найти аптеку.</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Поиск в виде списка</string>
     <string name="a11y_pin_input_show_pin_description_off">ПИН-код скрыт</string>
@@ -522,14 +529,14 @@
     <string name="edit_shipping_contact_empty_name">Укажите имя и фамилию, чтобы с вами можно было связаться.</string>
     <string name="edit_shipping_contact_empty_phone">Укажите номер телефона, чтобы с вами можно было связаться.</string>
     <string name="edit_shipping_contact_empty_postal_code">Пожалуйста, укажите свой почтовый индекс, чтобы связаться с нами.</string>
-    <string name="edit_shipping_contact_invalid_city">Введенный вами текст недействителен. (слишком длинные, недопустимые символы)</string>
-    <string name="edit_shipping_contact_invalid_delivery_information">Введенный вами текст недействителен. (слишком длинные, недопустимые символы)</string>
-    <string name="edit_shipping_contact_invalid_line1">Введенный вами текст недействителен. (слишком длинные, недопустимые символы)</string>
-    <string name="edit_shipping_contact_invalid_line2">Введенный вами текст недействителен. (слишком длинные, недопустимые символы)</string>
+    <string name="edit_shipping_contact_invalid_city">Пожалуйста, введите не более 50 символов.</string>
+    <string name="edit_shipping_contact_invalid_delivery_information">Пожалуйста, введите не более 500 символов.</string>
+    <string name="edit_shipping_contact_invalid_line1">Пожалуйста, введите не более 50 символов.</string>
+    <string name="edit_shipping_contact_invalid_line2">Пожалуйста, введите не более 50 символов.</string>
     <string name="edit_shipping_contact_invalid_mail">Введенный адрес электронной почты недействителен.</string>
-    <string name="edit_shipping_contact_invalid_name">Введенный вами текст недействителен. (слишком длинные, недопустимые символы)</string>
-    <string name="edit_shipping_contact_invalid_phone">Введенный вами номер телефона недействителен. (слишком короткие, слишком длинные, недопустимые символы)</string>
-    <string name="edit_shipping_contact_invalid_postal_code">Введенный вами текст недействителен. (слишком длинные, слишком короткие, недопустимые символы)</string>
+    <string name="edit_shipping_contact_invalid_name">Пожалуйста, введите не более 50 символов.</string>
+    <string name="edit_shipping_contact_invalid_phone">Пожалуйста, введите не более 25 символов. Допускаются только цифры и символы - + \' / .</string>
+    <string name="edit_shipping_contact_invalid_postal_code">Пожалуйста, введите не более 8 цифр без специальных символов.</string>
     <string name="edit_shipping_contact_line2">Дополнительное поле для адреса (необязательно)</string>
     <string name="edit_shipping_contact_mail">Адрес электронной почты (необязательно)</string>
     <string name="edit_shipping_contact_name">Имя и фамилия</string>
@@ -1053,7 +1060,7 @@
     <string name="onb_page_4_header">Конфиденциальность и использование</string>
     <string name="onb_page_5_header">Помогите нам сделать это приложение лучше</string>
     <string name="onb_terms_of_use">Условия использования</string>
-    <string name="onb_undo_description">Отменить</string>
+    <string name="onb_undo_description">Удалить запись</string>
     <string name="onboarding_analytics_agree_button">Соглашаться</string>
     <string name="onboarding_analytics_bottom_text">Вы можете отключить анализ в любой момент в настройках.</string>
     <string name="onboarding_analytics_consent_text">С вашего согласия мы хотели бы провести %s. Для этой цели мы хотели бы собрать и анонимно проанализировать данные об использовании приложения и технические данные, а именно:</string>
@@ -1065,7 +1072,7 @@
     <string name="onboarding_analytics_resolve_errors_text">Выявляйте и исправляйте ошибки на ранних стадиях</string>
     <string name="onboarding_analytics_we_want">Мы будем:</string>
     <string name="onboarding_auth_biometric_info">Приложение использует самый безопасный метод, который вы установили на своем устройстве.</string>
-    <string name="onboarding_bottom_app_safety_button_next">Дальше</string>
+    <string name="onboarding_bottom_app_safety_button_next">Следующий</string>
     <string name="onboarding_bottom_button_accept">Принимать</string>
     <string name="onboarding_bottom_button_choose">Выбирать</string>
     <string name="onboarding_bottom_button_save">Сохранить</string>
@@ -1248,6 +1255,7 @@
     <string name="pharmacy_search_favorite_toggle">Добавить в избранное</string>
     <string name="pharmacy_search_favorite_toggle_active">активный</string>
     <string name="pharmacy_search_favorite_toggle_inactive">неактивный</string>
+    <string name="pharmacy_search_placeholder">Поиск</string>
     <string name="pharmacy_search_searchbar">Поиск аптек</string>
     <string name="pharmacy_start_search_text">Искать</string>
     <string name="pkv_invoices_total_of_year" formatted="false">Итого: %s %s</string>
@@ -1614,6 +1622,11 @@
     <string name="settings_show_audit_events_info">Здесь вы можете увидеть, кто и когда получал доступ к вашим рецептам.</string>
     <string name="settings_show_token">Показать токены</string>
     <string name="settings_show_token_info">Ключ для доступа к службе рецептов</string>
+    <string name="settings_theme_dark">Темный</string>
+    <string name="settings_theme_label">дизайн</string>
+    <string name="settings_theme_light">Яркий</string>
+    <string name="settings_theme_system">Системные настройки</string>
+    <string name="settings_theme_title">дизайн</string>
     <string name="settings_tracking_allow_button">Принимать</string>
     <string name="settings_tracking_allow_info">%s Спасибо за вашу поддержку!</string>
     <string name="settings_tracking_allow_title">Улучшить приложение</string>

@@ -103,7 +103,6 @@ fun LazyListScope.detailSection(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = PaddingDefaults.Medium)
                 ) {
                     SpacerMedium()
                     val annotatedText = annotatedLinkUnderlined(
@@ -118,7 +117,7 @@ fun LazyListScope.detailSection(
                         exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top) + slideOutVertically()
                     ) {
                         Banner(
-                            modifier = Modifier.clickable { onNavigateToBafim() },
+                            modifier = Modifier.clickable { onNavigateToBafim() }.padding(horizontal = PaddingDefaults.Medium),
                             text = annotatedText.text,
                             contentColor = AppTheme.colors.yellow900,
                             containerColor = AppTheme.colors.yellow100,
@@ -129,38 +128,32 @@ fun LazyListScope.detailSection(
                     SpacerMedium()
                     Label(
                         label = stringResource(R.string.digital_health_application),
-                        text = state.name,
-                        setHorizontalPadding = false
+                        text = state.name
                     )
                     DetailBfarmSection(uiStateBfarm, navigateToContributionInfo)
 
                     Label(
                         label = stringResource(R.string.insured_person),
                         text = state.insuredPerson,
-                        setHorizontalPadding = false,
                         onClick = onNavigateToPatient
                     )
                     Label(
                         label = stringResource(R.string.prescribing_person),
                         text = state.prescribingPerson,
-                        setHorizontalPadding = false,
                         onClick = onNavigateTopPractitioner
                     )
                     Label(
                         label = stringResource(R.string.institution),
                         text = state.institution,
-                        setHorizontalPadding = false,
                         onClick = onNavigateTopOrganization
                     )
                     Label(
                         label = stringResource(R.string.date_of_issue),
                         text = state.lifeCycleTimestamps.issuedOn?.format(),
-                        setHorizontalPadding = false,
                         onClick = state.lifeCycleTimestamps.issuedOn?.let { {} }
                     )
                     Label(
                         text = stringResource(R.string.pres_detail_technical_information),
-                        setHorizontalPadding = false,
                         onClick = onNavigateToTechnicalInformation
                     )
                 }
@@ -226,28 +219,23 @@ private fun BfarmSection(
     Column {
         Label(
             label = stringResource(R.string.available_languages),
-            text = languages,
-            setHorizontalPadding = false
+            text = languages
         )
         Label(
             label = stringResource(R.string.platforms),
-            text = supportedPlatforms,
-            setHorizontalPadding = false
+            text = supportedPlatforms
         )
         Label(
             label = stringResource(R.string.medical_services_required),
-            text = contractMedicalServicesRequired,
-            setHorizontalPadding = false
+            text = contractMedicalServicesRequired
         )
         Label(
             label = stringResource(R.string.additional_devices),
-            text = additionalDevicesText ?: stringResource(R.string.diga_no_additional_devices_required),
-            setHorizontalPadding = false
+            text = additionalDevicesText ?: stringResource(R.string.diga_no_additional_devices_required)
         )
         Label(
             label = stringResource(R.string.your_fee),
             text = yourFee,
-            setHorizontalPadding = false,
             onClick = navigateToContributionInfo,
             imageVector = Icons.Outlined.Info,
             iconContentDescription = "",
@@ -255,8 +243,7 @@ private fun BfarmSection(
         )
         Label(
             label = stringResource(R.string.manufacturer_costs),
-            text = maxCost?.let { stringResource(R.string.invoice_details_cost, it) },
-            setHorizontalPadding = false
+            text = maxCost?.let { stringResource(R.string.invoice_details_cost, it) }
         )
     }
 }

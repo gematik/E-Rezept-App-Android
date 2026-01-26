@@ -52,5 +52,11 @@
         "text": "**🏡 Adresseforslag** \nGemte adressedata foreslås nu automatisk, når du indtaster en adresse. \n \n **♿️ Tilgængelighed** \nKontrasten for tekst, til\/fra-knapper, afkrydsningsfelter, fejlmeddelelser, ikoner og søgefelter er blevet øget. \nTaleoutputtet via TalkBack er blevet forbedret til indtastning af pinkode og adgangskode, visning af receptkoder og genkendelse af overskrifter. Links understreges nu konsekvent i løbende tekst.",
         "timestamp": "2025-12-17T08:00:00.000Z",
         "version": "1.35"
+    },
+    {
+        "id": "11",
+        "text": "**✨ Vis receptkoder** \nSkærmen til batch- og enkeltkoder er blevet redesignet for mere intuitiv brug. \n \n **📋 Kopifunktion** \nMedicinoplysninger kan kopieres ved at trykke længe. \n \n **♿ Tilgængelighed** \nTalkback og tastaturnavigation fungerer bedre, knapperne er tydeligere, og listeelementerne er struktureret mere logisk. Animerede videoer afspilles kun én gang for at understøtte brugere med kognitive funktionsnedsættelser.",
+        "timestamp": "2026-01-22T08:00:00.000Z",
+        "version": "1.36"
     }
 ]

@@ -69,6 +69,7 @@ import de.gematik.ti.erp.app.prescription.ui.UnknownStatusChip
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
 import de.gematik.ti.erp.app.prescriptionId
+import de.gematik.ti.erp.app.semantics.semanticsMergedButton
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -106,6 +107,7 @@ fun FullDetailMedication(
                 .semantics {
                     prescriptionId = prescription.taskId
                 }
+                .semanticsMergedButton()
                 .testTag(TestTag.Prescriptions.FullDetailPrescription),
             shape = RoundedCornerShape(SizeDefaults.double),
             border = BorderStroke(SizeDefaults.eighth, color = AppTheme.colors.neutral300),

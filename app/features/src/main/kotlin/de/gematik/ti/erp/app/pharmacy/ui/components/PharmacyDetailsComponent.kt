@@ -167,11 +167,6 @@ fun PharmacyDetailsComponent(
             onClickUrl = {
                 uriHandler.openUriWhenValid(it)
             },
-            onClickWebsite = {
-                urlText.getStringAnnotations("URL", it, it + 1).firstOrNull()?.let { annotation ->
-                    uriHandler.openUriWhenValid(annotation.item)
-                }
-            },
             onClickHint = {
                 uriHandler.openUriWhenValid(faqUri)
             },
@@ -200,7 +195,6 @@ private fun BasePharmacyDetailsContent(
     onClickPhone: (String) -> Unit,
     onClickMail: (String) -> Unit,
     onClickUrl: (String) -> Unit,
-    onClickWebsite: (Int) -> Unit,
     onClickHint: () -> Unit
 ) {
     val context = LocalContext.current
@@ -327,7 +321,6 @@ private fun BasePharmacyDetailsContent(
                     onPhoneClicked = onClickPhone,
                     onMailClicked = onClickMail,
                     onUrlClicked = onClickUrl,
-                    onTextClicked = onClickWebsite,
                     onHintClicked = onClickHint,
                     currentDateTime = currentDateTime
                 )
@@ -361,7 +354,6 @@ fun PharmacyDetailsScreenFromPharmacyPreview(
             onClickPhone = {},
             onClickMail = {},
             onClickUrl = {},
-            onClickWebsite = {},
             onClickHint = {}
 
         )
@@ -390,7 +382,6 @@ fun PharmacyDetailsScreenFromMessagePreview(
             onClickPhone = {},
             onClickMail = {},
             onClickUrl = {},
-            onClickWebsite = {},
             onClickHint = {}
         )
     }

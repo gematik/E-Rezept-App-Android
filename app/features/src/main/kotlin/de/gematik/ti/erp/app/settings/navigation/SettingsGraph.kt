@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.settings.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
+import de.gematik.ti.erp.app.navigation.renderBottomSheet
 import de.gematik.ti.erp.app.navigation.renderComposable
 import de.gematik.ti.erp.app.navigation.slideInDown
 import de.gematik.ti.erp.app.navigation.slideInRight
@@ -41,6 +42,7 @@ import de.gematik.ti.erp.app.settings.ui.screens.SettingsProductImprovementsScre
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsSetAppPasswordScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsTermsOfUseScreen
+import de.gematik.ti.erp.app.settings.ui.screens.SettingsThemeScreen
 
 @Suppress("LongMethod")
 fun NavGraphBuilder.settingsGraph(
@@ -153,6 +155,15 @@ fun NavGraphBuilder.settingsGraph(
             arguments = SettingsRoutes.SettingsLanguageScreen.arguments
         ) { navEntry ->
             SettingsLanguageScreen(
+                navController = navController,
+                navBackStackEntry = navEntry
+            )
+        }
+        renderBottomSheet(
+            route = SettingsRoutes.SettingsThemeScreen.route,
+            arguments = SettingsRoutes.SettingsThemeScreen.arguments
+        ) { navEntry ->
+            SettingsThemeScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )

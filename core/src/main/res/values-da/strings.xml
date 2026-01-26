@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="a11y_card_wall_card_hand">En hånd holder et sygesikringskort op mod en smartphone.</string>
+    <string name="a11y_card_wall_save_credentials_off">ikke valgt</string>
+    <string name="a11y_card_wall_save_credentials_on">udvalgte</string>
     <string name="a11y_cdw_health_card_image_description">Billede af et sundhedskort med et sekscifret adgangsnummer øverst til højre på forsiden af kortet</string>
     <string name="a11y_datamatrix_code_description">Scan kode</string>
     <string name="a11y_datamatrix_code_pager_content_description">Stryg med to fingre for at skifte side</string>
@@ -26,7 +28,11 @@
     <string name="a11y_eu_instructions_open_in_browser">Åbn i browseren</string>
     <string name="a11y_local_redeem_back">Vis forrige kode</string>
     <string name="a11y_local_redeem_forward">Vis næste kode</string>
+    <string name="a11y_long_press_copy">Kopi</string>
     <string name="a11y_medication_schedule_three_dot_menu">Vis muligheder for påmindelse om medicin</string>
+    <string name="a11y_messages_empty_state">Ingen beskeder</string>
+    <string name="a11y_messages_error_state">Fejl ved indlæsning af beskeder</string>
+    <string name="a11y_messages_loading">Beskeder indlæses</string>
     <string name="a11y_not_selected">ikke valgt</string>
     <string name="a11y_onboarding_progress_description">Side %1$d af %2$d</string>
     <string name="a11y_open_link_submit">Åbn link på ekstern hjemmeside</string>
@@ -35,6 +41,7 @@
     <string name="a11y_password_input_show_password_description_on">Adgangskode vist</string>
     <string name="a11y_password_input_show_password_description_onClick_off">Vis adgangskode</string>
     <string name="a11y_password_input_show_password_description_onClick_on">Skjul adgangskode</string>
+    <string name="a11y_pharmacy_search_pharmacy_card_click_description">Åbn apoteksoplysninger</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Apotekssøgning; indtast navn, by eller postnummer for at søge efter et apotek</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Søg i listevisning</string>
     <string name="a11y_pin_input_show_pin_description_off">PIN-kode skjult</string>
@@ -512,14 +519,14 @@
     <string name="edit_shipping_contact_empty_name">Angiv et for- og efternavn for at kontakte os.</string>
     <string name="edit_shipping_contact_empty_phone">Angiv venligst et telefonnummer for at kontakte os.</string>
     <string name="edit_shipping_contact_empty_postal_code">Angiv venligst dit postnummer for at kontakte os.</string>
-    <string name="edit_shipping_contact_invalid_city">Den indtastede tekst er ugyldig. (for lange, ugyldige tegn)</string>
-    <string name="edit_shipping_contact_invalid_delivery_information">Den indtastede tekst er ugyldig. (for lange, ugyldige tegn)</string>
-    <string name="edit_shipping_contact_invalid_line1">Den indtastede tekst er ugyldig. (for lange, ugyldige tegn)</string>
-    <string name="edit_shipping_contact_invalid_line2">Den indtastede tekst er ugyldig. (for lange, ugyldige tegn)</string>
+    <string name="edit_shipping_contact_invalid_city">Indtast venligst maksimalt 50 tegn.</string>
+    <string name="edit_shipping_contact_invalid_delivery_information">Indtast venligst maksimalt 500 tegn.</string>
+    <string name="edit_shipping_contact_invalid_line1">Indtast venligst maksimalt 50 tegn.</string>
+    <string name="edit_shipping_contact_invalid_line2">Indtast venligst maksimalt 50 tegn.</string>
     <string name="edit_shipping_contact_invalid_mail">Den indtastede e-mailadresse er ugyldig.</string>
-    <string name="edit_shipping_contact_invalid_name">Den indtastede tekst er ugyldig. (for lange, ugyldige tegn)</string>
-    <string name="edit_shipping_contact_invalid_phone">Det telefonnummer, du indtastede, er ugyldigt. (for korte, for lange, ugyldige tegn)</string>
-    <string name="edit_shipping_contact_invalid_postal_code">Den indtastede tekst er ugyldig. (for lange, for korte, ugyldige tegn)</string>
+    <string name="edit_shipping_contact_invalid_name">Indtast venligst maksimalt 50 tegn.</string>
+    <string name="edit_shipping_contact_invalid_phone">Indtast venligst maksimalt 25 tegn. Kun tal og tegnene - + \' / er tilladt.</string>
+    <string name="edit_shipping_contact_invalid_postal_code">Indtast venligst maksimalt 8 tal uden specialtegn.</string>
     <string name="edit_shipping_contact_line2">Yderligere adresse (valgfrit)</string>
     <string name="edit_shipping_contact_mail">E-mailadresse (valgfrit)</string>
     <string name="edit_shipping_contact_name">Fornavn og efternavn</string>
@@ -1041,7 +1048,7 @@
     <string name="onb_page_4_header">Databeskyttelse og brug</string>
     <string name="onb_page_5_header">Hjælp os med at gøre denne app bedre</string>
     <string name="onb_terms_of_use">Vilkår for brug</string>
-    <string name="onb_undo_description">Fortryd</string>
+    <string name="onb_undo_description">Slet indtastning</string>
     <string name="onboarding_analytics_agree_button">Enig</string>
     <string name="onboarding_analytics_bottom_text">Du kan til enhver tid deaktivere analysen i indstillingerne.</string>
     <string name="onboarding_analytics_consent_text">Med dit samtykke vil vi gerne udføre en %s. Til dette formål vil vi gerne indsamle og anonymt analysere data om app-brug og tekniske data, og dermed:</string>
@@ -1053,7 +1060,7 @@
     <string name="onboarding_analytics_resolve_errors_text">Opdag og ret fejl tidligt</string>
     <string name="onboarding_analytics_we_want">Vi vil:</string>
     <string name="onboarding_auth_biometric_info">Appen bruger den sikreste metode, du har konfigureret på din enhed.</string>
-    <string name="onboarding_bottom_app_safety_button_next">Længere</string>
+    <string name="onboarding_bottom_app_safety_button_next">Næste</string>
     <string name="onboarding_bottom_button_accept">Acceptere</string>
     <string name="onboarding_bottom_button_choose">Vælge</string>
     <string name="onboarding_bottom_button_save">Gemme</string>
@@ -1230,6 +1237,7 @@
     <string name="pharmacy_search_favorite_toggle">Tilføj til favoritter</string>
     <string name="pharmacy_search_favorite_toggle_active">aktiv</string>
     <string name="pharmacy_search_favorite_toggle_inactive">inaktiv</string>
+    <string name="pharmacy_search_placeholder">Søge</string>
     <string name="pharmacy_search_searchbar">Apotek søgning</string>
     <string name="pharmacy_start_search_text">Søge</string>
     <string name="pkv_invoices_total_of_year" formatted="false">I alt: %s %s</string>
@@ -1594,6 +1602,11 @@
     <string name="settings_show_audit_events_info">Her kan du se, hvem der har tilgået dine recepter, og hvornår.</string>
     <string name="settings_show_token">Vis tokens</string>
     <string name="settings_show_token_info">Adgangsnøgle til receptservicen</string>
+    <string name="settings_theme_dark">Mørk</string>
+    <string name="settings_theme_label">design</string>
+    <string name="settings_theme_light">Lys</string>
+    <string name="settings_theme_system">Systemindstillinger</string>
+    <string name="settings_theme_title">design</string>
     <string name="settings_tracking_allow_button">Acceptere</string>
     <string name="settings_tracking_allow_info">%s Tak for din støtte!</string>
     <string name="settings_tracking_allow_title">Forbedre app</string>

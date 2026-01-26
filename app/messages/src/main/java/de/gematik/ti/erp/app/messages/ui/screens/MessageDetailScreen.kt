@@ -294,29 +294,22 @@ fun MessageDetailScreenInAppWithPharmacyPreview(
     @PreviewParameter(MessageDetailInAppPreviewParameterProvider::class)
     inAppMessage: List<InAppMessage>
 ) {
-    val fakeConfig = Configuration().apply {
-        setLocales(
-            LocaleList(Locale.ENGLISH)
+    PreviewTheme {
+        MessageDetailScreenScaffold(
+            listState = rememberLazyListState(),
+            onBack = {},
+            order = UiState.Loading(),
+            messages = emptyList(),
+            inAppMessage = inAppMessage,
+            isLocalMessage = true,
+            isTranslationsAllowed = true,
+            isTranslationInProgress = mapOf("communicationId" to false),
+            onClickReplyMessage = {},
+            onClickPrescription = {},
+            onClickInvoiceMessage = {},
+            onClickPharmacy = {},
+            showTranslationFeature = false,
+            hasReplyMessages = false
         )
-    }
-    CompositionLocalProvider(LocalConfiguration provides fakeConfig) {
-        PreviewTheme {
-            MessageDetailScreenScaffold(
-                listState = rememberLazyListState(),
-                onBack = {},
-                order = UiState.Loading(),
-                messages = emptyList(),
-                inAppMessage = inAppMessage,
-                isLocalMessage = true,
-                isTranslationsAllowed = true,
-                isTranslationInProgress = mapOf("communicationId" to false),
-                onClickReplyMessage = {},
-                onClickPrescription = {},
-                onClickInvoiceMessage = {},
-                onClickPharmacy = {},
-                showTranslationFeature = false,
-                hasReplyMessages = false
-            )
-        }
     }
 }

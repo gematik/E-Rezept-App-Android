@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="a11y_card_wall_card_hand">A hand holds a health insurance card up to a smartphone.</string>
+    <string name="a11y_card_wall_save_credentials_off">not selected</string>
+    <string name="a11y_card_wall_save_credentials_on">selected</string>
     <string name="a11y_cdw_health_card_image_description">Image of a health card with six-digit access number on the top right of the front of the card</string>
     <string name="a11y_datamatrix_code_description">Scan code</string>
     <string name="a11y_datamatrix_code_pager_content_description">Swipe with two fingers to switch pages</string>
@@ -26,7 +28,11 @@
     <string name="a11y_eu_instructions_open_in_browser">Open in a browser</string>
     <string name="a11y_local_redeem_back">Show previous code</string>
     <string name="a11y_local_redeem_forward">Show next code</string>
+    <string name="a11y_long_press_copy">Copy</string>
     <string name="a11y_medication_schedule_three_dot_menu">Show medication reminder options</string>
+    <string name="a11y_messages_empty_state">No messages</string>
+    <string name="a11y_messages_error_state">Error loading messages</string>
+    <string name="a11y_messages_loading">Messages are loading</string>
     <string name="a11y_not_selected">not selected</string>
     <string name="a11y_onboarding_progress_description">Page %1$d of %2$d</string>
     <string name="a11y_open_link_submit">Open link on external website</string>
@@ -35,6 +41,7 @@
     <string name="a11y_password_input_show_password_description_on">Password displayed</string>
     <string name="a11y_password_input_show_password_description_onClick_off">Show password</string>
     <string name="a11y_password_input_show_password_description_onClick_on">Hide password</string>
+    <string name="a11y_pharmacy_search_pharmacy_card_click_description">Open pharmacy details</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Pharmacy search; enter name, city or postal code to search for a pharmacy</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Search in list view</string>
     <string name="a11y_pin_input_show_pin_description_off">PIN hidden</string>
@@ -512,14 +519,14 @@
     <string name="edit_shipping_contact_empty_name">Please enter a first name and surname for contact purposes.</string>
     <string name="edit_shipping_contact_empty_phone">Please enter a telephone number for contact purposes.</string>
     <string name="edit_shipping_contact_empty_postal_code">Please provide your postcode to contact us.</string>
-    <string name="edit_shipping_contact_invalid_city">Text you entered is invalid. (too long, invalid characters)</string>
-    <string name="edit_shipping_contact_invalid_delivery_information">Text you entered is invalid. (too long, invalid characters)</string>
-    <string name="edit_shipping_contact_invalid_line1">Text you entered is invalid. (too long, invalid characters)</string>
-    <string name="edit_shipping_contact_invalid_line2">Text you entered is invalid. (too long, invalid characters)</string>
+    <string name="edit_shipping_contact_invalid_city">Please enter a maximum of 50 characters.</string>
+    <string name="edit_shipping_contact_invalid_delivery_information">Please enter a maximum of 500 characters.</string>
+    <string name="edit_shipping_contact_invalid_line1">Please enter a maximum of 50 characters.</string>
+    <string name="edit_shipping_contact_invalid_line2">Please enter a maximum of 50 characters.</string>
     <string name="edit_shipping_contact_invalid_mail">The email address entered is invalid.</string>
-    <string name="edit_shipping_contact_invalid_name">Text you entered is invalid. (too long, invalid characters)</string>
-    <string name="edit_shipping_contact_invalid_phone">The phone number you entered is invalid. (too short, too long, invalid characters)</string>
-    <string name="edit_shipping_contact_invalid_postal_code">Text you entered is invalid. (too long, too short, invalid characters)</string>
+    <string name="edit_shipping_contact_invalid_name">Please enter a maximum of 50 characters.</string>
+    <string name="edit_shipping_contact_invalid_phone">Please enter a maximum of 25 characters. Only numbers and the characters - + \' / are allowed.</string>
+    <string name="edit_shipping_contact_invalid_postal_code">Please enter a maximum of 8 numbers without special characters.</string>
     <string name="edit_shipping_contact_line2">Additional address line (optional)</string>
     <string name="edit_shipping_contact_mail">Email address (optional)</string>
     <string name="edit_shipping_contact_name">First name and surname</string>
@@ -1041,7 +1048,7 @@
     <string name="onb_page_4_header">Privacy &amp; Use</string>
     <string name="onb_page_5_header">Help us make this app better</string>
     <string name="onb_terms_of_use">Terms of Use</string>
-    <string name="onb_undo_description">Undo</string>
+    <string name="onb_undo_description">Delete entry</string>
     <string name="onboarding_analytics_agree_button">Agree</string>
     <string name="onboarding_analytics_bottom_text">You can deactivate the analytics at any time in the settings.</string>
     <string name="onboarding_analytics_consent_text">With your consent, we would like to conduct an %s. For this purpose, we would like to collect and anonymously analyze data on app usage and technical data, and thus:</string>
@@ -1053,7 +1060,7 @@
     <string name="onboarding_analytics_resolve_errors_text">Detect and correct errors early</string>
     <string name="onboarding_analytics_we_want">We will:</string>
     <string name="onboarding_auth_biometric_info">The app uses the safest method you have set up on your device.</string>
-    <string name="onboarding_bottom_app_safety_button_next">Further</string>
+    <string name="onboarding_bottom_app_safety_button_next">Next</string>
     <string name="onboarding_bottom_button_accept">Accept</string>
     <string name="onboarding_bottom_button_choose">Choose</string>
     <string name="onboarding_bottom_button_save">Save</string>
@@ -1230,6 +1237,7 @@
     <string name="pharmacy_search_favorite_toggle">Add to Favorites</string>
     <string name="pharmacy_search_favorite_toggle_active">active</string>
     <string name="pharmacy_search_favorite_toggle_inactive">inactive</string>
+    <string name="pharmacy_search_placeholder">Search</string>
     <string name="pharmacy_search_searchbar">Pharmacy search</string>
     <string name="pharmacy_start_search_text">Search</string>
     <string name="pkv_invoices_total_of_year" formatted="false">Total: %s %s</string>
@@ -1594,6 +1602,11 @@
     <string name="settings_show_audit_events_info">Here you can see who accessed your prescriptions and when.</string>
     <string name="settings_show_token">Display tokens</string>
     <string name="settings_show_token_info">Access key to the prescription service</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_label">Design</string>
+    <string name="settings_theme_light">Bright</string>
+    <string name="settings_theme_system">System settings</string>
+    <string name="settings_theme_title">Design</string>
     <string name="settings_tracking_allow_button">Accept</string>
     <string name="settings_tracking_allow_info">%s Thank you for your support!</string>
     <string name="settings_tracking_allow_title">Improve app</string>

@@ -35,98 +35,86 @@ import kotlinx.datetime.Instant
  */
 class SettingsLocalDataSource(private val settings: Settings) {
 
-    private object Keys {
-        const val ZOOM_ENABLED = "zoom_enabled"
-        const val WELCOME_DRAWER_SHOWN = "welcome_drawer_shown"
-        const val USER_ACCEPTED_INSECURE_DEVICE = "user_accepted_insecure_device"
-        const val USER_ACCEPTED_INTEGRITY_NOT_OK = "user_accepted_integrity_not_ok"
-        const val MLKIT_ACCEPTED = "mlkit_accepted"
-        const val SCREENSHOTS_ALLOWED = "screenshots_allowed"
-        const val TRACKING_ALLOWED = "tracking_allowed"
-        const val DATA_PROTECTION_VERSION_ACCEPTED = "data_protection_version_accepted"
-    }
-
-    private val _zoomEnabled = MutableStateFlow(false)
+    private val _zoomEnabled = MutableStateFlow(
+        settings.getBoolean(SettingsKeys.ZOOM_ENABLED, false)
+    )
     val zoomEnabled: Flow<Boolean> = _zoomEnabled.asStateFlow()
 
-    private val _welcomeDrawerShown = MutableStateFlow(false)
+    private val _welcomeDrawerShown = MutableStateFlow(
+        settings.getBoolean(SettingsKeys.WELCOME_DRAWER_SHOWN, false)
+    )
     val welcomeDrawerShown: Flow<Boolean> = _welcomeDrawerShown.asStateFlow()
 
-    private val _userHasAcceptedInsecureDevice = MutableStateFlow(false)
+    private val _userHasAcceptedInsecureDevice = MutableStateFlow(
+        settings.getBoolean(SettingsKeys.USER_ACCEPTED_INSECURE_DEVICE, false)
+    )
     val userHasAcceptedInsecureDevice: Flow<Boolean> = _userHasAcceptedInsecureDevice.asStateFlow()
 
-    private val _userHasAcceptedIntegrityNotOk = MutableStateFlow(false)
+    private val _userHasAcceptedIntegrityNotOk = MutableStateFlow(
+        settings.getBoolean(SettingsKeys.USER_ACCEPTED_INTEGRITY_NOT_OK, false)
+    )
     val userHasAcceptedIntegrityNotOk: Flow<Boolean> = _userHasAcceptedIntegrityNotOk.asStateFlow()
 
-    private val _mlKitAccepted = MutableStateFlow(false)
+    private val _mlKitAccepted = MutableStateFlow(
+        settings.getBoolean(SettingsKeys.MLKIT_ACCEPTED, false)
+    )
     val mlKitAccepted: Flow<Boolean> = _mlKitAccepted.asStateFlow()
 
-    private val _screenshotsAllowed = MutableStateFlow(false)
+    private val _screenshotsAllowed = MutableStateFlow(
+        settings.getBoolean(SettingsKeys.SCREENSHOTS_ALLOWED, false)
+    )
     val screenshotsAllowed: Flow<Boolean> = _screenshotsAllowed.asStateFlow()
 
-    private val _trackingAllowed = MutableStateFlow(false)
+    private val _trackingAllowed = MutableStateFlow(
+        settings.getBoolean(SettingsKeys.TRACKING_ALLOWED, false)
+    )
     val trackingAllowed: Flow<Boolean> = _trackingAllowed.asStateFlow()
 
     private val _dataProtectionVersionAccepted = MutableStateFlow(
-        Instant.fromEpochSeconds(1634256000L) // 2021-10-15T00:00:00Z
+        Instant.fromEpochSeconds(
+            settings.getLong(SettingsKeys.DATA_PROTECTION_VERSION_ACCEPTED, 1634256000L)
+        )
     )
     val dataProtectionVersionAccepted: Flow<Instant> = _dataProtectionVersionAccepted.asStateFlow()
 
-    init {
-        refreshAllValues()
-    }
-
-    fun refreshAllValues() {
-        _zoomEnabled.value = settings.getBoolean(Keys.ZOOM_ENABLED, false)
-        _welcomeDrawerShown.value = settings.getBoolean(Keys.WELCOME_DRAWER_SHOWN, false)
-        _userHasAcceptedInsecureDevice.value = settings.getBoolean(Keys.USER_ACCEPTED_INSECURE_DEVICE, false)
-        _userHasAcceptedIntegrityNotOk.value = settings.getBoolean(Keys.USER_ACCEPTED_INTEGRITY_NOT_OK, false)
-        _mlKitAccepted.value = settings.getBoolean(Keys.MLKIT_ACCEPTED, false)
-        _screenshotsAllowed.value = settings.getBoolean(Keys.SCREENSHOTS_ALLOWED, false)
-        _trackingAllowed.value = settings.getBoolean(Keys.TRACKING_ALLOWED, false)
-
-        val epochSeconds = settings.getLong(Keys.DATA_PROTECTION_VERSION_ACCEPTED, 1634256000L)
-        _dataProtectionVersionAccepted.value = Instant.fromEpochSeconds(epochSeconds)
-    }
-
     // Write operations
     fun saveZoomEnabled(enabled: Boolean) {
-        settings[Keys.ZOOM_ENABLED] = enabled
+        settings[SettingsKeys.ZOOM_ENABLED] = enabled
         _zoomEnabled.value = enabled
     }
 
     fun saveWelcomeDrawerShown() {
-        settings[Keys.WELCOME_DRAWER_SHOWN] = true
+        settings[SettingsKeys.WELCOME_DRAWER_SHOWN] = true
         _welcomeDrawerShown.value = true
     }
 
     fun acceptInsecureDevice() {
-        settings[Keys.USER_ACCEPTED_INSECURE_DEVICE] = true
+        settings[SettingsKeys.USER_ACCEPTED_INSECURE_DEVICE] = true
         _userHasAcceptedInsecureDevice.value = true
     }
 
     fun acceptIntegrityNotOk() {
-        settings[Keys.USER_ACCEPTED_INTEGRITY_NOT_OK] = true
+        settings[SettingsKeys.USER_ACCEPTED_INTEGRITY_NOT_OK] = true
         _userHasAcceptedIntegrityNotOk.value = true
     }
 
     fun acceptMlKit() {
-        settings[Keys.MLKIT_ACCEPTED] = true
+        settings[SettingsKeys.MLKIT_ACCEPTED] = true
         _mlKitAccepted.value = true
     }
 
     fun saveAllowScreenshots(allow: Boolean) {
-        settings[Keys.SCREENSHOTS_ALLOWED] = allow
+        settings[SettingsKeys.SCREENSHOTS_ALLOWED] = allow
         _screenshotsAllowed.value = allow
     }
 
     fun saveAllowTracking(allow: Boolean) {
-        settings[Keys.TRACKING_ALLOWED] = allow
+        settings[SettingsKeys.TRACKING_ALLOWED] = allow
         _trackingAllowed.value = allow
     }
 
     fun acceptUpdatedDataTerms(instant: Instant) {
-        settings[Keys.DATA_PROTECTION_VERSION_ACCEPTED] = instant.epochSeconds
+        settings[SettingsKeys.DATA_PROTECTION_VERSION_ACCEPTED] = instant.epochSeconds
         _dataProtectionVersionAccepted.value = instant
     }
 }

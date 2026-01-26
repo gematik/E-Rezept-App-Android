@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="a11y_card_wall_card_hand">Tá lámh ag coinneáil cárta árachais sláinte suas go dtí fón cliste.</string>
+    <string name="a11y_card_wall_save_credentials_off">níor roghnaíodh</string>
+    <string name="a11y_card_wall_save_credentials_on">roghnaithe</string>
     <string name="a11y_cdw_health_card_image_description">Íomhá de chárta sláinte le huimhir rochtana sé dhigit ag barr ar dheis tosaigh an chárta</string>
     <string name="a11y_datamatrix_code_description">Scanadh cód</string>
     <string name="a11y_datamatrix_code_pager_content_description">Svaidhpeáil le dhá mhéar chun leathanaigh a athrú</string>
@@ -26,7 +28,11 @@
     <string name="a11y_eu_instructions_open_in_browser">Oscail sa bhrabhsálaí</string>
     <string name="a11y_local_redeem_back">Taispeáin an cód roimhe seo</string>
     <string name="a11y_local_redeem_forward">Taispeáin an chéad chód eile</string>
+    <string name="a11y_long_press_copy">Cóipeáil</string>
     <string name="a11y_medication_schedule_three_dot_menu">Taispeáin roghanna meabhrúcháin cógais</string>
+    <string name="a11y_messages_empty_state">Gan aon teachtaireachtaí</string>
+    <string name="a11y_messages_error_state">Earráid ag luchtú teachtaireachtaí</string>
+    <string name="a11y_messages_loading">Tá teachtaireachtaí ag lódáil</string>
     <string name="a11y_not_selected">níor roghnaíodh</string>
     <string name="a11y_onboarding_progress_description">Leathanach %1$d de %2$d</string>
     <string name="a11y_open_link_submit">Oscail nasc ar shuíomh gréasáin seachtrach</string>
@@ -35,6 +41,7 @@
     <string name="a11y_password_input_show_password_description_on">Pasfhocal taispeánta</string>
     <string name="a11y_password_input_show_password_description_onClick_off">Taispeáin an focal faire</string>
     <string name="a11y_password_input_show_password_description_onClick_on">Folaigh an focal faire</string>
+    <string name="a11y_pharmacy_search_pharmacy_card_click_description">Oscail sonraí na cógaisíochta</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Cuardach cógaisíochta; cuir isteach ainm, cathair nó cód poist chun cógaslann a chuardach</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Cuardaigh i radharc liosta</string>
     <string name="a11y_pin_input_show_pin_description_off">UAP i bhfolach</string>
@@ -527,14 +534,14 @@
     <string name="edit_shipping_contact_empty_name">Cuir isteach céad ainm agus sloinne chun críocha teagmhála.</string>
     <string name="edit_shipping_contact_empty_phone">Cuir isteach uimhir theileafóin chun críocha teagmhála.</string>
     <string name="edit_shipping_contact_empty_postal_code">Tabhair do chód poist le do thoil chun teagmháil a dhéanamh linn.</string>
-    <string name="edit_shipping_contact_invalid_city">Tá an téacs a d\'iontráil tú neamhbhailí. (carachtair rófhada, neamhbhailí)</string>
-    <string name="edit_shipping_contact_invalid_delivery_information">Tá an téacs a d\'iontráil tú neamhbhailí. (carachtair rófhada, neamhbhailí)</string>
-    <string name="edit_shipping_contact_invalid_line1">Tá an téacs a d\'iontráil tú neamhbhailí. (carachtair rófhada, neamhbhailí)</string>
-    <string name="edit_shipping_contact_invalid_line2">Tá an téacs a d\'iontráil tú neamhbhailí. (carachtair rófhada, neamhbhailí)</string>
+    <string name="edit_shipping_contact_invalid_city">Cuir isteach uasmhéid de 50 carachtar le do thoil.</string>
+    <string name="edit_shipping_contact_invalid_delivery_information">Cuir isteach uasmhéid de 500 carachtar le do thoil.</string>
+    <string name="edit_shipping_contact_invalid_line1">Cuir isteach uasmhéid de 50 carachtar le do thoil.</string>
+    <string name="edit_shipping_contact_invalid_line2">Cuir isteach uasmhéid de 50 carachtar le do thoil.</string>
     <string name="edit_shipping_contact_invalid_mail">Tá an seoladh ríomhphoist a iontráladh neamhbhailí.</string>
-    <string name="edit_shipping_contact_invalid_name">Tá an téacs a d\'iontráil tú neamhbhailí. (carachtair rófhada, neamhbhailí)</string>
-    <string name="edit_shipping_contact_invalid_phone">Tá an uimhir theileafóin a d\'iontráil tú neamhbhailí. (róghearr, rófhada, carachtair neamhbhailí)</string>
-    <string name="edit_shipping_contact_invalid_postal_code">Tá an téacs a d\'iontráil tú neamhbhailí. (rófhada, ró-ghearr, carachtair neamhbhailí)</string>
+    <string name="edit_shipping_contact_invalid_name">Cuir isteach uasmhéid de 50 carachtar le do thoil.</string>
+    <string name="edit_shipping_contact_invalid_phone">Cuir isteach uasmhéid de 25 carachtar. Ní cheadaítear ach uimhreacha agus na carachtair - + \' /.</string>
+    <string name="edit_shipping_contact_invalid_postal_code">Cuir isteach uasmhéid de 8 n-uimhir gan carachtair speisialta.</string>
     <string name="edit_shipping_contact_line2">Líne seoltaí breise (roghnach)</string>
     <string name="edit_shipping_contact_mail">Seoladh ríomhphoist (roghnach)</string>
     <string name="edit_shipping_contact_name">Céad ainm agus sloinne</string>
@@ -1059,7 +1066,7 @@
     <string name="onb_page_4_header">Príobháideacht &amp; Úsáid</string>
     <string name="onb_page_5_header">Cabhraigh linn an aip seo a fheabhsú</string>
     <string name="onb_terms_of_use">Téarmaí Úsáide</string>
-    <string name="onb_undo_description">Cealaigh</string>
+    <string name="onb_undo_description">Scrios iontráil</string>
     <string name="onboarding_analytics_agree_button">Aontaigh</string>
     <string name="onboarding_analytics_bottom_text">Is féidir leat an anailís a dhíghníomhachtú tráth ar bith sna socruithe.</string>
     <string name="onboarding_analytics_consent_text">Le do thoiliú, ba mhaith linn %s a dhéanamh. Chun na críche seo, ba mhaith linn sonraí faoi úsáid aipeanna agus sonraí teicniúla a bhailiú agus a anailísiú go hanaithnid, agus ar an gcaoi sin:</string>
@@ -1071,7 +1078,7 @@
     <string name="onboarding_analytics_resolve_errors_text">Earráidí a bhrath agus a cheartú go luath</string>
     <string name="onboarding_analytics_we_want">Déanfaimid:</string>
     <string name="onboarding_auth_biometric_info">Úsáideann an aip an modh is sábháilte atá socraithe agat ar do ghléas.</string>
-    <string name="onboarding_bottom_app_safety_button_next">Tuilleadh</string>
+    <string name="onboarding_bottom_app_safety_button_next">Ar Aghaidh</string>
     <string name="onboarding_bottom_button_accept">Glac</string>
     <string name="onboarding_bottom_button_choose">Roghnaigh</string>
     <string name="onboarding_bottom_button_save">Sábháil</string>
@@ -1257,6 +1264,7 @@
     <string name="pharmacy_search_favorite_toggle">Cuir le ceanáin</string>
     <string name="pharmacy_search_favorite_toggle_active">gníomhach</string>
     <string name="pharmacy_search_favorite_toggle_inactive">neamhghníomhach</string>
+    <string name="pharmacy_search_placeholder">Cuardaigh</string>
     <string name="pharmacy_search_searchbar">Cuardach cógaisíochta</string>
     <string name="pharmacy_start_search_text">Cuardach</string>
     <string name="pkv_invoices_total_of_year" formatted="false">Iomlán: %s %s</string>
@@ -1624,6 +1632,11 @@
     <string name="settings_show_audit_events_info">Anseo is féidir leat a fheiceáil cé a fuair rochtain ar do oidis agus cathain.</string>
     <string name="settings_show_token">Taispeáin comharthaí</string>
     <string name="settings_show_token_info">Eochair rochtana ar an tseirbhís oidis</string>
+    <string name="settings_theme_dark">Dorcha</string>
+    <string name="settings_theme_label">dearadh</string>
+    <string name="settings_theme_light">Geal</string>
+    <string name="settings_theme_system">Socruithe córais</string>
+    <string name="settings_theme_title">dearadh</string>
     <string name="settings_tracking_allow_button">Glac</string>
     <string name="settings_tracking_allow_info">%s Go raibh maith agat as do thacaíocht!</string>
     <string name="settings_tracking_allow_title">Feabhsaigh an app</string>

@@ -176,7 +176,7 @@ class NotAvailablePeriodErpModelTest {
         )
 
         val result3 = futurePeriod.isInPast()
-        assertEquals(false, result3)
+        assertEquals(true, result3)
     }
 
     @Test

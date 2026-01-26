@@ -387,6 +387,8 @@ object TestTag {
         }
 
         val LanguageColumnList by tagName()
+        val ThemeColumnList by tagName()
+        val ThemeItem by tagName()
     }
 
     object AlertDialog {

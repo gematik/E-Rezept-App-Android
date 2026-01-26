@@ -79,6 +79,7 @@ import de.gematik.ti.erp.app.prescription.ui.preview.FullDetailDigaPreviewData
 import de.gematik.ti.erp.app.prescription.ui.preview.FullDetailDigaPreviewProvider
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
 import de.gematik.ti.erp.app.prescriptionId
+import de.gematik.ti.erp.app.semantics.semanticsMergedButton
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -119,6 +120,7 @@ internal fun FullDetailDiga(
         Card(
             modifier = modifier
                 .semantics { prescriptionId = prescription.taskId }
+                .semanticsMergedButton()
                 .testTag(TestTag.Prescriptions.FullDetailPrescription),
             shape = RoundedCornerShape(SizeDefaults.double),
             border = BorderStroke(SizeDefaults.eighth, color = AppTheme.colors.neutral300),

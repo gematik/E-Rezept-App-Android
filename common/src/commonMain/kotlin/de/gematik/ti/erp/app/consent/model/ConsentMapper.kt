@@ -39,7 +39,7 @@ private fun template(
   "resourceType": "Consent",
   "meta": {
     "profile": [
-      "https://gematik.de/fhir/erpchrg/StructureDefinition/GEM_ERPCHRG_PR_Consent|1.0"
+      "https://gematik.de/fhir/erpchrg/StructureDefinition/GEM_ERPCHRG_PR_Consent|1.1"
     ]
   },
   "status": "active",
@@ -63,7 +63,7 @@ private fun template(
   ],
   "patient": {
     "identifier": {
-      "system": "http://fhir.de/sid/pkv/kvid-10",
+      "system": "http://fhir.de/sid/gkv/kvid-10",
       "value": "$insuranceIdentifier"
     }
   },
