@@ -29,6 +29,7 @@ import de.gematik.ti.erp.app.vau.api.VauService
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedVauList
+import io.github.aakira.napier.Napier
 import org.bouncycastle.cert.ocsp.BasicOCSPResp
 import org.bouncycastle.cert.ocsp.OCSPResp
 import java.io.IOException
@@ -116,7 +117,7 @@ private fun toDerBytes(raw: ByteArray): ByteArray = try {
 fun parseOcspResponse(derBytes: ByteArray) {
     val ocspResp = OCSPResp(derBytes)
 
-    println("OCSP status: ${ocspResp.status}") // 0 = successful, others = errors
+    Napier.d("OCSP status: ${ocspResp.status}") // 0 = successful, others = errors
 
     val responseObject = ocspResp.responseObject
     if (responseObject is BasicOCSPResp) {
@@ -129,12 +130,12 @@ fun parseOcspResponse(derBytes: ByteArray) {
             val thisUpdate = single.thisUpdate
             val nextUpdate = single.nextUpdate
 
-            println("Cert serial: ${certId.serialNumber}")
-            println("Status: $status")
-            println("thisUpdate: $thisUpdate")
-            println("nextUpdate: $nextUpdate")
+            Napier.d("Cert serial: ${certId.serialNumber}")
+            Napier.d("Status: $status")
+            Napier.d("thisUpdate: $thisUpdate")
+            Napier.d("nextUpdate: $nextUpdate")
         }
     } else {
-        println("Unexpected OCSP response type: ${responseObject?.javaClass}")
+        Napier.d("Unexpected OCSP response type: ${responseObject?.javaClass}")
     }
 }

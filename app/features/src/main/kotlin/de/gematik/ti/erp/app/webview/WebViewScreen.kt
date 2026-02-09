@@ -26,15 +26,14 @@ package de.gematik.ti.erp.app.webview
 
 import android.content.Intent
 import android.webkit.WebResourceRequest
-import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,11 +52,13 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.updateLayoutParams
-import androidx.webkit.WebViewAssetLoader
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.theme.AppColors
+import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffoldWithScrollState
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
+import io.github.aakira.napier.Napier
 
 const val URI_TERMS_OF_USE = "file:///android_asset/terms_of_use.html"
 
@@ -108,16 +109,43 @@ private fun WebView(
         rationale = "Javascript is disabled on all webviews used in the app."
     )
     val context = LocalContext.current
-    val colors = MaterialTheme.colors
+    val appColors = AppTheme.colors
     val typo = MaterialTheme.typography
-    val webView = remember(colors, typo) {
+    val isLightTheme = MaterialTheme.colors.isLight
+
+    val webView = remember {
         WebView(context).apply {
-            setBackgroundColor(colors.background.toArgb())
             settings.javaScriptCanOpenWindowsAutomatically = false
             settings.javaScriptEnabled = false
+            settings.cacheMode = android.webkit.WebSettings.LOAD_NO_CACHE
             setOnScrollChangeListener { _, _, scrollY, _, _ -> onScroll(scrollY) }
-            webViewClient = createWebViewClient(colors, typo)
         }
+    }
+
+    webView.webViewClient = remember(isLightTheme, appColors, typo) {
+        createWebViewClient()
+    }
+
+    LaunchedEffect(isLightTheme, appColors, url) {
+        webView.setBackgroundColor(appColors.neutral025.toArgb())
+
+        // Read the HTML file and inject CSS
+        val assetPath = url.removePrefix("file:///android_asset/")
+        val htmlContent = context.assets.open(assetPath).bufferedReader().use { it.readText() }
+        val css = generateCss(appColors, typo)
+
+        // Replace the styles.css link with inline CSS (handle both self-closing and regular tags)
+        val modifiedHtml = htmlContent
+            .replace("""<link rel="stylesheet" href="styles.css" />""", """<style>$css</style>""")
+            .replace("""<link rel="stylesheet" href="styles.css">""", """<style>$css</style>""")
+
+        webView.loadDataWithBaseURL(
+            "file:///android_asset/",
+            modifiedHtml,
+            "text/html",
+            "UTF-8",
+            null
+        )
     }
 
     var size by remember { mutableStateOf(IntSize(100, 100)) }
@@ -171,52 +199,102 @@ private fun typoColor(tag: String, style: TextStyle): String =
     |}
     """.trimMargin()
 
-fun createWebViewClient(colors: Colors, typo: Typography) = object : WebViewClient() {
-    private val css = """
+private fun generateCss(appColors: AppColors, typo: Typography): String {
+    val primaryColor = appColors.neutral900.toCSS()
+    val backgroundColor = appColors.neutral025.toCSS()
+
+    Napier.d("Generating CSS - primaryColor: $primaryColor, backgroundColor: $backgroundColor")
+
+    return """
+        |${baseStyles(primaryColor, backgroundColor)}
+        |${headingStyles(primaryColor, typo)}
+        |${textStyles(primaryColor, typo)}
+        |${listStyles(primaryColor)}
+        |${tableStyles(appColors)}
+        |${linkStyles(appColors)}
+        |${licenseStyles(primaryColor)}
+    """.trimMargin()
+}
+
+private fun baseStyles(primaryColor: String, backgroundColor: String) = """
+    |* {
+    |    overflow-wrap: break-word;
+    |}
     |body {
-    |    color: ${colors.onBackground.toCSS()};
-    |    background: ${colors.background.toCSS()};
+    |    color: $primaryColor;
+    |    background: $backgroundColor;
     |    padding: 16px;
-    |    word-wrap: break-word;
     |}
-    |li {
-    |    padding-bottom: 4px;
+""".trimMargin()
+
+private fun headingStyles(primaryColor: String, typo: Typography) = """
+    |h1, h2, h3, h4, h5, h6 {
+    |    color: $primaryColor;
+    |    font-weight: bold;
+    |    padding-top: 0.5em;
+    |    margin: 0;
     |}
-    |h1, h2, h3, h4 {
-    |   padding-top: 0.5em;
-    |   margin: 0;
+    |h5 {
+    |    font-weight: 600;
+    |    display: flex;
+    |    align-items: center;
     |}
     |${typoColor("h1", typo.h1)}
     |${typoColor("h2", typo.h2)}
     |${typoColor("h3", typo.h3)}
     |${typoColor("h4", typo.h4)}
+    |${typoColor("h5", typo.h5)}
+""".trimMargin()
+
+private fun textStyles(primaryColor: String, typo: Typography) = """
+    |p, li, th, td, caption, span, strong, em, small, label, dd, dt, blockquote, code, pre {
+    |    color: $primaryColor;
+    |}
     |${typoColor("p", typo.body1)}
+""".trimMargin()
+
+private fun listStyles(primaryColor: String) = """
+    |ul {
+    |    padding-inline-start: 16px;
+    |}
+    |li {
+    |    color: $primaryColor;
+    |    padding-bottom: 4px;
+    |    font-family: ui-sans-serif;
+    |    font-size: 17px;
+    |    line-height: 24px;
+    |    letter-spacing: -0.408px;
+    |}
+""".trimMargin()
+
+private fun tableStyles(appColors: AppColors) = """
     |table, th, td {
-    |   border-collapse: collapse;
-    |   border: 0.1px solid ${colors.onSurface.toCSS()};
+    |    border-collapse: collapse;
+    |    border: 0.1px solid ${appColors.neutral600.toCSS()};
     |}
     |th, td {
-    |   padding: 0.5em;
+    |    padding: 0.5em;
     |}
+""".trimMargin()
+
+private fun linkStyles(appColors: AppColors) = """
     |a, a:link, a:visited {
-    |    color: ${colors.primary.toCSS()};
+    |    color: ${appColors.primary700.toCSS()};
     |    text-decoration: none;
+    |    font-family: ui-sans-serif;
     |}
-    """.trimMargin()
+""".trimMargin()
 
-    private val cssLoader = WebViewAssetLoader.Builder()
-        .setDomain("localhost")
-        .addPathHandler("/style/") {
-            WebResourceResponse("text/css", "UTF-8", css.byteInputStream())
-        }
-        .build()
+private fun licenseStyles(primaryColor: String) = """
+    |section.license {
+    |    color: $primaryColor;
+    |    font-size: 17px;
+    |    line-height: 24px;
+    |    font-style: italic;
+    |}
+""".trimMargin()
 
-    override fun shouldInterceptRequest(
-        view: WebView,
-        request: WebResourceRequest
-    ): WebResourceResponse? {
-        return cssLoader.shouldInterceptRequest(request.url)
-    }
+fun createWebViewClient() = object : WebViewClient() {
 
     @Requirement(
         "O.Plat_10#1",
