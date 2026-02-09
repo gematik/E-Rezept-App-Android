@@ -32,10 +32,13 @@ import de.gematik.ti.erp.app.Requirement
 data class TextFilter(
     val value: List<String> = emptyList()
 ) {
+
+    // https://github.com/gematik/api-vzd/blob/main/docs/FHIR_VZD_HOWTO_Search.adoc#fhir-vzd-search-endpoint-payload-type-attribute-display-text-based-search
     companion object {
 
         // sanitization due to fhir-vzd rules:
-        // https://github.com/gematik/api-vzd/blob/main/docs/FHIR_VZD_HOWTO_Search.adoc#fhir-vzd-search-endpoint-payload-type-attribute-display-text-based-search
+
+        // not using it due to ERA-13682
         private fun String.sanitize(): String = replace(Regex("[.']"), "") // removing ., "" from the search string
 
         // adding quotes to the search string, to force the backend to search for the exact string
@@ -48,6 +51,6 @@ data class TextFilter(
                 value = split(" ").filter { it.isNotEmpty() }
             )
 
-        fun TextFilter.toSanitizedSearchText(): String? = value.joinToString().sanitize().addQuotesSearch()
+        fun TextFilter.toSanitizedSearchText(): String? = value.joinToString().trim().addQuotesSearch()
     }
 }

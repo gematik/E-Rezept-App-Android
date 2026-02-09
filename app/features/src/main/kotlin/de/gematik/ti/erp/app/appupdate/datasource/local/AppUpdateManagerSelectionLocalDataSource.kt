@@ -23,13 +23,14 @@
 package de.gematik.ti.erp.app.appupdate.datasource.local
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 
 class AppUpdateManagerSelectionLocalDataSource(
     private val sharedPreferences: SharedPreferences
 ) {
     fun setAppUpdateManagerSelector(useOriginal: Boolean) {
-        sharedPreferences.edit().putBoolean(APP_UPDATE_MANAGER_SELECTOR, useOriginal).apply()
+        sharedPreferences.edit { putBoolean(APP_UPDATE_MANAGER_SELECTOR, useOriginal) }
     }
 
     fun getAppUpdateManagerSelector(): Boolean {

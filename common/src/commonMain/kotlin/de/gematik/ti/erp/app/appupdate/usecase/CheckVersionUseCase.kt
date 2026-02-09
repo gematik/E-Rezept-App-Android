@@ -43,22 +43,31 @@ class CheckVersionUseCase(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend fun isUpdateRequired(): Boolean = withContext(dispatcher) {
-        if (BuildKonfig.INTERNAL) {
-            return@withContext false
-        }
-
-        try {
+        runCatching {
             val response = okHttp.newCall(
                 Request.Builder()
                     .header("X-Api-Key", BuildKonfig.ERP_API_KEY)
-                    .url(BuildKonfig.BASE_SERVICE_URI + "CertList")
+                    .url("${BuildKonfig.BASE_SERVICE_URI}VAUCertificate")
                     .get()
                     .build()
             ).execute()
 
-            response.code == HttpURLConnection.HTTP_UNAUTHORIZED
-        } catch (e: IOException) {
-            Napier.e(e) { "Couldn't check if api key is expired" }
+            response.use {
+                Napier.i(tag = "CheckVersionUseCase") {
+                    "isUpdateRequired: ${it.code}, message: ${it.message}"
+                }
+                it.code == HttpURLConnection.HTTP_UNAUTHORIZED
+            }
+        }.getOrElse { e ->
+            when (e) {
+                is IOException -> Napier.e(tag = "CheckVersionUseCase", throwable = e) {
+                    "Network error checking API key expiration"
+                }
+
+                else -> Napier.e(tag = "CheckVersionUseCase", throwable = e) {
+                    "Unexpected error checking API key expiration"
+                }
+            }
             false
         }
     }

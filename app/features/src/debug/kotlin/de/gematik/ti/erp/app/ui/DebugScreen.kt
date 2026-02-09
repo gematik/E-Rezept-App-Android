@@ -20,7 +20,7 @@
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
-@file: Suppress("UnusedPrivateMember", "MagicNumber")
+@file:Suppress("UnusedPrivateMember", "MagicNumber")
 
 package de.gematik.ti.erp.app.ui
 
@@ -319,8 +319,7 @@ fun DebugScreen(
                     navController.popBackStack()
                 }
             }
-            composable(DebugScreenNavigation.DebugDbMigrationLoggerScreen.route) {
-                    navEntry ->
+            composable(DebugScreenNavigation.DebugDbMigrationLoggerScreen.route) { navEntry ->
                 DbMigrationLoggerScreen(
                     navController = navController,
                     navBackStackEntry = navEntry
@@ -586,7 +585,7 @@ fun DebugScreenMain(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Original app update",
+                                text = if (appUpdateManager) "Using vau backend check" else "Using fake to force update",
                                 modifier = Modifier.weight(1f)
                             )
                             GemSwitch(
