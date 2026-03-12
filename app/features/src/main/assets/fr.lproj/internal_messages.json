@@ -58,5 +58,11 @@
         "text": "**✨ Affichage des codes de prescription** \nL'écran d'affichage des codes de lots et des codes individuels a été repensé pour une utilisation plus intuitive. \n \n **📋 Fonction Copie** \nLes informations sur les médicaments peuvent être copiées par un appui long. \n \n **♿ Accessibilité** \nLa fonction TalkBack et la navigation au clavier sont améliorées, les boutons sont plus clairs et les éléments de la liste sont structurés de manière plus logique. Les vidéos animées ne sont lues qu'une seule fois afin de faciliter l'accès aux utilisateurs ayant des troubles cognitifs.",
         "timestamp": "2026-01-22T08:00:00.000Z",
         "version": "1.36"
+    },
+    {
+        "id": "12",
+        "text": "**✨ Ouverture de l'application améliorée** \nDéverrouiller l'application est désormais plus rapide. \n \n **📞 Options de contact étendues** \nNous avons ajouté de nouvelles options de contact pour certaines polices d'assurance. \n \n **♿ Accessibilité** \nLa déclaration d'accessibilité a été mise à jour et enrichie d'une section documentant l'historique des modifications. Certains boutons ont été ajustés pour une meilleure visibilité.",
+        "timestamp": "2026-03-02T08:00:00.000Z",
+        "version": "1.37"
     }
 ]

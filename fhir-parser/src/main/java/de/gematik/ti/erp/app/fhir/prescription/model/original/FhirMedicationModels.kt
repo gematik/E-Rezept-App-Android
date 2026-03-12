@@ -32,6 +32,7 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatio
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatio.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatioValue
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirReference
 import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
@@ -61,6 +62,8 @@ import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable
 internal data class FhirMedication(
@@ -71,7 +74,9 @@ internal data class FhirMedication(
     @SerialName("form") val form: FhirCodeableConcept? = null,
     @SerialName("amount") val amount: FhirMedicationAmount? = null,
     @SerialName("ingredient") val ingredients: List<FhirMedicationIngredient> = emptyList(),
-    @SerialName("batch") val batch: FhirMedicationBatch? = null
+    @SerialName("batch") val batch: FhirMedicationBatch? = null,
+    // added on 1.6 version
+    @SerialName("contained") val contained: List<JsonElement> = emptyList()
 ) {
     val profile: FhirMedicationProfile?
         get() = resourceType?.getMedicationProfile()
@@ -90,7 +95,10 @@ internal data class FhirMedication(
                 FhirMedicationVersion.V_102 -> amount?.getRatioSpecialVersion102()
                 FhirMedicationVersion.V_110,
                 FhirMedicationVersion.V_12,
-                FhirMedicationVersion.V_13
+                FhirMedicationVersion.V_13,
+                FhirMedicationVersion.V_14,
+                FhirMedicationVersion.V_15,
+                FhirMedicationVersion.V_16
                 -> amount?.getRatio()
 
                 else -> null
@@ -102,7 +110,10 @@ internal data class FhirMedication(
             FhirMedicationVersion.V_102 -> extensions?.findMedicationCategorySpecialVersion102()
             FhirMedicationVersion.V_110,
             FhirMedicationVersion.V_12,
-            FhirMedicationVersion.V_13
+            FhirMedicationVersion.V_13,
+            FhirMedicationVersion.V_14,
+            FhirMedicationVersion.V_15,
+            FhirMedicationVersion.V_16
             -> extensions?.findMedicationCategory()
 
             else -> null
@@ -127,6 +138,35 @@ internal data class FhirMedication(
         }.onFailure {
             Napier.e("Error getting identifier: ${it.message}")
         }.getOrNull()
+
+    fun getDisplayName(): String? {
+        return code?.text ?: code?.coding?.firstOrNull()?.display ?: ingredients.firstOrNull()?.let { ingredient ->
+            ingredient.itemCodeableConcept?.text ?: ingredient.itemCodeableConcept?.coding?.firstOrNull()?.display
+        }
+    }
+
+    fun resolveContainedMedication(reference: String?): FhirMedication? {
+        val referenceId = reference?.removePrefix("#") ?: return null
+        return contained
+            .find { it.jsonObject["id"]?.jsonPrimitive?.content == referenceId }
+            ?.let {
+                try {
+                    SafeJson.value.decodeFromJsonElement(serializer(), it)
+                } catch (e: Exception) {
+                    Napier.e("Error decoding contained medication: ${e.message}")
+                    null
+                }
+            }
+    }
+
+    fun getIdentifierErpModel(): FhirMedicationIdentifierErpModel {
+        return FhirMedicationIdentifierErpModel(
+            pzn = getIdentifiers(FhirConstants.PZN_IDENTIFIER),
+            atc = getIdentifiers(FhirConstants.ATC_IDENTIFIER),
+            ask = getIdentifiers(FhirConstants.ASK_IDENTIFIER),
+            snomed = getIdentifiers(FhirConstants.SNOMED_IDENTIFIER)
+        )
+    }
 
     companion object {
 
@@ -162,12 +202,7 @@ internal data class FhirMedication(
                 ingredients = ingredients.map { it.toErpModel(this) },
                 lotNumber = batch?.lotNumber,
                 expirationDate = batch?.expirationDate?.asFhirTemporal(),
-                identifier = FhirMedicationIdentifierErpModel(
-                    pzn = getIdentifiers(FhirConstants.PZN_IDENTIFIER),
-                    atc = getIdentifiers(FhirConstants.ATC_IDENTIFIER),
-                    ask = getIdentifiers(FhirConstants.ASK_IDENTIFIER),
-                    snomed = getIdentifiers(FhirConstants.SNOMED_IDENTIFIER)
-                )
+                identifier = getIdentifierErpModel()
             )
     }
 }
@@ -195,6 +230,9 @@ enum class FhirMedicationVersion(val version: String) {
     V_110("1.1.0"),
     V_12("1.2"),
     V_13("1.3"),
+    V_14("1.4"),
+    V_15("1.5"),
+    V_16("1.6"),
     Unknown("")
     ;
 
@@ -214,13 +252,28 @@ internal data class FhirMedicationProfile(
     companion object {
         private fun extractMedicationProfile(url: String): FhirMedicationProfile? {
             val regex = Regex(""".*KBV_PR_ERP_([A-Za-z_]+)\|(\d+(?:\.\d+)+)""")
-            val match = regex.find(url) ?: return null.also { Napier.e { "FhirMedicationProfile $url regex failed match" } }
+            val gemRegex = Regex(""".*GEM_ERP_PR_Medication\|(\d+(?:\.\d+)+)""")
 
-            val (type, version) = match.destructured
-            return FhirMedicationProfile(
-                profileType = FhirMedicationProfileType.fromString(type),
-                version = FhirMedicationVersion.fromString(version)
-            )
+            val match = regex.find(url)
+            if (match != null) {
+                val (type, version) = match.destructured
+                return FhirMedicationProfile(
+                    profileType = FhirMedicationProfileType.fromString(type),
+                    version = FhirMedicationVersion.fromString(version)
+                )
+            }
+
+            val gemMatch = gemRegex.find(url)
+            if (gemMatch != null) {
+                val (version) = gemMatch.destructured
+                return FhirMedicationProfile(
+                    profileType = PZN, // GEM profile is currently only for PZN-like medications in our model
+                    version = FhirMedicationVersion.fromString(version)
+                )
+            }
+
+            Napier.e { "FhirMedicationProfile $url regex failed match" }
+            return null
         }
 
         fun FhirMeta.getMedicationProfile(): FhirMedicationProfile? {
@@ -241,6 +294,10 @@ internal data class FhirMedicationAmount(
 
         private const val MEDICATION_PACKAGING_SIZE_EXTENSION_URL = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_PackagingSize"
 
+        // added in from 1.6 version
+        private const val EPA_MEDICATION_QUANTITY_EXTENSION =
+            "https://gematik.de/fhir/epa-medication/StructureDefinition/medication-total-quantity-formulation-extension"
+
         /**
          * A specific mapper specialized to medication for version 1.0.2 in KBV, dispense
          */
@@ -260,7 +317,7 @@ internal data class FhirMedicationAmount(
          */
         fun FhirMedicationAmount.getRatio(): FhirRatio {
             val numeratorExtension = numerator?.valueFromExtension
-                ?.find { it.url == MEDICATION_PACKAGING_SIZE_EXTENSION_URL }
+                ?.find { it.url == MEDICATION_PACKAGING_SIZE_EXTENSION_URL || it.url == EPA_MEDICATION_QUANTITY_EXTENSION }
 
             val numerator = FhirRatioValue(
                 value = numeratorExtension?.valueString,
@@ -278,10 +335,10 @@ internal data class FhirMedicationAmount(
     }
 }
 
-// TODO move to common
 @Serializable
 internal data class FhirMedicationIngredient(
     @SerialName("itemCodeableConcept") val itemCodeableConcept: FhirCodeableConcept? = null,
+    @SerialName("itemReference") val itemReference: FhirReference? = null,
     @SerialName("strength") val strength: FhirRatio? = null
 ) {
     val text = itemCodeableConcept?.text
@@ -293,19 +350,19 @@ internal data class FhirMedicationIngredient(
         internal const val MEDICATION_INGREDIENT_FORM_EXTENSION_URL = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Ingredient_Form"
 
         fun FhirMedicationIngredient.toErpModel(
-            medicationForIdentifier: FhirMedication // todo: Not sure if this correct {parseIdentifier} is confusing
-        ) = FhirMedicationIngredientErpModel(
-            text = text,
-            amount = amount,
-            form = form,
-            strengthRatio = strength?.toErpModel(),
-            identifier = FhirMedicationIdentifierErpModel(
-                pzn = medicationForIdentifier.getIdentifiers(FhirConstants.PZN_IDENTIFIER),
-                atc = medicationForIdentifier.getIdentifiers(FhirConstants.ATC_IDENTIFIER),
-                ask = medicationForIdentifier.getIdentifiers(FhirConstants.ASK_IDENTIFIER),
-                snomed = medicationForIdentifier.getIdentifiers(FhirConstants.SNOMED_IDENTIFIER)
+            medicationForIdentifier: FhirMedication
+        ): FhirMedicationIngredientErpModel {
+            val referencedMedication = medicationForIdentifier.resolveContainedMedication(itemReference?.value)
+            val identifier = referencedMedication?.getIdentifierErpModel() ?: medicationForIdentifier.getIdentifierErpModel()
+
+            return FhirMedicationIngredientErpModel(
+                text = referencedMedication?.getDisplayName() ?: text,
+                amount = amount,
+                form = form,
+                strengthRatio = strength?.toErpModel(),
+                identifier = identifier
             )
-        )
+        }
     }
 }
 

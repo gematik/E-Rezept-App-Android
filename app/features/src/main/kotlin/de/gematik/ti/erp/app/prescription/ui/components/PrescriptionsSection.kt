@@ -110,6 +110,7 @@ internal fun PrescriptionsSection(
                     profileIconState = profileIconState,
                     isRegistered = isRegistered,
                     onClickConnect = onClickLogin,
+                    onClickRefresh = onClickRefresh,
                     onClickAvatar = onClickAvatar
                 )
                 archiveSection(

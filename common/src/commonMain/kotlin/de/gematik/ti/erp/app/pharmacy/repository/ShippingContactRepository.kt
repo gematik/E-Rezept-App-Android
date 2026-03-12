@@ -22,12 +22,12 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import kotlinx.coroutines.flow.Flow
 
 interface ShippingContactRepository {
 
-    fun shippingContact(): Flow<PharmacyData.ShippingContact?>
+    fun shippingContact(): Flow<ShippingInfoErpModel?>
 
-    suspend fun saveShippingContact(contact: PharmacyData.ShippingContact)
+    suspend fun saveShippingContact(contact: ShippingInfoErpModel)
 }

@@ -29,9 +29,10 @@ import de.gematik.ti.erp.app.authentication.presentation.ChooseAuthenticationCon
 import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
+import de.gematik.ti.erp.app.consent.usecase.GetConsentUseCase
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.EU_REDEEM
-import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuPrescriptionConsentUseCase
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.AddProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.DeleteProfileUseCase
@@ -49,6 +50,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
@@ -70,7 +72,7 @@ class ProfileScreenController(
     private val addProfileUseCase: AddProfileUseCase,
     private val deleteProfileUseCase: DeleteProfileUseCase,
     private val hasEuRedeemablePrescriptionsUseCase: HasEuRedeemablePrescriptionsUseCase,
-    private val getEuPrescriptionConsentUseCase: GetEuPrescriptionConsentUseCase,
+    private val getEuPrescriptionConsentUseCase: GetConsentUseCase,
     isFeatureToggleEnabledUseCase: IsFeatureToggleEnabledUseCase
 ) : ChooseAuthenticationController(
     profileId = profileId,
@@ -95,8 +97,8 @@ class ProfileScreenController(
 
     fun fetchEuConsentStatus(profileId: ProfileIdentifier) {
         controllerScope.launch {
-            getEuPrescriptionConsentUseCase(profileId)
-                .fold(
+            getEuPrescriptionConsentUseCase(profileId, ConsentCategory.EUCONSENT.code)
+                .first().fold(
                     onSuccess = { consentCollection ->
                         _euConsentStatus.value = consentCollection.isActive()
                     },
@@ -181,7 +183,7 @@ fun rememberProfileScreenController(profileId: ProfileIdentifier): ProfileScreen
     val chooseAuthenticationDataUseCase by rememberInstance<ChooseAuthenticationDataUseCase>()
     val biometricAuthenticator = LocalBiometricAuthenticator.current
     val hasEuRedeemablePrescriptionsUseCase by rememberInstance<HasEuRedeemablePrescriptionsUseCase>()
-    val getEuPrescriptionConsentUseCase by rememberInstance<GetEuPrescriptionConsentUseCase>()
+    val getEuPrescriptionConsentUseCase by rememberInstance<GetConsentUseCase>()
     val isFeatureToggleEnabledUseCase by rememberInstance<IsFeatureToggleEnabledUseCase>()
 
     return remember(profileId) {

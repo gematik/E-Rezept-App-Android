@@ -32,6 +32,8 @@ import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.base.BaseConstants.applicationScope
 import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
+import de.gematik.ti.erp.app.database.datastore.featuretoggle.IsRoomEnabled
+import de.gematik.ti.erp.app.database.datastore.featuretoggle.ROOM_DB
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.featureToggleLocalDataSource
 import de.gematik.ti.erp.app.datastore.featuretoggle.DefaultFeatureToggleRepository
 import de.gematik.ti.erp.app.datastore.featuretoggle.FeatureToggleRepository
@@ -43,6 +45,7 @@ import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
@@ -113,6 +116,11 @@ val appModules = DI.Module("appModules") {
     bindSingleton { EndpointHelper(networkPrefs = instance(NetworkPreferencesTag)) }
 
     bindSingleton<FeatureToggleRepository> { DefaultFeatureToggleRepository(instance()) }
+    bindProvider(tag = IsRoomEnabled) {
+        runBlocking {
+            instance<FeatureToggleRepository>().isFeatureEnabled(ROOM_DB).firstOrNull() ?: false
+        }
+    }
     bindSingleton { featureToggleLocalDataSource(instance(), BuildConfigExtension.isInternalDebug) }
     bindProvider { IsFeatureToggleEnabledUseCase(instance()) }
 

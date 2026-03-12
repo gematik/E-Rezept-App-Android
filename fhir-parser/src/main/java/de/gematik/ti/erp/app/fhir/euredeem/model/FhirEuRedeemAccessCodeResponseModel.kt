@@ -29,6 +29,7 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirParameter.Companion.
 import de.gematik.ti.erp.app.fhir.common.model.original.extractProfilesFromResourceMeta
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeResponseConstants
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeResponseConstants.FhirEuRedeemAccessCodeResponseMeta
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.Instant
@@ -46,9 +47,10 @@ data class FhirEuRedeemAccessCodeResponseModel(
     companion object {
         internal fun JsonElement.toFhirEuRedeemAccessCodeResponseModel(): FhirEuRedeemAccessCodeResponseModel? {
             return try {
+                val allowedIdentifiers = FhirEuRedeemAccessCodeResponseMeta.entries.map { it.identifier }
                 val profile = extractProfilesFromResourceMeta(this)
-                val isValidEuRedeemAccessCodeResponse = profile.any {
-                    it.contains(FhirEuRedeemAccessCodeResponseConstants.PROFILE_URL)
+                val isValidEuRedeemAccessCodeResponse = profile.any { profileUrl ->
+                    allowedIdentifiers.any { identifier -> profileUrl.contains(identifier) }
                 }
                 if (isValidEuRedeemAccessCodeResponse) {
                     SafeJson.value.decodeFromJsonElement(serializer(), this)

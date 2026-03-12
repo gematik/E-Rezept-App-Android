@@ -24,7 +24,6 @@ package de.gematik.ti.erp.app.redeem.usecase
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.HintRegex
 import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.MailRegex
 import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.PhoneRegex
@@ -43,6 +42,7 @@ import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.InvalidMa
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.InvalidName
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.InvalidPhoneNumber
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.InvalidPostalCode
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 
 @Requirement(
     "O.Source_1#10", // replacement for O.Source_1#4
@@ -51,7 +51,7 @@ import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.InvalidPo
 )
 class ValidateContactUseCase {
     operator fun invoke(
-        contact: PharmacyUseCaseData.ShippingContact,
+        contact: ShippingInfoErpModel,
         selectedOrderOption: PharmacyScreenData.OrderOption?
     ): ContactValidationState {
         if (selectedOrderOption == PharmacyScreenData.OrderOption.Pickup && !contact.address().isEmpty()) {
@@ -62,27 +62,27 @@ class ValidateContactUseCase {
             validate(contact.name.isEmpty(), EmptyName)
             validate(contact.name.isNotEmpty() && !contact.name.matches(TextRegex), InvalidName)
 
-            validate(contact.line1.isEmpty(), ContactValidationState.Error.EmptyLine1)
-            validate(contact.line1.isNotEmpty() && !contact.line1.matches(TextRegex), InvalidLine1)
+            validate(contact.street.isEmpty(), ContactValidationState.Error.EmptyLine1)
+            validate(contact.street.isNotEmpty() && !contact.street.matches(TextRegex), InvalidLine1)
 
-            validate(contact.line2.isNotEmpty() && !contact.line2.matches(TextRegex), InvalidLine2)
+            validate(contact.addressDetail.isNotEmpty() && !contact.addressDetail.matches(TextRegex), InvalidLine2)
 
-            validate(contact.postalCode.isEmpty(), EmptyPostalCode)
-            validate(contact.postalCode.isNotEmpty() && !contact.postalCode.matches(PostalCodeRegex), InvalidPostalCode)
+            validate(contact.zip.isEmpty(), EmptyPostalCode)
+            validate(contact.zip.isNotEmpty() && !contact.zip.matches(PostalCodeRegex), InvalidPostalCode)
 
             validate(contact.city.isEmpty(), EmptyCity)
             validate(contact.city.isNotEmpty() && !contact.city.matches(TextRegex), InvalidCity)
 
             if (selectedOrderOption != PharmacyScreenData.OrderOption.Pickup) {
-                validate(contact.telephoneNumber.isEmpty(), EmptyPhoneNumber)
-                validate(contact.telephoneNumber.isNotEmpty() && !contact.telephoneNumber.matches(PhoneRegex), InvalidPhoneNumber)
+                validate(contact.phone.isEmpty(), EmptyPhoneNumber)
+                validate(contact.phone.isNotEmpty() && !contact.phone.matches(PhoneRegex), InvalidPhoneNumber)
 
-                validate(contact.mail.isEmpty() && contact.telephoneNumber.isEmpty(), EmptyMail)
+                validate(contact.mail.isEmpty() && contact.phone.isEmpty(), EmptyMail)
                 validate(contact.mail.isNotEmpty() && !contact.mail.matches(MailRegex), InvalidMail)
             }
 
             validate(
-                contact.deliveryInformation.isNotEmpty() && !contact.deliveryInformation.matches(HintRegex),
+                contact.deliveryInfo.isNotEmpty() && !contact.deliveryInfo.matches(HintRegex),
                 ContactValidationState.Error.InvalidDeliveryInformation
             )
         }

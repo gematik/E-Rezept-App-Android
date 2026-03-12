@@ -25,11 +25,13 @@ package de.gematik.ti.erp.app.redeem.usecase
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
 import de.gematik.ti.erp.app.fhir.communication.DigaDispenseRequestBuilder
+import de.gematik.ti.erp.app.fhir.constant.communication.CommunicationDigaConstants
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.redeem.mocks.MOCK_SYNCED_TASK_DATA_DIGA
 import de.gematik.ti.erp.app.redeem.model.DigaRedeemedPrescriptionState
+import de.gematik.ti.erp.app.settings.repository.CommunicationDigaVersionRepository
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -60,6 +62,7 @@ class RedeemDigaUseCaseTest {
     private val mockDigaRepository = mockk<DigaRepository>()
     private val mockProfileRepository = mockk<ProfileRepository>()
     private val mockRequestBuilder = mockk<DigaDispenseRequestBuilder>()
+    private val mockCommunicationDigaVersionRepository = mockk<CommunicationDigaVersionRepository>()
 
     @Before
     fun setup() {
@@ -81,9 +84,13 @@ class RedeemDigaUseCaseTest {
                 telematikId = any(),
                 kvnrNumber = any(),
                 accessCode = any(),
-                sent = any()
+                sent = any(),
+                version = any()
             )
         } returns mockJson
+
+        coEvery { mockCommunicationDigaVersionRepository.getCommunicationDigaVersion() } returns
+            CommunicationDigaConstants.DigaDispenseRequestVersion.PRODUCTION_DEFAULT
 
         coEvery { mockPrescriptionRepository.redeem(any(), any(), any()) } returns Result.success(mockJson)
 
@@ -91,6 +98,7 @@ class RedeemDigaUseCaseTest {
             prescriptionRepository = mockPrescriptionRepository,
             digaRepository = mockDigaRepository,
             digaDispenseRequestBuilder = mockRequestBuilder,
+            communicationDigaVersionRepository = mockCommunicationDigaVersionRepository,
             dispatcher = testDispatcher
         )
     }

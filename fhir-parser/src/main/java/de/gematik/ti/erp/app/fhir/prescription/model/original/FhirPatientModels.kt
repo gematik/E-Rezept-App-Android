@@ -30,12 +30,9 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirName
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirName.Companion.processName
 import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants
+import de.gematik.ti.erp.app.fhir.constant.FhirVersions
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvPatientErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.original.KbvBundleVersion.V_1_0_3
-import de.gematik.ti.erp.app.fhir.prescription.model.original.KbvBundleVersion.V_1_1_0
-import de.gematik.ti.erp.app.fhir.prescription.model.original.KbvBundleVersion.V_1_2
-import de.gematik.ti.erp.app.fhir.prescription.model.original.KbvBundleVersion.V_1_3
 import de.gematik.ti.erp.app.utils.ParserUtil.asFhirTemporal
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName
@@ -67,10 +64,13 @@ internal data class FhirPatient(
      * @param version The KBV bundle version used to determine how to extract the KVNR.
      * @return The KVNR as a [String], or `null` if it cannot be found or the version is unknown.
      */
-    fun getKvnr(version: KbvBundleVersion): String? {
+    fun getKvnr(version: FhirVersions.KbvBundleVersion): String? {
         return when (version) {
-            V_1_0_3 -> identifiers?.firstOrNull { it.system == FhirConstants.PATIENT_KVNR_NAME_103 }?.value
-            V_1_1_0, V_1_2, V_1_3 -> {
+            FhirVersions.KbvBundleVersion.V_1_0_3 -> identifiers?.firstOrNull { it.system == FhirConstants.PATIENT_KVNR_NAME_103 }?.value
+            FhirVersions.KbvBundleVersion.V_1_1_0,
+            FhirVersions.KbvBundleVersion.V_1_2,
+            FhirVersions.KbvBundleVersion.V_1_3,
+            FhirVersions.KbvBundleVersion.V_1_4 -> {
                 val kvnrSystem = identifiers?.flatMap { identifier ->
                     identifier.type?.coding?.filter {
                         it.system == FhirConstants.PATIENT_KVNR_CODE_SYSTEM_URL
@@ -85,7 +85,8 @@ internal data class FhirPatient(
                 return identifiers?.firstOrNull { it.system == systemUrl }?.value
             }
 
-            KbvBundleVersion.UNKNOWN -> null
+            FhirVersions.KbvBundleVersion.V_1_0_2,
+            FhirVersions.KbvBundleVersion.UNKNOWN -> null
         }
     }
 
@@ -105,7 +106,7 @@ internal data class FhirPatient(
 
         private fun FhirPatient.processBirthdate() = birthDate?.asFhirTemporal()
 
-        fun FhirPatient.toErpModel(version: KbvBundleVersion): FhirTaskKbvPatientErpModel {
+        fun FhirPatient.toErpModel(version: FhirVersions.KbvBundleVersion): FhirTaskKbvPatientErpModel {
             return FhirTaskKbvPatientErpModel(
                 name = names?.firstOrNull()?.processName() ?: "",
                 birthDate = processBirthdate(),

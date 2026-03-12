@@ -31,6 +31,7 @@ import de.gematik.ti.erp.app.base.model.DownloadResourcesState
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState.NotStarted
 import de.gematik.ti.erp.app.base.usecase.DownloadAllResourcesUseCase
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
+import de.gematik.ti.erp.app.consent.usecase.GetConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.ShowGrantConsentDrawerUseCase
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
@@ -124,6 +125,7 @@ class PrescriptionListControllerTest : TestWatcher() {
     private lateinit var getArchivedPrescriptionsUseCase: GetArchivedPrescriptionsUseCase
     private lateinit var getArchivedDigasUseCase: GetArchivedDigasUseCase
     private lateinit var archiveExpiredDigasUseCase: ArchiveExpiredDigasUseCase
+    private lateinit var getConsentUseCase: GetConsentUseCase
     private lateinit var getMLKitAcceptedUseCase: GetMLKitAcceptedUseCase
     private lateinit var getShowWelcomeDrawerUseCase: GetShowWelcomeDrawerUseCase
     private lateinit var getCanStartToolTipsUseCase: GetCanStartToolTipsUseCase
@@ -233,6 +235,8 @@ class PrescriptionListControllerTest : TestWatcher() {
             repository = digaRepository
         )
 
+        getConsentUseCase = GetConsentUseCase(consentRepository)
+
         controllerUnderTest = PrescriptionListController(
             getProfileByIdUseCase = getProfileByIdUseCase,
             getProfilesUseCase = getProfilesUseCase,
@@ -252,7 +256,8 @@ class PrescriptionListControllerTest : TestWatcher() {
             tracker = tracker,
             networkStatusTracker = networkStatusTracker,
             getArchivedDigasUseCase = getArchivedDigasUseCase,
-            archiveExpiredDigasUseCase = archiveExpiredDigasUseCase
+            archiveExpiredDigasUseCase = archiveExpiredDigasUseCase,
+            getConsentUseCase = getConsentUseCase
         )
     }
 
@@ -546,7 +551,8 @@ class PrescriptionListControllerTest : TestWatcher() {
             tracker = tracker,
             networkStatusTracker = networkStatusTracker,
             getArchivedDigasUseCase = getArchivedDigasUseCase,
-            archiveExpiredDigasUseCase = archiveExpiredDigasUseCase
+            archiveExpiredDigasUseCase = archiveExpiredDigasUseCase,
+            getConsentUseCase = getConsentUseCase
         )
 
         testScope.runTest {
@@ -632,7 +638,8 @@ class PrescriptionListControllerTest : TestWatcher() {
             tracker = tracker,
             networkStatusTracker = networkStatusTracker,
             getArchivedDigasUseCase = getArchivedDigasUseCase,
-            archiveExpiredDigasUseCase = archiveExpiredDigasUseCase
+            archiveExpiredDigasUseCase = archiveExpiredDigasUseCase,
+            getConsentUseCase = getConsentUseCase
         )
         testScope.runTest {
             advanceUntilIdle()

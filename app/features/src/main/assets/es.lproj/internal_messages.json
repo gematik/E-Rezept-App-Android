@@ -58,5 +58,11 @@
         "text": "**✨ Mostrar códigos de prescripción** \nLa pantalla para códigos de lote y únicos se ha rediseñado para un uso más intuitivo. \n \n **📋 Función de copia** \nLa información del medicamento se puede copiar con una pulsación larga. \n \n **♿ Accesibilidad** \nLa función Talkback y la navegación con el teclado funcionan mejor, los botones son más claros y los elementos de la lista están estructurados de forma más lógica. Los vídeos animados se reproducen solo una vez para ayudar a los usuarios con discapacidades cognitivas.",
         "timestamp": "2026-01-22T08:00:00.000Z",
         "version": "1.36"
+    },
+    {
+        "id": "12",
+        "text": "**✨ Apertura de la app mejorada** \nDesbloquear la app ahora es más rápido. \n \n **📞 Opciones de contacto ampliadas** \nHemos introducido nuevas opciones de contacto para pólizas de seguro seleccionadas. \n \n **♿ Accesibilidad** \nLa declaración de accesibilidad se ha actualizado y ampliado para incluir una sección que documenta el historial de cambios. Se han ajustado algunos botones para mejorar la visibilidad.",
+        "timestamp": "2026-03-02T08:00:00.000Z",
+        "version": "1.37"
     }
 ]

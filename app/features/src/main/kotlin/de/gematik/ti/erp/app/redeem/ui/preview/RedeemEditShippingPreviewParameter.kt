@@ -24,14 +24,14 @@ package de.gematik.ti.erp.app.redeem.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.pharmacy.usecase.ShippingContactState
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 
 data class ShippingContactPreviewData(
     val name: String,
     val validShippingContactState: ShippingContactState.ValidShippingContactState? = null,
     val invalidShippingContactState: ShippingContactState.InvalidShippingContactState? = null,
     val errorShippingContactState: ShippingContactState.InvalidShippingContactState? = null,
-    val shippingContact: PharmacyUseCaseData.ShippingContact
+    val shippingContact: ShippingInfoErpModel
 )
 
 class RedeemEditShippingPreviewParameter : PreviewParameterProvider<ShippingContactPreviewData> {
@@ -41,15 +41,15 @@ class RedeemEditShippingPreviewParameter : PreviewParameterProvider<ShippingCont
             ShippingContactPreviewData(
                 name = "ValidShippingState",
                 validShippingContactState = ShippingContactState.ValidShippingContactState.OK,
-                shippingContact = PharmacyUseCaseData.ShippingContact(
+                shippingContact = ShippingInfoErpModel(
                     name = "John Doe",
-                    line1 = "123 Main St",
-                    line2 = "Apt 4B",
-                    postalCode = "12345",
+                    street = "123 Main St",
+                    addressDetail = "Apt 4B",
+                    zip = "12345",
                     city = "Metropolis",
-                    telephoneNumber = "555-1234",
+                    phone = "555-1234",
                     mail = "john.doe@example.com",
-                    deliveryInformation = "Leave at the front door"
+                    deliveryInfo = "Leave at the front door"
                 )
             ),
             ShippingContactPreviewData(
@@ -66,15 +66,15 @@ class RedeemEditShippingPreviewParameter : PreviewParameterProvider<ShippingCont
                         ShippingContactState.ShippingContactError.InvalidDeliveryInformation
                     )
                 ),
-                shippingContact = PharmacyUseCaseData.ShippingContact(
+                shippingContact = ShippingInfoErpModel(
                     name = "!@#$%^&*()",
-                    line1 = "@#@#",
-                    line2 = "#$#$#",
-                    postalCode = "1",
+                    street = "@#@#",
+                    addressDetail = "#$#$#",
+                    zip = "1",
                     city = "@",
-                    telephoneNumber = "#$#$",
+                    phone = "#$#$",
                     mail = "",
-                    deliveryInformation = "!!#@!@#"
+                    deliveryInfo = "!!#@!@#"
                 )
             ),
             ShippingContactPreviewData(
@@ -89,15 +89,15 @@ class RedeemEditShippingPreviewParameter : PreviewParameterProvider<ShippingCont
                         ShippingContactState.ShippingContactError.EmptyMail
                     )
                 ),
-                shippingContact = PharmacyUseCaseData.ShippingContact(
+                shippingContact = ShippingInfoErpModel(
                     name = "",
-                    line1 = "",
-                    line2 = "",
-                    postalCode = "",
+                    street = "",
+                    addressDetail = "",
+                    zip = "",
                     city = "",
-                    telephoneNumber = "",
+                    phone = "",
                     mail = "",
-                    deliveryInformation = ""
+                    deliveryInfo = ""
                 )
             )
         )

@@ -54,23 +54,68 @@ object FhirTaskMetaDataErpTestData {
     val taskMetaVersion_1_5_InProgress = FhirTaskMetaDataErpModel(
         taskId = "160.123.456.789.123.62",
         accessCode = "777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607bl",
-        lastModified = FhirTemporal.Instant(
-            value = Instant.parse("2024-07-30T08:45:00Z")
-        ),
-        expiresOn = FhirTemporal.LocalDate(
-            value = LocalDate.parse("2020-06-02")
-        ),
-        acceptUntil = FhirTemporal.LocalDate(
-            value = LocalDate.parse("2020-04-01")
-        ),
-        authoredOn = FhirTemporal.Instant(
-            value = Instant.parse("2024-07-28T08:00:00Z")
-        ),
+        lastModified = FhirTemporal.Instant(Instant.parse("2024-07-30T08:45:00Z")),
+        expiresOn = FhirTemporal.LocalDate(LocalDate.parse("2020-06-02")),
+        acceptUntil = FhirTemporal.LocalDate(LocalDate.parse("2020-04-01")),
+        authoredOn = FhirTemporal.Instant(Instant.parse("2024-07-28T08:00:00Z")),
+        lastMedicationDispense = FhirTemporal.Instant(Instant.parse("2020-04-01T15:37:17Z")),
         status = TaskStatus.InProgress,
-        lastMedicationDispense = FhirTemporal.Instant(
-            value = Instant.parse("2020-04-01T15:37:17Z")
-        ),
         isEuRedeemableByProperties = true,
         isEuRedeemableByPatientAuthorization = false
+    )
+
+    val taskMetaDataVersion_1_6_Ready = FhirTaskMetaDataErpModel(
+        taskId = "160.000.033.491.280.78",
+        accessCode = "777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea",
+        lastModified = FhirTemporal.Instant(Instant.parse("2026-04-01T16:44:00.434Z")),
+        expiresOn = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
+        acceptUntil = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
+        authoredOn = FhirTemporal.Instant(Instant.parse("2026-04-01T15:29:00Z")),
+        status = TaskStatus.Ready,
+        lastMedicationDispense = null
+    )
+
+    val taskMetaDataVersion_1_6_InProgress = FhirTaskMetaDataErpModel(
+        taskId = "160.000.033.491.280.78",
+        accessCode = "777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea",
+        lastModified = FhirTemporal.Instant(Instant.parse("2026-04-01T16:44:00.434Z")),
+        expiresOn = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
+        acceptUntil = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
+        authoredOn = FhirTemporal.Instant(Instant.parse("2026-04-01T15:29:00Z")),
+        status = TaskStatus.InProgress,
+        lastMedicationDispense = FhirTemporal.Instant(Instant.parse("2026-04-01T16:44:00.434Z"))
+    )
+
+    val taskMetaDataVersion_1_6_InProgressClaimed = FhirTaskMetaDataErpModel(
+        taskId = "160.000.033.491.280.78",
+        accessCode = "777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea",
+        lastModified = FhirTemporal.Instant(Instant.parse("2026-04-01T16:44:00.434Z")),
+        expiresOn = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
+        acceptUntil = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
+        authoredOn = FhirTemporal.Instant(Instant.parse("2026-04-01T15:29:00Z")),
+        status = TaskStatus.InProgress,
+        lastMedicationDispense = null
+    )
+
+    val taskMetaDataVersion_1_6_InProgressClaimedAgain = FhirTaskMetaDataErpModel(
+        taskId = "160.000.033.491.280.78",
+        accessCode = "777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea",
+        lastModified = FhirTemporal.Instant(Instant.parse("2026-04-01T16:44:00.434Z")),
+        expiresOn = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
+        acceptUntil = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
+        authoredOn = FhirTemporal.Instant(Instant.parse("2026-04-01T15:29:00Z")),
+        status = TaskStatus.InProgress,
+        lastMedicationDispense = FhirTemporal.Instant(Instant.parse("2026-04-01T16:44:00.434Z"))
+    )
+
+    val taskMetaDataVersion_1_6_Complete = FhirTaskMetaDataErpModel(
+        taskId = "160.000.033.491.280.78",
+        accessCode = "777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea",
+        lastModified = FhirTemporal.Instant(Instant.parse("2026-04-01T16:44:00.434Z")),
+        expiresOn = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
+        acceptUntil = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
+        authoredOn = FhirTemporal.Instant(Instant.parse("2026-04-01T15:29:00Z")),
+        status = TaskStatus.Completed,
+        lastMedicationDispense = null
     )
 }

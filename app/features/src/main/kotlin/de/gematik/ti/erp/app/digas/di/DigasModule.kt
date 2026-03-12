@@ -31,6 +31,7 @@ import de.gematik.ti.erp.app.base.usecase.TriggerNavigationUseCase
 import de.gematik.ti.erp.app.diga.local.DigaLocalDataSource
 import de.gematik.ti.erp.app.diga.repository.DefaultDigaRepository
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
+import de.gematik.ti.erp.app.database.settings.CommunicationDigaVersionDataStore
 import de.gematik.ti.erp.app.digas.data.repository.DefaultDigaInformationRepository
 import de.gematik.ti.erp.app.digas.data.repository.DigaInformationRepository
 import de.gematik.ti.erp.app.digas.domain.usecase.FetchDigaByPznUseCase
@@ -47,6 +48,9 @@ import de.gematik.ti.erp.app.fhir.communication.DigaDispenseRequestBuilder
 import de.gematik.ti.erp.app.insurance.usecase.FetchInsuranceProviderUseCase
 import de.gematik.ti.erp.app.interceptor.ERezeptBackendTokenApiKeyInterceptor
 import de.gematik.ti.erp.app.redeem.usecase.RedeemDigaUseCase
+import de.gematik.ti.erp.app.settings.repository.CommunicationDigaVersionRepository
+import de.gematik.ti.erp.app.settings.repository.DefaultCommunicationDigaVersionRepository
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import okhttp3.OkHttpClient
 import org.kodein.di.DI
 import org.kodein.di.bind
@@ -58,6 +62,13 @@ import org.kodein.di.singleton
 val digaModule = DI.Module("digaModule", allowSilentOverride = true) {
     bindProvider { DigaDispenseRequestBuilder() }
 
+    bindProvider<CommunicationDigaVersionRepository> {
+        DefaultCommunicationDigaVersionRepository(
+            dataStore = runCatching { instance<CommunicationDigaVersionDataStore>() }.getOrNull(),
+            isDebugMode = BuildConfigExtension.isDebug
+        )
+    }
+
     bindProvider {
         FetchInsuranceProviderUseCase(
             instance(),
@@ -68,6 +79,7 @@ val digaModule = DI.Module("digaModule", allowSilentOverride = true) {
 
     bindProvider {
         RedeemDigaUseCase(
+            instance(),
             instance(),
             instance(),
             instance()

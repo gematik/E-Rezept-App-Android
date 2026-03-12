@@ -133,6 +133,7 @@ import de.gematik.ti.erp.app.redeem.ui.preview.PrescriptionSelectionSectionParam
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenParameter
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewData
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParameter
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -462,7 +463,7 @@ private fun redeemOrder(
     selectedPharmacy: PharmacyUseCaseData.Pharmacy?,
     isRedemptionAllowed: Boolean,
     attemptRedeemValidation: (
-        contact: PharmacyUseCaseData.ShippingContact,
+        contact: ShippingInfoErpModel,
         selectedOrderOption: PharmacyScreenData.OrderOption?,
         prescriptions: List<PrescriptionInOrder>,
         pharmacy: PharmacyUseCaseData.Pharmacy?
@@ -793,7 +794,7 @@ private fun LazyListScope.contactSelectionAnimatedItem(
 private fun ContactSelectionSection(
     profile: Profile,
     contactValidationState: RedeemContactValidationState,
-    contact: PharmacyUseCaseData.ShippingContact,
+    contact: ShippingInfoErpModel,
     selectedOrderOption: PharmacyScreenData.OrderOption?,
     isContactError: Boolean,
     onClick: () -> Unit

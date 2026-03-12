@@ -26,10 +26,12 @@ import generated.guavaLibrary
 import generated.kotlinStdlibJdk8Library
 import generated.kotlinStdlibLibrary
 import generated.nettyCodecHttp2Library
+import generated.nettyCodecHttpLibrary
 import generated.nettyHandlerLibrary
 import generated.protobufJavaLibrary
 import generated.protobufJavaUtilLibrary
 import generated.qualityCheckstyleLibrary
+import generated.testYamlLibrary
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalog
 
@@ -39,10 +41,13 @@ fun Project.applyForcedDependencies(versionCatalog: VersionCatalog) {
             resolutionStrategy {
                 force(versionCatalog.protobufJavaLibrary)
                 force(versionCatalog.protobufJavaUtilLibrary)
+                force(versionCatalog.nettyCodecHttpLibrary)
                 force(versionCatalog.nettyCodecHttp2Library)
                 force(versionCatalog.nettyHandlerLibrary)
                 force(versionCatalog.guavaLibrary)
                 force(versionCatalog.qualityCheckstyleLibrary)
+                // Fixes CVE-2022-1471
+                force(versionCatalog.testYamlLibrary)
                 // external dependencies bring kotlin to 1.9.* transitively
                 force(versionCatalog.kotlinStdlibLibrary)
                 force(versionCatalog.kotlinStdlibJdk8Library)

@@ -22,13 +22,15 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
+import de.gematik.ti.erp.app.database.api.PharmacyLocalDataSource
+import de.gematik.ti.erp.app.database.api.PharmacySearchAccessTokenLocalDataSource
 import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyParsers
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.FHIRVZD
 import de.gematik.ti.erp.app.messages.repository.PharmacyCacheLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacyRemoteSelectorLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacySearchAccessTokenLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.DefaultPharmacyRemoteDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.PharmacyRemoteDataSource
 import de.gematik.ti.erp.app.pharmacy.usecase.model.LocationFilter
@@ -37,8 +39,11 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonElement
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -54,6 +59,7 @@ class DefaultPharmacyRepositoryTest {
     private val cachedPharmacyLocalDataSource = mockk<PharmacyCacheLocalDataSource>(relaxed = true)
     private val parser = mockk<PharmacyParsers>()
     private val filter = PharmacyFilter()
+    private val pharmacyLocalDataSource = mockk<PharmacyLocalDataSource>()
 
     private lateinit var remoteDataSource: PharmacyRemoteDataSource
 
@@ -67,13 +73,60 @@ class DefaultPharmacyRepositoryTest {
 
         repository = DefaultPharmacyRepository(
             pharmacyRemoteDataSource = defaultPharmacyRemoteDataSource,
-            searchAccessTokenLocalDataSource = searchAccessTokenLocalDataSource,
+            pharmacySearchAccessTokenLocalDataSource = searchAccessTokenLocalDataSource,
             cachedPharmacyLocalDataSource = cachedPharmacyLocalDataSource,
             parsers = parser,
             redeemLocalDataSource = mockk(),
-            favouriteLocalDataSource = mockk(),
-            oftenUsedLocalDataSource = mockk()
+            pharmacyLocalDataSource = pharmacyLocalDataSource
         )
+    }
+
+    @Test
+    fun `loadPharmacies delegates to local data source and emits expected list`() = runTest {
+        val expected = listOf(
+            PharmacyErpModel(
+                telematikId = "id1",
+                name = "Pharmacy 1",
+                address = null,
+                contact = null,
+                isFavorite = true,
+                isOftenUsed = false,
+                lastUsed = Instant.parse("2024-08-01T10:00:00Z")
+            ),
+            PharmacyErpModel(
+                telematikId = "id2",
+                name = "Pharmacy 2",
+                address = null,
+                contact = null,
+                isFavorite = false,
+                isOftenUsed = true,
+                lastUsed = Instant.parse("2024-08-02T10:00:00Z")
+            )
+        )
+        every { pharmacyLocalDataSource.loadPharmacies() } returns flowOf(expected)
+
+        val result = repository.loadPharmacies().first()
+
+        assertEquals(expected, result)
+        assertEquals(true, result[0].isFavorite)
+        assertEquals(false, result[0].isOftenUsed)
+        assertEquals(Instant.parse("2024-08-01T10:00:00Z"), result[0].lastUsed)
+
+        assertEquals(false, result[1].isFavorite)
+        assertEquals(true, result[1].isOftenUsed)
+        assertEquals(Instant.parse("2024-08-02T10:00:00Z"), result[1].lastUsed)
+
+        verify(exactly = 1) { pharmacyLocalDataSource.loadPharmacies() }
+    }
+
+    @Test
+    fun `loadPharmacies emits empty list when none available`() = runTest {
+        every { pharmacyLocalDataSource.loadPharmacies() } returns flowOf(emptyList())
+
+        val result = repository.loadPharmacies().first()
+
+        assertTrue(result.isEmpty())
+        verify(exactly = 1) { pharmacyLocalDataSource.loadPharmacies() }
     }
 
     @Test

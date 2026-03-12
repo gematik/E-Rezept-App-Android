@@ -25,6 +25,8 @@ package de.gematik.ti.erp.app.eurezept.repository
 import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
 import de.gematik.ti.erp.app.eurezept.model.EuOrder
 import de.gematik.ti.erp.app.fhir.FhirErpModel
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeRequestConstants.FhirEuRedeemAccessCodeRequestMeta
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirTaskEuPatchInputModelConstants.FhirTaskEuPatchMeta
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
 
@@ -35,11 +37,13 @@ interface EuRepository {
     suspend fun toggleIsEuRedeemableByPatientAuthorization(
         taskId: String,
         profileId: ProfileIdentifier,
+        metadata: FhirTaskEuPatchMeta,
         isEuRedeemableByPatientAuthorization: Boolean
     ): Result<Unit>
 
     suspend fun createEuRedeemAccessCode(
         profileId: ProfileIdentifier,
+        metadata: FhirEuRedeemAccessCodeRequestMeta,
         countryCode: String,
         relatedTaskIds: List<String>
     ): Result<EuAccessCode>

@@ -26,11 +26,7 @@ import de.gematik.ti.erp.app.fhir.audit.model.FhirAuditEventErpModel
 import de.gematik.ti.erp.app.fhir.audit.model.original.FhirAgent
 import de.gematik.ti.erp.app.fhir.audit.model.original.FhirAuditEventEntity
 import de.gematik.ti.erp.app.fhir.audit.model.original.FhirAuditEventModel
-import de.gematik.ti.erp.app.fhir.constant.audit.FhirAuditEventsConstants.AUDIT_EVENT_TELEMATIK_ID_IDENTIFIER
-import de.gematik.ti.erp.app.fhir.constant.audit.FhirAuditEventsConstants.AUDIT_EVENT_VERSION_1_1_KVNR_IDENTIFIER
-import de.gematik.ti.erp.app.fhir.constant.audit.FhirAuditEventsConstants.AUDIT_EVENT_VERSION_1_1_PRESCRIPTION_IDENTIFIER
-import de.gematik.ti.erp.app.fhir.constant.audit.FhirAuditEventsConstants.AUDIT_EVENT_VERSION_1_2_KVNR_IDENTIFIER
-import de.gematik.ti.erp.app.fhir.constant.audit.FhirAuditEventsConstants.AUDIT_EVENT_VERSION_1_2_PRESCRIPTION_IDENTIFIER
+import de.gematik.ti.erp.app.fhir.constant.audit.FhirAuditEventsConstants
 import de.gematik.ti.erp.app.fhir.constant.audit.FhirAuditEventsConstants.sanitizeAsAuditEventDescription
 import de.gematik.ti.erp.app.fhir.error.fhirError
 import de.gematik.ti.erp.app.utils.ParserUtil.asFhirInstant
@@ -43,13 +39,17 @@ private fun List<FhirAgent>.getWhoValue(systemUrl: String) =
     firstOrNull { it.who?.identifier?.system == systemUrl }
         ?.who?.identifier?.value
 
+@Suppress("ktlint:standard:max-line-length", "MaxLineLength")
 private fun List<FhirAuditEventEntity>.taskId() =
-    getWhatValue(AUDIT_EVENT_VERSION_1_1_PRESCRIPTION_IDENTIFIER) ?: getWhatValue(AUDIT_EVENT_VERSION_1_2_PRESCRIPTION_IDENTIFIER)
+    getWhatValue(FhirAuditEventsConstants.PrescriptionIdentifiers.VERSION_1_1) ?: getWhatValue(FhirAuditEventsConstants.PrescriptionIdentifiers.VERSION_1_2)
 
-private fun List<FhirAgent>.telematikId() = getWhoValue(AUDIT_EVENT_TELEMATIK_ID_IDENTIFIER)
+private fun List<FhirAgent>.telematikId() = getWhoValue(FhirAuditEventsConstants.TELEMATIK_ID)
 
-private fun List<FhirAgent>.kvnr() = getWhoValue(AUDIT_EVENT_VERSION_1_1_KVNR_IDENTIFIER) ?: getWhoValue(AUDIT_EVENT_VERSION_1_2_KVNR_IDENTIFIER)
+@Suppress("ktlint:standard:max-line-length", "MaxLineLength")
+private fun List<FhirAgent>.kvnr() =
+    getWhoValue(FhirAuditEventsConstants.PatientIdentifiers.VERSION_1_1) ?: getWhoValue(FhirAuditEventsConstants.PatientIdentifiers.VERSION_1_2)
 
+@Suppress("ktlint:standard:max-line-length", "MaxLineLength")
 internal fun FhirAuditEventModel.toErpModel() = FhirAuditEventErpModel(
     id = id ?: "",
     taskId = entity.taskId(),

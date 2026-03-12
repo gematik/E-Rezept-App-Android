@@ -23,18 +23,13 @@
 package de.gematik.ti.erp.app.consent.repository
 
 import de.gematik.ti.erp.app.fhir.consent.FhirConsentParser
-import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.fhir.model.ResourceBasePath
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.junit.Before
-import org.junit.Test
 import java.io.File
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class ConsentRepositoryTest {
 
@@ -62,34 +57,12 @@ class ConsentRepositoryTest {
             parsers = fhirConsentParser
         )
 
-        coEvery { remoteDataSource.getPkvConsent("0", category = any()) } coAnswers {
+        coEvery { remoteDataSource.getConsent("0", category = any()) } coAnswers {
             Result.success(Json.parseToJsonElement(consentNotGrantedJson))
         }
 
-        coEvery { remoteDataSource.getPkvConsent("1", category = any()) } coAnswers {
+        coEvery { remoteDataSource.getConsent("1", category = any()) } coAnswers {
             Result.success(Json.parseToJsonElement(consentGrantedJson))
-        }
-    }
-
-    @Test
-    fun `get consent granted should answer false`() {
-        runTest {
-            val result = consentRepository.getPkvConsent("0", category = ConsentCategory.PKVCONSENT.code).map {
-                consentRepository.isPkvConsentGranted(it)
-                assertFalse { consentRepository.isPkvConsentGranted(it) }
-            }
-            assertTrue(result.isSuccess)
-        }
-    }
-
-    @Test
-    fun `get consent granted should answer true`() {
-        runTest {
-            val result = consentRepository.getPkvConsent("1", category = ConsentCategory.PKVCONSENT.code).map {
-                consentRepository.isPkvConsentGranted(it)
-                assertTrue { consentRepository.isPkvConsentGranted(it) }
-            }
-            assertTrue(result.isSuccess)
         }
     }
 }

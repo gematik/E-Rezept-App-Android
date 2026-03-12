@@ -46,6 +46,7 @@ import de.gematik.ti.erp.app.redeem.model.RedeemPrescriptionSelectionState.ListO
 import de.gematik.ti.erp.app.redeem.model.RedeemPrescriptionSelectionState.SelectedFromDetailsScreen
 import de.gematik.ti.erp.app.redeem.usecase.ValidateContactUseCase
 import de.gematik.ti.erp.app.shared.navigation.RedeemAndPharmacyGraphRoutes
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import de.gematik.ti.erp.app.viewmodel.rememberGraphScopedViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -76,16 +77,16 @@ abstract class OnlineRedeemSharedViewModel(
 
     @Deprecated("Use validateContactInformation")
     abstract fun validateAndGetShippingContactState(
-        contact: PharmacyUseCaseData.ShippingContact?,
+        contact: ShippingInfoErpModel?,
         selectedOrderOption: PharmacyScreenData.OrderOption?
     ): ShippingContactState?
 
     abstract fun validateContactInformation(
-        contact: PharmacyUseCaseData.ShippingContact,
+        contact: ShippingInfoErpModel,
         selectedOrderOption: PharmacyScreenData.OrderOption
     ): ContactValidationState
 
-    abstract fun saveShippingContact(contact: PharmacyUseCaseData.ShippingContact)
+    abstract fun saveShippingContact(contact: ShippingInfoErpModel)
 
     abstract fun onPrescriptionSelectionChanged(prescriptionInOrder: PrescriptionInOrder, select: Boolean)
 
@@ -96,7 +97,7 @@ abstract class OnlineRedeemSharedViewModel(
     abstract fun updateSelectedOrderOption(option: PharmacyScreenData.OrderOption?)
 
     abstract fun attemptRedeemValidation(
-        contact: PharmacyUseCaseData.ShippingContact,
+        contact: ShippingInfoErpModel,
         selectedOrderOption: PharmacyScreenData.OrderOption?,
         prescriptions: List<PrescriptionInOrder>,
         pharmacy: PharmacyUseCaseData.Pharmacy?
@@ -253,24 +254,24 @@ class DefaultOnlineRedeemSharedViewModel(
     }
 
     override fun validateContactInformation(
-        contact: PharmacyUseCaseData.ShippingContact,
+        contact: ShippingInfoErpModel,
         selectedOrderOption: PharmacyScreenData.OrderOption
     ) = validateContactUseCase.invoke(contact = contact, selectedOrderOption = selectedOrderOption)
 
     @Deprecated("Use validateContactInformation")
     override fun validateAndGetShippingContactState(
-        contact: PharmacyUseCaseData.ShippingContact?,
+        contact: ShippingInfoErpModel?,
         selectedOrderOption: PharmacyScreenData.OrderOption?
     ): ShippingContactState? = contact?.let { getShippingContactValidationUseCase(it, selectedOrderOption) }
 
-    override fun saveShippingContact(contact: PharmacyUseCaseData.ShippingContact) {
+    override fun saveShippingContact(contact: ShippingInfoErpModel) {
         controllerScope.launch {
             saveShippingContactUseCase(contact)
         }
     }
 
     override fun attemptRedeemValidation(
-        contact: PharmacyUseCaseData.ShippingContact,
+        contact: ShippingInfoErpModel,
         selectedOrderOption: PharmacyScreenData.OrderOption?,
         prescriptions: List<PrescriptionInOrder>,
         pharmacy: PharmacyUseCaseData.Pharmacy?

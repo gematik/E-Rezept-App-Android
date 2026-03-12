@@ -1293,4 +1293,330 @@ object FhirTaskDataErpTestData {
         ),
         deviceRequest = null
     )
+
+    val fhirKbvBundleExample1_v1_4 = FhirTaskDataErpModel(
+        pvsId = "Y/400/2107/36/999",
+        medicationRequest = FhirTaskKbvMedicationRequestErpModel(
+            authoredOn = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2024-05-20"),
+                type = FhirTemporalSerializationType.FhirTemporalLocalDate
+            ),
+            dateOfAccident = null,
+            location = null,
+            accidentType = FhirTaskAccidentType.None,
+            emergencyFee = false,
+            additionalFee = "0",
+            substitutionAllowed = false,
+            dosageInstruction = null,
+            note = null,
+            quantity = 1,
+            multiplePrescriptionInfo = FhirMultiplePrescriptionInfoErpModel(
+                indicator = true,
+                numbering = FhirRatioErpModel(
+                    numerator = FhirQuantityErpModel(value = "1", unit = null),
+                    denominator = FhirQuantityErpModel(value = "4", unit = null)
+                ),
+                start = FhirTemporal.LocalDate(
+                    value = LocalDate.parse("2024-05-20"),
+                    type = FhirTemporalSerializationType.FhirTemporalLocalDate
+                ),
+                end = FhirTemporal.LocalDate(
+                    value = LocalDate.parse("2024-06-30"),
+                    type = FhirTemporalSerializationType.FhirTemporalLocalDate
+                )
+            ),
+            isSer = false,
+            prescriberId = null
+        ),
+        medication = FhirTaskKbvMedicationErpModel(
+            text = "L-Thyroxin Henning 75 100 Tbl. N3",
+            form = "TAB",
+            medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+            medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+                type = ErpMedicationProfileType.PZN,
+                version = ErpMedicationProfileVersion.V_14
+            ),
+            amount = null,
+            isVaccine = false,
+            normSizeCode = "N3",
+            compoundingInstructions = null,
+            compoundingPackaging = null,
+            ingredients = listOf(
+                FhirMedicationIngredientErpModel(
+                    text = "Levothyroxin",
+                    amount = null,
+                    form = null,
+                    strengthRatio = FhirRatioErpModel(
+                        numerator = FhirQuantityErpModel(value = "72.9", unit = "µg"),
+                        denominator = FhirQuantityErpModel(value = "1", unit = "Stück")
+                    ),
+                    identifier = FhirMedicationIdentifierErpModel(
+                        pzn = "02532741",
+                        atc = null,
+                        ask = null,
+                        snomed = null
+                    )
+                )
+            ),
+            identifier = FhirMedicationIdentifierErpModel(
+                pzn = "02532741",
+                atc = null,
+                ask = null,
+                snomed = null
+            ),
+            lotNumber = null,
+            expirationDate = null
+        ),
+        patient = FhirTaskKbvPatientErpModel(
+            name = "Prof. Dr. Dr. med Eva Kluge",
+            birthDate = FhirTemporal.LocalDate(
+                value = LocalDate.parse("1982-01-03"),
+                type = FhirTemporalSerializationType.FhirTemporalLocalDate
+            ),
+            address = FhirTaskKbvAddressErpModel(
+                streetName = "Pflasterhofweg",
+                houseNumber = "111B",
+                additionalAddressInformation = null,
+                postalCode = "50999",
+                city = "Köln"
+            ),
+            insuranceInformation = "K030182229"
+        ),
+        practitioner = FhirTaskKbvPractitionerErpModel(
+            name = "Dr. med. Emma Schneider",
+            qualification = "Fachärztin für Innere Medizin",
+            doctorIdentifier = "987654423",
+            dentistIdentifier = null,
+            telematikId = null
+        ),
+        organization = FhirTaskOrganizationErpModel(
+            name = "MVZ",
+            address = FhirTaskKbvAddressErpModel(
+                streetName = "Herbert-Lewin-Platz",
+                houseNumber = "2",
+                additionalAddressInformation = null,
+                postalCode = "10623",
+                city = "Berlin"
+            ),
+            bsnr = "721111100",
+            iknr = null,
+            telematikId = null,
+            phone = "0301234567",
+            email = "mvz@e-mail.de",
+            fax = "030123456789"
+        ),
+        coverage = FhirCoverageErpModel(
+            name = "Techniker Krankenkasse",
+            statusCode = "3",
+            insuranceIdentifier = "109777509",
+            coverageType = "GKV"
+        ),
+        deviceRequest = null
+    )
+
+    val fhirKbvBundleExample2_v1_4 = FhirTaskDataErpModel(
+        pvsId = "Y/400/2107/36/999",
+        medicationRequest = FhirTaskKbvMedicationRequestErpModel(
+            authoredOn = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2024-05-20"),
+                type = FhirTemporalSerializationType.FhirTemporalLocalDate
+            ),
+            dateOfAccident = null,
+            location = null,
+            accidentType = FhirTaskAccidentType.None,
+            emergencyFee = false,
+            additionalFee = "0",
+            substitutionAllowed = true,
+            dosageInstruction = null,
+            note = null,
+            quantity = 1,
+            multiplePrescriptionInfo = FhirMultiplePrescriptionInfoErpModel(
+                indicator = false,
+                numbering = null,
+                start = null,
+                end = null
+            ),
+            isSer = false,
+            prescriberId = null
+        ),
+        medication = FhirTaskKbvMedicationErpModel(
+            text = "Metformin 850mg Tabletten N3",
+            form = null,
+            medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+            medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+                type = ErpMedicationProfileType.FreeText,
+                version = ErpMedicationProfileVersion.V_14
+            ),
+            amount = null,
+            isVaccine = false,
+            normSizeCode = null,
+            compoundingInstructions = null,
+            compoundingPackaging = null,
+            ingredients = emptyList(),
+            identifier = FhirMedicationIdentifierErpModel(
+                pzn = null,
+                atc = null,
+                ask = null,
+                snomed = null
+            ),
+            lotNumber = null,
+            expirationDate = null
+        ),
+        patient = FhirTaskKbvPatientErpModel(
+            name = "Prof. Dr. Karl-Friederich Graf Freiherr von Schaumberg",
+            birthDate = FhirTemporal.LocalDate(
+                value = LocalDate.parse("1964-04-04"),
+                type = FhirTemporalSerializationType.FhirTemporalLocalDate
+            ),
+            address = FhirTaskKbvAddressErpModel(
+                streetName = "Siegburger Str.",
+                houseNumber = "155",
+                additionalAddressInformation = null,
+                postalCode = "51105",
+                city = "Köln"
+            ),
+            insuranceInformation = "S040464113"
+        ),
+        practitioner = FhirTaskKbvPractitionerErpModel(
+            name = "Dr. med. Emma Schneider",
+            qualification = "Fachärztin für Innere Medizin",
+            doctorIdentifier = "987654423",
+            dentistIdentifier = null,
+            telematikId = null
+        ),
+        organization = FhirTaskOrganizationErpModel(
+            name = "MVZ",
+            address = FhirTaskKbvAddressErpModel(
+                streetName = "Herbert-Lewin-Platz",
+                houseNumber = "2",
+                additionalAddressInformation = null,
+                postalCode = "10623",
+                city = "Berlin"
+            ),
+            bsnr = "721111100",
+            iknr = null,
+            telematikId = null,
+            phone = "0301234567",
+            email = "mvz@e-mail.de",
+            fax = "030123456789"
+        ),
+        coverage = FhirCoverageErpModel(
+            name = "AOK Rheinland/Hamburg",
+            statusCode = "1",
+            insuranceIdentifier = "104212059",
+            coverageType = "GKV"
+        ),
+        deviceRequest = null
+    )
+
+    val fhirKbvBundleExample3_v1_4 = FhirTaskDataErpModel(
+        pvsId = "Y/400/2107/36/999",
+        medicationRequest = FhirTaskKbvMedicationRequestErpModel(
+            authoredOn = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2024-05-20"),
+                type = FhirTemporalSerializationType.FhirTemporalLocalDate
+            ),
+            dateOfAccident = null,
+            location = null,
+            accidentType = FhirTaskAccidentType.None,
+            emergencyFee = false,
+            additionalFee = "0",
+            substitutionAllowed = false,
+            dosageInstruction = null,
+            note = null,
+            quantity = 1,
+            multiplePrescriptionInfo = FhirMultiplePrescriptionInfoErpModel(
+                indicator = false,
+                numbering = null,
+                start = null,
+                end = null
+            ),
+            isSer = false,
+            prescriberId = null
+        ),
+        medication = FhirTaskKbvMedicationErpModel(
+            text = "Neupro 4MG/24H PFT 7ST",
+            form = "PFT",
+            medicationCategory = FhirTaskMedicationCategoryErpModel.ARZNEI_UND_VERBAND_MITTEL,
+            medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+                type = ErpMedicationProfileType.PZN,
+                version = ErpMedicationProfileVersion.V_14
+            ),
+            amount = null,
+            isVaccine = false,
+            normSizeCode = "N1",
+            compoundingInstructions = null,
+            compoundingPackaging = null,
+            ingredients = listOf(
+                FhirMedicationIngredientErpModel(
+                    text = "Rotigotin",
+                    amount = null,
+                    form = null,
+                    strengthRatio = FhirRatioErpModel(
+                        numerator = FhirQuantityErpModel(value = "4", unit = "mg/24 h"),
+                        denominator = FhirQuantityErpModel(value = "1", unit = "Stück")
+                    ),
+                    identifier = FhirMedicationIdentifierErpModel(
+                        pzn = "11164213",
+                        atc = null,
+                        ask = "30404",
+                        snomed = null
+                    )
+                )
+            ),
+            identifier = FhirMedicationIdentifierErpModel(
+                pzn = "11164213",
+                atc = null,
+                ask = "30404",
+                snomed = null
+            ),
+            lotNumber = null,
+            expirationDate = null
+        ),
+        patient = FhirTaskKbvPatientErpModel(
+            name = "Christa Christrose",
+            birthDate = FhirTemporal.LocalDate(
+                value = LocalDate.parse("1933-03-13"),
+                type = FhirTemporalSerializationType.FhirTemporalLocalDate
+            ),
+            address = FhirTaskKbvAddressErpModel(
+                streetName = "Nagelsweg",
+                houseNumber = "27",
+                additionalAddressInformation = null,
+                postalCode = "20097",
+                city = "Hamburg"
+            ),
+            insuranceInformation = "E111111113"
+        ),
+        practitioner = FhirTaskKbvPractitionerErpModel(
+            name = "Ben Schulz",
+            qualification = "Facharzt für Allgemeinmedizin",
+            doctorIdentifier = "754236701",
+            dentistIdentifier = null,
+            telematikId = null
+        ),
+        organization = FhirTaskOrganizationErpModel(
+            name = "Hausarztpraxis",
+            address = FhirTaskKbvAddressErpModel(
+                streetName = "Herbert-Lewin-Platz",
+                houseNumber = "2",
+                additionalAddressInformation = "Erdgeschoss",
+                postalCode = "10623",
+                city = "Berlin"
+            ),
+            bsnr = "724444400",
+            iknr = null,
+            telematikId = null,
+            phone = "030321654987",
+            email = "hausarztpraxis@e-mail.de",
+            fax = null
+        ),
+        coverage = FhirCoverageErpModel(
+            name = "DAK-GESUNDHEIT",
+            statusCode = "5",
+            insuranceIdentifier = "101560000",
+            coverageType = "GKV"
+        ),
+        deviceRequest = null
+    )
 }

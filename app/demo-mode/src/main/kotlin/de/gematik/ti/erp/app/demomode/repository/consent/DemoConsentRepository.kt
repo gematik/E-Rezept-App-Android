@@ -23,24 +23,17 @@
 package de.gematik.ti.erp.app.demomode.repository.consent
 
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
-import de.gematik.ti.erp.app.demomode.datasource.data.DemoConsentInfo.JSON_RESPONSE_CONSENT
 import de.gematik.ti.erp.app.fhir.FhirConsentErpModelCollection
 import de.gematik.ti.erp.app.fhir.consent.model.FhirCodeableConceptErp
 import de.gematik.ti.erp.app.fhir.consent.model.FhirCodingErp
 import de.gematik.ti.erp.app.fhir.consent.model.FhirConsentErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 
 class DemoConsentRepository : ConsentRepository {
     private var isEuConsentGranted = false
 
-    override suspend fun getPkvConsent(
-        profileId: ProfileIdentifier,
-        category: String
-    ): Result<JsonElement> = Result.success(Json.parseToJsonElement(JSON_RESPONSE_CONSENT))
-
-    override suspend fun getEuConsent(
+    override suspend fun getConsent(
         profileId: ProfileIdentifier,
         category: String
     ): Result<FhirConsentErpModelCollection> {
@@ -73,12 +66,7 @@ class DemoConsentRepository : ConsentRepository {
         }
     }
 
-    override suspend fun grantPkvConsent(
-        profileId: ProfileIdentifier,
-        consent: JsonElement
-    ): Result<Unit> = Result.success(Unit)
-
-    override suspend fun grantEuConsent(
+    override suspend fun grantConsent(
         profileId: ProfileIdentifier,
         consent: JsonElement
     ): Result<Unit> {
@@ -96,9 +84,6 @@ class DemoConsentRepository : ConsentRepository {
     }
 
     override fun isConsentDrawerShown(profileId: ProfileIdentifier): Boolean = true
-
-    override fun isPkvConsentGranted(it: JsonElement): Boolean = true
-    override fun isEuConsentGranted(it: JsonElement): Boolean = true
 
     override fun getInsuranceId(profileId: ProfileIdentifier): String = "X1234567890"
 }

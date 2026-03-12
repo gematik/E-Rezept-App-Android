@@ -28,11 +28,12 @@ import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
 import de.gematik.ti.erp.app.authentication.presentation.ChooseAuthenticationController
 import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
+import de.gematik.ti.erp.app.consent.usecase.GetConsentUseCase
+import de.gematik.ti.erp.app.consent.usecase.GrantConsentUseCase
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
-import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuPrescriptionConsentUseCase
-import de.gematik.ti.erp.app.eurezept.domain.usecase.GrantEuPrescriptionConsentUseCase
 import de.gematik.ti.erp.app.eurezept.ui.model.EuConsentNavigationEvent
 import de.gematik.ti.erp.app.eurezept.ui.model.EuConsentViewState
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
@@ -46,13 +47,14 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
 internal class EuConsentScreenController(
-    private val getEuPrescriptionConsentUseCase: GetEuPrescriptionConsentUseCase,
-    private val grantEuPrescriptionConsentUseCase: GrantEuPrescriptionConsentUseCase,
+    private val getEuPrescriptionConsentUseCase: GetConsentUseCase,
+    private val grantEuPrescriptionConsentUseCase: GrantConsentUseCase,
     getProfilesUseCase: GetProfilesUseCase,
     getActiveProfileUseCase: GetActiveProfileUseCase,
     chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase,
@@ -100,20 +102,21 @@ internal class EuConsentScreenController(
         }
     }
 
-    private suspend fun loadConsentData(profile: ProfilesUseCaseData.Profile) {
+    private fun loadConsentData(profile: ProfilesUseCaseData.Profile) {
         _consentViewState.update { UiState.Loading() }
-        val result = getEuPrescriptionConsentUseCase.invoke(profile.id)
-        result.fold(
-            onSuccess = { consent ->
-                if (consent.isActive()) {
-                    _navigationEvents.emit(EuConsentNavigationEvent.NavigateToRedeem)
+        controllerScope.launch {
+            getEuPrescriptionConsentUseCase(profile.id, ConsentCategory.EUCONSENT.code).first().fold(
+                onSuccess = { consent ->
+                    if (consent.isActive()) {
+                        _navigationEvents.emit(EuConsentNavigationEvent.NavigateToRedeem)
+                    }
+                    _consentViewState.update { UiState.Data(EuConsentViewState(consentData = consent)) }
+                },
+                onFailure = { error ->
+                    _consentViewState.update { UiState.Error(error) }
                 }
-                _consentViewState.update { UiState.Data(EuConsentViewState(consentData = consent)) }
-            },
-            onFailure = { error ->
-                _consentViewState.update { UiState.Error(error) }
-            }
-        )
+            )
+        }
     }
 
     fun retryLoadingConsent() = controllerScope.launch {
@@ -128,7 +131,7 @@ internal class EuConsentScreenController(
 
         controllerScope.launch {
             _consentViewState.update { UiState.Data(data.copy(isGrantingConsent = true, grantConsentError = null)) }
-            grantEuPrescriptionConsentUseCase(profile)
+            grantEuPrescriptionConsentUseCase.invoke(profile, ConsentCategory.EUCONSENT)
                 .onSuccess { onConsentGrantedSuccessfully(data) }
                 .onFailure { e -> _consentViewState.update { UiState.Error(e) } }
         }
@@ -167,8 +170,8 @@ internal fun rememberEuConsentScreenController(): EuConsentScreenController {
     val networkStatusTracker by rememberInstance<NetworkStatusTracker>()
     val getProfilesUseCase by rememberInstance<GetProfilesUseCase>()
     val chooseAuthenticationDataUseCase by rememberInstance<ChooseAuthenticationDataUseCase>()
-    val getEuPrescriptionConsentUseCase by rememberInstance<GetEuPrescriptionConsentUseCase>()
-    val grantEuPrescriptionConsentUseCase by rememberInstance<GrantEuPrescriptionConsentUseCase>()
+    val getEuPrescriptionConsentUseCase by rememberInstance<GetConsentUseCase>()
+    val grantEuPrescriptionConsentUseCase by rememberInstance<GrantConsentUseCase>()
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
     val getProfileByIdUseCase by rememberInstance<GetProfileByIdUseCase>()
 

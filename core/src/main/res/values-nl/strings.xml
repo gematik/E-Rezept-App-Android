@@ -540,7 +540,7 @@
     <string name="edit_shipping_contact_top_bar_title">Contactgegevens en adres</string>
     <string name="empty_dosage_info_body">Op uw recept staat niet hoe u de medicatie moet innemen.</string>
     <string name="empty_dosage_info_dosage_text">Niet gespecificeerd</string>
-    <string name="empty_medication_plan_info">U kunt herinneringen instellen voor uw recepten</string>
+    <string name="empty_medication_plan_info">U kunt herinneringen instellen voor uw medicatie. Ga hiervoor naar het betreffende recept en selecteer \'Medicatieherinnering\'.</string>
     <string name="empty_medication_plan_title">Geen intakeherinneringen</string>
     <string name="empty_scanned_prescription_name">Voer minimaal 1 teken in.</string>
     <string name="enroll_biometric_dialog_body">App-beveiliging niet mogelijk. Stel vooraf biometrische beveiliging (bijvoorbeeld vingerafdruk) in op uw apparaat.</string>
@@ -889,6 +889,7 @@
     <string name="mainscreen_empty_content_header">Geen recepten</string>
     <string name="mainscreen_empty_not_connected_info">Meld u aan om automatisch recepten te ontvangen.</string>
     <string name="mainscreen_login">Register</string>
+    <string name="mainscreen_refresh">Update</string>
     <string name="male_doctor_with_phone">dokter met telefoon</string>
     <string name="man_with_phone">Man met telefoon</string>
     <string name="manufacturer_costs">Fabrikantkosten</string>
@@ -1429,7 +1430,7 @@
     <string name="profile_image_selector_save">Gebruik</string>
     <string name="profile_image_selector_take_photo">Maak een foto</string>
     <string name="profile_image_selector_title">Profielfoto wijzigen</string>
-    <string name="profile_insurance_information_connected_biometrics">biometrie</string>
+    <string name="profile_insurance_information_connected_biometrics">Apparaatback-up</string>
     <string name="profile_insurance_information_connected_health_card">Gezondheidskaart</string>
     <string name="profile_insurance_information_connected_label">Aangemeld met</string>
     <string name="profile_insurance_information_not_connected">Niet ingelogd</string>

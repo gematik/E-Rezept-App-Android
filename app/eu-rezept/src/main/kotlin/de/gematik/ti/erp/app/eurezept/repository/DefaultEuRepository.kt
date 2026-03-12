@@ -27,12 +27,15 @@ import de.gematik.ti.erp.app.eurezept.model.EuEventType
 import de.gematik.ti.erp.app.eurezept.model.EuOrder
 import de.gematik.ti.erp.app.eurezept.model.toModel
 import de.gematik.ti.erp.app.fhir.FhirErpModel
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeRequestConstants.FhirEuRedeemAccessCodeRequestMeta
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirTaskEuPatchInputModelConstants.FhirTaskEuPatchMeta
 import de.gematik.ti.erp.app.fhir.euredeem.model.createEuRedeemAccessCodePayload
 import de.gematik.ti.erp.app.fhir.euredeem.model.createIsEuRedeemableByPatientAuthorizationPayload
 import de.gematik.ti.erp.app.fhir.euredeem.model.generateAccessCode
 import de.gematik.ti.erp.app.fhir.euredeem.parser.EuRedeemAccessCodeResponseParser
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.FhirVzdCountriesParser
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskMetadataParser
+import de.gematik.ti.erp.app.navigation.toNavigationString
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.PharmacyRemoteDataSource
 import de.gematik.ti.erp.app.prescription.repository.LegacyTaskLocalDataSource
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
@@ -65,9 +68,16 @@ class DefaultEuRepository(
     override suspend fun toggleIsEuRedeemableByPatientAuthorization(
         taskId: String,
         profileId: ProfileIdentifier,
+        metadata: FhirTaskEuPatchMeta,
         isEuRedeemableByPatientAuthorization: Boolean
     ): Result<Unit> {
-        val payload = createIsEuRedeemableByPatientAuthorizationPayload(isEuRedeemableByPatientAuthorization = isEuRedeemableByPatientAuthorization)
+        // --- 1. Prepare payload ---
+        val payload = createIsEuRedeemableByPatientAuthorizationPayload(
+            isEuRedeemableByPatientAuthorization = isEuRedeemableByPatientAuthorization,
+            meta = metadata
+        )
+
+        Napier.d("Payload: ${payload.toNavigationString()}")
         euTaskRemoteDataSource.toggleIsEuRedeemableByPatientAuthorization(
             profileIdentifier = profileId,
             taskId = taskId,
@@ -95,13 +105,15 @@ class DefaultEuRepository(
 
     override suspend fun createEuRedeemAccessCode(
         profileId: ProfileIdentifier,
+        metadata: FhirEuRedeemAccessCodeRequestMeta,
         countryCode: String,
         relatedTaskIds: List<String>
     ): Result<EuAccessCode> = runCatching {
         // --- 1. Prepare payload ---
         val payload = createEuRedeemAccessCodePayload(
             countryCode = countryCode,
-            accessCode = generateAccessCode()
+            accessCode = generateAccessCode(),
+            meta = metadata
         )
 
         // --- 2. Call remote API ---

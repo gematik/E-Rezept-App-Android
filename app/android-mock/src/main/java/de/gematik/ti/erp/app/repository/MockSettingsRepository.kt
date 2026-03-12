@@ -22,9 +22,9 @@
 
 package de.gematik.ti.erp.app.repository
 
-import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
-import de.gematik.ti.erp.app.db.writeToRealm
+import de.gematik.ti.erp.app.database.realm.utils.writeToRealm
+import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
 import de.gematik.ti.erp.app.settings.datasource.SettingsDataSource
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository

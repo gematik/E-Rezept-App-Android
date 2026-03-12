@@ -30,6 +30,7 @@ import de.gematik.ti.erp.app.data.patient2_v110_json
 import de.gematik.ti.erp.app.data.patient3_pkv_v110_json
 import de.gematik.ti.erp.app.data.patient4_v12_json
 import de.gematik.ti.erp.app.data.patient5_v12_json
+import de.gematik.ti.erp.app.fhir.constant.FhirVersions
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientErpTestData.erpPatient1IncompleteBirth_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientErpTestData.erpPatient1_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientErpTestData.erpPatient1_v110
@@ -48,7 +49,6 @@ import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientTestData.fhirPat
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientTestData.fhirPatient5_v12
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirPatient.Companion.getPatient
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirPatient.Companion.toErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.original.KbvBundleVersion
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -59,7 +59,7 @@ class TaskEPrescriptionMedicalDataParserPatientTest {
     fun `test parser for patient 1 version 1_0_3`() {
         val bundle = Json.parseToJsonElement(patient1_v103_json)
         val fhirModel = bundle.getPatient()
-        val erpModel = fhirModel?.toErpModel(KbvBundleVersion.V_1_0_3)
+        val erpModel = fhirModel?.toErpModel(FhirVersions.KbvBundleVersion.V_1_0_3)
         assertEquals(fhirPatient1_v103, fhirModel)
         assertEquals(erpPatient1_v103, erpModel)
     }
@@ -68,7 +68,7 @@ class TaskEPrescriptionMedicalDataParserPatientTest {
     fun `test parser for patient 2 version 1_0_3`() {
         val bundle = Json.parseToJsonElement(patient2_v103_json)
         val fhirModel = bundle.getPatient()
-        val erpModel = fhirModel?.toErpModel(KbvBundleVersion.V_1_0_3)
+        val erpModel = fhirModel?.toErpModel(FhirVersions.KbvBundleVersion.V_1_0_3)
         assertEquals(fhirPatient2_v103, fhirModel)
         assertEquals(erpPatient2_v103, erpModel)
     }
@@ -77,7 +77,7 @@ class TaskEPrescriptionMedicalDataParserPatientTest {
     fun `test parser for patient 1 version 1_0_3 with incomplete_birthDate`() {
         val bundle = Json.parseToJsonElement(patient1_incomplete_birth_date_v103_json)
         val fhirModel = bundle.getPatient()
-        val erpModel = fhirModel?.toErpModel(KbvBundleVersion.V_1_0_3)
+        val erpModel = fhirModel?.toErpModel(FhirVersions.KbvBundleVersion.V_1_0_3)
         assertEquals(fhirPatient1IncompleteBirth_v103, fhirModel)
         assertEquals(erpPatient1IncompleteBirth_v103, erpModel)
     }
@@ -86,7 +86,7 @@ class TaskEPrescriptionMedicalDataParserPatientTest {
     fun `test parser for patient 1 version 1_1_0`() {
         val bundle = Json.parseToJsonElement(patient1_v110_json)
         val fhirModel = bundle.getPatient()
-        val erpModel = fhirModel?.toErpModel(KbvBundleVersion.V_1_1_0)
+        val erpModel = fhirModel?.toErpModel(FhirVersions.KbvBundleVersion.V_1_1_0)
         assertEquals(fhirPatient1_v110, fhirModel)
         assertEquals(erpPatient1_v110, erpModel)
     }
@@ -95,7 +95,7 @@ class TaskEPrescriptionMedicalDataParserPatientTest {
     fun `test parser for patient 2 version 1_1_0`() {
         val bundle = Json.parseToJsonElement(patient2_v110_json)
         val fhirModel = bundle.getPatient()
-        val erpModel = fhirModel?.toErpModel(KbvBundleVersion.V_1_1_0)
+        val erpModel = fhirModel?.toErpModel(FhirVersions.KbvBundleVersion.V_1_1_0)
         assertEquals(fhirPatient2_v110, fhirModel)
         assertEquals(erpPatient2_v110, erpModel)
     }
@@ -104,7 +104,7 @@ class TaskEPrescriptionMedicalDataParserPatientTest {
     fun `test parser for patient 3 pkv version 1_1_0`() {
         val bundle = Json.parseToJsonElement(patient3_pkv_v110_json)
         val fhirModel = bundle.getPatient()
-        val erpModel = fhirModel?.toErpModel(KbvBundleVersion.V_1_1_0)
+        val erpModel = fhirModel?.toErpModel(FhirVersions.KbvBundleVersion.V_1_1_0)
         assertEquals(fhirPatient3_v110, fhirModel)
         assertEquals(erpPatient3_v110, erpModel)
     }
@@ -113,7 +113,7 @@ class TaskEPrescriptionMedicalDataParserPatientTest {
     fun `test parser for patient 4 version 1_2`() {
         val bundle = Json.parseToJsonElement(patient4_v12_json)
         val fhirModel = bundle.getPatient()
-        val erpModel = fhirModel?.toErpModel(KbvBundleVersion.V_1_2)
+        val erpModel = fhirModel?.toErpModel(FhirVersions.KbvBundleVersion.V_1_2)
         assertEquals(fhirPatient4_v12, fhirModel)
         assertEquals(erpPatient4_v12, erpModel)
     }
@@ -122,7 +122,7 @@ class TaskEPrescriptionMedicalDataParserPatientTest {
     fun `test parser for patient 5 version 1_3`() {
         val bundle = Json.parseToJsonElement(patient5_v12_json)
         val fhirModel = bundle.getPatient()
-        val erpModel = fhirModel?.toErpModel(KbvBundleVersion.V_1_3)
+        val erpModel = fhirModel?.toErpModel(FhirVersions.KbvBundleVersion.V_1_3)
         assertEquals(fhirPatient5_v12, fhirModel)
         assertEquals(erpPatient5_v12, erpModel)
     }

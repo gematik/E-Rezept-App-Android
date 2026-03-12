@@ -55,7 +55,7 @@ object FhirConstants {
      * This constant defines the **naming system** for **prescription IDs** in FHIR.
      * It is used to extract prescription-related identifiers from FHIR resources.
      */
-    const val PRESCRIPTION_ID_SYSTEM = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId"
+    const val PRESCRIPTION_ID_SYSTEM = FhirIdentifierSystems.Prescription.PRESCRIPTION_ID
 
     /**
      * **FHIR Access Code Naming System**
@@ -63,7 +63,7 @@ object FhirConstants {
      * This constant represents the **naming system** for **access codes** in FHIR.
      * It is used to identify access codes associated with prescriptions.
      */
-    const val ACCESS_CODE_SYSTEM = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode"
+    const val ACCESS_CODE_SYSTEM = FhirIdentifierSystems.Prescription.ACCESS_CODE
 
     /**
      * **Key for Date-based Values in FHIR Extensions**
@@ -154,7 +154,7 @@ object FhirConstants {
         /**
          * Full URL for the Prüfarztnummer naming system.
          */
-        FULL_URL("https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer"),
+        FULL_URL(FhirIdentifierSystems.Healthcare.PRUEFNUMMER),
         ITEM_KEY("system"),
         ITEM_VALUE("value")
     }
@@ -162,12 +162,12 @@ object FhirConstants {
     /**
      * Naming system for GKV (gesetzliche Krankenversicherung) patient identifier (KVNR).
      */
-    const val PATIENT_KVNR_NAME_103 = "http://fhir.de/NamingSystem/gkv/kvid-10"
+    const val PATIENT_KVNR_NAME_103 = FhirIdentifierSystems.Patient.KVNR_NAME_103
 
     /**
      * Code system URL for patient identifier types in German FHIR profiles.
      */
-    const val PATIENT_KVNR_CODE_SYSTEM_URL = "http://fhir.de/CodeSystem/identifier-type-de-basis"
+    const val PATIENT_KVNR_CODE_SYSTEM_URL = FhirIdentifierSystems.Patient.CODE_SYSTEM
 
     /**
      * Label used to indicate private health insurance (PKV).
@@ -177,17 +177,17 @@ object FhirConstants {
     /**
      * Identifier system for patients with private health insurance (PKV).
      */
-    const val PATIENT_KVNR_CODE_PKV = "http://fhir.de/sid/pkv/kvid-10"
+    const val PATIENT_KVNR_CODE_PKV = FhirIdentifierSystems.Patient.KVNR_PKV
 
     /**
      * Identifier system for patients with statutory health insurance (GKV).
      */
-    const val PATIENT_KVNR_CODE_GKV = "http://fhir.de/sid/gkv/kvid-10"
+    const val PATIENT_KVNR_CODE_GKV = FhirIdentifierSystems.Patient.KVNR_GKV
 
     /**
      * Telematik ID system used to identify organizations and practitioners in the German healthcare system.
      */
-    const val TELEMATIK_ID_IDENTIFIER = "https://gematik.de/fhir/sid/telematik-id"
+    const val TELEMATIK_ID_IDENTIFIER = FhirIdentifierSystems.Healthcare.TELEMATIK_ID
 
     /**
      * **FHIR UUID Reference Prefix**
@@ -197,25 +197,25 @@ object FhirConstants {
      *
      * Example: `urn:uuid:5581f231-583d-4105-83c8-d794313c29a3`
      */
-    const val URN_UUID_PREFIX = "urn:uuid:"
+    const val URN_UUID_PREFIX = FhirIdentifierSystems.Reference.URN_UUID_PREFIX
 
     /**
      * Identifier system for pharmaceutical central numbers (PZN) used in Germany.
      */
-    const val PZN_IDENTIFIER = "http://fhir.de/CodeSystem/ifa/pzn"
+    const val PZN_IDENTIFIER = FhirIdentifierSystems.Medication.PZN
 
     /**
      * Identifier system for ATC (Anatomical Therapeutic Chemical Classification) codes from BfArM.
      */
-    const val ATC_IDENTIFIER = "http://fhir.de/CodeSystem/bfarm/atc"
+    const val ATC_IDENTIFIER = FhirIdentifierSystems.Medication.ATC
 
     /**
      * Identifier system for the Arzneispezialitätenkatalog (ASK) – a catalog of medicinal products.
      */
-    const val ASK_IDENTIFIER = "http://fhir.de/CodeSystem/ask"
+    const val ASK_IDENTIFIER = FhirIdentifierSystems.Medication.ASK
 
     /**
      * Identifier system for SNOMED CT, used for standardized clinical terminology.
      */
-    const val SNOMED_IDENTIFIER = "http://snomed.info/sct"
+    const val SNOMED_IDENTIFIER = FhirIdentifierSystems.Medication.SNOMED
 }

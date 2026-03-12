@@ -24,19 +24,23 @@ package de.gematik.ti.erp.app.eurezept.domain.usecase
 
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.settings.repository.EuVersionRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class ToggleIsEuRedeemableByPatientAuthorizationUseCase(
     private val euRepository: EuRepository,
+    private val euVersionRepository: EuVersionRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend operator fun invoke(taskId: String, profileId: ProfileIdentifier, isEuRedeemableByPatientAuthorization: Boolean): Result<Unit> =
         withContext(dispatcher) {
+            val metadata = euVersionRepository.getEuPatchMeta()
             euRepository.toggleIsEuRedeemableByPatientAuthorization(
                 taskId = taskId,
                 profileId = profileId,
+                metadata = metadata,
                 isEuRedeemableByPatientAuthorization = isEuRedeemableByPatientAuthorization
             )
         }

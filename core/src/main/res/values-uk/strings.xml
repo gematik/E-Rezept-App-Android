@@ -550,7 +550,7 @@
     <string name="edit_shipping_contact_top_bar_title">Контактні дані й адреса</string>
     <string name="empty_dosage_info_body">У вашому рецепті немає інформації про те, як приймати ліки.</string>
     <string name="empty_dosage_info_dosage_text">Дані відсутні</string>
-    <string name="empty_medication_plan_info">Ви можете встановити нагадування для своїх рецептів</string>
+    <string name="empty_medication_plan_info">Ви можете налаштувати нагадування для своїх ліків. Для цього перейдіть до відповідного рецепту та виберіть «Нагадування про ліки».</string>
     <string name="empty_medication_plan_title">Немає нагадувань про прийом</string>
     <string name="empty_scanned_prescription_name">Введіть принаймні 1 символ.</string>
     <string name="enroll_biometric_dialog_body">Безпека програми неможлива. Попередньо налаштуйте біометричний захист (наприклад, відбиток пальця) на своєму пристрої.</string>
@@ -899,6 +899,7 @@
     <string name="mainscreen_empty_content_header">Кожних рецептів</string>
     <string name="mainscreen_empty_not_connected_info">Підпишіться, щоб автоматично отримувати рецепти.</string>
     <string name="mainscreen_login">зареєструватися</string>
+    <string name="mainscreen_refresh">Оновлення</string>
     <string name="male_doctor_with_phone">лікар з телефоном</string>
     <string name="man_with_phone">Чоловік з телефоном</string>
     <string name="manufacturer_costs">Витрати виробника</string>
@@ -1449,7 +1450,7 @@
     <string name="profile_image_selector_save">використання</string>
     <string name="profile_image_selector_take_photo">Сфотографуйте</string>
     <string name="profile_image_selector_title">Редагувати зображення профілю</string>
-    <string name="profile_insurance_information_connected_biometrics">Біометрія</string>
+    <string name="profile_insurance_information_connected_biometrics">Резервне копіювання пристрою</string>
     <string name="profile_insurance_information_connected_health_card">страхова картка</string>
     <string name="profile_insurance_information_connected_label">Зареєстрований с</string>
     <string name="profile_insurance_information_not_connected">Не в системі</string>

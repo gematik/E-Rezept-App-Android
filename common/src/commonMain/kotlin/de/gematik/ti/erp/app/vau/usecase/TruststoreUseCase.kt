@@ -33,7 +33,6 @@ import de.gematik.ti.erp.app.vau.checkValidity
 import de.gematik.ti.erp.app.vau.filterByOIDAndOCSPResponse
 import de.gematik.ti.erp.app.vau.filterBySignature
 import de.gematik.ti.erp.app.vau.getOscpResponsStatus
-import de.gematik.ti.erp.app.vau.repository.VauLocalDataSource
 import de.gematik.ti.erp.app.vau.repository.VauRepository
 import de.gematik.ti.erp.app.vau.validateSubjectDN
 import io.github.aakira.napier.Napier
@@ -131,7 +130,6 @@ typealias TrustedTruststoreProvider = (
 class TruststoreUseCase(
     private val config: TruststoreConfig,
     private val repository: VauRepository,
-    private val localDataSource: VauLocalDataSource,
     private val timeSourceProvider: TruststoreTimeSourceProvider,
     private val trustedTruststoreProvider: TrustedTruststoreProvider
 ) {
@@ -377,7 +375,7 @@ class TruststoreUseCase(
                     )
                 } ?: untrustedOCSPList
             // Persist in new format so future calls can use the dedicated fields
-            localDataSource.saveLists(mergedCertList, mergedOcspList)
+            repository.saveLists(mergedCertList, mergedOcspList)
             trustedTruststoreProvider(
                 mergedOcspList,
                 mergedCertList,

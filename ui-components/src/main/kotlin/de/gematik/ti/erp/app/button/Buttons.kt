@@ -100,7 +100,7 @@ fun TertiaryButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     elevation: ButtonElevation? = ButtonDefaults.elevation(defaultElevation = SizeDefaults.zero, pressedElevation = SizeDefaults.half),
     shape: Shape = RoundedCornerShape(SizeDefaults.triple),
-    border: BorderStroke? = BorderStroke(width = SizeDefaults.eighth, color = AppTheme.colors.neutral300),
+    border: BorderStroke? = BorderStroke(width = SizeDefaults.eighth, color = AppTheme.colors.primary700),
     colors: ButtonColors = ButtonDefaults.buttonColors(
         backgroundColor = AppTheme.colors.neutral025,
         contentColor = AppTheme.colors.primary700
@@ -334,10 +334,6 @@ fun PrimaryOutlinedButton(
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(
         disabledContentColor = MaterialTheme.colors.primary.copy(alpha = ContentAlpha.disabled)
     ),
-    contentPadding: PaddingValues = PaddingValues(
-        vertical = PaddingDefaults.MediumSmall,
-        horizontal = PaddingDefaults.XXLargePlus
-    ),
     content: @Composable RowScope.() -> Unit
 ) {
     OutlinedButton(
@@ -349,7 +345,6 @@ fun PrimaryOutlinedButton(
         shape = shape,
         border = border,
         colors = colors,
-        contentPadding = contentPadding,
         content = content
     )
 }

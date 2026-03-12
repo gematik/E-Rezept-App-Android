@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.pharmacy.usecase
 
-import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +32,7 @@ class DeleteOverviewPharmacyUseCase(
     private val repository: PharmacyRepository,
     private val dispatchers: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(pharmacy: OverviewPharmacyData.OverviewPharmacy) {
+    suspend operator fun invoke(pharmacy: PharmacyErpModel) {
         withContext(dispatchers) {
             repository.deleteOverviewPharmacy(pharmacy)
         }

@@ -32,6 +32,7 @@ import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.DigaRedeemedPrescriptionState
 import de.gematik.ti.erp.app.redeem.model.MissingInformation
+import de.gematik.ti.erp.app.settings.repository.CommunicationDigaVersionRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -54,6 +55,7 @@ class RedeemDigaUseCase(
     private val prescriptionRepository: PrescriptionRepository,
     private val digaRepository: DigaRepository,
     private val digaDispenseRequestBuilder: DigaDispenseRequestBuilder,
+    private val communicationDigaVersionRepository: CommunicationDigaVersionRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     /**
@@ -126,13 +128,15 @@ class RedeemDigaUseCase(
         arguments.lifecycleHooks?.onTelematikIdObtained?.invoke()
 
         // create the communication json element with the required parameters
+        val digaVersion = communicationDigaVersionRepository.getCommunicationDigaVersion()
         val communicationDispenseRequestJson = digaDispenseRequestBuilder
             .buildAsJson(
                 orderId = arguments.orderId,
                 taskId = arguments.taskId,
                 telematikId = telematikId,
                 kvnrNumber = kvnr,
-                accessCode = accessCode
+                accessCode = accessCode,
+                version = digaVersion
             )
 
         // send the communication dispense request to the insurance

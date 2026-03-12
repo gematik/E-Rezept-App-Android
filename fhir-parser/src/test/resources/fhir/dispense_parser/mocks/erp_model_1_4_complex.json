@@ -3,6 +3,7 @@
     {
       "dispenseId": "160.000.000.000.000.03",
       "patientId": "X123456789",
+      "prescriptionId": "160.000.000.000.000.03",
       "substitutionAllowed": false,
       "dosageInstruction": null,
       "performer": "3-SMC-B-Testkarte-883110000095957",

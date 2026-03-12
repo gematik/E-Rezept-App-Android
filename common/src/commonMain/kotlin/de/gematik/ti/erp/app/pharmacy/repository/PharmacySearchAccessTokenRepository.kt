@@ -22,21 +22,19 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
-import de.gematik.ti.erp.app.database.realm.v1.pharmacy.SearchAccessTokenEntityV1
 import de.gematik.ti.erp.app.pharmacy.api.model.SearchAccessTokenResponse
-import io.realm.kotlin.types.RealmInstant
+import de.gematik.ti.erp.app.pharmacy.model.SearchAccessTokenErpModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Instant
 import retrofit2.Response
 
 interface PharmacySearchAccessTokenRepository {
 
-    val searchAccessToken: Flow<SearchAccessTokenEntityV1?>
-
-    val searchAccessTokenValue: Flow<String?>
+    val searchAccessToken: Flow<SearchAccessTokenErpModel?>
 
     suspend fun fetchNewToken(): Response<SearchAccessTokenResponse>
 
-    suspend fun saveToken(token: String, currentTime: RealmInstant = RealmInstant.now())
+    suspend fun saveToken(token: String, currentTime: Instant)
 
     suspend fun clearToken()
 }

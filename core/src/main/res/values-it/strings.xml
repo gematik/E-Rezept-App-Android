@@ -540,7 +540,7 @@
     <string name="edit_shipping_contact_top_bar_title">Dettagli di contatto e indirizzo</string>
     <string name="empty_dosage_info_body">Nella prescrizione non ci sono informazioni su come assumere il farmaco.</string>
     <string name="empty_dosage_info_dosage_text">Non specificato</string>
-    <string name="empty_medication_plan_info">Puoi impostare promemoria per le tue prescrizioni</string>
+    <string name="empty_medication_plan_info">Puoi impostare dei promemoria per i tuoi farmaci. Per farlo, vai alla prescrizione pertinente e seleziona \"Promemoria Farmaci\".</string>
     <string name="empty_medication_plan_title">Nessun promemoria di assunzione</string>
     <string name="empty_scanned_prescription_name">Inserisci almeno 1 carattere.</string>
     <string name="enroll_biometric_dialog_body">La sicurezza dell\'app non è possibile. Configura innanzitutto la sicurezza biometrica (ad esempio l\'impronta digitale) sul tuo dispositivo.</string>
@@ -889,6 +889,7 @@
     <string name="mainscreen_empty_content_header">Nessuna ricetta</string>
     <string name="mainscreen_empty_not_connected_info">Iscriviti per ricevere le ricette automaticamente.</string>
     <string name="mainscreen_login">Registrati</string>
+    <string name="mainscreen_refresh">Aggiornamento</string>
     <string name="male_doctor_with_phone">medico con telefono</string>
     <string name="man_with_phone">Uomo con telefono</string>
     <string name="manufacturer_costs">Costi del produttore</string>
@@ -1429,7 +1430,7 @@
     <string name="profile_image_selector_save">Utilizzo</string>
     <string name="profile_image_selector_take_photo">Fai una foto</string>
     <string name="profile_image_selector_title">Modifica la foto profilo</string>
-    <string name="profile_insurance_information_connected_biometrics">biometrica</string>
+    <string name="profile_insurance_information_connected_biometrics">Backup del dispositivo</string>
     <string name="profile_insurance_information_connected_health_card">Tessera sanitaria</string>
     <string name="profile_insurance_information_connected_label">Registrato con</string>
     <string name="profile_insurance_information_not_connected">Accesso non effettuato</string>

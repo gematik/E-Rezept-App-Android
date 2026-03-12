@@ -540,7 +540,7 @@
     <string name="edit_shipping_contact_top_bar_title">Данни за контакт и адрес</string>
     <string name="empty_dosage_info_body">Във вашата рецепта няма информация за това как да приемате лекарството.</string>
     <string name="empty_dosage_info_dosage_text">Неопределено</string>
-    <string name="empty_medication_plan_info">Можете да зададете напомняния за вашите рецепти</string>
+    <string name="empty_medication_plan_info">Можете да настроите напомняния за лекарствата си. За да направите това, отидете на съответната рецепта и изберете „Напомняне за лекарства“.</string>
     <string name="empty_medication_plan_title">Без напомняния за прием</string>
     <string name="empty_scanned_prescription_name">Моля, въведете поне 1 знак.</string>
     <string name="enroll_biometric_dialog_body">Сигурността на приложението не е възможна. Предварително настройте биометрична защита (напр. пръстов отпечатък) на вашето устройство.</string>
@@ -889,6 +889,7 @@
     <string name="mainscreen_empty_content_header">Без рецепти</string>
     <string name="mainscreen_empty_not_connected_info">Регистрирайте се, за да получавате рецепти автоматично.</string>
     <string name="mainscreen_login">Регистрирам</string>
+    <string name="mainscreen_refresh">Актуализация</string>
     <string name="male_doctor_with_phone">лекар с телефон</string>
     <string name="man_with_phone">Мъж с телефон</string>
     <string name="manufacturer_costs">Разходи на производителя</string>
@@ -1429,7 +1430,7 @@
     <string name="profile_image_selector_save">Използвайте</string>
     <string name="profile_image_selector_take_photo">направи снимка</string>
     <string name="profile_image_selector_title">Редактиране на профилна снимка</string>
-    <string name="profile_insurance_information_connected_biometrics">биометрия</string>
+    <string name="profile_insurance_information_connected_biometrics">Архивиране на устройството</string>
     <string name="profile_insurance_information_connected_health_card">Здравна карта</string>
     <string name="profile_insurance_information_connected_label">Регистриран с</string>
     <string name="profile_insurance_information_not_connected">Не сте влезли в системата</string>

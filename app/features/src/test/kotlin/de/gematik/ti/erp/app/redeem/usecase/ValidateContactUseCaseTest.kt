@@ -23,23 +23,23 @@
 package de.gematik.ti.erp.app.redeem.usecase
 
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ValidateContactUseCaseTest {
     private val useCase = ValidateContactUseCase()
 
-    private fun validContact() = PharmacyUseCaseData.ShippingContact(
+    private fun validContact() = ShippingInfoErpModel(
         name = "John Doe",
-        line1 = "Main Street 123",
-        line2 = "2nd Floor",
-        postalCode = "12345",
+        street = "Main Street 123",
+        addressDetail = "2nd Floor",
+        zip = "12345",
         city = "Berlin",
-        telephoneNumber = "0301234567",
+        phone = "0301234567",
         mail = "john.doe@example.com",
-        deliveryInformation = "Please ring the bell"
+        deliveryInfo = "Please ring the bell"
     )
 
     @Test
@@ -57,15 +57,15 @@ class ValidateContactUseCaseTest {
 
     @Test
     fun `invalid contact with multiple errors returns Invalid with proper set`() {
-        val contact = PharmacyUseCaseData.ShippingContact(
+        val contact = ShippingInfoErpModel(
             name = "",
-            line1 = "",
-            line2 = "#@!",
-            postalCode = "12",
+            street = "",
+            addressDetail = "#@!",
+            zip = "12",
             city = "",
-            telephoneNumber = "abc",
+            phone = "abc",
             mail = "invalid-email",
-            deliveryInformation = "!"
+            deliveryInfo = "!"
         )
 
         val result = useCase(contact, PharmacyScreenData.OrderOption.Delivery)
@@ -87,7 +87,7 @@ class ValidateContactUseCaseTest {
 
     @Test
     fun `contact with only delivery information invalid returns only delivery info error`() {
-        val contact = validContact().copy(deliveryInformation = "!@#")
+        val contact = validContact().copy(deliveryInfo = "!@#")
 
         val result = useCase(contact, PharmacyScreenData.OrderOption.Delivery)
 

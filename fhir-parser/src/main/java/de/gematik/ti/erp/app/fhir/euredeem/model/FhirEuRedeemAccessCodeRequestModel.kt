@@ -28,6 +28,7 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirParameter
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeRequestConstants
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeRequestConstants.FhirEuRedeemAccessCodeRequestMeta
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
@@ -49,12 +50,13 @@ data class FhirEuRedeemAccessCodeRequestModel(
 
 fun createEuRedeemAccessCodePayload(
     countryCode: String,
-    accessCode: String
+    accessCode: String,
+    meta: FhirEuRedeemAccessCodeRequestMeta
 ): JsonElement {
     val accessCodeRequestModel = FhirEuRedeemAccessCodeRequestModel(
         resourceType = FhirEuRedeemAccessCodeRequestConstants.RESOURCE_TYPE,
         id = FhirEuRedeemAccessCodeRequestConstants.ID,
-        meta = FhirMeta(listOf(FhirEuRedeemAccessCodeRequestConstants.PROFILE_URL)),
+        meta = FhirMeta(listOf(meta.identifier)),
         parameters = listOf(
             FhirParameter(
                 name = FhirEuRedeemAccessCodeRequestConstants.CountryCodeParameter.NAME,
@@ -80,7 +82,7 @@ fun createEuRedeemAccessCodePayload(
 const val ACCESS_CODE_SIZE = 6
 
 // No i I l O 0
-val accessCodeRegex = Regex("[A-HJ-NP-Za-hjkm-z1-9]")
+internal val accessCodeRegex = Regex("[A-HJ-NP-Za-hjkm-z1-9]")
 
 fun generateAccessCode(): String {
     val digits = ('0'..'9')

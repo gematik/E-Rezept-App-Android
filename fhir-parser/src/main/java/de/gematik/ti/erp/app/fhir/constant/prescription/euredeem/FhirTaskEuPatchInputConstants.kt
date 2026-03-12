@@ -31,6 +31,15 @@ import de.gematik.ti.erp.app.utils.Reference
 object FhirTaskEuPatchInputModelConstants {
     const val RESOURCE_TYPE = "Parameters"
     const val ID = "erp-eprescription-10-PATCH-Task-Request"
-    const val PROFILE_URL = "https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_PAR_PATCH_Task_Input|1.0"
     const val PARAMETER_NAME = "eu-isRedeemableByPatientAuthorization"
+
+    enum class FhirTaskEuPatchMeta(val identifier: String) {
+        V_1_0("https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_PAR_PATCH_Task_Input|1.0"),
+
+        @Reference(
+            info = "Link to GEM ERPEU PR PAR PATCH Task Input version 1.1.2",
+            url = "https://simplifier.net/erezept-workflow-eu/gem_erpeu_pr_par_patch_task_input"
+        )
+        V_1_1("https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_PAR_PATCH_Task_Input|1.1")
+    }
 }

@@ -58,5 +58,11 @@
         "text": "**✨ Reçete Kodlarını Görüntüleme** \nToplu ve tekli kodlar için ekran, daha sezgisel kullanım için yeniden tasarlandı. \n \n **📋 Kopyalama Fonksiyonu** \nİlaç bilgileri uzun basılarak kopyalanabilir. \n \n **♿ Erişilebilirlik** \nGeri bildirim ve klavye navigasyonu daha iyi çalışıyor, düğmeler daha net ve liste öğeleri daha mantıklı bir şekilde yapılandırılmış. Bilişsel bozukluğu olan kullanıcıları desteklemek için animasyonlu videolar yalnızca bir kez oynatılıyor.",
         "timestamp": "2026-01-22T08:00:00.000Z",
         "version": "1.36"
+    },
+    {
+        "id": "12",
+        "text": "**✨ Geliştirilmiş Uygulama Açılışı** \nUygulamanın kilidini açmak artık daha hızlı. \n \n **📞 Genişletilmiş İletişim Seçenekleri** \nSeçili sigorta poliçeleri için yeni iletişim seçenekleri ekledik. \n \n **♿ Erişilebilirlik** \nErişilebilirlik bildirimi güncellendi ve değişiklik geçmişini belgeleyen bir bölüm içerecek şekilde genişletildi. Bazı düğmeler daha iyi görünürlük için ayarlandı.",
+        "timestamp": "2026-03-02T08:00:00.000Z",
+        "version": "1.37"
     }
 ]

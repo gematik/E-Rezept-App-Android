@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.fhir.audit.parser
 
 import de.gematik.ti.erp.app.data.bundle_audit_events_1_1
 import de.gematik.ti.erp.app.data.bundle_audit_events_1_2
+import de.gematik.ti.erp.app.data.bundle_audit_events_1_6
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -31,6 +32,18 @@ import kotlin.test.assertEquals
 class AuditEventsParserTest {
 
     private val parser = AuditEventsParser()
+
+    @Test
+    fun `test parse audit event version 1_6`() {
+        val resource = Json.parseToJsonElement(bundle_audit_events_1_6)
+        val erpModel = parser.extract(resource)
+        assertEquals(1, erpModel?.auditEvents?.size)
+        assertEquals("9361863d-fec0-4ba9-8776-7905cf1b0cfa", erpModel?.auditEvents?.first()?.id)
+        assertEquals("160.123.456.789.123.58", erpModel?.auditEvents?.first()?.taskId)
+        assertEquals("1-SMC-B-Testkarte-883110000095957", erpModel?.auditEvents?.first()?.telematikId)
+        assertEquals(null, erpModel?.auditEvents?.first()?.kvnrNumber)
+        assertEquals("bca172dc-495c-4e19-9c7b-7977739d9ce1", erpModel?.bundleId)
+    }
 
     @Test
     fun `test parse audit event version 1_2`() {

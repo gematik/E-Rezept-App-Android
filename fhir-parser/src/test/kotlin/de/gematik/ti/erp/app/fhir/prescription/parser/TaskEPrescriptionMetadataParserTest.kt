@@ -25,8 +25,18 @@ package de.gematik.ti.erp.app.fhir.prescription.parser
 import de.gematik.ti.erp.app.data.taskJson_vers_1_2
 import de.gematik.ti.erp.app.data.taskJson_vers_1_3
 import de.gematik.ti.erp.app.data.taskJson_vers_1_5
+import de.gematik.ti.erp.app.data.taskMetadataCompleteV16
+import de.gematik.ti.erp.app.data.taskMetadataInProgressClaimedAgainV16
+import de.gematik.ti.erp.app.data.taskMetadataInProgressClaimedV16
+import de.gematik.ti.erp.app.data.taskMetadataInProgressV16
+import de.gematik.ti.erp.app.data.taskMetadataReadyV16
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskMetaDataErpTestData.taskMetaDataVersion_1_2
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskMetaDataErpTestData.taskMetaDataVersion_1_3
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskMetaDataErpTestData.taskMetaDataVersion_1_6_Complete
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskMetaDataErpTestData.taskMetaDataVersion_1_6_InProgress
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskMetaDataErpTestData.taskMetaDataVersion_1_6_InProgressClaimed
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskMetaDataErpTestData.taskMetaDataVersion_1_6_InProgressClaimedAgain
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskMetaDataErpTestData.taskMetaDataVersion_1_6_Ready
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskMetaDataErpTestData.taskMetaVersion_1_5_InProgress
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
@@ -56,5 +66,40 @@ class TaskEPrescriptionMetadataParserTest {
         val bundle = Json.parseToJsonElement(taskJson_vers_1_5)
         val result = parser.extract(bundle)
         assertEquals(taskMetaVersion_1_5_InProgress, result)
+    }
+
+    @Test
+    fun `test parserFor_task_resource_version_1_6_Ready`() = runTest {
+        val bundle = Json.parseToJsonElement(taskMetadataReadyV16)
+        val result = parser.extract(bundle)
+        assertEquals(taskMetaDataVersion_1_6_Ready, result)
+    }
+
+    @Test
+    fun `test parserFor_task_resource_version_1_6_InProgress`() = runTest {
+        val bundle = Json.parseToJsonElement(taskMetadataInProgressV16)
+        val result = parser.extract(bundle)
+        assertEquals(taskMetaDataVersion_1_6_InProgress, result)
+    }
+
+    @Test
+    fun `test parserFor_task_resource_version_1_6_InProgressClaimed`() = runTest {
+        val bundle = Json.parseToJsonElement(taskMetadataInProgressClaimedV16)
+        val result = parser.extract(bundle)
+        assertEquals(taskMetaDataVersion_1_6_InProgressClaimed, result)
+    }
+
+    @Test
+    fun `test parserFor_task_resource_version_1_6_InProgressClaimedAgain`() = runTest {
+        val bundle = Json.parseToJsonElement(taskMetadataInProgressClaimedAgainV16)
+        val result = parser.extract(bundle)
+        assertEquals(taskMetaDataVersion_1_6_InProgressClaimedAgain, result)
+    }
+
+    @Test
+    fun `test parserFor_task_resource_version_1_6_Complete`() = runTest {
+        val bundle = Json.parseToJsonElement(taskMetadataCompleteV16)
+        val result = parser.extract(bundle)
+        assertEquals(taskMetaDataVersion_1_6_Complete, result)
     }
 }

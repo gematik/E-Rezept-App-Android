@@ -27,6 +27,12 @@ import android.content.ClipboardManager
 import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,8 +49,10 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AddModerator
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ContentCopy
@@ -53,8 +61,8 @@ import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material3.ListItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalContext
@@ -70,9 +78,11 @@ import de.gematik.ti.erp.app.debugsettings.logger.preview.DbMigrationLoggerScree
 import de.gematik.ti.erp.app.debugsettings.logger.preview.DbMigrationLoggerScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.listitem.GemListItemDefaults
-import de.gematik.ti.erp.app.logger.model.DbMigrationLogEntry
-import de.gematik.ti.erp.app.logger.model.DbMigrationLogEntry.Companion.checkVersions
-import de.gematik.ti.erp.app.logger.model.DbMigrationLogEntry.Companion.toJson
+import de.gematik.ti.erp.app.logger.DbMigrationExpandedState
+import de.gematik.ti.erp.app.logger.DbMigrationLogEntry
+import de.gematik.ti.erp.app.logger.DbMigrationLogEntry.Companion.checkVersions
+import de.gematik.ti.erp.app.logger.DbMigrationLogEntry.Companion.realmRoomComparison
+import de.gematik.ti.erp.app.logger.DbMigrationLogEntry.Companion.toJson
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -101,7 +111,6 @@ class DbMigrationLoggerScreen(
         val controller = rememberDbMigrationLoggerScreenController()
         val dbMigrationLogEntries by controller.dbMigrationLogEntries.collectAsStateWithLifecycle()
         val searchValue by controller.searchValue.collectAsStateWithLifecycle()
-        val expandedListItems = remember { controller.expandedListItems.toSet() }
         val onBack by rememberUpdatedState {
             navController.popBackStack()
         }
@@ -112,7 +121,6 @@ class DbMigrationLoggerScreen(
         DbMigrationLoggerScreenScaffold(
             dbMigrationLogEntries = dbMigrationLogEntries,
             listState = listState,
-            expandedListItems = expandedListItems,
             searchValue = searchValue,
             focusManager = focusManager,
             onChangeSearch = {
@@ -144,7 +152,6 @@ private fun DbMigrationLoggerScreenScaffold(
     listState: LazyListState,
     searchValue: String,
     focusManager: FocusManager,
-    expandedListItems: Set<String>,
     onClickLogEntry: (String) -> Unit,
     onCopyLogEntry: (ClipData) -> Unit,
     onChangeSearch: (String) -> Unit,
@@ -228,7 +235,6 @@ private fun DbMigrationLoggerScreenScaffold(
                     focusManager = focusManager,
                     filteredDbMigrationLogs = filteredDbMigrationLogs,
                     searchValue = searchValue,
-                    expandedListItems = expandedListItems,
                     onClickLogEntry = onClickLogEntry,
                     onChangeSearch = onChangeSearch,
                     onResetSearch = onResetSearch,
@@ -245,7 +251,6 @@ private fun DbMigrationLoggerScreenContent(
     filteredDbMigrationLogs: List<DbMigrationLogEntry>,
     listState: LazyListState,
     focusManager: FocusManager,
-    expandedListItems: Set<String>,
     searchValue: String,
     onCopyLogEntry: (ClipData) -> Unit,
     onClickLogEntry: (String) -> Unit,
@@ -273,11 +278,11 @@ private fun DbMigrationLoggerScreenContent(
         )
         items(
             items = filteredDbMigrationLogs
-        ) { dbMigrationLogEntry ->
+        ) { logItem ->
             DbMigrationLogEntryListItem(
-                dbMigrationLogEntry = dbMigrationLogEntry,
-                expanded = expandedListItems.contains(dbMigrationLogEntry.id),
-                onClickLogEntry = { onClickLogEntry(dbMigrationLogEntry.id) },
+                dbMigrationLogEntry = logItem,
+                expanded = logItem.expandedState == DbMigrationExpandedState.OPEN,
+                onClickLogEntry = { onClickLogEntry(logItem.id) },
                 onCopyLogEntry = onCopyLogEntry
             )
         }
@@ -291,11 +296,16 @@ private fun DbMigrationLogEntryListItem(
     onClickLogEntry: () -> Unit,
     onCopyLogEntry: (ClipData) -> Unit
 ) {
-    val clipData = ClipData.newPlainText(dbMigrationLogEntry.name, dbMigrationLogEntry.toJson())
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    val clipData = ClipData.newPlainText(dbMigrationLogEntry.operation, dbMigrationLogEntry.toJson())
+    Column(modifier = Modifier.fillMaxWidth()) {
         Divider()
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(SizeDefaults.one)
+        ) {
+            StateIndicator(dbMigrationLogEntry.functionalState.name)
+            StateIndicator(dbMigrationLogEntry.realmRoomComparison().name)
+        }
         ListItem(
             modifier = Modifier.clickable {
                 onClickLogEntry()
@@ -308,7 +318,7 @@ private fun DbMigrationLogEntryListItem(
                 )
             },
             headlineContent = {
-                Text(dbMigrationLogEntry.name)
+                Text(dbMigrationLogEntry.operation)
             },
             trailingContent = {
                 IconButton(
@@ -326,17 +336,42 @@ private fun DbMigrationLogEntryListItem(
                 }
             },
             leadingContent = {
-                if (dbMigrationLogEntry.checkVersions()) {
-                    Icon(Icons.Rounded.Check, null, tint = AppTheme.colors.green600)
-                } else {
-                    Icon(Icons.Rounded.Close, null, tint = AppTheme.colors.red700)
+                when (dbMigrationLogEntry.checkVersions()) {
+                    true -> Icon(Icons.Rounded.Check, null, tint = AppTheme.colors.green600)
+
+                    false -> Icon(Icons.Rounded.Close, null, tint = AppTheme.colors.red700)
+
+                    else -> Icon(Icons.Rounded.AddModerator, null, tint = AppTheme.colors.neutral700)
                 }
             }
         )
         Divider()
-        AnimatedVisibility(visible = expanded) {
+        AnimatedVisibility(
+            visible = expanded,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Top) + slideInVertically(),
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top) + slideOutVertically()
+        ) {
             ExpandedDbMigrationLogEntryListItem(
                 dbMigrationLogEntry
+            )
+        }
+    }
+}
+
+@Composable
+private fun StateIndicator(value: String) {
+    Column(modifier = Modifier.padding(vertical = PaddingDefaults.Small)) {
+        // The blue box with rounded corners for Functional State
+        Surface(
+            modifier = Modifier.padding(horizontal = PaddingDefaults.Small),
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(SizeDefaults.one),
+            color = AppTheme.colors.primary100
+        ) {
+            Text(
+                text = value,
+                modifier = Modifier.padding(PaddingDefaults.Small),
+                style = AppTheme.typography.caption1,
+                color = AppTheme.colors.primary700
             )
         }
     }
@@ -349,25 +384,28 @@ private fun ExpandedDbMigrationLogEntryListItem(
     Row(
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = PaddingDefaults.Medium),
+            .padding(horizontal = PaddingDefaults.Small),
         horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
     ) {
         Column(
             Modifier.weight(0.5f)
         ) {
             Text(
-                "Version 1",
+                "Realm",
                 style = AppTheme.typography.h6
             )
             Divider()
-            Text(dbMigrationLogEntry.v1)
+            dbMigrationLogEntry.realmData?.let { Text(it) }
         }
         Column(
             Modifier.weight(0.5f)
         ) {
-            Text("Version 2", style = AppTheme.typography.h6)
+            Text(
+                "Room",
+                style = AppTheme.typography.h6
+            )
             Divider()
-            Text(dbMigrationLogEntry.v2)
+            dbMigrationLogEntry.roomData?.let { Text(it) }
         }
     }
 }
@@ -383,7 +421,6 @@ private fun DbMigrationLoggerScreenPreview(
             listState = rememberLazyListState(),
             searchValue = data.searchValue,
             focusManager = LocalFocusManager.current,
-            expandedListItems = data.expandedListItems,
             onClickLogEntry = {},
             onChangeSearch = {},
             onResetSearch = {},

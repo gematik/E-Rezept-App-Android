@@ -29,7 +29,7 @@ import kotlinx.serialization.Serializable
 internal data class CommunicationValueCodingExtension(val url: String, val valueCoding: CommunicationValueCoding)
 
 @Serializable
-internal data class CommunicationValueCoding(val system: String, val code: String, val display: String)
+internal data class CommunicationValueCoding(val system: String, val code: String, val display: String? = null)
 
 @Serializable
 internal data class CommunicationReference(val reference: String)

@@ -29,10 +29,13 @@ import de.gematik.ti.erp.app.medicationplan.model.toMedicationSchedule
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 import java.time.DayOfWeek
 
 val medicationPlanPreviewCurrentTime = Instant.parse("2023-01-01T16:20:00Z")
+val medicationPlanPreviewCurrentDateTime = medicationPlanPreviewCurrentTime.toLocalDateTime(TimeZone.currentSystemDefault())
 
 val SCANNED_PRESCRIPTION_SCHEDULE_INACTIVE = PrescriptionData.Scanned(
     SCANNED_TASK

@@ -540,7 +540,7 @@
     <string name="edit_shipping_contact_top_bar_title">İletişim verileri ve adres</string>
     <string name="empty_dosage_info_body">Reçetenizde ilacı nasıl alacağınıza dair bir bilgi yok.</string>
     <string name="empty_dosage_info_dosage_text">Belirtilmedi</string>
-    <string name="empty_medication_plan_info">Reçeteleriniz için hatırlatıcı ayarlayabilirsiniz</string>
+    <string name="empty_medication_plan_info">İlaçlarınız için hatırlatıcılar ayarlayabilirsiniz. Bunu yapmak için ilgili reçeteye gidin ve \"İlaç Hatırlatıcısı\"nı seçin.</string>
     <string name="empty_medication_plan_title">Giriş hatırlatıcısı yok</string>
     <string name="empty_scanned_prescription_name">Lütfen en az 1 karakter girin.</string>
     <string name="enroll_biometric_dialog_body">Uygulama güvenliği mümkün değil. Önceden cihazınızda biyometrik güvenliği (ör. parmak izi) ayarlayın.</string>
@@ -889,6 +889,7 @@
     <string name="mainscreen_empty_content_header">Reçete yok</string>
     <string name="mainscreen_empty_not_connected_info">Tarifleri otomatik olarak almak için kaydolun.</string>
     <string name="mainscreen_login">Giriş yapmak</string>
+    <string name="mainscreen_refresh">Güncelleme</string>
     <string name="male_doctor_with_phone">telefonlu doktor</string>
     <string name="man_with_phone">Telefonlu adam</string>
     <string name="manufacturer_costs">Üretici maliyetleri</string>
@@ -1429,7 +1430,7 @@
     <string name="profile_image_selector_save">Kullanmak</string>
     <string name="profile_image_selector_take_photo">bir fotoğraf çek</string>
     <string name="profile_image_selector_title">Profil resmini düzenle</string>
-    <string name="profile_insurance_information_connected_biometrics">Biyometri</string>
+    <string name="profile_insurance_information_connected_biometrics">Cihaz yedeklemesi</string>
     <string name="profile_insurance_information_connected_health_card">Sigorta kartı</string>
     <string name="profile_insurance_information_connected_label">Kayıtlı</string>
     <string name="profile_insurance_information_not_connected">Oturum açılmamış</string>

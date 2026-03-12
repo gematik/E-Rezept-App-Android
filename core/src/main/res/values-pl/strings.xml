@@ -550,7 +550,7 @@
     <string name="edit_shipping_contact_top_bar_title">Dane kontaktowe i adres</string>
     <string name="empty_dosage_info_body">Na recepcie nie ma informacji o tym, jak przyjmować lek.</string>
     <string name="empty_dosage_info_dosage_text">Brak danych</string>
-    <string name="empty_medication_plan_info">Możesz ustawić przypomnienia o swoich receptach</string>
+    <string name="empty_medication_plan_info">Możesz ustawić przypomnienia o lekach. Aby to zrobić, przejdź do odpowiedniej recepty i wybierz „Przypomnienie o lekach”.</string>
     <string name="empty_medication_plan_title">Brak przypomnień o spożyciu</string>
     <string name="empty_scanned_prescription_name">Proszę wpisać przynajmniej 1 znak.</string>
     <string name="enroll_biometric_dialog_body">Bezpieczeństwo aplikacji nie jest możliwe. Wcześniej skonfiguruj zabezpieczenia biometryczne (np. odcisk palca) na swoim urządzeniu.</string>
@@ -899,6 +899,7 @@
     <string name="mainscreen_empty_content_header">Brak recept</string>
     <string name="mainscreen_empty_not_connected_info">Zarejestruj się, aby automatycznie otrzymywać przepisy.</string>
     <string name="mainscreen_login">Rejestr</string>
+    <string name="mainscreen_refresh">Aktualizacja</string>
     <string name="male_doctor_with_phone">lekarz z telefonem</string>
     <string name="man_with_phone">Mężczyzna z telefonem</string>
     <string name="manufacturer_costs">Koszty producenta</string>
@@ -1449,7 +1450,7 @@
     <string name="profile_image_selector_save">Używać</string>
     <string name="profile_image_selector_take_photo">Zrób zdjęcie</string>
     <string name="profile_image_selector_title">Edytuj zdjęcie profilowe</string>
-    <string name="profile_insurance_information_connected_biometrics">Biometria</string>
+    <string name="profile_insurance_information_connected_biometrics">Kopia zapasowa urządzenia</string>
     <string name="profile_insurance_information_connected_health_card">Karta ubezpieczeniowa</string>
     <string name="profile_insurance_information_connected_label">Zarejestrowany z</string>
     <string name="profile_insurance_information_not_connected">Nie zalogowano</string>

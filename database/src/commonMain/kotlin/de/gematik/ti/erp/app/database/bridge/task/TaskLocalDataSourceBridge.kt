@@ -26,7 +26,7 @@ package de.gematik.ti.erp.app.database.bridge.task
 
 import de.gematik.ti.erp.app.database.api.TaskLocalDataSource
 import de.gematik.ti.erp.app.database.realm.v1.task.datasource.TaskLocalDataSourceV1
-import de.gematik.ti.erp.app.database.realm.v2.task.datasource.TaskLocalDataSourceV2
+import de.gematik.ti.erp.app.database.room.v2.datasource.TaskLocalDataSourceV2
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -52,8 +52,8 @@ import kotlinx.coroutines.Dispatchers
  * @param dispatcher Dispatcher used for launching background comparison tasks (default: [Dispatchers.IO]).
  */
 internal class TaskLocalDataSourceBridge(
-    private val taskLocalDataSourceV1: TaskLocalDataSourceV1,
-    private val taskLocalDataSourceV2: TaskLocalDataSourceV2,
+    private val taskLocalDataSourceV1: TaskLocalDataSource,
+    private val taskLocalDataSourceV2: TaskLocalDataSource,
     private val isDebug: Boolean,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : TaskLocalDataSource {

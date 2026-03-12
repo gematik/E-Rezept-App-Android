@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.redeem.ui.preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OrderState
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.ShippingContact
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel.Companion.EmptyShippingInfoErpModel
 import kotlinx.datetime.Instant
 
 data class PrescriptionSelectionPreview(
@@ -67,7 +67,7 @@ class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<Prescript
                 selectedOrders = OrderState(
                     prescriptionsInOrder = emptyList(),
                     selfPayerPrescriptionIds = emptyList(),
-                    contact = ShippingContact.EmptyShippingContact
+                    contact = EmptyShippingInfoErpModel
                 ),
                 onCheckedChange = { _, _ -> }
             ),
@@ -109,7 +109,7 @@ class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<Prescript
                         )
                     ),
                     selfPayerPrescriptionIds = emptyList(),
-                    contact = ShippingContact.EmptyShippingContact
+                    contact = EmptyShippingInfoErpModel
                 ),
                 onCheckedChange = { _, _ -> }
             )

@@ -25,6 +25,8 @@ package de.gematik.ti.erp.app.fhir.prescription.parser
 import de.gematik.ti.erp.app.data.medicationIngredientJson_vers_1_0_2
 import de.gematik.ti.erp.app.data.medicationIngredientJson_vers_1_1_0
 import de.gematik.ti.erp.app.data.medicationIngredientJson_vers_1_3
+import de.gematik.ti.erp.app.data.medicationPzn_vers_1_6_kombipackung
+import de.gematik.ti.erp.app.data.medicationPzn_vers_1_6_rezeptur
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationErpTestData.erpMedicationIngredientModelV102
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationErpTestData.erpMedicationIngredientModelV110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationErpTestData.erpMedicationIngredientModelV13
@@ -38,6 +40,56 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class TaskEPrescriptionMedicalDataParserMedicationIngredientTest {
+
+    @Test
+    fun `test parser for medication pzn 16_kombipackung`() {
+        val bundle = Json.parseToJsonElement(medicationPzn_vers_1_6_kombipackung)
+        val fhirModel = bundle.getMedication()
+        val erpModel = fhirModel?.toErpModel()
+
+        // FHIR Model
+        assertEquals("active", fhirModel?.resourceType?.profiles?.firstOrNull()?.let { "active" }) // Status not in model
+        assertEquals("1746517", fhirModel?.getIdentifiers("http://fhir.de/CodeSystem/ifa/pzn"))
+        assertEquals("00", fhirModel?.medicationCategory)
+        assertEquals("KPG", fhirModel?.formText)
+        assertEquals("56498416854", fhirModel?.batch?.lotNumber)
+
+        // ERP Model
+        assertEquals(null, erpModel?.text)
+        assertEquals("KPG", erpModel?.form)
+        assertEquals("1746517", erpModel?.identifier?.pzn)
+        assertEquals("56498416854", erpModel?.lotNumber)
+
+        assertEquals(2, erpModel?.ingredients?.size)
+        // Note: the order might depend on the JSON, NasenSpray is first in ingredient list
+        assertEquals("Natriumcromoglicat", erpModel?.ingredients?.get(0)?.text)
+        assertEquals("Natriumcromoglicat", erpModel?.ingredients?.get(1)?.text)
+    }
+
+    @Test
+    fun `test parser for medication pzn 16_rezeptur`() {
+        val bundle = Json.parseToJsonElement(medicationPzn_vers_1_6_rezeptur)
+        val fhirModel = bundle.getMedication()
+        val erpModel = fhirModel?.toErpModel()
+
+        // FHIR Model
+        assertEquals("Hydrocortison-Dexpanthenol-Salbe", fhirModel?.code?.text)
+        assertEquals("SAL", fhirModel?.formText)
+        assertEquals("100", fhirModel?.amountRatio?.numerator?.value)
+        assertEquals("ml", fhirModel?.amountRatio?.numerator?.unit)
+
+        // ERP Model
+        assertEquals("Hydrocortison-Dexpanthenol-Salbe", erpModel?.text)
+        assertEquals("SAL", erpModel?.form)
+        assertEquals("100", erpModel?.amount?.numerator?.value)
+        assertEquals("ml", erpModel?.amount?.numerator?.unit)
+
+        assertEquals(2, erpModel?.ingredients?.size)
+        assertEquals("Hydrocortison 1% Creme", erpModel?.ingredients?.get(0)?.text)
+        assertEquals("03424249", erpModel?.ingredients?.get(0)?.identifier?.pzn)
+        assertEquals("Dexpanthenol 5% Creme", erpModel?.ingredients?.get(1)?.text)
+        assertEquals("16667195", erpModel?.ingredients?.get(1)?.identifier?.pzn)
+    }
 
     @Test
     fun `test parser for ingredient 13`() {

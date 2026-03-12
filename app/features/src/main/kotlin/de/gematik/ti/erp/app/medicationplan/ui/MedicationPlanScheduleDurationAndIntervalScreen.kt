@@ -21,6 +21,7 @@
  */
 
 package de.gematik.ti.erp.app.medicationplan.ui
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
@@ -172,6 +173,7 @@ class MedicationPlanScheduleDurationAndIntervalScreen(
 fun MedicationPlanScheduleDurationAndIntervalScreenScaffold(
     medicationScheduleUiState: UiState<MedicationSchedule>,
     listState: LazyListState,
+    previewEndOfPackDate: LocalDate? = null,
     onClickDurationOptionEndless: () -> Unit,
     onClickDurationOptionEndOfPack: () -> Unit,
     onClickDurationOptionPersonalized: () -> Unit,
@@ -214,6 +216,7 @@ fun MedicationPlanScheduleDurationAndIntervalScreenScaffold(
                     medicationSchedule = medicationSchedule,
                     contentPadding = contentPadding,
                     listState = listState,
+                    previewEndOfPackDate = previewEndOfPackDate,
                     onClickDurationOptionEndless = onClickDurationOptionEndless,
                     onClickDurationOptionEndOfPack = onClickDurationOptionEndOfPack,
                     onClickDurationOptionPersonalized = onClickDurationOptionPersonalized,
@@ -233,6 +236,7 @@ private fun MedicationPlanScheduleDurationAndIntervalScreenContent(
     medicationSchedule: MedicationSchedule,
     contentPadding: PaddingValues,
     listState: LazyListState,
+    previewEndOfPackDate: LocalDate? = null,
     onClickDurationOptionEndless: () -> Unit,
     onClickDurationOptionEndOfPack: () -> Unit,
     onClickDurationOptionPersonalized: () -> Unit,
@@ -256,6 +260,7 @@ private fun MedicationPlanScheduleDurationAndIntervalScreenContent(
         )
         medicationScheduleDurationSection(
             medicationSchedule = medicationSchedule,
+            previewEndOfPackDate = previewEndOfPackDate,
             onClickDurationOptionEndless = onClickDurationOptionEndless,
             onClickDurationOptionEndOfPack = onClickDurationOptionEndOfPack,
             onClickDurationOptionPersonalized = onClickDurationOptionPersonalized,
@@ -368,6 +373,7 @@ private fun LazyListScope.scheduleIntervalSection(
 @OptIn(ExperimentalMaterialApi::class)
 private fun LazyListScope.medicationScheduleDurationSection(
     medicationSchedule: MedicationSchedule,
+    previewEndOfPackDate: LocalDate? = null,
     onClickDurationOptionEndless: () -> Unit,
     onClickDurationOptionEndOfPack: () -> Unit,
     onClickDurationOptionPersonalized: () -> Unit,
@@ -417,8 +423,10 @@ private fun LazyListScope.medicationScheduleDurationSection(
                             )
                         },
                         secondaryText = {
+                            val endOfPackDate = previewEndOfPackDate
+                                ?: medicationSchedule.calculateEndOfPack()
                             Text(
-                                medicationSchedule.calculateEndOfPack().formattedString(),
+                                endOfPackDate.formattedString(),
                                 style = AppTheme.typography.body2,
                                 color = AppTheme.colors.neutral700
                             )
@@ -552,6 +560,7 @@ fun MedicationPlanScheduleDurationAndIntervalScreenPreview(
         MedicationPlanScheduleDurationAndIntervalScreenScaffold(
             listState = listState,
             medicationScheduleUiState = previewData.state,
+            previewEndOfPackDate = previewData.previewEndOfPackDate,
             onClickDurationOptionEndless = {},
             onClickDurationOptionEndOfPack = {},
             onClickDurationOptionPersonalized = {},

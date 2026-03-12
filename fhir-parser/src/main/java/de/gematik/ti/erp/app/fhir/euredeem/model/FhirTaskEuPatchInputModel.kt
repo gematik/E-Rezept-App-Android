@@ -26,6 +26,7 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirParameter
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirTaskEuPatchInputModelConstants
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirTaskEuPatchInputModelConstants.FhirTaskEuPatchMeta
 import de.gematik.ti.erp.app.utils.Reference
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -41,21 +42,21 @@ data class FhirTaskEuPatchInputModel(
     @SerialName("id") val id: String,
     @SerialName("meta") val meta: FhirMeta,
     @SerialName("parameter") val parameters: List<FhirParameter>
-) {
-    companion object {
-        internal fun JsonElement.toFhirTaskEuPatchInputModel(): FhirTaskEuPatchInputModel {
-            return SafeJson.value.decodeFromJsonElement(serializer(), this)
-        }
-    }
-}
+)
+
+@Serializable
+data class FhirEuMeta(
+    @SerialName("profile") val profiles: String = ""
+)
 
 fun createIsEuRedeemableByPatientAuthorizationPayload(
-    isEuRedeemableByPatientAuthorization: Boolean
+    isEuRedeemableByPatientAuthorization: Boolean,
+    meta: FhirTaskEuPatchMeta
 ): JsonElement {
     val patchInputModel = FhirTaskEuPatchInputModel(
         resourceType = FhirTaskEuPatchInputModelConstants.RESOURCE_TYPE,
         id = FhirTaskEuPatchInputModelConstants.ID,
-        meta = FhirMeta(listOf(FhirTaskEuPatchInputModelConstants.PROFILE_URL)),
+        meta = FhirMeta(listOf(meta.identifier)),
         parameters = listOf(
             FhirParameter(
                 name = FhirTaskEuPatchInputModelConstants.PARAMETER_NAME,

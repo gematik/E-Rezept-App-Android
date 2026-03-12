@@ -26,6 +26,7 @@ import de.gematik.ti.erp.app.pharmacy.repository.PharmacySearchAccessTokenReposi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 
 class PharmacySearchAccessTokenModifierUseCase(
     private val repository: PharmacySearchAccessTokenRepository,
@@ -40,7 +41,7 @@ class PharmacySearchAccessTokenModifierUseCase(
         withContext(dispatcher) {
             when (operation) {
                 Operation.ClearSearchAccessToken -> { repository.clearToken() }
-                is Operation.UpdateSearchAccessToken -> { repository.saveToken(operation.value) }
+                is Operation.UpdateSearchAccessToken -> { repository.saveToken(operation.value, Clock.System.now()) }
             }
         }
     }

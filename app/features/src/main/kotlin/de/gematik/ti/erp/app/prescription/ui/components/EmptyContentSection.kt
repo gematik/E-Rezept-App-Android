@@ -32,6 +32,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -49,13 +50,15 @@ import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
-import de.gematik.ti.erp.app.utils.compose.TertiaryButton
+import de.gematik.ti.erp.app.utils.compose.OutlinedIconButton
+import de.gematik.ti.erp.app.utils.compose.PrimaryButton
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.uistate.UiState
 
 fun LazyListScope.emptyContentSection(
     activeProfile: UiState<ProfilesUseCaseData.Profile>,
     profileIconState: ProfileIconState,
+    onClickRefresh: () -> Unit,
     onClickConnect: () -> Unit,
     onClickAvatar: () -> Unit,
     isRegistered: Boolean
@@ -74,7 +77,7 @@ fun LazyListScope.emptyContentSection(
     if (activeProfile.data?.connectionState() != ProfileConnectionState.LoggedIn) {
         item {
             SpacerMedium()
-            TertiaryButton(onClickConnect, modifier = Modifier.testTag(TestTag.Main.LoginButton)) {
+            PrimaryButton(onClickConnect, modifier = Modifier.testTag(TestTag.Main.LoginButton)) {
                 Text(stringResource(R.string.mainscreen_login))
             }
         }
@@ -96,6 +99,16 @@ fun LazyListScope.emptyContentSection(
             )
         }
     } else {
+        item {
+            SpacerMedium()
+            OutlinedIconButton(
+                onClickRefresh,
+                modifier = Modifier,
+                text = stringResource(R.string.mainscreen_refresh),
+                imageVector = Icons.Rounded.Refresh,
+                contentDescription = null
+            )
+        }
         item {
             SpacerLarge()
             Text(

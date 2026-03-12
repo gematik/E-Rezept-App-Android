@@ -25,7 +25,6 @@ package de.gematik.ti.erp.app.fhir.common.model.original
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatioValue.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions
-import de.gematik.ti.erp.app.fhir.constant.FhirVersions.SupportedFhirKbvMetaProfileVersions
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions.TASK_KBV_META_PROFILE_ERP_REGEX
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions.TASK_KBV_META_PROFILE_EVDGA_REGEX
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
@@ -98,7 +97,7 @@ internal data class FhirBundleMetaProfile(
                     TASK_KBV_META_PROFILE_ERP_REGEX.matchEntire(profile)
                         ?.groupValues?.get(1)
                 }.firstNotNullOfOrNull { matchedVersion ->
-                    SupportedFhirKbvMetaProfileVersions.entries.find { it.version == matchedVersion }
+                    FhirVersions.KbvMetaProfileVersions.SupportedFhirKbvMetaProfileVersions.entries.find { it.version == matchedVersion }
                 }
 
             // profiles which have device request follow this rule
@@ -107,7 +106,7 @@ internal data class FhirBundleMetaProfile(
                     TASK_KBV_META_PROFILE_EVDGA_REGEX.matchEntire(profile)
                         ?.groupValues?.get(1)
                 }.firstNotNullOfOrNull { matchedVersion ->
-                    FhirVersions.SupportedFhirKbvMetaDeviceRequestProfileVersions.entries.find { it.version == matchedVersion }
+                    FhirVersions.KbvMetaProfileVersions.SupportedFhirKbvMetaDeviceRequestProfileVersions.entries.find { it.version == matchedVersion }
                 }
 
             return nonDeviceRequestMatches != null || deviceRequestMatches != null
@@ -359,6 +358,7 @@ internal data class FhirExtension(
     @SerialName("valuePeriod") val valuePeriod: FhirPeriod? = null,
     @SerialName("valueIdentifier") val valueIdentifier: FhirIdentifier? = null,
     @SerialName("valueReference") val valueReference: FhirReference? = null,
+    @SerialName("valueMarkdown") val valueMarkdown: String? = null,
     @SerialName("extension") val extensions: List<FhirExtension> = emptyList()
 ) {
     companion object {

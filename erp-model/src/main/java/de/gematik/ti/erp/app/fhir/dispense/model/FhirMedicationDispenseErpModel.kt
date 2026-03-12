@@ -30,6 +30,7 @@ import kotlinx.serialization.Serializable
 data class FhirMedicationDispenseErpModel(
     val dispenseId: String,
     val patientId: String,
+    val prescriptionId: String? = null,
     val substitutionAllowed: Boolean,
     val dosageInstruction: String?,
     val performer: String?,

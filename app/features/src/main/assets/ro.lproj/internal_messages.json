@@ -58,5 +58,11 @@
         "text": "**✨ Afișare coduri de prescripție** \nEcranul pentru coduri de lot și individuale a fost reproiectat pentru o utilizare mai intuitivă. \n \n **📋 Funcție de copiere** \nInformațiile despre medicamente pot fi copiate prin apăsare lungă. \n \n **♿ Accesibilitate** \nNavigarea prin Talkback și tastatură funcționează mai bine, butoanele sunt mai clare, iar elementele din listă sunt structurate mai logic. Videoclipurile animate se redau o singură dată pentru a sprijini utilizatorii cu deficiențe cognitive.",
         "timestamp": "2026-01-22T08:00:00.000Z",
         "version": "1.36"
+    },
+    {
+        "id": "12",
+        "text": "**✨ Deschidere îmbunătățită a aplicației** \nDeblocarea aplicației este acum mai rapidă. \n \n **📞 Opțiuni de contact extinse** \nAm introdus noi opțiuni de contact pentru anumite polițe de asigurare. \n \n **♿ Accesibilitate** \nDeclarația de accesibilitate a fost actualizată și extinsă pentru a include o secțiune care documentează istoricul modificărilor. Unele butoane au fost ajustate pentru o vizibilitate îmbunătățită.",
+        "timestamp": "2026-03-02T08:00:00.000Z",
+        "version": "1.37"
     }
 ]

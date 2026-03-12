@@ -24,12 +24,14 @@ package de.gematik.ti.erp.app.fhir.dispense.model.erp
 
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirAddress.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension.Companion.findExtensionByUrl
+import de.gematik.ti.erp.app.fhir.constant.FhirIdentifierSystems
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.DIGA_DEEP_LINK
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.DIGA_REDEEM_CODE
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.DispenseMedicationVersionType
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.MedicationCategory.Version102
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.MedicationCategory.Version110
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.MedicationCategory.Version14
+import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.RENDERED_DOSAGE
 import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispenseDeviceRequestErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.FhirMedicationDispenseErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseEuV10Model
@@ -60,15 +62,29 @@ internal fun DispenseMedicationVersionType.toCategoryVersionMapper() =
     }
 
 /**
- * Converts any MedicationDispense model (V14, V15, EU V1.0) to ERP model
+ * Extracts the prescription ID from the identifier list
+ */
+private fun MedicationDispenseCommon.extractPrescriptionId(): String? =
+    identifier.firstOrNull {
+        it.system == FhirIdentifierSystems.Prescription.PRESCRIPTION_ID
+    }?.value
+
+/**
+ * Converts any MedicationDispense model (V14, V15, V16, EU V1.0) to ERP model
  */
 internal fun MedicationDispenseCommon.toErpModel(
-    medication: FhirMedicationDispenseMedicationModel?
+    medication: FhirMedicationDispenseMedicationModel?,
+    isVersion16: Boolean = false
 ) = FhirMedicationDispenseErpModel(
     dispenseId = id ?: "",
     patientId = subject?.identifier?.value ?: "",
+    prescriptionId = extractPrescriptionId(),
     substitutionAllowed = substitution?.wasSubstituted ?: false,
-    dosageInstruction = dosageInstruction.map { it.text }.firstOrNull(),
+    dosageInstruction = when {
+        isVersion16 && !isDigaType() -> extension.findExtensionByUrl(RENDERED_DOSAGE)?.valueMarkdown
+        !isVersion16 && !isDigaType() -> dosageInstruction.map { it.text }.firstOrNull()
+        else -> ""
+    },
     performer = performer.map { it.actor?.identifier?.value }.firstOrNull(),
     handedOver = whenHandedOver?.asFhirTemporal(),
     dispensedMedication = medication?.toTypedErpModel()?.let { listOf(it) } ?: emptyList(),
@@ -95,6 +111,7 @@ internal fun FhirMedicationDispenseEuV10Model.toErpModel(
     return FhirMedicationDispenseErpModel(
         dispenseId = id.orEmpty(),
         patientId = subject?.identifier?.value.orEmpty(),
+        prescriptionId = extractPrescriptionId(),
         substitutionAllowed = substitution?.wasSubstituted ?: false,
         dosageInstruction = dosageInstruction.map { it.text }.firstOrNull(),
         // For EU: Use organization identifier if available (resolved from PractitionerRole)

@@ -177,7 +177,7 @@ fun SyncedPrescriptionOverview(
             SpacerShortMedium()
         }
 
-        if (activeProfile.hasBundFeatures()) {
+        if (activeProfile.isPkvOrBund()) {
             item {
                 InvoiceCardSection(
                     ssoTokenValid = activeProfile.isSSOTokenValid(),

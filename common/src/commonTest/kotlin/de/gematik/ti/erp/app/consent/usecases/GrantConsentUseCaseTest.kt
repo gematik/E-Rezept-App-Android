@@ -22,25 +22,28 @@
 
 package de.gematik.ti.erp.app.consent.usecases
 
-import de.gematik.ti.erp.app.consent.model.ConsentContext
-import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.repository.ConsentLocalDataSource
 import de.gematik.ti.erp.app.consent.repository.ConsentRemoteDataSource
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.consent.repository.DefaultConsentRepository
 import de.gematik.ti.erp.app.consent.usecase.GrantConsentUseCase
 import de.gematik.ti.erp.app.fhir.consent.FhirConsentParser
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
+import de.gematik.ti.erp.app.fhir.constant.consent.ConsentConstants
+import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.settings.repository.ConsentVersionRepository
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class GrantConsentUseCaseTest {
 
@@ -55,14 +58,17 @@ class GrantConsentUseCaseTest {
 
     private lateinit var repository: ConsentRepository
 
+    private val consentVersionRepository: ConsentVersionRepository = mockk()
+
     private lateinit var useCase: GrantConsentUseCase
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
 
-        coEvery { remoteDataSource.grantPkvConsent(any(), any()) } returns Result.success(Unit)
+        coEvery { remoteDataSource.grantConsent(any(), any()) } returns Result.success(Unit)
         coEvery { localDataSource.getInsuranceId(any()) } returns "123"
+        coEvery { consentVersionRepository.getConsentVersion() } returns ConsentConstants.ErpCharge.DEFAULT
 
         repository = DefaultConsentRepository(
             remoteDataSource = remoteDataSource,
@@ -72,6 +78,7 @@ class GrantConsentUseCaseTest {
 
         useCase = GrantConsentUseCase(
             repository = repository,
+            consentVersionRepository = consentVersionRepository,
             dispatcher = dispatcher
         )
     }
@@ -79,27 +86,39 @@ class GrantConsentUseCaseTest {
     @Test
     fun `on consent granted successfully for a profile`() {
         runTest(dispatcher) {
-            val result = useCase.invoke(profileId).first()
-            assertEquals(ConsentState.ValidState.Granted(ConsentContext.GrantConsent), result)
+            val result = useCase.invoke(profile, ConsentCategory.PKVCONSENT)
+            assertTrue(result.isSuccess)
             coVerify(exactly = 1) {
-                repository.grantPkvConsent(profileId, any())
+                repository.grantConsent(profileId, any())
             }
         }
     }
 
     @Test
     fun `on consent granted failed on granting consent for a profile`() {
-        coEvery { remoteDataSource.grantPkvConsent(any(), any()) } returns Result.failure(Throwable("server error"))
+        coEvery { remoteDataSource.grantConsent(any(), any()) } returns Result.failure(Throwable("server error"))
         runTest(dispatcher) {
-            val result = useCase.invoke(profileId).first()
-            assertEquals(ConsentState.ConsentErrorState.Unknown, result)
+            val result = useCase.invoke(profile, ConsentCategory.PKVCONSENT)
+            assertTrue(result.isFailure)
             coVerify(exactly = 1) {
-                repository.grantPkvConsent(profileId, any())
+                repository.grantConsent(profileId, any())
             }
         }
     }
 
     companion object {
         private const val profileId = "7fo98w-43tgv-23w"
+
+        val profile = ProfilesUseCaseData.Profile(
+            id = "7fo98w-43tgv-23w",
+            name = "Test",
+            insurance = ProfileInsuranceInformation(),
+            isActive = false,
+            color = ProfilesData.ProfileColorNames.PINK,
+            lastAuthenticated = null,
+            ssoTokenScope = null,
+            image = null,
+            avatar = ProfilesData.Avatar.PersonalizedImage
+        )
     }
 }

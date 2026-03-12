@@ -555,7 +555,7 @@
     <string name="edit_shipping_contact_top_bar_title">Sonraí teagmhála agus seoladh</string>
     <string name="empty_dosage_info_body">Níl aon fhaisnéis i d\'oideas maidir le treoracha dáileoga.</string>
     <string name="empty_dosage_info_dosage_text">Gan sonraithe</string>
-    <string name="empty_medication_plan_info">Is féidir leat meabhrúcháin a shocrú le haghaidh d’oideas</string>
+    <string name="empty_medication_plan_info">Is féidir leat meabhrúcháin a shocrú do do chógas. Chun seo a dhéanamh, téigh chuig an oideas ábhartha agus roghnaigh \"Meabhrúchán Cógais\".</string>
     <string name="empty_medication_plan_title">Uimh meabhrúcháin pill</string>
     <string name="empty_scanned_prescription_name">Cuir isteach 1 charachtar ar a laghad.</string>
     <string name="enroll_biometric_dialog_body">Ní féidir slándáil app. Roimh ré, socraigh slándáil bhithmhéadrach (m.sh. méarloirg, ID aghaidh) ar do ghléas.</string>
@@ -904,6 +904,7 @@
     <string name="mainscreen_empty_content_header">Gan oideas</string>
     <string name="mainscreen_empty_not_connected_info">Cláraigh chun oidis a fháil go huathoibríoch.</string>
     <string name="mainscreen_login">Clár</string>
+    <string name="mainscreen_refresh">Nuashonrú</string>
     <string name="male_doctor_with_phone">dochtúir le teileafón</string>
     <string name="man_with_phone">Fear le teileafón</string>
     <string name="manufacturer_costs">Costais an mhonaróra</string>
@@ -1459,7 +1460,7 @@
     <string name="profile_image_selector_save">Úsáid</string>
     <string name="profile_image_selector_take_photo">Gabháil</string>
     <string name="profile_image_selector_title">Cuir pictiúr próifíle in eagar</string>
-    <string name="profile_insurance_information_connected_biometrics">Bithmhéadracht</string>
+    <string name="profile_insurance_information_connected_biometrics">Cúltaca gléis</string>
     <string name="profile_insurance_information_connected_health_card">Cárta árachais</string>
     <string name="profile_insurance_information_connected_label">Cláraithe le</string>
     <string name="profile_insurance_information_not_connected">Gan logáil isteach</string>

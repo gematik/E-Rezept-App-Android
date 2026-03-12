@@ -22,7 +22,6 @@
 
 package de.gematik.ti.erp.app.consent.usecases
 
-import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.repository.ConsentLocalDataSource
 import de.gematik.ti.erp.app.consent.repository.ConsentRemoteDataSource
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
@@ -35,12 +34,11 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class RevokeConsentUseCaseTest {
 
@@ -78,9 +76,8 @@ class RevokeConsentUseCaseTest {
         } returns Result.success(Unit)
 
         runTest(dispatcher) {
-            val result = useCase.invoke(testProfileId).first()
-
-            assertEquals(ConsentState.ValidState.Revoked, result)
+            val result = useCase.invoke(testProfileId)
+            assertTrue(result.isSuccess)
             coVerify(exactly = 1) {
                 remoteDataSource.deleteConsent(testProfileId, ConsentCategory.PKVCONSENT.code)
             }
@@ -94,9 +91,8 @@ class RevokeConsentUseCaseTest {
         } returns Result.failure<Unit>(Throwable("error"))
 
         runTest(dispatcher) {
-            val result = useCase.invoke(testProfileId).first()
-
-            assert(result is ConsentState.ConsentErrorState)
+            val result = useCase.invoke(testProfileId)
+            assertTrue(result.isFailure)
             coVerify(exactly = 1) {
                 remoteDataSource.deleteConsent(testProfileId, ConsentCategory.PKVCONSENT.code)
             }

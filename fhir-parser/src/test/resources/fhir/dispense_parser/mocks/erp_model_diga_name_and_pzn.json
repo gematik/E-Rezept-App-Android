@@ -1,24 +1,25 @@
 {
-  "dispensedMedications":[
+  "dispensedMedications": [
     {
-      "dispenseId":"Example-MedicationDispense-DiGA-Name-And-PZN",
-      "patientId":"X123456789",
-      "substitutionAllowed":false,
-      "dosageInstruction":null,
-      "performer":"8-SMC-B-Testkarte-883110000095957",
-      "handedOver":{
-        "value":"2024-04-03"
+      "dispenseId": "Example-MedicationDispense-DiGA-Name-And-PZN",
+      "prescriptionId": "162.000.033.491.280.78",
+      "patientId": "X123456789",
+      "substitutionAllowed": false,
+      "dosageInstruction": "",
+      "performer": "8-SMC-B-Testkarte-883110000095957",
+      "handedOver": {
+        "value": "2024-04-03"
       },
-      "dispensedDeviceRequest":{
-        "deepLink":null,
-        "redeemCode":"DE12345678901234",
-        "declineCode":null,
+      "dispensedDeviceRequest": {
+        "deepLink": null,
+        "redeemCode": "DE12345678901234",
+        "declineCode": null,
         "modifiedDate": {
           "value": "2024-04-03"
         },
-        "note":null,
-        "referencePzn":"12345678",
-        "display":"Gematico Diabetestherapie",
+        "note": null,
+        "referencePzn": "12345678",
+        "display": "Gematico Diabetestherapie",
         "status": "completed"
       }
     }

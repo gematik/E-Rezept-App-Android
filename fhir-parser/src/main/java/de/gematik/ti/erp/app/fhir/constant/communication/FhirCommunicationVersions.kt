@@ -22,35 +22,75 @@
 
 package de.gematik.ti.erp.app.fhir.constant.communication
 
+import de.gematik.ti.erp.app.fhir.constant.communication.CommunicationDigaConstants.DigaDispenseRequestVersion
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants.COMMUNICATION_DISPENSE_DIGA_WORKFLOW_PROFILE
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants.COMMUNICATION_DISPENSE_WORKFLOW_PROFILE
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants.COMMUNICATION_REPLY_REPLY_WORKFLOW_PROFILE
 
-internal object FhirCommunicationVersions {
-    const val COMMUNICATION_VERSION_1_2 = "1.2"
-    const val COMMUNICATION_VERSION_1_3 = "1.3"
-    const val COMMUNICATION_VERSION_1_4 = "1.4"
-    const val COMMUNICATION_VERSION_1_5 = "1.5"
+/**
+ * **Communication Version Management**
+ * * Single source of truth for communication profile versions.
+ * * **To add a new version:**
+ * 1. Add to CommunicationVersion enum
+ * 2. Regexes and lists will auto-update
+ */
+object FhirCommunicationVersions {
+
+    /**
+     * **Communication Versions Enum**
+     * * Single source of truth for all communication versions.
+     */
+    enum class CommunicationVersion(val version: String) {
+        V_1_2("1.2"),
+        V_1_3("1.3"),
+        V_1_4("1.4"),
+        V_1_5("1.5"),
+        V_1_6("1.6");
+
+        companion object {
+            val all: List<String> = entries.map { it.version }
+        }
+    }
 
     val COMMUNICATION_REPLY_PROFILE_REGEX =
         Regex("""$COMMUNICATION_REPLY_REPLY_WORKFLOW_PROFILE\|(.+)""")
     val COMMUNICATION_DISPENSE_PROFILE_REGEX =
         Regex("""$COMMUNICATION_DISPENSE_WORKFLOW_PROFILE\|(.+)""")
-
     val COMMUNICATION_DIGA_DISPENSE_PROFILE_REGEX =
         Regex("""$COMMUNICATION_DISPENSE_DIGA_WORKFLOW_PROFILE\|(.+)""")
 
+    /**
+     * Supported versions for Communication Reply profiles.
+     * Derived from CommunicationVersion enum.
+     */
     enum class SupportedCommunicationReplyVersions(val version: String) {
-        V_1_2(COMMUNICATION_VERSION_1_2),
-        V_1_3(COMMUNICATION_VERSION_1_3),
-        V_1_4(COMMUNICATION_VERSION_1_4),
-        V_1_5(COMMUNICATION_VERSION_1_5)
+        V_1_2(CommunicationVersion.V_1_2.version),
+        V_1_3(CommunicationVersion.V_1_3.version),
+        V_1_4(CommunicationVersion.V_1_4.version),
+        V_1_5(CommunicationVersion.V_1_5.version),
+        V_1_6(CommunicationVersion.V_1_6.version)
     }
 
+    /**
+     * Supported versions for Communication Dispense profiles.
+     * Derived from CommunicationVersion enum.
+     */
     enum class SupportedCommunicationDispenseVersions(val version: String) {
-        V_1_2(COMMUNICATION_VERSION_1_2),
-        V_1_3(COMMUNICATION_VERSION_1_3),
-        V_1_4(COMMUNICATION_VERSION_1_4),
-        V_1_5(COMMUNICATION_VERSION_1_5) // Support https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.5
+        V_1_2(CommunicationVersion.V_1_2.version),
+        V_1_3(CommunicationVersion.V_1_3.version),
+        V_1_4(CommunicationVersion.V_1_4.version),
+        V_1_5(CommunicationVersion.V_1_5.version),
+        V_1_6(CommunicationVersion.V_1_6.version)
+    }
+
+    /**
+     * Supported versions for Communication DiGA Dispense profiles.
+     * Derived from [DigaDispenseRequestVersion] enum.
+     * Production default is [DigaDispenseRequestVersion.PRODUCTION_DEFAULT] (v1.4).
+     */
+    enum class SupportedCommunicationDigaDispenseVersions(val profileUrl: String) {
+        V_1_4(DigaDispenseRequestVersion.V_1_4.profileUrl),
+        V_1_5(DigaDispenseRequestVersion.V_1_5.profileUrl),
+        V_1_6(DigaDispenseRequestVersion.V_1_6.profileUrl)
     }
 }

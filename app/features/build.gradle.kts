@@ -31,6 +31,7 @@ dependencies {
     implementation(project(namesPlugin.database))
     implementation(project(namesPlugin.multiplatform))
     implementation(project(namesPlugin.uiComponents))
+    implementation(project(namesPlugin.consent))
     implementation(libs.androidx.work)
     implementation(libs.certificatetransparency.android)
     debugImplementation(libs.chucker)

@@ -45,6 +45,7 @@ class AppDependencyNamesPlugin : ErpPlugin {
     val testTags = ":app:test-tags"
     val multiplatform = ":common"
     val database = ":database"
+    val consent = ":app:consent"
     val mocks = ":mocks"
 
     fun moduleName(value: String) = "$appNameSpace.$value"

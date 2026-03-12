@@ -40,7 +40,6 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
-import de.gematik.ti.erp.app.consent.model.ConsentContext
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isConsentGranted
 import de.gematik.ti.erp.app.core.LocalActivity
@@ -53,11 +52,11 @@ import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.toNavigationString
+import de.gematik.ti.erp.app.pkv.consent.presentation.rememberConsentController
+import de.gematik.ti.erp.app.pkv.consent.screen.ConsentScreen
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
 import de.gematik.ti.erp.app.pkv.presentation.model.InvoiceCardUiState
-import de.gematik.ti.erp.app.pkv.presentation.rememberConsentController
 import de.gematik.ti.erp.app.pkv.presentation.rememberInvoiceController
-import de.gematik.ti.erp.app.pkv.ui.screens.HandleConsentState
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailBottomSheetNavigationData
@@ -140,7 +139,7 @@ class PrescriptionDetailScreen(
                 val consentController = rememberConsentController()
                 val invoicesController = rememberInvoiceController(profileId = profile.id)
 
-                val activeProfileIsPKVProfile = profile.hasBundFeatures()
+                val activeProfileIsPkvOrBund = profile.isPkvOrBund()
 
                 val invoice by produceState<InvoiceData.PKVInvoiceRecord?>(null) {
                     invoicesController.getInvoiceForTaskId(prescription.taskId).collect {
@@ -148,22 +147,22 @@ class PrescriptionDetailScreen(
                     }
                 }
 
-                val consentState by consentController.consentState.collectAsStateWithLifecycle()
-                val consentGranted = remember(consentState) { consentState.isConsentGranted() }
+                val consentViewState by consentController.consentViewState.collectAsStateWithLifecycle()
+                val consentGranted = remember(consentViewState) { consentViewState.state.isConsentGranted() }
                 val deletePrescriptionState by prescriptionDetailsController.prescriptionDeleted.collectAsStateWithLifecycle()
                 val shareHandler = rememberSharePrescriptionController(profile.id)
 
                 val mailAddress = stringResource(R.string.settings_contact_mail_address)
                 val subject = stringResource(R.string.settings_feedback_mail_subject)
 
-                val scope = rememberCoroutineScope()
+                rememberCoroutineScope()
 
                 val ssoTokenValid =
                     remember(profile.ssoTokenScope) {
                         profile.isSSOTokenValid()
                     }
 
-                val invoiceState = invoicesController.uiState(consentState, ssoTokenValid, invoice)
+                val invoiceState = invoicesController.uiState(consentViewState.state, ssoTokenValid, invoice)
 
                 with(prescriptionDetailsController) {
                     onBiometricAuthenticationSubmitSuccessEvent.listen {
@@ -177,9 +176,9 @@ class PrescriptionDetailScreen(
                 }
 
                 LaunchedEffect(Unit) {
-                    if (activeProfileIsPKVProfile &&
+                    if (activeProfileIsPkvOrBund &&
                         ssoTokenValid &&
-                        consentState == ConsentState.ValidState.UnknownConsent &&
+                        consentViewState.state is ConsentState.ValidState.UnknownConsent &&
                         !consentGranted
                     ) {
                         consentController.getChargeConsent(profile.id)
@@ -226,49 +225,21 @@ class PrescriptionDetailScreen(
                     }
                 )
 
-                if (activeProfileIsPKVProfile) {
+                if (activeProfileIsPkvOrBund) {
                     val actionString = stringResource(R.string.consent_action_to_invoices)
-                    val consentRevokedInfo = stringResource(R.string.consent_revoked_info)
                     val consentGrantedInfo = stringResource(R.string.consent_granted_info)
-
-                    HandleConsentState(
-                        consentState = consentState,
-                        dialog = dialog,
-                        onShowCardWall = {
-                            navController.navigate(CardWallRoutes.CardWallIntroScreen.path(profile.id))
-                        },
-                        onRetry = { consentContext ->
-                            when (consentContext) {
-                                ConsentContext.GetConsent -> consentController.getChargeConsent(profile.id)
-                                ConsentContext.GrantConsent -> consentController.grantChargeConsent(profile.id)
-                                ConsentContext.RevokeConsent -> {} // revoke is not available on prescription details
-                            }
-                        },
+                    val scope = rememberCoroutineScope()
+                    ConsentScreen(
+                        profile = profile,
+                        onShowCardWall = { navController.navigate(CardWallRoutes.CardWallIntroScreen.path(profile.id)) },
                         onConsentGranted = {
                             scope.launch {
-                                val result =
-                                    snackbar.showSnackbar(
-                                        message = consentGrantedInfo,
-                                        actionLabel = actionString
-                                    )
-                                when (result) {
-                                    SnackbarResult.Dismissed -> {}
-                                    SnackbarResult.ActionPerformed ->
-                                        navController.navigate(PkvRoutes.InvoiceListScreen.path(profile.id))
-                                }
-                            }
-                        },
-                        onConsentRevoked = {
-                            scope.launch {
-                                val result =
-                                    snackbar.showSnackbar(
-                                        message = consentRevokedInfo,
-                                        actionLabel = actionString
-                                    )
-                                when (result) {
-                                    SnackbarResult.Dismissed -> {}
-                                    SnackbarResult.ActionPerformed ->
-                                        navController.navigate(PkvRoutes.InvoiceListScreen.path(profile.id))
+                                val result = snackbar.showSnackbar(
+                                    message = consentGrantedInfo,
+                                    actionLabel = actionString
+                                )
+                                if (result == SnackbarResult.ActionPerformed) {
+                                    navController.navigate(PkvRoutes.InvoiceListScreen.path(profile.id))
                                 }
                             }
                         }
@@ -305,7 +276,7 @@ class PrescriptionDetailScreen(
                         )
                     },
                     onGrantConsent = {
-                        consentController.grantChargeConsent(profile.id)
+                        consentController.grantChargeConsent(profile)
                     },
                     onClickTechnicalInformation = {
                         navController.navigate(

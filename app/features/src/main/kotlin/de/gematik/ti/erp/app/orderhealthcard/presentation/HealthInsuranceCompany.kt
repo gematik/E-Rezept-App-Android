@@ -39,44 +39,44 @@ data class HealthInsuranceCompany(
     val bodyPinMail: String?
 ) {
     fun noContactInformation() =
-        healthCardAndPinPhone.isNullOrEmpty() &&
-            healthCardAndPinMail.isNullOrEmpty() &&
-            healthCardAndPinUrl.isNullOrEmpty() &&
-            pinUrl.isNullOrEmpty()
+        healthCardAndPinPhone.isNullOrBlank() &&
+            healthCardAndPinMail.isNullOrBlank() &&
+            healthCardAndPinUrl.isNullOrBlank() &&
+            pinUrl.isNullOrBlank()
 
     fun singleContactInformation() =
         (
-            !healthCardAndPinPhone.isNullOrEmpty() &&
-                healthCardAndPinMail.isNullOrEmpty() &&
-                healthCardAndPinUrl.isNullOrEmpty() &&
-                pinUrl.isNullOrEmpty()
+            !healthCardAndPinPhone.isNullOrBlank() &&
+                healthCardAndPinMail.isNullOrBlank() &&
+                healthCardAndPinUrl.isNullOrBlank() &&
+                pinUrl.isNullOrBlank()
             ) ||
             (
-                healthCardAndPinPhone.isNullOrEmpty() &&
-                    !healthCardAndPinMail.isNullOrEmpty() &&
-                    healthCardAndPinUrl.isNullOrEmpty() &&
-                    pinUrl.isNullOrEmpty()
+                healthCardAndPinPhone.isNullOrBlank() &&
+                    !healthCardAndPinMail.isNullOrBlank() &&
+                    healthCardAndPinUrl.isNullOrBlank() &&
+                    pinUrl.isNullOrBlank()
                 ) ||
             (
-                healthCardAndPinPhone.isNullOrEmpty() &&
-                    healthCardAndPinMail.isNullOrEmpty() &&
-                    !healthCardAndPinUrl.isNullOrEmpty() &&
-                    !pinUrl.isNullOrEmpty()
+                healthCardAndPinPhone.isNullOrBlank() &&
+                    healthCardAndPinMail.isNullOrBlank() &&
+                    !healthCardAndPinUrl.isNullOrBlank() &&
+                    !pinUrl.isNullOrBlank()
                 )
 
     fun hasContactInfoForPin() =
-        !pinUrl.isNullOrEmpty() || (
-            !healthCardAndPinMail.isNullOrEmpty() &&
-                !bodyPinMail.isNullOrEmpty() && !subjectPinMail.isNullOrEmpty()
+        !pinUrl.isNullOrBlank() || (
+            !healthCardAndPinMail.isNullOrBlank() &&
+                !bodyPinMail.isNullOrBlank() && !subjectPinMail.isNullOrBlank()
             )
 
     fun hasContactInfoForHealthCardAndPin() =
-        !healthCardAndPinPhone.isNullOrEmpty() ||
-            !healthCardAndPinMail.isNullOrEmpty() ||
-            !healthCardAndPinUrl.isNullOrEmpty()
+        !healthCardAndPinPhone.isNullOrBlank() ||
+            !healthCardAndPinMail.isNullOrBlank() ||
+            !healthCardAndPinUrl.isNullOrBlank()
 
-    fun hasMailContentForCardAndPin() = !subjectCardAndPinMail.isNullOrEmpty() &&
-        !bodyCardAndPinMail.isNullOrEmpty()
+    fun hasMailContentForCardAndPin() = !subjectCardAndPinMail.isNullOrBlank() &&
+        !bodyCardAndPinMail.isNullOrBlank()
 
-    fun hasMailContentForPin() = !subjectPinMail.isNullOrEmpty() && !bodyPinMail.isNullOrEmpty()
+    fun hasMailContentForPin() = !subjectPinMail.isNullOrBlank() && !bodyPinMail.isNullOrBlank()
 }

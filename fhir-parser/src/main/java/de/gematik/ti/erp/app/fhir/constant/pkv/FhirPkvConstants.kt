@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.fhir.constant.pkv
 
+import de.gematik.ti.erp.app.fhir.constant.FhirIdentifierSystems
 import de.gematik.ti.erp.app.fhir.constant.pkv.FhirPkvCodeSystems.ABDA_TA1
 import de.gematik.ti.erp.app.fhir.constant.pkv.FhirPkvCodeSystems.GKV_HMNR
 import de.gematik.ti.erp.app.fhir.constant.pkv.FhirPkvCodeSystems.IFA_PZN
@@ -30,7 +31,7 @@ import de.gematik.ti.erp.app.fhir.support.ChargeItemType
 internal object FhirPkvEntryConstants {
     const val FHIR_PKV_PROFILE_TAG =
         "https://gematik.de/fhir/erpchrg/StructureDefinition/GEM_ERPCHRG_PR_ChargeItem"
-    const val FHIR_PKV_KVID = "http://fhir.de/sid/gkv/kvid-10"
+    const val FHIR_PKV_KVID = FhirIdentifierSystems.Patient.KVNR_GKV
 }
 
 @Suppress("unused")
@@ -59,21 +60,21 @@ internal object FhirPkvInvoiceBundleConstats {
 }
 
 internal object FhirPkvChargeItemConstants {
-    const val TASKID_SYSTEM_URL = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId"
-    const val ACCESS_CODE_SYSTEM_URL = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode"
-    const val KVNR_SYSTEM_URL = "http://fhir.de/sid/pkv/kvid-10"
-    const val TELEMATIK_ID_SYSTEM_URL = "https://gematik.de/fhir/sid/telematik-id"
+    const val TASKID_SYSTEM_URL = FhirIdentifierSystems.Prescription.PRESCRIPTION_ID
+    const val ACCESS_CODE_SYSTEM_URL = FhirIdentifierSystems.Prescription.ACCESS_CODE
+    const val KVNR_SYSTEM_URL = FhirIdentifierSystems.Patient.KVNR_PKV
+    const val TELEMATIK_ID_SYSTEM_URL = FhirIdentifierSystems.Healthcare.TELEMATIK_ID
 }
 
 internal object FhirPkvCodeSystems {
     // IFA Pharmazentralnummer (German drug article number)
-    const val IFA_PZN = "http://fhir.de/CodeSystem/ifa/pzn"
+    const val IFA_PZN = FhirIdentifierSystems.Medication.PZN
 
     // ABDA TA1 (tax/fee/service codes used in PKV cytostatics/compounding context)
-    const val ABDA_TA1 = "http://TA1.abda.de"
+    const val ABDA_TA1 = FhirIdentifierSystems.Medication.ABDA_TA1
 
     // GKV Hilfsmittelnummer (medical aid catalog number)
-    const val GKV_HMNR = "http://fhir.de/sid/gkv/hmnr"
+    const val GKV_HMNR = FhirIdentifierSystems.Medication.GKV_HMNR
 
     val PRIORITY = listOf(IFA_PZN, ABDA_TA1, GKV_HMNR)
 }

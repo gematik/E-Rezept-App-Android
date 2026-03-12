@@ -27,6 +27,10 @@ import de.gematik.ti.erp.app.data.medicationPznJson_vers_1_1_0
 import de.gematik.ti.erp.app.data.medicationPznJson_vers_1_2
 import de.gematik.ti.erp.app.data.medicationPznJson_vers_1_3
 import de.gematik.ti.erp.app.data.medicationPznWithAmountJson_vers_1_2
+import de.gematik.ti.erp.app.data.medicationPzn_vers_1_6_noStrengthCode
+import de.gematik.ti.erp.app.data.medicationPzn_vers_1_6_simple
+import de.gematik.ti.erp.app.data.medicationPzn_vers_1_6_sumatripanmedication
+import de.gematik.ti.erp.app.data.medicationPzn_vers_1_6_withStrengthCode
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationErpTestData.erpMedicationPznModelV102
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationErpTestData.erpMedicationPznModelV110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationErpTestData.erpMedicationPznModelV12
@@ -44,6 +48,72 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class TaskEPrescriptionMedicalDataParserMedicationPznTest {
+
+    @Test
+    fun `test parser for medication pzn 16_sumatripanmedication`() {
+        val bundle = Json.parseToJsonElement(medicationPzn_vers_1_6_sumatripanmedication)
+        val fhirModel = bundle.getMedication()
+        val erpModel = fhirModel?.toErpModel()
+
+        // the url to find the ratio is different from version 1.6
+        assertEquals("20", fhirModel?.amountRatio?.numerator?.value)
+        assertEquals("St", fhirModel?.amountRatio?.numerator?.unit)
+        assertEquals("20", erpModel?.amount?.numerator?.value)
+        assertEquals("St", erpModel?.amount?.numerator?.unit)
+    }
+
+    @Test
+    fun `test parser for medication pzn 16_noStrengthCode`() {
+        val bundle = Json.parseToJsonElement(medicationPzn_vers_1_6_noStrengthCode)
+        val fhirModel = bundle.getMedication()
+        val erpModel = fhirModel?.toErpModel()
+
+        // FHIR Model
+        assertEquals(
+            "Infusion bestehend aus 85mg Doxorubicin aufgeloest zur Verabreichung in 250ml 5-%iger (50 mg/ml) Glucose-Infusionsloesung",
+            fhirModel?.code?.text
+        )
+        assertEquals("L01DB01", fhirModel?.getIdentifiers("http://fhir.de/CodeSystem/bfarm/atc"))
+
+        // ERP Model
+        assertEquals(
+            "Infusion bestehend aus 85mg Doxorubicin aufgeloest zur Verabreichung in 250ml 5-%iger (50 mg/ml) Glucose-Infusionsloesung",
+            erpModel?.text
+        )
+        assertEquals("L01DB01", erpModel?.identifier?.atc)
+    }
+
+    @Test
+    fun `test parser for medication pzn 16_withStrengthCode`() {
+        val bundle = Json.parseToJsonElement(medicationPzn_vers_1_6_withStrengthCode)
+        val fhirModel = bundle.getMedication()
+        val erpModel = fhirModel?.toErpModel()
+
+        // FHIR Model
+        assertEquals("08585997", fhirModel?.getIdentifiers("http://fhir.de/CodeSystem/ifa/pzn"))
+        assertEquals("Prospan® Hustensaft 100ml N1", fhirModel?.code?.text)
+
+        // ERP Model
+        assertEquals("08585997", erpModel?.identifier?.pzn)
+        assertEquals("Prospan® Hustensaft 100ml N1", erpModel?.text)
+    }
+
+    @Test
+    fun `test parser for medication pzn 16_simple`() {
+        val bundle = Json.parseToJsonElement(medicationPzn_vers_1_6_simple)
+        val fhirModel = bundle.getMedication()
+        val erpModel = fhirModel?.toErpModel()
+
+        // FHIR Model
+        assertEquals("06313728", fhirModel?.getIdentifiers("http://fhir.de/CodeSystem/ifa/pzn"))
+        assertEquals("Simple Medication Text", fhirModel?.code?.text)
+        assertEquals("1234567890", fhirModel?.batch?.lotNumber)
+
+        // ERP Model
+        assertEquals("06313728", erpModel?.identifier?.pzn)
+        assertEquals("Simple Medication Text", erpModel?.text)
+        assertEquals("1234567890", erpModel?.lotNumber)
+    }
 
     @Test
     fun `test parser for medication pzn 13`() {

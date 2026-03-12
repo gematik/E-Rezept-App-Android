@@ -37,7 +37,7 @@ import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCas
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidName
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidPhoneNumber
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidPostalCode
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -48,7 +48,7 @@ class GetShippingContactValidationUseCaseTest {
 
     private lateinit var getShippingContactValidationUseCase: GetShippingContactValidationUseCase
 
-    private val emptyShippingContact = PharmacyUseCaseData.ShippingContact(
+    private val emptyShippingContact = ShippingInfoErpModel(
         "",
         "",
         "",
@@ -157,7 +157,7 @@ class GetShippingContactValidationUseCaseTest {
         )
 
         validtexts.forEach {
-            val shippingContact = emptyShippingContact.copy(name = it, line1 = it, line2 = it, city = it)
+            val shippingContact = emptyShippingContact.copy(name = it, street = it, addressDetail = it, city = it)
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
@@ -179,7 +179,7 @@ class GetShippingContactValidationUseCaseTest {
         )
 
         invalidTexts.forEach {
-            val shippingContact = emptyShippingContact.copy(name = it, line1 = it, line2 = it, city = it)
+            val shippingContact = emptyShippingContact.copy(name = it, street = it, addressDetail = it, city = it)
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
@@ -203,7 +203,7 @@ class GetShippingContactValidationUseCaseTest {
         )
 
         validTexts.forEach {
-            val shippingContact = emptyShippingContact.copy(postalCode = it)
+            val shippingContact = emptyShippingContact.copy(zip = it)
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
@@ -225,7 +225,7 @@ class GetShippingContactValidationUseCaseTest {
         )
 
         invalidTexts.forEach {
-            val shippingContact = emptyShippingContact.copy(postalCode = it)
+            val shippingContact = emptyShippingContact.copy(zip = it)
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
@@ -250,7 +250,7 @@ class GetShippingContactValidationUseCaseTest {
         )
 
         validNumbers.forEach {
-            val shippingContact = emptyShippingContact.copy(telephoneNumber = it)
+            val shippingContact = emptyShippingContact.copy(phone = it)
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
@@ -272,7 +272,7 @@ class GetShippingContactValidationUseCaseTest {
         )
 
         invalidNumbers.forEach {
-            val shippingContact = emptyShippingContact.copy(telephoneNumber = it)
+            val shippingContact = emptyShippingContact.copy(phone = it)
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
@@ -299,7 +299,7 @@ class GetShippingContactValidationUseCaseTest {
         )
 
         validtexts.forEach {
-            val shippingContact = emptyShippingContact.copy(deliveryInformation = it)
+            val shippingContact = emptyShippingContact.copy(deliveryInfo = it)
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,
@@ -319,7 +319,7 @@ class GetShippingContactValidationUseCaseTest {
         )
 
         invalidTexts.forEach {
-            val shippingContact = emptyShippingContact.copy(deliveryInformation = it)
+            val shippingContact = emptyShippingContact.copy(deliveryInfo = it)
 
             val validationState = getShippingContactValidationUseCase(
                 contact = shippingContact,

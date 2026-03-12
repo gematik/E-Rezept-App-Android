@@ -31,7 +31,16 @@ import de.gematik.ti.erp.app.utils.Reference
 object FhirEuRedeemAccessCodeResponseConstants {
     const val RESOURCE_TYPE = "Parameters"
     const val ID = "erp-eprescription-04-POST-AccessCode-EU-Response"
-    const val PROFILE_URL = "https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_PAR_Access_Authorization_Response|1.0"
+
+    enum class FhirEuRedeemAccessCodeResponseMeta(val identifier: String) {
+        V_1_0("https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_PAR_Access_Authorization_Response|1.0"),
+
+        @Reference(
+            info = "GEM ERPEU PR PAR Access Authorization Response 1.1.2",
+            url = "https://simplifier.net/packages/de.gematik.erezept.eu/1.1.2/files/3293385"
+        )
+        V_1_1("https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_PAR_Access_Authorization_Response|1.1")
+    }
 
     object CountryCodeParameter {
         const val NAME = "countryCode"

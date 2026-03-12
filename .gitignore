@@ -29,6 +29,8 @@ downloads/
 /.github/prompts/
 /.github/prompt-index.md
 /.github/prompt-naming-guidelines.md
+/.github/copilot-instructions.md
+/.junie/guidelines.md
 
 Jenkinsfile
 Nightly.Jenkinsfile
@@ -66,3 +68,5 @@ gutachter
 fastlane
 common/schema
 .github/prompts
+gradle/DEPENDENCY_COMPATIBILITY.md
+gradle/DEPENDENCY_TREE.txt

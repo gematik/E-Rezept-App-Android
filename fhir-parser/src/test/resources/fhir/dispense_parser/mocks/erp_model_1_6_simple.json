@@ -1,0 +1,16 @@
+{
+  "dispensedMedications": [
+    {
+      "dispenseId": "Example-MedicationDispense",
+      "patientId": "X123456780",
+      "prescriptionId": "160.000.033.491.280.78",
+      "substitutionAllowed": false,
+      "dosageInstruction": null,
+      "performer": "3-SMC-B-Testkarte-883110000095957",
+      "handedOver": {
+        "value": "2026-04-01"
+      },
+      "dispensedDeviceRequest": null
+    }
+  ]
+}

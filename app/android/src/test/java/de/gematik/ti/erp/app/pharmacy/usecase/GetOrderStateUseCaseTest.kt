@@ -33,11 +33,10 @@ import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_SYNCED_TASK_DATA_REDEEMABLE_01
 import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_SYNCED_TASK_DATA_REDEEMABLE_02
 import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_SYNCED_TASK_DATA_REDEEMABLE_SELF_PAYER_03
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
-import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OrderState
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.ShippingContact
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import io.mockk.coEvery
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.mockk
@@ -92,7 +91,7 @@ class GetOrderStateUseCaseTest {
         runTest(dispatcher) {
             val orderState = useCase().first()
             assert(orderState.prescriptionsInOrder.size == 5)
-            assertEquals(MOCK_SHIPPING_CONTACT.toModel(), orderState.contact)
+            assertEquals(MOCK_SHIPPING_CONTACT, orderState.contact)
             assertEquals(1, orderState.selfPayerPrescriptionIds.size)
         }
     }
@@ -113,7 +112,7 @@ class GetOrderStateUseCaseTest {
                 OrderState(
                     prescriptionsInOrder = emptyList(),
                     selfPayerPrescriptionIds = emptyList(),
-                    contact = ShippingContact.EmptyShippingContact
+                    contact = ShippingInfoErpModel.EmptyShippingInfoErpModel
                 ),
                 orderState
             )

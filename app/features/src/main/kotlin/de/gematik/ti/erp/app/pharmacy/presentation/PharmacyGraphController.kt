@@ -31,11 +31,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.permissions.isLocationPermissionAndServiceEnabled
 import de.gematik.ti.erp.app.permissions.isLocationServiceEnabled
-import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.presentation.FilterType.Companion.getUpdatedFilter
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.PreviewMapCoordinatesDataSource.Companion.berlinCoordinates
 import de.gematik.ti.erp.app.pharmacy.usecase.GetOrderStateUseCase
-import de.gematik.ti.erp.app.pharmacy.usecase.GetOverviewPharmaciesUseCase
+import de.gematik.ti.erp.app.pharmacy.usecase.GetPharmaciesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPreviewMapCoordinatesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.SetPreviewMapCoordinatesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
@@ -79,7 +79,7 @@ abstract class PharmacyGraphController : Controller() {
     abstract fun coordinates(): State<Coordinates?>
 
     @Composable
-    abstract fun favouritePharmacies(): State<List<OverviewPharmacyData.OverviewPharmacy>>
+    abstract fun favouritePharmacies(): State<List<PharmacyErpModel>>
 
     @Composable
     abstract fun previewCoordinates(): State<Coordinates>
@@ -91,7 +91,7 @@ abstract class PharmacyGraphController : Controller() {
 }
 
 class DefaultPharmacyGraphController(
-    private val getOverviewPharmaciesUseCase: GetOverviewPharmaciesUseCase,
+    private val getPharmaciesUseCase: GetPharmaciesUseCase,
     private val getOrderStateUseCase: GetOrderStateUseCase,
     private val getLocationUseCase: GetLocationUseCase,
     private val setPreviewMapCoordinatesUseCase: SetPreviewMapCoordinatesUseCase,
@@ -110,7 +110,7 @@ class DefaultPharmacyGraphController(
     private val _filter = MutableStateFlow(PharmacyUseCaseData.Filter())
 
     private val _favouritePharmacies by lazy {
-        getOverviewPharmaciesUseCase().stateIn(controllerScope, SharingStarted.Lazily, emptyList())
+        getPharmaciesUseCase().stateIn(controllerScope, SharingStarted.Lazily, emptyList())
     }
 
     private fun onPermissionDenied() {

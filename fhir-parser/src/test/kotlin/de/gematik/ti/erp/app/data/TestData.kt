@@ -26,6 +26,11 @@ package de.gematik.ti.erp.app.data
 
 // task metadata + kbv bundle
 val taskMetadataBundleKbvBundle by lazy { getResourceAsString("/fhir/bundle_seperation_parser/task_metadata_bundle_kbv_bundle.json") }
+val taskMetadataBundleKbvBundle_vers_1_6_task_1_4_1_kbv by lazy {
+    getResourceAsString(
+        "/fhir/bundle_seperation_parser/task_workflow_1_6+kbv_workflow_1_4_1/task_and_kbv_bundle_1_6_1_4_1.json"
+    )
+}
 val taskMetadataBundleKbvWithDigaBundle by lazy { getResourceAsString("/fhir/bundle_seperation_parser/task_metadata_bundle_kbv_bundle_with_diga.json") }
 
 // task-initial-bundle
@@ -66,6 +71,13 @@ val medicationRequestJson_vers_1_3 by lazy {
 }
 
 // medication
+
+val medicationPzn_vers_1_6_sumatripanmedication by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication-sumatripanmedication_1_6.json") }
+val medicationPzn_vers_1_6_kombipackung by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_komobipackung_1_6.json") }
+val medicationPzn_vers_1_6_noStrengthCode by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_no_strength_code_1_6.json") }
+val medicationPzn_vers_1_6_withStrengthCode by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_pzn_1_6.json") }
+val medicationPzn_vers_1_6_rezeptur by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_rezeptur_1_6.json") }
+val medicationPzn_vers_1_6_simple by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_simple_1_6.json") }
 val medicationPznJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_pzn_1_0_2.json") }
 val medicationPznJson_vers_1_1_0 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_pzn_1_1_0.json") }
 val medicationPznJson_vers_1_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_pzn_1_2.json") }
@@ -140,6 +152,11 @@ val kbvBundle_v1_3_example3_json by lazy { getResourceAsString("/fhir/kbv_parser
 // kbv-diga-bundle
 val kbvBundle_device_request_1_4 by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbv_with_diga.json") }
 
+// kbv-version 1.4
+val kbvBundle_example_1_v1_4_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/workflow_1_4/kbv_bundle_v1_4.json") }
+val kbvBundle_example_2_v1_4_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/workflow_1_4/kbv_bundle_(2)_v_1_4.json") }
+val kbvBundle_example_3_v1_4_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/workflow_1_4/kbv_bundle_(3)_v_1_4.json") }
+
 // fhir-vzd pharmacy bundle
 val fhirVzdPharmacyBundle by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/pharamcy_bundle_fhirvzd.json") }
 val fhirVzdPharmacyNotAvailableTimesBundle by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/pharmacy_bundle_fhirvzd_not_available_times.json") }
@@ -156,3 +173,11 @@ val bundle_speciality_complex by lazy { getResourceAsString("/fhir/pharmacy_fhir
 val euRedeemAccessCodeResponseV1 by lazy { getResourceAsString("/fhir/eu_redeem_parser/EuRedeemAccessCodeResponse_v1_0.json") }
 val euRedeemAccessCodeRequestV1 by lazy { getResourceAsString("/fhir/eu_redeem_parser/EuRedeemAccessCodeRequest_v1_0.json") }
 val euRedeemTaskPatchInputRequestV1 by lazy { getResourceAsString("/fhir/eu_redeem_parser/EuRedeemTaskPatchInputRequest_v1_0.json") }
+
+// version 1.6
+
+val taskMetadataReadyV16 by lazy { getResourceAsString("/fhir/metadata_parser/1_6_workflow/task_ready_vers_1_6.json") }
+val taskMetadataInProgressV16 by lazy { getResourceAsString("/fhir/metadata_parser/1_6_workflow/task_in_progress_vers_1_6.json") }
+val taskMetadataInProgressClaimedV16 by lazy { getResourceAsString("/fhir/metadata_parser/1_6_workflow/task_in_progress_claimed_vers_1_6.json") }
+val taskMetadataInProgressClaimedAgainV16 by lazy { getResourceAsString("/fhir/metadata_parser/1_6_workflow/task_in_progress_claimed_2_vers_1_6.json") }
+val taskMetadataCompleteV16 by lazy { getResourceAsString("/fhir/metadata_parser/1_6_workflow/task_complete_vers_1_6.json") }

@@ -28,7 +28,6 @@ import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.vau.TestCertificates.Vau.X509Certificate
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
-import de.gematik.ti.erp.app.vau.repository.VauLocalDataSource
 import de.gematik.ti.erp.app.vau.repository.VauRepository
 import de.gematik.ti.erp.app.vau.usecase.TrustedTruststore
 import de.gematik.ti.erp.app.vau.usecase.TrustedTruststoreProvider
@@ -74,9 +73,6 @@ class TruststoreTest {
     lateinit var repository: VauRepository
 
     @MockK
-    lateinit var localDataSource: VauLocalDataSource
-
-    @MockK
     lateinit var timeSource: TruststoreTimeSourceProvider
 
     @MockK
@@ -105,12 +101,11 @@ class TruststoreTest {
             TestCertificates.OCSP.OCSPList.responses.map { it.responseObject as BasicOCSPResp }
         every { trustedTruststore.checkValidity(12.hours, ocspProducedAt) } coAnswers { }
         coEvery { repository.invalidate() } coAnswers { }
-        coEvery { localDataSource.saveLists(any(), any()) } returns Unit
+        coEvery { repository.saveLists(any(), any()) } returns Unit
 
         truststore = TruststoreUseCase(
             config,
             repository,
-            localDataSource,
             timeSource,
             trustedTruststoreProvider
         )

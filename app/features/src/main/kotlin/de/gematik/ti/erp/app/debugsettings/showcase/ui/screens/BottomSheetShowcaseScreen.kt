@@ -81,7 +81,7 @@ class BottomSheetShowcaseScreen(
             navController.popBackStack()
         }
         AnimatedElevationScaffold(
-            topBarTitle = "Bottom sheet screes",
+            topBarTitle = "Bottom-sheet Playground",
             backLabel = stringResource(R.string.back),
             closeLabel = stringResource(R.string.cancel),
             listState = listState,

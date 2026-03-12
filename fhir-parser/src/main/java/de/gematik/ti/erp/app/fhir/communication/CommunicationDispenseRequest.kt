@@ -41,6 +41,8 @@ object CommunicationDispenseRequest {
 
     /**
      * Creates a Communication dispense request JSON sent to the Fachdienst
+     *
+     * @param version Communication version to use (defaults to V_1_5 in production)
      */
     fun createCommunicationDispenseRequest(
         orderId: String,
@@ -49,12 +51,13 @@ object CommunicationDispenseRequest {
         recipientId: String,
         payloadContent: CommunicationPayload,
         flowTypeCode: String,
-        flowTypeDisplay: String
+        flowTypeDisplay: String,
+        version: FhirCommunicationVersions.CommunicationVersion = FhirCommunicationVersions.CommunicationVersion.V_1_6
     ): JsonElement {
         val request = CommunicationDispenseRequest(
             meta = FhirMeta(
                 profiles = listOf(
-                    "${FhirCommunicationConstants.COMMUNICATION_DISPENSE_WORKFLOW_PROFILE}|${FhirCommunicationVersions.COMMUNICATION_VERSION_1_5}"
+                    "${FhirCommunicationConstants.COMMUNICATION_DISPENSE_WORKFLOW_PROFILE}|${version.version}"
                 )
             ),
             identifier = listOf(
@@ -68,8 +71,8 @@ object CommunicationDispenseRequest {
                     url = FhirCommunicationConstants.PRESCRIPTION_TYPE_EXTENSION,
                     valueCoding = CommunicationValueCoding(
                         system = FhirCommunicationConstants.FLOW_TYPE_SYSTEM,
-                        code = flowTypeCode,
-                        display = flowTypeDisplay
+                        code = flowTypeCode
+                        // display = flowTypeDisplay
                     )
                 )
             ),

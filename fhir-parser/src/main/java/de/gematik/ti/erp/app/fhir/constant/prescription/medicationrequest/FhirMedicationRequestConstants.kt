@@ -22,23 +22,51 @@
 
 package de.gematik.ti.erp.app.fhir.constant.prescription.medicationrequest
 
-import de.gematik.ti.erp.app.fhir.constant.prescription.medicationrequest.FhirMedicationRequestConstants.MedicationRequestSpecialRegulationFlagUrl.IS_BVG_EXTENSION_URL
-import de.gematik.ti.erp.app.fhir.constant.prescription.medicationrequest.FhirMedicationRequestConstants.MedicationRequestSpecialRegulationFlagUrl.IS_SER_EXTENSION_URL
+import de.gematik.ti.erp.app.utils.Reference
 
+/**
+ * **Medication Request Constants**
+ * * Constants for FHIR Medication Request profiles, versions, and extensions.
+ * * **To add a new version:**
+ * Add to MedicationRequestVersion enum and update version-specific logic.
+ */
 internal object FhirMedicationRequestConstants {
-    const val MEDICATION_REQUEST_1_2_VERSION = "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.2"
-    const val MEDICATION_REQUEST_1_3_VERSION = "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.3"
+
+    /**
+     * **Medication Request Versions**
+     * * Supported KBV prescription profile versions.
+     */
+    enum class MedicationRequestVersion(val profileUrl: String) {
+        V_1_2("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.2"),
+
+        @Reference(
+            info = "1.3.2 version",
+            url = "https://simplifier.net/packages/kbv.ita.erp/1.3.2/files/2880357"
+        )
+        V_1_3("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.3"),
+
+        V_1_4("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.4");
+
+        companion object {
+            val all: List<String> = entries.map { it.profileUrl }
+        }
+    }
+
     const val MULTIPLE_PRESCRIPTION_INFO_EXTENSION_URL = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"
 
     object MedicationRequestEmergencyFeeUrl {
         const val EMERGENCY_FEE_EXTENSION_URL = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee"
     }
 
-    fun specialRegulationFlag(
-        versionFlag: String?
-    ) = when (versionFlag) {
-        MEDICATION_REQUEST_1_2_VERSION, MEDICATION_REQUEST_1_3_VERSION -> IS_SER_EXTENSION_URL
-        else -> IS_BVG_EXTENSION_URL
+    /**
+     * Determines which special regulation flag extension to use based on version.
+     */
+    fun specialRegulationFlag(versionFlag: String?) = when (versionFlag) {
+        MedicationRequestVersion.V_1_2.profileUrl,
+        MedicationRequestVersion.V_1_3.profileUrl,
+        MedicationRequestVersion.V_1_4.profileUrl -> MedicationRequestSpecialRegulationFlagUrl.IS_SER_EXTENSION_URL
+
+        else -> MedicationRequestSpecialRegulationFlagUrl.IS_BVG_EXTENSION_URL
     }
 
     private object MedicationRequestSpecialRegulationFlagUrl {
@@ -49,6 +77,10 @@ internal object FhirMedicationRequestConstants {
         const val IS_SER_EXTENSION_URL = "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_SER"
     }
 
+    /**
+     * **Co-Payment Extension URLs**
+     * * Version-specific URLs for co-payment status.
+     */
     object MedicationRequestCoPaymentUrl {
         const val CO_PAYMENT_EXTENSION_URL_102 = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment"
         const val CO_PAYMENT_EXTENSION_URL_110 = "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_StatusCoPayment"

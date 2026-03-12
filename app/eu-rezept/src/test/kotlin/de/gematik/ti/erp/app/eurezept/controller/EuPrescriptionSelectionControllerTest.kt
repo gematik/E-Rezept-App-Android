@@ -37,6 +37,9 @@ import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockValidSsoTokenScop
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.profileData
 import de.gematik.ti.erp.app.eurezept.presentation.EuPrescriptionSelectionController
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeRequestConstants.FhirEuRedeemAccessCodeRequestMeta
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeResponseConstants.FhirEuRedeemAccessCodeResponseMeta
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirTaskEuPatchInputModelConstants.FhirTaskEuPatchMeta
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
@@ -44,6 +47,7 @@ import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
+import de.gematik.ti.erp.app.settings.repository.EuVersionRepository
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isEmptyState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isErrorState
 import io.mockk.coEvery
@@ -74,6 +78,8 @@ class EuPrescriptionSelectionControllerTest {
     private val prescriptionRepository: PrescriptionRepository = mockk()
     private val profileRepository: ProfileRepository = mockk()
     private val euRepository: EuRepository = mockk()
+
+    private val euVersionRepository: EuVersionRepository = mockk()
     private val idpRepository: IdpRepository = mockk()
 
     private val networkStatusTracker: NetworkStatusTracker = mockk()
@@ -94,6 +100,10 @@ class EuPrescriptionSelectionControllerTest {
 
         every { networkStatusTracker.networkStatus } returns flowOf(true)
 
+        coEvery { euVersionRepository.getEuRedeemAccessCodeRequestMeta() } returns FhirEuRedeemAccessCodeRequestMeta.V_1_0
+        coEvery { euVersionRepository.getEuRedeemAccessCodeResponseMeta() } returns FhirEuRedeemAccessCodeResponseMeta.V_1_0
+        coEvery { euVersionRepository.getEuPatchMeta() } returns FhirTaskEuPatchMeta.V_1_0
+
         getEuPrescriptionsUseCase = GetEuPrescriptionsUseCase(
             prescriptionRepository = prescriptionRepository,
             profileRepository = profileRepository,
@@ -102,6 +112,7 @@ class EuPrescriptionSelectionControllerTest {
 
         toggleIsEuRedeemableByPatientAuthorizationUseCase = ToggleIsEuRedeemableByPatientAuthorizationUseCase(
             euRepository = euRepository,
+            euVersionRepository = euVersionRepository,
             dispatcher = dispatcher
         )
 
@@ -124,6 +135,7 @@ class EuPrescriptionSelectionControllerTest {
             euRepository.toggleIsEuRedeemableByPatientAuthorization(
                 taskId = PRECRIPTION_ID_1,
                 profileId = MOCK_PROFILE_ID,
+                metadata = FhirTaskEuPatchMeta.V_1_0,
                 isEuRedeemableByPatientAuthorization = true
             )
         } returns Result.success(Unit)
@@ -132,6 +144,7 @@ class EuPrescriptionSelectionControllerTest {
             euRepository.toggleIsEuRedeemableByPatientAuthorization(
                 taskId = PRECRIPTION_ID_2,
                 profileId = MOCK_PROFILE_ID,
+                metadata = FhirTaskEuPatchMeta.V_1_0,
                 isEuRedeemableByPatientAuthorization = false
             )
         } returns Result.success(Unit)
@@ -213,6 +226,7 @@ class EuPrescriptionSelectionControllerTest {
                 euRepository.toggleIsEuRedeemableByPatientAuthorization(
                     taskId = PRECRIPTION_ID_1,
                     profileId = MOCK_PROFILE_ID,
+                    metadata = FhirTaskEuPatchMeta.V_1_0,
                     isEuRedeemableByPatientAuthorization = true
                 )
             }
@@ -226,6 +240,7 @@ class EuPrescriptionSelectionControllerTest {
             euRepository.toggleIsEuRedeemableByPatientAuthorization(
                 taskId = PRECRIPTION_ID_1,
                 profileId = MOCK_PROFILE_ID,
+                metadata = FhirTaskEuPatchMeta.V_1_0,
                 isEuRedeemableByPatientAuthorization = true
             )
         } returns Result.failure(testException)
@@ -240,6 +255,7 @@ class EuPrescriptionSelectionControllerTest {
                 euRepository.toggleIsEuRedeemableByPatientAuthorization(
                     taskId = PRECRIPTION_ID_1,
                     profileId = MOCK_PROFILE_ID,
+                    metadata = FhirTaskEuPatchMeta.V_1_0,
                     isEuRedeemableByPatientAuthorization = true
                 )
             }
@@ -259,6 +275,7 @@ class EuPrescriptionSelectionControllerTest {
                 euRepository.toggleIsEuRedeemableByPatientAuthorization(
                     taskId = PRECRIPTION_ID_2,
                     profileId = MOCK_PROFILE_ID,
+                    metadata = FhirTaskEuPatchMeta.V_1_0,
                     isEuRedeemableByPatientAuthorization = false
                 )
             }

@@ -550,7 +550,7 @@
     <string name="edit_shipping_contact_top_bar_title">Контактная информация и адрес</string>
     <string name="empty_dosage_info_body">В рецепте нет информации о том, как принимать лекарство.</string>
     <string name="empty_dosage_info_dosage_text">Нет данных</string>
-    <string name="empty_medication_plan_info">Вы можете установить напоминания о своих рецептах.</string>
+    <string name="empty_medication_plan_info">Вы можете настроить напоминания о приеме лекарств. Для этого перейдите к соответствующему рецепту и выберите «Напоминание о приеме лекарств».</string>
     <string name="empty_medication_plan_title">Нет напоминаний о приеме</string>
     <string name="empty_scanned_prescription_name">Пожалуйста, введите хотя бы 1 символ.</string>
     <string name="enroll_biometric_dialog_body">Безопасность приложения невозможна. Предварительно настройте на своем устройстве биометрическую безопасность (например, отпечаток пальца).</string>
@@ -899,6 +899,7 @@
     <string name="mainscreen_empty_content_header">Нет рецептов</string>
     <string name="mainscreen_empty_not_connected_info">Зарегистрируйтесь, чтобы получать рецепты автоматически.</string>
     <string name="mainscreen_login">регистр</string>
+    <string name="mainscreen_refresh">Обновлять</string>
     <string name="male_doctor_with_phone">врач с телефоном</string>
     <string name="man_with_phone">Мужчина с телефоном</string>
     <string name="manufacturer_costs">Затраты производителя</string>
@@ -1449,7 +1450,7 @@
     <string name="profile_image_selector_save">Использовать</string>
     <string name="profile_image_selector_take_photo">Сделайте фото</string>
     <string name="profile_image_selector_title">Редактировать изображение профиля</string>
-    <string name="profile_insurance_information_connected_biometrics">Биометрия</string>
+    <string name="profile_insurance_information_connected_biometrics">Резервное копирование устройства</string>
     <string name="profile_insurance_information_connected_health_card">страховой полис</string>
     <string name="profile_insurance_information_connected_label">Зарегистрировано с</string>
     <string name="profile_insurance_information_not_connected">Вход не выполнен</string>

@@ -18,6 +18,7 @@ android {
 dependencies {
     implementation(project(namesPlugin.utils))
     implementation(project(namesPlugin.fhirParser))
+    implementation(project(namesPlugin.database))
     implementation(project(namesPlugin.core))
     implementation(project(namesPlugin.navigation))
     implementation(project(namesPlugin.testTags))

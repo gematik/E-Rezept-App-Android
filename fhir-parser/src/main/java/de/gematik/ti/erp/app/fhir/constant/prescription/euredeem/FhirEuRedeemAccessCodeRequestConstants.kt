@@ -31,11 +31,20 @@ import de.gematik.ti.erp.app.utils.Reference
 object FhirEuRedeemAccessCodeRequestConstants {
     const val RESOURCE_TYPE = "Parameters"
     const val ID = "erp-eprescription-03-POST-AccessCode-EU-Request"
-    const val PROFILE_URL = "https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_PAR_Access_Authorization_Request|1.0"
 
     object CountryCodeParameter {
         const val NAME = "countryCode"
         const val SYSTEM = "urn:iso:std:iso:3166"
+    }
+
+    enum class FhirEuRedeemAccessCodeRequestMeta(val identifier: String) {
+        V_1_0("https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_PAR_Access_Authorization_Request|1.0"),
+
+        @Reference(
+            info = "Link to GEM ERPEU PR PAR Access Authorization Request version 1.1.2",
+            url = "https://simplifier.net/packages/de.gematik.erezept.eu/1.1.2/files/3293384"
+        )
+        V_1_1("https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_PAR_Access_Authorization_Request|1.1")
     }
 
     object AccessCodeParameter {

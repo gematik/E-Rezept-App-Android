@@ -55,8 +55,6 @@ import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirPatient.Compan
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirPractitioner.Companion.getPractitioner
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirPractitioner.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirResourceId.Companion.getResourceId
-import de.gematik.ti.erp.app.fhir.prescription.model.original.KbvBundleVersion
-import de.gematik.ti.erp.app.fhir.prescription.model.original.isValidKbvVersion
 import de.gematik.ti.erp.app.fhir.prescription.model.original.kbvResourceType
 import de.gematik.ti.erp.app.utils.ParserUtil.findValueByUrl
 import de.gematik.ti.erp.app.utils.Reference
@@ -135,11 +133,11 @@ class TaskMedicalDataParser : BundleParser {
                         val practitionerBundle = entry.resource
                         val version = entry.kbvBundleVersion()
 
-                        if (version == KbvBundleVersion.V_1_1_0) {
+                        if (version == FhirVersions.KbvBundleVersion.V_1_1_0) {
                             if (entry.isPractitionerVersion110(practitionerId)) {
                                 practitioner = practitionerBundle.getPractitioner()?.toErpModel()
                             }
-                        } else if (version != KbvBundleVersion.UNKNOWN) {
+                        } else if (version != FhirVersions.KbvBundleVersion.UNKNOWN) {
                             practitioner = practitionerBundle.getPractitioner()?.toErpModel()
                         }
                     }
@@ -183,12 +181,16 @@ class TaskMedicalDataParser : BundleParser {
         }.getOrNull()
     }
 
-    private fun FhirResourceEntry.kbvBundleVersion(): KbvBundleVersion {
-        return KbvBundleVersion.entries.find { it.version == version } ?: KbvBundleVersion.UNKNOWN
+    private fun FhirResourceEntry.kbvBundleVersion(): FhirVersions.KbvBundleVersion {
+        return FhirVersions.KbvBundleVersion.entries.find { it.version == version } ?: FhirVersions.KbvBundleVersion.UNKNOWN
     }
 
-    private fun FhirResourceEntry.areIncludedCoveragesVersion() = version?.let { isValidKbvVersion(it) } == true
+    private fun FhirResourceEntry.areIncludedCoveragesVersion() = version?.let { v ->
+        FhirVersions.KbvBundleVersion.entries
+            .filter { it != FhirVersions.KbvBundleVersion.UNKNOWN }
+            .any { it.version == v }
+    } == true
 
     private fun FhirResourceEntry.isPractitionerVersion110(practitionerId: String?) =
-        version == FhirVersions.KBV_BUNDLE_VERSION_110 && resource.getResourceId()?.sanitize() == practitionerId
+        version == FhirVersions.KbvBundleVersion.V_1_1_0.version && resource.getResourceId()?.sanitize() == practitionerId
 }

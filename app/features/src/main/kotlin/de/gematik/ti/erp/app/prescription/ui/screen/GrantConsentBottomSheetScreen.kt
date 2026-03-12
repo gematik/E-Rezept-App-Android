@@ -38,8 +38,8 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
+import de.gematik.ti.erp.app.pkv.consent.presentation.rememberConsentController
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
-import de.gematik.ti.erp.app.pkv.presentation.rememberConsentController
 import de.gematik.ti.erp.app.prescription.ui.components.DefaultDrawerScreenContent
 import de.gematik.ti.erp.app.profiles.presentation.rememberGetActiveProfileController
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
@@ -80,7 +80,7 @@ class GrantConsentBottomSheetScreen(
                 GrantConsentScreenContent(
                     onClickGrantConsent = {
                         consentController.saveConsentDrawerShown(profile.id)
-                        consentController.grantChargeConsent(profile.id)
+                        consentController.grantChargeConsent(profile)
                         snackbar.show(
                             text = consentGrantedInfo,
                             actionTextId = R.string.consent_action_to_invoices,

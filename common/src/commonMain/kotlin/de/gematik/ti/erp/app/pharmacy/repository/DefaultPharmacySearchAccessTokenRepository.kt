@@ -22,10 +22,10 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
+import de.gematik.ti.erp.app.database.api.PharmacySearchAccessTokenLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.api.model.SearchAccessTokenResponse
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacySearchAccessTokenLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.PharmacySearchAccessTokenRemoteDataSource
-import io.realm.kotlin.types.RealmInstant
+import kotlinx.datetime.Instant
 import retrofit2.Response
 
 class DefaultPharmacySearchAccessTokenRepository(
@@ -35,13 +35,11 @@ class DefaultPharmacySearchAccessTokenRepository(
 
     override val searchAccessToken = localDataSource.searchAccessToken
 
-    override val searchAccessTokenValue = localDataSource.searchAccessTokenValue
-
     override suspend fun fetchNewToken(): Response<SearchAccessTokenResponse> {
         return remoteDataSource.fetchNewToken()
     }
 
-    override suspend fun saveToken(token: String, currentTime: RealmInstant) {
+    override suspend fun saveToken(token: String, currentTime: Instant) {
         localDataSource.saveToken(token, currentTime)
     }
 
