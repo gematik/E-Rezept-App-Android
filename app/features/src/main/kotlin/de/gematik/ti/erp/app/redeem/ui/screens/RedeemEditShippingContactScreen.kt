@@ -72,11 +72,11 @@ import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCas
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidPostalCode
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isValid
 import de.gematik.ti.erp.app.pharmacy.usecase.ShippingContactState
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRouteBackStackEntryArguments
 import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemSharedViewModel
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemEditShippingPreviewParameter
 import de.gematik.ti.erp.app.redeem.ui.preview.ShippingContactPreviewData
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
@@ -154,9 +154,9 @@ class RedeemEditShippingContactScreen(
 @Composable
 fun RedeemEditShippingContactScreenContent(
     state: ShippingContactState,
-    notNullContact: PharmacyUseCaseData.ShippingContact,
+    notNullContact: ShippingInfoErpModel,
     listState: LazyListState,
-    onContactChange: (PharmacyUseCaseData.ShippingContact) -> Unit,
+    onContactChange: (ShippingInfoErpModel) -> Unit,
     onSave: () -> Unit,
     onShowDialog: () -> Unit
 ) {
@@ -206,13 +206,13 @@ fun RedeemEditShippingContactScreenContent(
             item { ContactNumberHeader() }
             phoneNumberInputField(
                 listState = listState,
-                value = notNullContact.telephoneNumber,
+                value = notNullContact.phone,
                 validationResult = ValidationResult(
                     isEmpty = state.isEmptyPhoneNumber(),
                     isInvalid = state.isInvalidPhoneNumber()
                 ),
                 onValueChange = { phone ->
-                    onContactChange(notNullContact.copy(telephoneNumber = phone.trim()))
+                    onContactChange(notNullContact.copy(phone = phone.trim()))
                 },
                 onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
             )
@@ -233,9 +233,9 @@ fun RedeemEditShippingContactScreenContent(
 
             streetAndNumberInputField(
                 listState = listState,
-                value = notNullContact.line1,
+                value = notNullContact.street,
                 onValueChange = { line1 ->
-                    onContactChange(notNullContact.copy(line1 = line1))
+                    onContactChange(notNullContact.copy(street = line1))
                 },
                 onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
                 validationResult = ValidationResult(
@@ -246,22 +246,22 @@ fun RedeemEditShippingContactScreenContent(
 
             addressSupplementInputField(
                 listState = listState,
-                value = notNullContact.line2,
+                value = notNullContact.addressDetail,
                 validationResult = ValidationResult(
                     isEmpty = false, // optional,
                     isInvalid = state.isInvalidLine2()
                 ),
                 onValueChange = { line2 ->
-                    onContactChange(notNullContact.copy(line2 = line2))
+                    onContactChange(notNullContact.copy(addressDetail = line2))
                 },
                 onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
             )
 
             postalCodeInputField(
                 listState = listState,
-                value = notNullContact.postalCode,
+                value = notNullContact.zip,
                 onValueChange = { postalCode ->
-                    onContactChange(notNullContact.copy(postalCode = postalCode))
+                    onContactChange(notNullContact.copy(zip = postalCode))
                 },
                 validationResult = ValidationResult(
                     isEmpty = state.isEmptyPostalCode(),
@@ -285,13 +285,13 @@ fun RedeemEditShippingContactScreenContent(
 
             deliveryInformationInputField(
                 listState = listState,
-                value = notNullContact.deliveryInformation,
+                value = notNullContact.deliveryInfo,
                 validationResult = ValidationResult(
                     isEmpty = false, // optional,
                     isInvalid = state.isInvalidDeliveryInformation()
                 ),
                 onValueChange = { deliveryInformation ->
-                    onContactChange(notNullContact.copy(deliveryInformation = deliveryInformation))
+                    onContactChange(notNullContact.copy(deliveryInfo = deliveryInformation))
                 },
                 onSubmit = { focusManager.clearFocus() }
             )

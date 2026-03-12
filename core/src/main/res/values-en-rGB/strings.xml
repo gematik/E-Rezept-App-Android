@@ -540,7 +540,7 @@
     <string name="edit_shipping_contact_top_bar_title">Contact details and address</string>
     <string name="empty_dosage_info_body">Your prescription does not contain any information regarding dosage instructions.</string>
     <string name="empty_dosage_info_dosage_text">Not specified</string>
-    <string name="empty_medication_plan_info">You can set reminders for your prescriptions</string>
+    <string name="empty_medication_plan_info">You can set up reminders for your medication. To do this, go to the relevant prescription and select \"Medication Reminder\".</string>
     <string name="empty_medication_plan_title">No medication reminders</string>
     <string name="empty_scanned_prescription_name">Please enter at least 1 character.</string>
     <string name="enroll_biometric_dialog_body">App security not possible. Beforehand, set up biometric security (e.g. fingerprint, faceID) on your device.</string>
@@ -889,6 +889,7 @@
     <string name="mainscreen_empty_content_header">No prescriptions</string>
     <string name="mainscreen_empty_not_connected_info">Sign up to receive prescriptions automatically.</string>
     <string name="mainscreen_login">Register</string>
+    <string name="mainscreen_refresh">Update</string>
     <string name="male_doctor_with_phone">doctor with telephone</string>
     <string name="man_with_phone">Man with telephone</string>
     <string name="manufacturer_costs">Manufacturer costs</string>
@@ -1429,7 +1430,7 @@
     <string name="profile_image_selector_save">Use</string>
     <string name="profile_image_selector_take_photo">Capture</string>
     <string name="profile_image_selector_title">Edit profile picture</string>
-    <string name="profile_insurance_information_connected_biometrics">Biometrics</string>
+    <string name="profile_insurance_information_connected_biometrics">Device backup</string>
     <string name="profile_insurance_information_connected_health_card">Insurance card</string>
     <string name="profile_insurance_information_connected_label">Registered with</string>
     <string name="profile_insurance_information_not_connected">Not logged in</string>

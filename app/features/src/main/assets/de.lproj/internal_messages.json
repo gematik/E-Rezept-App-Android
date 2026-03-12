@@ -58,5 +58,11 @@
         "text": "**✨ Rezeptcodes anzeigen**\nDer Screen für Sammel- und Einzelcodes wurde überarbeitet, um die Nutzung intuitiver zu gestalten.\n\n**📋 Kopierfunktion**\nInformationen von Medikamenten können durch langes Drücken kopiert werden.\n\n**♿ Barrierefreiheit**\nDie Talkback- und Tastaturbedienung funktioniert besser, Buttons sind klarer erkennbar und Listenelemente sind logischer aufgebaut. Animierte Videos werden nur einmal abgespielt, um kognitiv eingeschränkte Nutzende zu unterstützen.",
         "timestamp": "2026-01-22T08:00:00.000Z",
         "version": "1.36"
+    },
+    {
+        "id": "12",
+        "text": "**✨ App öffnen verbessert**\nDas Entsperren der App funktioniert jetzt schneller.\n \n**📞 Erweiterte Kontaktmöglichkeiten**\nWir haben neue Kontaktoptionen für ausgewählte Versicherungen eingeführt.\n\n**♿ Barrierefreiheit**\nDie Barrierefreiheitserklärung wurde angepasst und um einen Abschnitt erweitert, der den Verlauf der Änderungen dokumentiert. Einige Buttons wurden angepasst, um die Sichtbarkeit zu verbessern.",
+        "timestamp": "2026-03-02T08:00:00.000Z",
+        "version": "1.37"
     }
 ]

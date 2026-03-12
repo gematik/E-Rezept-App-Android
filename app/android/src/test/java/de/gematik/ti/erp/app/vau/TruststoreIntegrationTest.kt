@@ -25,11 +25,11 @@ package de.gematik.ti.erp.app.vau
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.CoroutineTestRule
+import de.gematik.ti.erp.app.database.api.TrustStoreLocalDataSource
 import de.gematik.ti.erp.app.utils.addSystemProxy
 import de.gematik.ti.erp.app.vau.api.VauService
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
-import de.gematik.ti.erp.app.vau.repository.VauLocalDataSource
 import de.gematik.ti.erp.app.vau.repository.VauRemoteDataSource
 import de.gematik.ti.erp.app.vau.repository.VauRepository
 import de.gematik.ti.erp.app.vau.usecase.TrustedTruststore
@@ -38,6 +38,7 @@ import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -59,7 +60,7 @@ class TruststoreIntegrationTest {
     val coroutineRule = CoroutineTestRule()
 
     @MockK
-    lateinit var localDataSource: VauLocalDataSource
+    lateinit var trustStoreLocalDataSource: TrustStoreLocalDataSource
 
     @Suppress("JSON_FORMAT_REDUNDANT")
     private val jsonConverterFactory = Json {
@@ -76,9 +77,9 @@ class TruststoreIntegrationTest {
     fun `create truststore from remote source`() = runTest {
         Assume.assumeTrue(BuildKonfig.TEST_RUN_WITH_TRUSTSTORE_INTEGRATION)
 
-        coEvery { localDataSource.loadUntrusted() } coAnswers { null }
-        coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
-        coEvery { localDataSource.deleteAll() } coAnswers { }
+        coEvery { trustStoreLocalDataSource.loadUntrusted() } returns flowOf(null)
+        coEvery { trustStoreLocalDataSource.saveCertificateAndOcspLists(any(), any()) } coAnswers { }
+        coEvery { trustStoreLocalDataSource.deleteAll() } coAnswers { }
 
         val okhttp = OkHttpClient.Builder()
             .addSystemProxy()
@@ -111,8 +112,7 @@ class TruststoreIntegrationTest {
 
         val useCase = TruststoreUseCase(
             config,
-            VauRepository(localDataSource, VauRemoteDataSource(vauService), coroutineRule.dispatchers.io, config),
-            localDataSource,
+            VauRepository(trustStoreLocalDataSource, VauRemoteDataSource(vauService), coroutineRule.dispatchers.io, config),
             { Clock.System.now() },
             { untrustedOCSPList: UntrustedOCSPList,
                     untrustedCertList: UntrustedCertList,

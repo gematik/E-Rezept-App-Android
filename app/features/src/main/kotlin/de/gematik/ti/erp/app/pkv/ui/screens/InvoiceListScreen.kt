@@ -80,7 +80,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
-import de.gematik.ti.erp.app.consent.model.ConsentContext
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isNotGranted
 import de.gematik.ti.erp.app.core.LocalIntentHandler
@@ -92,10 +91,11 @@ import de.gematik.ti.erp.app.loading.LoadingIndicator
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.navigateAndClearStack
 import de.gematik.ti.erp.app.navigation.onReturnAction
+import de.gematik.ti.erp.app.pkv.consent.presentation.rememberConsentController
+import de.gematik.ti.erp.app.pkv.consent.screen.ConsentScreen
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes.getPkvNavigationProfileId
 import de.gematik.ti.erp.app.pkv.presentation.ConsentValidator
-import de.gematik.ti.erp.app.pkv.presentation.rememberConsentController
 import de.gematik.ti.erp.app.pkv.presentation.rememberInvoiceController
 import de.gematik.ti.erp.app.pkv.ui.components.GrantConsentDialog
 import de.gematik.ti.erp.app.pkv.ui.components.InvoiceListLoading
@@ -148,7 +148,7 @@ class InvoiceListScreen(
         val dialog = LocalDialog.current
         val intentHandler = LocalIntentHandler.current
 
-        val consentRevokedInfo = stringResource(R.string.consent_revoked_info)
+        stringResource(R.string.consent_revoked_info)
         val consentGrantedInfo = stringResource(R.string.consent_granted_info)
 
         val listState = rememberLazyListState()
@@ -167,9 +167,9 @@ class InvoiceListScreen(
         val onGrantConsentEvent = ComposableEvent<Unit>()
         val onRevokeConsentEvent = ComposableEvent<Unit>()
 
-        val consentState by consentController.consentState.collectAsStateWithLifecycle()
         val isConsentGranted by consentController.isConsentGranted.collectAsStateWithLifecycle()
         val isConsentNotGranted by consentController.isConsentNotGranted.collectAsStateWithLifecycle()
+        val consentViewState by consentController.consentViewState.collectAsStateWithLifecycle()
 
         var consentRecentlyRevoked by remember { mutableStateOf(false) } // required for back navigation
 
@@ -219,39 +219,25 @@ class InvoiceListScreen(
                 navController.navigateAndClearStack(route = PrescriptionRoutes.PrescriptionListScreen.route)
             }
         )
-
-        GrantConsentDialog(
-            dialogScaffold = dialog,
-            onGrantConsentEvent = onGrantConsentEvent,
-            onShow = { pullToRefreshState.endRefresh() },
-            onGrantConsent = { consentController.grantChargeConsent(profileId) }
-        )
+        activeProfile.data?.let {
+            GrantConsentDialog(
+                dialogScaffold = dialog,
+                onGrantConsentEvent = onGrantConsentEvent,
+                onShow = { pullToRefreshState.endRefresh() },
+                onGrantConsent = { consentController.grantChargeConsent(it) }
+            )
+            ConsentScreen(
+                profile = it,
+                onShowCardWall = { invoiceController.chooseAuthenticationMethod(it) },
+                onConsentGranted = { snackbar.show(consentGrantedInfo, scope) }
+            )
+        }
 
         LaunchedEffect(isConsentNotGranted) {
             if (isConsentNotGranted) {
                 onGrantConsentEvent.trigger()
             }
         }
-
-        // TODO: Needs to be refactored
-        HandleConsentState(
-            consentState = consentState,
-            dialog = dialog,
-            onRetry = { consentContext ->
-                when (consentContext) {
-                    ConsentContext.GetConsent -> invoiceController.invoiceListScreenEvents.getConsentEvent.trigger(profileId)
-                    ConsentContext.GrantConsent -> {
-                        consentController.grantChargeConsent(profileId)
-                    }
-
-                    ConsentContext.RevokeConsent -> consentController.revokeChargeConsent(profileId) {}
-                }
-            },
-            onShowCardWall = { activeProfile.data?.let { invoiceController.chooseAuthenticationMethod(it) } },
-            onDeleteLocalInvoices = { invoiceController.deleteLocalInvoices() },
-            onConsentGranted = { snackbar.show(consentGrantedInfo, scope) },
-            onConsentRevoked = { snackbar.show(consentRevokedInfo, scope) }
-        )
 
         LaunchedEffect(Unit) {
             intentHandler.gidSuccessfulIntent.collectLatest {
@@ -269,7 +255,7 @@ class InvoiceListScreen(
                 block = {
                     ConsentValidator.validateAndExecute(
                         isSsoTokenValid = isSsoTokenValid,
-                        consentState = consentState,
+                        consentState = consentViewState.state,
                         getChargeConsent = { invoiceController.invoiceListScreenEvents.getConsentEvent.trigger(profileId) },
                         onConsentGranted = invoiceController::downloadInvoices,
                         grantConsent = { onGrantConsentEvent.trigger() }
@@ -284,8 +270,8 @@ class InvoiceListScreen(
             )
         }
 
-        LaunchedEffect(isSsoTokenValid, consentState.isNotGranted()) {
-            if (isSsoTokenValid && consentState.isNotGranted()) {
+        LaunchedEffect(isSsoTokenValid, consentViewState.state.isNotGranted()) {
+            if (isSsoTokenValid && consentViewState.state.isNotGranted()) {
                 onGrantConsentEvent.trigger()
             }
         }
@@ -301,7 +287,7 @@ class InvoiceListScreen(
                 listState = listState,
                 scaffoldState = scaffoldState,
                 isConsentGranted = isConsentGranted,
-                consentState = consentState,
+                consentState = consentViewState.state,
                 invoicesState = invoicesState,
                 onClickConnect = { _ ->
                     activeProfile.data?.let { invoiceController.chooseAuthenticationMethod(it) }

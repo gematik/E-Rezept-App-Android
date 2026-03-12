@@ -26,7 +26,6 @@ import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.FHIRVZD
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates.Companion.toModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours
@@ -89,15 +88,3 @@ private fun FhirPharmacyErpModel.extractServices(type: PharmacyVzdService = FHIR
 
     return services.toList()
 }
-
-fun PharmacyData.ShippingContact.toModel() =
-    PharmacyUseCaseData.ShippingContact(
-        name = name,
-        line1 = line1,
-        line2 = line2,
-        postalCode = postalCode,
-        city = city,
-        telephoneNumber = telephoneNumber,
-        mail = mail,
-        deliveryInformation = deliveryInformation
-    )

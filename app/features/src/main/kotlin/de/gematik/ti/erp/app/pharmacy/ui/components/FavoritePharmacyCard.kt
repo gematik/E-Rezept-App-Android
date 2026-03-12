@@ -44,7 +44,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyAddressErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -56,8 +57,8 @@ import kotlinx.datetime.Instant
 @Composable
 fun FavoritePharmacyCard(
     modifier: Modifier = Modifier,
-    overviewPharmacy: OverviewPharmacyData.OverviewPharmacy,
-    onClickPharmacy: (OverviewPharmacyData.OverviewPharmacy) -> Unit
+    overviewPharmacy: PharmacyErpModel,
+    onClickPharmacy: (PharmacyErpModel) -> Unit
 ) {
     Card(
         modifier = modifier
@@ -85,9 +86,9 @@ fun FavoritePharmacyCard(
                     )
                     .weight(1f)
             ) {
-                ErezeptText.SubtitleOne(text = overviewPharmacy.pharmacyName)
+                ErezeptText.SubtitleOne(text = overviewPharmacy.name)
                 ErezeptText.Body(
-                    text = overviewPharmacy.address,
+                    text = overviewPharmacy.singleLineAddress(),
                     maxLines = 1
                 )
             }
@@ -122,14 +123,19 @@ fun FavoritePharmacyCardPreview() {
     val time = Instant.parse("2022-01-01T00:00:00Z")
     PreviewAppTheme {
         FavoritePharmacyCard(
-            overviewPharmacy = OverviewPharmacyData.OverviewPharmacy(
+            overviewPharmacy = PharmacyErpModel(
                 lastUsed = time,
                 isFavorite = true,
                 usageCount = 1,
                 telematikId = "123456789",
-                pharmacyName = "Berlin Apotheke",
-                address = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, " +
-                    "sed diam nonumy eirmod tempor invidunt ut"
+                name = "Berlin Apotheke",
+                position = null,
+                contact = null,
+                address = PharmacyAddressErpModel(
+                    lineAddress = "Lorem ipsum, 123",
+                    zip = "12345",
+                    city = "Berlin"
+                )
             ),
             onClickPharmacy = {}
         )

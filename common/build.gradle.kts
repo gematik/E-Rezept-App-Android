@@ -1,4 +1,4 @@
-@file:Suppress("UnusedPrivateProperty", "VariableNaming", "PropertyName")
+@file:Suppress("UnusedPrivateProperty", "VariableNaming", "PropertyName", "ununsed")
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.INT

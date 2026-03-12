@@ -73,4 +73,16 @@ class LoadHealthInsuranceListUseCase(
 fun loadHealthInsuranceContactsFromJSON(
     jsonInput: InputStream
 ): List<HealthInsuranceCompany> =
-    Json.decodeFromString(jsonInput.bufferedReader().readText())
+    Json.decodeFromString<List<HealthInsuranceCompany>>(jsonInput.bufferedReader().readText())
+        .map { company ->
+            company.copy(
+                healthCardAndPinPhone = company.healthCardAndPinPhone?.takeIf { it.isNotBlank() },
+                healthCardAndPinMail = company.healthCardAndPinMail?.takeIf { it.isNotBlank() },
+                healthCardAndPinUrl = company.healthCardAndPinUrl?.takeIf { it.isNotBlank() },
+                pinUrl = company.pinUrl?.takeIf { it.isNotBlank() },
+                subjectCardAndPinMail = company.subjectCardAndPinMail?.takeIf { it.isNotBlank() },
+                bodyCardAndPinMail = company.bodyCardAndPinMail?.takeIf { it.isNotBlank() },
+                subjectPinMail = company.subjectPinMail?.takeIf { it.isNotBlank() },
+                bodyPinMail = company.bodyPinMail?.takeIf { it.isNotBlank() }
+            )
+        }

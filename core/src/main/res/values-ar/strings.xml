@@ -560,7 +560,7 @@
     <string name="edit_shipping_contact_top_bar_title">بيانات الاتصال والعنوان</string>
     <string name="empty_dosage_info_body">لا توجد معلومات حول كيفية تناول الدواء في الوصفة الطبية الخاصة بك.</string>
     <string name="empty_dosage_info_dosage_text">بدون بيان</string>
-    <string name="empty_medication_plan_info">يمكنك تعيين تذكيرات للوصفات الطبية الخاصة بك</string>
+    <string name="empty_medication_plan_info">يمكنك ضبط تذكيرات لأدويتك. للقيام بذلك، انتقل إلى الوصفة الطبية ذات الصلة وحدد \"تذكير بالدواء\".</string>
     <string name="empty_medication_plan_title">لا تذكير المدخول</string>
     <string name="empty_scanned_prescription_name">الرجاء إدخال حرف واحد على الأقل.</string>
     <string name="enroll_biometric_dialog_body">حماية التطبيق غير ممكنة. قم مسبقًا بإعداد الأمان البيومتري (مثل بصمة الإصبع) على جهازك.</string>
@@ -909,6 +909,7 @@
     <string name="mainscreen_empty_content_header">لا توجد وصفات طبية</string>
     <string name="mainscreen_empty_not_connected_info">قم بالتسجيل لتلقي الوصفات تلقائيا.</string>
     <string name="mainscreen_login">يسجل</string>
+    <string name="mainscreen_refresh">تحديث</string>
     <string name="male_doctor_with_phone">طبيب مع هاتف</string>
     <string name="man_with_phone">رجل مع هاتف</string>
     <string name="manufacturer_costs">تكاليف التصنيع</string>
@@ -1469,7 +1470,7 @@
     <string name="profile_image_selector_save">يستخدم</string>
     <string name="profile_image_selector_take_photo">التقط صوره</string>
     <string name="profile_image_selector_title">تعديل الصورة الشخصية</string>
-    <string name="profile_insurance_information_connected_biometrics">القياس البيومتري</string>
+    <string name="profile_insurance_information_connected_biometrics">النسخ الاحتياطي للجهاز</string>
     <string name="profile_insurance_information_connected_health_card">بطاقة صحية</string>
     <string name="profile_insurance_information_connected_label">مسجل مع</string>
     <string name="profile_insurance_information_not_connected">لم يتم تسجيل الدخول</string>

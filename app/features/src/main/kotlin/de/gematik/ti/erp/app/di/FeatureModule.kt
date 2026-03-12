@@ -32,7 +32,6 @@ import de.gematik.ti.erp.app.debugsettings.di.debugSettingsModule
 import de.gematik.ti.erp.app.digas.di.digaModule
 import de.gematik.ti.erp.app.digas.di.digaRepositoryModule
 import de.gematik.ti.erp.app.eurezept.di.euModule
-import de.gematik.ti.erp.app.features.BuildConfig
 import de.gematik.ti.erp.app.idp.idpModule
 import de.gematik.ti.erp.app.idp.idpUseCaseModule
 import de.gematik.ti.erp.app.logger.di.loggerModule
@@ -115,7 +114,7 @@ val featureModule = DI.Module("featureModule", allowSilentOverride = true) {
         taskRepositoryModule,
         medicationPlanModule,
         digaRepositoryModule,
-        databaseModule(BuildConfig.DEBUG),
+        databaseModule(),
         allowOverride = true
     )
 }

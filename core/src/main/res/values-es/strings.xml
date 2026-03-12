@@ -540,7 +540,7 @@
     <string name="edit_shipping_contact_top_bar_title">Datos de contacto y dirección</string>
     <string name="empty_dosage_info_body">Su receta no contiene ninguna información sobre las instrucciones de dosificación.</string>
     <string name="empty_dosage_info_dosage_text">No especificado</string>
-    <string name="empty_medication_plan_info">Puede configurar recordatorios para sus recetas</string>
+    <string name="empty_medication_plan_info">Puede configurar recordatorios para sus medicamentos. Para ello, vaya a la receta correspondiente y seleccione \"Recordatorio de medicamentos\".</string>
     <string name="empty_medication_plan_title">No hay recordatorios</string>
     <string name="empty_scanned_prescription_name">Por favor, introduzca al menos 1 carácter.</string>
     <string name="enroll_biometric_dialog_body">No es posible utilizar la seguridad de la aplicación. Configure previamente la seguridad biométrica (por ejemplo, huella dactilar, FaceID) en su dispositivo.</string>
@@ -889,6 +889,7 @@
     <string name="mainscreen_empty_content_header">Sin recetas</string>
     <string name="mainscreen_empty_not_connected_info">Regístrese para recibir recetas automáticamente.</string>
     <string name="mainscreen_login">Registrarse</string>
+    <string name="mainscreen_refresh">Actualizar</string>
     <string name="male_doctor_with_phone">médico con teléfono</string>
     <string name="man_with_phone">Hombre con teléfono</string>
     <string name="manufacturer_costs">Costos del fabricante</string>
@@ -1429,7 +1430,7 @@
     <string name="profile_image_selector_save">Usar</string>
     <string name="profile_image_selector_take_photo">Captura</string>
     <string name="profile_image_selector_title">Editar foto de perfil</string>
-    <string name="profile_insurance_information_connected_biometrics">Biometría</string>
+    <string name="profile_insurance_information_connected_biometrics">Copia de seguridad del dispositivo</string>
     <string name="profile_insurance_information_connected_health_card">Tarjeta sanitaria</string>
     <string name="profile_insurance_information_connected_label">Registrado en</string>
     <string name="profile_insurance_information_not_connected">No ha iniciado sesión</string>

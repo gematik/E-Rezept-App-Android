@@ -43,6 +43,14 @@ import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
 import de.gematik.ti.erp.app.consent.usecase.RevokeConsentUseCase
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.FeatureEntity
+import de.gematik.ti.erp.app.database.settings.CommunicationDigaVersion
+import de.gematik.ti.erp.app.database.settings.CommunicationDigaVersionDataStore
+import de.gematik.ti.erp.app.database.settings.CommunicationVersion
+import de.gematik.ti.erp.app.database.settings.CommunicationVersionDataStore
+import de.gematik.ti.erp.app.database.settings.ConsentVersion
+import de.gematik.ti.erp.app.database.settings.ConsentVersionDataStore
+import de.gematik.ti.erp.app.database.settings.EuVersion
+import de.gematik.ti.erp.app.database.settings.EuVersionDataStore
 import de.gematik.ti.erp.app.datastore.featuretoggle.FeatureToggleRepository
 import de.gematik.ti.erp.app.debugsettings.data.DebugSettingsData
 import de.gematik.ti.erp.app.debugsettings.data.Environment
@@ -114,6 +122,10 @@ class DebugSettingsViewModel(
     private val getIknrUseCase: GetIknrUseCase,
     private val updateIknrUseCase: UpdateIknrUseCase,
     private val revokeEuConsentUseCase: RevokeConsentUseCase,
+    private val consentVersionDataStore: ConsentVersionDataStore,
+    private val communicationVersionDataStore: CommunicationVersionDataStore,
+    private val communicationDigaVersionDataStore: CommunicationDigaVersionDataStore,
+    private val euVersionDataStore: EuVersionDataStore,
     private val dispatchers: DispatchProvider
 ) : ViewModel() {
     private val appUpdateManager = MutableStateFlow(true)
@@ -315,7 +327,7 @@ class DebugSettingsViewModel(
     fun onRevokeEuConsent() {
         viewModelScope.launch {
             profilesUseCase.activeProfileId().first().let { profile ->
-                revokeEuConsentUseCase(profile, category = ConsentCategory.EUCONSENT).collect { state -> }
+                revokeEuConsentUseCase(profile, category = ConsentCategory.EUCONSENT).let { state -> }
             }
         }
     }
@@ -461,5 +473,37 @@ class DebugSettingsViewModel(
             updateIknrUseCase.invoke(iknrToBeSaved)
             onIknrChangedEvent.trigger()
         }
+    }
+
+    // Consent Version (DEBUG ONLY)
+    val consentVersion: StateFlow<ConsentVersion> =
+        consentVersionDataStore.consentVersion
+
+    fun setConsentVersion(version: ConsentVersion) {
+        consentVersionDataStore.saveConsentVersion(version)
+    }
+
+    // Communication Version (DEBUG ONLY)
+    val communicationVersion: StateFlow<CommunicationVersion> =
+        communicationVersionDataStore.communicationVersion
+
+    fun setCommunicationVersion(version: CommunicationVersion) {
+        communicationVersionDataStore.saveCommunicationVersion(version)
+    }
+
+    // Communication DiGA Version (DEBUG ONLY)
+    val communicationDigaVersion: StateFlow<CommunicationDigaVersion> =
+        communicationDigaVersionDataStore.communicationDigaVersion
+
+    fun setCommunicationDigaVersion(version: CommunicationDigaVersion) {
+        communicationDigaVersionDataStore.saveCommunicationDigaVersion(version)
+    }
+
+    // Eu Version (DEBUG ONLY)
+    val euVersion: StateFlow<EuVersion> =
+        euVersionDataStore.euVersion
+
+    fun setEuVersion(version: EuVersion) {
+        euVersionDataStore.saveEuVersion(version)
     }
 }

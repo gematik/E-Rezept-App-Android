@@ -22,12 +22,9 @@
 
 package de.gematik.ti.erp.app.consent.repository
 
-import de.gematik.ti.erp.app.consent.model.ConsentType
-import de.gematik.ti.erp.app.consent.model.extractConsentBundle
 import de.gematik.ti.erp.app.fhir.FhirConsentErpModelCollection
 import de.gematik.ti.erp.app.fhir.consent.FhirConsentParser
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement
 
 class DefaultConsentRepository(
@@ -35,29 +32,20 @@ class DefaultConsentRepository(
     private val localDataSource: ConsentLocalDataSource,
     private val parsers: FhirConsentParser
 ) : ConsentRepository {
-    override suspend fun getPkvConsent(
-        profileId: ProfileIdentifier,
-        category: String
-    ): Result<JsonElement> = remoteDataSource.getPkvConsent(profileId = profileId, category)
 
-    override suspend fun getEuConsent(
+    override suspend fun getConsent(
         profileId: ProfileIdentifier,
         category: String
     ): Result<FhirConsentErpModelCollection> {
-        return remoteDataSource.getEuConsent(profileId = profileId, category).mapCatching { consent ->
+        return remoteDataSource.getConsent(profileId = profileId, category).mapCatching { consent ->
             parsers.extract(consent)
         }
     }
 
-    override suspend fun grantPkvConsent(
+    override suspend fun grantConsent(
         profileId: ProfileIdentifier,
         consent: JsonElement
-    ): Result<Unit> = remoteDataSource.grantPkvConsent(profileId = profileId, consent = consent)
-
-    override suspend fun grantEuConsent(
-        profileId: ProfileIdentifier,
-        consent: JsonElement
-    ): Result<Unit> = remoteDataSource.grantEuConsent(profileId = profileId, consent = consent)
+    ): Result<Unit> = remoteDataSource.grantConsent(profileId = profileId, consent = consent)
 
     override suspend fun revokeConsent(
         profileId: ProfileIdentifier,
@@ -70,30 +58,6 @@ class DefaultConsentRepository(
         )
 
     override fun isConsentDrawerShown(profileId: ProfileIdentifier): Boolean = localDataSource.getConsentDrawerShown(profileId)
-
-    override fun isPkvConsentGranted(it: JsonElement): Boolean {
-        var granted = false
-        extractConsentBundle(it) { consentTypes ->
-            granted = consentTypes.any { consentType ->
-                consentType == ConsentType.Charge
-            }
-        }
-        return granted
-    }
-    override fun isEuConsentGranted(it: JsonElement): Boolean {
-        var granted = false
-        try {
-            extractConsentBundle(it) { consentTypes ->
-                granted = consentTypes.any { consentType ->
-                    consentType == ConsentType.Charge
-                }
-            }
-            return granted
-        } catch (e: Exception) {
-            Napier.e { "Consent parsing error ${e.stackTraceToString()}" }
-            return false
-        }
-    }
 
     override fun getInsuranceId(profileId: ProfileIdentifier): String? =
         localDataSource.getInsuranceId(profileId)

@@ -153,14 +153,19 @@ class UserAuthenticationController(
                 onFailedAuthentication()
             },
             onError = { errorMessage, errorCode ->
-                onFailedAuthentication()
-                _authentication.update {
-                    it.copy(
-                        authenticationError = AuthenticationStateData.AuthenticationError(
-                            name = errorMessage,
-                            code = errorCode
+                if (errorCode != BiometricPrompt.ERROR_NEGATIVE_BUTTON &&
+                    errorCode != BiometricPrompt.ERROR_USER_CANCELED &&
+                    errorCode != BiometricPrompt.ERROR_CANCELED
+                ) {
+                    onFailedAuthentication()
+                    _authentication.update {
+                        it.copy(
+                            authenticationError = AuthenticationStateData.AuthenticationError(
+                                name = errorMessage,
+                                code = errorCode
+                            )
                         )
-                    )
+                    }
                 }
             }
         )

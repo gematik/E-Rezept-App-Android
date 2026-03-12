@@ -44,6 +44,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -60,7 +61,6 @@ import de.gematik.ti.erp.app.base.model.DownloadResourcesState.Companion.isFinis
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState.NotStarted
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallIntroScreen
-import de.gematik.ti.erp.app.consent.model.ConsentContext
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalIntentHandler
@@ -73,9 +73,9 @@ import de.gematik.ti.erp.app.mlkit.navigation.MlKitRoutes
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.onReturnAction
 import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
+import de.gematik.ti.erp.app.pkv.consent.presentation.rememberConsentController
+import de.gematik.ti.erp.app.pkv.consent.screen.ConsentScreen
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
-import de.gematik.ti.erp.app.pkv.presentation.rememberConsentController
-import de.gematik.ti.erp.app.pkv.ui.screens.HandleConsentState
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.prescription.presentation.rememberPrescriptionListController
@@ -123,10 +123,10 @@ class PrescriptionListScreen(
         val pullToRefreshState = pullToRefreshState
         val snackbar = LocalSnackbarScaffold.current
         val dialog = LocalDialog.current
-        val scope = uiScope
+        val scope = rememberCoroutineScope()
 
         val actionString = stringResource(R.string.consent_action_to_invoices)
-        val consentRevokedInfo = stringResource(R.string.consent_revoked_info)
+        stringResource(R.string.consent_revoked_info)
         val consentGrantedInfo = stringResource(R.string.consent_granted_info)
 
         val activePrescriptions by controller.activePrescriptions.collectAsStateWithLifecycle()
@@ -137,7 +137,7 @@ class PrescriptionListScreen(
         val resourcesDownloadedState by controller.resourcesDownloadedState.collectAsState(NotStarted)
 
         val mlKitAccepted by controller.isMLKitAccepted.collectAsStateWithLifecycle()
-        val consentState by consentController.consentState.collectAsStateWithLifecycle()
+        val consentViewState by consentController.consentViewState.collectAsStateWithLifecycle()
         var topBarElevated by remember { mutableStateOf(true) }
         val onBack by rememberUpdatedState {
             navController.popBackStack()
@@ -196,57 +196,25 @@ class PrescriptionListScreen(
             }
         )
 
-        // TODO: handle Consent not Granted on PrescriptionScreen, InvoiceListScreen and PrescriptionDetailsScreen
-        HandleConsentState(
-            consentState = consentState,
-            dialog = dialog,
-            onShowCardWall = {
-                profileData.data?.let { activeProfile ->
+        profileData.data?.let { activeProfile ->
+            ConsentScreen(
+                profile = activeProfile,
+                onShowCardWall = {
                     navController.navigate(CardWallIntroScreen.path(activeProfile.id))
-                }
-            },
-            onRetry = { consentContext ->
-                profileData.data?.let { activeProfile ->
-                    when (consentContext) {
-                        ConsentContext.GetConsent -> consentController.getChargeConsent(activeProfile.id)
-                        ConsentContext.GrantConsent -> consentController.grantChargeConsent(activeProfile.id)
-                        ConsentContext.RevokeConsent -> {} // revoke is not available on mainScreen
-                    }
-                }
-            },
-            onConsentGranted = {
-                scope.launch {
-                    val result =
-                        snackbar.showSnackbar(
+                },
+                onConsentGranted = {
+                    scope.launch {
+                        val result = snackbar.showSnackbar(
                             message = consentGrantedInfo,
                             actionLabel = actionString
                         )
-                    when (result) {
-                        SnackbarResult.Dismissed -> {}
-                        SnackbarResult.ActionPerformed ->
-                            profileData.data?.id?.let {
-                                navController.navigate(PkvRoutes.InvoiceListScreen.path(it))
-                            }
+                        if (result == SnackbarResult.ActionPerformed) {
+                            navController.navigate(PkvRoutes.InvoiceListScreen.path(activeProfile.id))
+                        }
                     }
                 }
-            },
-            onConsentRevoked = {
-                scope.launch {
-                    val result =
-                        snackbar.showSnackbar(
-                            message = consentRevokedInfo,
-                            actionLabel = actionString
-                        )
-                    when (result) {
-                        SnackbarResult.Dismissed -> {}
-                        SnackbarResult.ActionPerformed ->
-                            profileData.data?.id?.let {
-                                navController.navigate(PkvRoutes.InvoiceListScreen.path(it))
-                            }
-                    }
-                }
-            }
-        )
+            )
+        }
 
         BackHandler { onBack() }
         PrescriptionListScreenScaffold(
@@ -259,7 +227,7 @@ class PrescriptionListScreen(
             activePrescriptions = activePrescriptions,
             isArchiveEmpty = isArchiveEmpty,
             hasRedeemableTasks = hasRedeemableTasks,
-            consentState = consentState,
+            consentState = consentViewState.state,
             topAppBarClickAction = MultiProfileTopAppBarClickAction(
                 onClickAddProfile = { navController.navigate(ProfileRoutes.ProfileAddNameBottomSheetScreen.path()) },
                 onClickChangeProfileName = { profile -> navController.navigate(ProfileRoutes.ProfileEditNameBottomSheetScreen.path(profile.id)) },

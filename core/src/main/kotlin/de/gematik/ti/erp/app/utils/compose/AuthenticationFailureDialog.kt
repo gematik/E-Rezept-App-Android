@@ -26,8 +26,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import de.gematik.ti.erp.app.authentication.mapper.toDialogMapper
-import de.gematik.ti.erp.app.authentication.model.AuthenticationDialogParameter
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
+import de.gematik.ti.erp.app.authentication.model.DialogParameter
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
@@ -58,7 +58,7 @@ fun AuthenticationFailureDialog(
 
 @Composable
 fun AuthenticationFailureDialog(
-    error: AuthenticationDialogParameter,
+    error: DialogParameter,
     onClickAction: () -> Unit
 ) {
     ErezeptAlertDialog(
@@ -76,7 +76,7 @@ fun AuthenticationFailureDialogPreview(
 ) {
     PreviewTheme {
         AuthenticationFailureDialog(
-            error = errorData.error.toDialogMapper() ?: AuthenticationDialogParameter(
+            error = errorData.error.toDialogMapper() ?: DialogParameter(
                 title = R.string.cdw_nfc_error_title_invalid_ocsp_response_of_health_card_certificate,
                 message = R.string.cdw_nfc_error_body_invalid_ocsp_response_of_health_card_certificate
             ),

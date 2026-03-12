@@ -46,7 +46,7 @@ import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyMap
 import de.gematik.ti.erp.app.pharmacy.usecase.ChangePharmacyFavoriteStateUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.DeleteOverviewPharmacyUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetOrderStateUseCase
-import de.gematik.ti.erp.app.pharmacy.usecase.GetOverviewPharmaciesUseCase
+import de.gematik.ti.erp.app.pharmacy.usecase.GetPharmaciesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPharmacyByTelematikIdUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPreviewMapCoordinatesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase
@@ -77,7 +77,7 @@ val pharmacyModule = DI.Module("pharmacyModule", allowSilentOverride = true) {
     bindProvider { GetShippingContactValidationUseCase() }
     bindProvider { PharmacyMapsUseCase(instance(), instance(), instance()) }
     bindProvider { PharmacySearchUseCase(instance(), instance()) }
-    bindProvider { GetOverviewPharmaciesUseCase(instance()) }
+    bindProvider { GetPharmaciesUseCase(instance()) }
     bindProvider { GetOrderStateUseCase(instance(), instance(), instance()) }
     bindProvider { GetLocationUseCase(instance()) }
     bindProvider { GetPreviewMapCoordinatesUseCase(instance()) }
@@ -110,7 +110,6 @@ val pharmacyRepositoryModule = DI.Module("pharmacyRepositoryModule", allowSilent
     bindProvider { PreviewMapCoordinatesRepository(instance()) }
     bindProvider<PharmacyRepository> {
         DefaultPharmacyRepository(
-            instance(),
             instance(),
             instance(),
             instance(),

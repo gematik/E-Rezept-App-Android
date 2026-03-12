@@ -33,49 +33,26 @@ import java.net.HttpURLConnection
 class ConsentRemoteDataSource(
     private val service: ErpService
 ) {
-    suspend fun getPkvConsent(
+
+    suspend fun getConsent(
         profileId: ProfileIdentifier,
         category: String
     ) = safeApiCall(
         errorMessage = "Error getting consent information"
     ) {
-        service.getPkvConsent(
+        service.getConsent(
             profileId = profileId,
             category = category
         )
     }
 
-    suspend fun getEuConsent(
-        profileId: ProfileIdentifier,
-        category: String
-    ) = safeApiCall(
-        errorMessage = "Error getting consent information"
-    ) {
-        service.getEuConsent(
-            profileId = profileId,
-            category = category
-        )
-    }
-
-    suspend fun grantPkvConsent(
-        profileId: ProfileIdentifier,
-        consent: JsonElement
-    ) = safeApiCall(
-        errorMessage = "Error grant consent"
-    ) {
-        service.grantPkvConsent(
-            profileId = profileId,
-            consent = consent
-        )
-    }
-
-    suspend fun grantEuConsent(
+    suspend fun grantConsent(
         profileId: ProfileIdentifier,
         consent: JsonElement
     ) = safeApiCall(
         errorMessage = "Error grant EU consent"
     ) {
-        service.grantEuConsent(
+        service.grantConsent(
             profileId = profileId,
             consent = consent
         )

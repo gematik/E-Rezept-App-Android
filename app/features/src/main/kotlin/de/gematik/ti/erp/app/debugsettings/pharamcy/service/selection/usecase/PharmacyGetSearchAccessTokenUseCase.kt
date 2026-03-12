@@ -26,11 +26,13 @@ import de.gematik.ti.erp.app.pharmacy.repository.PharmacySearchAccessTokenReposi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 
 class PharmacyGetSearchAccessTokenUseCase(
     private val repository: PharmacySearchAccessTokenRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke() = repository.searchAccessTokenValue
+    operator fun invoke() = repository.searchAccessToken
+        .map { it?.accessToken }
         .flowOn(dispatcher)
 }

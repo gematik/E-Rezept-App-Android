@@ -30,6 +30,8 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
+import de.gematik.ti.erp.app.database.datastore.featuretoggle.IsRoomEnabled
+import de.gematik.ti.erp.app.database.datastore.featuretoggle.ROOM_DB
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.featureToggleLocalDataSource
 import de.gematik.ti.erp.app.datastore.featuretoggle.DefaultFeatureToggleRepository
 import de.gematik.ti.erp.app.datastore.featuretoggle.FeatureToggleRepository
@@ -38,6 +40,8 @@ import de.gematik.ti.erp.app.navigation.triggers.DefaultNavigationTriggerDataSto
 import de.gematik.ti.erp.app.navigation.triggers.NavigationTriggerDataStore
 import de.gematik.ti.erp.app.pkv.mockFileProviderAuthorityModule
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.runBlocking
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
@@ -91,6 +95,11 @@ val appModules = DI.Module("appModules", allowSilentOverride = true) {
 
     // local data-store
     bindSingleton<FeatureToggleRepository> { DefaultFeatureToggleRepository(instance()) }
+    bindProvider(tag = IsRoomEnabled) {
+        runBlocking {
+            instance<FeatureToggleRepository>().isFeatureEnabled(ROOM_DB).firstOrNull() ?: false
+        }
+    }
     bindSingleton { featureToggleLocalDataSource(instance(), BuildConfigExtension.isInternalDebug) }
     bindProvider { IsFeatureToggleEnabledUseCase(instance()) }
 

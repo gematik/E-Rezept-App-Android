@@ -40,3 +40,9 @@ val communication_dispense_1_5 by lazy { getResourceAsString("/fhir/communicatio
 val communication_diga_dispense_1_5 by lazy { getResourceAsString("/fhir/communications_parser/communication_diga_dispense_1_5.json") }
 val communication_reply_1_5 by lazy { getResourceAsString("/fhir/communications_parser/communication_reply_version_1_5.json") }
 val communication_reply_bundle_1_5 by lazy { getResourceAsString("/fhir/communications_parser/communication_reply_bundle_version_1_5.json") }
+
+// 1.6 versions
+val communication_diga_dispense_no_payload_1_6 by lazy { getResourceAsString("/fhir/communications_parser/communication_dispense_version_1_6.json") }
+val communication_diga_dispense_1_6 by lazy { getResourceAsString("/fhir/communications_parser/communication_diga_dispense_1_6.json") }
+val communication_diga_dispense__patient_1_6 by lazy { getResourceAsString("/fhir/communications_parser/communication_dispense_patient_1_6.json") }
+val communication_reply_1_6 by lazy { getResourceAsString("/fhir/communications_parser/communication_reply_1_6.json") }

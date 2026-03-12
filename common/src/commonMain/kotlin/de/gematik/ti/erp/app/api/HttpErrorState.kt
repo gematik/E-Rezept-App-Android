@@ -48,6 +48,7 @@ import java.net.UnknownHostException
     sourceSpecification = "gemSpec_IDP_Frontend",
     rationale = "Mapping of errors"
 )
+// TODO use safeapi
 @Suppress("MagicNumber")
 sealed class HttpErrorState(val errorCode: Int) {
     data object Unknown : HttpErrorState(-1)

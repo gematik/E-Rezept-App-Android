@@ -39,16 +39,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.ShippingContact
 import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.redeem.model.RedeemContactValidationState
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 
 @Composable
 internal fun RedeemContactInformationSection(
-    contact: ShippingContact,
+    contact: ShippingInfoErpModel,
     selectedOrderOption: PharmacyScreenData.OrderOption?,
     state: RedeemContactValidationState? = RedeemContactValidationState.NoError
 ) {
@@ -98,7 +98,7 @@ internal fun RedeemContactMissingSection(isError: Boolean) {
 @Composable
 private fun ContactDetails(
     modifier: Modifier = Modifier,
-    contact: ShippingContact,
+    contact: ShippingInfoErpModel,
     selectedOrderOption: PharmacyScreenData.OrderOption?,
     isError: Boolean = false
 ) {
@@ -147,21 +147,21 @@ private fun ContactDetails(
             )
         }
         // Phone chip
-        if (contact.telephoneNumber.isNotBlank()) {
+        if (contact.phone.isNotBlank()) {
             SpacerSmall()
             ContactInformationChip(
                 icon = Icons.Outlined.Phone,
-                text = contact.telephoneNumber,
+                text = contact.phone,
                 color = AppTheme.colors.primary100,
                 contentColor = AppTheme.colors.primary900
             )
         }
 
         // Delivery info
-        if (contact.deliveryInformation.isNotBlank()) {
+        if (contact.deliveryInfo.isNotBlank()) {
             SpacerSmall()
             Text(
-                text = contact.deliveryInformation,
+                text = contact.deliveryInfo,
                 style = AppTheme.typography.caption1,
                 color = AppTheme.colors.neutral700
             )
@@ -176,15 +176,15 @@ private fun ShippingInformationSectionWithErrorPreview() {
         RedeemContactInformationSection(
             selectedOrderOption = PharmacyScreenData.OrderOption.Pickup,
             state = RedeemContactValidationState.MissingPhone,
-            contact = ShippingContact(
+            contact = ShippingInfoErpModel(
                 name = "Ubelix Ewiglangername",
-                line1 = "Kantstraße 149",
-                line2 = "",
-                postalCode = "12099",
+                street = "Kantstraße 149",
+                addressDetail = "",
+                zip = "12099",
                 city = "Berlin",
-                telephoneNumber = "01653 387123199",
+                phone = "01653 387123199",
                 mail = "mailadresse@provider.de",
-                deliveryInformation = "Bitte im Vordherhaus abgeben."
+                deliveryInfo = "Bitte im Vordherhaus abgeben."
             )
         )
     }
@@ -197,15 +197,15 @@ private fun ShippingInformationSectionPreview() {
         RedeemContactInformationSection(
             selectedOrderOption = PharmacyScreenData.OrderOption.Delivery,
             state = RedeemContactValidationState.NoError,
-            contact = ShippingContact(
+            contact = ShippingInfoErpModel(
                 name = "Ubelix Ewiglangername",
-                line1 = "Kantstraße 149",
-                line2 = "",
-                postalCode = "12099",
+                street = "Kantstraße 149",
+                addressDetail = "",
+                zip = "12099",
                 city = "Berlin",
-                telephoneNumber = "01653 387123199",
+                phone = "01653 387123199",
                 mail = "mailadresse@provider.de",
-                deliveryInformation = "Bitte im Vordherhaus abgeben."
+                deliveryInfo = "Bitte im Vordherhaus abgeben."
             )
         )
     }

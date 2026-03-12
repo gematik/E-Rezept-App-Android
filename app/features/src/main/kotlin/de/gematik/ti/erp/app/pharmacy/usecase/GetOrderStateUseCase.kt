@@ -23,17 +23,15 @@
 package de.gematik.ti.erp.app.pharmacy.usecase
 
 import de.gematik.ti.erp.app.pharmacy.mapper.toOrder
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
 import de.gematik.ti.erp.app.pharmacy.model.shippingContact
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
-import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.ShippingContact.Companion.EmptyShippingContact
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData.ScannedTask
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel.Companion.EmptyShippingInfoErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -67,13 +65,13 @@ class GetOrderStateUseCase(
             ) { contact, syncedTasks, scannedTasks ->
                 val updatedContact = when {
                     syncedTasks.isNotEmpty() && contact == null ->
-                        syncedTasks.first().shippingContact().updateShippingContactRepo()
+                        syncedTasks.first().shippingContact()
 
                     else -> contact
                 }
                 val orders = syncedTasks.map { it.toOrder() } + scannedTasks.map { it.toOrder() }
                 val selfPayerPrescriptionIds = orders.filter { it.isSelfPayerPrescription }.map { it.taskId }
-                val shippingContact = updatedContact?.toModel() ?: EmptyShippingContact
+                val shippingContact = updatedContact ?: EmptyShippingInfoErpModel
                 PharmacyUseCaseData.OrderState(
                     prescriptionsInOrder = orders,
                     selfPayerPrescriptionIds = selfPayerPrescriptionIds,
@@ -81,11 +79,6 @@ class GetOrderStateUseCase(
                 )
             }
         }.flowOn(dispatcher)
-
-    private suspend fun PharmacyData.ShippingContact.updateShippingContactRepo(): PharmacyData.ShippingContact {
-        shippingContactRepository.saveShippingContact(this)
-        return this
-    }
 
     private fun getRedeemableSyncedTasks(id: ProfileIdentifier): Flow<List<SyncedTask>> =
         prescriptionRepository.syncedTasks(id)

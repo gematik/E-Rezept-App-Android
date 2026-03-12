@@ -2,6 +2,7 @@
   "dispensedMedications": [
     {
       "dispenseId": "200.000.000.205.090.70",
+      "prescriptionId": "200.000.000.205.090.70",
       "patientId": "X110519788",
       "substitutionAllowed": false,
       "dosageInstruction": null,

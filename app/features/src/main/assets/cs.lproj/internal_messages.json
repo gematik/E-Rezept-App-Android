@@ -58,5 +58,11 @@
         "text": "**✨ Zobrazení kódů léků na předpis** \nObrazovka pro dávkové a jednotlivé kódy byla přepracována pro intuitivnější použití. \n \n **📋 Funkce kopírování** \nInformace o lécích lze kopírovat dlouhým stisknutím. \n \n **♿ Přístupnost** \nFunkce Talkback a navigace pomocí klávesnice fungují lépe, tlačítka jsou přehlednější a položky seznamu jsou strukturovány logičtěji. Animovaná videa se přehrávají pouze jednou, aby podpořila uživatele s kognitivním postižením.",
         "timestamp": "2026-01-22T08:00:00.000Z",
         "version": "1.36"
+    },
+    {
+        "id": "12",
+        "text": "**✨ Vylepšené otevírání aplikace** \nOdemykání aplikace je nyní rychlejší. \n \n **📞 Rozšířené možnosti kontaktování** \nZavedli jsme nové možnosti kontaktování pro vybrané pojistné smlouvy. \n \n **♿ Přístupnost** \nProhlášení o přístupnosti bylo aktualizováno a rozšířeno o část s historií změn. Některá tlačítka byla upravena pro lepší viditelnost.",
+        "timestamp": "2026-03-02T08:00:00.000Z",
+        "version": "1.37"
     }
 ]

@@ -14,6 +14,8 @@ val VERSION_CODE: String by overrides()
 val VERSION_NAME: String by overrides()
 val namesPlugin = AppDependencyNamesPlugin()
 
+val rootProject = project.rootProject
+
 android {
     namespace = namesPlugin.moduleName("mock")
     defaultConfig {
@@ -29,14 +31,22 @@ android {
     androidResources {
         generateLocaleConfig = true
     }
+
     buildTypes {
-        val release by getting {
-            resValue("string", "app_label", "E-Rezept Mock")
-        }
         val debug by getting {
             applicationIdSuffix = ".debug"
-            resValue("string", "app_label", "E-Rezept Mock")
             versionNameSuffix = "-debug"
+            resValue("string", "app_label", "E-Rezept Mock Debug")
+            if (rootProject.file("keystore/debug.keystore").exists()) {
+                signingConfigs {
+                    getByName("debug") {
+                        storeFile = rootProject.file("keystore/debug.keystore")
+                        keyAlias = "androiddebugkey"
+                        storePassword = "android"
+                        keyPassword = "android"
+                    }
+                }
+            }
         }
     }
 }

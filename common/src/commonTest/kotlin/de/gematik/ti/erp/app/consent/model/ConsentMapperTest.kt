@@ -22,10 +22,11 @@
 
 package de.gematik.ti.erp.app.consent.model
 
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentRequest.createConsentRequest
 import de.gematik.ti.erp.app.fhir.model.ResourceBasePath
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedString
-import de.gematik.ti.erp.app.navigation.json
 import org.junit.Test
 import java.io.File
 import kotlin.test.assertEquals
@@ -37,7 +38,7 @@ class ConsentMapperTest {
 
     @Test
     fun createConsent() {
-        val consent = createConsent(expectedInsuranceId)
+        val consent = createConsentRequest(expectedInsuranceId, ConsentCategory.PKVCONSENT.code)
 
         val profileString = consent.contained("meta")
             .contained("profile")
@@ -46,21 +47,7 @@ class ConsentMapperTest {
         val insuranceId = consent.contained("patient")
             .contained("identifier").contained("value").containedString()
 
-        assertEquals("https://gematik.de/fhir/erpchrg/StructureDefinition/GEM_ERPCHRG_PR_Consent|1.1", profileString)
+        assertEquals("https://gematik.de/fhir/erpchrg/StructureDefinition/GEM_ERPCHRG_PR_Consent|1.0", profileString)
         assertEquals(expectedInsuranceId, insuranceId)
-    }
-
-    @Test
-    fun extractConsentBundle() {
-        val consent = json.parseToJsonElement(consent)
-        val consentType = extractConsent(consent)
-        assertEquals(ConsentType.Charge, consentType)
-    }
-
-    @Test
-    fun `extractConsentBundle - should return null`() {
-        val consent = json.parseToJsonElement("""{}""")
-        val consentType = extractConsent(consent)
-        assertEquals(null, consentType)
     }
 }

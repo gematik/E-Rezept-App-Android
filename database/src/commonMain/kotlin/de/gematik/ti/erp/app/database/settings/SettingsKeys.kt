@@ -32,4 +32,6 @@ object SettingsKeys {
     const val TRACKING_ALLOWED = "tracking_allowed"
     const val DATA_PROTECTION_VERSION_ACCEPTED = "data_protection_version_accepted"
     const val MIGRATION_FLAG_KEY = "settings_datastore_migration"
+
+    const val DB_MIGRATION_LOGS = "db_migration_logs"
 }

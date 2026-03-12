@@ -41,7 +41,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.rounded.AddAPhoto
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -77,7 +77,8 @@ import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
-import de.gematik.ti.erp.app.utils.compose.TertiaryButton
+import de.gematik.ti.erp.app.utils.compose.OutlinedIconButton
+import de.gematik.ti.erp.app.utils.compose.PrimaryOutlinedButton
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.uistate.UiState
@@ -286,13 +287,13 @@ fun ConnectionHelper(
         contentAlignment = contentAlignment
     ) {
         if (isProfileWithValidSsoTokenScope) {
-            TertiaryButton(
-                onClick = onClickRefresh
-            ) {
-                Icon(Icons.Default.Replay, stringResource(R.string.refresh))
-            }
+            OutlinedIconButton(
+                onClick = onClickRefresh,
+                imageVector = Icons.Default.Refresh,
+                contentDescription = stringResource(R.string.refresh)
+            )
         } else {
-            TertiaryButton(onClickLogin) {
+            PrimaryOutlinedButton(onClickLogin) {
                 Text(stringResource(R.string.mainscreen_login))
             }
         }

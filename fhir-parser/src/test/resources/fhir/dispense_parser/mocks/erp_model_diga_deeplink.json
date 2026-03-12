@@ -2,9 +2,10 @@
   "dispensedMedications": [
     {
       "dispenseId": "Example-MedicationDispense-DiGA-DeepLink",
+      "prescriptionId": "162.000.033.491.280.69",
       "patientId": "X123456789",
       "substitutionAllowed": false,
-      "dosageInstruction": null,
+      "dosageInstruction": "",
       "performer": "8-SMC-B-Testkarte-883110000095957",
       "handedOver": {
         "value": "2024-04-03"

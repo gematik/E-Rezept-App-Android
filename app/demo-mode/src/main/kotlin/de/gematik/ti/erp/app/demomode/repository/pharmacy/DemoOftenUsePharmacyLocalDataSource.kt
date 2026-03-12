@@ -30,6 +30,7 @@ import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
@@ -55,6 +56,11 @@ class DemoOftenUsePharmacyLocalDataSource(
 
     override fun loadOftenUsedPharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>> =
         dataSource.oftenUsedPharmacies
+
+    override fun isPharmacyOftenUsed(pharmacy: PharmacyUseCaseData.Pharmacy): Flow<Boolean> =
+        dataSource.oftenUsedPharmacies.map { pharmacies ->
+            pharmacies.any { it.telematikId == pharmacy.telematikId }
+        }
 
     override suspend fun markPharmacyAsOftenUsed(pharmacy: PharmacyUseCaseData.Pharmacy) {
         withContext(dispatcher) {

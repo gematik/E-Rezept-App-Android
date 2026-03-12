@@ -36,6 +36,8 @@ import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
+import de.gematik.ti.erp.app.settings.repository.CommunicationVersionRepository
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -60,14 +62,34 @@ import java.util.UUID
 class RedeemPrescriptionsOnLoggedInUseCase(
     private val prescriptionRepository: PrescriptionRepository,
     private val pharmacyRepository: PharmacyRepository,
+    private val communicationVersionRepository: CommunicationVersionRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
+    /**
+     * Sanitizes patient/user names to comply with German e-prescription (eRp) API constraints.
+     *
+     * The eRp FHIR Communication payload schema enforces a maximum length of 100 characters
+     * for the name field (CommunicationDispReqPayload.json#/properties/name/maxLength).
+     * Names exceeding this limit will cause a 400 Bad Request error with validation failure.
+     *
+     * This function truncates long names and appends "..." to indicate truncation, preserving
+     * 97 characters of the original name to stay within the 100-character limit.
+     *
+     *
+     **/
+    private fun sanitizeName(name: String, maxLength: Int = 100): String {
+        return when {
+            name.length > maxLength -> name.take(maxLength - 3) + "..."
+            else -> name
+        }
+    }
+
     operator fun invoke(
         profileId: ProfileIdentifier,
         redeemOption: PharmacyScreenData.OrderOption,
         orderId: UUID,
         prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionInOrder>,
-        contact: PharmacyUseCaseData.ShippingContact,
+        contact: ShippingInfoErpModel,
         pharmacy: PharmacyUseCaseData.Pharmacy,
         onRedeemProcessStart: () -> Unit = {},
         onRedeemProcessEnd: () -> Unit = {}
@@ -75,6 +97,10 @@ class RedeemPrescriptionsOnLoggedInUseCase(
         flow {
             withContext(dispatcher) {
                 onRedeemProcessStart()
+
+                val communicationVersion = communicationVersionRepository.getCommunicationVersion()
+                Napier.i(tag = "fhir-parser") { "Communication version used for dispense request: $communicationVersion" }
+
                 prescriptionOrderInfos
                     .map { prescriptionOrderInfo ->
                         async {
@@ -87,13 +113,14 @@ class RedeemPrescriptionsOnLoggedInUseCase(
                                 recipientId = pharmacy.telematikId,
                                 payloadContent = CommunicationPayload(
                                     supplyOptionsType = redeemOption.toRedeemOption().type,
-                                    name = contact.name,
-                                    address = listOf(contact.line1, contact.line2, contact.postalCode, contact.city),
-                                    phone = contact.telephoneNumber,
-                                    hint = contact.deliveryInformation
+                                    name = sanitizeName(contact.name),
+                                    address = listOf(contact.street, contact.addressDetail, contact.zip, contact.city),
+                                    phone = contact.phone,
+                                    hint = contact.deliveryInfo
                                 ),
                                 flowTypeCode = flowTypeCode,
-                                flowTypeDisplay = flowTypeDisplay
+                                flowTypeDisplay = flowTypeDisplay,
+                                version = communicationVersion
                             )
 
                             // save the pharmacy as often used when the prescription was redeemed successfully

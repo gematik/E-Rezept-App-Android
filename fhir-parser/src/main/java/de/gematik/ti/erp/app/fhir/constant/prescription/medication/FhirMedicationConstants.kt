@@ -28,6 +28,9 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension.Companion.
 @Suppress("ktlint:standard:max-line-length")
 object FhirMedicationConstants {
     private const val MEDICATION_CATEGORY_SYSTEM = "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category"
+
+    // from version 1.6
+    private const val DRUG_CATEGORY_EXTENSION = "https://gematik.de/fhir/epa-medication/StructureDefinition/drug-category-extension"
     private const val EPA_MEDICATION_VACCINE_EXTENSION = "https://gematik.de/fhir/epa-medication/StructureDefinition/medication-id-vaccine-extension"
     private const val MEDICATION_COMPOUNDING_MANUFACTURING_INSTRUCTIONS = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_CompoundingInstruction"
     private const val EPA_MEDICATION_COMPOUNDING_MANUFACTURING_INSTRUCTIONS =
@@ -37,7 +40,10 @@ object FhirMedicationConstants {
         "https://gematik.de/fhir/epa-medication/StructureDefinition/medication-formulation-packaging-extension"
 
     internal fun List<FhirExtension>.findMedicationCategory() =
-        findExtensionByUrl(FhirMedicationPznConstants.MEDICATION_CATEGORY)?.valueCoding?.code
+        (
+            findExtensionByUrl(FhirMedicationPznConstants.MEDICATION_CATEGORY)
+                ?: findExtensionByUrl(DRUG_CATEGORY_EXTENSION)
+            )?.valueCoding?.code
 
     internal fun List<FhirExtension>.findMedicationCategorySpecialVersion102(): String? =
         findExtensionByUrl(FhirMedicationPznConstants.MEDICATION_CATEGORY)

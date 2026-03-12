@@ -28,12 +28,13 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 
 const val FEATURE_TOGGLE_DATA_SOURCE = "FeatureToggles"
+const val IsRoomEnabled = "IS_ROOM_ENABLED"
 
-val REALM_V2 = FeatureEntity(name = "RealmVersion2", isActive = false)
+val ROOM_DB = FeatureEntity(name = "Room", isActive = false)
 val EU_REDEEM = FeatureEntity(name = "EuRedeem", isActive = false)
 
 val FEATURE_ENTITIES = setOf(
-    REALM_V2,
+    ROOM_DB,
     EU_REDEEM
 )
 
@@ -55,8 +56,7 @@ class FeatureToggleLocalDataSource(
         }
 
     suspend fun toggleFeature(feature: FeatureEntity) {
-        dataStore.updateData {
-                currentSchema ->
+        dataStore.updateData { currentSchema ->
             val currentFeatureSet = currentSchema.classes.toMutableSet()
             val match = currentFeatureSet.find { it.name == feature.name }
             if (match != null) {

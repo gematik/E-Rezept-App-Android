@@ -1,13 +1,40 @@
-# Release 1.36.0
+# Release 1.37.0
+
+### fixed (2 changes):
+
+- App can now autostart for faceid
+- Check for hardware-backed key-generation before showing asking user to save credentials
+
+### ⚡ enhancements (3 changes):
+
+- Eu instruction screen talkback Infotext issue
+- Update UI for debug menu
+- Add supported FHIR versions in debug menu as a new section
+- Add a11y for mainscreen buttons
+
+### ✨ features (5 changes):
+
+- Update accessibility statement URL in strings.xml
+- Krones BKK contact information updated
+- Update supported KBV device request versions to include 1.2 + 1.6 workflow changes + 1.1 eu
+  profile changes + 1.4 kbv
+- Modularize consent feature
+- Room database, added as a dependency for the app, works only with debug app builds with flag
+  switched on
+
+# Release 1.36.2
 
 ### fixed (2 changes)
+
 - Bug fixes
 - Accessibility enhancements
 
 ### ⚡ enhancements (1 changes):
+
 - Update COUNTRY EXTENSION URL
 
 ### improvements (1 change)
+
 - Add light-dark mode selection from settings screen
 
 --- 
@@ -45,7 +72,8 @@
 
 ### ⚡ enhancements (2 changes):
 
-- Improved pharmacy search with location, service filters, emergency services and special closing hours
+- Improved pharmacy search with location, service filters, emergency services and special closing
+  hours
 - Add Bundespolizei
 - Centralized biometric authentication error handling
 

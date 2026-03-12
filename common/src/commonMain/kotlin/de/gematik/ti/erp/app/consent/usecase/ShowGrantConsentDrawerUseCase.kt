@@ -23,7 +23,6 @@
 package de.gematik.ti.erp.app.consent.usecase
 
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
-import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import kotlinx.coroutines.flow.Flow
@@ -33,20 +32,10 @@ class ShowGrantConsentDrawerUseCase(
     private val consentRepository: ConsentRepository,
     private val profilesRepository: ProfileRepository
 ) {
-    operator fun invoke(): Flow<Boolean> =
+    operator fun invoke(isConsentNotGranted: Boolean): Flow<Boolean> =
         profilesRepository.activeProfile().map { profile ->
-            with(profile) {
-                isPkv() && isConsentDrawerNotShown() &&
-                    isSsoValid() && isConsentNotGranted()
-            }
+            val isPkv = profile.insuranceType == ProfilesData.InsuranceType.PKV
+            val notShownYet = !consentRepository.isConsentDrawerShown(profile.id)
+            isPkv && notShownYet && isConsentNotGranted
         }
-
-    private fun ProfilesData.Profile.isPkv() = insuranceType == ProfilesData.InsuranceType.PKV
-
-    private fun ProfilesData.Profile.isSsoValid() = singleSignOnTokenScope?.token?.isValid() ?: false
-
-    private fun ProfilesData.Profile.isConsentDrawerNotShown() = !consentRepository.isConsentDrawerShown(id)
-
-    private suspend fun ProfilesData.Profile.isConsentNotGranted() =
-        !(consentRepository.getPkvConsent(id, ConsentCategory.PKVCONSENT.code).map { consentRepository.isPkvConsentGranted(it) }.getOrNull() ?: false)
 }

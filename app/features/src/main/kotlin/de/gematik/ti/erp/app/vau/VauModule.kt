@@ -27,7 +27,6 @@ import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
 import de.gematik.ti.erp.app.vau.interceptor.DefaultCryptoConfig
 import de.gematik.ti.erp.app.vau.interceptor.VauChannelInterceptor
-import de.gematik.ti.erp.app.vau.repository.VauLocalDataSource
 import de.gematik.ti.erp.app.vau.repository.VauRemoteDataSource
 import de.gematik.ti.erp.app.vau.repository.VauRepository
 import de.gematik.ti.erp.app.vau.usecase.TrustedTruststore
@@ -51,7 +50,6 @@ val vauModule = DI.Module("vauModule") {
         TruststoreConfig(endpointHelper::getTrustAnchor)
     }
     bindSingleton { VauRemoteDataSource(instance()) }
-    bindSingleton { VauLocalDataSource(instance()) }
     bindSingleton { VauRepository(instance(), instance(), instance(), instance()) }
     bindSingleton { DefaultCryptoConfig() }
     bindSingleton {
@@ -79,5 +77,5 @@ val vauModule = DI.Module("vauModule") {
             )
         }
     }
-    bindSingleton { TruststoreUseCase(instance(), instance(), instance(), instance(), instance()) }
+    bindSingleton { TruststoreUseCase(instance(), instance(), instance(), instance()) }
 }

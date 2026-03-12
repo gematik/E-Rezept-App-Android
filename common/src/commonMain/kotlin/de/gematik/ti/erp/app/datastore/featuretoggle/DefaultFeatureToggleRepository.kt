@@ -33,17 +33,6 @@ class DefaultFeatureToggleRepository(
     // to only show currently available feature flags in the right state
     override fun getFeatures(): Flow<Set<FeatureEntity>> {
         return localDataSource.persistedFeatures
-        /*
-        return combine(
-            localDataSource.currentFeatures,
-            localDataSource.persistedFeatures
-        ) { current, persisted ->
-            current.map { feature ->
-                persisted.find { feature.name == it.name } ?: feature
-            }.sortedBy { it.name }.toSet()
-        }
-
-         */
     }
 
     override fun isFeatureEnabled(feature: FeatureEntity): Flow<Boolean> =

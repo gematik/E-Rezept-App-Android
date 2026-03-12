@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.fhir.prescription.parser
 
 import de.gematik.ti.erp.app.data.taskMetadataBundleKbvBundle
+import de.gematik.ti.erp.app.data.taskMetadataBundleKbvBundle_vers_1_6_task_1_4_1_kbv
 import de.gematik.ti.erp.app.data.taskMetadataBundleKbvWithDigaBundle
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import kotlinx.coroutines.test.runTest
@@ -42,6 +43,22 @@ class TaskBundleSeparationParserTest {
         requireNotNull(bundle) { "Parsed JSON is not a JsonArray" }
 
         assertEquals(9, bundle.size, "Expected 9 elements in the bundle array")
+
+        assertTrue(
+            bundle.all { element ->
+                val payload = parser.extract(element)
+                (payload != null) && (payload.taskBundle.toString().isNotNullOrEmpty()) && (payload.kbvBundle.toString().isNotNullOrEmpty())
+            },
+            "All elements must contain a valid taskBundle and kbvBundle"
+        )
+    }
+
+    @Test
+    fun `parse task meta_data_version_1_6_bundle with kbv_bundle_version_1_4_1`() = runTest {
+        val bundle = Json.parseToJsonElement(taskMetadataBundleKbvBundle_vers_1_6_task_1_4_1_kbv) as? JsonArray
+        requireNotNull(bundle) { "Parsed JSON is not a JsonArray" }
+
+        assertEquals(1, bundle.size, "Expected 1 element in the bundle array")
 
         assertTrue(
             bundle.all { element ->

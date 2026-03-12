@@ -32,6 +32,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationActions
 import de.gematik.ti.erp.app.userauthentication.presentation.AuthenticationStateData
@@ -41,6 +43,7 @@ internal fun UserAuthenticationEmptyScreenContent(
     contentPadding: PaddingValues,
     authenticationState: AuthenticationStateData.AuthenticationState,
     timeout: Long,
+    focusRequester: FocusRequester,
     enteredPassword: String,
     enteredPasswordError: Boolean,
     showPasswordLogin: Boolean,
@@ -60,6 +63,7 @@ internal fun UserAuthenticationEmptyScreenContent(
         UserAuthenticationLoginSection(
             authenticationState = authenticationState,
             timeout = timeout,
+            focusRequester = focusRequester,
             enteredPassword = enteredPassword,
             enteredPasswordError = enteredPasswordError,
             showPasswordLogin = showPasswordLogin,

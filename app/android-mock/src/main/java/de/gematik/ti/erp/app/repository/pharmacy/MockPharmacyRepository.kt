@@ -27,7 +27,7 @@ import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.model.extractPharmacyServices
 import de.gematik.ti.erp.app.fhir.model.json
 import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
-import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.FavouritePharmacyLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.OftenUsedPharmacyLocalDataSource
@@ -52,14 +52,15 @@ class MockPharmacyRepository(
         return Result.success(extractedPharmacies)
     }
 
-    override fun loadOftenUsedPharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>> = oftenUsedLocalDataSource.loadOftenUsedPharmacies()
-
-    override fun loadFavoritePharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>> = favouriteLocalDataSource.loadFavoritePharmacies()
+    override fun loadPharmacies(): Flow<List<PharmacyErpModel>> {
+        return flowOf(emptyList())
+    }
 
     override suspend fun markPharmacyAsOftenUsed(pharmacy: PharmacyUseCaseData.Pharmacy) = oftenUsedLocalDataSource.markPharmacyAsOftenUsed(pharmacy)
 
-    override suspend fun deleteOverviewPharmacy(overviewPharmacy: OverviewPharmacyData.OverviewPharmacy) =
-        oftenUsedLocalDataSource.deleteOverviewPharmacy(overviewPharmacy)
+    override suspend fun deleteOverviewPharmacy(overviewPharmacy: PharmacyErpModel) {
+        // no-op
+    }
 
     override suspend fun markPharmacyAsFavourite(pharmacy: PharmacyUseCaseData.Pharmacy) = favouriteLocalDataSource.markPharmacyAsFavourite(pharmacy)
 

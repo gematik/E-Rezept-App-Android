@@ -1,0 +1,27 @@
+{
+  "dispensedMedications": [
+    {
+      "dispenseId": "Example-MedicationDispense-DiGA-DeepLink",
+      "patientId": "X123456789",
+      "prescriptionId": "162.000.033.491.280.78",
+      "substitutionAllowed": false,
+      "dosageInstruction": "",
+      "performer": "8-SMC-B-Testkarte-883110000095957",
+      "handedOver": {
+        "value": "2026-04-01"
+      },
+      "dispensedDeviceRequest": {
+        "deepLink": "https://gematico.de?redeemCode=DE12345678901234",
+        "redeemCode": "DE12345678901234",
+        "declineCode": null,
+        "modifiedDate": {
+          "value": "2026-04-01"
+        },
+        "note": null,
+        "referencePzn": "12345678",
+        "display": "Gematico Diabetestherapie",
+        "status": "completed"
+      }
+    }
+  ]
+}

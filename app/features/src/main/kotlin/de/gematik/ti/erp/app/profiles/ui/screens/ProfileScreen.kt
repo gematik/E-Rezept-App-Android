@@ -388,7 +388,7 @@ internal fun ProfileScreenContent(
                 color = AppTheme.colors.neutral300
             )
         }
-        if (selectedProfile.hasBundFeatures()) {
+        if (selectedProfile.isPkvOrBund()) {
             item {
                 ProfileInvoiceInformationSection {
                     onClickInvoices()

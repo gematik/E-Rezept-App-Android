@@ -27,7 +27,7 @@ package de.gematik.ti.erp.app.pharmacy.repository
 import de.gematik.ti.erp.app.fhir.FhirInsuranceProvider
 import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
-import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import kotlinx.coroutines.flow.Flow
@@ -37,13 +37,11 @@ interface PharmacyRepository {
 
     suspend fun searchPharmacies(filter: PharmacyFilter): Result<FhirPharmacyErpModelCollection>
 
-    fun loadOftenUsedPharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>>
-
-    fun loadFavoritePharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>>
+    fun loadPharmacies(): Flow<List<PharmacyErpModel>>
 
     suspend fun markPharmacyAsOftenUsed(pharmacy: PharmacyUseCaseData.Pharmacy)
 
-    suspend fun deleteOverviewPharmacy(overviewPharmacy: OverviewPharmacyData.OverviewPharmacy)
+    suspend fun deleteOverviewPharmacy(overviewPharmacy: PharmacyErpModel)
 
     suspend fun markPharmacyAsFavourite(pharmacy: PharmacyUseCaseData.Pharmacy)
 

@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.database.realm.v1.pharmacy
 
 import io.realm.kotlin.types.RealmObject
 
+// todo: remove as is not used
 class PharmacyCacheEntityV1 : RealmObject {
     var telematikId: String = ""
     var name: String = ""

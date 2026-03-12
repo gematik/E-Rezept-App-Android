@@ -24,13 +24,17 @@ package de.gematik.ti.erp.app.fhir.constant.dispense
 
 object FhirMedicationDispenseConstants {
 
+    // META Profiles
     enum class MedicationDispenseProfileVersion(val profileUrl: String) {
         Legacy(""),
         V_1_4("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense|1.4"),
         V_1_5("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense|1.5"),
+        V_1_6("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense|1.6"),
         DIGA_V_1_4("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense_DiGA|1.4"),
         DIGA_V_1_5("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense_DiGA|1.5"),
-        EU_V_1_0("https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_MedicationDispense|1.0");
+        DIGA_V_1_6("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense_DiGA|1.6"),
+        EU_V_1_0("https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_MedicationDispense|1.0"),
+        EU_V_1_1("https://gematik.de/fhir/erp-eu/StructureDefinition/GEM_ERPEU_PR_MedicationDispense|1.1");
     }
 
     // PZN, EPA
@@ -140,4 +144,6 @@ object FhirMedicationDispenseConstants {
     const val DIGA_DEEP_LINK = "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_DeepLink"
 
     const val DIGA_DISPENSE_TYPE = "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense_DiGA"
+
+    const val RENDERED_DOSAGE = "http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationDispense.renderedDosageInstruction"
 }

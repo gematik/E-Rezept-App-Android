@@ -37,6 +37,8 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -60,6 +62,7 @@ import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 internal fun UserAuthenticationLoginSection(
     authenticationState: AuthenticationStateData.AuthenticationState,
     timeout: Long,
+    focusRequester: FocusRequester,
     enteredPassword: String,
     enteredPasswordError: Boolean,
     showPasswordLogin: Boolean,
@@ -103,6 +106,7 @@ internal fun UserAuthenticationLoginSection(
             authenticationState.authentication.methodIsPassword -> {
                 PasswordLoginSection(
                     timeout = timeout,
+                    focusRequester = focusRequester,
                     enteredPassword = enteredPassword,
                     enteredPasswordError = enteredPasswordError,
                     onAuthenticate = userAuthenticationActions.onAuthenticateWithPassword,
@@ -114,6 +118,7 @@ internal fun UserAuthenticationLoginSection(
                 if (showPasswordLogin) {
                     PasswordLoginSection(
                         timeout = timeout,
+                        focusRequester = focusRequester,
                         enteredPassword = enteredPassword,
                         enteredPasswordError = enteredPasswordError,
                         onAuthenticate = userAuthenticationActions.onAuthenticateWithPassword,
@@ -155,6 +160,7 @@ internal fun UserAuthenticationLoginSection(
 @Composable
 private fun PasswordLoginSection(
     timeout: Long,
+    focusRequester: FocusRequester,
     enteredPassword: String,
     enteredPasswordError: Boolean,
     onRemovePasswordError: () -> Unit,
@@ -164,6 +170,7 @@ private fun PasswordLoginSection(
     SpacerMedium()
     PasswordLoginTextField(
         timeout = timeout,
+        focusRequester = focusRequester,
         enteredPassword = enteredPassword,
         enteredPasswordError = enteredPasswordError,
         onChangePassword = onChangePassword,
@@ -186,6 +193,7 @@ private fun PasswordLoginSection(
 @Composable
 private fun PasswordLoginTextField(
     timeout: Long,
+    focusRequester: FocusRequester,
     enteredPassword: String,
     enteredPasswordError: Boolean,
     onRemovePasswordError: () -> Unit,
@@ -196,7 +204,8 @@ private fun PasswordLoginTextField(
         modifier = Modifier
             .testTag("password_prompt_password_field")
             .fillMaxWidth()
-            .heightIn(min = SizeDefaults.sevenfold),
+            .heightIn(min = SizeDefaults.sevenfold)
+            .focusRequester(focusRequester),
         value = enteredPassword,
         onValueChange = {
             onRemovePasswordError()

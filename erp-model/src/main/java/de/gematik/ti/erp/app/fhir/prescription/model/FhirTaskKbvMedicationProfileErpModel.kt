@@ -70,5 +70,8 @@ enum class ErpMedicationProfileVersion {
     V_110,
     V_12,
     V_13,
+    V_14,
+    V_15,
+    V_16,
     Unknown
 }

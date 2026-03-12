@@ -41,9 +41,11 @@ import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseC
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState
 import de.gematik.ti.erp.app.base.usecase.DownloadAllResourcesUseCase
+import de.gematik.ti.erp.app.consent.usecase.GetConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.ShowGrantConsentDrawerUseCase
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
 import de.gematik.ti.erp.app.core.complexAutoSaver
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarWrapper
 import de.gematik.ti.erp.app.mainscreen.model.ProfileLifecycleState
 import de.gematik.ti.erp.app.prescription.model.PrescriptionErrorState
@@ -81,6 +83,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -106,6 +109,7 @@ class PrescriptionListController(
     private val getMLKitAcceptedUseCase: GetMLKitAcceptedUseCase,
     private val getShowWelcomeDrawerUseCase: GetShowWelcomeDrawerUseCase,
     private val showGrantConsentDrawerUseCase: ShowGrantConsentDrawerUseCase,
+    private val getConsentUseCase: GetConsentUseCase,
     private val saveToolTipsShownUseCase: SaveToolTipsShownUseCase,
     private val switchActiveProfileUseCase: SwitchActiveProfileUseCase,
     private val hasRedeemableTasksUseCase: HasRedeemableTasksUseCase,
@@ -150,36 +154,31 @@ class PrescriptionListController(
         _isProfileRefreshing.value = isRefreshing
     }
 
-    private suspend fun getActiveProfile(): ProfilesUseCaseData.Profile? =
-        withContext(controllerScope.coroutineContext) {
-            val profile = activeProfile.extract()
-            if (profile != null && profile.isSSOTokenValid()) {
-                profile
-            } else {
-                Napier.e { "No active profile or token is invalid" }
-                null
-            }
+    private suspend fun getActiveProfile(): ProfilesUseCaseData.Profile? = withContext(controllerScope.coroutineContext) {
+        val profile = activeProfile.extract()
+        if (profile != null && profile.isSSOTokenValid()) {
+            profile
+        } else {
+            Napier.e { "No active profile or token is invalid" }
+            null
         }
+    }
 
     private fun downloadAllResources() {
         controllerScope.launch {
             getActiveProfile()?.let { profile ->
                 disableProfileRefresh()
                 enablePrescriptionsRefresh()
-                downloadAllResourcesUseCase.invoke(profile.id)
-                    .fold(
-                        onSuccess = { numberOfNewPrescriptions ->
-                            Napier.d { "Download successful with $numberOfNewPrescriptions prescriptions" }
+                downloadAllResourcesUseCase.invoke(profile.id).fold(onSuccess = { numberOfNewPrescriptions ->
+                    Napier.d { "Download successful with $numberOfNewPrescriptions prescriptions" }
+                    loadPrescriptions()
+                }, onFailure = { exception ->
+                        handleError(exception) { error ->
                             loadPrescriptions()
-                        },
-                        onFailure = { exception ->
-                            handleError(exception) { error ->
-                                loadPrescriptions()
-                                disablePrescriptionRefresh()
-                                Napier.e { "error: $error" }
-                            }
+                            disablePrescriptionRefresh()
+                            Napier.e { "error: $error" }
                         }
-                    )
+                    })
             }
         }
     }
@@ -223,40 +222,38 @@ class PrescriptionListController(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val archivedPrescriptions: StateFlow<UiState<List<Prescription>>> by lazy {
-        localPrescriptionsRefreshTrigger
-            .flatMapLatest {
-                activeProfile.extract()?.id?.let { selectedProfileId ->
-                    archivedPrescriptionsUseCase.invoke(selectedProfileId).map {
-                        when {
-                            it.isEmpty() -> UiState.Empty()
-                            else -> UiState.Data(it)
-                        }
+        localPrescriptionsRefreshTrigger.flatMapLatest {
+            activeProfile.extract()?.id?.let { selectedProfileId ->
+                archivedPrescriptionsUseCase.invoke(selectedProfileId).map {
+                    when {
+                        it.isEmpty() -> UiState.Empty()
+                        else -> UiState.Data(it)
                     }
-                } ?: emptyFlow()
-            }.stateIn(
-                scope = controllerScope,
-                initialValue = UiState.Loading(),
-                started = SharingStarted.WhileSubscribed()
-            )
+                }
+            } ?: emptyFlow()
+        }.stateIn(
+            scope = controllerScope,
+            initialValue = UiState.Loading(),
+            started = SharingStarted.WhileSubscribed()
+        )
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val archivedDigas: StateFlow<UiState<List<Prescription>>> by lazy {
-        localPrescriptionsRefreshTrigger
-            .flatMapLatest {
-                activeProfile.extract()?.id?.let { selectedProfileId ->
-                    getArchivedDigasUseCase.invoke(selectedProfileId).map {
-                        when {
-                            it.isEmpty() -> UiState.Empty()
-                            else -> UiState.Data(it)
-                        }
+        localPrescriptionsRefreshTrigger.flatMapLatest {
+            activeProfile.extract()?.id?.let { selectedProfileId ->
+                getArchivedDigasUseCase.invoke(selectedProfileId).map {
+                    when {
+                        it.isEmpty() -> UiState.Empty()
+                        else -> UiState.Data(it)
                     }
-                } ?: emptyFlow()
-            }.stateIn(
-                scope = controllerScope,
-                initialValue = UiState.Loading(),
-                started = SharingStarted.WhileSubscribed()
-            )
+                }
+            } ?: emptyFlow()
+        }.stateIn(
+            scope = controllerScope,
+            initialValue = UiState.Loading(),
+            started = SharingStarted.WhileSubscribed()
+        )
     }
 
     private val isArchiveDataEmpty by lazy {
@@ -273,21 +270,18 @@ class PrescriptionListController(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val activePrescriptions: StateFlow<UiState<List<Prescription>>> by lazy {
-        localPrescriptionsRefreshTrigger
-            .flatMapLatest {
-                activeProfile.extract()?.id?.let { selectedProfileId ->
-                    activePrescriptionsUseCase(selectedProfileId)
-                        .map { prescriptions ->
-                            val updatedPrescriptions = archiveExpiredDigasUseCase(prescriptions)
-                            UiState.Data(updatedPrescriptions)
-                        }
-                } ?: emptyFlow()
-            }
-            .stateIn(
-                scope = controllerScope,
-                initialValue = UiState.Loading(),
-                started = SharingStarted.WhileSubscribed()
-            )
+        localPrescriptionsRefreshTrigger.flatMapLatest {
+            activeProfile.extract()?.id?.let { selectedProfileId ->
+                activePrescriptionsUseCase(selectedProfileId).map { prescriptions ->
+                    val updatedPrescriptions = archiveExpiredDigasUseCase(prescriptions)
+                    UiState.Data(updatedPrescriptions)
+                }
+            } ?: emptyFlow()
+        }.stateIn(
+            scope = controllerScope,
+            initialValue = UiState.Loading(),
+            started = SharingStarted.WhileSubscribed()
+        )
     }
 
     val isArchiveEmpty: StateFlow<Boolean> by lazy {
@@ -317,26 +311,41 @@ class PrescriptionListController(
 
     val shouldShowWelcomeDrawer by lazy { getShowWelcomeDrawerUseCase() }
 
-    val shouldShowGrantConsentDrawer by lazy { showGrantConsentDrawerUseCase() }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val shouldShowGrantConsentDrawer by lazy {
+        getActiveProfileUseCase().flatMapLatest { profile ->
+            if (!profile.isPkvOrBund()) {
+                flowOf(false)
+            } else {
+                getConsentUseCase(profile.id, ConsentCategory.PKVCONSENT.code).map { result ->
+                    result.getOrNull()?.let { consent ->
+                        !consent.isActive() || consent.consent.isEmpty()
+                    } ?: false
+                }.flatMapLatest { isNotGranted ->
+                    showGrantConsentDrawerUseCase(isNotGranted)
+                }
+            }
+        }.stateIn(controllerScope, SharingStarted.Eagerly, false)
+    }
 
     val resourcesDownloadedState: SharedFlow<DownloadResourcesState> = snapshotStateUseCase()
 
     val multiProfileData by lazy {
 
-        getActiveProfileUseCase()
-            .map { it.isSSOTokenValid() }
-            .stateIn(controllerScope, Eagerly, MultiProfileAppBarWrapper.DEFAULT_EMPTY_PROFILE)
+        getActiveProfileUseCase().map { it.isSSOTokenValid() }.stateIn(controllerScope, Eagerly, MultiProfileAppBarWrapper.DEFAULT_EMPTY_PROFILE)
 
         MultiProfileAppBarWrapper(
-            existingProfiles = getProfilesUseCase().stateIn(controllerScope, Eagerly, listOf(MultiProfileAppBarWrapper.DEFAULT_EMPTY_PROFILE)),
+            existingProfiles = getProfilesUseCase().stateIn(
+                controllerScope,
+                Eagerly,
+                listOf(MultiProfileAppBarWrapper.DEFAULT_EMPTY_PROFILE)
+            ),
             activeProfile = getActiveProfileUseCase().stateIn(controllerScope, Eagerly, MultiProfileAppBarWrapper.DEFAULT_EMPTY_PROFILE),
             profileLifecycleState = ProfileLifecycleState(
                 networkStatus = networkStatusTracker.networkStatus.stateIn(controllerScope, Eagerly, false),
                 isProfileRefreshing = _isProfileRefreshing.asStateFlow(),
-                isTokenValid = getActiveProfileUseCase().map { it.isSSOTokenValid() }
-                    .stateIn(controllerScope, Eagerly, false),
-                isRegistered = getActiveProfileUseCase().map { it.lastAuthenticated != null }
-                    .stateIn(controllerScope, Eagerly, false)
+                isTokenValid = getActiveProfileUseCase().map { it.isSSOTokenValid() }.stateIn(controllerScope, Eagerly, false),
+                isRegistered = getActiveProfileUseCase().map { it.lastAuthenticated != null }.stateIn(controllerScope, Eagerly, false)
             )
         )
     }
@@ -353,20 +362,14 @@ class PrescriptionListController(
 
     companion object {
 
-        private suspend fun StateFlow<UiState<List<Prescription>>>.syncedCount(): Int? =
-            countByType(Prescription.SyncedPrescription::class.java)
+        private suspend fun StateFlow<UiState<List<Prescription>>>.syncedCount(): Int? = countByType(Prescription.SyncedPrescription::class.java)
 
-        private suspend fun StateFlow<UiState<List<Prescription>>>.scannedCount(): Int? =
-            countByType(Prescription.ScannedPrescription::class.java)
+        private suspend fun StateFlow<UiState<List<Prescription>>>.scannedCount(): Int? = countByType(Prescription.ScannedPrescription::class.java)
 
-        private suspend fun StateFlow<UiState<List<Prescription>>>.count(): Int? =
-            first { it.isDataState }.data?.takeIf { it.isNotEmpty() }?.count()
+        private suspend fun StateFlow<UiState<List<Prescription>>>.count(): Int? = first { it.isDataState }.data?.takeIf { it.isNotEmpty() }?.count()
 
         private suspend fun <T : Prescription> StateFlow<UiState<List<Prescription>>>.countByType(type: Class<T>): Int? {
-            return first { it.isDataState }.data
-                ?.filterIsInstance(type)
-                ?.takeIf { it.isNotEmpty() }
-                ?.count()
+            return first { it.isDataState }.data?.filterIsInstance(type)?.takeIf { it.isNotEmpty() }?.count()
         }
     }
 }
@@ -380,6 +383,7 @@ fun rememberPrescriptionListController(): PrescriptionListController {
     val mlKitAcceptedUseCase by rememberInstance<GetMLKitAcceptedUseCase>()
     val getShowWelcomeDrawerUseCase by rememberInstance<GetShowWelcomeDrawerUseCase>()
     val showGrantConsentDrawerUseCase by rememberInstance<ShowGrantConsentDrawerUseCase>()
+    val getConsentUseCase by rememberInstance<GetConsentUseCase>()
     val saveToolTipsShownUseCase by rememberInstance<SaveToolTipsShownUseCase>()
     val getProfileByIdUseCase by rememberInstance<GetProfileByIdUseCase>()
     val getProfilesUseCase by rememberInstance<GetProfilesUseCase>()
@@ -405,6 +409,7 @@ fun rememberPrescriptionListController(): PrescriptionListController {
             getMLKitAcceptedUseCase = mlKitAcceptedUseCase,
             showGrantConsentDrawerUseCase = showGrantConsentDrawerUseCase,
             getShowWelcomeDrawerUseCase = getShowWelcomeDrawerUseCase,
+            getConsentUseCase = getConsentUseCase,
             saveToolTipsShownUseCase = saveToolTipsShownUseCase,
             downloadAllResourcesUseCase = downloadAllResourcesUseCase,
             switchActiveProfileUseCase = switchActiveProfileUseCase,

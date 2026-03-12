@@ -35,8 +35,6 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatio.Companion.toEr
 import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.constant.prescription.medicationrequest.FhirMedicationRequestConstants
-import de.gematik.ti.erp.app.fhir.constant.prescription.medicationrequest.FhirMedicationRequestConstants.MEDICATION_REQUEST_1_2_VERSION
-import de.gematik.ti.erp.app.fhir.constant.prescription.medicationrequest.FhirMedicationRequestConstants.MEDICATION_REQUEST_1_3_VERSION
 import de.gematik.ti.erp.app.fhir.constant.prescription.medicationrequest.FhirMedicationRequestConstants.MULTIPLE_PRESCRIPTION_INFO_EXTENSION_URL
 import de.gematik.ti.erp.app.fhir.constant.prescription.medicationrequest.FhirMedicationRequestConstants.MedicationRequestCoPaymentUrl.CO_PAYMENT_EXTENSION_URL_102
 import de.gematik.ti.erp.app.fhir.constant.prescription.medicationrequest.FhirMedicationRequestConstants.MedicationRequestCoPaymentUrl.CO_PAYMENT_EXTENSION_URL_110
@@ -149,10 +147,7 @@ internal data class FhirMedicationRequest(
                 note = noteText,
                 prescriberId = prescriberId
                     .takeIf {
-                        metaVersion() in listOf(
-                            MEDICATION_REQUEST_1_3_VERSION,
-                            MEDICATION_REQUEST_1_2_VERSION
-                        )
+                        metaVersion() in FhirMedicationRequestConstants.MedicationRequestVersion.all
                     }
             )
         }.onFailure { Napier.e("Error parsing FhirTaskKbvMedicationRequestErpModel: ${it.message}") }.getOrNull()

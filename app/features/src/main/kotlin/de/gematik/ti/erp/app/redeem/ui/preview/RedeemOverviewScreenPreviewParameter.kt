@@ -29,7 +29,6 @@ import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OrderSta
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyContact
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.ShippingContact
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
@@ -38,6 +37,8 @@ import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParame
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParameter.pharmacyPreviewData
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParameter.prescriptionsForOrdersPreviewData
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParameter.profilePreviewData
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel.Companion.EmptyShippingInfoErpModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.Instant
 
@@ -53,7 +54,7 @@ data class RedeemOverviewScreenPreviewData(
     val markAsSelfPayer: Boolean,
     val pharmacy: Pharmacy?,
     val contactValidationState: RedeemContactValidationState,
-    val contact: ShippingContact,
+    val contact: ShippingInfoErpModel,
     val isRedeemEnabled: Boolean,
     val isPrescriptionError: Boolean,
     val isPharmacyError: Boolean,
@@ -108,7 +109,7 @@ class RedeemOverviewScreenParameter : PreviewParameterProvider<RedeemOverviewScr
                 markAsSelfPayer = false,
                 contactValidationState = RedeemContactValidationState.MissingPhone,
                 pharmacy = null,
-                contact = contactPreviewData.copy(telephoneNumber = ""),
+                contact = contactPreviewData.copy(phone = ""),
                 isRedeemEnabled = false,
                 isPrescriptionError = false,
                 isPharmacyError = true,
@@ -123,7 +124,7 @@ class RedeemOverviewScreenParameter : PreviewParameterProvider<RedeemOverviewScr
                 markAsSelfPayer = false,
                 contactValidationState = RedeemContactValidationState.MissingPersonalInfo,
                 pharmacy = pharmacyPreviewData,
-                contact = ShippingContact.EmptyShippingContact,
+                contact = EmptyShippingInfoErpModel,
                 isRedeemEnabled = false,
                 isPrescriptionError = false,
                 isPharmacyError = false,
@@ -178,15 +179,15 @@ object RedeemOverviewScreenPreviewParameter {
         isScanned = false
     )
 
-    val contactPreviewData = ShippingContact(
+    val contactPreviewData = ShippingInfoErpModel(
         name = "Ubelix Ewiglangername",
-        line1 = "Kantstraße 149",
-        line2 = "",
-        postalCode = "12099",
+        street = "Kantstraße 149",
+        addressDetail = "",
+        zip = "12099",
         city = "Berlin",
-        telephoneNumber = "01653 387123199",
+        phone = "01653 387123199",
         mail = "mailaddresse@provider.de",
-        deliveryInformation = "Bitte im Vordherhaus abgeben."
+        deliveryInfo = "Bitte im Vordherhaus abgeben."
     )
     val prescriptionsForOrdersPreviewData = listOf(
         prescriptionForOrderPreviewData,

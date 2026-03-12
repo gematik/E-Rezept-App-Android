@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.pharmacy.model
 
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 
@@ -35,7 +36,7 @@ sealed class PrescriptionRedeemArguments(
     open val prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionInOrder>,
     open val redeemOption: PharmacyScreenData.OrderOption,
     open val pharmacy: PharmacyUseCaseData.Pharmacy,
-    open val contact: PharmacyUseCaseData.ShippingContact
+    open val contact: ShippingInfoErpModel
 ) {
     @OptIn(ExperimentalContracts::class)
     fun onRedemptionState(
@@ -51,7 +52,7 @@ sealed class PrescriptionRedeemArguments(
         override val prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionInOrder>,
         override val redeemOption: PharmacyScreenData.OrderOption,
         override val pharmacy: PharmacyUseCaseData.Pharmacy,
-        override val contact: PharmacyUseCaseData.ShippingContact
+        override val contact: ShippingInfoErpModel
     ) : PrescriptionRedeemArguments(profile, orderId, prescriptionOrderInfos, redeemOption, pharmacy, contact)
 
     companion object {

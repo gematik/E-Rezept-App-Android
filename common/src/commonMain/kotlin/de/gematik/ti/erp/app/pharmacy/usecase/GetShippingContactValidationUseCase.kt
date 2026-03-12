@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.pharmacy.usecase
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 
 sealed interface ShippingContactState {
     sealed interface ValidShippingContactState : ShippingContactState {
@@ -138,7 +138,7 @@ class GetShippingContactValidationUseCase {
         rationale = "analyse the user input of shipping contact data"
     )
     operator fun invoke(
-        contact: PharmacyUseCaseData.ShippingContact,
+        contact: ShippingInfoErpModel,
         selectedOrderOption: PharmacyScreenData.OrderOption?
     ): ShippingContactState {
         val errors = mutableListOf<ShippingContactState.ShippingContactError>()
@@ -153,13 +153,13 @@ class GetShippingContactValidationUseCase {
                 onNameIsInvalid = { errors.add(it) }
             )
             checkContactLine1(
-                contact.line1,
+                contact.street,
                 onLine1IsEmpty = { errors.add(it) },
                 onLine1IsInvalid = { errors.add(it) }
             )
-            checkContactLine2(contact.line2, onLine2IsInvalid = { errors.add(it) })
+            checkContactLine2(contact.addressDetail, onLine2IsInvalid = { errors.add(it) })
             checkContactPostalCode(
-                contact.postalCode,
+                contact.zip,
                 onPostalCodeIsEmpty = { errors.add(it) },
                 onPostalCodeIsInvalid = { errors.add(it) }
             )
@@ -169,7 +169,7 @@ class GetShippingContactValidationUseCase {
                 onCityIsInvalid = { errors.add(it) }
             )
             checkPhoneNumber(
-                contact.telephoneNumber,
+                contact.phone,
                 selectedOrderOption == PharmacyScreenData.OrderOption.Pickup,
                 onPhoneNumberIsEmpty = { errors.add(it) },
                 onPhoneNumberIsInvalid = { errors.add(it) }
@@ -179,14 +179,14 @@ class GetShippingContactValidationUseCase {
                 contact.mail,
                 selectedOrderOption == PharmacyScreenData.OrderOption.Pickup,
                 onMailIsEmpty = {
-                    if (contact.telephoneNumber.isEmpty()) {
+                    if (contact.phone.isEmpty()) {
                         errors.add(it)
                     }
                 },
                 onMailIsInvalid = { errors.add(it) }
             )
             checkDeliveryInformation(
-                contact.deliveryInformation,
+                contact.deliveryInfo,
                 onDeliveryInformationIsInvalid = { errors.add(it) }
             )
             return if (errors.isEmpty()) {

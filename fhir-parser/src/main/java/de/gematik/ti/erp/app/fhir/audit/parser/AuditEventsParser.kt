@@ -34,10 +34,9 @@ import kotlinx.serialization.json.JsonElement
 class AuditEventsParser : BundleParser {
 
     override fun extract(bundle: JsonElement): FhirAuditEventsErpModelCollection? {
-        val auditBundleMeta = bundle.getMeta()
-        val entries = bundle.parseResourceBundle()
-
         try {
+            val auditBundleMeta = bundle.getMeta()
+            val entries = bundle.parseResourceBundle()
             return FhirAuditEventsErpModelCollection(
                 bundleId = auditBundleMeta.bundleId ?: "",
                 count = auditBundleMeta.total ?: 0,

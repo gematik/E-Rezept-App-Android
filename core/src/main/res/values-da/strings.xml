@@ -540,7 +540,7 @@
     <string name="edit_shipping_contact_top_bar_title">Kontaktoplysninger og adresse</string>
     <string name="empty_dosage_info_body">Der er ingen information om, hvordan du skal tage medicinen på din recept.</string>
     <string name="empty_dosage_info_dosage_text">Ikke specificeret</string>
-    <string name="empty_medication_plan_info">Du kan indstille påmindelser om dine recepter</string>
+    <string name="empty_medication_plan_info">Du kan oprette påmindelser for din medicin. For at gøre dette skal du gå til den relevante recept og vælge \"Medicinpåmindelse\".</string>
     <string name="empty_medication_plan_title">Ingen indtagspåmindelser</string>
     <string name="empty_scanned_prescription_name">Indtast venligst mindst 1 tegn.</string>
     <string name="enroll_biometric_dialog_body">App-sikkerhed ikke mulig. Indstil på forhånd biometrisk sikkerhed (f.eks. fingeraftryk) på din enhed.</string>
@@ -889,6 +889,7 @@
     <string name="mainscreen_empty_content_header">Ingen opskrifter</string>
     <string name="mainscreen_empty_not_connected_info">Tilmeld dig for at modtage opskrifter automatisk.</string>
     <string name="mainscreen_login">Tilmeld</string>
+    <string name="mainscreen_refresh">Opdatering</string>
     <string name="male_doctor_with_phone">læge med telefon</string>
     <string name="man_with_phone">Mand med telefon</string>
     <string name="manufacturer_costs">Producentens omkostninger</string>
@@ -1429,7 +1430,7 @@
     <string name="profile_image_selector_save">Brug</string>
     <string name="profile_image_selector_take_photo">Tag et billede</string>
     <string name="profile_image_selector_title">Rediger profilbillede</string>
-    <string name="profile_insurance_information_connected_biometrics">biometri</string>
+    <string name="profile_insurance_information_connected_biometrics">Enhedsbackup</string>
     <string name="profile_insurance_information_connected_health_card">Sundhedskort</string>
     <string name="profile_insurance_information_connected_label">Registreret med</string>
     <string name="profile_insurance_information_not_connected">Ikke logget ind</string>

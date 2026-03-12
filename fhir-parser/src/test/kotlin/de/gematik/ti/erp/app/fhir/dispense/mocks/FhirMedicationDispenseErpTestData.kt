@@ -90,6 +90,60 @@ internal val erp_model_diga_no_redeem_code by lazy {
     )
 }
 
+internal val erp_model_1_6_simple by lazy {
+    getResourceAsString(
+        "/fhir/dispense_parser/mocks/erp_model_1_6_simple.json"
+    )
+}
+
+internal val erp_model_1_6_diga_deeplink by lazy {
+    getResourceAsString(
+        "/fhir/dispense_parser/mocks/erp_model_1_6_diga_deeplink.json"
+    )
+}
+
+internal val erp_model_1_6_diga_no_redeem_code by lazy {
+    getResourceAsString(
+        "/fhir/dispense_parser/mocks/erp_model_1_6_diga_no_redeem_code.json"
+    )
+}
+
+internal val erp_model_1_6_diga_name by lazy {
+    getResourceAsString(
+        "/fhir/dispense_parser/mocks/erp_model_1_6_diga_name.json"
+    )
+}
+
+internal val erp_model_1_6_dosage_dayofweek by lazy {
+    getResourceAsString(
+        "/fhir/dispense_parser/mocks/erp_model_1_6_dosage_dayofweek.json"
+    )
+}
+
+internal val erp_model_1_6_dosage_interval by lazy {
+    getResourceAsString(
+        "/fhir/dispense_parser/mocks/erp_model_1_6_dosage_interval.json"
+    )
+}
+
+internal val erp_model_1_6_dosage_time by lazy {
+    getResourceAsString(
+        "/fhir/dispense_parser/mocks/erp_model_1_6_dosage_time.json"
+    )
+}
+
+internal val erp_model_1_6_dosage_timeofday by lazy {
+    getResourceAsString(
+        "/fhir/dispense_parser/mocks/erp_model_1_6_dosage_timeofday.json"
+    )
+}
+
+internal val erp_model_1_6_dosage_weekday by lazy {
+    getResourceAsString(
+        "/fhir/dispense_parser/mocks/erp_model_1_6_dosage_weekday.json"
+    )
+}
+
 internal val simpleMedicationDispense = FhirMedicationDispenseErpModel(
     dispenseId = "160.000.000.031.686.59",
     patientId = "X110535541",
@@ -307,8 +361,9 @@ internal val medicationDispenseNoCategory = FhirMedicationDispenseErpModel(
 val erpMedicationDispenseDiGADeepLinkV15 = FhirMedicationDispenseErpModel(
     dispenseId = "Example-MedicationDispense-DiGA-DeepLink",
     patientId = "X123456789",
+    prescriptionId = "162.000.033.491.280.78",
     substitutionAllowed = false,
-    dosageInstruction = null,
+    dosageInstruction = "",
     performer = "8-SMC-B-Testkarte-883110000095957",
     handedOver = FhirTemporal.LocalDate(
         value = LocalDate.parse("2025-10-01")
@@ -331,8 +386,9 @@ val erpMedicationDispenseDiGADeepLinkV15 = FhirMedicationDispenseErpModel(
 val erpMedicationDispenseDiGANameAndPznV15 = FhirMedicationDispenseErpModel(
     dispenseId = "Example-MedicationDispense-DiGA-Name-And-PZN",
     patientId = "X123456789",
+    prescriptionId = "162.000.033.491.280.78",
     substitutionAllowed = false,
-    dosageInstruction = null,
+    dosageInstruction = "",
     performer = "8-SMC-B-Testkarte-883110000095957",
     handedOver = FhirTemporal.LocalDate(
         value = LocalDate.parse("2025-10-01")
@@ -355,8 +411,9 @@ val erpMedicationDispenseDiGANameAndPznV15 = FhirMedicationDispenseErpModel(
 val erpMedicationDispenseDiGANoRedeemCodeV15 = FhirMedicationDispenseErpModel(
     dispenseId = "Example-MedicationDispense-DiGA-NoRedeemCode",
     patientId = "X123456789",
+    prescriptionId = "162.000.033.491.280.78",
     substitutionAllowed = false,
-    dosageInstruction = null,
+    dosageInstruction = "",
     performer = "8-SMC-B-Testkarte-883110000095957",
     handedOver = FhirTemporal.LocalDate(
         value = LocalDate.parse("2025-10-01")
@@ -379,6 +436,7 @@ val erpMedicationDispenseDiGANoRedeemCodeV15 = FhirMedicationDispenseErpModel(
 val erpMedicationDispenseKombipackungV15 = FhirMedicationDispenseErpModel(
     dispenseId = "Example-MedicationDispense-Kombipackung",
     patientId = "X123456789",
+    prescriptionId = "160.000.033.491.280.78",
     substitutionAllowed = false,
     dosageInstruction = null,
     performer = "3-SMC-B-Testkarte-883110000095957",
@@ -392,6 +450,7 @@ val erpMedicationDispenseKombipackungV15 = FhirMedicationDispenseErpModel(
 val erpMedicationDispenseRezepturV15 = FhirMedicationDispenseErpModel(
     dispenseId = "Example-MedicationDispense-Rezeptur",
     patientId = "X123456789",
+    prescriptionId = "160.000.033.491.280.78",
     substitutionAllowed = false,
     dosageInstruction = null,
     performer = "3-SMC-B-Testkarte-883110000095957",
@@ -405,6 +464,7 @@ val erpMedicationDispenseRezepturV15 = FhirMedicationDispenseErpModel(
 val erpMedicationDispenseWithoutMedicationV15 = FhirMedicationDispenseErpModel(
     dispenseId = "Example-MedicationDispense-Without-Medication",
     patientId = "X123456789",
+    prescriptionId = "160.000.033.491.280.78",
     substitutionAllowed = false,
     dosageInstruction = null,
     performer = "3-SMC-B-Testkarte-883110000095957",
@@ -420,6 +480,7 @@ val medicationDispenseErpModelCollectionV15SingleMedication = FhirMedicationDisp
         FhirMedicationDispenseErpModel(
             dispenseId = "200.000.000.000.000.01",
             patientId = "X123456789",
+            prescriptionId = "200.000.000.000.000.01",
             substitutionAllowed = false,
             dosageInstruction = "1-0-1-0",
             performer = "3-2-APO-XanthippeVeilchenblau01",
@@ -482,6 +543,7 @@ val medicationDispenseErpModelCollectionV15MultipleMedications = FhirMedicationD
         FhirMedicationDispenseErpModel(
             dispenseId = "160.000.000.000.000.01",
             patientId = "X123456789",
+            prescriptionId = "160.000.000.000.000.01",
             substitutionAllowed = false,
             dosageInstruction = null,
             performer = "3-2-APO-XanthippeVeilchenblau01",
@@ -517,6 +579,7 @@ val medicationDispenseErpModelCollectionV15MultipleMedications = FhirMedicationD
         FhirMedicationDispenseErpModel(
             dispenseId = "160.000.000.000.000.02",
             patientId = "X123456789",
+            prescriptionId = "160.000.000.000.000.02",
             substitutionAllowed = false,
             dosageInstruction = null,
             performer = "3-2-APO-XanthippeVeilchenblau01",
@@ -557,6 +620,7 @@ val medicationDispenseErpModelCollectionEuV10Single = FhirMedicationDispenseErpM
         FhirMedicationDispenseErpModel(
             dispenseId = "160.000.000.000.000.01",
             patientId = "X123456789",
+            prescriptionId = "160.000.000.000.000.01",
             substitutionAllowed = false,
             dosageInstruction = null,
             performer = "",
@@ -627,6 +691,7 @@ val medicationDispenseErpModelCollectionEuV10Multiple = FhirMedicationDispenseEr
         FhirMedicationDispenseErpModel(
             dispenseId = "160.000.000.000.000.01",
             patientId = "X123456789",
+            prescriptionId = "160.000.000.000.000.01",
             substitutionAllowed = false,
             dosageInstruction = null,
             performer = "",
@@ -686,6 +751,7 @@ val medicationDispenseErpModelCollectionEuV10Multiple = FhirMedicationDispenseEr
         FhirMedicationDispenseErpModel(
             dispenseId = "160.000.000.000.000.02",
             patientId = "X123456789",
+            prescriptionId = "160.000.000.000.000.01",
             substitutionAllowed = false,
             dosageInstruction = "1-0-1-0",
             performer = "",
@@ -744,6 +810,7 @@ val medicationDispenseErpModelCollectionEuV10SingleUrn = FhirMedicationDispenseE
         FhirMedicationDispenseErpModel(
             dispenseId = "200.000.003.588.257.69",
             patientId = "X110583717",
+            prescriptionId = "200.000.003.588.257.69",
             substitutionAllowed = true,
             dosageInstruction = null,
             performer = "",

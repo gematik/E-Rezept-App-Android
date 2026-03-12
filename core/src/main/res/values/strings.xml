@@ -237,7 +237,7 @@
     <string name="cdw_info_no_strong_biometry_third">Wenn Sie die Funktion \"Anmeldedaten speichern\" dennoch nutzen, können Sie mit der E-Rezept App in Zukunft ohne Gesundheitskarte und Eingabe der PIN Rezepte einsehen, abrufen, einlösen oder löschen.</string>
     <string name="cdw_info_on_card_blocked">Die PIN wurde dreimal falsch eingegeben. Ihre Karte wurde daher aus Sicherheitsgründen für die Verwendung mit PIN gesperrt.</string>
     <string name="cdw_info_second">Die biometrische Sicherung Ihrer Zugangsdaten erlaubt es, diese App in Zukunft ohne Gesundheitskarte und Eingabe der PIN zu öffnen, Rezepte einzusehen, abzurufen, einzulösen oder zu löschen.</string>
-    <string name="cdw_info_third">Bitte achten Sie darauf, dass Personen, mit denen Sie gegebenenfalls dieses Gerät teilen und deren biometrische Merkmale auf diesem Gerät gespeichert sein könnten, ebenfalls Zugriff auf Ihre Rezepte erhalten.</string>
+    <string name="cdw_info_third">Bitte beachten Sie, dass Personen, mit denen Sie gegebenenfalls dieses Gerät teilen und deren biometrische Merkmale auf diesem Gerät gespeichert sein könnten, ebenfalls Zugriff auf Ihre Rezepte erhalten.</string>
     <string name="cdw_info_title">Hinweis</string>
     <string name="cdw_intro_alternate_auth_info">Oder: Melden Sie sich mit der %s an.</string>
     <string name="cdw_intro_alternate_auth_info_link">App Ihrer Krankenversicherung</string>
@@ -560,7 +560,7 @@
     <string name="edit_shipping_contact_top_bar_title">Kontaktdaten und Adresse</string>
     <string name="empty_dosage_info_body">In Ihrem Rezept liegen keine Informationen zum Einnahmehinweis vor.</string>
     <string name="empty_dosage_info_dosage_text">Keine Angabe</string>
-    <string name="empty_medication_plan_info">Sie können Einnahmeerinnerungen für Ihre Rezepte einstellen</string>
+    <string name="empty_medication_plan_info">Sie können Einnahmeerinnerungen für Ihre Medikamente einstellen. Gehen Sie dafür auf das zugehörige Rezept und wählen Sie \"Einnahmeerinnerung\".</string>
     <string name="empty_medication_plan_title">Keine Einnahmeerinnerungen</string>
     <string name="empty_scanned_prescription_name">Bitte geben Sie mindestens 1 Zeichen ein.</string>
     <string name="enroll_biometric_dialog_body">Appabsicherung nicht möglich. Richten Sie zuvor auf Ihrem Gerät eine biometrische Absicherung (z.B. Fingerabruck) ein.</string>
@@ -929,6 +929,7 @@
     <string name="mainscreen_empty_content_header">Keine Rezepte</string>
     <string name="mainscreen_empty_not_connected_info">Melden Sie sich an, um Rezepte automatisch zu erhalten.</string>
     <string name="mainscreen_login">Anmelden</string>
+    <string name="mainscreen_refresh">Aktualisieren</string>
     <string name="male_doctor_with_phone">Arzt mit Telefon</string>
     <string name="man_with_phone">Mann mit Telefon</string>
     <string name="manufacturer_costs">Herstellerkosten</string>
@@ -1478,7 +1479,7 @@
     <string name="profile_image_selector_save">Verwenden</string>
     <string name="profile_image_selector_take_photo">Foto aufnehmen</string>
     <string name="profile_image_selector_title">Profilbild bearbeiten</string>
-    <string name="profile_insurance_information_connected_biometrics">Biometrie</string>
+    <string name="profile_insurance_information_connected_biometrics">Gerätesicherung</string>
     <string name="profile_insurance_information_connected_health_card">Gesundheitskarte</string>
     <string name="profile_insurance_information_connected_label">Angemeldet mit</string>
     <string name="profile_insurance_information_not_connected">Nicht angemeldet</string>
@@ -1594,7 +1595,7 @@
     <string name="settings_accessibility_header">Bedienungshilfen</string>
     <string name="settings_accessibility_headline">Bedienungshilfen</string>
     <string name="settings_accessibility_statement">Barrierefreiheitserklärung</string>
-    <string name="settings_accessibility_statement_address" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/erklaerung-zur-barrierefreiheit-e-rezept-app\n    </string>
+    <string name="settings_accessibility_statement_address" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/barrierefreiheitserklaerung-e-rezept-app-android\n    </string>
     <string name="settings_accessibility_statement_talkback">Barrierefreiheitserklärung auf externer Webseite</string>
     <string name="settings_accessibility_zoom_toggle">Zoomen ermöglichen</string>
     <string name="settings_allow_analytics_header">Anonyme Analyse</string>
@@ -1605,7 +1606,7 @@
     <string name="settings_app_security_info">Bitte wählen Sie mindestens eine Methode zur Sicherung der App.</string>
     <string name="settings_app_security_password">Passwort</string>
     <string name="settings_biometric_dialog_headline">Hinweis</string>
-    <string name="settings_biometric_dialog_text">Bitte achten Sie darauf, dass Personen, mit denen Sie gegebenenfalls dieses Gerät teilen und deren biometrische Merkmale auf diesem Gerät gespeichert sein könnten, ebenfalls Zugriff auf Ihre Rezepte erhalten.</string>
+    <string name="settings_biometric_dialog_text">Bitte beachten Sie, dass Personen, mit denen Sie gegebenenfalls dieses Gerät teilen und deren biometrische Merkmale auf diesem Gerät gespeichert sein könnten, ebenfalls Zugriff auf Ihre Rezepte erhalten.</string>
     <string name="settings_biometric_dialog_title">Sicherheit Ihrer Rezeptdaten</string>
     <string name="settings_contact_community_address" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/ext/community</string>
     <string name="settings_contact_community_label">"Forum zum E-Rezept "</string>
@@ -1620,7 +1621,7 @@
     <string name="settings_contact_survey_address" translatable="false">https://gematik.shortcm.li/E-Rezept-App_Feedback</string>
     <string name="settings_contact_technical_support_description">Kostenfrei für den Anrufenden. Servicezeiten: Mo – Fr 08:00 – 20:00 Uhr außer an bundeseinheitlichen Feiertagen</string>
     <string name="settings_device_security_allow">Erlauben</string>
-    <string name="settings_device_security_dialog_text">Bitte achten Sie darauf, dass Personen, mit denen Sie gegebenenfalls dieses Gerät teilen und die Ihre Anmeldedaten kennen, ebenfalls Zugriff auf Ihre Rezepte erhalten.</string>
+    <string name="settings_device_security_dialog_text">Bitte beachten Sie, dass Personen, mit denen Sie gegebenenfalls dieses Gerät teilen und die Ihre Anmeldedaten kennen, ebenfalls Zugriff auf Ihre Rezepte erhalten.</string>
     <string name="settings_explore_headline">Erkunden</string>
     <string name="settings_feedback_mail_subject">Feedback aus der E-Rezept App</string>
     <string name="settings_feedback_mail_title">Wir freuen uns auf Ihr Feedback. Bitte nutzen Sie den folgenden Platz und formulieren Sie so präzise wie möglich:</string>

@@ -144,7 +144,8 @@ object MockPrescriptionInfo {
         manufacturingInstructions = "Nehmen Sie die Tabletten mit Wasser ein.",
         packaging = null,
         ingredientMedications = emptyList(),
-        ingredients = emptyList()
+        ingredients = emptyList(),
+        medicationProfile = null
     )
 
     internal val MEDICATION_DISPENSE = MedicationDispense(
@@ -241,7 +242,8 @@ object MockPrescriptionInfo {
             lastMedicationDispense = null,
             failureToReport = "",
             deviceRequest = DEMO_DIGA,
-            isEuRedeemable = false
+            isEuRedeemable = false,
+            isEuRedeemableByPatientAuthorization = false
         )
     }
 }

@@ -62,6 +62,7 @@ import de.gematik.ti.erp.app.fhir.serializer.SafeFhirIngredientListSerializer
 import de.gematik.ti.erp.app.fhir.support.FhirMedicationIdentifierErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirMedicationIngredientErpModel
 import de.gematik.ti.erp.app.utils.ParserUtil.asFhirTemporal
+import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
@@ -292,10 +293,15 @@ internal data class FhirMedicationDispenseMedicationModel(
             DispenseMedicationType.EpaTypeI,
             DispenseMedicationType.EpaTypeII
             -> model.toEpaMedicationErpModel()
+
             DispenseMedicationType.EpaEuV10
             -> model.toEpaMedicationErpModel()
 
-            DispenseMedicationType.Unknown -> null
+            DispenseMedicationType.Unknown ->
+                null
+                    .also {
+                        Napier.d(tag = "fhir-parser", message = "Unknown medication type detected, attempting inference")
+                    }
         }
 
         internal fun JsonElement.extractDispensedMedication(): FhirMedicationDispenseMedicationModel {

@@ -550,7 +550,7 @@
     <string name="edit_shipping_contact_top_bar_title">פרטי התקשרות וכתובת</string>
     <string name="empty_dosage_info_body">אין מידע על אופן נטילת התרופה במרשם שלך.</string>
     <string name="empty_dosage_info_dosage_text">לא מוגדר</string>
-    <string name="empty_medication_plan_info">אתה יכול להגדיר תזכורות עבור המרשמים שלך</string>
+    <string name="empty_medication_plan_info">באפשרותך להגדיר תזכורות לתרופות שלך. לשם כך, עבור למרשם הרלוונטי ובחר \"תזכורת תרופות\".</string>
     <string name="empty_medication_plan_title">אין תזכורות לצריכה</string>
     <string name="empty_scanned_prescription_name">אנא הזן לפחות תו אחד.</string>
     <string name="enroll_biometric_dialog_body">אבטחת אפליקציה אינה אפשרית. לפני כן, הגדר אבטחה ביומטרית (למשל טביעת אצבע) במכשיר שלך.</string>
@@ -899,6 +899,7 @@
     <string name="mainscreen_empty_content_header">אין מתכונים</string>
     <string name="mainscreen_empty_not_connected_info">הירשם לקבלת מתכונים באופן אוטומטי.</string>
     <string name="mainscreen_login">הירשם</string>
+    <string name="mainscreen_refresh">לְעַדְכֵּן</string>
     <string name="male_doctor_with_phone">רופא עם טלפון</string>
     <string name="man_with_phone">איש עם טלפון</string>
     <string name="manufacturer_costs">עלויות היצרן</string>
@@ -1449,7 +1450,7 @@
     <string name="profile_image_selector_save">להשתמש</string>
     <string name="profile_image_selector_take_photo">לצלם תמונה</string>
     <string name="profile_image_selector_title">ערוך תמונת פרופיל</string>
-    <string name="profile_insurance_information_connected_biometrics">ביומטריה</string>
+    <string name="profile_insurance_information_connected_biometrics">גיבוי המכשיר</string>
     <string name="profile_insurance_information_connected_health_card">כרטיס בריאות</string>
     <string name="profile_insurance_information_connected_label">רשום עם</string>
     <string name="profile_insurance_information_not_connected">לא מחובר</string>

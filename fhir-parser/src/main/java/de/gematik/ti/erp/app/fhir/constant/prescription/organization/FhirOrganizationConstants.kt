@@ -22,18 +22,20 @@
 
 package de.gematik.ti.erp.app.fhir.constant.prescription.organization
 
+import de.gematik.ti.erp.app.fhir.constant.FhirIdentifierSystems
+
 object FhirOrganizationConstants {
     /**
      * Identifier for organizations using Betriebsstättennummer (BSNR).
      */
-    const val ORGANIZATION_IDENTIFIER_BSNR_NAME = "https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR"
+    const val ORGANIZATION_IDENTIFIER_BSNR_NAME = FhirIdentifierSystems.Healthcare.BSNR
 
     /**
      * Identifier for organizations using Institutionskennzeichen (IKNR).
      */
-    const val ORGANIZATION_IDENTIFIER_IKNR_NAME = "http://fhir.de/sid/arge-ik/iknr"
+    const val ORGANIZATION_IDENTIFIER_IKNR_NAME = FhirIdentifierSystems.Healthcare.IKNR
 
-    const val ORGANIZATION_IDENTIFIER_TELEMATIK_ID = "https://gematik.de/fhir/sid/telematik-id"
+    const val ORGANIZATION_IDENTIFIER_TELEMATIK_ID = FhirIdentifierSystems.Healthcare.TELEMATIK_ID
 
     const val TELECOM_PHONE = "phone"
     const val TELECOM_EMAIL = "email"

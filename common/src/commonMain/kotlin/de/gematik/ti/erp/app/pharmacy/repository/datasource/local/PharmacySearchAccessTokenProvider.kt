@@ -25,14 +25,14 @@ package de.gematik.ti.erp.app.pharmacy.repository.datasource.local
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacySearchAccessTokenRepository
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import io.github.aakira.napier.Napier
-import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import java.net.SocketTimeoutException
 import kotlin.time.Duration.Companion.hours
-import kotlin.time.toJavaDuration
 
 // todo: check if we need to add some requirement here
 class PharmacySearchAccessTokenProvider(
@@ -54,7 +54,7 @@ class PharmacySearchAccessTokenProvider(
 
     suspend fun getValidToken(): SearchAccessTokenResult {
         return withContext(dispatcher) {
-            val currentTime = RealmInstant.now()
+            val currentTime = Clock.System.now()
             val token = repository.searchAccessToken.first()
 
             Napier.i(tag = TAG) { "Current token ${token?.accessToken}" }
@@ -102,8 +102,9 @@ class PharmacySearchAccessTokenProvider(
         }
     }
 
-    private fun isTokenExpired(lastUpdate: RealmInstant, currentTime: RealmInstant): Boolean {
-        val isExpired = lastUpdate.epochSeconds + TOKEN_EXPIRY_DURATION.toJavaDuration().seconds <= currentTime.epochSeconds
+    private fun isTokenExpired(lastUpdate: Instant, currentTime: Instant): Boolean {
+        val expiryTime = lastUpdate + TOKEN_EXPIRY_DURATION
+        val isExpired = currentTime >= expiryTime
         Napier.i(tag = TAG) { "search access token expiry state $isExpired" }
         return isExpired
     }

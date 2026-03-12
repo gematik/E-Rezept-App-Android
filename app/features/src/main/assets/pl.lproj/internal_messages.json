@@ -58,5 +58,11 @@
         "text": "**✨ Wyświetlanie kodów recept** \nEkran kodów partii i pojedynczych został przeprojektowany, aby zapewnić bardziej intuicyjną obsługę. \n \n **📋 Funkcja kopiowania** \nInformacje o lekach można skopiować poprzez długie naciśnięcie. \n \n **♿ Ułatwienia dostępu** \nTalkback i nawigacja za pomocą klawiatury działają lepiej, przyciski są bardziej przejrzyste, a elementy listy są bardziej logicznie ułożone. Animowane filmy odtwarzają się tylko raz, aby ułatwić korzystanie z nich użytkownikom z upośledzeniem funkcji poznawczych.",
         "timestamp": "2026-01-22T08:00:00.000Z",
         "version": "1.36"
+    },
+    {
+        "id": "12",
+        "text": "**✨ Ulepszone otwieranie aplikacji** \nOdblokowywanie aplikacji jest teraz szybsze. \n \n **📞 Rozszerzone opcje kontaktu** \nWprowadziliśmy nowe opcje kontaktu dla wybranych polis ubezpieczeniowych. \n \n **♿ Dostępność** \nZaktualizowano i rozszerzono oświadczenie dotyczące dostępności, dodając sekcję dokumentującą historię zmian. Niektóre przyciski zostały dostosowane w celu poprawy widoczności.",
+        "timestamp": "2026-03-02T08:00:00.000Z",
+        "version": "1.37"
     }
 ]

@@ -27,6 +27,15 @@ import de.gematik.ti.erp.app.data.bundle_dispense_1_4_complex_bundle
 import de.gematik.ti.erp.app.data.bundle_dispense_1_4_simple
 import de.gematik.ti.erp.app.data.bundle_dispense_1_5_multiple
 import de.gematik.ti.erp.app.data.bundle_dispense_1_5_single
+import de.gematik.ti.erp.app.data.bundle_dispense_1_6_DosageDaysOfWeek
+import de.gematik.ti.erp.app.data.bundle_dispense_1_6_DosageInterval
+import de.gematik.ti.erp.app.data.bundle_dispense_1_6_DosageTime
+import de.gematik.ti.erp.app.data.bundle_dispense_1_6_DosageTimeOfDay
+import de.gematik.ti.erp.app.data.bundle_dispense_1_6_DosageWeekDay
+import de.gematik.ti.erp.app.data.bundle_dispense_1_6_digaDeeplink
+import de.gematik.ti.erp.app.data.bundle_dispense_1_6_digaName
+import de.gematik.ti.erp.app.data.bundle_dispense_1_6_digaNoRedeemCode
+import de.gematik.ti.erp.app.data.bundle_dispense_1_6_simple
 import de.gematik.ti.erp.app.data.bundle_dispenses_1_4_multiple_simple_medications
 import de.gematik.ti.erp.app.data.medication_dispense_1_4_diga_deeplink
 import de.gematik.ti.erp.app.data.medication_dispense_1_4_diga_name_and_pzn
@@ -41,6 +50,15 @@ import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_4_complex
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_4_kombi_complex
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_4_multiple_simple
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_4_simple
+import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_6_diga_deeplink
+import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_6_diga_name
+import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_6_diga_no_redeem_code
+import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_6_dosage_dayofweek
+import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_6_dosage_interval
+import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_6_dosage_time
+import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_6_dosage_timeofday
+import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_6_dosage_weekday
+import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_1_6_simple
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_diga_deeplink
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_diga_name_and_pzn
 import de.gematik.ti.erp.app.fhir.dispense.mocks.erp_model_diga_no_redeem_code
@@ -127,7 +145,7 @@ class TaskMedicationDispenseParserTest {
     @Test
     fun `test bundle for 1_4 highest level complexity`() {
         val medication = Json.parseToJsonElement(medication_dispense_medication_1_4_complex)
-        val bundle = testDataGenerator.createDispenseBundleFromMedications(
+        val bundle = testDataGenerator.create_1_4_DispenseBundleFromMedications(
             medications = listOf(medication)
         )
         val result = Json.parseToJsonElement(erp_model_1_4_kombi_complex)
@@ -169,5 +187,97 @@ class TaskMedicationDispenseParserTest {
         val bundle = Json.parseToJsonElement(medication_dispense_eu_1_0_single_dispense_urn)
         val erpModel = parser.extract(bundle)
         assertEquals(medicationDispenseErpModelCollectionEuV10SingleUrn, erpModel)
+    }
+
+    // 1.6 version tests
+
+    @Test
+    fun `test simple bundle for 1_6 version`() {
+        val resource = Json.parseToJsonElement(bundle_dispense_1_6_simple)
+        val bundle = testDataGenerator.createMedicationDispenseBundleFromResources(listOf(resource))
+        val result = Json.parseToJsonElement(erp_model_1_6_simple)
+        val erpModel = parser.extract(bundle)
+        val serializedModel = Json.encodeToJsonElement(serializer(), erpModel)
+        assertEquals(result, serializedModel)
+    }
+
+    @Test
+    fun `test diga deeplink bundle for 1_6 version`() {
+        val resource = Json.parseToJsonElement(bundle_dispense_1_6_digaDeeplink)
+        val bundle = testDataGenerator.createMedicationDispenseBundleFromResources(listOf(resource))
+        val result = Json.parseToJsonElement(erp_model_1_6_diga_deeplink)
+        val erpModel = parser.extract(bundle)
+        val serializedModel = Json.encodeToJsonElement(serializer(), erpModel)
+        assertEquals(result, serializedModel)
+    }
+
+    @Test
+    fun `test diga no redeem code bundle for 1_6 version`() {
+        val resource = Json.parseToJsonElement(bundle_dispense_1_6_digaNoRedeemCode)
+        val bundle = testDataGenerator.createMedicationDispenseBundleFromResources(listOf(resource))
+        val result = Json.parseToJsonElement(erp_model_1_6_diga_no_redeem_code)
+        val erpModel = parser.extract(bundle)
+        val serializedModel = Json.encodeToJsonElement(serializer(), erpModel)
+        assertEquals(result, serializedModel)
+    }
+
+    @Test
+    fun `test dispense bundle dosage of the week for 1_6 version`() {
+        val resource = Json.parseToJsonElement(bundle_dispense_1_6_DosageDaysOfWeek)
+        val bundle = testDataGenerator.createMedicationDispenseBundleFromResources(listOf(resource))
+        val result = Json.parseToJsonElement(erp_model_1_6_dosage_dayofweek)
+        val erpModel = parser.extract(bundle)
+        val serializedModel = Json.encodeToJsonElement(serializer(), erpModel)
+        assertEquals(result, serializedModel)
+    }
+
+    @Test
+    fun `test dispense bundle dosage with interval for 1_6 version`() {
+        val resource = Json.parseToJsonElement(bundle_dispense_1_6_DosageInterval)
+        val bundle = testDataGenerator.createMedicationDispenseBundleFromResources(listOf(resource))
+        val result = Json.parseToJsonElement(erp_model_1_6_dosage_interval)
+        val erpModel = parser.extract(bundle)
+        val serializedModel = Json.encodeToJsonElement(serializer(), erpModel)
+        assertEquals(result, serializedModel)
+    }
+
+    @Test
+    fun `test dispense bundle dosage with time for 1_6 version`() {
+        val resource = Json.parseToJsonElement(bundle_dispense_1_6_DosageTime)
+        val bundle = testDataGenerator.createMedicationDispenseBundleFromResources(listOf(resource))
+        val result = Json.parseToJsonElement(erp_model_1_6_dosage_time)
+        val erpModel = parser.extract(bundle)
+        val serializedModel = Json.encodeToJsonElement(serializer(), erpModel)
+        assertEquals(result, serializedModel)
+    }
+
+    @Test
+    fun `test dispense bundle dosage with time of day for 1_6 version`() {
+        val resource = Json.parseToJsonElement(bundle_dispense_1_6_DosageTimeOfDay)
+        val bundle = testDataGenerator.createMedicationDispenseBundleFromResources(listOf(resource))
+        val result = Json.parseToJsonElement(erp_model_1_6_dosage_timeofday)
+        val erpModel = parser.extract(bundle)
+        val serializedModel = Json.encodeToJsonElement(serializer(), erpModel)
+        assertEquals(result, serializedModel)
+    }
+
+    @Test
+    fun `test dispense bundle dosage with weekday for 1_6 version`() {
+        val resource = Json.parseToJsonElement(bundle_dispense_1_6_DosageWeekDay)
+        val bundle = testDataGenerator.createMedicationDispenseBundleFromResources(listOf(resource))
+        val result = Json.parseToJsonElement(erp_model_1_6_dosage_weekday)
+        val erpModel = parser.extract(bundle)
+        val serializedModel = Json.encodeToJsonElement(serializer(), erpModel)
+        assertEquals(result, serializedModel)
+    }
+
+    @Test
+    fun `test diga name bundle for 1_6 version`() {
+        val resource = Json.parseToJsonElement(bundle_dispense_1_6_digaName)
+        val bundle = testDataGenerator.createMedicationDispenseBundleFromResources(listOf(resource))
+        val result = Json.parseToJsonElement(erp_model_1_6_diga_name)
+        val erpModel = parser.extract(bundle)
+        val serializedModel = Json.encodeToJsonElement(serializer(), erpModel)
+        assertEquals(result, serializedModel)
     }
 }

@@ -22,16 +22,17 @@
 
 package de.gematik.ti.erp.app.eurezept.di
 
+import android.annotation.SuppressLint
+import de.gematik.ti.erp.app.database.settings.EuVersionDataStore
+import de.gematik.ti.erp.app.eurezept.BuildConfig
 import de.gematik.ti.erp.app.eurezept.domain.usecase.DeleteEuAccessCodeUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GenerateEuAccessCodeUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GenerateEuQrCodeUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetAllEuCountriesUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetCountryLocaleRedemptionCodeUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuAccessCodeUseCase
-import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuPrescriptionConsentUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuPrescriptionsUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetPrescriptionPhrasesUseCase
-import de.gematik.ti.erp.app.eurezept.domain.usecase.GrantEuPrescriptionConsentUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.LocationBasedCountryDetectionUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.ToggleIsEuRedeemableByPatientAuthorizationUseCase
 import de.gematik.ti.erp.app.eurezept.repository.DefaultEuRepository
@@ -42,11 +43,14 @@ import de.gematik.ti.erp.app.eurezept.util.QrCodeGenerator
 import de.gematik.ti.erp.app.fhir.euredeem.parser.EuRedeemAccessCodeResponseParser
 import de.gematik.ti.erp.app.localization.DefaultXmlResourceParserWrapper
 import de.gematik.ti.erp.app.localization.GetSupportedCountriesFromXmlUseCase
+import de.gematik.ti.erp.app.settings.repository.DefaultEuVersionRepository
+import de.gematik.ti.erp.app.settings.repository.EuVersionRepository
 import de.gematik.ti.erp.app.shared.usecase.GetLocationUseCase
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
+@SuppressLint("DiscouragedApi")
 val euModule = DI.Module("euModule", allowSilentOverride = true) {
 
     bindProvider<EuRepository> {
@@ -60,23 +64,31 @@ val euModule = DI.Module("euModule", allowSilentOverride = true) {
             instance()
         )
     }
-    bindProvider { GenerateEuAccessCodeUseCase(instance(), instance()) }
+
+    bindProvider<EuVersionRepository> {
+        DefaultEuVersionRepository(
+            dataStore = runCatching { instance<EuVersionDataStore>() }.getOrNull(),
+            isDebugMode = BuildConfig.DEBUG
+        )
+    }
+
+    bindProvider { GenerateEuAccessCodeUseCase(instance(), instance(), instance()) }
     bindProvider { GenerateEuQrCodeUseCase(instance()) }
     bindProvider { EuTaskRemoteDataSource(instance()) }
     bindProvider { EuTaskLocalDataSource(instance()) }
-    bindProvider { GetEuPrescriptionConsentUseCase(instance()) }
-    bindProvider { GrantEuPrescriptionConsentUseCase(instance()) }
     bindProvider { GetAllEuCountriesUseCase(instance<EuRepository>()) }
     bindProvider { GetEuPrescriptionsUseCase(prescriptionRepository = instance(), profileRepository = instance()) }
     bindProvider { GetLocationUseCase(instance()) }
-    bindProvider { ToggleIsEuRedeemableByPatientAuthorizationUseCase(instance()) }
+    bindProvider { ToggleIsEuRedeemableByPatientAuthorizationUseCase(instance(), instance()) }
     bindProvider { LocationBasedCountryDetectionUseCase(instance()) }
     bindProvider { QrCodeGenerator() }
     bindProvider { GetPrescriptionPhrasesUseCase(instance()) }
     bindProvider { GetCountryLocaleRedemptionCodeUseCase(instance()) }
     bindProvider { GetEuAccessCodeUseCase(instance()) }
     bindProvider { DeleteEuAccessCodeUseCase(instance()) }
-    bindProvider { EuRedeemAccessCodeResponseParser() }
+    bindProvider {
+        EuRedeemAccessCodeResponseParser()
+    }
 
     bindProvider<GetSupportedCountriesFromXmlUseCase> {
         val context = instance<android.content.Context>()

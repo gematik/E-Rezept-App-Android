@@ -31,6 +31,7 @@ import de.gematik.ti.erp.app.fhir.communication.model.CommunicationDigaDispenseR
 import de.gematik.ti.erp.app.fhir.communication.model.CommunicationDigaDispenseRequest.Companion.toFormattedDateTime
 import de.gematik.ti.erp.app.fhir.communication.model.CommunicationDigaDispenseRequest.Companion.toJson
 import de.gematik.ti.erp.app.fhir.communication.model.FhirDigaMeta.Companion.getDigaMeta
+import de.gematik.ti.erp.app.fhir.constant.communication.CommunicationDigaConstants
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonElement
@@ -45,7 +46,9 @@ class DigaDispenseRequestBuilder {
         kvnrNumber: String,
         taskId: String,
         accessCode: String,
-        sent: Instant = Clock.System.now()
+        sent: Instant = Clock.System.now(),
+        version: CommunicationDigaConstants.DigaDispenseRequestVersion =
+            CommunicationDigaConstants.DigaDispenseRequestVersion.PRODUCTION_DEFAULT
     ): JsonElement {
         val communicationDigaDispenseRequest = build(
             orderId = orderId,
@@ -53,7 +56,8 @@ class DigaDispenseRequestBuilder {
             kvnrNumber = kvnrNumber,
             taskId = taskId,
             accessCode = accessCode,
-            sent = sent
+            sent = sent,
+            version = version
         )
         return communicationDigaDispenseRequest.toJson()
     }
@@ -64,11 +68,13 @@ class DigaDispenseRequestBuilder {
         kvnrNumber: String,
         taskId: String,
         accessCode: String,
-        sent: Instant = Clock.System.now()
+        sent: Instant = Clock.System.now(),
+        version: CommunicationDigaConstants.DigaDispenseRequestVersion =
+            CommunicationDigaConstants.DigaDispenseRequestVersion.PRODUCTION_DEFAULT
     ): CommunicationDigaDispenseRequest {
         return CommunicationDigaDispenseRequest(
             id = orderId,
-            meta = getDigaMeta(),
+            meta = getDigaMeta(version),
             status = "unknown",
             basedOn = getBasedOn(taskId, accessCode),
             recipient = getRecipient(telematikId),

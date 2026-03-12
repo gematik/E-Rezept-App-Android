@@ -118,19 +118,6 @@ interface ErpService {
         @Query("reference") id: String
     ): Response<JsonElement>
 
-    // consent
-    @GET("Consent")
-    suspend fun getPkvConsent(
-        @Tag profileId: ProfileIdentifier,
-        @Query("category") category: String = ConsentCategory.PKVCONSENT.code
-    ): Response<JsonElement>
-
-    @POST("Consent")
-    suspend fun grantPkvConsent(
-        @Tag profileId: ProfileIdentifier,
-        @Body consent: JsonElement
-    ): Response<Unit>
-
     @DELETE("Consent")
     suspend fun deleteConsent(
         @Tag profileId: ProfileIdentifier,
@@ -138,13 +125,13 @@ interface ErpService {
     ): Response<Unit>
 
     @GET("Consent")
-    suspend fun getEuConsent(
+    suspend fun getConsent(
         @Tag profileId: ProfileIdentifier,
         @Query("category") category: String = ConsentCategory.EUCONSENT.code
     ): Response<JsonElement>
 
     @POST("Consent")
-    suspend fun grantEuConsent(
+    suspend fun grantConsent(
         @Tag profileId: ProfileIdentifier,
         @Body consent: JsonElement
     ): Response<Unit>

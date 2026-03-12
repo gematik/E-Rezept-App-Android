@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.fhir.consent.model.orignal
 
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import kotlinx.serialization.SerialName
@@ -38,7 +39,8 @@ internal data class FhirConsentModel(
     @SerialName("scope") val scope: FhirCodeableConcept,
     @SerialName("category") val category: List<FhirCodeableConcept>,
     @SerialName("dateTime") val dateTime: String? = null,
-    @SerialName("policyRule") val policyRule: FhirCodeableConcept
+    @SerialName("policyRule") val policyRule: FhirCodeableConcept,
+    @SerialName("extension") val extensions: List<FhirExtension>? = null
 ) {
     companion object {
         internal fun JsonElement.toConsent(): FhirConsentModel {

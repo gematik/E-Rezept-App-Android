@@ -28,11 +28,14 @@ import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SCANNED_PRESCRIPTIO
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SYNCED_PRESCRIPTION_SCHEDULE_ACTIVE_EVERY_TWO_DAYS
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_PERSONALIZED
+import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.medicationPlanPreviewCurrentDateTime
 import de.gematik.ti.erp.app.utils.uistate.UiState
+import kotlinx.datetime.LocalDate
 
 data class MedicationPlanScheduleDurationAndIntervalScreenPreview(
     val name: String,
-    val state: UiState<MedicationSchedule>
+    val state: UiState<MedicationSchedule>,
+    val previewEndOfPackDate: LocalDate? = null
 )
 
 class MedicationPlanScheduleDurationAndIntervalScreenPreviewParameter : PreviewParameterProvider<MedicationPlanScheduleDurationAndIntervalScreenPreview> {
@@ -41,19 +44,31 @@ class MedicationPlanScheduleDurationAndIntervalScreenPreviewParameter : PreviewP
         get() = sequenceOf(
             MedicationPlanScheduleDurationAndIntervalScreenPreview(
                 name = "scanned prescription schedule active",
-                state = UiState.Data(SCANNED_PRESCRIPTION_SCHEDULE_ACTIVE_ENDLESS)
+                state = UiState.Data(SCANNED_PRESCRIPTION_SCHEDULE_ACTIVE_ENDLESS),
+                previewEndOfPackDate = SCANNED_PRESCRIPTION_SCHEDULE_ACTIVE_ENDLESS.calculateEndOfPack(
+                    currentDateTime = medicationPlanPreviewCurrentDateTime
+                )
             ),
             MedicationPlanScheduleDurationAndIntervalScreenPreview(
                 name = "synced prescription schedule active",
-                state = UiState.Data(SYNCED_PRESCRIPTION_SCHEDULE_ACTIVE_EVERY_TWO_DAYS)
+                state = UiState.Data(SYNCED_PRESCRIPTION_SCHEDULE_ACTIVE_EVERY_TWO_DAYS),
+                previewEndOfPackDate = SYNCED_PRESCRIPTION_SCHEDULE_ACTIVE_EVERY_TWO_DAYS.calculateEndOfPack(
+                    currentDateTime = medicationPlanPreviewCurrentDateTime
+                )
             ),
             MedicationPlanScheduleDurationAndIntervalScreenPreview(
                 name = "synced prescription structured schedule active and personalized",
-                state = UiState.Data(SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_PERSONALIZED)
+                state = UiState.Data(SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_PERSONALIZED),
+                previewEndOfPackDate = SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_PERSONALIZED.calculateEndOfPack(
+                    currentDateTime = medicationPlanPreviewCurrentDateTime
+                )
             ),
             MedicationPlanScheduleDurationAndIntervalScreenPreview(
                 name = "synced prescription structured schedule active endless",
-                state = UiState.Data(SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS)
+                state = UiState.Data(SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS),
+                previewEndOfPackDate = SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS.calculateEndOfPack(
+                    currentDateTime = medicationPlanPreviewCurrentDateTime
+                )
             )
         )
 }

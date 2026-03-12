@@ -27,8 +27,10 @@ import de.gematik.ti.erp.app.eurezept.domain.model.EuRedemptionDetails
 import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.eurezept.util.QrCodeGenerator
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeRequestConstants.FhirEuRedeemAccessCodeRequestMeta
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.settings.repository.EuVersionRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +48,7 @@ import kotlinx.coroutines.withContext
  */
 internal class GenerateEuAccessCodeUseCase(
     private val euRepository: EuRepository,
+    private val euVersionRepository: EuVersionRepository,
     private val qrCodeGenerator: QrCodeGenerator,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
@@ -64,8 +67,10 @@ internal class GenerateEuAccessCodeUseCase(
         relatedTaskIds: List<String>
     ): Result<EuRedemptionDetails> =
         withContext(dispatcher) {
+            val metadata = euVersionRepository.getEuRedeemAccessCodeRequestMeta()
             createEuAccessCode(
                 profileIdentifier = profile.id,
+                metadata = metadata,
                 countryCode = countryCode,
                 relatedTaskIds = relatedTaskIds
             ).mapCatching { euAccessCode ->
@@ -91,12 +96,14 @@ internal class GenerateEuAccessCodeUseCase(
      */
     private suspend fun createEuAccessCode(
         profileIdentifier: ProfileIdentifier,
+        metadata: FhirEuRedeemAccessCodeRequestMeta,
         countryCode: String,
         relatedTaskIds: List<String>
     ): Result<EuAccessCode> =
         euRepository.createEuRedeemAccessCode(
             profileId = profileIdentifier,
             countryCode = countryCode,
+            metadata = metadata,
             relatedTaskIds = relatedTaskIds
         )
 

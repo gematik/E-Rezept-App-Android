@@ -22,28 +22,28 @@
 
 package de.gematik.ti.erp.app.repository
 
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class MockShippingContactRepository : ShippingContactRepository {
-    override fun shippingContact(): Flow<PharmacyData.ShippingContact?> {
+    override fun shippingContact(): Flow<ShippingInfoErpModel?> {
         return flowOf(
-            PharmacyData.ShippingContact(
+            ShippingInfoErpModel(
                 name = "Helga Schmetterling",
-                line1 = "Schmetterlingweg 1",
-                line2 = "2 Stockwerk rechts",
-                postalCode = "12345",
+                street = "Schmetterlingweg 1",
+                addressDetail = "2 Stockwerk rechts",
+                zip = "12345",
                 city = "Berlin",
-                telephoneNumber = "123456789",
+                phone = "123456789",
                 mail = "schmetterling@butterfly.com",
-                deliveryInformation = "Bitte klingeln"
+                deliveryInfo = "Bitte klingeln"
             )
         )
     }
 
-    override suspend fun saveShippingContact(contact: PharmacyData.ShippingContact) {
+    override suspend fun saveShippingContact(contact: ShippingInfoErpModel) {
         // Add implementation
     }
 }

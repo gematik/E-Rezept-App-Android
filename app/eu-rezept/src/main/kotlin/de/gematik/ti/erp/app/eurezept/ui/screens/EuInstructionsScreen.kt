@@ -348,6 +348,16 @@ fun InstructionsBottomBar(
     ) {
         SpacerMedium()
 
+        Text(
+            text = stringResource(R.string.eu_instructions_code_validity_info),
+            style = MaterialTheme.typography.caption,
+            textAlign = TextAlign.Center,
+            color = AppTheme.colors.neutral700,
+            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
+        )
+
+        SpacerSmall()
+
         PrimaryButton(
             onClick = onNavigateToCodeScreen,
             enabled = !isRedemptionInProgress,
@@ -370,16 +380,6 @@ fun InstructionsBottomBar(
                 style = MaterialTheme.typography.button
             )
         }
-
-        SpacerSmall()
-
-        Text(
-            text = stringResource(R.string.eu_instructions_code_validity_info),
-            style = MaterialTheme.typography.caption,
-            textAlign = TextAlign.Center,
-            color = AppTheme.colors.neutral700,
-            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
-        )
 
         SpacerMedium()
     }

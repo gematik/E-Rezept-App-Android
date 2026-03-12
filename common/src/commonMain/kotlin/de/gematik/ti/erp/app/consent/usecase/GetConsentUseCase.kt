@@ -22,12 +22,8 @@
 
 package de.gematik.ti.erp.app.consent.usecase
 
-import de.gematik.ti.erp.app.api.ErpServiceState
-import de.gematik.ti.erp.app.consent.model.ConsentContext
-import de.gematik.ti.erp.app.consent.model.ConsentState
-import de.gematik.ti.erp.app.consent.model.mapConsentErrorStates
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
-import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
+import de.gematik.ti.erp.app.fhir.FhirConsentErpModelCollection
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -39,19 +35,9 @@ class GetConsentUseCase(
     private val consentRepository: ConsentRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(profileIdentifier: ProfileIdentifier): Flow<ErpServiceState> = flowOf(
+    suspend operator fun invoke(profileIdentifier: ProfileIdentifier, category: String): Flow<Result<FhirConsentErpModelCollection>> = flowOf(
         withContext(dispatcher) {
-            consentRepository.getPkvConsent(profileId = profileIdentifier, category = ConsentCategory.PKVCONSENT.code).fold(
-                onSuccess = {
-                    when (consentRepository.isPkvConsentGranted(it)) {
-                        true -> ConsentState.ValidState.Granted(ConsentContext.GetConsent)
-                        false -> ConsentState.ValidState.NotGranted
-                    }
-                },
-                onFailure = {
-                    mapConsentErrorStates(it, ConsentContext.GetConsent)
-                }
-            )
+            consentRepository.getConsent(profileId = profileIdentifier, category = category)
         }
     )
 }

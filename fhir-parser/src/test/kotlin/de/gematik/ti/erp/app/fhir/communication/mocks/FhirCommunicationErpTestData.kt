@@ -31,9 +31,7 @@ import de.gematik.ti.erp.app.fhir.communication.model.support.DispensePrescripti
 import de.gematik.ti.erp.app.fhir.communication.model.support.DispenseSupplyOptionsType
 import de.gematik.ti.erp.app.fhir.communication.model.support.ReplyCommunicationPayloadContentErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.support.ReplyCommunicationSupplyOptionsErpModel
-import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.COMMUNICATION_VERSION_1_2
-import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.COMMUNICATION_VERSION_1_3
-import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.COMMUNICATION_VERSION_1_4
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.CommunicationVersion
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.datetime.Instant
 
@@ -45,7 +43,7 @@ object FhirCommunicationErpTestData {
     // Expected models for V1.4 reply communication
     private val expectedReplyEntryV1_4 = FhirReplyCommunicationEntryErpModel(
         id = "01ebc980-ae10-41f0-5a9f-c8ad61141a66",
-        profile = COMMUNICATION_VERSION_1_4,
+        profile = CommunicationVersion.V_1_4.version,
         taskId = "160.000.226.545.733.51",
         sent = FhirTemporal.Instant(Instant.parse("2024-08-14T11:14:38.230Z")),
         received = FhirTemporal.Instant(Instant.parse("2024-08-14T11:14:46.000Z")),
@@ -70,7 +68,7 @@ object FhirCommunicationErpTestData {
 
     private val expectedReplyEntryV1_4_second = FhirReplyCommunicationEntryErpModel(
         id = "01ebc980-c555-9bf8-66b2-0d434e302916",
-        profile = COMMUNICATION_VERSION_1_4,
+        profile = CommunicationVersion.V_1_4.version,
         taskId = "160.000.226.545.733.51",
         sent = FhirTemporal.Instant(Instant.parse("2024-08-14T11:21:08.651Z")),
         received = FhirTemporal.Instant(Instant.parse("2024-08-14T11:21:15.000Z")),
@@ -95,7 +93,7 @@ object FhirCommunicationErpTestData {
 
     private val expectedReplyEntryV1_4_third = FhirReplyCommunicationEntryErpModel(
         id = "01ebc980-cb72-d730-762e-dd08075f568a",
-        profile = COMMUNICATION_VERSION_1_4,
+        profile = CommunicationVersion.V_1_4.version,
         taskId = "160.000.226.545.733.51",
         sent = FhirTemporal.Instant(Instant.parse("2024-08-14T11:22:51.230Z")),
         received = FhirTemporal.Instant(Instant.parse("2024-08-14T11:28:44.000Z")),
@@ -121,7 +119,7 @@ object FhirCommunicationErpTestData {
     // Expected models for V1.3 reply communication
     private val expectedReplyEntryV1_3 = FhirReplyCommunicationEntryErpModel(
         id = "01ebc980-ae10-41f0-5a9f-c8ad61141a66",
-        profile = COMMUNICATION_VERSION_1_3,
+        profile = CommunicationVersion.V_1_3.version,
         taskId = "160.000.226.545.733.51",
         sent = FhirTemporal.Instant(Instant.parse("2024-08-14T11:14:38.230Z")),
         received = FhirTemporal.Instant(Instant.parse("2024-08-14T11:14:46.000Z")),
@@ -147,7 +145,7 @@ object FhirCommunicationErpTestData {
     // Expected models for V1.2 reply communication
     private val expectedReplyEntryV1_2 = FhirReplyCommunicationEntryErpModel(
         id = "7977a4ab-97a9-4d95-afb3-6c4c1e2ac596",
-        profile = COMMUNICATION_VERSION_1_2,
+        profile = CommunicationVersion.V_1_2.version,
         taskId = "160.000.033.491.280.78",
         sent = FhirTemporal.Instant(Instant.parse("2020-04-29T11:46:30.128Z")),
         received = null,
@@ -448,6 +446,151 @@ object FhirCommunicationErpTestData {
                         shipment = false,
                         delivery = true
                     )
+                ),
+                isDiga = false
+            )
+        )
+    )
+
+    val replyCommunication_1_6_singleBundle = FhirCommunicationBundleErpModel(
+        total = 1,
+        messages = listOf(
+            FhirReplyCommunicationEntryErpModel(
+                id = "7977a4ab-97a9-4d95-afb3-6c4c1e2ac596",
+                profile = CommunicationVersion.V_1_6.version,
+                taskId = "160.000.033.491.280.78",
+                sender = CommunicationParticipantErpModel(
+                    identifier = "3-SMC-B-Testkarte-883110000123465",
+                    identifierSystem = "https://gematik.de/fhir/sid/telematik-id"
+                ),
+                recipient = CommunicationParticipantErpModel(
+                    identifier = "X234567890",
+                    identifierSystem = "http://fhir.de/sid/gkv/kvid-10"
+                ),
+                orderId = null,
+                sent = FhirTemporal.Instant(
+                    value = Instant.parse("2026-04-01T15:29:00.434Z")
+                ),
+                received = null,
+                payload = ReplyCommunicationPayloadContentErpModel(
+                    text = "Eisern",
+                    supplyOptions = ReplyCommunicationSupplyOptionsErpModel(
+                        onPremise = true,
+                        shipment = false,
+                        delivery = true
+                    )
+                ),
+                isDiga = false
+            )
+        )
+    )
+
+    val dispense_1_6_singleBundle = FhirCommunicationBundleErpModel(
+        total = 1,
+        messages = listOf(
+            FhirDispenseCommunicationEntryErpModel(
+                id = "2be1c6ac-5d10-47f6-84ee-8318b2c22c76",
+                profile = CommunicationVersion.V_1_6.version,
+                taskId = "162.000.033.491.280.78",
+                sender = CommunicationParticipantErpModel(
+                    identifier = "X234567890",
+                    identifierSystem = "http://fhir.de/sid/gkv/kvid-10"
+                ),
+                recipient = CommunicationParticipantErpModel(
+                    identifier = "8-SMC-B-Testkarte-883110000123465",
+                    identifierSystem = "https://gematik.de/fhir/sid/telematik-id"
+                ),
+                orderId = null,
+                sent = FhirTemporal.Instant(
+                    value = Instant.parse("2026-04-01T15:29:00.434Z")
+                ),
+                payload = DispenseCommunicationPayloadContentErpModel(
+                    contentString = null,
+                    supplyOptionsType = DispenseSupplyOptionsType.UNKNOWN,
+                    name = null,
+                    address = null,
+                    phone = null
+                ),
+                prescriptionType = DispensePrescriptionTypeErpModel(
+                    code = "162",
+                    system = "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+                    display = "Flowtype für Digitale Gesundheitsanwendungen"
+                ),
+                isDiga = true
+            )
+        )
+    )
+
+    val digaDispense_1_6_singleBundle = FhirCommunicationBundleErpModel(
+        total = 1,
+        messages = listOf(
+            FhirDispenseCommunicationEntryErpModel(
+                id = "140f716f-f649-44fe-9a4e-157eb3c8adf3",
+                profile = CommunicationVersion.V_1_6.version,
+                taskId = "162.000.000.000.000.01",
+                sender = CommunicationParticipantErpModel(
+                    identifier = "8-SMC-B-Testkarte-783498105628375",
+                    identifierSystem = "https://gematik.de/fhir/sid/telematik-id"
+                ),
+                recipient = CommunicationParticipantErpModel(
+                    identifier = "X234567890",
+                    identifierSystem = "http://fhir.de/sid/gkv/kvid-10"
+                ),
+                orderId = null,
+                sent = FhirTemporal.Instant(
+                    value = Instant.parse("2026-04-01T15:29:00.434Z")
+                ),
+                payload = DispenseCommunicationPayloadContentErpModel(
+                    contentString = "Nachrichteninhalt für den Versicherten",
+                    supplyOptionsType = DispenseSupplyOptionsType.UNKNOWN,
+                    name = null,
+                    address = null,
+                    phone = null
+                ),
+                prescriptionType = null,
+                isDiga = true
+            )
+        )
+    )
+
+    private val patientDispense_1_6_singleBundlePayload = DispenseCommunicationPayloadContentErpModel(
+        contentString = """{ "version": "1", "supplyOptionsType": "delivery", "name": "Dr. Maximilian von Muster", "address": [ "wohnhaft bei Emilia Fischer", "Bundesallee 312", "123. OG", "12345 Berlin" ], "hint": "Bitte im Morsecode klingeln: -.-.", "phone": "004916094858168" }
+        """.trimMargin(),
+        supplyOptionsType = DispenseSupplyOptionsType.DELIVERY,
+        name = "Dr. Maximilian von Muster",
+        address = listOf(
+            "wohnhaft bei Emilia Fischer",
+            "Bundesallee 312",
+            "123. OG",
+            "12345 Berlin"
+        ),
+        phone = "004916094858168"
+    )
+
+    val patientDispense_1_6_singleBundle = FhirCommunicationBundleErpModel(
+        total = 1,
+        messages = listOf(
+            FhirDispenseCommunicationEntryErpModel(
+                id = "a218a36e-f2fd-4603-ba67-c827acfef01b",
+                profile = CommunicationVersion.V_1_6.version,
+                taskId = "160.000.033.491.280.78",
+                sender = CommunicationParticipantErpModel(
+                    identifier = "X234567890",
+                    identifierSystem = "http://fhir.de/sid/gkv/kvid-10"
+                ),
+                recipient = CommunicationParticipantErpModel(
+                    identifier = "3-SMC-B-Testkarte-883110000123465",
+                    identifierSystem = "https://gematik.de/fhir/sid/telematik-id"
+                ),
+                orderId = null,
+                sent = FhirTemporal.Instant(
+                    value = Instant.parse("2026-04-01T15:29:00.434Z")
+                ),
+                payload = patientDispense_1_6_singleBundlePayload,
+                prescriptionType = DispensePrescriptionTypeErpModel(
+                    code = "160",
+                    system = "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+                    display = "Flowtype für Apothekenpflichtige Arzneimittel"
                 ),
                 isDiga = false
             )

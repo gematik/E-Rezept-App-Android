@@ -74,42 +74,44 @@ fun Context.deviceStrongBoxStatus() =
     }
 
 fun Context.deviceHardwareBackedKeystoreStatus(): Boolean {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        this.packageManager.hasSystemFeature(PackageManager.FEATURE_HARDWARE_KEYSTORE) ||
-            this.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)
-    } else {
-        try {
-            // create a temporary key pair to check if it is hardware backed
-            val aliasOfSecureElementEntry = Base64.toBase64String("HardWareBackedAlias".toByteArray())
-
-            val keyPairGenerator = KeyPairGenerator.getInstance(
-                KeyProperties.KEY_ALGORITHM_EC,
-                "AndroidKeyStore"
-            )
-            val parameterSpec = KeyGenParameterSpec.Builder(
-                aliasOfSecureElementEntry,
-                KeyProperties.PURPOSE_SIGN
-            ).apply {
-                setDigests(KeyProperties.DIGEST_SHA256)
-                setAlgorithmParameterSpec(ECGenParameterSpec("secp256r1"))
-            }.build()
-            keyPairGenerator.initialize(parameterSpec)
-            val keyPair = keyPairGenerator.generateKeyPair()
-            val key = keyPair.private
-
-            val factory = KeyFactory.getInstance(key.algorithm, "AndroidKeyStore")
-            val keyInfo: KeyInfo = factory.getKeySpec(key, KeyInfo::class.java)
-            val isHardWareBacked = keyInfo.isInsideSecureHardware
-
-            val keyStore = KeyStore.getInstance("AndroidKeyStore")
-            keyStore.load(null)
-            keyStore.deleteEntry(aliasOfSecureElementEntry)
-
-            isHardWareBacked
-        } catch (e: Exception) {
-            false
+    return try {
+        val alias = Base64.toBase64String("HardWareBackedAlias".toByteArray())
+        val keyInfo = generateTemporaryEcKeyInfo(alias)
+        val isHardwareBacked = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            keyInfo.securityLevel == KeyProperties.SECURITY_LEVEL_TRUSTED_ENVIRONMENT ||
+                keyInfo.securityLevel == KeyProperties.SECURITY_LEVEL_STRONGBOX
+        } else {
+            keyInfo.isInsideSecureHardware
         }
+        deleteKeystoreEntry(alias)
+        isHardwareBacked
+    } catch (e: Exception) {
+        false
     }
+}
+
+private fun generateTemporaryEcKeyInfo(alias: String): KeyInfo {
+    val keyPairGenerator = KeyPairGenerator.getInstance(
+        KeyProperties.KEY_ALGORITHM_EC,
+        "AndroidKeyStore"
+    )
+    val parameterSpec = KeyGenParameterSpec.Builder(
+        alias,
+        KeyProperties.PURPOSE_SIGN
+    ).apply {
+        setDigests(KeyProperties.DIGEST_SHA256)
+        setAlgorithmParameterSpec(ECGenParameterSpec("secp256r1"))
+    }.build()
+    keyPairGenerator.initialize(parameterSpec)
+    val keyPair = keyPairGenerator.generateKeyPair()
+    val factory = KeyFactory.getInstance(keyPair.private.algorithm, "AndroidKeyStore")
+    return factory.getKeySpec(keyPair.private, KeyInfo::class.java)
+}
+
+private fun deleteKeystoreEntry(alias: String) {
+    val keyStore = KeyStore.getInstance("AndroidKeyStore")
+    keyStore.load(null)
+    keyStore.deleteEntry(alias)
 }
 
 fun enrollBiometricsIntent(): Intent {

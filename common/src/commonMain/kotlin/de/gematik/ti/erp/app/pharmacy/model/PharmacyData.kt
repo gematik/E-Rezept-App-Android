@@ -23,31 +23,19 @@
 package de.gematik.ti.erp.app.pharmacy.model
 
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import kotlinx.datetime.Instant
 
-object PharmacyData {
-    data class ShippingContact(
-        val name: String,
-        val line1: String,
-        val line2: String,
-        val postalCode: String,
-        val city: String,
-        val telephoneNumber: String,
-        val mail: String,
-        val deliveryInformation: String
-    )
-}
-
 fun SyncedTaskData.SyncedTask.shippingContact() =
-    PharmacyData.ShippingContact(
+    ShippingInfoErpModel(
         name = this.patient.name ?: "",
-        line1 = this.patient.address?.line1 ?: "",
-        line2 = this.patient.address?.line2 ?: "",
-        postalCode = this.patient.address?.postalCode ?: "",
+        street = this.patient.address?.line1 ?: "",
+        addressDetail = this.patient.address?.line2 ?: "",
+        zip = this.patient.address?.postalCode ?: "",
         city = this.patient.address?.city ?: "",
-        telephoneNumber = "",
+        phone = "",
         mail = "",
-        deliveryInformation = ""
+        deliveryInfo = ""
     )
 
 object OverviewPharmacyData {

@@ -22,12 +22,34 @@
 
 package de.gematik.ti.erp.app.fhir.constant.communication
 
+import de.gematik.ti.erp.app.fhir.constant.communication.CommunicationDigaConstants.DigaDispenseRequestVersion.Companion.all
+
+/**
+ * **DiGA (Digital Health Applications) Communication Constants**
+ * * Specific constants for DiGA prescriptions (flow type 162).
+ */
 object CommunicationDigaConstants {
 
     /**
-     * Constraint for GEM_ERP_PR_Communication_DispReq to check if flowType matches referenced Task
+     * **DiGA Dispense Request Versions**
+     * * Single source of truth for all DiGA dispatch request profile versions.
+     * * These are profile versions for [FhirCommunicationConstants.COMMUNICATION_DISPENSE_WORKFLOW_PROFILE]
+     *   used when building a DiGA (flow type 162) communication resource.
+     * * **To add a new version:** Add an entry here; [all] and [FhirCommunicationVersions] auto-update.
+     * * Production default is [V_1_4].
      */
-    internal const val COMMUNICATION_DIGA_DISP_REQUEST_VERSION_1_4 = "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.4"
+    enum class DigaDispenseRequestVersion(val profileUrl: String) {
+        V_1_4("${FhirCommunicationConstants.COMMUNICATION_DISPENSE_WORKFLOW_PROFILE}|1.4"),
+        V_1_5("${FhirCommunicationConstants.COMMUNICATION_DISPENSE_WORKFLOW_PROFILE}|1.5"),
+        V_1_6("${FhirCommunicationConstants.COMMUNICATION_DISPENSE_WORKFLOW_PROFILE}|1.6");
+
+        companion object {
+            /** Production default – only this version is used in non-debug builds. */
+            val PRODUCTION_DEFAULT: DigaDispenseRequestVersion = V_1_4
+
+            val all: List<String> = entries.map { it.profileUrl }
+        }
+    }
 
     /**
      * The URL identifying the FHIR extension for prescription type (e.g., DiGA).
@@ -37,8 +59,13 @@ object CommunicationDigaConstants {
 
     /**
      * The code representing prescription type 162, used for DiGA (Digitale Gesundheitsanwendungen).
+     * References the flow type defined in FhirCommunicationConstants.FlowTypes.
      */
-    internal const val VALUE_CODING_TYPE_162 = "162"
+    internal const val VALUE_CODING_TYPE_162 = FhirCommunicationConstants.FlowTypes.CODE_162
 
-    internal const val FLOW_TYPE_DISPLAY_162 = "Muster 16 (Digitale Gesundheitsanwendungen)"
+    /**
+     * Display text for DiGA flow type.
+     * References the display text defined in FhirCommunicationConstants.FlowTypes.
+     */
+    internal const val FLOW_TYPE_DISPLAY_162 = FhirCommunicationConstants.FlowTypes.DISPLAY_162
 }

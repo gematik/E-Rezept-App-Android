@@ -33,6 +33,10 @@ import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodMetadata
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningTimeErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.SpecialOpeningTimeMetadata
+import de.gematik.ti.erp.app.pharmacy.model.ContactInformationErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyAddressErpModel.Companion.toAddressErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningTime.Companion.toModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyServiceSerializationType.DeliveryPharmacyServiceType
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyServiceSerializationType.EmergencyPharmacyServiceType
@@ -40,6 +44,7 @@ import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyServiceSerializationType.OnlinePharmacyServiceType
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyServiceSerializationType.PickUpPharmacyServiceType
 import de.gematik.ti.erp.app.pharmacy.usecase.model.TextFilter.Companion.toTextFilter
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
@@ -306,6 +311,21 @@ object PharmacyUseCaseData {
             } else {
                 address.replace("\n", ", ")
             }
+
+        companion object {
+
+            fun Pharmacy.toErpModel() = PharmacyErpModel(
+                telematikId = telematikId,
+                name = name,
+                position = coordinates?.let { PositionErpModel(it.latitude, it.longitude) },
+                contact = ContactInformationErpModel(
+                    phone = contact.phone,
+                    mail = contact.mail,
+                    url = contact.url
+                ),
+                address = address?.toAddressErpModel()
+            )
+        }
     }
 
     // can go into the new file with search data
@@ -397,53 +417,10 @@ object PharmacyUseCaseData {
     )
 
     @Immutable
-    data class ShippingContact(
-        val name: String,
-        val line1: String,
-        val line2: String,
-        val postalCode: String,
-        val city: String,
-        val telephoneNumber: String,
-        val mail: String,
-        val deliveryInformation: String
-    ) {
-        @Stable
-        fun address() = listOf(
-            line1,
-            line2,
-            postalCode,
-            city
-        ).filter { it.isNotBlank() }
-
-        @Stable
-        fun other() = listOf(
-            telephoneNumber,
-            mail,
-            deliveryInformation
-        ).filter { it.isNotBlank() }
-
-        @Stable
-        fun isEmpty() = address().isEmpty() && other().isEmpty()
-
-        companion object {
-            val EmptyShippingContact = ShippingContact(
-                name = "",
-                line1 = "",
-                line2 = "",
-                postalCode = "",
-                city = "",
-                telephoneNumber = "",
-                mail = "",
-                deliveryInformation = ""
-            )
-        }
-    }
-
-    @Immutable
     data class OrderState(
         val prescriptionsInOrder: List<PrescriptionInOrder>,
         val selfPayerPrescriptionIds: List<String>,
-        val contact: ShippingContact,
+        val contact: ShippingInfoErpModel,
         val isLoading: Boolean = false
     ) {
         val selfPayerPrescriptionNames = prescriptionsInOrder
@@ -454,7 +431,7 @@ object PharmacyUseCaseData {
             val Empty = OrderState(
                 prescriptionsInOrder = emptyList(),
                 selfPayerPrescriptionIds = emptyList(),
-                contact = ShippingContact.EmptyShippingContact,
+                contact = ShippingInfoErpModel.EmptyShippingInfoErpModel,
                 isLoading = true
             )
         }

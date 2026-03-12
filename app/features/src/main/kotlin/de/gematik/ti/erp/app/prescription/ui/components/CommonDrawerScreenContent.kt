@@ -53,7 +53,7 @@ import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
-import de.gematik.ti.erp.app.utils.compose.PrimaryOutlinedButton
+import de.gematik.ti.erp.app.utils.compose.TertiaryButton
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 
 @Suppress("ModifierParameter")
@@ -110,8 +110,12 @@ internal fun DefaultDrawerScreenContent(
                 text = primaryButtonText
             )
         }
-        PrimaryOutlinedButton(
+        TertiaryButton(
             onClick = onClickOutlined,
+            contentPadding = PaddingValues(
+                vertical = PaddingDefaults.MediumSmall,
+                horizontal = PaddingDefaults.XXLargePlus
+            ),
             modifier = modifierOutlinedButton
                 .fillMaxWidth()
         ) {

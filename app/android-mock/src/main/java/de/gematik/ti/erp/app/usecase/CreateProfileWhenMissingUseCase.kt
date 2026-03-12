@@ -41,7 +41,8 @@ class CreateProfileWhenMissingUseCase(
                 authentication = SettingsData.Authentication(
                     deviceSecurity = false,
                     password = SettingsData.Authentication.Password("password"),
-                    failedAuthenticationAttempts = 0
+                    failedAuthenticationAttempts = 0,
+                    authenticationTimeOutSystemUptime = null
                 ),
                 profileName = "Test",
                 now = fixedInstant()

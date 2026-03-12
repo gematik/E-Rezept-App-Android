@@ -32,6 +32,9 @@ import de.gematik.ti.erp.app.data.kbvBundle4_pkv_v110_json
 import de.gematik.ti.erp.app.data.kbvBundle5_gkv_v110_json
 import de.gematik.ti.erp.app.data.kbvBundle6_gkv_v110_json
 import de.gematik.ti.erp.app.data.kbvBundle_device_request_1_4
+import de.gematik.ti.erp.app.data.kbvBundle_example_1_v1_4_json
+import de.gematik.ti.erp.app.data.kbvBundle_example_2_v1_4_json
+import de.gematik.ti.erp.app.data.kbvBundle_example_3_v1_4_json
 import de.gematik.ti.erp.app.data.kbvBundle_v1_2_json
 import de.gematik.ti.erp.app.data.kbvBundle_v1_3_example2_json
 import de.gematik.ti.erp.app.data.kbvBundle_v1_3_example3_json
@@ -55,8 +58,11 @@ import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskDataErpTestData.fhi
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskDataErpTestData.fhirKbvBundle6_v110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskDataErpTestData.fhirKbvBundle6_v110_missingFields
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskDataErpTestData.fhirKbvBundleExample1_v1_3
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskDataErpTestData.fhirKbvBundleExample1_v1_4
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskDataErpTestData.fhirKbvBundleExample2_v1_3
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskDataErpTestData.fhirKbvBundleExample2_v1_4
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskDataErpTestData.fhirKbvBundleExample3_v1_3
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskDataErpTestData.fhirKbvBundleExample3_v1_4
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskDataErpTestData.fhirKbvBundle_v1_2
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirTaskDataErpTestData.fhirTaskDataErpModelV1_1_DeviceRequest
 import kotlinx.serialization.json.Json
@@ -173,5 +179,19 @@ class TaskEPrescriptionMedicalDataParserTest {
         val bundle = Json.parseToJsonElement(kbvBundle_device_request_1_4)
         val result = parser.extract(bundle)
         assertEquals(fhirTaskDataErpModelV1_1_DeviceRequest, result)
+    }
+
+    @Test
+    fun `test parser for kbv_bundle for version 1_4`() {
+        val bundle1 = Json.parseToJsonElement(kbvBundle_example_1_v1_4_json)
+        val bundle2 = Json.parseToJsonElement(kbvBundle_example_2_v1_4_json)
+        val bundle3 = Json.parseToJsonElement(kbvBundle_example_3_v1_4_json)
+        val result1 = parser.extract(bundle1)
+        val result2 = parser.extract(bundle2)
+        val result3 = parser.extract(bundle3)
+
+        assertEquals(fhirKbvBundleExample1_v1_4, result1)
+        assertEquals(fhirKbvBundleExample2_v1_4, result2)
+        assertEquals(fhirKbvBundleExample3_v1_4, result3)
     }
 }

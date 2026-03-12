@@ -29,6 +29,7 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirParameter
 import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeRequestConstants
 import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeResponseConstants
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeResponseConstants.FhirEuRedeemAccessCodeResponseMeta
 import de.gematik.ti.erp.app.fhir.euredeem.model.FhirEuRedeemAccessCodeResponseModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.datetime.Instant
@@ -36,7 +37,7 @@ import kotlinx.datetime.Instant
 val euRedeemAccessCodeResponse_v1_0: FhirEuRedeemAccessCodeResponseModel = FhirEuRedeemAccessCodeResponseModel(
     resourceType = FhirEuRedeemAccessCodeResponseConstants.RESOURCE_TYPE,
     id = FhirEuRedeemAccessCodeResponseConstants.ID,
-    meta = FhirMeta(listOf(FhirEuRedeemAccessCodeResponseConstants.PROFILE_URL)),
+    meta = FhirMeta(listOf(FhirEuRedeemAccessCodeResponseMeta.V_1_0.identifier)),
     parameters = listOf(
         FhirParameter(
             name = FhirEuRedeemAccessCodeResponseConstants.CountryCodeParameter.NAME,

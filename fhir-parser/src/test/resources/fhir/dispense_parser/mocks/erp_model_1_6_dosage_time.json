@@ -1,0 +1,16 @@
+{
+  "dispensedMedications": [
+    {
+      "dispenseId": "Example-MedicationDispense-Dosage-uhrzeit",
+      "patientId": "X123456789",
+      "prescriptionId": "160.000.033.491.280.78",
+      "substitutionAllowed": false,
+      "dosageInstruction": "täglich: 08:00 Uhr — je 1 Stück",
+      "performer": "3-SMC-B-Testkarte-883110000095957",
+      "handedOver": {
+        "value": "2026-04-01"
+      },
+      "dispensedDeviceRequest": null
+    }
+  ]
+}

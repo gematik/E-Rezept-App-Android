@@ -31,6 +31,7 @@ import de.gematik.ti.erp.app.consent.usecase.GrantConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.RevokeConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.SaveGrantConsentDrawerShownUseCase
 import de.gematik.ti.erp.app.consent.usecase.ShowGrantConsentDrawerUseCase
+import de.gematik.ti.erp.app.database.settings.ConsentVersionDataStore
 import de.gematik.ti.erp.app.fhir.consent.FhirConsentParser
 import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemBundleEntryParser
 import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemBundleParser
@@ -45,8 +46,11 @@ import de.gematik.ti.erp.app.invoice.usecase.DownloadInvoicesUseCase
 import de.gematik.ti.erp.app.invoice.usecase.GetInvoiceByTaskIdUseCase
 import de.gematik.ti.erp.app.invoice.usecase.GetInvoicesByProfileUseCase
 import de.gematik.ti.erp.app.invoice.usecase.SaveInvoiceUseCase
-import de.gematik.ti.erp.app.pkv.presentation.ConsentController
+import de.gematik.ti.erp.app.pkv.consent.presentation.ConsentController
 import de.gematik.ti.erp.app.pkv.usecase.ShareInvoiceUseCase
+import de.gematik.ti.erp.app.settings.repository.ConsentVersionRepository
+import de.gematik.ti.erp.app.settings.repository.DefaultConsentVersionRepository
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
@@ -54,7 +58,18 @@ import org.kodein.di.instance
 
 val pkvModule = DI.Module("pkvModule") {
     bindProvider { GetConsentUseCase(instance()) }
-    bindProvider { GrantConsentUseCase(instance()) }
+    bindProvider<ConsentVersionRepository> {
+        DefaultConsentVersionRepository(
+            dataStore = runCatching { instance<ConsentVersionDataStore>() }.getOrNull(),
+            isDebugMode = BuildConfigExtension.isDebug
+        )
+    }
+    bindProvider {
+        GrantConsentUseCase(
+            repository = instance(),
+            consentVersionRepository = instance()
+        )
+    }
     bindProvider { RevokeConsentUseCase(instance()) }
     bindProvider { ShowGrantConsentDrawerUseCase(instance(), instance()) }
     bindProvider { SaveGrantConsentDrawerShownUseCase(instance()) }

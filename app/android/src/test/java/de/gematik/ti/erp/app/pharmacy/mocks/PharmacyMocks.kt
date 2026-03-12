@@ -28,12 +28,12 @@ import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfil
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_SYNCED_TASK_DATA_01
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_SYNCED_TASK_DATA_02
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
@@ -53,15 +53,15 @@ internal val MOCK_ACTIVE_PROFILE = ProfilesData.Profile(
     lastAuthenticated = null
 )
 
-internal val MOCK_SHIPPING_CONTACT = PharmacyData.ShippingContact(
+internal val MOCK_SHIPPING_CONTACT = ShippingInfoErpModel(
     name = "Max Mustermann",
-    line1 = "Musterstraße 1",
-    line2 = "",
-    postalCode = "12345",
+    street = "Musterstraße 1",
+    addressDetail = "",
+    zip = "12345",
     city = "Musterstadt",
-    telephoneNumber = "0123456789",
+    phone = "0123456789",
     mail = "",
-    deliveryInformation = ""
+    deliveryInfo = ""
 )
 
 internal val MOCK_SCANNED_TASK_DATA_REDEEMABLE_01 = ScannedTaskData.ScannedTask(

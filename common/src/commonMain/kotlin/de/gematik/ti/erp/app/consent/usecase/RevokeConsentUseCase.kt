@@ -22,35 +22,22 @@
 
 package de.gematik.ti.erp.app.consent.usecase
 
-import de.gematik.ti.erp.app.api.ErpServiceState
-import de.gematik.ti.erp.app.consent.model.ConsentContext
-import de.gematik.ti.erp.app.consent.model.ConsentState
-import de.gematik.ti.erp.app.consent.model.mapConsentErrorStates
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 
 class RevokeConsentUseCase(
     private val consentRepository: ConsentRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(profileIdentifier: ProfileIdentifier, category: ConsentCategory = ConsentCategory.PKVCONSENT): Flow<ErpServiceState> =
+    suspend operator fun invoke(profileIdentifier: ProfileIdentifier, category: ConsentCategory = ConsentCategory.PKVCONSENT): Result<Unit> =
         withContext(dispatcher) {
-            flowOf(
-                consentRepository.revokeConsent(
-                    profileId = profileIdentifier,
-                    category = category.code
-                ).fold(
-                    onSuccess = {
-                        ConsentState.ValidState.Revoked
-                    },
-                    onFailure = { mapConsentErrorStates(it, ConsentContext.RevokeConsent) }
-                )
+            consentRepository.revokeConsent(
+                profileId = profileIdentifier,
+                category = category.code
             )
         }
 }

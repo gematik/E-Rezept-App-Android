@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.pharmacy.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.base.Controller
-import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.model.SelectedFavouritePharmacyState
 import de.gematik.ti.erp.app.pharmacy.usecase.DeleteOverviewPharmacyUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPharmacyByTelematikIdUseCase
@@ -40,12 +40,12 @@ class PharmacyStartController(
     private val deleteOverviewPharmacyUseCase: DeleteOverviewPharmacyUseCase
 ) : Controller() {
 
-    private val selectedPharmacyByTelematikId = MutableStateFlow<OverviewPharmacyData.OverviewPharmacy?>(null)
+    private val selectedPharmacyByTelematikId = MutableStateFlow<PharmacyErpModel?>(null)
     private val _selectedPharmacyState = MutableStateFlow<SelectedFavouritePharmacyState>(SelectedFavouritePharmacyState.Idle)
 
     val selectedPharmacyState: StateFlow<SelectedFavouritePharmacyState> = _selectedPharmacyState.asStateFlow()
 
-    fun onPharmacySelected(pharmacy: OverviewPharmacyData.OverviewPharmacy) {
+    fun onPharmacySelected(pharmacy: PharmacyErpModel) {
         selectedPharmacyByTelematikId.value = pharmacy
         getPharmacy()
     }

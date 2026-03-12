@@ -27,22 +27,13 @@ import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.serialization.json.JsonElement
 
 interface ConsentRepository {
-    suspend fun getPkvConsent(
-        profileId: ProfileIdentifier,
-        category: String
-    ): Result<JsonElement>
 
-    suspend fun getEuConsent(
+    suspend fun getConsent(
         profileId: ProfileIdentifier,
         category: String
     ): Result<FhirConsentErpModelCollection>
 
-    suspend fun grantPkvConsent(
-        profileId: ProfileIdentifier,
-        consent: JsonElement
-    ): Result<Unit>
-
-    suspend fun grantEuConsent(
+    suspend fun grantConsent(
         profileId: ProfileIdentifier,
         consent: JsonElement
     ): Result<Unit>
@@ -55,10 +46,6 @@ interface ConsentRepository {
     suspend fun saveGrantConsentDrawerShown(profileId: ProfileIdentifier)
 
     fun isConsentDrawerShown(profileId: ProfileIdentifier): Boolean
-
-    fun isPkvConsentGranted(it: JsonElement): Boolean
-
-    fun isEuConsentGranted(it: JsonElement): Boolean
 
     fun getInsuranceId(profileId: ProfileIdentifier): String?
 }

@@ -58,5 +58,11 @@
         "text": "**✨ Display Prescription Codes** \nThe screen for batch and single codes has been redesigned for more intuitive use. \n \n **📋 Copy Function** \nMedication information can be copied by long-pressing. \n \n **♿ Accessibility** \nTalkback and keyboard navigation work better, buttons are clearer, and list items are structured more logically. Animated videos play only once to support users with cognitive impairments.",
         "timestamp": "2026-01-22T08:00:00.000Z",
         "version": "1.36"
+    },
+    {
+        "id": "12",
+        "text": "**✨ Improved App Opening** \nUnlocking the app is now faster. \n \n **📞 Expanded Contact Options** \nWe've introduced new contact options for selected insurance policies. \n \n **♿ Accessibility** \nThe accessibility statement has been updated and expanded to include a section documenting the change history. Some buttons have been adjusted for improved visibility.",
+        "timestamp": "2026-03-02T08:00:00.000Z",
+        "version": "1.37"
     }
 ]

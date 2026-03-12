@@ -22,64 +22,25 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
-import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.database.realm.utils.queryFirst
-import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.ShippingContactEntityV1
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
-import io.realm.kotlin.Realm
-import io.realm.kotlin.ext.query
+import de.gematik.ti.erp.app.database.api.ShippingInfoLocalDataSource
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class DefaultShippingContactRepository(
-    private val dispatchers: DispatchProvider,
-    private val realm: Realm
+    private val dispatchers: CoroutineDispatcher = Dispatchers.IO,
+    private val localDataSource: ShippingInfoLocalDataSource
 ) : ShippingContactRepository {
-    override fun shippingContact(): Flow<PharmacyData.ShippingContact?> =
-        realm.query<ShippingContactEntityV1>()
-            .first()
-            .asFlow()
-            .map {
-                it.obj?.toShippingContact()
-            }
-            .flowOn(dispatchers.io)
+    override fun shippingContact(): Flow<ShippingInfoErpModel?> =
+        localDataSource.observeShippingInfo()
+            .flowOn(dispatchers)
 
-    override suspend fun saveShippingContact(contact: PharmacyData.ShippingContact) {
-        withContext(dispatchers.io) {
-            realm.write {
-                queryFirst<SettingsEntityV1>()?.let { settings ->
-                    val shippingContact = settings.shippingContact
-                        ?: copyToRealm(ShippingContactEntityV1()).also {
-                            settings.shippingContact = it
-                        }
-
-                    shippingContact.let {
-                        it.address!!.line1 = contact.line1
-                        it.address!!.line2 = contact.line2
-                        it.address!!.postalCode = contact.postalCode
-                        it.address!!.city = contact.city
-                        it.name = contact.name
-                        it.telephoneNumber = contact.telephoneNumber
-                        it.mail = contact.mail
-                        it.deliveryInformation = contact.deliveryInformation
-                    }
-                }
-            }
+    override suspend fun saveShippingContact(contact: ShippingInfoErpModel) {
+        withContext(dispatchers) {
+            localDataSource.saveShippingInfo(contact)
         }
     }
 }
-
-fun ShippingContactEntityV1.toShippingContact() =
-    PharmacyData.ShippingContact(
-        name = this.name,
-        line1 = this.address!!.line1,
-        line2 = this.address!!.line2,
-        postalCode = this.address!!.postalCode,
-        city = this.address!!.city,
-        telephoneNumber = this.telephoneNumber,
-        mail = this.mail,
-        deliveryInformation = this.deliveryInformation
-    )

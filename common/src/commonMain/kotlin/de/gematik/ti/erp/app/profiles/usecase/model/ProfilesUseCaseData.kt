@@ -57,7 +57,7 @@ object ProfilesUseCaseData {
 
         fun isPkv() = insurance.insuranceType == InsuranceType.PKV
 
-        fun hasBundFeatures() =
+        fun isPkvOrBund() =
             insurance.insuranceType == InsuranceType.PKV ||
                 insurance.insuranceType == InsuranceType.BUND
 

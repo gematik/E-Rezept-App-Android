@@ -22,9 +22,8 @@
 
 package de.gematik.ti.erp.app.pharmacy.usecase
 
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -33,23 +32,9 @@ class SaveShippingContactUseCase(
     private val repository: ShippingContactRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(contact: PharmacyUseCaseData.ShippingContact) {
+    suspend operator fun invoke(contact: ShippingInfoErpModel) {
         withContext(dispatcher) {
-            repository.saveShippingContact(contact.model())
+            repository.saveShippingContact(contact)
         }
-    }
-
-    companion object {
-        private fun PharmacyUseCaseData.ShippingContact.model() =
-            PharmacyData.ShippingContact(
-                name = name.trim(),
-                line1 = line1.trim(),
-                line2 = line2.trim(),
-                postalCode = postalCode.trim(),
-                city = city.trim(),
-                telephoneNumber = telephoneNumber.trim(),
-                mail = mail.trim(),
-                deliveryInformation = deliveryInformation.trim()
-            )
     }
 }

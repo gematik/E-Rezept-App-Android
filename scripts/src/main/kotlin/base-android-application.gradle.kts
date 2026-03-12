@@ -107,6 +107,9 @@ android {
     // for JNA and JNA-platform
     // for byte-buddy
     packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
         resources {
             excludes += "META-INF/**"
             // for JNA and JNA-platform

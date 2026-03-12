@@ -27,7 +27,7 @@ import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseC
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
-import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuPrescriptionConsentUseCase
+import de.gematik.ti.erp.app.consent.usecase.GetConsentUseCase
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 import de.gematik.ti.erp.app.mocks.PROFILE_ID
@@ -87,7 +87,7 @@ class ProfileScreenControllerTest {
     private lateinit var getActiveProfileUseCase: GetActiveProfileUseCase
     private lateinit var chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase
     private lateinit var hasEuRedeemablePrescriptionsUseCase: HasEuRedeemablePrescriptionsUseCase
-    private lateinit var getEuPrescriptionConsentUseCase: GetEuPrescriptionConsentUseCase
+    private lateinit var getEuPrescriptionConsentUseCase: GetConsentUseCase
     private lateinit var isFeatureToggleEnabledUseCase: IsFeatureToggleEnabledUseCase
 
     private val networkStatusTracker = mockk<NetworkStatusTracker>()
@@ -107,7 +107,7 @@ class ProfileScreenControllerTest {
         getActiveProfileUseCase = spyk(GetActiveProfileUseCase(profileRepository, dispatcher))
         chooseAuthenticationDataUseCase = spyk(ChooseAuthenticationDataUseCase(profileRepository, idpRepository, dispatcher))
         hasEuRedeemablePrescriptionsUseCase = spyk(HasEuRedeemablePrescriptionsUseCase(prescriptionRepository, dispatcher))
-        getEuPrescriptionConsentUseCase = spyk(GetEuPrescriptionConsentUseCase(consentRepository, dispatcher))
+        getEuPrescriptionConsentUseCase = spyk(GetConsentUseCase(consentRepository, dispatcher))
 
         every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
         every { networkStatusTracker.networkStatus } returns flowOf(true)

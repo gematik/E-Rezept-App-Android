@@ -27,10 +27,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import de.gematik.ti.erp.app.consent.usecase.GetConsentUseCase
+import de.gematik.ti.erp.app.consent.usecase.GrantConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.RevokeConsentUseCase
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuPrescriptionConsentUseCase
-import de.gematik.ti.erp.app.eurezept.domain.usecase.GrantEuPrescriptionConsentUseCase
 import de.gematik.ti.erp.app.eurezept.ui.model.EuConsentNavigationEvent
 import de.gematik.ti.erp.app.eurezept.ui.model.EuConsentViewState
 import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
@@ -44,14 +44,15 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
 @Stable
 class ProfileEuConsentScreenController(
-    private val getEuPrescriptionConsentUseCase: GetEuPrescriptionConsentUseCase,
-    private val grantEuPrescriptionConsentUseCase: GrantEuPrescriptionConsentUseCase,
+    private val getEuPrescriptionConsentUseCase: GetConsentUseCase,
+    private val grantEuPrescriptionConsentUseCase: GrantConsentUseCase,
     private val revokeEuConsentUseCase: RevokeConsentUseCase,
     getActiveProfileUseCase: GetActiveProfileUseCase,
     private val _consentViewState: MutableStateFlow<UiState<EuConsentViewState>> = MutableStateFlow(UiState.Loading()),
@@ -62,7 +63,7 @@ class ProfileEuConsentScreenController(
     onSuccess = { profile, scope ->
         scope.launch {
             _consentViewState.update { UiState.Loading() }
-            val result = getEuPrescriptionConsentUseCase(profile.id)
+            val result = getEuPrescriptionConsentUseCase(profile.id, ConsentCategory.EUCONSENT.code).first()
 
             result.fold(
                 onSuccess = { consent ->
@@ -111,7 +112,7 @@ class ProfileEuConsentScreenController(
             }
 
             val profile = currentProfileState.data
-            val grantResult = profile?.let { grantEuPrescriptionConsentUseCase(it) }
+            val grantResult = profile?.let { grantEuPrescriptionConsentUseCase(it, ConsentCategory.EUCONSENT) }
 
             grantResult?.let {
                 if (it.isSuccess) {
@@ -127,8 +128,7 @@ class ProfileEuConsentScreenController(
     }
 
     private suspend fun reloadConsentAfterGrant(profile: ProfilesUseCaseData.Profile) {
-        val result = getEuPrescriptionConsentUseCase(profile.id)
-
+        val result = getEuPrescriptionConsentUseCase(profile.id, ConsentCategory.EUCONSENT.code).first()
         result.fold(
             onSuccess = { consent ->
                 val isConsentActive = consent.isActive()
@@ -186,7 +186,7 @@ class ProfileEuConsentScreenController(
             }
 
             try {
-                revokeEuConsentUseCase(profile.id, ConsentCategory.EUCONSENT).collect { state ->
+                revokeEuConsentUseCase(profile.id, ConsentCategory.EUCONSENT).also { state ->
                     reloadConsentAfterRevoke(profile)
                 }
             } catch (error: Exception) {
@@ -205,7 +205,7 @@ class ProfileEuConsentScreenController(
     }
 
     private suspend fun reloadConsentAfterRevoke(profile: ProfilesUseCaseData.Profile) {
-        val result = getEuPrescriptionConsentUseCase(profile.id)
+        val result = getEuPrescriptionConsentUseCase(profile.id, ConsentCategory.EUCONSENT.code).first()
 
         result.fold(
             onSuccess = { consent ->
@@ -264,8 +264,8 @@ class ProfileEuConsentScreenController(
 
 @Composable
 fun rememberProfileEuConsentController(): ProfileEuConsentScreenController {
-    val getEuPrescriptionConsentUseCase by rememberInstance<GetEuPrescriptionConsentUseCase>()
-    val grantEuPrescriptionConsentUseCase by rememberInstance<GrantEuPrescriptionConsentUseCase>()
+    val getEuPrescriptionConsentUseCase by rememberInstance<GetConsentUseCase>()
+    val grantEuPrescriptionConsentUseCase by rememberInstance<GrantConsentUseCase>()
     val revokeEuConsentUseCase by rememberInstance<RevokeConsentUseCase>()
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
     val context = LocalContext.current

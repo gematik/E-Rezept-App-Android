@@ -22,13 +22,36 @@
 
 package de.gematik.ti.erp.app.fhir.constant.audit
 
+import de.gematik.ti.erp.app.fhir.constant.FhirIdentifierSystems
+
+/**
+ * **Audit Event Constants**
+ * * Version-specific identifiers for FHIR Audit Events.
+ */
 object FhirAuditEventsConstants {
 
-    internal const val AUDIT_EVENT_VERSION_1_1_PRESCRIPTION_IDENTIFIER = "https://gematik.de/fhir/NamingSystem/PrescriptionID"
-    internal const val AUDIT_EVENT_VERSION_1_2_PRESCRIPTION_IDENTIFIER = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId"
-    internal const val AUDIT_EVENT_TELEMATIK_ID_IDENTIFIER = "https://gematik.de/fhir/sid/telematik-id"
-    internal const val AUDIT_EVENT_VERSION_1_1_KVNR_IDENTIFIER = "http://fhir.de/NamingSystem/gkv/kvid-10"
-    internal const val AUDIT_EVENT_VERSION_1_2_KVNR_IDENTIFIER = "http://fhir.de/sid/gkv/kvid-10"
+    /**
+     * Version-specific identifier mappings for audit events.
+     * Version 1.1 uses legacy naming, 1.2+ uses current standards.
+     */
+    object PrescriptionIdentifiers {
+        /** Legacy (v1.1) prescription identifier system */
+        const val VERSION_1_1 = "https://gematik.de/fhir/NamingSystem/PrescriptionID"
+
+        /** Current (v1.2+) prescription identifier system */
+        const val VERSION_1_2 = FhirIdentifierSystems.Prescription.PRESCRIPTION_ID
+    }
+
+    object PatientIdentifiers {
+        /** Legacy (v1.1) KVNR naming system */
+        const val VERSION_1_1 = "http://fhir.de/NamingSystem/gkv/kvid-10"
+
+        /** Current (v1.2+) KVNR identifier */
+        const val VERSION_1_2 = FhirIdentifierSystems.Patient.KVNR_GKV
+    }
+
+    /** Telematik ID (consistent across versions) */
+    const val TELEMATIK_ID = FhirIdentifierSystems.Healthcare.TELEMATIK_ID
 
     internal fun String.sanitizeAsAuditEventDescription(): String {
         return removeSurrounding(

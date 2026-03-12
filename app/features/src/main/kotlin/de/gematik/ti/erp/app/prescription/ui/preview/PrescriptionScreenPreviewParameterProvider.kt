@@ -95,6 +95,24 @@ class PrescriptionScreenPreviewParameterProvider : PreviewParameterProvider<Pres
                 isOnlyDigas = false
             ),
             PrescriptionScreenPreviewData(
+                name = "empty-prescriptions-user-logged-in",
+                multiProfileAppBarWrapper = MultiProfileAppBarWrapper(
+                    existingProfiles = MutableStateFlow(listOf(MOCK_MODEL_PROFILE_LOGGED_IN)),
+                    activeProfile = MutableStateFlow(MOCK_MODEL_PROFILE_LOGGED_IN),
+                    profileLifecycleState = ProfileLifecycleState(
+                        isProfileRefreshing = MutableStateFlow(false),
+                        networkStatus = MutableStateFlow(true),
+                        isRegistered = MutableStateFlow(true),
+                        isTokenValid = MutableStateFlow(true)
+                    )
+                ),
+                profileData = UiState.Data(MOCK_MODEL_PROFILE_LOGGED_IN),
+                activePrescription = UiState.Empty(),
+                isArchivedEmpty = true,
+                hasRedeemableTasks = false,
+                isOnlyDigas = false
+            ),
+            PrescriptionScreenPreviewData(
                 name = "empty-prescriptions-user-logged-out",
                 multiProfileAppBarWrapper = MultiProfileAppBarWrapper(
                     profileLifecycleState = ProfileLifecycleState(

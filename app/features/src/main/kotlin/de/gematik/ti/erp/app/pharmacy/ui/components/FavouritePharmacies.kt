@@ -33,15 +33,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 
 fun LazyListScope.FavouritePharmacies(
     modifier: Modifier = Modifier,
-    pharmacies: List<OverviewPharmacyData.OverviewPharmacy>,
-    onClickPharmacy: (OverviewPharmacyData.OverviewPharmacy) -> Unit
+    pharmacies: List<PharmacyErpModel>,
+    onClickPharmacy: (PharmacyErpModel) -> Unit
 ) {
     item {
         Box(

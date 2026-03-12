@@ -25,14 +25,15 @@ package de.gematik.ti.erp.app.debugsettings.logger.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.base.Controller
+import de.gematik.ti.erp.app.logger.DbMigrationExpandedState.CLOSED
+import de.gematik.ti.erp.app.logger.DbMigrationExpandedState.OPEN
+import de.gematik.ti.erp.app.logger.DbMigrationLogEntry
+import de.gematik.ti.erp.app.logger.DbMigrationLogEntry.Companion.toJson
 import de.gematik.ti.erp.app.logger.DbMigrationLogHolder
-import de.gematik.ti.erp.app.logger.model.DbMigrationLogEntry
-import de.gematik.ti.erp.app.logger.model.DbMigrationLogEntry.Companion.toJson
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.update
@@ -49,8 +50,6 @@ class DbMigrationLoggerScreenController(
     private val _searchValue = MutableStateFlow("")
     val searchValue: StateFlow<String> = _searchValue
 
-    val expandedListItems: MutableSet<String> = mutableSetOf()
-
     init {
         controllerScope.launch {
             try {
@@ -62,8 +61,7 @@ class DbMigrationLoggerScreenController(
                 }.onEmpty {
                     _dbMigrationLogEntries.update { UiState.Empty() }
                 }
-                    .collect {
-                            logEntries ->
+                    .collect { logEntries ->
                         _dbMigrationLogEntries.update { UiState.Data(logEntries) }
                     }
             } catch (e: Exception) {
@@ -81,11 +79,20 @@ class DbMigrationLoggerScreenController(
     }
 
     fun toggleListItems(uuid: String) {
-        if (expandedListItems.contains(uuid)) {
-            expandedListItems - uuid
-        } else {
-            expandedListItems + uuid
+        val currentData = _dbMigrationLogEntries.value.data ?: return
+
+        val updatedList = currentData.map { entry ->
+            if (entry.id == uuid) {
+                // Assuming isExpanded is the property to toggle
+                entry.copy(
+                    expandedState = if (entry.expandedState == OPEN) CLOSED else OPEN
+                )
+            } else {
+                entry
+            }
         }
+
+        _dbMigrationLogEntries.update { UiState.Data(updatedList) }
     }
 
     fun saveLogs(dbMigrationLogEntry: DbMigrationLogEntry, filePath: String) {

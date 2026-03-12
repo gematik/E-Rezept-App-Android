@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.vau.repository
 
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.database.api.TrustStoreLocalDataSource
 import de.gematik.ti.erp.app.idp.extension.issuerCommonName
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
@@ -33,10 +34,12 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 
 class VauRepository(
-    private val localDataSource: VauLocalDataSource,
+    private val trustStoreLocalDataSource: TrustStoreLocalDataSource,
     private val remoteDataSource: VauRemoteDataSource,
     private val dispatchers: CoroutineDispatcher = Dispatchers.IO,
     private val config: TruststoreConfig
@@ -45,7 +48,7 @@ class VauRepository(
     suspend fun <R> withUntrusted(
         block: suspend (pkiCerts: UntrustedCertList, ocspList: UntrustedOCSPList) -> R
     ): R = withContext(dispatchers) {
-        val cached = localDataSource.loadUntrusted()
+        val cached = loadUntrusted()
 
         if (cached == null) {
             Napier.d("GET PKI, VAU certs & OCSP from backend...")
@@ -61,9 +64,17 @@ class VauRepository(
         }
     }
 
+    private suspend fun loadUntrusted(): Pair<UntrustedCertList, UntrustedOCSPList>? =
+        trustStoreLocalDataSource.loadUntrusted().firstOrNull()?.let { trustStoreErpModel ->
+            Pair(
+                Json.decodeFromString(UntrustedCertList.serializer(), trustStoreErpModel.certListJson),
+                Json.decodeFromString(UntrustedOCSPList.serializer(), trustStoreErpModel.ocspListJson)
+            )
+        }
+
     private suspend fun loadFreshUntrustedFromBackend(): Pair<UntrustedCertList, UntrustedOCSPList> =
         coroutineScope {
-            var pkiDeferred = async {
+            val pkiDeferred = async {
                 remoteDataSource.loadPkiCertificates(config.trustAnchorName).getOrThrow()
             }
             val vauDeferred = async {
@@ -128,6 +139,12 @@ class VauRepository(
         codeLines = 2
     )
     suspend fun invalidate() {
-        localDataSource.deleteAll()
+        trustStoreLocalDataSource.deleteAll()
+    }
+
+    suspend fun saveLists(certList: UntrustedCertList, ocspList: UntrustedOCSPList) {
+        val certListJson = Json.encodeToString(UntrustedCertList.serializer(), certList)
+        val ocspListJson = Json.encodeToString(UntrustedOCSPList.serializer(), ocspList)
+        trustStoreLocalDataSource.saveCertificateAndOcspLists(certListJson, ocspListJson)
     }
 }

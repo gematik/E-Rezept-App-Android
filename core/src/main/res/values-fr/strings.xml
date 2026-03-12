@@ -540,7 +540,7 @@
     <string name="edit_shipping_contact_top_bar_title">Coordonnées et adresse</string>
     <string name="empty_dosage_info_body">Il n’y a aucune information sur la façon de prendre le médicament dans votre ordonnance.</string>
     <string name="empty_dosage_info_dosage_text">Non spécifié</string>
-    <string name="empty_medication_plan_info">Vous pouvez définir des rappels pour vos ordonnances</string>
+    <string name="empty_medication_plan_info">Vous pouvez programmer des rappels pour vos médicaments. Pour ce faire, rendez-vous sur l\'ordonnance concernée et sélectionnez « Rappel de médicament ».</string>
     <string name="empty_medication_plan_title">Aucun rappel d\'admission</string>
     <string name="empty_scanned_prescription_name">Veuillez saisir au moins 1 caractère.</string>
     <string name="enroll_biometric_dialog_body">La sécurité de l\'application n\'est pas possible. Au préalable, configurez la sécurité biométrique (par exemple empreinte digitale) sur votre appareil.</string>
@@ -889,6 +889,7 @@
     <string name="mainscreen_empty_content_header">Aucune recette</string>
     <string name="mainscreen_empty_not_connected_info">Inscrivez-vous pour recevoir automatiquement les recettes.</string>
     <string name="mainscreen_login">Registre</string>
+    <string name="mainscreen_refresh">Mise à jour</string>
     <string name="male_doctor_with_phone">médecin avec téléphone</string>
     <string name="man_with_phone">Homme avec téléphone</string>
     <string name="manufacturer_costs">Coûts du fabricant</string>
@@ -1429,7 +1430,7 @@
     <string name="profile_image_selector_save">Utiliser</string>
     <string name="profile_image_selector_take_photo">Prendre une photo</string>
     <string name="profile_image_selector_title">Éditer la photo de profil</string>
-    <string name="profile_insurance_information_connected_biometrics">biométrie</string>
+    <string name="profile_insurance_information_connected_biometrics">Sauvegarde de l\'appareil</string>
     <string name="profile_insurance_information_connected_health_card">Carte de santé</string>
     <string name="profile_insurance_information_connected_label">Enregistrer par</string>
     <string name="profile_insurance_information_not_connected">Pas connecté</string>

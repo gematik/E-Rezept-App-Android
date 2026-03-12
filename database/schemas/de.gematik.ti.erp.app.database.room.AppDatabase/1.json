@@ -1,0 +1,2144 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "1b72f1b7cb887bfe6725578d0dda9bb1",
+    "entities": [
+      {
+        "tableName": "profiles",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`profileId` TEXT NOT NULL, `taskId` TEXT NOT NULL, `created` INTEGER NOT NULL, `lastAuthenticated` INTEGER NOT NULL, `name` TEXT NOT NULL, `familyName` TEXT NOT NULL, `givenName` TEXT NOT NULL, `image` TEXT NOT NULL, `userImage` BLOB, `hikePkvConsentDrawer` INTEGER NOT NULL, `color` TEXT NOT NULL, `insurance` TEXT NOT NULL, `insuranceId` TEXT NOT NULL, `insuranceType` TEXT NOT NULL, `isNew` INTEGER NOT NULL, `isGid` INTEGER NOT NULL, `insuranceName` TEXT NOT NULL, `logoUrl` TEXT NOT NULL, `singleSignOnToken` TEXT NOT NULL, `singleSignOnTokenScope` TEXT NOT NULL, `healthCertificate` TEXT NOT NULL, `aliasOfSecureElementEntry` TEXT NOT NULL, `externalAuthenticatorId` TEXT NOT NULL, `externalAuthenticatorName` TEXT NOT NULL, PRIMARY KEY(`profileId`), FOREIGN KEY(`taskId`) REFERENCES `tasks`(`taskId`) ON UPDATE CASCADE ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "profileId",
+            "columnName": "profileId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taskId",
+            "columnName": "taskId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "created",
+            "columnName": "created",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastAuthenticated",
+            "columnName": "lastAuthenticated",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "familyName",
+            "columnName": "familyName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "givenName",
+            "columnName": "givenName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "image",
+            "columnName": "image",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userImage",
+            "columnName": "userImage",
+            "affinity": "BLOB"
+          },
+          {
+            "fieldPath": "hikePkvConsentDrawer",
+            "columnName": "hikePkvConsentDrawer",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "color",
+            "columnName": "color",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "insurance",
+            "columnName": "insurance",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "insuranceId",
+            "columnName": "insuranceId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "insuranceType",
+            "columnName": "insuranceType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isNew",
+            "columnName": "isNew",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "auth.isGid",
+            "columnName": "isGid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "auth.insuranceName",
+            "columnName": "insuranceName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "auth.logoUrl",
+            "columnName": "logoUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idp.singleSignOnToken",
+            "columnName": "singleSignOnToken",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idp.singleSignOnTokenScope",
+            "columnName": "singleSignOnTokenScope",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idp.healthCertificate",
+            "columnName": "healthCertificate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idp.aliasOfSecureElementEntry",
+            "columnName": "aliasOfSecureElementEntry",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idp.externalAuthenticatorId",
+            "columnName": "externalAuthenticatorId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idp.externalAuthenticatorName",
+            "columnName": "externalAuthenticatorName",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "profileId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_profiles_insuranceId",
+            "unique": false,
+            "columnNames": [
+              "insuranceId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_profiles_insuranceId` ON `${TABLE_NAME}` (`insuranceId`)"
+          },
+          {
+            "name": "index_profiles_insuranceType",
+            "unique": false,
+            "columnNames": [
+              "insuranceType"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_profiles_insuranceType` ON `${TABLE_NAME}` (`insuranceType`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "tasks",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "taskId"
+            ],
+            "referencedColumns": [
+              "taskId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "pharmacies",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `street` TEXT NOT NULL, `houseNumber` TEXT NOT NULL, `city` TEXT NOT NULL, `zip` TEXT NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `phone` TEXT, `fax` TEXT, `email` TEXT, `web` TEXT, `imagePath` TEXT, `telematikId` TEXT, `countUsage` INTEGER NOT NULL DEFAULT 0, `isFavourite` INTEGER NOT NULL DEFAULT 0, `created` INTEGER NOT NULL, `lastUsed` INTEGER, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "street",
+            "columnName": "street",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "houseNumber",
+            "columnName": "houseNumber",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "city",
+            "columnName": "city",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "zip",
+            "columnName": "zip",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "phone",
+            "columnName": "phone",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fax",
+            "columnName": "fax",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "email",
+            "columnName": "email",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "web",
+            "columnName": "web",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imagePath",
+            "columnName": "imagePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "telematikId",
+            "columnName": "telematikId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "countUsage",
+            "columnName": "countUsage",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "isFavourite",
+            "columnName": "isFavourite",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "created",
+            "columnName": "created",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastUsed",
+            "columnName": "lastUsed",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_pharmacies_name",
+            "unique": false,
+            "columnNames": [
+              "name"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_pharmacies_name` ON `${TABLE_NAME}` (`name`)"
+          },
+          {
+            "name": "index_pharmacies_city",
+            "unique": false,
+            "columnNames": [
+              "city"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_pharmacies_city` ON `${TABLE_NAME}` (`city`)"
+          },
+          {
+            "name": "index_pharmacies_zip",
+            "unique": false,
+            "columnNames": [
+              "zip"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_pharmacies_zip` ON `${TABLE_NAME}` (`zip`)"
+          },
+          {
+            "name": "index_pharmacies_isFavourite",
+            "unique": false,
+            "columnNames": [
+              "isFavourite"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_pharmacies_isFavourite` ON `${TABLE_NAME}` (`isFavourite`)"
+          },
+          {
+            "name": "index_pharmacies_telematikId",
+            "unique": true,
+            "columnNames": [
+              "telematikId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_pharmacies_telematikId` ON `${TABLE_NAME}` (`telematikId`)"
+          },
+          {
+            "name": "index_pharmacies_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_pharmacies_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_pharmacies_latitude_longitude",
+            "unique": false,
+            "columnNames": [
+              "latitude",
+              "longitude"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_pharmacies_latitude_longitude` ON `${TABLE_NAME}` (`latitude`, `longitude`)"
+          }
+        ]
+      },
+      {
+        "tableName": "settings",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `zoomEnabled` INTEGER NOT NULL, `welcomeDrawerShown` INTEGER NOT NULL, `timeEpochMillis` INTEGER NOT NULL, `mainScreenTooltipsShown` INTEGER NOT NULL, `pharmacySearch_name` TEXT, `pharmacySearch_locationEnabled` INTEGER, `pharmacySearch_filterReady` INTEGER, `pharmacySearch_filterDeliveryService` INTEGER, `pharmacySearch_filterOnlineService` INTEGER, `pharmacySearch_filterOpenNow` INTEGER, `userHasAcceptedInsecureDevice` INTEGER NOT NULL, `userHasAcceptedIntegrityNotOk` INTEGER NOT NULL, `dataProtectionVersionAcceptedEpochMillis` INTEGER NOT NULL, `latestAppVersionName` TEXT NOT NULL, `latestAppVersionCode` INTEGER NOT NULL, `onboardingLatestAppVersionName` TEXT NOT NULL, `onboardingLatestAppVersionCode` INTEGER NOT NULL, `mlKitAccepted` INTEGER NOT NULL, `screenshotsAllowed` INTEGER NOT NULL, `trackingAllowed` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "zoomEnabled",
+            "columnName": "zoomEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "welcomeDrawerShown",
+            "columnName": "welcomeDrawerShown",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timeEpochMillis",
+            "columnName": "timeEpochMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mainScreenTooltipsShown",
+            "columnName": "mainScreenTooltipsShown",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pharmacySearch_name",
+            "columnName": "pharmacySearch_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "pharmacySearch_locationEnabled",
+            "columnName": "pharmacySearch_locationEnabled",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "pharmacySearch_filterReady",
+            "columnName": "pharmacySearch_filterReady",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "pharmacySearch_filterDeliveryService",
+            "columnName": "pharmacySearch_filterDeliveryService",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "pharmacySearch_filterOnlineService",
+            "columnName": "pharmacySearch_filterOnlineService",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "pharmacySearch_filterOpenNow",
+            "columnName": "pharmacySearch_filterOpenNow",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "userHasAcceptedInsecureDevice",
+            "columnName": "userHasAcceptedInsecureDevice",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userHasAcceptedIntegrityNotOk",
+            "columnName": "userHasAcceptedIntegrityNotOk",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dataProtectionVersionAcceptedEpochMillis",
+            "columnName": "dataProtectionVersionAcceptedEpochMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "latestAppVersionName",
+            "columnName": "latestAppVersionName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "latestAppVersionCode",
+            "columnName": "latestAppVersionCode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "onboardingLatestAppVersionName",
+            "columnName": "onboardingLatestAppVersionName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "onboardingLatestAppVersionCode",
+            "columnName": "onboardingLatestAppVersionCode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mlKitAccepted",
+            "columnName": "mlKitAccepted",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "screenshotsAllowed",
+            "columnName": "screenshotsAllowed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "trackingAllowed",
+            "columnName": "trackingAllowed",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "invoices",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`taskId` TEXT NOT NULL, `profileId` TEXT NOT NULL, `accessCode` TEXT NOT NULL, `timestampEpochMillis` INTEGER NOT NULL, `consumed` INTEGER NOT NULL, `whenHandedOverIso` TEXT, `invoiceBinaryB64` TEXT NOT NULL, `kbvBinaryB64` TEXT NOT NULL, `erpPrBinaryB64` TEXT NOT NULL, `pharmacyOrgName` TEXT, `practitionerOrgName` TEXT, `patientName` TEXT, `practitionerName` TEXT, `medicationPzn` TEXT, PRIMARY KEY(`taskId`))",
+        "fields": [
+          {
+            "fieldPath": "taskId",
+            "columnName": "taskId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "profileId",
+            "columnName": "profileId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accessCode",
+            "columnName": "accessCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestampEpochMillis",
+            "columnName": "timestampEpochMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "consumed",
+            "columnName": "consumed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "whenHandedOverIso",
+            "columnName": "whenHandedOverIso",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "invoiceBinaryB64",
+            "columnName": "invoiceBinaryB64",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kbvBinaryB64",
+            "columnName": "kbvBinaryB64",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "erpPrBinaryB64",
+            "columnName": "erpPrBinaryB64",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pharmacyOrgName",
+            "columnName": "pharmacyOrgName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "practitionerOrgName",
+            "columnName": "practitionerOrgName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "patientName",
+            "columnName": "patientName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "practitionerName",
+            "columnName": "practitionerName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "medicationPzn",
+            "columnName": "medicationPzn",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "taskId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_invoices_profileId",
+            "unique": false,
+            "columnNames": [
+              "profileId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_invoices_profileId` ON `${TABLE_NAME}` (`profileId`)"
+          },
+          {
+            "name": "index_invoices_taskId",
+            "unique": true,
+            "columnNames": [
+              "taskId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_invoices_taskId` ON `${TABLE_NAME}` (`taskId`)"
+          }
+        ]
+      },
+      {
+        "tableName": "ratios",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ratioId` TEXT NOT NULL, `numerator_value` TEXT NOT NULL, `numerator_unit` TEXT NOT NULL, `denominator_value` TEXT NOT NULL, `denominator_unit` TEXT NOT NULL, PRIMARY KEY(`ratioId`))",
+        "fields": [
+          {
+            "fieldPath": "ratioId",
+            "columnName": "ratioId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numerator.value",
+            "columnName": "numerator_value",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numerator.unit",
+            "columnName": "numerator_unit",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "denominator.value",
+            "columnName": "denominator_value",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "denominator.unit",
+            "columnName": "denominator_unit",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "ratioId"
+          ]
+        }
+      },
+      {
+        "tableName": "patient",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`patientId` TEXT NOT NULL, `name` TEXT NOT NULL, `dob` TEXT NOT NULL, `insuranceIdentifier` TEXT NOT NULL, `insurance` TEXT NOT NULL, `coverageType` TEXT, `line1` TEXT, `line2` TEXT, `postalCode` TEXT, `city` TEXT, PRIMARY KEY(`patientId`))",
+        "fields": [
+          {
+            "fieldPath": "patientId",
+            "columnName": "patientId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dob",
+            "columnName": "dob",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "insuranceIdentifier",
+            "columnName": "insuranceIdentifier",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "insurance",
+            "columnName": "insurance",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "coverageType",
+            "columnName": "coverageType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "line1",
+            "columnName": "line1",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "line2",
+            "columnName": "line2",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "postalCode",
+            "columnName": "postalCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "city",
+            "columnName": "city",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "patientId"
+          ]
+        }
+      },
+      {
+        "tableName": "tasks",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`taskId` TEXT NOT NULL, `organizationId` TEXT, `practitionerId` TEXT, `patientId` TEXT, `insuranceInformationId` TEXT, `status` TEXT NOT NULL, `medicationId` TEXT, `accidentInfoId` TEXT, `deviceRequestId` TEXT, `multiplePrescriptionId` TEXT, `communicationId` TEXT, `parentProfileId` TEXT, `acceptedUntil` INTEGER, `lastModified` INTEGER, `authoredOn` INTEGER NOT NULL, `expiresOn` INTEGER, `lastMedicationDispense` INTEGER, `accessCode` TEXT NOT NULL, `author` TEXT NOT NULL, `bvg` INTEGER NOT NULL, `coPaymentStatus` TEXT NOT NULL, `dispenseValidityEnd` TEXT NOT NULL, `dosageInstruction` TEXT NOT NULL, `flowType` TEXT NOT NULL, `fullUrl` TEXT NOT NULL, `identifier` TEXT NOT NULL, `noctuFeeWaiver` TEXT NOT NULL, `prescriptionId` TEXT NOT NULL, `redeemedOn` TEXT NOT NULL, `source` TEXT NOT NULL, `substitutionAllowed` TEXT NOT NULL, PRIMARY KEY(`taskId`), FOREIGN KEY(`organizationId`) REFERENCES `organizations`(`organizationId`) ON UPDATE CASCADE ON DELETE SET NULL , FOREIGN KEY(`practitionerId`) REFERENCES `practitioner`(`practitionerId`) ON UPDATE CASCADE ON DELETE SET NULL , FOREIGN KEY(`patientId`) REFERENCES `patient`(`patientId`) ON UPDATE CASCADE ON DELETE SET NULL , FOREIGN KEY(`multiplePrescriptionId`) REFERENCES `multiple_prescriptions`(`multiplePrescriptionId`) ON UPDATE CASCADE ON DELETE SET NULL , FOREIGN KEY(`accidentInfoId`) REFERENCES `accident_info`(`accidentInfoId`) ON UPDATE CASCADE ON DELETE SET NULL , FOREIGN KEY(`deviceRequestId`) REFERENCES `task_med_device_requests`(`deviceRequestId`) ON UPDATE CASCADE ON DELETE SET NULL , FOREIGN KEY(`medicationId`) REFERENCES `medication`(`medicationId`) ON UPDATE CASCADE ON DELETE SET NULL , FOREIGN KEY(`communicationId`) REFERENCES `communications`(`communicationId`) ON UPDATE CASCADE ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "taskId",
+            "columnName": "taskId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "organizationId",
+            "columnName": "organizationId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "practitionerId",
+            "columnName": "practitionerId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "patientId",
+            "columnName": "patientId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "insuranceInformationId",
+            "columnName": "insuranceInformationId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "medicationId",
+            "columnName": "medicationId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "accidentInfoId",
+            "columnName": "accidentInfoId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "deviceRequestId",
+            "columnName": "deviceRequestId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "multiplePrescriptionId",
+            "columnName": "multiplePrescriptionId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "communicationId",
+            "columnName": "communicationId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "parentProfileId",
+            "columnName": "parentProfileId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "acceptedUntil",
+            "columnName": "acceptedUntil",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastModified",
+            "columnName": "lastModified",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "authoredOn",
+            "columnName": "authoredOn",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expiresOn",
+            "columnName": "expiresOn",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastMedicationDispense",
+            "columnName": "lastMedicationDispense",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "accessCode",
+            "columnName": "accessCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "author",
+            "columnName": "author",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bvg",
+            "columnName": "bvg",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "coPaymentStatus",
+            "columnName": "coPaymentStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dispenseValidityEnd",
+            "columnName": "dispenseValidityEnd",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dosageInstruction",
+            "columnName": "dosageInstruction",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "flowType",
+            "columnName": "flowType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fullUrl",
+            "columnName": "fullUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "identifier",
+            "columnName": "identifier",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "noctuFeeWaiver",
+            "columnName": "noctuFeeWaiver",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "prescriptionId",
+            "columnName": "prescriptionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "redeemedOn",
+            "columnName": "redeemedOn",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "substitutionAllowed",
+            "columnName": "substitutionAllowed",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "taskId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_tasks_organizationId",
+            "unique": false,
+            "columnNames": [
+              "organizationId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tasks_organizationId` ON `${TABLE_NAME}` (`organizationId`)"
+          },
+          {
+            "name": "index_tasks_practitionerId",
+            "unique": false,
+            "columnNames": [
+              "practitionerId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tasks_practitionerId` ON `${TABLE_NAME}` (`practitionerId`)"
+          },
+          {
+            "name": "index_tasks_patientId",
+            "unique": false,
+            "columnNames": [
+              "patientId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tasks_patientId` ON `${TABLE_NAME}` (`patientId`)"
+          },
+          {
+            "name": "index_tasks_insuranceInformationId",
+            "unique": false,
+            "columnNames": [
+              "insuranceInformationId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tasks_insuranceInformationId` ON `${TABLE_NAME}` (`insuranceInformationId`)"
+          },
+          {
+            "name": "index_tasks_deviceRequestId",
+            "unique": false,
+            "columnNames": [
+              "deviceRequestId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tasks_deviceRequestId` ON `${TABLE_NAME}` (`deviceRequestId`)"
+          },
+          {
+            "name": "index_tasks_parentProfileId",
+            "unique": false,
+            "columnNames": [
+              "parentProfileId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tasks_parentProfileId` ON `${TABLE_NAME}` (`parentProfileId`)"
+          },
+          {
+            "name": "index_tasks_accidentInfoId",
+            "unique": false,
+            "columnNames": [
+              "accidentInfoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tasks_accidentInfoId` ON `${TABLE_NAME}` (`accidentInfoId`)"
+          },
+          {
+            "name": "index_tasks_accessCode",
+            "unique": false,
+            "columnNames": [
+              "accessCode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tasks_accessCode` ON `${TABLE_NAME}` (`accessCode`)"
+          },
+          {
+            "name": "index_tasks_status",
+            "unique": false,
+            "columnNames": [
+              "status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tasks_status` ON `${TABLE_NAME}` (`status`)"
+          },
+          {
+            "name": "index_tasks_lastModified",
+            "unique": false,
+            "columnNames": [
+              "lastModified"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tasks_lastModified` ON `${TABLE_NAME}` (`lastModified`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "organizations",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "organizationId"
+            ],
+            "referencedColumns": [
+              "organizationId"
+            ]
+          },
+          {
+            "table": "practitioner",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "practitionerId"
+            ],
+            "referencedColumns": [
+              "practitionerId"
+            ]
+          },
+          {
+            "table": "patient",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "patientId"
+            ],
+            "referencedColumns": [
+              "patientId"
+            ]
+          },
+          {
+            "table": "multiple_prescriptions",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "multiplePrescriptionId"
+            ],
+            "referencedColumns": [
+              "multiplePrescriptionId"
+            ]
+          },
+          {
+            "table": "accident_info",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "accidentInfoId"
+            ],
+            "referencedColumns": [
+              "accidentInfoId"
+            ]
+          },
+          {
+            "table": "task_med_device_requests",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "deviceRequestId"
+            ],
+            "referencedColumns": [
+              "deviceRequestId"
+            ]
+          },
+          {
+            "table": "medication",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "medicationId"
+            ],
+            "referencedColumns": [
+              "medicationId"
+            ]
+          },
+          {
+            "table": "communications",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "communicationId"
+            ],
+            "referencedColumns": [
+              "communicationId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "medication",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`medicationId` TEXT NOT NULL, `ingredientId` TEXT NOT NULL, `ratioId` TEXT NOT NULL, `text` TEXT NOT NULL, `medicationCategory` TEXT NOT NULL, `form` TEXT NOT NULL, `vaccine` INTEGER NOT NULL, `manufacturingInstructions` TEXT NOT NULL, `packaging` TEXT NOT NULL, `normSizeCode` TEXT NOT NULL, `pzn` TEXT, PRIMARY KEY(`medicationId`), FOREIGN KEY(`ingredientId`) REFERENCES `Ingredient`(`ingredientId`) ON UPDATE CASCADE ON DELETE SET NULL , FOREIGN KEY(`ratioId`) REFERENCES `ratios`(`ratioId`) ON UPDATE CASCADE ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "medicationId",
+            "columnName": "medicationId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ingredientId",
+            "columnName": "ingredientId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ratioId",
+            "columnName": "ratioId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "medicationCategory",
+            "columnName": "medicationCategory",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "form",
+            "columnName": "form",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vaccine",
+            "columnName": "vaccine",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "manufacturingInstructions",
+            "columnName": "manufacturingInstructions",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packaging",
+            "columnName": "packaging",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "normSizeCode",
+            "columnName": "normSizeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pzn",
+            "columnName": "pzn",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "medicationId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_medication_ingredientId",
+            "unique": false,
+            "columnNames": [
+              "ingredientId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_medication_ingredientId` ON `${TABLE_NAME}` (`ingredientId`)"
+          },
+          {
+            "name": "index_medication_ratioId",
+            "unique": false,
+            "columnNames": [
+              "ratioId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_medication_ratioId` ON `${TABLE_NAME}` (`ratioId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Ingredient",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "ingredientId"
+            ],
+            "referencedColumns": [
+              "ingredientId"
+            ]
+          },
+          {
+            "table": "ratios",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "ratioId"
+            ],
+            "referencedColumns": [
+              "ratioId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "organizations",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`organizationId` TEXT NOT NULL, `name` TEXT, `BSNR` TEXT, `phone` TEXT, `mail` TEXT, `fax` TEXT, `line1` TEXT, `line2` TEXT, `postalCode` TEXT, `city` TEXT, PRIMARY KEY(`organizationId`))",
+        "fields": [
+          {
+            "fieldPath": "organizationId",
+            "columnName": "organizationId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "BSNR",
+            "columnName": "BSNR",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "phone",
+            "columnName": "phone",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "mail",
+            "columnName": "mail",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fax",
+            "columnName": "fax",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "line1",
+            "columnName": "line1",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "line2",
+            "columnName": "line2",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "postalCode",
+            "columnName": "postalCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "city",
+            "columnName": "city",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "organizationId"
+          ]
+        }
+      },
+      {
+        "tableName": "accident_info",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`accidentInfoId` TEXT NOT NULL, `dateOfAccident` INTEGER NOT NULL, `accidentType` TEXT NOT NULL, `workPlaceIdentifier` TEXT NOT NULL, PRIMARY KEY(`accidentInfoId`))",
+        "fields": [
+          {
+            "fieldPath": "accidentInfoId",
+            "columnName": "accidentInfoId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateOfAccident",
+            "columnName": "dateOfAccident",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accidentType",
+            "columnName": "accidentType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "workPlaceIdentifier",
+            "columnName": "workPlaceIdentifier",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "accidentInfoId"
+          ]
+        }
+      },
+      {
+        "tableName": "charge_items",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`chargeItemId` TEXT NOT NULL, `timeStamp` INTEGER NOT NULL, `isRead` INTEGER NOT NULL, `taskId` TEXT NOT NULL, `fhirData` BLOB, `invoice` BLOB, `medication` BLOB, PRIMARY KEY(`chargeItemId`))",
+        "fields": [
+          {
+            "fieldPath": "chargeItemId",
+            "columnName": "chargeItemId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timeStamp",
+            "columnName": "timeStamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isRead",
+            "columnName": "isRead",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taskId",
+            "columnName": "taskId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fhirData",
+            "columnName": "fhirData",
+            "affinity": "BLOB"
+          },
+          {
+            "fieldPath": "invoice",
+            "columnName": "invoice",
+            "affinity": "BLOB"
+          },
+          {
+            "fieldPath": "medication",
+            "columnName": "medication",
+            "affinity": "BLOB"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "chargeItemId"
+          ]
+        }
+      },
+      {
+        "tableName": "communications",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`communicationId` TEXT NOT NULL, `orderId` TEXT NOT NULL, `taskId` TEXT NOT NULL, `telematikId` TEXT NOT NULL, `consumed` INTEGER NOT NULL, `payload` TEXT NOT NULL, `profile` TEXT NOT NULL, `insuranceId` TEXT, `timeStamp` INTEGER NOT NULL, PRIMARY KEY(`communicationId`))",
+        "fields": [
+          {
+            "fieldPath": "communicationId",
+            "columnName": "communicationId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderId",
+            "columnName": "orderId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taskId",
+            "columnName": "taskId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "telematikId",
+            "columnName": "telematikId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "consumed",
+            "columnName": "consumed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "payload",
+            "columnName": "payload",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "profile",
+            "columnName": "profile",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "insuranceId",
+            "columnName": "insuranceId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "timeStamp",
+            "columnName": "timeStamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "communicationId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_communications_orderId",
+            "unique": false,
+            "columnNames": [
+              "orderId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_communications_orderId` ON `${TABLE_NAME}` (`orderId`)"
+          },
+          {
+            "name": "index_communications_taskId",
+            "unique": false,
+            "columnNames": [
+              "taskId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_communications_taskId` ON `${TABLE_NAME}` (`taskId`)"
+          },
+          {
+            "name": "index_communications_profile",
+            "unique": false,
+            "columnNames": [
+              "profile"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_communications_profile` ON `${TABLE_NAME}` (`profile`)"
+          },
+          {
+            "name": "index_communications_insuranceId",
+            "unique": false,
+            "columnNames": [
+              "insuranceId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_communications_insuranceId` ON `${TABLE_NAME}` (`insuranceId`)"
+          },
+          {
+            "name": "index_communications_communicationId",
+            "unique": false,
+            "columnNames": [
+              "communicationId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_communications_communicationId` ON `${TABLE_NAME}` (`communicationId`)"
+          }
+        ]
+      },
+      {
+        "tableName": "Ingredient",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ingredientId` TEXT NOT NULL, `text` TEXT NOT NULL, `form` TEXT NOT NULL, `amount` TEXT NOT NULL, `number` TEXT NOT NULL, PRIMARY KEY(`ingredientId`))",
+        "fields": [
+          {
+            "fieldPath": "ingredientId",
+            "columnName": "ingredientId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "form",
+            "columnName": "form",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "amount",
+            "columnName": "amount",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "number",
+            "columnName": "number",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "ingredientId"
+          ]
+        }
+      },
+      {
+        "tableName": "medication_dispense",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`dispenseId` TEXT NOT NULL, `ingredientId` TEXT NOT NULL, `patientIdentifier` TEXT NOT NULL, `substitutionAllowed` INTEGER NOT NULL, `dosageInstruction` INTEGER NOT NULL, `performer` TEXT NOT NULL, `handedOverOn` INTEGER NOT NULL, `text` TEXT NOT NULL, `medicationDispenseType` TEXT NOT NULL, `type` TEXT NOT NULL, `form` TEXT NOT NULL, `isVaccine` INTEGER NOT NULL, `lotNumber` INTEGER NOT NULL, `expirationDate` INTEGER NOT NULL, `pzn` TEXT NOT NULL, `deepLink` TEXT, `redeemCode` TEXT, `declineCode` TEXT, `note` TEXT, `modifiedDate` INTEGER, `display` INTEGER, `status` INTEGER, `amount_num_value` TEXT NOT NULL, `amount_num_unit` TEXT NOT NULL, `amount_den_value` TEXT NOT NULL, `amount_den_unit` TEXT NOT NULL, PRIMARY KEY(`dispenseId`), FOREIGN KEY(`ingredientId`) REFERENCES `Ingredient`(`ingredientId`) ON UPDATE CASCADE ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "dispenseId",
+            "columnName": "dispenseId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ingredientId",
+            "columnName": "ingredientId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "patientIdentifier",
+            "columnName": "patientIdentifier",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "substitutionAllowed",
+            "columnName": "substitutionAllowed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dosageInstruction",
+            "columnName": "dosageInstruction",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "performer",
+            "columnName": "performer",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "handedOverOn",
+            "columnName": "handedOverOn",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "medicationDispenseType",
+            "columnName": "medicationDispenseType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "form",
+            "columnName": "form",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isVaccine",
+            "columnName": "isVaccine",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lotNumber",
+            "columnName": "lotNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expirationDate",
+            "columnName": "expirationDate",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pzn",
+            "columnName": "pzn",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deepLink",
+            "columnName": "deepLink",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "redeemCode",
+            "columnName": "redeemCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "declineCode",
+            "columnName": "declineCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "note",
+            "columnName": "note",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "modifiedDate",
+            "columnName": "modifiedDate",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "display",
+            "columnName": "display",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "amount.numerator.value",
+            "columnName": "amount_num_value",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "amount.numerator.unit",
+            "columnName": "amount_num_unit",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "amount.denominator.value",
+            "columnName": "amount_den_value",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "amount.denominator.unit",
+            "columnName": "amount_den_unit",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "dispenseId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "Ingredient",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "ingredientId"
+            ],
+            "referencedColumns": [
+              "ingredientId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "multiple_prescriptions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`multiplePrescriptionId` TEXT NOT NULL, `indicator` INTEGER NOT NULL, `start` INTEGER NOT NULL, `end` INTEGER NOT NULL, `totalNumber` TEXT, `numbering_num_value` TEXT NOT NULL, `numbering_num_unit` TEXT NOT NULL, `numbering_den_value` TEXT NOT NULL, `numbering_den_unit` TEXT NOT NULL, PRIMARY KEY(`multiplePrescriptionId`))",
+        "fields": [
+          {
+            "fieldPath": "multiplePrescriptionId",
+            "columnName": "multiplePrescriptionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "indicator",
+            "columnName": "indicator",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "start",
+            "columnName": "start",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "end",
+            "columnName": "end",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalNumber",
+            "columnName": "totalNumber",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "numbering.numerator.value",
+            "columnName": "numbering_num_value",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numbering.numerator.unit",
+            "columnName": "numbering_num_unit",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numbering.denominator.value",
+            "columnName": "numbering_den_value",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numbering.denominator.unit",
+            "columnName": "numbering_den_unit",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "multiplePrescriptionId"
+          ]
+        }
+      },
+      {
+        "tableName": "task_med_device_requests",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`deviceRequestId` TEXT NOT NULL, `accidentInfoId` TEXT NOT NULL, `intent` TEXT NOT NULL, `status` TEXT NOT NULL, `pzn` TEXT NOT NULL, `appName` TEXT NOT NULL, `isSelfUse` INTEGER NOT NULL, `isNew` INTEGER NOT NULL, `authoredOn` INTEGER NOT NULL, PRIMARY KEY(`deviceRequestId`), FOREIGN KEY(`accidentInfoId`) REFERENCES `accident_info`(`accidentInfoId`) ON UPDATE CASCADE ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "deviceRequestId",
+            "columnName": "deviceRequestId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accidentInfoId",
+            "columnName": "accidentInfoId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "intent",
+            "columnName": "intent",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pzn",
+            "columnName": "pzn",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "appName",
+            "columnName": "appName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSelfUse",
+            "columnName": "isSelfUse",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isNew",
+            "columnName": "isNew",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "authoredOn",
+            "columnName": "authoredOn",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "deviceRequestId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_task_med_device_requests_accidentInfoId",
+            "unique": false,
+            "columnNames": [
+              "accidentInfoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_task_med_device_requests_accidentInfoId` ON `${TABLE_NAME}` (`accidentInfoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "accident_info",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "accidentInfoId"
+            ],
+            "referencedColumns": [
+              "accidentInfoId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "practitioner",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`practitionerId` TEXT NOT NULL, `name` TEXT, `qualification` TEXT, `practitionerIdentifier` TEXT, `email` TEXT NOT NULL, `lanr` TEXT, `line1` TEXT, `line2` TEXT, `postalCode` TEXT, `city` TEXT, PRIMARY KEY(`practitionerId`))",
+        "fields": [
+          {
+            "fieldPath": "practitionerId",
+            "columnName": "practitionerId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "qualification",
+            "columnName": "qualification",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "practitionerIdentifier",
+            "columnName": "practitionerIdentifier",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "email",
+            "columnName": "email",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lanr",
+            "columnName": "lanr",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "line1",
+            "columnName": "line1",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "line2",
+            "columnName": "line2",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "postalCode",
+            "columnName": "postalCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "city",
+            "columnName": "city",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "practitionerId"
+          ]
+        }
+      },
+      {
+        "tableName": "task_multiple_prescription",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `indicator` INTEGER NOT NULL, `start` INTEGER, `end` INTEGER, `totalNumber` TEXT, `num_value` TEXT NOT NULL, `num_unit` TEXT NOT NULL, `den_value` TEXT NOT NULL, `den_unit` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "indicator",
+            "columnName": "indicator",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "start",
+            "columnName": "start",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "end",
+            "columnName": "end",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "totalNumber",
+            "columnName": "totalNumber",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "numbering.numerator.value",
+            "columnName": "num_value",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numbering.numerator.unit",
+            "columnName": "num_unit",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numbering.denominator.value",
+            "columnName": "den_value",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numbering.denominator.unit",
+            "columnName": "den_unit",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "trust_store",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `certListJson` TEXT NOT NULL, `ocspListJson` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "certListJson",
+            "columnName": "certListJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ocspListJson",
+            "columnName": "ocspListJson",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "search_access_token",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `accessToken` TEXT NOT NULL, `lastUpdate` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accessToken",
+            "columnName": "accessToken",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastUpdate",
+            "columnName": "lastUpdate",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "shipping_info",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `mail` TEXT NOT NULL, `phone` TEXT NOT NULL, `street` TEXT NOT NULL, `addressDetail` TEXT NOT NULL, `city` TEXT NOT NULL, `zip` TEXT NOT NULL, `deliveryInfo` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mail",
+            "columnName": "mail",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "phone",
+            "columnName": "phone",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "street",
+            "columnName": "street",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "addressDetail",
+            "columnName": "addressDetail",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "city",
+            "columnName": "city",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "zip",
+            "columnName": "zip",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deliveryInfo",
+            "columnName": "deliveryInfo",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_shipping_info_mail",
+            "unique": false,
+            "columnNames": [
+              "mail"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_shipping_info_mail` ON `${TABLE_NAME}` (`mail`)"
+          },
+          {
+            "name": "index_shipping_info_phone",
+            "unique": false,
+            "columnNames": [
+              "phone"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_shipping_info_phone` ON `${TABLE_NAME}` (`phone`)"
+          },
+          {
+            "name": "index_shipping_info_city",
+            "unique": false,
+            "columnNames": [
+              "city"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_shipping_info_city` ON `${TABLE_NAME}` (`city`)"
+          },
+          {
+            "name": "index_shipping_info_zip",
+            "unique": false,
+            "columnNames": [
+              "zip"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_shipping_info_zip` ON `${TABLE_NAME}` (`zip`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1b72f1b7cb887bfe6725578d0dda9bb1')"
+    ]
+  }
+}

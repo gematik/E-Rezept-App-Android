@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.eurezept.mapper.countryCodeToFlag
+import de.gematik.ti.erp.app.consent.usecase.GetConsentUseCase
 import de.gematik.ti.erp.app.eurezept.domain.model.Country
 import de.gematik.ti.erp.app.eurezept.domain.model.EuPrescription
 import de.gematik.ti.erp.app.eurezept.domain.model.EuRedemptionDetails
@@ -33,10 +34,10 @@ import de.gematik.ti.erp.app.eurezept.domain.model.PrescriptionFilter
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GenerateEuAccessCodeUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GenerateEuQrCodeUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuAccessCodeUseCase
-import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuPrescriptionConsentUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuPrescriptionsUseCase
 import de.gematik.ti.erp.app.eurezept.navigation.EuRoutes
 import de.gematik.ti.erp.app.eurezept.ui.model.EuAccessCodeGenerationError
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.profiles.model.ProfileValidityResult.Companion.fold
 import de.gematik.ti.erp.app.profiles.model.ProfileValidityResult.Companion.withValidSSOToken
 import de.gematik.ti.erp.app.profiles.presentation.GetActiveProfileController
@@ -52,6 +53,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
@@ -87,7 +89,7 @@ internal abstract class EuSharedViewModel(
 }
 
 internal class DefaultEuSharedViewModel(
-    private val getEuPrescriptionConsentUseCase: GetEuPrescriptionConsentUseCase,
+    private val getEuPrescriptionConsentUseCase: GetConsentUseCase,
     private val generateEuAccessCodeUseCase: GenerateEuAccessCodeUseCase,
     private val generateEuQrCodeUseCase: GenerateEuQrCodeUseCase,
     private val getEuPrescriptionsUseCase: GetEuPrescriptionsUseCase,
@@ -193,7 +195,7 @@ internal class DefaultEuSharedViewModel(
                     .fold(
                         onValid = { profile ->
                             _isRedemptionInProgress.update { true }
-                            getEuPrescriptionConsentUseCase.invoke(profile.id)
+                            getEuPrescriptionConsentUseCase.invoke(profile.id, ConsentCategory.EUCONSENT.code).first()
                                 .fold(
                                     onSuccess = { consent ->
                                         val countryCode = _selectedCountry.value?.code
@@ -276,7 +278,7 @@ internal fun euSharedViewModel(
     entry: NavBackStackEntry
 ): EuSharedViewModel {
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
-    val getEuPrescriptionConsentUseCase by rememberInstance<GetEuPrescriptionConsentUseCase>()
+    val getEuPrescriptionConsentUseCase by rememberInstance<GetConsentUseCase>()
     val generateEuAccessCodeUseCase by rememberInstance<GenerateEuAccessCodeUseCase>()
     val generateEuQrCodeUseCase by rememberInstance<GenerateEuQrCodeUseCase>()
     val getEuPrescriptionsUseCase by rememberInstance<GetEuPrescriptionsUseCase>()

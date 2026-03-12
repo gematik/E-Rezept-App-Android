@@ -58,5 +58,11 @@
         "text": "**✨ Vis receptkoder** \nSkærmen til batch- og enkeltkoder er blevet redesignet for mere intuitiv brug. \n \n **📋 Kopifunktion** \nMedicinoplysninger kan kopieres ved at trykke længe. \n \n **♿ Tilgængelighed** \nTalkback og tastaturnavigation fungerer bedre, knapperne er tydeligere, og listeelementerne er struktureret mere logisk. Animerede videoer afspilles kun én gang for at understøtte brugere med kognitive funktionsnedsættelser.",
         "timestamp": "2026-01-22T08:00:00.000Z",
         "version": "1.36"
+    },
+    {
+        "id": "12",
+        "text": "**✨ Forbedret åbning af app** \nDet er nu hurtigere at låse appen op. \n \n **📞 Udvidede kontaktmuligheder** \nVi har introduceret nye kontaktmuligheder for udvalgte forsikringer. \n \n **♿ Tilgængelighed** \nTilgængelighedserklæringen er blevet opdateret og udvidet til at omfatte et afsnit, der dokumenterer ændringshistorikken. Nogle knapper er blevet justeret for forbedret synlighed.",
+        "timestamp": "2026-03-02T08:00:00.000Z",
+        "version": "1.37"
     }
 ]

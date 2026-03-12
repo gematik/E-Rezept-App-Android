@@ -2,6 +2,9 @@
 # Before removing any libs please check using the Libs.kt in scripts module
 # if its being used in any of the base gradle files
 # ./gradlew :scripts:generateLibsObject is the task used to create the Libs file used for using the libs from here
+#
+# 📚 VERSION COMPATIBILITY GUIDE: See DEPENDENCY_COMPATIBILITY.md for version update rules!
+# ⚠️  CRITICAL: Check Kotlin ⟷ Realm compatibility before ANY Kotlin version update!
 
 [versions]
 
@@ -74,7 +77,11 @@ coroutine-core = "1.10.1"
 
 # database
 realm = "2.3.0"
-realm-plugin = "3.0.0"
+realm-plugin = "2.3.0"
+room = "2.8.4"
+ksp = "2.0.21-1.0.28"
+sqlite = "2.6.2"
+sqlcipher = "4.5.4"
 
 # dependency check
 dependency-check-gradle = "10.0.3"
@@ -87,9 +94,10 @@ material = "1.12.0"
 di = "7.20.2"
 
 # security fixes
-protobuf = "4.32.1"
-netty-codec-http2 = "4.1.108.Final"
-netty-handler = "4.1.118.Final"
+protobuf = "4.33.5"
+netty-codec-http = "4.2.10.Final"
+netty-codec-http2 = "4.2.10.Final"
+netty-handler = "4.2.10.Final"
 guava = "33.5.0-jre"
 
 # serialization
@@ -162,10 +170,11 @@ checkstyle = "12.1.1"
 # Plugins
 kotlin-multiplatform = "2.0.21"
 kotlin-stdlib = "2.1.21"
-kotlin-test-version = "2.2.0"
+kotlin-test-version = "2.0.21"
 espresso-core = "3.7.0"
 
 [libraries]
+sqlcipher = { module = "net.zetetic:android-database-sqlcipher", version.ref = "sqlcipher" }
 
 # BOM, used as composeBomLibrary in VersionCatalogLibs
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidx-compose-bom" }
@@ -333,10 +342,11 @@ multiplatform-settings-test = { module = "com.russhwolf:multiplatform-settings-t
 # reactive-state
 reactive-state = { module = "com.ensody.reactivestate:reactivestate", version.ref = "reactive-state" }
 
-# security-fixes
+# security-fixes (check in ForcedDependenciesExtension.kt)
 protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
 protobuf-java-util = { module = "com.google.protobuf:protobuf-java-util", version.ref = "protobuf" }
 netty-codec-http2 = { module = "io.netty:netty-codec-http2", version.ref = "netty-codec-http2" }
+netty-codec-http = { module = "io.netty:netty-codec-http", version.ref = "netty-codec-http" }
 netty-handler = { module = "io.netty:netty-handler", version.ref = "netty-handler" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 
@@ -357,6 +367,13 @@ desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref 
 process-phoenix = { module = "com.jakewharton:process-phoenix", version.ref = "process-phoenix" }
 image-cropper = { module = "com.github.CanHub:Android-Image-Cropper", version.ref = "image-cropper" }
 pdf-box = { module = "com.tom-roush:pdfbox-android", version = "2.0.27.0" }
+
+# room
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+
 
 # testing
 test-junit = { module = "junit:junit", version.ref = "junit" }
@@ -425,6 +442,9 @@ teams-communication = { id = "de.gematik.ti.erp.teams" }
 module-names = { id = "de.gematik.ti.erp.names" }
 dependency-overrides = { id = "de.gematik.ti.erp.dependency-overrides" }
 
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+room = { id = "androidx.room", version.ref = "room" }
+
 # Bundles are used in VersionCatalogBundles file as a way to group dependencies together
 [bundles]
 accompanist = ["accompanist-swiperefresh", "accompanist-flowlayout", "accompanist-pager", "accompanist-pager-indicators", "accompanist-systemuicontroller", "accompanist-permission", "compose-markdown"]
@@ -465,5 +485,6 @@ qualitydetektcomposerules = ["quality-composerules"]
 serialization = ["kotlinx-serialization-json", "kotlinx-serialization-core"]
 tracking = ["tracking-library", "tracking-compose"]
 testing = ["test-junit", "test-kotlin-test", "test-kotlin-test-common", "test-yaml", "androidx-test-junit", "json", "test-mockk-android"]
-testjunit = ["test-junit", "test-yaml", "json", "test-mockk","multiplatform-settings-test"]
+testjunit = ["test-junit", "test-yaml", "json", "test-mockk", "multiplatform-settings-test"]
 mockandroid = ["test-mockk-android"]
+

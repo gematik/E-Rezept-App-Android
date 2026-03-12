@@ -28,6 +28,9 @@ import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
@@ -48,6 +51,7 @@ import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.uistate.UiState
+import kotlinx.coroutines.android.awaitFrame
 
 class UserAuthenticationScreen(
     override val navController: NavController,
@@ -64,7 +68,7 @@ class UserAuthenticationScreen(
         val showPasswordLogin by authenticationController.showPasswordLogin.collectAsStateWithLifecycle(false)
         val enteredPassword by authenticationController.enteredPassword.collectAsStateWithLifecycle("")
         val enteredPasswordError by authenticationController.enteredPasswordError.collectAsStateWithLifecycle(false)
-
+        val focusRequester = remember { FocusRequester() }
         val onLeaveUserAuthenticationScreen: () -> Unit = {
             navController.popBackStack(
                 UserAuthenticationRoutes.subGraphName(),
@@ -83,8 +87,18 @@ class UserAuthenticationScreen(
         )
 
         LaunchedEffect(Unit) {
-            if (authenticationState.authentication.methodIsUnspecified) {
-                onLeaveUserAuthenticationScreen() // leave screen if no authentication is required
+            val authState = authenticationState.authentication
+            when {
+                authState.bothMethodsAvailable || authState.methodIsDeviceSecurity -> {
+                    authenticationController.onAuthenticateWithDeviceSecurity { onLeaveUserAuthenticationScreen() }
+                }
+                authState.methodIsPassword -> {
+                    awaitFrame()
+                    focusRequester.requestFocus()
+                }
+                authState.methodIsUnspecified -> {
+                    onLeaveUserAuthenticationScreen()
+                }
             }
         }
 
@@ -93,6 +107,7 @@ class UserAuthenticationScreen(
         UserAuthenticationScreenScaffold(
             authenticationState = authenticationState,
             timeout = timeout,
+            focusRequester = focusRequester,
             enteredPassword = enteredPassword,
             enteredPasswordError = enteredPasswordError,
             showPasswordLogin = showPasswordLogin,
@@ -106,6 +121,7 @@ class UserAuthenticationScreen(
 private fun UserAuthenticationScreenScaffold(
     authenticationState: AuthenticationStateData.AuthenticationState,
     timeout: Long,
+    focusRequester: FocusRequester,
     enteredPassword: String,
     enteredPasswordError: Boolean,
     showPasswordLogin: Boolean,
@@ -130,6 +146,7 @@ private fun UserAuthenticationScreenScaffold(
                 UserAuthenticationEmptyScreenContent(
                     contentPadding = innerPadding,
                     timeout = timeout,
+                    focusRequester = focusRequester,
                     enteredPassword = enteredPassword,
                     enteredPasswordError = enteredPasswordError,
                     showPasswordLogin = showPasswordLogin,
@@ -141,6 +158,7 @@ private fun UserAuthenticationScreenScaffold(
                 UserAuthenticationErrorScreenContent(
                     contentPadding = innerPadding,
                     timeout = timeout,
+                    focusRequester = focusRequester,
                     enteredPassword = enteredPassword,
                     enteredPasswordError = enteredPasswordError,
                     showPasswordLogin = showPasswordLogin,
@@ -152,6 +170,7 @@ private fun UserAuthenticationScreenScaffold(
                 UserAuthenticationDataScreenContent(
                     contentPadding = innerPadding,
                     timeout = timeout,
+                    focusRequester = focusRequester,
                     enteredPassword = enteredPassword,
                     enteredPasswordError = enteredPasswordError,
                     showPasswordLogin = showPasswordLogin,
@@ -184,6 +203,7 @@ fun UserAuthenticationScreenPreview(
             ),
             showPasswordLogin = false,
             enteredPasswordError = false,
+            focusRequester = remember { FocusRequester() },
             enteredPassword = ""
         )
     }

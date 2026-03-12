@@ -25,6 +25,8 @@ package de.gematik.ti.erp.app.fhir.euredeem
 import de.gematik.ti.erp.app.data.euRedeemAccessCodeRequestV1
 import de.gematik.ti.erp.app.data.euRedeemAccessCodeResponseV1
 import de.gematik.ti.erp.app.data.euRedeemTaskPatchInputRequestV1
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeRequestConstants.FhirEuRedeemAccessCodeRequestMeta
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirTaskEuPatchInputModelConstants.FhirTaskEuPatchMeta
 import de.gematik.ti.erp.app.fhir.euredeem.mocks.euRedeemAccessCodeResponseErpModel_v1_0
 import de.gematik.ti.erp.app.fhir.euredeem.mocks.euRedeemAccessCodeResponse_v1_0
 import de.gematik.ti.erp.app.fhir.euredeem.model.FhirEuRedeemAccessCodeResponseModel.Companion.toFhirEuRedeemAccessCodeResponseModel
@@ -56,14 +58,21 @@ class EuRedeemAccessCodeParserTest {
         val jsonRequest = Json.parseToJsonElement(euRedeemAccessCodeRequestV1)
         val accessCode = generateAccessCode()
         assertEquals(6, accessCode.filter { accessCodeRegex.matches(it.toString()) }.length)
-        val payload = createEuRedeemAccessCodePayload("BE", "aBC123")
+        val payload = createEuRedeemAccessCodePayload(
+            countryCode = "BE",
+            accessCode = "aBC123",
+            meta = FhirEuRedeemAccessCodeRequestMeta.V_1_0
+        )
         assertEquals(payload, jsonRequest)
     }
 
     @Test
     fun `test isEuRedeemableByPatientAuthorizationRequest creation`() = runTest {
         val jsonRequest = Json.parseToJsonElement(euRedeemTaskPatchInputRequestV1)
-        val payload = createIsEuRedeemableByPatientAuthorizationPayload(true)
+        val payload = createIsEuRedeemableByPatientAuthorizationPayload(
+            isEuRedeemableByPatientAuthorization = true,
+            meta = FhirTaskEuPatchMeta.V_1_0
+        )
         assertEquals(payload, jsonRequest)
     }
 }

@@ -27,6 +27,7 @@ import de.gematik.ti.erp.app.fhir.constant.FhirConstants.PATIENT_KVNR_CODE_GKV
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants.TELEMATIK_ID_IDENTIFIER
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.constant.communication.CommunicationDigaConstants
+import de.gematik.ti.erp.app.fhir.constant.communication.CommunicationDigaConstants.DigaDispenseRequestVersion
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -113,8 +114,10 @@ internal data class FhirDigaMeta(
     @SerialName("profile") val profiles: List<String>
 ) {
     companion object {
-        internal fun getDigaMeta() = FhirDigaMeta(
-            profiles = listOf(CommunicationDigaConstants.COMMUNICATION_DIGA_DISP_REQUEST_VERSION_1_4)
+        internal fun getDigaMeta(
+            version: DigaDispenseRequestVersion = DigaDispenseRequestVersion.PRODUCTION_DEFAULT
+        ) = FhirDigaMeta(
+            profiles = listOf(version.profileUrl)
         )
     }
 }

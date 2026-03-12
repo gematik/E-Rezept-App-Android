@@ -139,6 +139,31 @@ See [Contributing.md](./CONTRIBUTING.md) for all information regarding the the c
 
 See [Security.md](./SECURITY.md) for all information regarding the used security and privacy guidelines in this project.
 
+### Room database encryption (Android)
+
+- Debug builds: Room uses standard SQLite (unencrypted) for easy inspection via Database Inspector.
+- Release / non-debug builds: Room uses SQLCipher with an AES-256 passphrase. The passphrase is generated once and stored securely using Android Keystore-backed EncryptedSharedPreferences.
+
+Key generation and storage
+- A 64-byte random passphrase is generated on first use via SecureRandom, then Base64-encoded and stored in EncryptedSharedPreferences protected by a MasterKey (AES256_GCM) in the Android Keystore. The key is never hardcoded.
+- Location: preferences file name "ENCRYPTED_ROOM_PREFS_FILE_NAME", value key "ENCRYPTED_ROOM_PASSWORD_KEY". MasterKey alias: "ROOM_DB_MASTER_KEY".
+
+How it integrates
+- On Android, the Room builder applies openHelperFactory(SupportFactory(passphrase)) only when the module BuildConfig.DEBUG is false.
+- This mirrors the Realm encryption strategy already present in the project (EncryptedSharedPreferences + MasterKey + generated passphrase), but keeps Room unencrypted for debug builds.
+
+Migration of existing plaintext DB
+- If a plaintext Room DB (header starts with "SQLite format 3") is detected when switching to an encrypted Release build, the app performs a controlled wipe of the Room DB (deletes the DB file and its -wal/-shm) and recreates it encrypted on next open. This avoids complex plaintext->encrypted migration logic. Ensure data that needs persistence is already backed by Realm or can be re-synced.
+
+Reinstall / backup-restore behavior
+- Uninstalling the app removes the encrypted Room DB and its key. On reinstall, a new key is generated. If device backup/restore restores app data, EncryptedSharedPreferences is restored with the stored key, which allows the encrypted Room DB to be opened again on the same device/user context (subject to Android backup settings and policies).
+
+Verification
+- In a Release build, the Room database file should not begin with the plaintext header "SQLite format 3". You can verify with:
+  - adb shell run-as <package> cat databases/room.db | head -c 16
+  - Expect the output not to be "SQLite format 3"; it should be non-readable bytes.
+- In a Debug build, you should see a normal SQLite header and be able to browse the DB via Android Studio Database Inspector.
+
 ## License
 
 Copyright 2021-2025 gematik GmbH

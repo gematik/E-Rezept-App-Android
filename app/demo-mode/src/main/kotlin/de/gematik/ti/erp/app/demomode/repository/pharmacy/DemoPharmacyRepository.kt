@@ -29,7 +29,7 @@ import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
-import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
@@ -50,11 +50,7 @@ class DemoPharmacyRepository(
         return Result.success(parser.extract(pharmacyFhirBundle(assetManager)))
     }
 
-    override fun loadOftenUsedPharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>> {
-        return flowOf(emptyList())
-    }
-
-    override fun loadFavoritePharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>> {
+    override fun loadPharmacies(): Flow<List<PharmacyErpModel>> {
         return flowOf(emptyList())
     }
 
@@ -62,7 +58,7 @@ class DemoPharmacyRepository(
         // do nothing
     }
 
-    override suspend fun deleteOverviewPharmacy(overviewPharmacy: OverviewPharmacyData.OverviewPharmacy) {
+    override suspend fun deleteOverviewPharmacy(overviewPharmacy: PharmacyErpModel) {
         // do nothing
     }
 

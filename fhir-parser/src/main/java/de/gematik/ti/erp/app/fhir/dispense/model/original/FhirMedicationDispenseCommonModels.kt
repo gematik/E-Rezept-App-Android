@@ -45,7 +45,7 @@ internal data class FhirMedicationDispenseSubstitution(
     @SerialName("wasSubstituted") val wasSubstituted: Boolean?
 )
 
-internal fun FhirResourceEntry.medicationDispenseResourceTypeForV14V15(): FhirMediationDispenseResourceType? {
+internal fun FhirResourceEntry.medicationDispenseResourceTypeForV14V15V16(): FhirMediationDispenseResourceType? {
     val type = resource.jsonObject[resourceTypePlaceholder]?.jsonPrimitive?.content
     return type?.let {
         FhirMediationDispenseResourceType.entries.find { enumItem ->

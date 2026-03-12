@@ -41,7 +41,7 @@ import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispense
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseLegacyModel.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseMedicationModel.Companion.extractDispensedMedication
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseV14V15DispenseModel.Companion.extractMedicationDispense
-import de.gematik.ti.erp.app.fhir.dispense.model.original.medicationDispenseResourceTypeForV14V15
+import de.gematik.ti.erp.app.fhir.dispense.model.original.medicationDispenseResourceTypeForV14V15V16
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirOrganization
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirOrganization.Companion.getOrganization
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirPractitionerRole
@@ -67,23 +67,29 @@ class TaskMedicationDispenseParser : BundleParser {
         try {
             val entries = bundle.parseResourceBundle()
             // Parse differently based on the profile version that we have
-            val profile = entries.first().profile.orEmpty()
-            return when (profile) {
-                FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.EU_V_1_0.profileUrl
+            return when (val profile = entries.firstOrNull()?.profile.orEmpty()) {
+                FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.EU_V_1_0.profileUrl,
+                FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.EU_V_1_1.profileUrl
                 -> {
                     entries
                         .fromEuV10MedicationDispenseToErpModel()
                         .toCollection()
                 }
+
                 FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.V_1_4.profileUrl,
                 FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.V_1_5.profileUrl,
+                FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.V_1_6.profileUrl,
                 FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.DIGA_V_1_4.profileUrl,
-                FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.DIGA_V_1_5.profileUrl
+                FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.DIGA_V_1_5.profileUrl,
+                FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.DIGA_V_1_6.profileUrl
                 -> {
                     entries
-                        .fromV14V15MedicationDispenseToErpModel()
+                        .fromV14V15V16MedicationDispenseToErpModel(
+                            isVersion16 = profile == FhirMedicationDispenseConstants.MedicationDispenseProfileVersion.V_1_6.profileUrl
+                        )
                         .toCollection()
                 }
+
                 else -> {
                     entries
                         .fromLegacyMedicationDispenseToErpModel()
@@ -109,7 +115,7 @@ class TaskMedicationDispenseParser : BundleParser {
     ): List<T> {
         return mapNotNull {
             it.resource
-                .takeIf { _ -> it.medicationDispenseResourceTypeForV14V15() == resourceType }
+                .takeIf { _ -> it.medicationDispenseResourceTypeForV14V15V16() == resourceType }
                 ?.let(extractor)
         }
     }
@@ -174,27 +180,32 @@ class TaskMedicationDispenseParser : BundleParser {
     /**
      * Map the newer version (1.4, 1.5) medication dispense into a [FhirMedicationDispenseErpModel]
      */
-    private fun List<FhirResourceEntry>.fromV14V15MedicationDispenseToErpModel(): List<FhirMedicationDispenseErpModel> {
-        val entries = this
-        // Extract dispense and medication models
-        val dispenses = entries.mapNotNull {
-            it.resource
-                .takeIf { _ -> it.medicationDispenseResourceTypeForV14V15() == MedicationDispense }
-                ?.extractMedicationDispense()
-        }
-        val medications = entries.mapNotNull {
-            it.resource
-                .takeIf { _ -> it.medicationDispenseResourceTypeForV14V15() == Medication }
-                ?.extractDispensedMedication()
-        }
+    private fun List<FhirResourceEntry>.fromV14V15V16MedicationDispenseToErpModel(isVersion16: Boolean = false): List<FhirMedicationDispenseErpModel> {
+        try {
+            val entries = this
+            // Extract dispense and medication models
+            val dispenses = entries.mapNotNull {
+                it.resource
+                    .takeIf { _ -> it.medicationDispenseResourceTypeForV14V15V16() == MedicationDispense }
+                    ?.extractMedicationDispense()
+            }
+            val medications = entries.mapNotNull {
+                it.resource
+                    .takeIf { _ -> it.medicationDispenseResourceTypeForV14V15V16() == Medication }
+                    ?.extractDispensedMedication()
+            }
 
-        // Index medications by ID for faster lookup
-        val medicationById = medications.associateBy { it.id }
+            // Index medications by ID for faster lookup
+            val medicationById = medications.associateBy { it.id }
 
-        // Map each dispense and its medication together into a ErpModel
-        return dispenses.map { dispense ->
-            val medication = medicationById[dispense.medicationReference?.medicationReferenceId]
-            dispense.toErpModel(medication)
+            // Map each dispense and its medication together into a ErpModel
+            return dispenses.map { dispense ->
+                val medication = medicationById[dispense.medicationReference?.medicationReferenceId]
+                dispense.toErpModel(medication, isVersion16)
+            }
+        } catch (e: Throwable) {
+            Napier.e(tag = "fhir-parser", throwable = e) { "Error parsing MedicationDispense on fromV14V15V16MedicationDispenseToErpModel" }
+            return emptyList()
         }
     }
 

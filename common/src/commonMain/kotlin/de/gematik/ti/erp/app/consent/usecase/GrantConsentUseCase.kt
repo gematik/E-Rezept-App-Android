@@ -22,42 +22,35 @@
 
 package de.gematik.ti.erp.app.consent.usecase
 
-import de.gematik.ti.erp.app.api.ErpServiceState
-import de.gematik.ti.erp.app.consent.model.ConsentContext
-import de.gematik.ti.erp.app.consent.model.ConsentState
-import de.gematik.ti.erp.app.consent.model.createConsent
-import de.gematik.ti.erp.app.consent.model.mapConsentErrorStates
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
-import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentRequest.createConsentRequest
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.settings.repository.ConsentVersionRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 
 class GrantConsentUseCase(
     private val repository: ConsentRepository,
+    private val consentVersionRepository: ConsentVersionRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend operator fun invoke(
-        profileId: ProfileIdentifier
-    ): Flow<ErpServiceState> = flowOf(
+        profile: ProfilesUseCaseData.Profile,
+        category: ConsentCategory
+    ): Result<Unit> =
         withContext(dispatcher) {
-            repository.getInsuranceId(profileId)?.let { id ->
-                val consent = createConsent(id)
-                repository.grantPkvConsent(
-                    profileId = profileId,
-                    consent = consent
-                ).fold(
-                    onSuccess = {
-                        ConsentState.ValidState.Granted(ConsentContext.GrantConsent)
-                    },
-                    onFailure = {
-                        mapConsentErrorStates(it, ConsentContext.GrantConsent)
-                    }
+            val erpChargeVersion = consentVersionRepository.getConsentVersion()
 
-                )
-            } ?: ConsentState.ConsentErrorState.Unknown
+            val consent = createConsentRequest(
+                patientId = profile.insurance.insuranceIdentifier,
+                category = category.code,
+                erpChargeVersion = erpChargeVersion
+            )
+            repository.grantConsent(
+                profileId = profile.id,
+                consent = consent
+            )
         }
-    )
 }

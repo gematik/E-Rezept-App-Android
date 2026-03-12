@@ -1,0 +1,51 @@
+{
+  "resourceType": "Medication",
+  "id": "ExampleUnitMedication",
+  "meta": {
+    "profile": [
+      "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Medication|1.6"
+    ]
+  },
+  "code": {
+    "coding": [
+      {
+        "system": "http://fhir.de/CodeSystem/ifa/pzn",
+        "code": "08585997"
+      }
+    ],
+    "text": "Prospan® Hustensaft 100ml N1"
+  },
+  "amount": {
+    "numerator": {
+      "value": 1,
+      "system": "http://bfarm.de/DimensionsloseEinheiten",
+      "code": "Packungen"
+    },
+    "denominator": {
+      "value": 1
+    }
+  },
+  "ingredient": [
+    {
+      "itemCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://fhir.de/CodeSystem/ask",
+            "code": "11704"
+          }
+        ],
+        "text": "Efeublätter, TE mit Ethanol/Ethanol-Wasser"
+      },
+      "strength": {
+        "numerator": {
+          "value": 7,
+          "system": "http://unitsofmeasure.org",
+          "code": "ml"
+        },
+        "denominator": {
+          "value": 1
+        }
+      }
+    }
+  ]
+}

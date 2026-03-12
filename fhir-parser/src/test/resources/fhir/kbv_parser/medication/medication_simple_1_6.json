@@ -1,0 +1,21 @@
+{
+  "resourceType": "Medication",
+  "id": "SimpleMedication",
+  "meta": {
+    "profile": [
+      "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Medication|1.6"
+    ]
+  },
+  "code": {
+    "coding": [
+      {
+        "system": "http://fhir.de/CodeSystem/ifa/pzn",
+        "code": "06313728"
+      }
+    ],
+    "text": "Simple Medication Text"
+  },
+  "batch": {
+    "lotNumber": "1234567890"
+  }
+}

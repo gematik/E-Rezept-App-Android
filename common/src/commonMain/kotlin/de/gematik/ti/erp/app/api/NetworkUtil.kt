@@ -30,7 +30,7 @@ import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
-class ApiCallException(message: String, val response: Response<*>) : IOException(message)
+class ApiCallException(message: String, val response: Response<*>, val state: HttpErrorState = HttpErrorState.Unknown) : IOException(message)
 data class UnauthorizedException(override val message: String, val response: Response<*>?) : IOException(message)
 data class NoInternetException(override val message: String? = null, val exception: Exception? = null) : IOException(message)
 data class UnknownException(override val message: String? = null, val exception: Exception? = null) : IOException(message)
@@ -72,7 +72,31 @@ suspend fun <T : Any> safeApiCall(
             requireNotNull(response.body()).let { Result.success(it) }
         } else {
             Result.failure(
-                ApiCallException("Error executing safe api call ${response.code()} ${response.message()}", response)
+                ApiCallException("Error executing safe api call ${response.code()} ${response.message()}", response, state = response.httpErrorState())
+            )
+        }
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Napier.e("Api Call Error", e)
+        e.mapToResultFailure(errorMessage)
+    }
+
+suspend fun <T : Any> safeConsentApiCall(
+    errorMessage: String,
+    call: suspend () -> Response<T>
+): Result<T> =
+    try {
+        val response = call()
+        if (response.isSuccessful) {
+            requireNotNull(response.body()).let { Result.success(it) }
+        } else {
+            Result.failure(
+                ApiCallException(
+                    "Error executing safe api call ${response.code()} ${response.message()}",
+                    response = response,
+                    state = response.httpErrorState()
+                )
             )
         }
     } catch (e: CancellationException) {

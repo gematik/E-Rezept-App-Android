@@ -2,9 +2,12 @@
 
 import java.util.Properties
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 gradle.beforeProject {
     // Pass down the TOML path as a property
-    rootProject.extensions.extraProperties["libsToml"] = rootDir.resolve("gradle/libs.versions.toml")
+    rootProject.extensions.extraProperties["libsToml"] =
+        rootDir.resolve("gradle/libs.versions.toml")
 }
 
 pluginManagement {
@@ -27,6 +30,10 @@ pluginManagement {
     includeBuild("plugins/technical-requirements-plugin")
 }
 
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
 dependencyResolutionManagement {
 
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
@@ -42,7 +49,8 @@ dependencyResolutionManagement {
     val nexusUsername: String? = properties.getProperty("NEXUS_USERNAME")
     val nexusPassword: String? = properties.getProperty("NEXUS_PASSWORD")
     val nexusUrl: String? = properties.getProperty("NEXUS_URL")
-    val obtainFromNexus = !nexusUrl.isNullOrEmpty() && !nexusUsername.isNullOrEmpty() && !nexusPassword.isNullOrEmpty()
+    val obtainFromNexus =
+        !nexusUrl.isNullOrEmpty() && !nexusUsername.isNullOrEmpty() && !nexusPassword.isNullOrEmpty()
 
     repositories {
         if (obtainFromNexus && nexusUrl != null) {
@@ -93,5 +101,6 @@ include(":utils")
 include(":ui-components")
 include(":mocks")
 include(":plugins:technical-requirements-plugin")
+include(":app:consent")
 
 rootProject.name = "E-Rezept"

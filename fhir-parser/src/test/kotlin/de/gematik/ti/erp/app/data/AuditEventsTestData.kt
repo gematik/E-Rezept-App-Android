@@ -23,5 +23,6 @@
 package de.gematik.ti.erp.app.data
 
 // fhir-audit events
+val bundle_audit_events_1_6 by lazy { getResourceAsString("/fhir/audit_event_parser/audit_event_bundle_version_1_6.json") }
 val bundle_audit_events_1_2 by lazy { getResourceAsString("/fhir/audit_event_parser/audit_event_bundle_version_1_2.json") }
 val bundle_audit_events_1_1 by lazy { getResourceAsString("/fhir/audit_event_parser/audit_event_bundle_version_1_1.json") }

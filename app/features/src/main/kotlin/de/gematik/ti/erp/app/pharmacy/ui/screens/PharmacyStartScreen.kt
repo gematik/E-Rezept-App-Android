@@ -52,7 +52,8 @@ import de.gematik.ti.erp.app.loading.LoadingIndicator
 import de.gematik.ti.erp.app.permissions.getLocationPermissionLauncher
 import de.gematik.ti.erp.app.permissions.isLocationPermissionAndServiceEnabled
 import de.gematik.ti.erp.app.permissions.locationPermissions
-import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData.OverviewPharmacy
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyAddressErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.model.SelectedFavouritePharmacyState
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRouteBackStackEntryArguments
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
@@ -68,13 +69,13 @@ import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyMap
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacySearchButton
 import de.gematik.ti.erp.app.pharmacy.ui.model.QuickFilter
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.preview.LightDarkLongPreview
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
-import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.LocationPermissionDeniedDialog
 import de.gematik.ti.erp.app.utils.compose.LocationServicesNotAvailableDialog
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
@@ -325,13 +326,13 @@ class PharmacyStartScreen(
 @Composable
 private fun PharmacyStartScreenContent(
     isModalFlow: Boolean,
-    favouritePharmacies: List<OverviewPharmacy> = emptyList(),
+    favouritePharmacies: List<PharmacyErpModel> = emptyList(),
     previewCoordinates: Coordinates,
     previewMap: PharmacyMap,
     listState: LazyListState,
     isGooglePlayServicesAvailable: Boolean = true,
     onClickQuickFilterSearch: (QuickFilter) -> Unit,
-    onClickFavouritePharmacy: (OverviewPharmacy) -> Unit,
+    onClickFavouritePharmacy: (PharmacyErpModel) -> Unit,
     onClickPharmacySearch: () -> Unit,
     onClickMapsSearch: () -> Unit,
     onClickFilter: () -> Unit,
@@ -368,14 +369,14 @@ private fun PharmacyStartScreenBody(
     contentPadding: PaddingValues,
     previewCoordinates: Coordinates,
     previewMap: PharmacyMap,
-    favouritePharmacies: List<OverviewPharmacy>,
+    favouritePharmacies: List<PharmacyErpModel>,
     listState: LazyListState,
     isGooglePlayServicesAvailable: Boolean,
     onClickPharmacySearch: () -> Unit,
     onClickMapsSearch: () -> Unit,
     onClickQuickFilterSearch: (QuickFilter) -> Unit,
     onClickFilter: () -> Unit,
-    onClickFavouritePharmacy: (OverviewPharmacy) -> Unit
+    onClickFavouritePharmacy: (PharmacyErpModel) -> Unit
 ) {
     val activity = LocalActivity.current
     val padding = (activity as? BaseActivity)?.applicationInnerPadding
@@ -463,7 +464,7 @@ private fun PharmacyNotFoundDialog(
 }
 
 @Suppress("MagicNumber")
-@LightDarkPreview
+@LightDarkLongPreview
 @Composable
 fun PharmacyStartScreenPreview() {
     val time = Instant.parse("2022-01-01T00:00:00Z")
@@ -475,21 +476,31 @@ fun PharmacyStartScreenPreview() {
         Column {
             PharmacyStartScreenContent(
                 favouritePharmacies = listOf(
-                    OverviewPharmacy(
+                    PharmacyErpModel(
                         lastUsed = time,
                         isFavorite = true,
                         usageCount = 1,
                         telematikId = "123456789",
-                        pharmacyName = "Berlin Apotheke",
-                        address = "BerlinStr, 12345 Berlin"
+                        name = "Berlin Apotheke",
+                        address = PharmacyAddressErpModel(
+                            lineAddress = "Berliner Strasse 123",
+                            city = "Berlin",
+                            zip = "12345"
+                        ),
+                        contact = null
                     ),
-                    OverviewPharmacy(
+                    PharmacyErpModel(
                         lastUsed = time,
                         isFavorite = false,
                         usageCount = 1,
                         telematikId = "123456788",
-                        pharmacyName = "Stuttgart Apotheke",
-                        address = "StuttgartStr, 12345 Stuttgart"
+                        name = "Stuttgart Apotheke",
+                        address = PharmacyAddressErpModel(
+                            lineAddress = "StuttgartStr 12345",
+                            city = "Stuttgart",
+                            zip = "12345"
+                        ),
+                        contact = null
                     )
                 ),
                 previewCoordinates = berlin,

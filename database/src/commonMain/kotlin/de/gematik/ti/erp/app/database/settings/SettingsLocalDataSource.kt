@@ -24,8 +24,12 @@ package de.gematik.ti.erp.app.database.settings
 
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
+import de.gematik.ti.erp.app.fhir.constant.SafeJson
+import de.gematik.ti.erp.app.logger.DbMigrationLogEntry
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.Instant
 
@@ -34,7 +38,6 @@ import kotlinx.datetime.Instant
  * Migrated from Realm SettingsEntityV1 in schema version 63.
  */
 class SettingsLocalDataSource(private val settings: Settings) {
-
     private val _zoomEnabled = MutableStateFlow(
         settings.getBoolean(SettingsKeys.ZOOM_ENABLED, false)
     )
@@ -77,6 +80,23 @@ class SettingsLocalDataSource(private val settings: Settings) {
     )
     val dataProtectionVersionAccepted: Flow<Instant> = _dataProtectionVersionAccepted.asStateFlow()
 
+    private val _dbMigrationLogs = MutableStateFlow(loadDbMigrationLogs())
+    val dbMigrationLogs: StateFlow<List<DbMigrationLogEntry>> = _dbMigrationLogs.asStateFlow()
+
+    private fun loadDbMigrationLogs(): List<DbMigrationLogEntry> {
+        val logJson = settings.getString(SettingsKeys.DB_MIGRATION_LOGS, "")
+        return if (logJson.isNotEmpty()) {
+            try {
+                SafeJson.value.decodeFromString<List<DbMigrationLogEntry>>(logJson)
+            } catch (e: Exception) {
+                Napier.e { "error loading db logs ${e.stackTraceToString()}" }
+                emptyList()
+            }
+        } else {
+            emptyList()
+        }
+    }
+
     // Write operations
     fun saveZoomEnabled(enabled: Boolean) {
         settings[SettingsKeys.ZOOM_ENABLED] = enabled
@@ -116,5 +136,11 @@ class SettingsLocalDataSource(private val settings: Settings) {
     fun acceptUpdatedDataTerms(instant: Instant) {
         settings[SettingsKeys.DATA_PROTECTION_VERSION_ACCEPTED] = instant.epochSeconds
         _dataProtectionVersionAccepted.value = instant
+    }
+
+    fun saveDbMigrationLogs(logs: List<DbMigrationLogEntry>) {
+        val logJson = SafeJson.value.encodeToString(logs)
+        settings[SettingsKeys.DB_MIGRATION_LOGS] = logJson
+        _dbMigrationLogs.value = logs
     }
 }

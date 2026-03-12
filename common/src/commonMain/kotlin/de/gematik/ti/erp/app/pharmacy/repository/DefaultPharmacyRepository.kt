@@ -22,29 +22,29 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
+import de.gematik.ti.erp.app.database.api.PharmacyLocalDataSource
+import de.gematik.ti.erp.app.database.api.PharmacySearchAccessTokenLocalDataSource
 import de.gematik.ti.erp.app.fhir.FhirInsuranceProvider
 import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyParsers
 import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.messages.repository.PharmacyCacheLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.FavouritePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.OftenUsedPharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacySearchAccessTokenLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
+import de.gematik.ti.erp.app.pharmacy.model.TelematikId
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.PharmacyRemoteDataSource
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy.Companion.toErpModel
 import de.gematik.ti.erp.app.redeem.repository.datasource.RedeemLocalDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.JsonElement
 
 class DefaultPharmacyRepository(
+    private val pharmacyLocalDataSource: PharmacyLocalDataSource,
     private val pharmacyRemoteDataSource: PharmacyRemoteDataSource,
-    private val searchAccessTokenLocalDataSource: PharmacySearchAccessTokenLocalDataSource,
+    private val pharmacySearchAccessTokenLocalDataSource: PharmacySearchAccessTokenLocalDataSource,
     private val redeemLocalDataSource: RedeemLocalDataSource,
-    private val favouriteLocalDataSource: FavouritePharmacyLocalDataSource,
-    private val oftenUsedLocalDataSource: OftenUsedPharmacyLocalDataSource,
-    private val cachedPharmacyLocalDataSource: PharmacyCacheLocalDataSource,
+    private val cachedPharmacyLocalDataSource: PharmacyCacheLocalDataSource, // todo: check if we need this one
     private val parsers: PharmacyParsers
 ) : PharmacyRepository {
 
@@ -62,7 +62,7 @@ class DefaultPharmacyRepository(
     override suspend fun searchPharmacies(
         filter: PharmacyFilter
     ): Result<FhirPharmacyErpModelCollection> {
-        val onUnauthorized = searchAccessTokenLocalDataSource::clearToken
+        val onUnauthorized = pharmacySearchAccessTokenLocalDataSource::clearToken
 
         return pharmacyRemoteDataSource.searchPharmacies(
             filter = filter,
@@ -73,7 +73,7 @@ class DefaultPharmacyRepository(
     override suspend fun searchInsurances(
         filter: PharmacyFilter
     ): Result<FhirPharmacyErpModelCollection> {
-        val onUnauthorized = searchAccessTokenLocalDataSource::clearToken
+        val onUnauthorized = pharmacySearchAccessTokenLocalDataSource::clearToken
 
         return pharmacyRemoteDataSource.searchInsurances(
             filter = filter,
@@ -98,7 +98,7 @@ class DefaultPharmacyRepository(
     ): Result<FhirPharmacyErpModelCollection> {
         return pharmacyRemoteDataSource.searchPharmacyByTelematikId(
             telematikId = telematikId,
-            onUnauthorizedException = searchAccessTokenLocalDataSource::clearToken
+            onUnauthorizedException = pharmacySearchAccessTokenLocalDataSource::clearToken
         ).map(::parseData)
     }
 
@@ -107,7 +107,7 @@ class DefaultPharmacyRepository(
     ): Result<FhirInsuranceProvider?> {
         return pharmacyRemoteDataSource.searchByInsuranceProvider(
             institutionIdentifier = iknr,
-            onUnauthorizedException = searchAccessTokenLocalDataSource::clearToken
+            onUnauthorizedException = pharmacySearchAccessTokenLocalDataSource::clearToken
         ).map(parsers.organizationParser::extract)
     }
 
@@ -121,28 +121,28 @@ class DefaultPharmacyRepository(
     override fun loadCachedPharmacies(): Flow<List<CachedPharmacy>> =
         cachedPharmacyLocalDataSource.loadPharmacies()
 
-    override fun loadOftenUsedPharmacies() = oftenUsedLocalDataSource.loadOftenUsedPharmacies()
-
-    override fun loadFavoritePharmacies() = favouriteLocalDataSource.loadFavoritePharmacies()
+    override fun loadPharmacies(): Flow<List<PharmacyErpModel>> = pharmacyLocalDataSource.loadPharmacies()
 
     override suspend fun markPharmacyAsOftenUsed(pharmacy: PharmacyUseCaseData.Pharmacy) {
-        oftenUsedLocalDataSource.markPharmacyAsOftenUsed(pharmacy)
+        pharmacyLocalDataSource.markPharmacyAsOftenUsed(pharmacy.toErpModel())
     }
 
-    override suspend fun deleteOverviewPharmacy(overviewPharmacy: OverviewPharmacyData.OverviewPharmacy) {
-        oftenUsedLocalDataSource.deleteOverviewPharmacy(overviewPharmacy)
+    override suspend fun deleteOverviewPharmacy(overviewPharmacy: PharmacyErpModel) {
+        // User intends to remove OftenUsed flag; demark or delete depending on current Favorite flag
+        pharmacyLocalDataSource.deleteOftenUsedPharmacy(TelematikId(overviewPharmacy.telematikId))
     }
 
     override suspend fun markPharmacyAsFavourite(pharmacy: PharmacyUseCaseData.Pharmacy) {
-        favouriteLocalDataSource.markPharmacyAsFavourite(pharmacy)
+        pharmacyLocalDataSource.markPharmacyAsFavourite(pharmacy.toErpModel())
     }
 
     override suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyUseCaseData.Pharmacy) {
-        favouriteLocalDataSource.deleteFavoritePharmacy(favoritePharmacy)
+        // User intends to remove Favorite flag; demark or delete depending on current OftenUsed flag
+        pharmacyLocalDataSource.deleteFavoritePharmacy(TelematikId(favoritePharmacy.telematikId))
     }
 
     override fun isPharmacyInFavorites(pharmacy: PharmacyUseCaseData.Pharmacy): Flow<Boolean> =
-        favouriteLocalDataSource.isPharmacyInFavorites(pharmacy)
+        pharmacyLocalDataSource.isPharmacyInFavorites(pharmacy.toErpModel())
 
     override suspend fun markAsRedeemed(taskId: String) {
         redeemLocalDataSource.markAsRedeemed(taskId)

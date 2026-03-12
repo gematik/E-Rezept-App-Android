@@ -30,4 +30,5 @@ interface OftenUsedPharmacyLocalDataSource {
     fun loadOftenUsedPharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>>
     suspend fun markPharmacyAsOftenUsed(pharmacy: PharmacyUseCaseData.Pharmacy)
     suspend fun deleteOverviewPharmacy(overviewPharmacy: OverviewPharmacyData.OverviewPharmacy)
+    fun isPharmacyOftenUsed(pharmacy: PharmacyUseCaseData.Pharmacy): Flow<Boolean>
 }

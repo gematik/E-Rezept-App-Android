@@ -26,6 +26,7 @@ import app.cash.turbine.test
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.HTTP_INTERNAL_ERROR
 import de.gematik.ti.erp.app.base.usecase.DownloadAllResourcesUseCase
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK
 import de.gematik.ti.erp.app.mocks.profile.model.MODEL_PROFILE
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
@@ -37,6 +38,8 @@ import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
 import de.gematik.ti.erp.app.redeem.usecase.GetReadyPrescriptionsByTaskIdsUseCase
 import de.gematik.ti.erp.app.redeem.usecase.RedeemPrescriptionsOnLoggedInUseCase
+import de.gematik.ti.erp.app.settings.repository.CommunicationVersionRepository
+import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -70,6 +73,8 @@ class RedeemPrescriptionListControllerTest {
 
     private val prescriptionRepository: PrescriptionRepository = mockk()
     private val pharmacyRepository: PharmacyRepository = mockk()
+
+    private val communicationVersionRepository: CommunicationVersionRepository = mockk()
     private val downloadAllResourcesUseCase: DownloadAllResourcesUseCase = mockk()
 
     private val dispatcher = StandardTestDispatcher()
@@ -90,8 +95,10 @@ class RedeemPrescriptionListControllerTest {
         coEvery { downloadAllResourcesUseCase.invoke(any()) } returns Result.success(1)
         coEvery { prescriptionRepository.loadSyncedTasksByTaskIds(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK))
         coEvery { prescriptionRepository.loadScannedTasksByTaskIds(any()) } returns flowOf(emptyList())
+        coEvery { communicationVersionRepository.getCommunicationVersion() } returns FhirCommunicationVersions.CommunicationVersion.V_1_5
 
-        redeemPrescriptionsOnLoggedInUseCase = spyk(RedeemPrescriptionsOnLoggedInUseCase(prescriptionRepository, pharmacyRepository, dispatcher))
+        redeemPrescriptionsOnLoggedInUseCase =
+            spyk(RedeemPrescriptionsOnLoggedInUseCase(prescriptionRepository, pharmacyRepository, communicationVersionRepository, dispatcher))
         getReadyPrescriptionsByTaskIdsUseCase = spyk(GetReadyPrescriptionsByTaskIdsUseCase(prescriptionRepository, dispatcher))
         controllerUnderTest = RedeemPrescriptionsController(
             redeemPrescriptionsOnLoggedInUseCase,
@@ -395,15 +402,15 @@ class RedeemPrescriptionListControllerTest {
             openingHours = null,
             telematikId = telematikId
         )
-        private val contact = PharmacyUseCaseData.ShippingContact(
+        private val contact = ShippingInfoErpModel(
             name = "contact-name",
-            line1 = "contact-line1",
-            line2 = "contact-line2",
-            postalCode = "contact-postal-code",
+            street = "contact-line1",
+            addressDetail = "contact-line2",
+            zip = "contact-postal-code",
             city = "contact-city",
-            telephoneNumber = "contact-telephone-number",
+            phone = "contact-telephone-number",
             mail = "contact-mail",
-            deliveryInformation = "contact-delivery-information"
+            deliveryInfo = "contact-delivery-information"
         )
 
         private val loggedInRedeemArguments = PrescriptionRedeemArguments.LoggedInUserRedemptionArguments(

@@ -31,7 +31,6 @@ import de.gematik.ti.erp.app.pharmacy.api.FhirVzdService
 import de.gematik.ti.erp.app.pharmacy.api.model.SearchAccessTokenInterceptor
 import de.gematik.ti.erp.app.pharmacy.repository.DefaultPharmacySearchAccessTokenRepository
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacySearchAccessTokenRepository
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacySearchAccessTokenLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacySearchAccessTokenProvider
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.PharmacySearchAccessTokenRemoteDataSource
 import okhttp3.OkHttpClient
@@ -49,7 +48,6 @@ import retrofit2.Retrofit
 val fhirVzdNetworkModule = DI.Module("FhirVzdNetworkModule") {
 
     // data sources
-    bindProvider { PharmacySearchAccessTokenLocalDataSource(instance()) }
     bindProvider { DigaInformationRemoteDataSource(instance()) }
     bindProvider { PharmacySearchAccessTokenRemoteDataSource(instance<ERezeptBackendService>()) }
 

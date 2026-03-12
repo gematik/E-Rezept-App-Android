@@ -76,7 +76,7 @@ class TestDataGenerator {
         }
     }
 
-    fun createDispenseBundleFromMedications(
+    fun create_1_4_DispenseBundleFromMedications(
         medications: List<JsonElement>,
         dispenseDate: LocalDate = LocalDate.parse("2025-04-04"),
         patientKvnr: String = "X110519788",
@@ -170,6 +170,132 @@ class TestDataGenerator {
                 // Entry for MedicationDispense
                 buildJsonObject {
                     put("fullUrl", JsonPrimitive("https://example.com/MedicationDispense/$dispenseId"))
+                    put("resource", dispenseResource)
+                    put(
+                        "search",
+                        buildJsonObject {
+                            put("mode", JsonPrimitive("match"))
+                        }
+                    )
+                },
+                // Entry for Medication
+                buildJsonObject {
+                    put("fullUrl", JsonPrimitive("urn:uuid:$medicationId"))
+                    put("resource", medication)
+                    put(
+                        "search",
+                        buildJsonObject {
+                            put("mode", JsonPrimitive("include"))
+                        }
+                    )
+                }
+            )
+        }.flatten()
+
+        return buildJsonObject {
+            put("id", JsonPrimitive(UUID.randomUUID().toString()))
+            put("type", JsonPrimitive("searchset"))
+            put("timestamp", JsonPrimitive(ZonedDateTime.now().toOffsetDateTime().toString()))
+            put("resourceType", JsonPrimitive("Bundle"))
+            put("total", JsonPrimitive(dispenseEntries.size))
+            put("entry", JsonArray(dispenseEntries))
+        }
+    }
+
+    fun create_1_6_DispenseBundleFromMedications(
+        medications: List<JsonElement>,
+        dispenseDate: LocalDate = LocalDate.parse("2025-04-04"),
+        patientKvnr: String = "X110519788",
+        performerTelematikId: String = "3-01.2.2023001.16.101"
+    ): JsonObject {
+        val dispenseEntries = medications.mapIndexed { index, medication ->
+            val medicationId = medication.jsonObject["id"]?.jsonPrimitive?.content
+                ?: error("Medication is missing 'id'")
+
+            val dispenseId = "200.000.000.205.090.${70 + index}"
+
+            // MedicationDispense resource
+            val dispenseResource = buildJsonObject {
+                put("resourceType", JsonPrimitive("MedicationDispense"))
+                put("id", JsonPrimitive(dispenseId))
+                put(
+                    "meta",
+                    buildJsonObject {
+                        put(
+                            "profile",
+                            JsonArray(
+                                listOf(
+                                    JsonPrimitive("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense|1.6")
+                                )
+                            )
+                        )
+                    }
+                )
+                put(
+                    "identifier",
+                    JsonArray(
+                        listOf(
+                            buildJsonObject {
+                                put("system", JsonPrimitive("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId"))
+                                put("value", JsonPrimitive(dispenseId))
+                            }
+                        )
+                    )
+                )
+                put("status", JsonPrimitive("completed"))
+                put(
+                    "medicationReference",
+                    buildJsonObject {
+                        put("reference", JsonPrimitive("urn:uuid:$medicationId"))
+                    }
+                )
+                put(
+                    "subject",
+                    buildJsonObject {
+                        put(
+                            "identifier",
+                            buildJsonObject {
+                                put("system", JsonPrimitive("http://fhir.de/sid/gkv/kvid-10"))
+                                put("value", JsonPrimitive(patientKvnr))
+                            }
+                        )
+                    }
+                )
+                put(
+                    "performer",
+                    JsonArray(
+                        listOf(
+                            buildJsonObject {
+                                put(
+                                    "actor",
+                                    buildJsonObject {
+                                        put(
+                                            "identifier",
+                                            buildJsonObject {
+                                                put("system", JsonPrimitive("https://gematik.de/fhir/sid/telematik-id"))
+                                                put("value", JsonPrimitive(performerTelematikId))
+                                            }
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    )
+                )
+                put("whenPrepared", JsonPrimitive(dispenseDate.toString()))
+                put("whenHandedOver", JsonPrimitive(dispenseDate.toString()))
+                put(
+                    "substitution",
+                    buildJsonObject {
+                        put("wasSubstituted", JsonPrimitive(false))
+                    }
+                )
+            }
+
+            listOf(
+                // Entry for MedicationDispense
+                buildJsonObject {
+                    put("fullUrl", JsonPrimitive("https://erp-ref.zentral.erp.splitdns.ti-dienste.de/MedicationDispense/$dispenseId"))
                     put("resource", dispenseResource)
                     put(
                         "search",

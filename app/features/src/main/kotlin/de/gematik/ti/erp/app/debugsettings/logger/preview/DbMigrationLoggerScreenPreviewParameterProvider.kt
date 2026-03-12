@@ -33,7 +33,8 @@ import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType.Pickup
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType.Shipment
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningTimeErpModel
-import de.gematik.ti.erp.app.logger.model.DbMigrationLogEntry
+import de.gematik.ti.erp.app.logger.DbMigrationFunctionalState.ChecksVersionsForSameModel
+import de.gematik.ti.erp.app.logger.DbMigrationLogEntry
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Instant
@@ -42,7 +43,6 @@ import kotlinx.datetime.LocalTime
 data class DbMigrationLoggerScreenPreviewData(
     val name: String,
     val dbMigrationLogEntries: UiState<List<DbMigrationLogEntry>>,
-    val expandedListItems: Set<String>,
     val searchValue: String
 )
 
@@ -55,19 +55,16 @@ class DbMigrationLoggerScreenPreviewParameterProvider : PreviewParameterProvider
         DbMigrationLoggerScreenPreviewData(
             name = "Loading",
             dbMigrationLogEntries = UiState.Loading(),
-            expandedListItems = emptySet(),
             searchValue = ""
         ),
         DbMigrationLoggerScreenPreviewData(
             name = "Empty",
             dbMigrationLogEntries = UiState.Empty(),
-            expandedListItems = emptySet(),
             searchValue = ""
         ),
         DbMigrationLoggerScreenPreviewData(
             name = "Error",
             dbMigrationLogEntries = UiState.Error(Throwable()),
-            expandedListItems = emptySet(),
             searchValue = ""
         ),
         DbMigrationLoggerScreenPreviewData(
@@ -77,8 +74,8 @@ class DbMigrationLoggerScreenPreviewParameterProvider : PreviewParameterProvider
                     DbMigrationLogEntry(
                         id = "1",
                         timestamp = Instant.DISTANT_PAST.toString(),
-                        name = "Pharmacy",
-                        v1 = FhirPharmacyErpModel(
+                        operation = "Pharmacy",
+                        realmData = FhirPharmacyErpModel(
                             id = "4b74c2b2-2275-4153-a94d-3ddc6bfb1362",
                             name = "Heide-Apotheke",
                             telematikId = "3-05.2.1007600000.080",
@@ -117,7 +114,7 @@ class DbMigrationLoggerScreenPreviewParameterProvider : PreviewParameterProvider
                                 )
                             )
                         ).toString(),
-                        v2 = FhirPharmacyErpModel(
+                        roomData = FhirPharmacyErpModel(
                             id = "4b74c2b2-2275-4153-a94d-3ddc6bfb1362",
                             name = "Heide-Apotheke",
                             telematikId = "3-05.2.1007600000.080",
@@ -160,13 +157,14 @@ class DbMigrationLoggerScreenPreviewParameterProvider : PreviewParameterProvider
                     DbMigrationLogEntry(
                         id = "2",
                         timestamp = Instant.DISTANT_PAST.toString(),
-                        name = "Settings",
-                        v1 = "1",
-                        v2 = ""
+                        functionalState = ChecksVersionsForSameModel,
+                        operation = "Settings",
+                        realmData = "1",
+                        roomData = ""
                     )
                 )
             ),
-            expandedListItems = emptySet(),
+
             searchValue = ""
         ),
         DbMigrationLoggerScreenPreviewData(
@@ -176,8 +174,8 @@ class DbMigrationLoggerScreenPreviewParameterProvider : PreviewParameterProvider
                     DbMigrationLogEntry(
                         id = "1",
                         timestamp = Instant.DISTANT_PAST.toString(),
-                        name = "Pharmacy",
-                        v1 = FhirPharmacyErpModel(
+                        operation = "Pharmacy",
+                        realmData = FhirPharmacyErpModel(
                             id = "4b74c2b2-2275-4153-a94d-3ddc6bfb1362",
                             name = "Heide-Apotheke",
                             telematikId = "3-05.2.1007600000.080",
@@ -216,7 +214,7 @@ class DbMigrationLoggerScreenPreviewParameterProvider : PreviewParameterProvider
                                 )
                             )
                         ).toJson(),
-                        v2 = FhirPharmacyErpModel(
+                        roomData = FhirPharmacyErpModel(
                             id = "4b74c2b2-2275-4153-a94d-3ddc6bfb1362",
                             name = "Heide-Apotheke",
                             telematikId = "3-05.2.1007600000.080",
@@ -259,14 +257,13 @@ class DbMigrationLoggerScreenPreviewParameterProvider : PreviewParameterProvider
                     DbMigrationLogEntry(
                         id = "2",
                         timestamp = Instant.DISTANT_PAST.toString(),
-                        name = "Settings",
-                        v1 = "1",
-                        v2 = ""
+                        operation = "Settings",
+                        realmData = "1",
+                        roomData = ""
                     )
                 )
             ),
-            expandedListItems = setOf("1"),
-            searchValue = ""
+            searchValue = "not expanded"
         )
     )
 }

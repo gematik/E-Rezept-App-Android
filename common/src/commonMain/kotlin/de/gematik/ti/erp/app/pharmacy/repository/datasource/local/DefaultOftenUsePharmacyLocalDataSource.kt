@@ -58,6 +58,13 @@ class DefaultOftenUsePharmacyLocalDataSource(private val realm: Realm) :
             }
         }
 
+    override fun isPharmacyOftenUsed(pharmacy: Pharmacy): Flow<Boolean> =
+        realm.query<OftenUsedPharmacyEntityV1>("telematikId = $0", pharmacy.telematikId)
+            .asFlow()
+            .map {
+                it.list.isNotEmpty()
+            }
+
     override suspend fun markPharmacyAsOftenUsed(pharmacy: Pharmacy) {
         realm.tryWrite<Unit> {
             queryFirst<OftenUsedPharmacyEntityV1>("telematikId = $0", pharmacy.telematikId)?.apply {

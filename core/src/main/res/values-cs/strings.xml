@@ -550,7 +550,7 @@
     <string name="edit_shipping_contact_top_bar_title">Kontaktní údaje a adresa</string>
     <string name="empty_dosage_info_body">Na vašem receptu nejsou žádné informace o tom, jak lék užívat.</string>
     <string name="empty_dosage_info_dosage_text">Nespecifikováno</string>
-    <string name="empty_medication_plan_info">Pro své recepty si můžete nastavit připomenutí</string>
+    <string name="empty_medication_plan_info">Můžete si nastavit připomenutí léků. Chcete-li to provést, přejděte na příslušný recept a vyberte možnost „Připomenutí léků“.</string>
     <string name="empty_medication_plan_title">Žádné připomenutí příjmu</string>
     <string name="empty_scanned_prescription_name">Zadejte prosím alespoň 1 znak.</string>
     <string name="enroll_biometric_dialog_body">Zabezpečení aplikace není možné. Předtím si na svém zařízení nastavte biometrické zabezpečení (např. otisk prstu).</string>
@@ -899,6 +899,7 @@
     <string name="mainscreen_empty_content_header">Žádné recepty</string>
     <string name="mainscreen_empty_not_connected_info">Přihlaste se k automatickému odběru receptů.</string>
     <string name="mainscreen_login">Registrovat</string>
+    <string name="mainscreen_refresh">Aktualizovat</string>
     <string name="male_doctor_with_phone">lékař s telefonem</string>
     <string name="man_with_phone">Muž s telefonem</string>
     <string name="manufacturer_costs">Náklady výrobce</string>
@@ -1449,7 +1450,7 @@
     <string name="profile_image_selector_save">Použití</string>
     <string name="profile_image_selector_take_photo">vyfotit</string>
     <string name="profile_image_selector_title">Upravit profilový obrázek</string>
-    <string name="profile_insurance_information_connected_biometrics">biometrie</string>
+    <string name="profile_insurance_information_connected_biometrics">Zálohování zařízení</string>
     <string name="profile_insurance_information_connected_health_card">Zdravotní průkaz</string>
     <string name="profile_insurance_information_connected_label">Registrován u</string>
     <string name="profile_insurance_information_not_connected">Nepřihlášen</string>

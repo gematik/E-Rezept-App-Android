@@ -33,6 +33,8 @@ import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.fhir.FhirCountryErpModel
 import de.gematik.ti.erp.app.fhir.FhirCountryErpModelCollection
 import de.gematik.ti.erp.app.fhir.FhirErpModel
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeRequestConstants.FhirEuRedeemAccessCodeRequestMeta
+import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirTaskEuPatchInputModelConstants
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import io.github.aakira.napier.Napier
@@ -77,6 +79,7 @@ class DemoEuRepository(
     override suspend fun toggleIsEuRedeemableByPatientAuthorization(
         taskId: String,
         profileId: String,
+        metadata: FhirTaskEuPatchInputModelConstants.FhirTaskEuPatchMeta,
         isEuRedeemableByPatientAuthorization: Boolean
     ): Result<Unit> =
         withContext(dispatcher) {
@@ -121,6 +124,7 @@ class DemoEuRepository(
 
     override suspend fun createEuRedeemAccessCode(
         profileId: ProfileIdentifier,
+        metadata: FhirEuRedeemAccessCodeRequestMeta,
         countryCode: String,
         relatedTaskIds: List<String>
     ): Result<EuAccessCode> {

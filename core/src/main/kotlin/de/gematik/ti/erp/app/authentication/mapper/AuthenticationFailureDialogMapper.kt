@@ -22,33 +22,33 @@
 
 package de.gematik.ti.erp.app.authentication.mapper
 
-import de.gematik.ti.erp.app.authentication.model.AuthenticationDialogParameter
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
+import de.gematik.ti.erp.app.authentication.model.DialogParameter
 import de.gematik.ti.erp.app.core.R
 
-fun (AuthenticationResult.Error).toDialogMapper(): AuthenticationDialogParameter? =
+fun (AuthenticationResult.Error).toDialogMapper(): DialogParameter? =
     when (this) {
-        AuthenticationResult.IdpCommunicationError.AuthenticationNotSuccessful -> AuthenticationDialogParameter(
+        AuthenticationResult.IdpCommunicationError.AuthenticationNotSuccessful -> DialogParameter(
             title = R.string.cdw_mini_alt_auth_removed_title,
             message = R.string.cdw_mini_alt_auth_removed
         )
 
-        AuthenticationResult.IdpCommunicationError.CommunicationFailure -> AuthenticationDialogParameter(
+        AuthenticationResult.IdpCommunicationError.CommunicationFailure -> DialogParameter(
             title = R.string.cdw_nfc_intro_step1_header_on_error,
             message = R.string.cdw_idp_error_time_and_connection
         )
 
-        AuthenticationResult.IdpCommunicationError.InvalidCertificate -> AuthenticationDialogParameter(
+        AuthenticationResult.IdpCommunicationError.InvalidCertificate -> DialogParameter(
             title = R.string.cdw_nfc_error_title_invalid_certificate,
             message = R.string.cdw_nfc_error_body_invalid_certificate
         )
 
-        AuthenticationResult.IdpCommunicationError.InvalidOCSP -> AuthenticationDialogParameter(
+        AuthenticationResult.IdpCommunicationError.InvalidOCSP -> DialogParameter(
             title = R.string.cdw_nfc_error_title_invalid_ocsp_response_of_health_card_certificate,
             message = R.string.cdw_nfc_error_body_invalid_ocsp_response_of_health_card_certificate
         )
 
-        AuthenticationResult.IdpCommunicationError.Unknown -> AuthenticationDialogParameter(
+        AuthenticationResult.IdpCommunicationError.Unknown -> DialogParameter(
             title = R.string.cdw_idp_error_unknown,
             message = R.string.try_again
         )
