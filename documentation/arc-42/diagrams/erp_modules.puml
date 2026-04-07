@@ -1,0 +1,129 @@
+@startuml
+' make packages look like rounded boxes
+skinparam packageStyle rectangle
+skinparam rectangle {
+  BorderColor Black
+  RoundCorner 5
+}
+
+'-------------------------
+' High-Level View
+'-------------------------
+package "High-Level View" {
+    rectangle "App modules" as AppModules #A2D5AB
+    rectangle "Feature modules" as FeatureModules #C4B5FE
+    rectangle "Shared modules" as SharedModules #FCD34D
+    rectangle "Lower-level modules" as LowerLevel #93C5FD
+    rectangle "Data + mock modules" as DataMock #FBCFE8
+
+    AppModules ..|> FeatureModules
+    FeatureModules --> LowerLevel
+    FeatureModules --> SharedModules
+    SharedModules --> LowerLevel
+    DataMock ..> FeatureModules
+    DataMock ..> AppModules
+}
+
+'-------------------------
+' Mid-Level View
+'-------------------------
+package "Mid-Level View" {
+    rectangle "prod" as prod #A2D5AB
+    rectangle "ui.test" as ui_test #A2D5AB
+
+    rectangle "diga" as diga #C4B5FE
+    rectangle "demo mode" as demo #C4B5FE
+    rectangle "..." as more_f #C4B5FE
+
+    rectangle "tracker" as tracker #FCD34D
+    rectangle "navigation" as navigation #FCD34D
+    rectangle "core" as core #FCD34D
+    rectangle "ui" as ui #FCD34D
+    rectangle "orchestrator" as orchestrator #FCD34D
+
+    rectangle "DB" as DB #93C5FD
+    rectangle "ft-parser" as ft_parser #93C5FD
+    rectangle "repo" as repo #93C5FD
+
+    rectangle "data + mock modules" as dm #FBCFE8
+
+    prod ..> diga
+    ui_test ..> diga
+
+    diga --> tracker
+    diga --> navigation
+    diga --> core
+    diga --> ui
+    diga --> orchestrator
+
+    diga --> DB
+    diga --> ft_parser
+    diga --> repo
+
+    dm ..> diga
+    dm ..> prod
+}
+
+'-------------------------
+' Detailed Architecture
+'-------------------------
+package "Detailed Architecture" {
+  rectangle "android.app prod" as App #A2D5AB
+  rectangle "android.app ui.tests" as MockApp #A2D5AB
+  rectangle "feature-orchestrator" as Orchestrator #FCD34D
+
+  App ..> Orchestrator
+  MockApp ..> Orchestrator
+
+  package "Feature Modules" {
+    rectangle "digas" as digas #C4B5FE
+    rectangle "prescriptions*" as presc #C4B5FE
+    rectangle "gid" as gid #C4B5FE
+    rectangle "pharmacies*" as pharm #C4B5FE
+    rectangle "card-communication" as card #C4B5FE
+    rectangle "messages*" as msgs #C4B5FE
+    rectangle "profile" as prof #C4B5FE
+    rectangle "others" as others #C4B5FE
+    rectangle "demo.mode" as demo2 #C4B5FE
+    rectangle "feature*" as feat_bad #FF6666
+  }
+
+  Orchestrator --> digas
+  Orchestrator --> presc
+  Orchestrator --> gid
+  Orchestrator --> pharm
+  Orchestrator --> card
+  Orchestrator --> msgs
+  Orchestrator --> prof
+  Orchestrator --> others
+  Orchestrator --> demo2
+  Orchestrator --> feat_bad
+
+  rectangle "tracker" as tracker2 #FCD34D
+  rectangle "core (shared)" as core2 #FCD34D
+  rectangle "navigation" as nav2 #FCD34D
+  rectangle "ui.component" as ui2 #FCD34D
+  rectangle "rnc-communication" as rnc #FCD34D
+
+  Orchestrator --> tracker2
+  Orchestrator --> core2
+  Orchestrator --> nav2
+  Orchestrator --> ui2
+  Orchestrator --> rnc
+
+  rectangle "database" as database #93C5FD
+  rectangle "repository" as repository #93C5FD
+  rectangle "ft-parser" as ftp2 #93C5FD
+
+  Orchestrator --> database
+  Orchestrator --> repository
+  Orchestrator --> ftp2
+
+  rectangle "erp-model" as erp #FBCFE8
+  rectangle "common*" as common_bad #FF6666
+
+  repository ..> erp
+  erp ..> feat_bad
+  repository ..> common_bad
+}
+@enduml

@@ -108,7 +108,7 @@ android {
     // for byte-buddy
     packaging {
         jniLibs {
-            useLegacyPackaging = true
+            useLegacyPackaging = false // Required for 16KB page size support (AGP 8.5.1+ aligns uncompressed .so files automatically)
         }
         resources {
             excludes += "META-INF/**"

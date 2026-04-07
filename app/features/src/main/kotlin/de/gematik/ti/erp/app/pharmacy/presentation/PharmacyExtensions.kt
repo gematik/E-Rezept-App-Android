@@ -60,8 +60,23 @@ internal fun PharmacyUseCaseData.Pharmacy.isOpenNow(isOpenNow: Boolean): Boolean
         true
     }
 
+internal fun PharmacyUseCaseData.Pharmacy.recentlyUsed(
+    isRecentlyUsedFiltered: Boolean,
+    oftenUsedTelematikIds: Set<String>
+) =
+    when {
+        isRecentlyUsedFiltered -> telematikId in oftenUsedTelematikIds
+        else -> true
+    }
+
 internal fun PharmacyUseCaseData.Coordinates.toLatLng() = LatLng(latitude, longitude)
 
 internal fun PharmacyUseCaseData.LocationMode.Enabled.toLatLng() = coordinates.toLatLng()
 
 internal fun LatLng.toCoordinates() = PharmacyUseCaseData.Coordinates(latitude, longitude)
+
+internal fun PharmacyUseCaseData.Pharmacy.hasAllOnSiteFeatures(codes: Set<String>) =
+    if (codes.isEmpty()) true else codes.all { code -> onSiteFeatures.any { it.code == code } }
+
+internal fun PharmacyUseCaseData.Pharmacy.hasAllAvailableServices(codes: Set<String>) =
+    if (codes.isEmpty()) true else codes.all { code -> availableServices.any { it.code == code } }

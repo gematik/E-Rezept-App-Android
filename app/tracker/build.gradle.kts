@@ -18,5 +18,4 @@ android {
 dependencies {
     implementation(project(namesPlugin.multiplatform))
     implementation(project(namesPlugin.utils))
-    implementation(libs.bundles.tracking)
 }

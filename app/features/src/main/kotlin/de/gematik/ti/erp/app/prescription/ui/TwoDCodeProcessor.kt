@@ -29,7 +29,6 @@ import android.graphics.Point
 import android.graphics.Rect
 import android.util.Size
 import androidx.core.graphics.minus
-import com.google.mlkit.vision.barcode.common.Barcode
 import de.gematik.ti.erp.app.Requirement
 import io.github.aakira.napier.Napier
 import kotlin.math.absoluteValue
@@ -81,11 +80,9 @@ private class FilteredDMCode(
     var value: String
 )
 
-private fun Barcode.decodeValueToString(): String? =
-    this.rawBytes?.decodeToString()
-        ?.filter {
-            it.code in (32..126)
-        }
+private fun TwoDCodeScanner.ScannedCode.decodeValueToString(): String? =
+    this.text.takeIf { it.isNotBlank() }
+        .also { Napier.d(tag = "TwoDCodeProcessor") { "decodeValueToString: format=$format text='$text' result='$it'" } }
 
 class TwoDCodeProcessor {
     private fun Rect.center() = Point(this.centerX(), this.centerY())
@@ -137,8 +134,8 @@ class TwoDCodeProcessor {
                     Pair(
                         FilteredDMCode(
                             value = it,
-                            boundingBox = code.boundingBox!!,
-                            cornerPoints = code.cornerPoints!!
+                            boundingBox = code.boundingBox,
+                            cornerPoints = code.cornerPoints
                         ),
                         currTime
                     )

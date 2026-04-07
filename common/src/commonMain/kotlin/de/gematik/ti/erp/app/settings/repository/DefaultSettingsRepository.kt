@@ -279,16 +279,7 @@ class DefaultSettingsRepository(
         settingsLocalDataSource.saveAllowScreenshots(allow)
     }
 
-    @Requirement(
-        "O.Purp_5#6",
-        sourceSpecification = "BSI-eRp-ePA",
-        rationale = " save allow/disallow analytics state to settings repository."
-    )
-    @Requirement(
-        "A_24525#3",
-        sourceSpecification = "gemSpec_eRp_FdV",
-        rationale = "Save the user's decision to allow or disallow tracking."
-    )
+    // not used
     override suspend fun saveAllowTracking(allow: Boolean) {
         settingsLocalDataSource.saveAllowTracking(allow)
     }
@@ -303,6 +294,19 @@ class DefaultSettingsRepository(
 
     override suspend fun acceptUpdatedDataTerms(now: Instant) {
         settingsLocalDataSource.acceptUpdatedDataTerms(now)
+    }
+
+    // TODO: Move onboarding also to settings lib
+    override suspend fun resetOnboardingShownIn() {
+        writeToRealm {
+            this.onboardingLatestAppVersionCode = -1
+            this.onboardingLatestAppVersionName = ""
+            this.authentication?.let {
+                it.password = null
+                it.deviceSecurity = false
+                it.failedAuthenticationAttempts = 0
+            }
+        }
     }
 
     override suspend fun updateRefreshTime() {

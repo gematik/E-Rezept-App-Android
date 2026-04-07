@@ -81,7 +81,7 @@ realm-plugin = "2.3.0"
 room = "2.8.4"
 ksp = "2.0.21-1.0.28"
 sqlite = "2.6.2"
-sqlcipher = "4.5.4"
+sqlcipher = "4.13.0"
 
 # dependency check
 dependency-check-gradle = "10.0.3"
@@ -174,7 +174,7 @@ kotlin-test-version = "2.0.21"
 espresso-core = "3.7.0"
 
 [libraries]
-sqlcipher = { module = "net.zetetic:android-database-sqlcipher", version.ref = "sqlcipher" }
+sqlcipher = { module = "net.zetetic:sqlcipher-android", version.ref = "sqlcipher" }
 
 # BOM, used as composeBomLibrary in VersionCatalogLibs
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidx-compose-bom" }
@@ -358,10 +358,6 @@ kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 # shimmer
 shimmer = { module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "shimmer" }
 
-# tracking
-tracking-library = { module = "com.contentsquare.android:library", version.ref = "tracking" }
-tracking-compose = { module = "com.contentsquare.android:compose", version.ref = "tracking" }
-
 # others
 desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar" }
 process-phoenix = { module = "com.jakewharton:process-phoenix", version.ref = "process-phoenix" }
@@ -438,7 +434,8 @@ technical-requirements = { id = "de.gematik.ti.erp.technical-requirements" }
 task-versions = { id = "de.gematik.ti.erp.versioning" }
 task-properties = { id = "de.gematik.ti.erp.properties" }
 task-flavours = { id = "de.gematik.ti.erp.flavours" }
-teams-communication = { id = "de.gematik.ti.erp.teams" }
+release-notification = { id = "de.gematik.ti.erp.release-notification" }
+mr-notification = { id = "de.gematik.ti.erp.mr-notification" }
 module-names = { id = "de.gematik.ti.erp.names" }
 dependency-overrides = { id = "de.gematik.ti.erp.dependency-overrides" }
 
@@ -463,7 +460,7 @@ corutinestest = ["kotlinx-coroutines-test"]
 crypto = ["bouncycastle-jose4j", "bouncycastle-bcprov", "bouncycastle-bcpkix"]
 cryptotest = ["bouncycastle-bcprov", "bouncycastle-bcpkix"]
 datetime = ["kotlinx-datetime"]
-datamatrix = ["barcode-scanning", "zxing-core"]
+datamatrix = ["zxing-core"]
 database = ["database-realm"]
 di = ["di-compose", "di-viewmodel", "di-savedstate", "di-androidx", "di"]
 di-kotlin = ["di-compose", "di"]
@@ -483,8 +480,6 @@ play = ["play-intergrity", "play-review", "play-app-update"]
 quality = ["quality-ktlint", "quality-detekt", "quality-composerules"]
 qualitydetektcomposerules = ["quality-composerules"]
 serialization = ["kotlinx-serialization-json", "kotlinx-serialization-core"]
-tracking = ["tracking-library", "tracking-compose"]
 testing = ["test-junit", "test-kotlin-test", "test-kotlin-test-common", "test-yaml", "androidx-test-junit", "json", "test-mockk-android"]
 testjunit = ["test-junit", "test-yaml", "json", "test-mockk", "multiplatform-settings-test"]
 mockandroid = ["test-mockk-android"]
-

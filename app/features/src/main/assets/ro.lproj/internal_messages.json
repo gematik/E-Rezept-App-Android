@@ -64,5 +64,11 @@
         "text": "**✨ Deschidere îmbunătățită a aplicației** \nDeblocarea aplicației este acum mai rapidă. \n \n **📞 Opțiuni de contact extinse** \nAm introdus noi opțiuni de contact pentru anumite polițe de asigurare. \n \n **♿ Accesibilitate** \nDeclarația de accesibilitate a fost actualizată și extinsă pentru a include o secțiune care documentează istoricul modificărilor. Unele butoane au fost ajustate pentru o vizibilitate îmbunătățită.",
         "timestamp": "2026-03-02T08:00:00.000Z",
         "version": "1.37"
+    },
+    {
+        "id": "13",
+        "text": "**🏥 Detalii îmbunătățite despre farmacie** \nFarmaciile pot adăuga acum servicii precum vaccinări și funcții la fața locului, cum ar fi accesul fără bariere. Farmaciile pot fi filtrate pe baza acestor informații noi. \n \n **✨ Căutare îmbunătățită a farmaciilor** \nFarmaciile utilizate recent și farmaciile preferate sunt acum mai clar separate. Filtrele au fost îmbunătățite. \n \n **✅ ID de sănătate pentru alte persoane asigurate** \nPersoanele asigurate care nu sunt acoperite de asigurare medicală statutară sau privată se pot conecta acum și folosind ID-ul lor de sănătate. \n \n **🛡️ Urmărirea a fost eliminată** \nAm eliminat instrumentul de urmărire utilizat în aplicație. Nu se mai colectează date de utilizare a aplicației. \n \n **♿ Accesibilitate îmbunătățită** \nFiltrele au acum un contrast mai mare, iar starea filtrului este acum mai ușor de văzut.",
+        "timestamp": "2026-03-30T08:00:00.000Z",
+        "version": "1.38"
     }
 ]

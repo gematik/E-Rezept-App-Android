@@ -1,0 +1,47 @@
+@startuml
+skinparam linetype polyline
+skinparam packageStyle rectangle
+skinparam rectangle {
+  RoundCorner 5
+}
+
+package "Modules" {
+  rectangle "Feature Modules"      as FM #A2D5AB
+  rectangle "Repository Module"    as RM #93C5FD
+  rectangle "UI Test Module"       as TM #FBCFE8
+  rectangle "Debug App"            as DA #FBCFE8
+  rectangle "Release App"          as RA #C4B5FE
+}
+
+package "Cross-Cutting Concerns" {
+  rectangle "Logger"               as Logger #EEEEEE
+  rectangle "Debug Tracker"        as DT     #FFCCCC
+  rectangle "Prod Tracker"         as PT     #CCFFCC
+  rectangle "Internal HTTP Logger" as IHL    #CCCCFF
+  rectangle "Debug HTTP Cache"     as DHC    #FFE5CC
+  rectangle "Mock Data"            as MD     #E5CCFF
+}
+
+' Logger applies to all modules
+Logger ..> FM
+Logger ..> RM
+Logger ..> TM
+Logger ..> DA
+Logger ..> RA
+
+' Tracking
+DT     ..> DA
+PT     ..> FM
+PT     ..> RM
+PT     ..> RA
+
+' HTTP Logging
+IHL    ..> FM
+IHL    ..> RM
+DHC    ..> DA
+
+' Mock Data usage
+MD     ..> FM
+MD     ..> RM
+MD     ..> TM
+@enduml

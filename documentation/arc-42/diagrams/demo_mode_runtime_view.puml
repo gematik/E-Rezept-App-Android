@@ -1,0 +1,68 @@
+@startuml
+' ─── Runtime Sequence for Demo Mode Module ───
+
+actor "User" as User
+
+participant "UI Components"         as UIGroup
+participant "App Screens"           as AppUiGroup
+participant "DI Kodein Module"      as DiGroup
+participant "Demo Repository"       as RepositoryGroup
+participant "Data Source"           as DataSourceGroup
+participant "External Modules"      as ExternalGroup
+
+== User launches demo screen ==
+User -> UIGroup: startAppWithDemoMode()
+activate UIGroup
+
+UIGroup -> AppUiGroup: initializeView()
+activate AppUiGroup
+
+UIGroup -> DiGroup: resolveDependencies()
+activate DiGroup
+
+DiGroup -> RepositoryGroup: getDemoRepositories()
+activate RepositoryGroup
+
+RepositoryGroup -> DataSourceGroup: fetchMockData()
+activate DataSourceGroup
+
+DataSourceGroup --> RepositoryGroup: returnFixtures()
+deactivate DataSourceGroup
+
+RepositoryGroup --> DiGroup: repositoriesInstance()
+deactivate RepositoryGroup
+
+DiGroup --> UIGroup: injectDependencies(repo)
+deactivate DiGroup
+
+UIGroup -> AppUiGroup: renderData(repo.getData())
+deactivate AppUiGroup
+
+== User interacts with feature ==
+User -> AppUiGroup: performAction()
+activate AppUiGroup
+
+AppUiGroup -> RepositoryGroup: executeUseCase()
+activate RepositoryGroup
+
+RepositoryGroup -> DataSourceGroup: getMockResult()
+activate DataSourceGroup
+
+DataSourceGroup --> RepositoryGroup: returnResult()
+deactivate DataSourceGroup
+
+RepositoryGroup --> AppUiGroup: resultData()
+deactivate RepositoryGroup
+
+AppUiGroup -> UIGroup: updateView(resultData)
+deactivate AppUiGroup
+
+== Optional external interaction ==
+UIGroup -> ExternalGroup: callExternalStub()
+activate ExternalGroup
+
+ExternalGroup --> UIGroup: externalResponse()
+deactivate ExternalGroup
+
+deactivate UIGroup
+@enduml

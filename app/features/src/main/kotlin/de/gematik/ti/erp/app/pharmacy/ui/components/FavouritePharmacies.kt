@@ -49,7 +49,8 @@ fun LazyListScope.FavouritePharmacies(
         ) {
             Text(
                 text = stringResource(R.string.pharmacy_my_pharmacies_header),
-                style = AppTheme.typography.subtitle1,
+                style = AppTheme.typography.h6,
+                color = AppTheme.colors.neutral900,
                 modifier = Modifier
                     .padding(vertical = PaddingDefaults.Medium)
                     .semanticsHeading(),

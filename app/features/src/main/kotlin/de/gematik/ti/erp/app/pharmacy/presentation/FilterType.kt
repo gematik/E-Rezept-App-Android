@@ -30,7 +30,9 @@ enum class FilterType {
     NEARBY,
     OPEN_NOW,
     DELIVERY_SERVICE,
-    ONLINE_SERVICE
+    ONLINE_SERVICE,
+    PICKUP,
+    RECENTLY_USED
     ;
 
     companion object {
@@ -40,6 +42,8 @@ enum class FilterType {
                 OPEN_NOW -> filter.copy(openNow = !filter.openNow)
                 DELIVERY_SERVICE -> filter.copy(deliveryService = !filter.deliveryService)
                 ONLINE_SERVICE -> filter.copy(onlineService = !filter.onlineService)
+                PICKUP -> filter.copy(pickup = !filter.pickup)
+                RECENTLY_USED -> filter.copy(recentlyUsed = !filter.recentlyUsed)
             }
     }
 }

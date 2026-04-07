@@ -32,7 +32,8 @@ import de.gematik.ti.erp.app.Requirement
 sealed class ServiceFilter(
     open val courier: Boolean = false,
     open val shipment: Boolean = false,
-    open val pickup: Boolean = false
+    open val pickup: Boolean = false,
+    open val availableServiceCodes: Set<String> = emptySet()
 ) {
 
     enum class ServiceType(val code: String, val text: String) {
@@ -51,12 +52,13 @@ sealed class ServiceFilter(
     abstract val shipmentCode: String
     abstract val pickupCode: String
 
-    // Generate text search string for FHIR VZD search
+    // Generate text search string for FHIR VZD search.
     fun buildTextSearch(additionalText: String? = null): String? {
         val serviceTexts = buildList {
             if (pickup) add(ServiceType.PICKUP.text)
             if (courier) add(ServiceType.COURIER.text)
             if (shipment) add(ServiceType.SHIPMENT.text)
+            addAll(availableServiceCodes)
         }
 
         return when {
@@ -74,8 +76,14 @@ sealed class ServiceFilter(
         fun create(
             courier: Boolean = false,
             shipment: Boolean = false,
-            pickup: Boolean = false
-        ): ServiceFilter = CodedServiceFilter(courier = courier, shipment = shipment, pickup = pickup)
+            pickup: Boolean = false,
+            availableServiceCodes: Set<String> = emptySet()
+        ): ServiceFilter = CodedServiceFilter(
+            courier = courier,
+            shipment = shipment,
+            pickup = pickup,
+            availableServiceCodes = availableServiceCodes
+        )
     }
 }
 
@@ -83,8 +91,9 @@ sealed class ServiceFilter(
 data class CodedServiceFilter(
     override val courier: Boolean = false, // (30)
     override val shipment: Boolean = false, // (40)
-    override val pickup: Boolean = false // (10)
-) : ServiceFilter(courier, shipment, pickup) {
+    override val pickup: Boolean = false, // (10)
+    override val availableServiceCodes: Set<String> = emptySet()
+) : ServiceFilter(courier, shipment, pickup, availableServiceCodes) {
 
     override val courierCode: String = ServiceType.COURIER.code
     override val shipmentCode: String = ServiceType.SHIPMENT.code

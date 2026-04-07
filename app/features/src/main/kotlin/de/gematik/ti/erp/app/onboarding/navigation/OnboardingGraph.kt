@@ -32,8 +32,6 @@ import de.gematik.ti.erp.app.navigation.slideInDown
 import de.gematik.ti.erp.app.navigation.slideOutUp
 import de.gematik.ti.erp.app.onboarding.presentation.OnboardingGraphController
 import de.gematik.ti.erp.app.onboarding.ui.DataProtectionScreen
-import de.gematik.ti.erp.app.onboarding.ui.OnboardingAllowAnalyticsScreen
-import de.gematik.ti.erp.app.onboarding.ui.OnboardingAnalyticsPreviewScreen
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingDataProtectionAndTermsOfUseOverviewScreen
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingPasswordAuthenticationScreen
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingSelectAppLoginScreen
@@ -85,25 +83,6 @@ fun NavGraphBuilder.onboardingGraph(
             route = OnboardingRoutes.OnboardingPasswordAuthenticationScreen.route
         ) {
             OnboardingPasswordAuthenticationScreen(
-                navController = navController,
-                navBackStackEntry = it,
-                graphController = controller
-            )
-        }
-        renderComposable(
-            route = OnboardingRoutes.OnboardingAnalyticsPreviewScreen.route
-        ) {
-            OnboardingAnalyticsPreviewScreen(
-                navController = navController,
-                navBackStackEntry = it,
-                graphController = controller
-            )
-        }
-        renderComposable(
-            route = OnboardingRoutes.AllowAnalyticsScreen.route,
-            stackEnterAnimation = { slideInDown() }
-        ) {
-            OnboardingAllowAnalyticsScreen(
                 navController = navController,
                 navBackStackEntry = it,
                 graphController = controller

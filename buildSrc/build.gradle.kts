@@ -43,10 +43,15 @@ gradlePlugin {
         group = name("flavours")
         implementationClass = implementationClass("buildapp.BuildAppFlavoursPlugin")
     }
-    plugins.create("teamsCommunication") {
-        id = name("teams")
-        group = name("teams")
-        implementationClass = implementationClass("teams.TeamsCommunicationPlugin")
+    plugins.create("releaseNotification") {
+        id = name("release-notification")
+        group = name("release-notification")
+        implementationClass = implementationClass("teams.ReleaseNotificationPlugin")
+    }
+    plugins.create("mrNotification") {
+        id = name("mr-notification")
+        group = name("mr-notification")
+        implementationClass = implementationClass("teams.MRNotificationPlugin")
     }
     plugins.create("dependencies") {
         id = name("dependency-overrides")

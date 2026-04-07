@@ -318,6 +318,8 @@ private fun BasePharmacyDetailsContent(
                     mail = pharmacy.contact.mail,
                     url = pharmacy.contact.url,
                     detailedInfoText = clickableText,
+                    onSiteFeatures = pharmacy.onSiteFeatures,
+                    availableServices = pharmacy.availableServices,
                     onPhoneClicked = onClickPhone,
                     onMailClicked = onClickMail,
                     onUrlClicked = onClickUrl,

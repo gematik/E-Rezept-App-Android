@@ -34,13 +34,9 @@ fun getUriDataTerms(): String {
     return when (getLanguageCode()) {
         "de" -> URI_DATA_TERMS_DE
         "en" -> URI_DATA_TERMS_EN
-        "pl" -> URI_DATA_TERMS_PL
-        "nl" -> URI_DATA_TERMS_NL
         else -> URI_DATA_TERMS_DE
     }
 }
 
 private const val URI_DATA_TERMS_DE = "file:///android_asset/data_terms_de.html"
 private const val URI_DATA_TERMS_EN = "file:///android_asset/data_terms_en.html"
-private const val URI_DATA_TERMS_PL = "file:///android_asset/data_terms_pl.html"
-private const val URI_DATA_TERMS_NL = "file:///android_asset/data_terms_nl.html"

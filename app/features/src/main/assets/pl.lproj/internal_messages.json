@@ -64,5 +64,11 @@
         "text": "**✨ Ulepszone otwieranie aplikacji** \nOdblokowywanie aplikacji jest teraz szybsze. \n \n **📞 Rozszerzone opcje kontaktu** \nWprowadziliśmy nowe opcje kontaktu dla wybranych polis ubezpieczeniowych. \n \n **♿ Dostępność** \nZaktualizowano i rozszerzono oświadczenie dotyczące dostępności, dodając sekcję dokumentującą historię zmian. Niektóre przyciski zostały dostosowane w celu poprawy widoczności.",
         "timestamp": "2026-03-02T08:00:00.000Z",
         "version": "1.37"
+    },
+    {
+        "id": "13",
+        "text": "**🏥 Ulepszone szczegóły apteki** \nApteki mogą teraz dodawać usługi takie jak szczepienia i funkcje na miejscu, takie jak dostęp bez barier. Apteki można filtrować na podstawie tych nowych informacji. \n \n **✨ Ulepszone wyszukiwanie aptek** \nOstatnio używane apteki i ulubione apteki są teraz wyraźniej oddzielone. Filtry zostały ulepszone. \n \n **✅ Identyfikator zdrowia dla innych ubezpieczonych osób** \nUbezpieczeni, którzy nie są objęci ustawowym lub prywatnym ubezpieczeniem zdrowotnym, mogą teraz również logować się za pomocą swojego identyfikatora zdrowia. \n \n **🛡️ Usunięto śledzenie** \nUsunęliśmy narzędzie śledzące używane w aplikacji. Żadne dane dotyczące korzystania z aplikacji nie są już gromadzone. \n \n **♿ Lepsza dostępność** \nFiltry mają teraz wyższy kontrast, a status filtra jest teraz łatwiejszy do sprawdzenia.",
+        "timestamp": "2026-03-30T08:00:00.000Z",
+        "version": "1.38"
     }
 ]

@@ -64,5 +64,11 @@
         "text": "**✨ Geliştirilmiş Uygulama Açılışı** \nUygulamanın kilidini açmak artık daha hızlı. \n \n **📞 Genişletilmiş İletişim Seçenekleri** \nSeçili sigorta poliçeleri için yeni iletişim seçenekleri ekledik. \n \n **♿ Erişilebilirlik** \nErişilebilirlik bildirimi güncellendi ve değişiklik geçmişini belgeleyen bir bölüm içerecek şekilde genişletildi. Bazı düğmeler daha iyi görünürlük için ayarlandı.",
         "timestamp": "2026-03-02T08:00:00.000Z",
         "version": "1.37"
+    },
+    {
+        "id": "13",
+        "text": "**🏥 Geliştirilmiş Eczane Bilgileri** \nEczaneler artık aşılar ve engelsiz erişim gibi yerinde özellikler de ekleyebiliyor. Eczaneler bu yeni bilgilere göre filtrelenebiliyor. \n \n **✨ Geliştirilmiş Eczane Arama** \nSon kullanılan eczaneler ve favori eczaneler artık daha net bir şekilde ayrılıyor. Filtreler iyileştirildi. \n \n **✅ Diğer Sigortalı Kişiler İçin Sağlık Kimliği** \nYasal veya özel sağlık sigortası kapsamında olmayan sigortalı kişiler de artık Sağlık Kimliklerini kullanarak giriş yapabiliyor. \n \n **🛡️ İzleme Kaldırıldı** \nUygulamada kullanılan izleme aracını kaldırdık. Artık uygulama kullanım verisi toplanmıyor. \n \n **♿ Geliştirilmiş Erişilebilirlik** \nFiltreler artık daha yüksek kontrasta sahip ve filtre durumu daha kolay görülebiliyor.",
+        "timestamp": "2026-03-30T08:00:00.000Z",
+        "version": "1.38"
     }
 ]

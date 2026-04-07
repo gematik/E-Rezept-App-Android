@@ -54,7 +54,9 @@ fun List<FhirPharmacyErpModel>.toModel(
             openingHours = erpModel.availableTime.toModel(),
             specialClosingTimes = erpModel.notAvailablePeriodsWithMetadata(),
             specialOpeningTimes = erpModel.specialOpeningTimesWithMetadata(),
-            telematikId = erpModel.telematikId
+            telematikId = erpModel.telematikId,
+            onSiteFeatures = erpModel.onSiteFeatures.sortedBy { it.code },
+            availableServices = erpModel.availableServices.sortedBy { it.code }
         )
     }
 

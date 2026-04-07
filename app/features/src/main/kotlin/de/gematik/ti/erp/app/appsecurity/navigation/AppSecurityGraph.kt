@@ -34,9 +34,11 @@ import de.gematik.ti.erp.app.navigation.renderComposable
 import de.gematik.ti.erp.app.navigation.toNavigationString
 import io.github.aakira.napier.Napier
 
+private fun resolveStartRoute(): String = DeviceCheckLoadingScreen.route
+
 fun NavGraphBuilder.appSecurityGraph(
     navController: NavController,
-    startDestination: String = DeviceCheckLoadingScreen.route,
+    startDestination: String = resolveStartRoute(),
     onAppSecurityPassed: () -> Unit
 ) {
     navigation(startDestination = startDestination, route = AppSecurityRoutes.subGraphName()) {

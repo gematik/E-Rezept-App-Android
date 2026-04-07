@@ -56,7 +56,6 @@ import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
-import de.gematik.ti.erp.app.onboarding.navigation.OnboardingRoutes
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
 import de.gematik.ti.erp.app.onboarding.presentation.OnboardingGraphController
 import de.gematik.ti.erp.app.semantics.semanticsHeading
@@ -93,6 +92,7 @@ class OnboardingPasswordAuthenticationScreen(
         val currentStep by graphController.currentStep.collectAsStateWithLifecycle(2)
         val passwordFieldsState by passwordFieldsController.passwordFieldsState.collectAsStateWithLifecycle()
         val onBack by rememberUpdatedState { navController.popBackStack() }
+        val isCreatingProfile by graphController.isCreatingProfile.collectAsStateWithLifecycle()
         BackHandler { onBack() }
         OnboardingPasswordScreenScaffold(
             passwordFieldsState = passwordFieldsState,
@@ -101,23 +101,27 @@ class OnboardingPasswordAuthenticationScreen(
             onPasswordChange = passwordFieldsController::onPasswordChange,
             onRepeatedPasswordChange = passwordFieldsController::onRepeatedPasswordChange,
             onChoosePassword = {
-                graphController.onChooseAuthentication(
-                    authentication = SettingsData.Authentication(
-                        deviceSecurity = false,
-                        failedAuthenticationAttempts = 0,
-                        password = SettingsData.Authentication.Password(passwordFieldsState.password),
-                        authenticationTimeOutSystemUptime = null
+                if (!isCreatingProfile) {
+                    graphController.onChooseAuthentication(
+                        authentication = SettingsData.Authentication(
+                            deviceSecurity = false,
+                            failedAuthenticationAttempts = 0,
+                            password = SettingsData.Authentication.Password(passwordFieldsState.password),
+                            authenticationTimeOutSystemUptime = null
+                        )
                     )
-                )
-                graphController.nextStep()
-                navController.navigate(OnboardingRoutes.OnboardingAnalyticsPreviewScreen.path())
+                    graphController.createProfile()
+                    navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                }
             },
             onCancel = {
                 navController.popBackStack()
             },
             onSkip = {
-                graphController.createProfileOnSkipOnboarding()
-                navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                if (!isCreatingProfile) {
+                    graphController.createProfileOnSkipOnboarding()
+                    navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                }
             }
         )
     }

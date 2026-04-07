@@ -24,7 +24,6 @@ package de.gematik.ti.erp.app.pharmacy.ui.screens
 
 import android.provider.Settings
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -41,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -52,7 +52,6 @@ import de.gematik.ti.erp.app.loading.LoadingIndicator
 import de.gematik.ti.erp.app.permissions.getLocationPermissionLauncher
 import de.gematik.ti.erp.app.permissions.isLocationPermissionAndServiceEnabled
 import de.gematik.ti.erp.app.permissions.locationPermissions
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyAddressErpModel
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.model.SelectedFavouritePharmacyState
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRouteBackStackEntryArguments
@@ -68,6 +67,8 @@ import de.gematik.ti.erp.app.pharmacy.ui.components.MockMap
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyMap
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacySearchButton
 import de.gematik.ti.erp.app.pharmacy.ui.model.QuickFilter
+import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyStartScreenPreviewData
+import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyStartScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
 import de.gematik.ti.erp.app.preview.LightDarkLongPreview
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -84,7 +85,6 @@ import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.capitalizeFirstChar
 import de.gematik.ti.erp.app.utils.extensions.isGooglePlayServiceAvailable
 import de.gematik.ti.erp.app.utils.letNotNull
-import kotlinx.datetime.Instant
 import org.kodein.di.compose.rememberInstance
 
 class PharmacyStartScreen(
@@ -251,7 +251,6 @@ class PharmacyStartScreen(
                     when (quickFilter) {
                         QuickFilter.OpenNowNearby -> {
                             if (context.isLocationPermissionAndServiceEnabled()) {
-                                // NEARBY filter needs to be set since it is not set when location was enabled long ago
                                 graphController.updateFilter(FilterType.NEARBY)
                                 updateOpenNowNearbyFilterAndNavigationToSearchList()
                             } else {
@@ -262,8 +261,7 @@ class PharmacyStartScreen(
 
                         QuickFilter.DeliveryNearby -> {
                             if (context.isLocationPermissionAndServiceEnabled()) {
-                                // NEARBY filter needs to be set since it is not set when location was enabled long ago
-                                graphController.updateFilter(FilterType.NEARBY)
+                                graphController.reset()
                                 updateDeliveryNearbyFilterAndNavigationToSearchList()
                             } else {
                                 quickFilterSelectedWithoutLocation = QuickFilter.DeliveryNearby
@@ -463,58 +461,29 @@ private fun PharmacyNotFoundDialog(
     }
 }
 
-@Suppress("MagicNumber")
 @LightDarkLongPreview
 @Composable
-fun PharmacyStartScreenPreview() {
-    val time = Instant.parse("2022-01-01T00:00:00Z")
-    val berlin = Coordinates(52.51947562977698, 13.404335795642881)
-
+fun PharmacyStartScreenPreview(
+    @PreviewParameter(
+        PharmacyStartScreenPreviewParameterProvider::class
+    ) previewData: PharmacyStartScreenPreviewData
+) {
     val pharmacyMap = MockMap()
 
     PreviewAppTheme {
-        Column {
-            PharmacyStartScreenContent(
-                favouritePharmacies = listOf(
-                    PharmacyErpModel(
-                        lastUsed = time,
-                        isFavorite = true,
-                        usageCount = 1,
-                        telematikId = "123456789",
-                        name = "Berlin Apotheke",
-                        address = PharmacyAddressErpModel(
-                            lineAddress = "Berliner Strasse 123",
-                            city = "Berlin",
-                            zip = "12345"
-                        ),
-                        contact = null
-                    ),
-                    PharmacyErpModel(
-                        lastUsed = time,
-                        isFavorite = false,
-                        usageCount = 1,
-                        telematikId = "123456788",
-                        name = "Stuttgart Apotheke",
-                        address = PharmacyAddressErpModel(
-                            lineAddress = "StuttgartStr 12345",
-                            city = "Stuttgart",
-                            zip = "12345"
-                        ),
-                        contact = null
-                    )
-                ),
-                previewCoordinates = berlin,
-                previewMap = pharmacyMap,
-                listState = rememberLazyListState(),
-                isGooglePlayServicesAvailable = true,
-                onClickQuickFilterSearch = {},
-                onClickFavouritePharmacy = {},
-                onClickPharmacySearch = {},
-                onClickMapsSearch = {},
-                onClickFilter = {},
-                onBack = {},
-                isModalFlow = false
-            )
-        }
+        PharmacyStartScreenContent(
+            favouritePharmacies = previewData.favouritePharmacies,
+            previewCoordinates = previewData.previewCoordinates,
+            previewMap = pharmacyMap,
+            listState = rememberLazyListState(),
+            isGooglePlayServicesAvailable = previewData.isGooglePlayServicesAvailable,
+            onClickQuickFilterSearch = {},
+            onClickFavouritePharmacy = {},
+            onClickPharmacySearch = {},
+            onClickMapsSearch = {},
+            onClickFilter = {},
+            onBack = {},
+            isModalFlow = previewData.isModalFlow
+        )
     }
 }

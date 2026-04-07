@@ -53,7 +53,7 @@ import org.kodein.di.instance
 val prescriptionModule =
     DI.Module("prescriptionModule") {
         bindProvider { TwoDCodeProcessor() }
-        bindProvider { TwoDCodeScanner(instance()) }
+        bindProvider { TwoDCodeScanner() }
         bindProvider { TwoDCodeValidator() }
         bindProvider { PrescriptionLocalDataSource(instance()) }
         bindProvider { PrescriptionRemoteDataSource(instance()) }

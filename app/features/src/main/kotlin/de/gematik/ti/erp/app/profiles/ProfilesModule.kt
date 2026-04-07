@@ -31,6 +31,7 @@ import de.gematik.ti.erp.app.profiles.usecase.DeleteProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetPairedDevicesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
+import de.gematik.ti.erp.app.profiles.usecase.GetProfileInsuranceTypeUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetSelectedProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.IsProfilePKVUseCase
@@ -59,6 +60,7 @@ val profilesModule = DI.Module("profilesModule") {
     bindProvider { GetPairedDevicesUseCase(instance()) }
     bindProvider { DeletePairedDevicesUseCase(instance()) }
     bindProvider { ProfilesUseCase(instance()) }
+    bindProvider { GetProfileInsuranceTypeUseCase(instance()) }
 }
 
 val profileRepositoryModule = DI.Module("profileRepositoryModule", allowSilentOverride = true) {

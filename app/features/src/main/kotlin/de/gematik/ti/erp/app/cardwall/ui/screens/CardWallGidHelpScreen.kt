@@ -44,6 +44,7 @@ import de.gematik.ti.erp.app.cardwall.ui.components.CardWallGidPKVHelpScreenCont
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallGidHelpScreenPreviewData
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallGidHelpScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LightDarkLongPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
@@ -58,7 +59,7 @@ class CardWallGidHelpScreen(
     override fun Content() {
         val listState = rememberLazyListState()
         val context = LocalContext.current
-        val profileIsPkv by sharedViewModel.profileIsPkv.collectAsStateWithLifecycle(false)
+        val profileInsuranceType by sharedViewModel.profileInsuranceType.collectAsStateWithLifecycle(false)
         val onBack by rememberUpdatedState {
             navController.popBackStack()
         }
@@ -68,7 +69,7 @@ class CardWallGidHelpScreen(
         }
         CardWallGidHelpScreenScaffold(
             listState = listState,
-            profileIsPkv = profileIsPkv,
+            profileIsPkv = profileInsuranceType == ProfilesData.InsuranceType.PKV,
             onBack = { onBack() },
             onClickOpenSettings = {
                 context.openSettingsAsNewActivity(

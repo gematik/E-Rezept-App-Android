@@ -132,7 +132,6 @@ import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 

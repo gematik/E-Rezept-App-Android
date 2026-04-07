@@ -43,6 +43,8 @@ import androidx.compose.ui.text.font.FontWeight
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
 import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodMetadata
+import de.gematik.ti.erp.app.fhir.pharmacy.model.PharmacyAvailableServiceErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.PharmacyOnSiteFeatureErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.SpecialOpeningTimeMetadata
 import de.gematik.ti.erp.app.pharmacy.ui.preview.mockDetailedInfoText
 import de.gematik.ti.erp.app.pharmacy.ui.preview.mockOpeningHours
@@ -54,7 +56,6 @@ import de.gematik.ti.erp.app.preview.LightDarkLongPreview
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerTiny
@@ -67,6 +68,9 @@ import kotlinx.datetime.LocalDateTime
 import java.time.format.TextStyle
 import java.util.Locale
 
+private val onSiteFeatureLabelByCode = PharmacyOnSiteFeatureOption.entries.associate { it.code to it.label }
+private val serviceTitleByCode = PharmacyFilterServiceOption.entries.associate { it.code to it.title }
+
 @Composable
 internal fun PharmacyContact(
     openingHours: OpeningHours?,
@@ -76,6 +80,8 @@ internal fun PharmacyContact(
     mail: String,
     url: String,
     detailedInfoText: AnnotatedString,
+    onSiteFeatures: List<PharmacyOnSiteFeatureErpModel>,
+    availableServices: List<PharmacyAvailableServiceErpModel>,
     onPhoneClicked: (String) -> Unit,
     onMailClicked: (String) -> Unit,
     onUrlClicked: (String) -> Unit,
@@ -91,14 +97,40 @@ internal fun PharmacyContact(
                 )
             }
         }
-        SpacerLarge()
+
+        if (onSiteFeatures.isNotEmpty()) {
+            SpacerXXLarge()
+            val onSiteLabels = onSiteFeatures.map { feature ->
+                onSiteFeatureLabelByCode[feature.code]
+                    ?.let { stringResource(it) }
+                    ?: feature.code
+            }
+
+            PharmacyOnSiteSection(labels = onSiteLabels)
+        }
+
+        if (availableServices.isNotEmpty()) {
+            SpacerXXLarge()
+            val serviceLabels = availableServices
+                .map { service ->
+                    (
+                        serviceTitleByCode[service.code]
+                            ?.let { stringResource(it) }
+                            ?: service.code
+                        ).trim().trimEnd('*').trimEnd()
+                }
+                .sortedBy { it.lowercase(Locale.getDefault()) }
+
+            PharmacyServicesSection(labels = serviceLabels)
+        }
 
         if (specialOpeningTimes.isNotEmpty()) {
+            SpacerXXLarge()
             SpecialOpeningTimes(specialOpeningTimes)
         }
-        SpacerXXLarge()
 
         if (specialClosingTimes.isNotEmpty()) {
+            SpacerXXLarge()
             SpecialClosingTimes(specialClosingTimes)
         }
 
@@ -330,6 +362,16 @@ fun PreviewPharmacyContact() {
             mail = "pharmacy@example.com",
             url = "www.examplepharmacy.com",
             detailedInfoText = mockDetailedInfoText,
+            onSiteFeatures = listOf(
+                PharmacyOnSiteFeatureErpModel(code = "abholautomat"),
+                PharmacyOnSiteFeatureErpModel(code = "barrierefrei"),
+                PharmacyOnSiteFeatureErpModel(code = "oepnv"),
+                PharmacyOnSiteFeatureErpModel(code = "parkmoeglichkeit")
+            ),
+            availableServices = listOf(
+                PharmacyAvailableServiceErpModel(code = "allergietest"),
+                PharmacyAvailableServiceErpModel(code = "60")
+            ),
             onPhoneClicked = {},
             onMailClicked = {},
             onUrlClicked = {},

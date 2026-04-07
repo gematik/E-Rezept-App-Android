@@ -42,8 +42,4 @@ object OnboardingRoutes : NavigationRoutes {
     object OnboardingSelectAppLoginScreen : Routes(NavigationRouteNames.OnboardingSelectAppLoginScreen.name)
 
     object OnboardingPasswordAuthenticationScreen : Routes(NavigationRouteNames.OnboardingPasswordAuthenticationScreen.name)
-
-    object OnboardingAnalyticsPreviewScreen : Routes(NavigationRouteNames.OnboardingAnalyticsPreviewScreen.name)
-
-    object AllowAnalyticsScreen : Routes(NavigationRouteNames.AllowAnalyticsScreen.name)
 }

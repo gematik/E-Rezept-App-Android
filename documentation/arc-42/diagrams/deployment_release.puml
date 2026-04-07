@@ -1,0 +1,51 @@
+@startuml
+!define RECTANGLE class
+skinparam activity {
+  ArrowColor #333
+  BackgroundColor #EEE
+  BorderColor #333
+}
+
+|Pipeline|
+start
+
+:Init and Validate;
+:Checkout;
+:Preparations;
+:Kotlin Lint;
+:Detekt;
+
+fork
+  :Screenshot Test;
+fork again
+  :Unit Tests;
+fork again
+  split
+    :Snyk SAST;
+  split again
+    :Snyk SCA;
+  split again
+    :OWASP Dependency Check;
+  end split
+end fork
+
+partition "Deploy Stages" {
+  if (Konnektathon?) then (yes)
+    :Deploy Konnektathon;
+  endif
+  if (TU Release?) then (yes)
+    :Deploy Release TU;
+    :Deploy Debug TU;
+  endif
+  if (Play Store?) then (yes)
+    :Deploy to Play Store;
+  endif
+  if (App Gallery?) then (yes)
+    :Deploy to Huawei App Gallery;
+  endif
+}
+
+:Archive Artifacts & Test Results;
+
+stop
+@enduml

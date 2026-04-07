@@ -29,6 +29,7 @@ enum class NavigationRouteNames(
     DeviceCheckLoadingScreen,
     InsecureDeviceScreen,
     IntegrityWarningScreen,
+    Android8DeprecationScreen,
 
     // Profile
     ProfileScreen,
@@ -80,15 +81,9 @@ enum class NavigationRouteNames(
     OnboardingDataProtectionAndTermsOfUseOverviewScreen,
     TermsOfUseScreen, // TODO is duplicate with Settings
     DataProtectionScreen, // TODO is duplicate with Settings
-    OnboardingAnalyticsPreviewScreen,
-
-    // Analytics
-    AllowAnalyticsScreen, // TODO is duplicate with Settings
 
     // Settings
     SettingsScreen,
-    SettingsProductImprovementScreen,
-    SettingsAllowAnalyticsScreen,
     SettingsAppSecurityScreen,
     SettingsSetAppPasswordScreen,
     SettingsDataProtectionScreen,
@@ -98,10 +93,6 @@ enum class NavigationRouteNames(
     SettingsAdditionalLicencesScreen,
     SettingsLanguageScreen,
     SettingsThemeScreen,
-
-    // MlKit
-    MlKit,
-    MlKitInformationScreen,
 
     // Prescriptions
     PrescriptionListScreen,

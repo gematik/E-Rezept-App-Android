@@ -34,7 +34,8 @@ import de.gematik.ti.erp.app.idp.model.UniversalLinkIdp
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError
 import de.gematik.ti.erp.app.idp.usecase.GetUniversalLinkForHealthInsuranceAppsUseCase
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.usecase.IsProfilePKVUseCase
+import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profiles.usecase.GetProfileInsuranceTypeUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.viewmodel.rememberGraphScopedViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,20 +48,20 @@ import java.net.URI
 
 class CardWallSharedViewModel(
     private val getUniversalLinkUseCase: GetUniversalLinkForHealthInsuranceAppsUseCase,
-    private val isProfilePKVUseCase: IsProfilePKVUseCase
+    private val getProfileInsuranceTypeUseCase: GetProfileInsuranceTypeUseCase
 ) : ViewModel() {
     private val _profileId = MutableStateFlow("")
     private val _can = MutableStateFlow("")
     private val _pin = MutableStateFlow("")
     private val _saveCredentials: MutableStateFlow<SaveCredentialsController.AuthResult?> = MutableStateFlow(null)
-    private val _profileIsPkv: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _profileInsuranceType: MutableStateFlow<ProfilesData.InsuranceType> = MutableStateFlow(ProfilesData.InsuranceType.None)
     private val _scannedCan = MutableStateFlow<String?>(null)
     val profileId: StateFlow<ProfileIdentifier> = _profileId
     val can: StateFlow<String> = _can
     val pin: StateFlow<String> = _pin
     val saveCredentials: StateFlow<SaveCredentialsController.AuthResult?> = _saveCredentials
     val scannedCan: StateFlow<String?> = _scannedCan.asStateFlow()
-    val profileIsPkv: StateFlow<Boolean> = _profileIsPkv
+    val profileInsuranceType: StateFlow<ProfilesData.InsuranceType> = _profileInsuranceType
 
     val authorizationWithExternalAppInBackgroundEvent = ComposableEvent<Boolean>()
     val redirectUriEvent = ComposableEvent<Pair<URI, GidNavigationData>>()
@@ -76,7 +77,7 @@ class CardWallSharedViewModel(
     fun setProfileId(value: ProfileIdentifier) {
         viewModelScope.launch {
             _profileId.update { value }
-            _profileIsPkv.update { isProfilePKVUseCase.invoke(value) }
+            _profileInsuranceType.update { getProfileInsuranceTypeUseCase.invoke(value) }
         }
     }
 
@@ -143,7 +144,7 @@ internal fun cardWallSharedViewModel(
     entry: NavBackStackEntry
 ): CardWallSharedViewModel {
     val getLinkUseCase by rememberInstance<GetUniversalLinkForHealthInsuranceAppsUseCase>()
-    val isPkvUseCase by rememberInstance<IsProfilePKVUseCase>()
+    val getProfileInsuranceTypeUseCase by rememberInstance<GetProfileInsuranceTypeUseCase>()
     return rememberGraphScopedViewModel(
         navController = navController,
         navEntry = entry,
@@ -151,7 +152,7 @@ internal fun cardWallSharedViewModel(
     ) {
         CardWallSharedViewModel(
             getUniversalLinkUseCase = getLinkUseCase,
-            isProfilePKVUseCase = isPkvUseCase
+            getProfileInsuranceTypeUseCase = getProfileInsuranceTypeUseCase
         )
     }
 }

@@ -23,6 +23,8 @@
 package de.gematik.ti.erp.app.pharmacy.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.fhir.pharmacy.model.PharmacyAvailableServiceErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.PharmacyOnSiteFeatureErpModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours
@@ -136,6 +138,16 @@ object PharmacyPreviewData {
             phone = "0123456789",
             mail = "mpq@nrw.de",
             url = "www.apotheke-am-markt.de"
+        ),
+        onSiteFeatures = listOf(
+            PharmacyOnSiteFeatureErpModel(code = "abholautomat"),
+            PharmacyOnSiteFeatureErpModel(code = "barrierefrei"),
+            PharmacyOnSiteFeatureErpModel(code = "oepnv"),
+            PharmacyOnSiteFeatureErpModel(code = "parkmoeglichkeit")
+        ),
+        availableServices = listOf(
+            PharmacyAvailableServiceErpModel(code = "allergietest"),
+            PharmacyAvailableServiceErpModel(code = "Impfung")
         )
     )
 

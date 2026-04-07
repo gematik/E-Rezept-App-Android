@@ -89,9 +89,11 @@ import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyGraphController
 import de.gematik.ti.erp.app.pharmacy.presentation.WILDCARD
 import de.gematik.ti.erp.app.pharmacy.presentation.rememberPharmacySearchListController
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyScreen
-import de.gematik.ti.erp.app.pharmacy.ui.components.FilterButtonSection
+import de.gematik.ti.erp.app.pharmacy.ui.components.FilterChipSection
+import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyFilterServiceOption
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyFullScreenSearchLoading
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyMapButton
+import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyOnSiteFeatureOption
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyResultCard
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacySearchErrorHint
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacySearchLoading
@@ -123,15 +125,21 @@ class PharmacySearchListScreen(
         val filter by graphController.filter()
         val focusManager = LocalFocusManager.current
         val location by graphController.coordinates()
+        val favouritePharmacies by graphController.favouritePharmacies()
         val focusRequester = remember { FocusRequester() }
         var searchTerm by remember { mutableStateOf(TextFieldValue(WILDCARD)) }
 
         var isAtLeastOnePharmacyLoaded by remember { mutableStateOf(false) }
 
+        val oftenUsedTelematikIds = remember(favouritePharmacies) {
+            favouritePharmacies.filter { it.isOftenUsed }.map { it.telematikId }.toSet()
+        }
+
         val searchListController = rememberPharmacySearchListController(
             filter,
             location,
-            searchTerm.text
+            searchTerm.text,
+            oftenUsedTelematikIds
         )
 
         val searchParam by searchListController.searchParamState
@@ -168,6 +176,12 @@ class PharmacySearchListScreen(
                 searchListController.onFilter(selectedFilter) {
                     graphController.updateFilter(it, clearLocation = (selectedFilter == FilterType.NEARBY))
                 }
+            },
+            onRemoveOnSiteFeature = { option ->
+                graphController.toggleOnSiteFeature(option)
+            },
+            onRemoveAvailableService = { option ->
+                graphController.toggleAvailableService(option)
             },
             onClickPharmacy = { pharmacy ->
                 navController.navigate(
@@ -210,6 +224,8 @@ private fun PharmacySearchListScreenContent(
     lazyListState: LazyListState,
     onPharmacyLoaded: () -> Unit,
     onClickChip: (Boolean, FilterType) -> Unit,
+    onRemoveOnSiteFeature: (PharmacyOnSiteFeatureOption) -> Unit,
+    onRemoveAvailableService: (PharmacyFilterServiceOption) -> Unit,
     onClickPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit,
     pharmacies: LazyPagingItems<PharmacyUseCaseData.Pharmacy>,
     onClickFilter: () -> Unit,
@@ -228,10 +244,12 @@ private fun PharmacySearchListScreenContent(
                     focusRequester = focusRequester,
                     onBack = onBack
                 )
-                FilterButtonSection(
+                FilterChipSection(
                     modifier = Modifier.padding(horizontal = PaddingDefaults.Small),
                     filter = filter,
-                    onClickChip = onClickChip,
+                    onFilterToggle = onClickChip,
+                    onRemoveOnSiteFeature = onRemoveOnSiteFeature,
+                    onRemoveAvailableService = onRemoveAvailableService,
                     onClickFilter = onClickFilter
                 )
             }
@@ -548,6 +566,8 @@ fun PharmacySearchListScreenContentPreview(
             onSearchInputChange = {},
             onPharmacyLoaded = {},
             onClickChip = { _, _ -> },
+            onRemoveOnSiteFeature = {},
+            onRemoveAvailableService = {},
             onClickPharmacy = {},
             onClickFilter = {},
             onBack = {},

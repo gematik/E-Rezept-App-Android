@@ -108,4 +108,25 @@ object FhirIdentifierSystems {
     object Reference {
         const val URN_UUID_PREFIX = "urn:uuid:"
     }
+
+    /**
+     * **Healthcare Directory Identifiers**
+     */
+    object Vzd {
+        /** Structure definition URL for special opening times extension */
+        const val SPECIAL_OPENING_TIMES_EX =
+            "https://gematik.de/fhir/directory/StructureDefinition/SpecialOpeningTimesEX"
+
+        /** Code system for physical features of a pharmacy */
+        const val PHYSICAL_FEATURES_SYSTEM =
+            "https://gematik.de/fhir/directory/CodeSystem/physicalFeatures"
+
+        /** Code system for pharmacy healthcare specialty */
+        const val PHARMACY_SPECIALTY_SYSTEM =
+            "https://gematik.de/fhir/directory/CodeSystem/PharmacyHealthcareSpecialtyCS"
+
+        /** Code system for general healthcare service specialty */
+        const val HEALTHCARE_SERVICE_SPECIALTY_SYSTEM =
+            "https://gematik.de/fhir/directory/CodeSystem/HealthcareServiceSpecialtyCS"
+    }
 }

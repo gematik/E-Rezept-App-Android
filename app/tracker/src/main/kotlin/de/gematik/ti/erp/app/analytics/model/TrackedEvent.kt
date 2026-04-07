@@ -22,15 +22,15 @@
 
 package de.gematik.ti.erp.app.analytics.model
 
-import de.gematik.ti.erp.app.analytics.mapper.ContentSquareEventMapper
+import de.gematik.ti.erp.app.analytics.mapper.TrackingEventMapper
 
 sealed class TrackedEvent(
-    val key: ContentSquareEventMapper,
+    val key: TrackingEventMapper,
     val value: String
 ) {
-    data class ArchivePrescriptionCount(val count: Int) : TrackedEvent(ContentSquareEventMapper.ArchivePrescriptionCount, "$count")
-    data class SyncedPrescriptionCount(val count: Int) : TrackedEvent(ContentSquareEventMapper.SyncedPrescriptionCount, "$count")
-    data class ScannedPrescriptionCount(val count: Int) : TrackedEvent(ContentSquareEventMapper.ScannedPrescriptionCount, "$count")
-    data class MessageCount(val count: Int) : TrackedEvent(ContentSquareEventMapper.MessageCount, "$count")
-    data object DigaFeedbackAccepted : TrackedEvent(ContentSquareEventMapper.DigaFeedbackAccepted, "yes")
+    data class ArchivePrescriptionCount(val count: Int) : TrackedEvent(TrackingEventMapper.ArchivePrescriptionCount, "$count")
+    data class SyncedPrescriptionCount(val count: Int) : TrackedEvent(TrackingEventMapper.SyncedPrescriptionCount, "$count")
+    data class ScannedPrescriptionCount(val count: Int) : TrackedEvent(TrackingEventMapper.ScannedPrescriptionCount, "$count")
+    data class MessageCount(val count: Int) : TrackedEvent(TrackingEventMapper.MessageCount, "$count")
+    data object DigaFeedbackAccepted : TrackedEvent(TrackingEventMapper.DigaFeedbackAccepted, "yes")
 }

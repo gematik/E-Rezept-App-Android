@@ -26,7 +26,11 @@ import android.nfc.NfcAdapter
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import de.gematik.ti.erp.app.base.NfcEnabledEffect
+import de.gematik.ti.erp.app.cardwall.ui.components.EnableNfcDialog
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -90,58 +94,65 @@ class CardUnlockEgkScreen(
             }
         }
 
-        UnlockEgkDialog(
-            buildConfig = buildConfig,
-            unlockMethod = unlockMethod.name,
-            dialogState = dialogState,
-            graphController = graphController,
-            cardAccessNumber = can,
-            personalUnblockingKey = puk,
-            troubleShootingEnabled = true,
-            onClickTroubleshooting = {
-                navController.navigate(TroubleShootingRoutes.TroubleShootingIntroScreen.path())
-            },
-            oldPin = oldPin,
-            newPin = newPin,
-            onRetryCan = {
-                navController.navigate(
-                    route = CardUnlockRoutes.CardUnlockCanScreen.route,
-                    navOptions = navOptions {
-                        popUpTo(CardUnlockRoutes.CardUnlockCanScreen.route) {
-                            inclusive = true
+        var nfcEnabled by remember { mutableStateOf(NfcAdapter.getDefaultAdapter(activity)?.isEnabled ?: false) }
+        NfcEnabledEffect { nfcEnabled = true }
+
+        if (!nfcEnabled) {
+            EnableNfcDialog { navController.popBackStack() }
+        } else {
+            UnlockEgkDialog(
+                buildConfig = buildConfig,
+                unlockMethod = unlockMethod.name,
+                dialogState = dialogState,
+                graphController = graphController,
+                cardAccessNumber = can,
+                personalUnblockingKey = puk,
+                troubleShootingEnabled = true,
+                onClickTroubleshooting = {
+                    navController.navigate(TroubleShootingRoutes.TroubleShootingIntroScreen.path())
+                },
+                oldPin = oldPin,
+                newPin = newPin,
+                onRetryCan = {
+                    navController.navigate(
+                        route = CardUnlockRoutes.CardUnlockCanScreen.route,
+                        navOptions = navOptions {
+                            popUpTo(CardUnlockRoutes.CardUnlockCanScreen.route) {
+                                inclusive = true
+                            }
                         }
-                    }
-                )
-            },
-            onRetryOldSecret = {
-                navController.navigate(
-                    route = CardUnlockRoutes.CardUnlockOldSecretScreen.route,
-                    navOptions = navOptions {
-                        popUpTo(CardUnlockRoutes.CardUnlockOldSecretScreen.route) {
-                            inclusive = true
+                    )
+                },
+                onRetryOldSecret = {
+                    navController.navigate(
+                        route = CardUnlockRoutes.CardUnlockOldSecretScreen.route,
+                        navOptions = navOptions {
+                            popUpTo(CardUnlockRoutes.CardUnlockOldSecretScreen.route) {
+                                inclusive = true
+                            }
                         }
-                    }
-                )
-            },
-            onRetryPuk = {
-                navController.navigate(
-                    route = CardUnlockRoutes.CardUnlockPukScreen.route,
-                    navOptions = navOptions {
-                        popUpTo(CardUnlockRoutes.CardUnlockPukScreen.route) {
-                            inclusive = true
+                    )
+                },
+                onRetryPuk = {
+                    navController.navigate(
+                        route = CardUnlockRoutes.CardUnlockPukScreen.route,
+                        navOptions = navOptions {
+                            popUpTo(CardUnlockRoutes.CardUnlockPukScreen.route) {
+                                inclusive = true
+                            }
                         }
-                    }
-                )
-            },
-            onFinishUnlock = {
-                graphController.reset()
-                navController.popBackStack(CardUnlockRoutes.CardUnlockIntroScreen.route, inclusive = true)
-            },
-            onAssignPin = {
-                graphController.setUnlockMethodForGraph(UnlockMethod.ChangeReferenceData)
-                navController.popBackStack(CardUnlockRoutes.CardUnlockIntroScreen.route, inclusive = true)
-            }
-        )
+                    )
+                },
+                onFinishUnlock = {
+                    graphController.reset()
+                    navController.popBackStack(CardUnlockRoutes.CardUnlockIntroScreen.route, inclusive = true)
+                },
+                onAssignPin = {
+                    graphController.setUnlockMethodForGraph(UnlockMethod.ChangeReferenceData)
+                    navController.popBackStack(CardUnlockRoutes.CardUnlockIntroScreen.route, inclusive = true)
+                }
+            )
+        }
         ReadCardScreenScaffold(
             onBack = { navController.popBackStack() },
             onClickTroubleshooting = {

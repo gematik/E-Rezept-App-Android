@@ -38,6 +38,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.semantics.semanticsMergeDescendants
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -66,11 +67,13 @@ internal fun LazyListScope.MapsSection(
                 .padding(horizontal = PaddingDefaults.Medium)
         ) {
             Text(
-                stringResource(R.string.pharmacy_maps_header),
-                style = AppTheme.typography.subtitle1,
+                stringResource(R.string.pharmacy_maps_card_header),
+                style = AppTheme.typography.h6,
+                color = AppTheme.colors.neutral900,
                 modifier = Modifier
-                    .padding(top = PaddingDefaults.XXLarge, bottom = PaddingDefaults.Medium)
+                    .padding(top = PaddingDefaults.XLarge, bottom = PaddingDefaults.Medium).semanticsHeading()
             )
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

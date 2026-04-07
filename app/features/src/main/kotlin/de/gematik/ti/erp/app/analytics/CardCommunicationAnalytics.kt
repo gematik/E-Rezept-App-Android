@@ -24,30 +24,17 @@ package de.gematik.ti.erp.app.analytics
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.analytics.tracker.Tracker
-import de.gematik.ti.erp.app.analytics.usecase.IsAnalyticsAllowedUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 
 class CardCommunicationAnalytics(
-    private val isAnalyticsAllowedUseCase: IsAnalyticsAllowedUseCase,
     private val tracker: Tracker,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    private val scope = CoroutineScope(dispatcher)
-    private val isAnalyticsAllowed by lazy {
-        isAnalyticsAllowedUseCase.invoke()
-    }
-
-    val analyticsAllowed: StateFlow<Boolean>
-        get() = isAnalyticsAllowed.stateIn(scope, SharingStarted.Eagerly, false)
-
     @Requirement(
         "A_19093-01#1",
         sourceSpecification = "gemSpec_eRp_FdV",
@@ -63,7 +50,7 @@ class CardCommunicationAnalytics(
     )
     suspend fun trackCardState(screenName: String) {
         withContext(dispatcher) {
-            if (analyticsAllowed.value) {
+            if (BuildConfigExtension.isInternalDebug) {
                 tracker.trackEvent(screenName)
                 Napier.d("Analytics send $screenName")
             } else {
@@ -104,7 +91,7 @@ class CardCommunicationAnalytics(
 }
 
 suspend fun CardCommunicationAnalytics.trackCardCommunication(state: AuthenticationState) {
-    if (analyticsAllowed.value) {
+    if (BuildConfigExtension.isInternalDebug) {
         when (state) {
             AuthenticationState.HealthCardBlocked ->
                 trackAuthenticationProblem(CardCommunicationAnalytics.AuthenticationProblem.CardBlocked)

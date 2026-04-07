@@ -95,6 +95,22 @@ data class SpecialOpeningTimeErpModel(
     val period: FhirPharmacyErpModelPeriod?
 )
 
+/**
+ * Data class representing an on-site feature of the pharmacy (e.g. parking, barrier-free access).
+ */
+@Serializable
+data class PharmacyOnSiteFeatureErpModel(
+    val code: String
+)
+
+/**
+ * Data class representing an available service offered by the pharmacy (e.g. vaccination, allergy test).
+ */
+@Serializable
+data class PharmacyAvailableServiceErpModel(
+    val code: String
+)
+
 @Serializable
 /**
  * Model representing a pharmacy with its availability and not available periods.
@@ -124,6 +140,8 @@ data class FhirPharmacyErpModel(
     val availableTime: OpeningHoursErpModel, // availableTime
     val notAvailablePeriods: List<NotAvailablePeriodErpModel> = emptyList(),
     val specialOpeningTimes: List<SpecialOpeningTimeErpModel> = emptyList(),
+    val onSiteFeatures: List<PharmacyOnSiteFeatureErpModel> = emptyList(),
+    val availableServices: List<PharmacyAvailableServiceErpModel> = emptyList(),
     val isClosedToday: Boolean = false
 ) {
     @OptIn(kotlin.time.ExperimentalTime::class)

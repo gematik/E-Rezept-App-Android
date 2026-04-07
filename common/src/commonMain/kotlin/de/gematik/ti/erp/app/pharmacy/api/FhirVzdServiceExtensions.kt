@@ -39,6 +39,7 @@ suspend fun FhirVzdService.searchPharmacyWithLocation(
     serviceFilter: ServiceFilter?,
     locationFilter: LocationFilter? = null,
     textFilter: TextFilter? = null,
+    characteristics: List<String> = emptyList(),
     count: Int = 100
 ): Response<JsonElement> {
     val additionalText = textFilter?.toSanitizedSearchText()
@@ -49,6 +50,7 @@ suspend fun FhirVzdService.searchPharmacyWithLocation(
         longitude = locationFilter?.longitude,
         latitude = locationFilter?.latitude,
         distance = locationFilter?.radius?.toInt(),
+        characteristics = characteristics,
         count = count
     )
 }

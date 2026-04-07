@@ -28,7 +28,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Security
-import androidx.compose.material.icons.outlined.Timeline
 import androidx.compose.material.icons.rounded.Camera
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.ZoomIn
@@ -77,12 +76,6 @@ fun PersonalSettingsSection(
             LabelButton(icon = Icons.Outlined.DarkMode, text = stringResource(R.string.settings_theme_label)) {
                 personalSettingsClickActions.onClickThemeSettings()
             }
-        }
-        LabelButton(
-            Icons.Outlined.Timeline,
-            stringResource(R.string.settings_product_improvement_header)
-        ) {
-            personalSettingsClickActions.onClickProductImprovementSettings()
         }
         LabelButton(
             Icons.Outlined.Security,

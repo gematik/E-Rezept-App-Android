@@ -60,19 +60,20 @@ interface ExternalAuthenticatorListController {
     )
     fun onFilterList(searchWord: String)
     fun onRemoveFilterList()
+    fun onSetSearchValue(searchValue: String)
 }
 
 class DefaultExternalAuthenticatorListController(
     private val getHealthInsuranceAppIdpsUseCase: GetHealthInsuranceAppIdpsUseCase,
     private val getUniversalLinkUseCase: GetUniversalLinkForHealthInsuranceAppsUseCase,
     private val isProfilePKVUseCase: IsProfilePKVUseCase,
-    private val profileId: ProfileIdentifier
+    private val profileId: ProfileIdentifier,
+    private val initialSearchValue: String
 ) : ExternalAuthenticatorListController, Controller() {
     override val authorizationWithExternalAppInBackgroundEvent = ComposableEvent<Boolean>()
     override val redirectUriEvent = ComposableEvent<Pair<URI, HealthInsuranceData>>()
     override val redirectUriGematikErrorEvent = ComposableEvent<GematikResponseError>()
     override val redirectUriErrorEvent = ComposableEvent<String?>()
-
     private val _originalHealthInsuranceDataList = mutableListOf<HealthInsuranceData>()
     private val _searchValue: MutableStateFlow<String> = MutableStateFlow("")
 
@@ -93,6 +94,7 @@ class DefaultExternalAuthenticatorListController(
         rationale = "Business logic to get the list of health insurance companies."
     )
     override fun getHealthInsuranceAppList(profileIsPkv: Boolean) {
+        onSetSearchValue(initialSearchValue)
         healthInsuranceDataList.update { UiState.Loading() }
         controllerScope.launch {
             runCatching {
@@ -104,7 +106,7 @@ class DefaultExternalAuthenticatorListController(
                     if (filteredList.isEmpty()) {
                         healthInsuranceDataList.update { UiState.Empty() }
                     } else {
-                        healthInsuranceDataList.update { UiState.Data(filteredList) }
+                        onFilterList(_searchValue.value)
                     }
                 },
                 onFailure = { error ->
@@ -156,14 +158,23 @@ class DefaultExternalAuthenticatorListController(
         }
     }
 
+    override fun onSetSearchValue(searchValue: String) {
+        _searchValue.update { searchValue }
+    }
+
     override fun onRemoveFilterList() {
         _searchValue.update { "" }
-        healthInsuranceDataList.update { UiState.Data(_originalHealthInsuranceDataList) }
+        if (!healthInsuranceDataList.value.isLoading) {
+            healthInsuranceDataList.update { UiState.Data(_originalHealthInsuranceDataList) }
+        }
     }
 }
 
 @Composable
-fun rememberExternalAuthenticatorListController(profileId: ProfileIdentifier): ExternalAuthenticatorListController {
+fun rememberExternalAuthenticatorListController(
+    profileId: ProfileIdentifier,
+    initialSearchValue: String
+): ExternalAuthenticatorListController {
     val getHealthInsuranceAppIdpsUseCase: GetHealthInsuranceAppIdpsUseCase by rememberInstance()
     val getUniversalLinkUseCase: GetUniversalLinkForHealthInsuranceAppsUseCase by rememberInstance()
     val isProfilePKVUseCase by rememberInstance<IsProfilePKVUseCase>()
@@ -172,7 +183,8 @@ fun rememberExternalAuthenticatorListController(profileId: ProfileIdentifier): E
             getHealthInsuranceAppIdpsUseCase = getHealthInsuranceAppIdpsUseCase,
             getUniversalLinkUseCase = getUniversalLinkUseCase,
             isProfilePKVUseCase = isProfilePKVUseCase,
-            profileId = profileId
+            profileId = profileId,
+            initialSearchValue = initialSearchValue
         )
     }
 }

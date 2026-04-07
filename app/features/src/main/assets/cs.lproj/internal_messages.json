@@ -64,5 +64,11 @@
         "text": "**✨ Vylepšené otevírání aplikace** \nOdemykání aplikace je nyní rychlejší. \n \n **📞 Rozšířené možnosti kontaktování** \nZavedli jsme nové možnosti kontaktování pro vybrané pojistné smlouvy. \n \n **♿ Přístupnost** \nProhlášení o přístupnosti bylo aktualizováno a rozšířeno o část s historií změn. Některá tlačítka byla upravena pro lepší viditelnost.",
         "timestamp": "2026-03-02T08:00:00.000Z",
         "version": "1.37"
+    },
+    {
+        "id": "13",
+        "text": "**🏥 Vylepšené podrobnosti o lékárnách** \nLékárny nyní mohou přidávat služby, jako je očkování, a funkce na místě, jako je bezbariérový přístup. Lékárny lze filtrovat na základě těchto nových informací. \n \n **✨ Vylepšené vyhledávání lékáren** \nNaposledy použité lékárny a oblíbené lékárny jsou nyní jasněji odděleny. Filtry byly vylepšeny. \n \n **✅ Zdravotní průkaz pro ostatní pojištěné osoby** \nPojištěné osoby, které nejsou hrazeny zákonným ani soukromým zdravotním pojištěním, se nyní mohou také přihlásit pomocí svého zdravotního průkazu. \n \n **🛡️ Sledování odstraněno** \nOdstranili jsme nástroj pro sledování používaný v aplikaci. Již se neshromažďují žádná data o používání aplikace. \n \n **♿ Vylepšená přístupnost** \nFiltry nyní mají vyšší kontrast a stav filtru je nyní snáze viditelný.",
+        "timestamp": "2026-03-30T08:00:00.000Z",
+        "version": "1.38"
     }
 ]

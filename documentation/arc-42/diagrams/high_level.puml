@@ -1,0 +1,28 @@
+@startuml
+scale 0.8
+
+' ─── Force only right-angle connectors ───
+skinparam linetype polyline
+skinparam polylineSmoothness 0
+skinparam orthogonalLayout true
+
+' ─── Make all packages have a dotted border ───
+skinparam packageBorderStyle DOTTED
+skinparam packageBorderColor Black
+skinparam packageBackgroundColor Transparent
+
+package "High-Level View" {
+    rectangle "App modules"         as AppModules     #A2D5AB
+    rectangle "Feature modules"     as FeatureModules #C4B5FE
+    rectangle "Shared modules"      as SharedModules  #FCD34D
+    rectangle "Lower-level modules" as LowerLevel     #93C5FD
+    rectangle "Data + mock modules" as DataMock       #FBCFE8
+
+    FeatureModules ..> AppModules
+    DataMock       ..> FeatureModules
+    DataMock       ..> AppModules
+    DataMock       ..> LowerLevel
+    DataMock       ..> SharedModules
+    LowerLevel     ..> SharedModules
+}
+@enduml

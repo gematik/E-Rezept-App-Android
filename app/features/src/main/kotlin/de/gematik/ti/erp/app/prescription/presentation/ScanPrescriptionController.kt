@@ -148,7 +148,7 @@ class ScanPrescriptionController(
             }
         }.transformLatest { (avgTime, scanWorkflow) ->
             emit(scanWorkflow)
-            delay(avgTime)
+            delay(avgTime.coerceAtLeast(2000L)) // min 2s — must outlast 1000ms Hold before emptying
             emit(emptyScanWorkflow)
         }
 

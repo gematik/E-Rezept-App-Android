@@ -50,7 +50,8 @@ class PharmacySearchListController(
     pharmacyFilter: PharmacyUseCaseData.Filter,
     coordinates: Coordinates?,
     searchTerm: String,
-    private val pharmacySearchUseCase: PharmacySearchUseCase
+    private val pharmacySearchUseCase: PharmacySearchUseCase,
+    private val oftenUsedTelematikIds: Set<String> = emptySet()
 ) : Controller() {
 
     private val searchTerm = MutableStateFlow(searchTerm)
@@ -108,6 +109,9 @@ class PharmacySearchListController(
                         .filter { it.deliveryService(searchParams.filter.deliveryService) }
                         .filter { it.onlineService(searchParams.filter.onlineService) }
                         .filter { it.isOpenNow(searchParams.filter.openNow) }
+                        .filter { it.recentlyUsed(searchParams.filter.recentlyUsed, oftenUsedTelematikIds) }
+                        .filter { it.hasAllOnSiteFeatures(searchParams.filter.onSiteFeatures) }
+                        .filter { it.hasAllAvailableServices(searchParams.filter.availableServices) }
                 }.cachedIn(controllerScope)
         }
     }
@@ -121,7 +125,8 @@ class PharmacySearchListController(
 fun rememberPharmacySearchListController(
     filter: PharmacyUseCaseData.Filter = PharmacyUseCaseData.Filter(),
     coordinates: Coordinates? = null,
-    searchTerm: String = WILDCARD
+    searchTerm: String = WILDCARD,
+    oftenUsedTelematikIds: Set<String> = emptySet()
 ): PharmacySearchListController {
     val searchUseCase by rememberInstance<PharmacySearchUseCase>()
 
@@ -130,7 +135,8 @@ fun rememberPharmacySearchListController(
             pharmacyFilter = filter,
             coordinates = coordinates,
             searchTerm = searchTerm,
-            pharmacySearchUseCase = searchUseCase
+            pharmacySearchUseCase = searchUseCase,
+            oftenUsedTelematikIds = oftenUsedTelematikIds
         )
     }
 }

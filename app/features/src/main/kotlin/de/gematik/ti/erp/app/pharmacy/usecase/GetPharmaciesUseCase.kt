@@ -37,6 +37,16 @@ class GetPharmaciesUseCase(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     operator fun invoke(): Flow<List<PharmacyErpModel>> = repository.loadPharmacies()
-        .map { it.take(LAST_USED_PHARMACIES_COUNT) }
+        .map { pharmacies ->
+            val favourites = pharmacies
+                .filter { it.isFavorite }
+                .sortedByDescending { it.lastUsed }
+            favourites.ifEmpty {
+                pharmacies
+                    .filter { it.isOftenUsed }
+                    .sortedByDescending { it.lastUsed }
+                    .take(LAST_USED_PHARMACIES_COUNT)
+            }
+        }
         .flowOn(dispatcher)
 }

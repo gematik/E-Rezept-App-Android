@@ -107,17 +107,6 @@ object TestTag {
             val SaveButton = "onb_auth_btn_password"
             val BackButton = "onb_auth_btn_back"
         }
-
-        object AnalyticsPreviewScreen {
-            val AllowButton = "onb_ana_btn_allow"
-            val DenyButton = "onb_ana_btn_deny"
-        }
-
-        object AnalyticsAllowScreen {
-            val AllowButton = "onb_ana_btn_allow"
-            val DenyButton = "onb_ana_btn_deny"
-        }
-
         object DataProtectionScreen
         object TermsOfUseScreen
     }

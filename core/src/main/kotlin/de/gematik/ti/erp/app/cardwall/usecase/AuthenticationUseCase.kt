@@ -312,8 +312,6 @@ class AuthenticationUseCase(
         cardChannel.first().use { nfcChannel ->
             send(AuthenticationState.HealthCardCommunicationChannelReady)
 
-            // FIXME
-
             val healthCardCertificateChannel = Channel<ByteArray>()
             val signChannel = Channel<ByteArray>()
             val responseChannel = Channel<ByteArray>()
@@ -330,7 +328,7 @@ class AuthenticationUseCase(
             joinAll(
                 launch {
                     handleAsyncExceptions(AuthenticationExceptionKind.IDPCommunicationFailed) {
-                        idpUseCase.alternatePairingFlowWithSecureElement(
+                        idpUseCase.pairSecureElementWithHealthCard(
                             profileId = profileId,
                             cardAccessNumber = can,
                             publicKeyOfSecureElementEntry = sePublicKey,
@@ -445,7 +443,7 @@ class AuthenticationUseCase(
             send(AuthenticationState.AuthenticationFlowInitialized)
 
             try {
-                idpUseCase.alternateAuthenticationFlowWithSecureElement(profileId = profileId, scope = scope)
+                idpUseCase.authenticateWithSecureElement(profileId = profileId, scope = scope)
                 send(AuthenticationState.IDPCommunicationFinished)
             } catch (e: Exception) {
                 Napier.e("Authentication error", e)

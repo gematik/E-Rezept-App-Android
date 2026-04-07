@@ -22,14 +22,14 @@
 
 package de.gematik.ti.erp.app.analytics.tracker
 
-import de.gematik.ti.erp.app.analytics.mapper.ContentSquareEventMapper
+import de.gematik.ti.erp.app.analytics.mapper.TrackingEventMapper
 import de.gematik.ti.erp.app.analytics.model.TrackedParameter
 import io.github.aakira.napier.Napier
 
 const val EVENT_TRACKED = "EventTracked"
 
 class DebugTracker(
-    private val session: DebugTrackerSession
+    private val session: LocalTrackerSession
 ) {
 
     internal fun track(parameter: TrackedParameter) {
@@ -43,7 +43,7 @@ class DebugTracker(
         session.addScreen(screenName)
     }
 
-    private fun track(event: Pair<ContentSquareEventMapper, Any>) {
+    private fun track(event: Pair<TrackingEventMapper, Any>) {
         Napier.i { "Debug tracker send eventName=${event.first.trackingParameter} | ${event.second}" }
         session.addScreen("$EVENT_TRACKED;${event.first.trackingParameter};${event.second}")
     }

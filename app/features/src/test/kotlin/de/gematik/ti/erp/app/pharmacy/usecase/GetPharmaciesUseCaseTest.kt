@@ -118,7 +118,7 @@ class GetPharmaciesUseCaseTest {
                 PharmacyErpModel(
                     Instant.parse("2024-08-06T09:00:00Z"),
                     isFavorite = false,
-                    isOftenUsed = false,
+                    isOftenUsed = true,
                     usageCount = 5,
                     telematikId = "ID003",
                     name = "Pharmacy C Often",
@@ -128,7 +128,7 @@ class GetPharmaciesUseCaseTest {
                 PharmacyErpModel(
                     Instant.parse("2024-08-01T10:00:00Z"),
                     isFavorite = false,
-                    isOftenUsed = false,
+                    isOftenUsed = true,
                     usageCount = 10,
                     telematikId = "ID001",
                     name = "Pharmacy B Often",

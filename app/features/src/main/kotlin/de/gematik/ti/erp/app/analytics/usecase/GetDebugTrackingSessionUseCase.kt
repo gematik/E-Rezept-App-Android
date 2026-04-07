@@ -22,13 +22,13 @@
 
 package de.gematik.ti.erp.app.analytics.usecase
 
-import de.gematik.ti.erp.app.analytics.tracker.DebugTrackerSession
+import de.gematik.ti.erp.app.analytics.tracker.LocalTrackerSession
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class GetDebugTrackingSessionUseCase(
-    private val session: DebugTrackerSession,
+    private val session: LocalTrackerSession,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend operator fun invoke(): List<String> = withContext(dispatcher) {

@@ -24,12 +24,15 @@ package de.gematik.ti.erp.app.fhir.pharmacy.model.original
 
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirPeriod
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirTypeCoding
+import de.gematik.ti.erp.app.fhir.constant.FhirIdentifierSystems
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirContactInformationErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModelPeriod
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningTimeErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.PharmacyAvailableServiceErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.PharmacyOnSiteFeatureErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.SpecialOpeningTimeErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdAvailableTime.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdSpecialty.Companion.getSpecialtyTypes
@@ -53,6 +56,7 @@ internal data class FhirVZDHealthcareService(
     @SerialName("id") val id: String?,
     @SerialName("type") val type: List<FhirVzdType>? = emptyList(),
     @SerialName("specialty") val specialty: List<FhirVzdSpecialty> = emptyList(),
+    @SerialName("characteristic") val characteristic: List<FhirVzdCharacteristic> = emptyList(),
     @SerialName("telecom") val telecom: List<FhirVzdTelecom> = emptyList(),
     @SerialName("identifier") val identifiers: List<FhirVzdIdentifier> = emptyList(),
     @SerialName("availableTime") val availableTime: List<FhirVzdAvailableTime> = emptyList(),
@@ -175,13 +179,11 @@ internal data class SpecialOpeningTimesWrapper(
     @SerialName("extension") val extension: List<SpecialOpeningTimesField>? = null
 ) {
     companion object {
-        private const val SPECIAL_OPENING_TIMES_URL =
-            "https://gematik.de/fhir/directory/StructureDefinition/SpecialOpeningTimesEX"
         private const val PERIOD_URL = "period"
         private const val QUALIFIER_URL = "qualifier"
 
         fun List<SpecialOpeningTimesWrapper>?.toSpecialOpeningTimeModel(): SpecialOpeningTimeErpModel? {
-            val specialOpeningTimesExtension = this?.find { it.url == SPECIAL_OPENING_TIMES_URL }
+            val specialOpeningTimesExtension = this?.find { it.url == FhirIdentifierSystems.Vzd.SPECIAL_OPENING_TIMES_EX }
             val extensionFields = specialOpeningTimesExtension?.extension ?: return null
 
             val periodValue = extensionFields.find { it.url == PERIOD_URL }?.valuePeriod
@@ -213,15 +215,48 @@ internal data class SpecialOpeningTimesField(
 )
 
 @Serializable
+internal data class FhirVzdCharacteristic(
+    @SerialName("coding") val codings: List<FhirTypeCoding> = emptyList()
+) {
+    companion object {
+        fun List<FhirVzdCharacteristic>.getOnSiteFeatures(): List<PharmacyOnSiteFeatureErpModel> =
+            flatMap(FhirVzdCharacteristic::codings)
+                .asSequence()
+                .filter { it.system == FhirIdentifierSystems.Vzd.PHYSICAL_FEATURES_SYSTEM }
+                .mapNotNull { coding -> coding.code?.let(::PharmacyOnSiteFeatureErpModel) }
+                .distinctBy(PharmacyOnSiteFeatureErpModel::code)
+                .toList()
+    }
+}
+
+@Serializable
 internal data class FhirVzdSpecialty(
     @SerialName("coding") val codings: List<FhirTypeCoding> = emptyList(),
     @SerialName("text") val text: String?
 ) {
     companion object {
 
+        // Codes 10/30/40 are PharmacyService types (Handverkauf/Botendienst/Versand). Codes >= 50 are available services.
+        private const val AVAILABLE_SERVICE_MIN_CODE = 50
+
         fun List<FhirVzdSpecialty>.getSpecialtyTypes(): List<FhirVzdSpecialtyType> =
             flatMap { it.codings }
                 .map { FhirVzdSpecialtyType.fromCode(it.code) }
                 .distinct()
+
+        fun List<FhirVzdSpecialty>.getAvailableServices(): List<PharmacyAvailableServiceErpModel> =
+            flatMap(FhirVzdSpecialty::codings)
+                .asSequence()
+                .filter { coding ->
+                    when (coding.system) {
+                        FhirIdentifierSystems.Vzd.PHARMACY_SPECIALTY_SYSTEM ->
+                            (coding.code?.toIntOrNull() ?: return@filter false) >= AVAILABLE_SERVICE_MIN_CODE
+                        FhirIdentifierSystems.Vzd.HEALTHCARE_SERVICE_SPECIALTY_SYSTEM -> coding.code != null
+                        else -> false
+                    }
+                }
+                .mapNotNull { coding -> coding.code?.let(::PharmacyAvailableServiceErpModel) }
+                .distinctBy(PharmacyAvailableServiceErpModel::code)
+                .toList()
     }
 }

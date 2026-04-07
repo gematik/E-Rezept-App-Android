@@ -64,5 +64,11 @@
         "text": "**✨ Feabhsú ar Oscailt Aipeanna** \nTá sé níos tapúla anois an aip a dhíghlasáil. \n \n **📞 Roghanna Teagmhála Leathnaithe** \nThugamar isteach roghanna teagmhála nua do pholasaithe árachais roghnaithe. \n \n **♿ Inrochtaineacht** \nTá an ráiteas inrochtaineachta nuashonraithe agus leathnaithe chun cuid a áireamh ina ndoiciméadaítear stair na n-athruithe. Tá roinnt cnaipí coigeartaithe chun infheictheacht fheabhsaithe.",
         "timestamp": "2026-03-02T08:00:00.000Z",
         "version": "1.37"
+    },
+    {
+        "id": "13",
+        "text": "**🏥 Sonraí Feabhsaithe Cógaisíochta** \nIs féidir le cógaslanna seirbhísí a chur leis anois amhail vacsaíní agus gnéithe ar an láthair amhail rochtain gan bhacainní. Is féidir cógaslanna a scagadh bunaithe ar an bhfaisnéis nua seo. \n \n **✨ Cuardach Feabhsaithe Cógaslainne** \nTá cógaslanna a úsáideadh le déanaí agus cógaslanna is fearr leat scartha níos soiléire anois. Tá feabhas curtha ar na scagairí. \n \n **✅ Aitheantas Sláinte do Dhaoine Árachaithe Eile** \nIs féidir le daoine árachaithe nach bhfuil clúdaithe ag árachas sláinte reachtúil ná príobháideach logáil isteach anois ag baint úsáide as a n-Aitheantas Sláinte. \n \n **🛡️ Rianú Bainte** \nTá an uirlis rianaithe a úsáidtear san aip bainte againn. Ní bhailítear aon sonraí úsáide aipe a thuilleadh. \n \n **♿ Inrochtaineacht Feabhsaithe** \nTá codarsnacht níos airde ag na scagairí anois agus tá stádas an scagaire níos éasca le feiceáil anois.",
+        "timestamp": "2026-03-30T08:00:00.000Z",
+        "version": "1.38"
     }
 ]
