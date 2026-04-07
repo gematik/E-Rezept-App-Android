@@ -1,0 +1,62 @@
+@startuml
+scale 0.8
+
+' ─── Force only right‐angle connectors ───
+skinparam linetype polyline
+skinparam polylineSmoothness 0
+skinparam orthogonalLayout true
+
+' ─── Landscape layout ───
+left to right direction
+
+' ─── Outer dotted border ───
+skinparam packageBorderStyle DOTTED
+skinparam packageBorderColor #93C5FD
+skinparam packageBackgroundColor Transparent
+
+package "Mid-Level View" {
+  
+  ' ── App Entrypoints ──
+  package "App Entry Points" as AppGroup {
+    rectangle "prod"    #A2D5AB
+    rectangle "ui.test" #A2D5AB
+  }
+
+  ' ── Feature Modules ──
+  package "Feature Modules" as FeatureGroup {
+    rectangle "diga"      #C4B5FE
+    rectangle "demo mode" #C4B5FE
+    rectangle "..."       #C4B5FE
+  }
+
+  ' ── Shared KMP Modules ──
+  package "Shared Modules" as SharedGroup {
+    rectangle "tracker"      #FCD34D
+    rectangle "navigation"   #FCD34D
+    rectangle "core"         #FCD34D
+    rectangle "util"         #FCD34D
+    rectangle "orchestrator" #FCD34D
+  }
+
+  ' ── Lower-Level Modules ──
+  package "Lower-Level Modules" as LowerGroup {
+    rectangle "DB"        #93C5FD
+    rectangle "fhir-parser" #93C5FD
+    rectangle "repo"      #93C5FD
+  }
+
+  ' ── Data + Mock Modules ──
+  rectangle "data + mock modules" as DataMock #FBCFE8
+
+  ' ─── Container-to-container arrows ───
+
+  AppGroup        --> FeatureGroup
+  FeatureGroup -[#000000,dotted]-> SharedGroup
+  FeatureGroup -[#000000,dotted]-> LowerGroup
+
+  DataMock -[#F472B6,dashed]-> AppGroup
+  DataMock -[#F472B6,dashed]-> FeatureGroup
+  DataMock -[#F472B6,dashed]-> SharedGroup
+  DataMock -[#F472B6,dashed]-> LowerGroup
+}
+@enduml

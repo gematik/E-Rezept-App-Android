@@ -23,7 +23,6 @@
 package de.gematik.ti.erp.app.messages.presentation
 
 import android.app.Application
-import com.google.mlkit.common.model.RemoteModelManager
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
@@ -67,6 +66,7 @@ import de.gematik.ti.erp.app.pharmacy.usecase.GetPharmacyByTelematikIdUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.translation.domain.model.LanguageDownloadState
+import de.gematik.ti.erp.app.translation.repository.TranslationModelManager
 import de.gematik.ti.erp.app.translation.repository.TranslationRepository
 import de.gematik.ti.erp.app.translation.usecase.DownloadLanguageModelUseCase
 import de.gematik.ti.erp.app.translation.usecase.GetTranslationConsentUseCase
@@ -195,7 +195,7 @@ class MessageDetailControllerTest {
             spyk(GetInternalMessagesUseCase(internalMessagesRepository, changeLogLocalDataSource))
 
         translateTextUseCase = TranslateTextUseCase(
-            remoteModelManager = mockk<RemoteModelManager>(relaxed = true),
+            modelManager = mockk<TranslationModelManager>(relaxed = true),
             repository = translationRepository,
             networkStatusTracker = mockk<NetworkStatusTracker>(relaxed = true)
         )

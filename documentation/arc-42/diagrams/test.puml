@@ -1,0 +1,68 @@
+@startuml
+scale 0.8
+
+' ─── Use folder style for packages ───
+skinparam packageStyle folder
+skinparam folderBorderColor #444444
+skinparam folderBackgroundColor #EFEFEF
+skinparam packagePadding 0
+
+' ─── Orthogonal routing & vertical layout ───
+skinparam linetype polyline
+skinparam orthogonalLayout true
+top to bottom direction
+
+package "Feature" as FeatureGroup {
+  top to bottom direction
+  skinparam packagePadding 0
+
+  package "ui" as UiGroup {
+    top to bottom direction
+    skinparam packagePadding 0
+    package "screens"       #FCD34D { }
+    package "ui-components" #FCD34D { }
+    package "ui-mappers"    #FCD34D { }
+    package "ui-models"     #FCD34D { }
+  }
+
+  package "presentation" as PresentationGroup {
+    top to bottom direction
+    skinparam packagePadding 0
+    package "graph-viewmodel"  #FCD34D { }
+    package "screen-viewmodel" #FCD34D { }
+  }
+
+  package "di" as DiGroup {
+    top to bottom direction
+    skinparam packagePadding 0
+    package "feature-di" #FCD34D { }
+  }
+
+  package "domain" as DomainGroup {
+    top to bottom direction
+    skinparam packagePadding 0
+    package "model"       #A2D5AB { }
+    package "usecases"    #A2D5AB { }
+    package "repository"  #A2D5AB { }
+  }
+
+  package "mapper" as MapperGroup {
+    top to bottom direction
+    skinparam packagePadding 0
+    package "toDomain"    #C4B5FE { }
+  }
+
+  package "navigation" as NavGroup {
+    top to bottom direction
+    skinparam packagePadding 0
+    package "navigation-graph" #C4B5FE { }
+  }
+}
+
+' ─── Hidden connectors to enforce strict vertical ordering ───
+UiGroup           -[hidden]-> PresentationGroup
+PresentationGroup -[hidden]-> DiGroup
+DiGroup           -[hidden]-> DomainGroup
+DomainGroup       -[hidden]-> MapperGroup
+MapperGroup       -[hidden]-> NavGroup
+@enduml

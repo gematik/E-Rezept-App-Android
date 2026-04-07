@@ -24,8 +24,8 @@ package de.gematik.ti.erp.app.database.di
 
 import com.russhwolf.settings.Settings
 import de.gematik.ti.erp.app.database.api.PharmacyLocalDataSource
-import de.gematik.ti.erp.app.database.api.ShippingInfoLocalDataSource
 import de.gematik.ti.erp.app.database.api.PharmacySearchAccessTokenLocalDataSource
+import de.gematik.ti.erp.app.database.api.ShippingInfoLocalDataSource
 import de.gematik.ti.erp.app.database.api.TaskLocalDataSource
 import de.gematik.ti.erp.app.database.api.TrustStoreLocalDataSource
 import de.gematik.ti.erp.app.database.bridge.accesstoken.PharmacySearchAccessTokenLocalDataSourceBridge
@@ -35,8 +35,8 @@ import de.gematik.ti.erp.app.database.bridge.task.TaskLocalDataSourceBridge
 import de.gematik.ti.erp.app.database.bridge.truststore.TrustStoreLocalDataSourceBridge
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.IsRoomEnabled
 import de.gematik.ti.erp.app.database.realm.v1.pharmacy.PharmacyLocalDataSourceV1
-import de.gematik.ti.erp.app.database.realm.v1.shipping.ShippingInfoLocalDataSourceV1
 import de.gematik.ti.erp.app.database.realm.v1.pharmacy.PharmacySearchAccessTokenLocalDataSourceV1
+import de.gematik.ti.erp.app.database.realm.v1.shipping.ShippingInfoLocalDataSourceV1
 import de.gematik.ti.erp.app.database.realm.v1.task.datasource.TaskLocalDataSourceV1
 import de.gematik.ti.erp.app.database.realm.v1.truststore.TrustStoreLocalDataSourceV1
 import de.gematik.ti.erp.app.database.room.roomModule
@@ -45,9 +45,11 @@ import de.gematik.ti.erp.app.database.room.v2.datasource.TaskLocalDataSourceV2
 import de.gematik.ti.erp.app.database.room.v2.pharmacy.PharmacyLocalDataSourceV2
 import de.gematik.ti.erp.app.database.room.v2.shippinginfo.ShippingInfoLocalDataSourceV2
 import de.gematik.ti.erp.app.database.room.v2.truststore.TrustStoreLocalDataSourceV2
+import de.gematik.ti.erp.app.database.settings.Android8DeprecationOverrideDataStore
 import de.gematik.ti.erp.app.database.settings.CommunicationDigaVersionDataStore
 import de.gematik.ti.erp.app.database.settings.CommunicationVersionDataStore
 import de.gematik.ti.erp.app.database.settings.ConsentVersionDataStore
+import de.gematik.ti.erp.app.database.settings.DefaultAndroid8DeprecationOverridePreferencesDataStore
 import de.gematik.ti.erp.app.database.settings.DefaultCommunicationDigaVersionPreferencesDataStore
 import de.gematik.ti.erp.app.database.settings.DefaultCommunicationVersionPreferencesDataStore
 import de.gematik.ti.erp.app.database.settings.DefaultConsentVersionPreferencesDataStore
@@ -162,4 +164,10 @@ fun databaseModule() = DI.Module("databaseModule", allowSilentOverride = true) {
 
     bindSingleton { SettingsDataMigration(realm = instance(), settings = sharedPrefs) }
     bindSingleton { SettingsLocalDataSource(sharedPrefs) }
+    // Debug-only preference: Android 8 deprecation override flag
+    bindSingleton<Android8DeprecationOverrideDataStore> {
+        DefaultAndroid8DeprecationOverridePreferencesDataStore(
+            sharedPrefs
+        )
+    }
 }

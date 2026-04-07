@@ -37,7 +37,8 @@ plugins {
     alias(libs.plugins.task.versions)
     alias(libs.plugins.task.properties)
     alias(libs.plugins.task.flavours)
-    alias(libs.plugins.teams.communication)
+    alias(libs.plugins.release.notification)
+    alias(libs.plugins.mr.notification)
     alias(libs.plugins.module.names)
 }
 

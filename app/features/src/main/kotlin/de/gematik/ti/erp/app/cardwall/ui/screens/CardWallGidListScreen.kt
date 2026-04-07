@@ -79,6 +79,7 @@ import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.idp.model.HealthInsuranceData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.shimmer.RowTextShimmer
 import de.gematik.ti.erp.app.shimmer.SquareShapeShimmer
@@ -119,7 +120,7 @@ class CardWallGidListScreen(
         }
 
         val profileId by sharedViewModel.profileId.collectAsStateWithLifecycle()
-        val profileIsPKV by sharedViewModel.profileIsPkv.collectAsStateWithLifecycle()
+        val profileInsuranceType by sharedViewModel.profileInsuranceType.collectAsStateWithLifecycle()
         val intentHandler = LocalIntentHandler.current
         val dialog = LocalDialog.current
         val focusManager = LocalFocusManager.current
@@ -127,17 +128,19 @@ class CardWallGidListScreen(
 
         val listState = rememberLazyListState()
 
-        val controller = rememberExternalAuthenticatorListController(profileId)
+        val gidEventData = navBackStackEntry.processGidEventData()
+        val bundSearchFilter = stringResource(R.string.cardwall_gid_bund_search_filter)
+        val initialSearchValue = remember {
+            when {
+                gidEventData != null -> gidEventData.authenticatorName
+                profileInsuranceType == ProfilesData.InsuranceType.BUND -> bundSearchFilter
+                else -> ""
+            }
+        }
+
+        val controller = rememberExternalAuthenticatorListController(profileId, initialSearchValue)
         val healthInsuranceList by controller.healthInsuranceDataList.collectAsStateWithLifecycle()
         val searchValue by controller.searchValue.collectAsStateWithLifecycle()
-
-        val gidEventData = navBackStackEntry.processGidEventData()
-        letNotNullOnCondition(
-            first = gidEventData,
-            condition = { gidEventData?.authenticatorName.isNotNullOrEmpty() }
-        ) { gidData ->
-            controller.onFilterList(gidData.authenticatorName)
-        }
 
         val onBack by rememberUpdatedState { navController.popBackStack() }
 
@@ -206,7 +209,7 @@ class CardWallGidListScreen(
             onFilterList = controller::onFilterList,
             onRemoveFilterList = controller::onRemoveFilterList,
             searchValue = searchValue,
-            reloadHealthInsuranceAppList = { controller.getHealthInsuranceAppList(profileIsPKV) },
+            reloadHealthInsuranceAppList = { controller.getHealthInsuranceAppList(profileInsuranceType == ProfilesData.InsuranceType.PKV) },
             startAuthorizationWithExternal = controller::startAuthorizationWithExternal,
             onCancel = {
                 navController.popBackStack(CardWallRoutes.subGraphName(), inclusive = true)

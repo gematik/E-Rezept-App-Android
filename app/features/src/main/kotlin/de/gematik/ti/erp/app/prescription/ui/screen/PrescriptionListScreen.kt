@@ -69,7 +69,6 @@ import de.gematik.ti.erp.app.digas.navigation.DigasRoutes
 import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarWrapper
 import de.gematik.ti.erp.app.mainscreen.ui.MultiProfileTopAppBar
 import de.gematik.ti.erp.app.mainscreen.ui.RedeemFloatingActionButton
-import de.gematik.ti.erp.app.mlkit.navigation.MlKitRoutes
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.onReturnAction
 import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
@@ -136,7 +135,6 @@ class PrescriptionListScreen(
         val profileData by controller.activeProfile.collectAsStateWithLifecycle()
         val resourcesDownloadedState by controller.resourcesDownloadedState.collectAsState(NotStarted)
 
-        val mlKitAccepted by controller.isMLKitAccepted.collectAsStateWithLifecycle()
         val consentViewState by consentController.consentViewState.collectAsStateWithLifecycle()
         var topBarElevated by remember { mutableStateOf(true) }
         val onBack by rememberUpdatedState {
@@ -232,10 +230,7 @@ class PrescriptionListScreen(
                 onClickAddProfile = { navController.navigate(ProfileRoutes.ProfileAddNameBottomSheetScreen.path()) },
                 onClickChangeProfileName = { profile -> navController.navigate(ProfileRoutes.ProfileEditNameBottomSheetScreen.path(profile.id)) },
                 onClickAddScannedPrescription = {
-                    when {
-                        mlKitAccepted -> navController.navigate(PrescriptionRoutes.PrescriptionScanScreen.path())
-                        else -> navController.navigate(MlKitRoutes.MlKitScreen.path())
-                    }
+                    navController.navigate(PrescriptionRoutes.PrescriptionScanScreen.path())
                 },
                 onSwitchActiveProfile = { profile ->
                     controller.disablePrescriptionRefresh()

@@ -31,6 +31,9 @@ downloads/
 /.github/prompt-naming-guidelines.md
 /.github/copilot-instructions.md
 /.junie/guidelines.md
+/documentation/arc-42/node_modules/
+/documentation/arc-42/.vscode/
+/documentation/arc-42/RUNNING.md
 
 Jenkinsfile
 Nightly.Jenkinsfile
@@ -70,3 +73,8 @@ common/schema
 .github/prompts
 gradle/DEPENDENCY_COMPATIBILITY.md
 gradle/DEPENDENCY_TREE.txt
+documentation/arc-42/.vscode
+documentation/arc-42/node_modules
+documentation/arc-42/package.json
+documentation/arc-42/package-lock.json
+documentation/arc-42/RUNNING.md

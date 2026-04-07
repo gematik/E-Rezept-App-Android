@@ -29,8 +29,6 @@ import de.gematik.ti.erp.app.navigation.Routes
 object SettingsRoutes : NavigationRoutes {
     override fun subGraphName() = "settings"
     object SettingsScreen : Routes(NavigationRouteNames.SettingsScreen.name)
-    object SettingsProductImprovementsScreen : Routes(NavigationRouteNames.SettingsProductImprovementScreen.name)
-    object SettingsAllowAnalyticsScreen : Routes(NavigationRouteNames.SettingsAllowAnalyticsScreen.name)
     object SettingsAppSecurityScreen : Routes(NavigationRouteNames.SettingsAppSecurityScreen.name)
     object SettingsSetAppPasswordScreen : Routes(NavigationRouteNames.SettingsSetAppPasswordScreen.name)
     object SettingsDataProtectionScreen : Routes(NavigationRouteNames.SettingsDataProtectionScreen.name)

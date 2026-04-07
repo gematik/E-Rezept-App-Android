@@ -56,7 +56,7 @@ class DemoIdpUseCase(
         // no implementation for demo mode
     }
 
-    override suspend fun alternatePairingFlowWithSecureElement(
+    override suspend fun pairSecureElementWithHealthCard(
         profileId: ProfileIdentifier,
         cardAccessNumber: String,
         publicKeyOfSecureElementEntry: PublicKey,
@@ -67,7 +67,7 @@ class DemoIdpUseCase(
         // no implementation for demo mode
     }
 
-    override suspend fun alternateAuthenticationFlowWithSecureElement(profileId: ProfileIdentifier, scope: IdpScope) {
+    override suspend fun authenticateWithSecureElement(profileId: ProfileIdentifier, scope: IdpScope) {
         // no implementation for demo mode
     }
 

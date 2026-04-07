@@ -1,0 +1,69 @@
+@startuml
+scale 0.8
+
+' ─── Force only right‐angle connectors ───
+skinparam linetype polyline
+skinparam polylineSmoothness 0
+skinparam orthogonalLayout true
+
+' ─── Landscape layout ───
+left to right direction
+
+' ─── Outer dotted border ───
+skinparam packageBorderStyle DOTTED
+skinparam packageBorderColor #93C5FD
+skinparam packageBackgroundColor Transparent
+
+package "Demo Mode" {
+  
+  ' ── App Ui ──
+  package "App screens" as AppUiGroup {
+    rectangle "ui"    #FCD34D
+  }
+
+  ' ── App Di ──
+  package "Di injection" as DiInjectionGroup {
+    rectangle "di-aware modules"    #FCD34D
+  }
+
+  ' ── ... ──
+  package "... external module" as ExternalGroup {
+    rectangle "parent modules"    #FCD34D
+  }
+
+  ' ── Demo Repository ──
+  package "Demo Repository" as RepositoryGroup {
+    rectangle "diga"    #A2D5AB
+    rectangle "consent" #A2D5AB
+    rectangle "pharmacy" #A2D5AB
+    rectangle "prescriptions" #A2D5AB
+    rectangle "profiles" #A2D5AB
+    rectangle "audit-events" #A2D5AB
+  }
+
+  ' ── Data Source ──
+  package "Data Source" as DataSourceGroup {
+    rectangle "local-datasource"      #C4B5FE
+    rectangle "demo profiles" #C4B5FE
+    rectangle "..."       #C4B5FE
+  }
+
+  ' ── Dependency Injection ──
+  package "Dependency Injection" as DiGroup {
+    rectangle "di kodiein module"      #A2D5AB
+  }
+
+  ' ── UI ──
+  package "UI" as UIGroup {
+    rectangle "ui components"        #93C5FD
+  }
+
+  ' ─── Container-to-container arrows ───
+  UIGroup -[#F472B6,dashed]-> AppUiGroup
+  DataSourceGroup -[#F472B6,dashed]-> RepositoryGroup
+  RepositoryGroup -[#F472B6,dashed]-> DiGroup
+  DiGroup -[#F472B6,dashed]-> DiInjectionGroup
+  DiInjectionGroup -[#F472B6,dashed]-> ExternalGroup
+  AppUiGroup -[#F472B6,dashed]-> ExternalGroup
+}
+@enduml

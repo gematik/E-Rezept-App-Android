@@ -62,7 +62,6 @@ import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.SwitchActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.redeem.usecase.HasRedeemableTasksUseCase
-import de.gematik.ti.erp.app.settings.usecase.GetMLKitAcceptedUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetShowWelcomeDrawerUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveToolTipsShownUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
@@ -76,7 +75,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.SharingStarted.Companion.Eagerly
-import kotlinx.coroutines.flow.SharingStarted.Companion.Lazily
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -106,7 +104,6 @@ class PrescriptionListController(
     private val activePrescriptionsUseCase: GetActivePrescriptionsUseCase,
     private val archivedPrescriptionsUseCase: GetArchivedPrescriptionsUseCase,
     private val getArchivedDigasUseCase: GetArchivedDigasUseCase,
-    private val getMLKitAcceptedUseCase: GetMLKitAcceptedUseCase,
     private val getShowWelcomeDrawerUseCase: GetShowWelcomeDrawerUseCase,
     private val showGrantConsentDrawerUseCase: ShowGrantConsentDrawerUseCase,
     private val getConsentUseCase: GetConsentUseCase,
@@ -305,10 +302,6 @@ class PrescriptionListController(
         )
     }
 
-    val isMLKitAccepted by lazy {
-        getMLKitAcceptedUseCase().stateIn(controllerScope, Lazily, false)
-    }
-
     val shouldShowWelcomeDrawer by lazy { getShowWelcomeDrawerUseCase() }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -380,7 +373,6 @@ fun rememberPrescriptionListController(): PrescriptionListController {
     val archivedPrescriptionsUseCase by rememberInstance<GetArchivedPrescriptionsUseCase>()
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
     val switchActiveProfileUseCase by rememberInstance<SwitchActiveProfileUseCase>()
-    val mlKitAcceptedUseCase by rememberInstance<GetMLKitAcceptedUseCase>()
     val getShowWelcomeDrawerUseCase by rememberInstance<GetShowWelcomeDrawerUseCase>()
     val showGrantConsentDrawerUseCase by rememberInstance<ShowGrantConsentDrawerUseCase>()
     val getConsentUseCase by rememberInstance<GetConsentUseCase>()
@@ -406,7 +398,6 @@ fun rememberPrescriptionListController(): PrescriptionListController {
             chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
             activePrescriptionsUseCase = activePrescriptionsUseCase,
             archivedPrescriptionsUseCase = archivedPrescriptionsUseCase,
-            getMLKitAcceptedUseCase = mlKitAcceptedUseCase,
             showGrantConsentDrawerUseCase = showGrantConsentDrawerUseCase,
             getShowWelcomeDrawerUseCase = getShowWelcomeDrawerUseCase,
             getConsentUseCase = getConsentUseCase,

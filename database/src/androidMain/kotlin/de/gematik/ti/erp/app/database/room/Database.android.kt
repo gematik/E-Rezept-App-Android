@@ -32,8 +32,9 @@ fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<AppDatabase> {
     val appContext = context.applicationContext
     val dbName = "room.db"
 
-    // In non-debug builds, ensure the old plaintext DB (if any) is removed to avoid SQLCipher open errors.
-    if (!ModuleBuildConfig.DEBUG) {
+    // In non-debug builds (or debug with forced encryption), ensure the old plaintext DB
+    // (if any) is removed to avoid SQLCipher open errors.
+    if (!ModuleBuildConfig.DEBUG || RoomEncryptionConfig.isDebugEncryptionForced(appContext)) {
         val dbFile = appContext.getDatabasePath(dbName)
         if (RoomEncryptionConfig.isPlaintextSqlite(dbFile)) {
             // Controlled wipe strategy: delete plaintext database so we can recreate encrypted one.
@@ -49,7 +50,7 @@ fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<AppDatabase> {
         name = dbName
     )
 
-    // Apply SQLCipher openHelperFactory only in non-debug builds
+    // Apply SQLCipher openHelperFactory in non-debug builds, or in debug if forced via debug menu
     RoomEncryptionConfig.getOpenHelperFactoryIfNeeded(appContext)?.let { factory ->
         builder.openHelperFactory(factory)
     }

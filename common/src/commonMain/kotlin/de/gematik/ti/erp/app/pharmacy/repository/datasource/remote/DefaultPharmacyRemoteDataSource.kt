@@ -81,17 +81,25 @@ class DefaultPharmacyRemoteDataSource(
         ) {
             // Use location-based search if LocationFilter is present, otherwise use regular search
             if (filter.locationFilter != null) {
+                // NOTE: The nearPharmacy custom query does not support the `characteristic` filter parameter.
+                // On-site feature filtering (e.g. barrierefrei) is applied client-side after results are returned.
                 searchService.searchPharmacyWithLocation(
                     serviceFilter = filter.serviceFilter,
                     locationFilter = filter.locationFilter,
-                    textFilter = filter.textFilter
+                    textFilter = filter.textFilter,
+                    characteristics = emptyList()
                 )
             } else {
+                val specialties = buildList {
+                    filter.serviceFilter?.fhirVzdCourier?.let { add(it) }
+                    filter.serviceFilter?.fhirVzdPickup?.let { add(it) }
+                    filter.serviceFilter?.fhirVzdShipment?.let { add(it) }
+                    addAll(filter.serviceFilter?.availableServiceCodes.orEmpty())
+                }
                 searchService.search(
                     textSearch = filter.textFilter?.toSanitizedSearchText(),
-                    serviceTypeShipment = filter.serviceFilter?.fhirVzdShipment,
-                    serviceTypeCourier = filter.serviceFilter?.fhirVzdCourier,
-                    serviceTypePickup = filter.serviceFilter?.fhirVzdPickup
+                    specialties = specialties.takeIf { it.isNotEmpty() } ?: emptyList(),
+                    characteristics = filter.onSiteFeatureCodes.toList()
                 )
             }
         }

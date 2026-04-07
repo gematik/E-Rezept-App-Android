@@ -32,6 +32,8 @@ import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPositionErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodMetadata
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningTimeErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.PharmacyAvailableServiceErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.PharmacyOnSiteFeatureErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.SpecialOpeningTimeMetadata
 import de.gematik.ti.erp.app.pharmacy.model.ContactInformationErpModel
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyAddressErpModel.Companion.toAddressErpModel
@@ -77,12 +79,17 @@ object PharmacyUseCaseData {
     @Immutable
     data class Filter(
         val nearBy: Boolean = false,
+        val pickup: Boolean = false,
         val deliveryService: Boolean = false,
         val onlineService: Boolean = false,
-        val openNow: Boolean = false
+        val openNow: Boolean = false,
+        val recentlyUsed: Boolean = false,
+        val onSiteFeatures: Set<String> = emptySet(),
+        val availableServices: Set<String> = emptySet()
     ) {
         fun isAnySet(): Boolean =
-            nearBy || deliveryService || onlineService || openNow
+            nearBy || pickup || deliveryService || onlineService || openNow || recentlyUsed ||
+                onSiteFeatures.isNotEmpty() || availableServices.isNotEmpty()
     }
 
     @Serializable
@@ -293,7 +300,9 @@ object PharmacyUseCaseData {
         val openingHours: OpeningHours?,
         val specialClosingTimes: List<NotAvailablePeriodMetadata> = emptyList(),
         val specialOpeningTimes: List<SpecialOpeningTimeMetadata> = emptyList(),
-        val telematikId: String
+        val telematikId: String,
+        val onSiteFeatures: List<PharmacyOnSiteFeatureErpModel> = emptyList(),
+        val availableServices: List<PharmacyAvailableServiceErpModel> = emptyList()
     ) {
         val isPickupService
             get() = provides.any { it is PharmacyService.PickUpPharmacyService }
@@ -362,7 +371,9 @@ object PharmacyUseCaseData {
                     textFilter = name.toTextFilter(),
                     courier = filter.deliveryService,
                     shipment = filter.onlineService,
-                    pickup = filter.nearBy
+                    pickup = filter.pickup,
+                    availableServiceCodes = filter.availableServices,
+                    onSiteFeatureCodes = filter.onSiteFeatures
                 )
         }
     }
@@ -397,7 +408,9 @@ object PharmacyUseCaseData {
                     textFilter = name.toTextFilter(),
                     courier = filter.deliveryService,
                     shipment = filter.onlineService,
-                    pickup = filter.nearBy
+                    pickup = filter.pickup,
+                    availableServiceCodes = filter.availableServices,
+                    onSiteFeatureCodes = filter.onSiteFeatures
                 )
             }
         }

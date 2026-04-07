@@ -64,5 +64,11 @@
         "text": "**✨ Ouverture de l'application améliorée** \nDéverrouiller l'application est désormais plus rapide. \n \n **📞 Options de contact étendues** \nNous avons ajouté de nouvelles options de contact pour certaines polices d'assurance. \n \n **♿ Accessibilité** \nLa déclaration d'accessibilité a été mise à jour et enrichie d'une section documentant l'historique des modifications. Certains boutons ont été ajustés pour une meilleure visibilité.",
         "timestamp": "2026-03-02T08:00:00.000Z",
         "version": "1.37"
+    },
+    {
+        "id": "13",
+        "text": "**🏥 Informations améliorées sur les pharmacies** \nLes pharmacies peuvent désormais ajouter des services tels que la vaccination et des aménagements sur place comme l'accessibilité sans obstacle. Les pharmacies peuvent être filtrées en fonction de ces nouvelles informations. \n \n **✨ Recherche de pharmacies améliorée** \nLes pharmacies récemment utilisées et les pharmacies favorites sont maintenant plus clairement séparées. Les filtres ont été améliorés. \n \n **✅ Identifiant santé pour les autres personnes assurées** \nLes personnes assurées qui ne sont pas couvertes par une assurance maladie obligatoire ou privée peuvent désormais également se connecter en utilisant leur identifiant santé. \n \n **🛡️ Suivi supprimé** \nNous avons supprimé l'outil de suivi utilisé dans l'application. Aucune donnée d'utilisation de l'application n'est plus collectée. \n \n **♿ Accessibilité améliorée** \nLes filtres ont désormais un contraste plus élevé et l'état du filtre est maintenant plus facile à voir.",
+        "timestamp": "2026-03-30T08:00:00.000Z",
+        "version": "1.38"
     }
 ]

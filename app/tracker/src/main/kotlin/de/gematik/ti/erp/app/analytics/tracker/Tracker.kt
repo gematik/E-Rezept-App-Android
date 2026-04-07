@@ -26,21 +26,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.NonRestartableComposable
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.analytics.mapper.ContentSquareScreenMapper
+import de.gematik.ti.erp.app.analytics.mapper.TrackingScreenMapper
 import de.gematik.ti.erp.app.analytics.model.TrackedEvent
 import de.gematik.ti.erp.app.analytics.model.TrackedParameter
-import de.gematik.ti.erp.app.analytics.usecase.IsAnalyticsAllowedUseCase
 import de.gematik.ti.erp.app.navigation.NavigationRouteNames
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import org.kodein.di.compose.rememberInstance
 
 class Tracker(
-    private val isAnalyticsAllowedUseCase: IsAnalyticsAllowedUseCase,
-    private val contentSquareTracker: ContentSquareTracker,
     private val debugTracker: DebugTracker,
     private val isNonReleaseMode: Boolean,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -65,20 +61,13 @@ class Tracker(
     private suspend fun trackAnalytics(
         parameter: TrackedParameter,
         dispatcher: CoroutineDispatcher,
-        contentSquareTracker: ContentSquareTracker,
         debugTracker: DebugTracker,
-        isAnalyticsAllowedUseCase: IsAnalyticsAllowedUseCase,
         isNonReleaseMode: Boolean
     ) {
         withContext(dispatcher) {
             try {
-                if (isAnalyticsAllowedUseCase.invoke().first()) {
-                    contentSquareTracker.track(parameter)
-                    if (isNonReleaseMode) {
-                        debugTracker.track(parameter)
-                    }
-                } else {
-                    Napier.d { "Analytics not allowed for $parameter" }
+                if (isNonReleaseMode) {
+                    debugTracker.track(parameter)
                 }
             } catch (e: Throwable) {
                 Napier.e { "Error tracking $parameter: ${e.stackTraceToString()}" }
@@ -90,7 +79,7 @@ class Tracker(
     @Composable
     @Suppress("ComposableNaming")
     fun routeToScreenTrackingName(routeEnum: String): String? {
-        val mapper: ContentSquareScreenMapper by rememberInstance()
+        val mapper: TrackingScreenMapper by rememberInstance()
         return mapper.map(NavigationRouteNames.valueOf(routeEnum))
     }
 
@@ -102,9 +91,7 @@ class Tracker(
             trackAnalytics(
                 parameter = TrackedParameter.Screen(screenName),
                 dispatcher = dispatcher,
-                contentSquareTracker = contentSquareTracker,
                 debugTracker = debugTracker,
-                isAnalyticsAllowedUseCase = isAnalyticsAllowedUseCase,
                 isNonReleaseMode = isNonReleaseMode
             )
         }
@@ -115,9 +102,7 @@ class Tracker(
             trackAnalytics(
                 parameter = TrackedParameter.Screen(screenEvent),
                 dispatcher = dispatcher,
-                contentSquareTracker = contentSquareTracker,
                 debugTracker = debugTracker,
-                isAnalyticsAllowedUseCase = isAnalyticsAllowedUseCase,
                 isNonReleaseMode = isNonReleaseMode
             )
         }
@@ -128,9 +113,7 @@ class Tracker(
             trackAnalytics(
                 parameter = TrackedParameter.Metric(event),
                 dispatcher = dispatcher,
-                contentSquareTracker = contentSquareTracker,
                 debugTracker = debugTracker,
-                isAnalyticsAllowedUseCase = isAnalyticsAllowedUseCase,
                 isNonReleaseMode = isNonReleaseMode
             )
         }

@@ -38,18 +38,16 @@ interface FhirVzdService {
     /**
      * Searches for pharmacies using the FHIR VZD (Verzeichnisdienst) API.
      *
-     * This method performs a general pharmacy search with various filtering options including
-     * service types (courier, pickup, shipment) and text-based search. Results are sorted by
-     * proximity when location data is available.
+     * All specialty codes (courier, pickup, shipment and any available-service codes such as
+     * Sterilherstellung = "50") are passed as a single [specialties] list.
      *
      * @param organizationActive Filter to include only active organizations (default: true)
      * @param includeOrganization Include organization resources in the response
      * @param includeLocation Include location resources in the response
      * @param type Filter for pharmacy type, defaults to public pharmacies ("offentliche Apotheke")
      * @param textSearch Optional text search filter for pharmacy names or other text fields
-     * @param serviceTypeCourier Optional filter for pharmacies offering courier services (specialty code)
-     * @param serviceTypePickup Optional filter for pharmacies offering pickup services (specialty code)
-     * @param serviceTypeShipment Optional filter for pharmacies offering shipment services (specialty code)
+     * @param specialties List of specialty codes to filter by (e.g. "10", "30", "40", "50")
+     * @param characteristics List of on-site feature codes to filter by (e.g., "abholautomat", "barrierefrei").
      * @param sortBy Sorting criteria, defaults to "near" for distance-based sorting
      * @param count Maximum number of results to return (default: 100, which is the API maximum)
      * @return Response containing a JsonElement with the search results
@@ -61,9 +59,8 @@ interface FhirVzdService {
         @Query("_include") includeLocation: String = "HealthcareService:location",
         @Query("organization.type") type: String = FhirVzdPharmacyTypeCode.publicPharmacy,
         @Query("_text") textSearch: String?,
-        @Query("specialty") serviceTypeCourier: String?,
-        @Query("specialty") serviceTypePickup: String?,
-        @Query("specialty") serviceTypeShipment: String?,
+        @Query("specialty") specialties: List<String> = emptyList(),
+        @Query("characteristic") characteristics: List<String> = emptyList(),
         @Query("_sortby") sortBy: String = "near",
         @Query("_count") count: Int = 100
     ): Response<JsonElement>
@@ -175,6 +172,7 @@ interface FhirVzdService {
      * @param longitude Longitude coordinate for the search center point
      * @param latitude Latitude coordinate for the search center point
      * @param distance Search radius in kilometers from the specified coordinates
+     * @param characteristics List of on-site feature codes to filter by (e.g., "abholautomat", "barrierefrei").
      * @param count Maximum number of results to return (default: 100)
      * @return Response containing a JsonElement with nearby pharmacy search results
      */
@@ -185,6 +183,7 @@ interface FhirVzdService {
         @Query("longitude") longitude: Double?,
         @Query("latitude") latitude: Double?,
         @Query("distance") distance: Int?,
+        @Query("characteristic") characteristics: List<String> = emptyList(),
         @Query("_count") count: Int = 100
     ): Response<JsonElement>
 }

@@ -27,9 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.analytics.usecase.ChangeAnalyticsStateUseCase
-import de.gematik.ti.erp.app.analytics.usecase.StartTrackerUseCase
-import de.gematik.ti.erp.app.analytics.usecase.StopTrackerUseCase
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.onboarding.model.OnboardingAuthScenario
@@ -59,11 +56,8 @@ private const val ONBOARDING_LAST_STEP = 3
 )
 class OnboardingGraphController(
     private val allowScreenshotsUseCase: AllowScreenshotsUseCase,
-    private val changeAnalyticsStateUseCase: ChangeAnalyticsStateUseCase,
     private val getProfilesUseCase: GetProfilesUseCase,
     private val saveOnboardingDataUseCase: SaveOnboardingDataUseCase,
-    private val startTrackerUseCase: StartTrackerUseCase,
-    private val stopTrackerUseCase: StopTrackerUseCase,
     private val determineAuthScenarioUseCase: DetermineAuthScenarioUseCase,
     private val resources: Resources
 ) : Controller() {
@@ -135,24 +129,7 @@ class OnboardingGraphController(
         }
     }
 
-    @Requirement(
-        "O.Data_1#3",
-        sourceSpecification = "BSI-eRp-ePA",
-        rationale = "Permissions are asked and obtained during the onboarding process.",
-        codeLines = 5
-    )
-    fun changeAnalyticsState(state: Boolean) {
-        controllerScope.launch {
-            changeAnalyticsStateUseCase.invoke(state)
-            when {
-                state -> startTrackerUseCase()
-                else -> stopTrackerUseCase()
-            }
-        }
-    }
-
     fun createProfileOnSkipOnboarding() {
-        changeAnalyticsState(false)
         this.authentication.value = skipOnboardingWithAuthenticationPassword
         this.profileName.value = resources.getString(R.string.onboarding_default_profile_name)
         controllerScope.launch {
@@ -170,9 +147,6 @@ fun rememberOnboardingController(): OnboardingGraphController {
     val getProfilesUseCase by rememberInstance<GetProfilesUseCase>()
     val saveOnboardingSucceededUseCase by rememberInstance<SaveOnboardingDataUseCase>()
     val allowScreenshotsUseCase by rememberInstance<AllowScreenshotsUseCase>()
-    val changeAnalyticsStateUseCase by rememberInstance<ChangeAnalyticsStateUseCase>()
-    val startTrackerUseCase by rememberInstance<StartTrackerUseCase>()
-    val stopTrackerUseCase by rememberInstance<StopTrackerUseCase>()
     val determineAuthScenarioUseCase by rememberInstance<DetermineAuthScenarioUseCase>()
     val resources by rememberInstance<Resources>()
 
@@ -181,9 +155,6 @@ fun rememberOnboardingController(): OnboardingGraphController {
             getProfilesUseCase = getProfilesUseCase,
             saveOnboardingDataUseCase = saveOnboardingSucceededUseCase,
             allowScreenshotsUseCase = allowScreenshotsUseCase,
-            changeAnalyticsStateUseCase = changeAnalyticsStateUseCase,
-            startTrackerUseCase = startTrackerUseCase,
-            stopTrackerUseCase = stopTrackerUseCase,
             determineAuthScenarioUseCase = determineAuthScenarioUseCase,
             resources = resources
         )

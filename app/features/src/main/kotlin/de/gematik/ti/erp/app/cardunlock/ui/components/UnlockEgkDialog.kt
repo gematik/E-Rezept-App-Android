@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import de.gematik.ti.erp.app.MainActivity
+import de.gematik.ti.erp.app.base.NfcEnabledEffect
 import de.gematik.ti.erp.app.base.onNfcNotEnabled
 import de.gematik.ti.erp.app.base.retryOnNfcEnabled
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
@@ -138,6 +139,8 @@ fun UnlockEgkDialog(
     var showEnableNfcDialog by remember { mutableStateOf(false) }
     var errorCount by remember(troubleShootingEnabled) { mutableStateOf(0) }
     var showCardCommunicationDialog by remember { mutableStateOf(false) }
+
+    NfcEnabledEffect { showEnableNfcDialog = false }
 
     val state by produceState(initialValue = UnlockEgkState.None) {
         toggleUnlock.transformLatest {

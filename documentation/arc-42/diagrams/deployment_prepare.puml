@@ -1,0 +1,38 @@
+@startuml
+title Local Build Workflow (Prepare release)
+
+skinparam packageStyle rectangle
+skinparam rectangle {
+  RoundCorner 5
+  FontSize 12
+}
+
+' ─── Top‐level environments ───
+
+package "update api-keys, strings" as DEV #E8F5E9 {
+    rectangle "updateFdApiKeys"  #A2E3A1
+    rectangle "updateApoFzdApiKeys"  #A2E3A1
+    rectangle "downloadLokaliseStrings"  #A2E3A1
+    rectangle "downloadChangeLogs"  #A2E3A1
+    rectangle "recordPaparazziDebug"  #A2E3A1 
+}
+
+package "build APK/AAB" as BUILD #E8F5E9 {
+    rectangle "versionApp"  #A2E3A1
+    rectangle "updateGradleProperties"  #A2E3A1
+    rectangle "buildApp" as TASKS #A2E3A1
+}
+
+
+' ─── Publish from buildSrc to Repo ───
+TASKS   -[#000000,dashed]> ARTIFACT : <<publish>>
+
+' ─── Fetch & build on Dev machine ───
+DEVELOPER --> DEV : <<run tasks using fastlane to prepare release>>
+DEV --> BUILD  : uses
+BUILD --> ANDROID_DEVICE     : runs on
+
+' ─── Notify on completion ───
+BUILD --> DEVELOPER : <<notify completion>>
+
+@enduml

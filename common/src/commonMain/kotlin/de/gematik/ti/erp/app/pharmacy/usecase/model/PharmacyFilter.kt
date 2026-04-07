@@ -32,7 +32,8 @@ import de.gematik.ti.erp.app.Requirement
 data class PharmacyFilter(
     val locationFilter: LocationFilter? = null,
     val serviceFilter: ServiceFilter? = null,
-    val textFilter: TextFilter? = null
+    val textFilter: TextFilter? = null,
+    val onSiteFeatureCodes: Set<String> = emptySet()
 ) {
     companion object {
 
@@ -44,8 +45,14 @@ data class PharmacyFilter(
         private fun createServiceFilter(
             courier: Boolean = false,
             shipment: Boolean = false,
-            pickup: Boolean = false
-        ): ServiceFilter = CodedServiceFilter(courier = courier, shipment = shipment, pickup = pickup)
+            pickup: Boolean = false,
+            availableServiceCodes: Set<String> = emptySet()
+        ): ServiceFilter = CodedServiceFilter(
+            courier = courier,
+            shipment = shipment,
+            pickup = pickup,
+            availableServiceCodes = availableServiceCodes
+        )
 
         /**
          * Creates a PharmacyFilter with the appropriate ServiceFilter implementation
@@ -56,15 +63,19 @@ data class PharmacyFilter(
             textFilter: TextFilter? = null,
             courier: Boolean = false,
             shipment: Boolean = false,
-            pickup: Boolean = false
+            pickup: Boolean = false,
+            availableServiceCodes: Set<String> = emptySet(),
+            onSiteFeatureCodes: Set<String> = emptySet()
         ): PharmacyFilter = PharmacyFilter(
             locationFilter = locationFilter,
             serviceFilter = createServiceFilter(
                 courier = courier,
                 shipment = shipment,
-                pickup = pickup
+                pickup = pickup,
+                availableServiceCodes = availableServiceCodes
             ),
-            textFilter = textFilter
+            textFilter = textFilter,
+            onSiteFeatureCodes = onSiteFeatureCodes
         )
     }
 }

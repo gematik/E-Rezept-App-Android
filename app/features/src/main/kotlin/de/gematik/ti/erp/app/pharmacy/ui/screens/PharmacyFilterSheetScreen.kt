@@ -28,12 +28,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.RotateLeft
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +44,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.animated.LoadingIndicatorLine
@@ -58,17 +61,25 @@ import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes.PHARMACY_NAV_WIT
 import de.gematik.ti.erp.app.pharmacy.presentation.FilterType
 import de.gematik.ti.erp.app.pharmacy.presentation.FilterType.NEARBY
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyGraphController
+import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyFilterServiceOption
+import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyFilterServiceSection
+import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyOnSiteFeatureOption
+import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyFilterSheetScreenPreviewData
+import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyFilterSheetScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
-import de.gematik.ti.erp.app.utils.compose.Chip
+import de.gematik.ti.erp.app.utils.SpacerSmall
+import de.gematik.ti.erp.app.utils.SpacerXXLarge
+import de.gematik.ti.erp.app.utils.compose.FilterSheetChip
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.LocationPermissionDeniedDialog
 import de.gematik.ti.erp.app.utils.compose.LocationServicesNotAvailableDialog
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
+import de.gematik.ti.erp.app.utils.compose.TextButton
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
@@ -79,7 +90,7 @@ class PharmacyFilterSheetScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry,
     val graphController: PharmacyGraphController
-) : BottomSheetScreen(forceToMaxHeight = false) {
+) : BottomSheetScreen(forceToMaxHeight = true) {
     @Composable
     override fun Content() {
         val context = LocalContext.current
@@ -145,11 +156,21 @@ class PharmacyFilterSheetScreen(
             locationPermissionLauncher.launch(locationPermissions)
         }
 
+        val showServiceDescriptions by graphController.showServiceDescriptions.collectAsStateWithLifecycle(false)
+        val selectedServiceCodes by graphController.selectedServiceCodes.collectAsStateWithLifecycle(emptySet())
+
         PharmacyFilterSheetScreenContent(
             filter = filter,
             isNearbyFilter = isNearbyFilter,
             isLoading = isLoading,
             navWithStartButton = navWithStartButton,
+            showDescriptions = showServiceDescriptions,
+            selectedServiceCodes = selectedServiceCodes,
+            onToggleDescriptions = { graphController.toggleShowServiceDescriptions() },
+            onToggleServiceOption = { option ->
+                graphController.toggleAvailableService(option)
+            },
+            onToggleOnSiteFeature = { graphController.toggleOnSiteFeature(it) },
             onClickFilter = { isFilterChecked, filterType ->
                 when (filterType) {
                     NEARBY -> {
@@ -165,6 +186,9 @@ class PharmacyFilterSheetScreen(
             onClickStartSearch = {
                 navController.navigate(PharmacyRoutes.PharmacySearchListScreen.path(taskId = EMPTY_TASK_ID))
             },
+            onClickResetFilter = {
+                graphController.reset()
+            },
             onBack = {
                 navController.popBackStack()
             }
@@ -179,8 +203,14 @@ private fun PharmacyFilterSheetScreenContent(
     isNearbyFilter: Boolean,
     navWithStartButton: Boolean,
     isLoading: Boolean,
+    showDescriptions: Boolean,
+    selectedServiceCodes: Set<String>,
+    onToggleDescriptions: () -> Unit,
+    onToggleServiceOption: (PharmacyFilterServiceOption) -> Unit,
+    onToggleOnSiteFeature: (PharmacyOnSiteFeatureOption) -> Unit,
     onClickFilter: (Boolean, FilterType) -> Unit,
     onClickStartSearch: () -> Unit,
+    onClickResetFilter: () -> Unit,
     onBack: () -> Unit
 ) {
     AnimatedVisibility(isLoading) {
@@ -188,79 +218,150 @@ private fun PharmacyFilterSheetScreenContent(
     }
     Column(
         modifier = Modifier
+            .fillMaxWidth()
             .padding(horizontal = PaddingDefaults.Medium)
-            .padding(vertical = PaddingDefaults.Medium)
+            .padding(top = PaddingDefaults.Medium)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                stringResource(R.string.search_pharmacies_filter_header),
-                style = AppTheme.typography.h5
-            )
-        }
+        Text(
+            stringResource(R.string.search_pharmacies_filter_header),
+            color = AppTheme.colors.neutral900,
+            style = AppTheme.typography.h5
+        )
         SpacerMedium()
-        Column(modifier = Modifier.verticalScroll(rememberScrollState(), true)) {
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+        ) {
+            // Preference section
+            FilterSectionHeader(stringResource(R.string.search_pharmacies_section_preferences))
             FlowRow(
-                maxItemsInEachRow = 3,
-                horizontalArrangement = Arrangement.spacedBy(SizeDefaults.one),
-                verticalArrangement = Arrangement.spacedBy(SizeDefaults.one)
+                horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.ShortMedium),
+                verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Tiny)
             ) {
+                FilterSheetChip(
+                    text = stringResource(R.string.search_pharmacies_filter_open_now),
+                    checked = filter.openNow
+                ) { isChecked -> onClickFilter(isChecked, FilterType.OPEN_NOW) }
+
                 if (isNearbyFilter) {
-                    Chip(
-                        stringResource(R.string.search_pharmacies_filter_nearby),
-                        closable = false,
+                    FilterSheetChip(
+                        text = stringResource(R.string.search_pharmacies_filter_nearby),
                         checked = filter.nearBy
                     ) { isChecked ->
                         onClickFilter(isChecked, NEARBY)
                     }
                 }
-                Chip(
-                    stringResource(R.string.search_pharmacies_filter_open_now),
-                    closable = false,
-                    checked = filter.openNow
+
+                FilterSheetChip(
+                    text = stringResource(R.string.search_pharmacies_filter_recently_used),
+                    checked = filter.recentlyUsed
+                ) { isChecked -> onClickFilter(isChecked, FilterType.RECENTLY_USED) }
+            }
+
+            SpacerXXLarge()
+
+            // Redemption section
+            FilterSectionHeader(stringResource(R.string.search_pharmacies_section_redeem_path))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.ShortMedium),
+                verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Tiny)
+            ) {
+                // Abholung == pickup
+                FilterSheetChip(
+                    text = stringResource(R.string.search_pharmacies_filter_pickup),
+                    checked = filter.pickup
                 ) { isChecked ->
-                    onClickFilter(isChecked, FilterType.OPEN_NOW)
+                    onClickFilter(isChecked, FilterType.PICKUP)
                 }
-                Chip(
-                    stringResource(R.string.search_pharmacies_filter_delivery_service),
-                    closable = false,
+
+                // Versand == online service
+                FilterSheetChip(
+                    text = stringResource(R.string.search_pharmacies_filter_online_service),
+                    checked = filter.onlineService
+                ) { isChecked -> onClickFilter(isChecked, FilterType.ONLINE_SERVICE) }
+
+                // Botendienst == delivery service
+                FilterSheetChip(
+                    text = stringResource(R.string.search_pharmacies_filter_delivery_service),
                     checked = filter.deliveryService
                 ) { isChecked ->
                     onClickFilter(isChecked, FilterType.DELIVERY_SERVICE)
-                    // note: the nearby filter is auto-set only on the maps screen.
-                    // [!isNearbyFilter] decides that this is from list screen
                     if (isChecked && !isNearbyFilter) onClickFilter(true, NEARBY)
                 }
-                Chip(
-                    stringResource(R.string.search_pharmacies_filter_online_service),
-                    closable = false,
-                    checked = filter.onlineService
-                ) { isChecked ->
-                    onClickFilter(isChecked, FilterType.ONLINE_SERVICE)
-                }
             }
-            SpacerMedium()
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+            if (filter.deliveryService) {
+                SpacerSmall()
+                Text(
+                    text = stringResource(R.string.search_pharmacies_filter_delivery_hint),
+                    style = AppTheme.typography.caption1,
+                    color = AppTheme.colors.neutral700
+                )
+            }
+
+            SpacerXXLarge()
+
+            FilterSectionHeader(stringResource(R.string.search_pharmacies_section_local))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.ShortMedium),
+                verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Tiny)
             ) {
-                PrimaryButtonSmall(
-                    onClick = {
-                        onBack()
-                        if (navWithStartButton) {
-                            onClickStartSearch()
-                        }
-                    }
-                ) {
-                    Text(stringResource(R.string.search_pharmacies_start_search))
+                PharmacyOnSiteFeatureOption.entries.forEach { option ->
+                    FilterSheetChip(
+                        text = stringResource(option.label),
+                        checked = option.code in filter.onSiteFeatures
+                    ) { onToggleOnSiteFeature(option) }
                 }
             }
+
+            SpacerXXLarge()
+
+            PharmacyFilterServiceSection(
+                showDescriptions = showDescriptions,
+                selectedServiceCodes = selectedServiceCodes,
+                onToggleDescriptions = onToggleDescriptions,
+                onToggleServiceOption = onToggleServiceOption
+            )
             SpacerLarge()
         }
+
+        SpacerMedium()
+
+        // Bottom buttons
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            PrimaryButtonSmall(
+                onClick = {
+                    onBack()
+                    if (navWithStartButton) {
+                        onClickStartSearch()
+                    }
+                }
+            ) {
+                Text(stringResource(R.string.search_pharmacies_start_search))
+            }
+            SpacerSmall()
+            TextButton(
+                leadingIcon = Icons.AutoMirrored.Default.RotateLeft,
+                onClick = onClickResetFilter,
+                buttonText = stringResource(R.string.search_pharmacies_reset_filter)
+            )
+        }
+        SpacerLarge()
     }
+}
+
+@Composable
+private fun FilterSectionHeader(title: String) {
+    Text(
+        text = title,
+        style = AppTheme.typography.h6,
+        color = AppTheme.colors.neutral900,
+        modifier = Modifier.semanticsHeading()
+    )
 }
 
 private fun NavBackStackEntry.getNearbyFilter(): Boolean =
@@ -271,21 +372,25 @@ private fun NavBackStackEntry.getNavWithSearchButton(): Boolean =
 
 @LightDarkPreview
 @Composable
-fun PharmacyFilterSheetScreenPreview() {
+fun PharmacyFilterSheetScreenPreview(
+    @PreviewParameter(
+        PharmacyFilterSheetScreenPreviewParameterProvider::class
+    ) previewData: PharmacyFilterSheetScreenPreviewData
+) {
     PreviewAppTheme {
         PharmacyFilterSheetScreenContent(
-            filter = PharmacyUseCaseData.Filter(
-                nearBy = true,
-                openNow = false,
-                deliveryService = false,
-                onlineService = true
-            ),
-            isLoading = false,
-            isNearbyFilter = true,
-            navWithStartButton = true,
-            onClickFilter = { _, _ ->
-            },
+            filter = previewData.filter,
+            isLoading = previewData.isLoading,
+            isNearbyFilter = previewData.isNearbyFilter,
+            navWithStartButton = previewData.navWithStartButton,
+            showDescriptions = previewData.showDescriptions,
+            selectedServiceCodes = previewData.selectedServiceCodes,
+            onToggleDescriptions = {},
+            onToggleServiceOption = {},
+            onToggleOnSiteFeature = {},
+            onClickFilter = { _, _ -> },
             onClickStartSearch = {},
+            onClickResetFilter = {},
             onBack = {}
         )
     }

@@ -66,7 +66,6 @@ data class ContactClickActions(
 data class PersonalSettingsClickActions(
     val onToggleEnableZoom: (Boolean) -> Unit,
     val onToggleScreenshots: (Boolean) -> Unit,
-    val onClickProductImprovementSettings: () -> Unit,
     val onClickDeviceSecuritySettings: () -> Unit,
     val onClickLanguageSettings: () -> Unit,
     val onClickThemeSettings: () -> Unit,

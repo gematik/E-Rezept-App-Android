@@ -183,9 +183,6 @@ class SettingsScreen(
                 onClickThemeSettings = {
                     navController.navigate(SettingsRoutes.SettingsThemeScreen.path())
                 },
-                onClickProductImprovementSettings = {
-                    navController.navigate(SettingsRoutes.SettingsProductImprovementsScreen.path())
-                },
                 onClickDeviceSecuritySettings = {
                     navController.navigate(SettingsRoutes.SettingsAppSecurityScreen.path())
                 },
@@ -403,7 +400,6 @@ fun SettingsScreenPreview(
                     onToggleScreenshots = {},
                     onClickLanguageSettings = {},
                     onClickThemeSettings = {},
-                    onClickProductImprovementSettings = {},
                     onClickDeviceSecuritySettings = {},
                     onClickMedicationPlan = {}
                 ),

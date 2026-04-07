@@ -71,8 +71,10 @@ class TwoDCodeValidator {
      * @return [ValidScannedCode] if payload is valid and within allowed bounds, else null.
      */
     fun validate(code: RawScannedCode): ValidScannedCode? {
+        Napier.d(tag = "TwoDCodeValidator") { "validate input json='${code.json}'" }
         // Try QR deeplink else DataMatrix JSON  (existing behavior)
         val rawParsedCodes = parseQrDeepLinks(code.json) ?: parseDataMatrixUrls(code.json)
+        Napier.d(tag = "TwoDCodeValidator") { "rawParsedCodes=$rawParsedCodes" }
 
         val validatedParsedCodes = rawParsedCodes
             ?.takeIf { it.size in MIN_PRESCRIPTIONS..MAX_PRESCRIPTIONS }
@@ -92,6 +94,7 @@ class TwoDCodeValidator {
                 }
             }
 
+        Napier.d(tag = "TwoDCodeValidator") { "validatedParsedCodes=$validatedParsedCodes result=${if (validatedParsedCodes != null) "VALID" else "INVALID"}" }
         return validatedParsedCodes?.let {
             ValidScannedCode(
                 raw = code,

@@ -30,7 +30,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
@@ -92,10 +91,12 @@ class UserAuthenticationScreen(
                 authState.bothMethodsAvailable || authState.methodIsDeviceSecurity -> {
                     authenticationController.onAuthenticateWithDeviceSecurity { onLeaveUserAuthenticationScreen() }
                 }
+
                 authState.methodIsPassword -> {
                     awaitFrame()
                     focusRequester.requestFocus()
                 }
+
                 authState.methodIsUnspecified -> {
                     onLeaveUserAuthenticationScreen()
                 }

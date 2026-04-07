@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.analytics.trackCardCommunication
+import de.gematik.ti.erp.app.base.NfcEnabledEffect
 import de.gematik.ti.erp.app.base.onNfcNotEnabled
 import de.gematik.ti.erp.app.base.retryOnNfcEnabled
 import de.gematik.ti.erp.app.cardwall.presentation.CardWallController
@@ -138,6 +139,8 @@ fun CardWallAuthenticationDialog(
     val toggleAuth = dialogState.toggleAuth
     var showEnableNfcDialog by remember { mutableStateOf(false) }
     var errorCount by remember(troubleShootingEnabled) { mutableStateOf(0) }
+
+    NfcEnabledEffect { showEnableNfcDialog = false }
 
     val tracker = LocalCardCommunicationAnalytics.current
 

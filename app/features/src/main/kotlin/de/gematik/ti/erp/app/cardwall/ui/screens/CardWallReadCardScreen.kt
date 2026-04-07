@@ -28,8 +28,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -37,6 +39,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.navOptions
 import de.gematik.ti.erp.app.MainActivity
+import de.gematik.ti.erp.app.base.NfcEnabledEffect
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.cardunlock.navigation.CardUnlockRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
@@ -81,9 +84,15 @@ class CardWallReadCardScreen(
             }
         }
 
-        // Nfc reader mode is only enabled in this screen and is disabled when leaving the screen
-        DisposableEffect(Unit) {
-            activity.enableNfcReaderMode(readerCallback)
+        var nfcEnabled by remember { mutableStateOf(cardWallController.isNfcEnabled()) }
+        NfcEnabledEffect { nfcEnabled = true }
+
+        // Nfc reader mode is only enabled in this screen and is disabled when leaving the screen.
+        // Keyed on nfcEnabled so that reader mode is re-enabled after the user returns from NFC settings.
+        DisposableEffect(nfcEnabled) {
+            if (nfcEnabled) {
+                activity.enableNfcReaderMode(readerCallback)
+            }
             onDispose {
                 activity.disableNfcReaderMode()
             }
@@ -121,7 +130,7 @@ class CardWallReadCardScreen(
             },
             nfcPosition = nfcPos
         )
-        if (!cardWallController.isNfcEnabled()) {
+        if (!nfcEnabled) {
             EnableNfcDialog { onBack() }
         } else {
             CardWallAuthenticationDialog(

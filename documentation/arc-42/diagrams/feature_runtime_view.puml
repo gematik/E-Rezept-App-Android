@@ -1,0 +1,70 @@
+@startuml
+' ─── Runtime Sequence for Feature Module ───
+scale 0.8
+
+actor "User" as User
+
+participant "DI Module"           as DI
+participant "UI Components"       as UI
+participant "Screen ViewModel"    as SVM
+participant "UseCase"             as UC
+participant "Repository"          as REP
+participant "Local DataSource"    as LDS
+participant "Remote DataSource"   as RDS
+participant "Graph ViewModel"     as GVM
+participant "Navigation"          as NAV
+
+== App Start / Dependency Injection ==
+User -> DI: initializeApp()
+activate DI
+DI --> SVM: inject(screen viewmodel)
+DI --> GVM: inject(graph viewmodel)
+DI --> UC : inject(usecases)
+DI --> REP: inject(repository)
+DI --> LDS: inject(local data source)
+DI --> RDS: inject(remote data source)
+deactivate DI
+
+== Screen Rendering Flow ==
+User -> UI: displayScreen()
+activate UI
+UI -> SVM: onCreate()
+activate SVM
+SVM -> UC: loadInitialData()
+activate UC
+UC -> REP: getData()
+activate REP
+REP -> LDS: queryCache()
+activate LDS
+LDS --> REP: returnCachedData
+deactivate LDS
+REP -> RDS: fetchRemoteData()
+activate RDS
+RDS --> REP: returnRemoteData
+deactivate RDS
+REP --> UC: apiData
+deactivate REP
+UC --> SVM: domainData (map to domain model)
+deactivate UC
+SVM --> UI: render(uiData)  (map to UI model)
+deactivate SVM
+
+== Navigation & State Sharing ==
+User -> NAV: navigate("NextScreen")
+activate NAV
+NAV -> GVM: storeState(domainData)  (use domain data for state)
+activate GVM
+GVM --> NAV: ack
+deactivate GVM
+NAV -> UI: showNextScreen()
+deactivate NAV
+UI -> SVM: onResume()
+activate SVM
+SVM -> GVM: retrieveState()
+activate GVM
+GVM --> SVM: stateData
+deactivate GVM
+SVM --> UI: render(stateData)
+deactivate SVM
+
+@enduml

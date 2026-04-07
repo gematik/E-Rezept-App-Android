@@ -22,15 +22,14 @@
 
 package de.gematik.ti.erp.app.translation.usecase
 
-import com.google.mlkit.common.model.RemoteModelManager
 import com.google.mlkit.nl.translate.TranslateLanguage
-import com.google.mlkit.nl.translate.TranslateRemoteModel
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.TranslatorOptions
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.translation.domain.model.TRANSLATION_TAG
 import de.gematik.ti.erp.app.translation.domain.model.TranslationFailure
 import de.gematik.ti.erp.app.translation.domain.model.TranslationState
+import de.gematik.ti.erp.app.translation.repository.TranslationModelManager
 import de.gematik.ti.erp.app.translation.repository.TranslationRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,7 +41,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.tasks.await
 
 class TranslateTextUseCase(
-    private val remoteModelManager: RemoteModelManager,
+    private val modelManager: TranslationModelManager,
     private val repository: TranslationRepository,
     private val networkStatusTracker: NetworkStatusTracker
 ) {
@@ -71,8 +70,7 @@ class TranslateTextUseCase(
                             emit(TranslationState.Error(TranslationFailure.TargetLanguageNotSet))
                             return@flow
                         }
-                        val model = TranslateRemoteModel.Builder(targetLang).build()
-                        val isDownloaded = remoteModelManager.isModelDownloaded(model).await()
+                        val isDownloaded = modelManager.isModelDownloaded(targetLang)
 
                         val options = TranslatorOptions.Builder()
                             .setSourceLanguage(sourceLang)

@@ -24,7 +24,9 @@ package de.gematik.ti.erp.app.translation.di
 
 import com.google.mlkit.common.model.RemoteModelManager
 import de.gematik.ti.erp.app.translation.domain.usecase.GetDownloadedLanguagesUseCase
+import de.gematik.ti.erp.app.translation.repository.DefaultTranslationModelManager
 import de.gematik.ti.erp.app.translation.repository.DefaultTranslationRepository
+import de.gematik.ti.erp.app.translation.repository.TranslationModelManager
 import de.gematik.ti.erp.app.translation.repository.TranslationRepository
 import de.gematik.ti.erp.app.translation.repository.datasource.local.TranslationLocalDataSource
 import de.gematik.ti.erp.app.translation.repository.datasource.remote.TranslationRemoteDataSource
@@ -42,6 +44,7 @@ import org.kodein.di.instance
 
 val textTranslatorModule = DI.Module("textTranslatorModule", allowSilentOverride = true) {
     bindProvider { RemoteModelManager.getInstance() }
+    bindProvider<TranslationModelManager> { DefaultTranslationModelManager(instance()) }
     bindProvider { TranslationRemoteDataSource(instance(), instance()) }
     bindProvider { TranslationLocalDataSource(instance(), instance()) }
     bindProvider<TranslationRepository> { DefaultTranslationRepository(instance(), instance(), instance()) }

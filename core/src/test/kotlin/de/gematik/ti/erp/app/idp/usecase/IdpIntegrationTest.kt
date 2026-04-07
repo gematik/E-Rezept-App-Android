@@ -255,7 +255,7 @@ class IdpIntegrationTest {
 
         every { cryptoProvider.keyStoreInstance() } returns keyStore
 
-        useCase.alternatePairingFlowWithSecureElement(
+        useCase.pairSecureElementWithHealthCard(
             profileId = profileId,
             cardAccessNumber = cardAccessNumber,
             publicKeyOfSecureElementEntry = keyPair.public,
@@ -278,7 +278,7 @@ class IdpIntegrationTest {
             )
         }
 
-        useCase.alternateAuthenticationFlowWithSecureElement(
+        useCase.authenticateWithSecureElement(
             profileId = profileId,
             scope = IdpScope.Default
         )
@@ -295,7 +295,7 @@ class IdpIntegrationTest {
         // paired devices
         //
 
-        useCase.alternateAuthenticationFlowWithSecureElement(
+        useCase.authenticateWithSecureElement(
             profileId = profileId,
             scope = IdpScope.BiometricPairing
         )

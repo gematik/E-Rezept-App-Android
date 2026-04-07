@@ -59,11 +59,12 @@ sealed class ConsentConstants(
      */
     sealed class ErpCharge(
         consentId: String,
+        patientSystem: String,
         profileUrl: String
     ) : ConsentConstants(
         consentId = consentId,
         profileUrl = profileUrl,
-        patientSystem = FhirIdentifierSystems.Patient.KVNR_PKV,
+        patientSystem = patientSystem,
         categorySystem = "https://gematik.de/fhir/erpchrg/CodeSystem/GEM_ERPCHRG_CS_ConsentType",
         categoryCode = "CHARGCONS",
         categoryDisplay = "Consent for charging"
@@ -71,12 +72,14 @@ sealed class ConsentConstants(
         /** ERP Charge Consent - profile version 1.0 */
         object V1_0 : ErpCharge(
             consentId = "erp-charge-01-POST-Consent",
+            patientSystem = FhirIdentifierSystems.Patient.KVNR_PKV,
             profileUrl = "https://gematik.de/fhir/erpchrg/StructureDefinition/GEM_ERPCHRG_PR_Consent|1.0"
         )
 
         /** ERP Charge Consent - profile version 1.1 */
         object V1_1 : ErpCharge(
             consentId = "erp-charge-01-POST-Consent",
+            patientSystem = FhirIdentifierSystems.Patient.KVNR_GKV,
             profileUrl = "https://gematik.de/fhir/erpchrg/StructureDefinition/GEM_ERPCHRG_PR_Consent|1.1"
         )
 

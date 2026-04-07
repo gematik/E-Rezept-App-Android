@@ -25,6 +25,8 @@ package de.gematik.ti.erp.app.userauthentication.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
+import de.gematik.ti.erp.app.appsecurity.navigation.AppSecurityRoutes
+import de.gematik.ti.erp.app.appsecurity.ui.Android8DeprecationScreen
 import de.gematik.ti.erp.app.navigation.renderComposable
 import de.gematik.ti.erp.app.userauthentication.ui.screens.UserAuthenticationScreen
 
@@ -43,6 +45,15 @@ fun NavGraphBuilder.userAuthenticationGraph(
             UserAuthenticationScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
+            )
+        }
+        renderComposable(
+            route = AppSecurityRoutes.Android8DeprecationScreen.route,
+            arguments = AppSecurityRoutes.Android8DeprecationScreen.arguments
+        ) {
+            Android8DeprecationScreen(
+                navController = navController,
+                navBackStackEntry = it
             )
         }
     }

@@ -196,6 +196,10 @@ class MockSettingsRepository(
         }
     }
 
+    override suspend fun resetOnboardingShownIn() {
+        // no-op
+    }
+
     override suspend fun updateRefreshTime() {
         // no-op
     }

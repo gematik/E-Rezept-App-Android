@@ -23,17 +23,12 @@
 package de.gematik.ti.erp.app.analytics.di
 
 import de.gematik.ti.erp.app.analytics.CardCommunicationAnalytics
-import de.gematik.ti.erp.app.analytics.mapper.ContentSquareScreenMapper
+import de.gematik.ti.erp.app.analytics.mapper.TrackingScreenMapper
 import de.gematik.ti.erp.app.analytics.presentation.DebugTrackerScreenViewModel
-import de.gematik.ti.erp.app.analytics.tracker.ContentSquareTracker
 import de.gematik.ti.erp.app.analytics.tracker.DebugTracker
-import de.gematik.ti.erp.app.analytics.tracker.DebugTrackerSession
+import de.gematik.ti.erp.app.analytics.tracker.LocalTrackerSession
 import de.gematik.ti.erp.app.analytics.tracker.Tracker
-import de.gematik.ti.erp.app.analytics.usecase.ChangeAnalyticsStateUseCase
 import de.gematik.ti.erp.app.analytics.usecase.GetDebugTrackingSessionUseCase
-import de.gematik.ti.erp.app.analytics.usecase.IsAnalyticsAllowedUseCase
-import de.gematik.ti.erp.app.analytics.usecase.StartTrackerUseCase
-import de.gematik.ti.erp.app.analytics.usecase.StopTrackerUseCase
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
@@ -41,20 +36,15 @@ import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
 val cardCommunicationAnalyticsModule = DI.Module("analyticsModule") {
-    bindProvider { IsAnalyticsAllowedUseCase(instance()) }
-    bindProvider { ChangeAnalyticsStateUseCase(instance()) }
-    bindProvider { StartTrackerUseCase(instance()) }
-    bindProvider { StopTrackerUseCase(instance()) }
 
     bindSingleton { CardCommunicationAnalytics(instance(), instance()) }
-    bindSingleton { DebugTrackerSession() }
+    bindSingleton { LocalTrackerSession() }
 
-    bindProvider { ContentSquareScreenMapper() }
+    bindProvider { TrackingScreenMapper() }
     bindProvider {
         val isNonReleaseMode = BuildConfigExtension.isInternalDebug
-        Tracker(instance(), instance(), instance(), isNonReleaseMode)
+        Tracker(instance(), isNonReleaseMode)
     }
-    bindProvider { ContentSquareTracker() }
     bindProvider { DebugTracker(instance()) }
     bindProvider { GetDebugTrackingSessionUseCase(instance()) }
     bindProvider { DebugTrackerScreenViewModel(instance()) }

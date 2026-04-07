@@ -24,73 +24,103 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.LocalShipping
-import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.Moped
 import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.pharmacy.ui.model.QuickFilter
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.SpacerSmall
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 
 internal fun LazyListScope.FilterSection(
     onSelectFilter: (QuickFilter) -> Unit,
     onClickFilter: () -> Unit
 ) {
     item {
-        Column(
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Center
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = PaddingDefaults.XXLarge, bottom = PaddingDefaults.Medium)
+                .padding(horizontal = PaddingDefaults.Medium),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                stringResource(R.string.search_pharmacies_filter_header),
-                style = AppTheme.typography.subtitle1,
+                text = stringResource(R.string.search_pharmacies_popular_filter_header),
+                style = AppTheme.typography.h6,
+                modifier = Modifier.semanticsHeading(),
+                textAlign = TextAlign.Start,
+                color = AppTheme.colors.neutral900
+            )
+            Row(
                 modifier = Modifier
-                    .padding(top = PaddingDefaults.XXLarge, bottom = PaddingDefaults.Medium)
-                    .padding(horizontal = PaddingDefaults.Medium)
-                    .semanticsHeading(),
-                textAlign = TextAlign.Start
-            )
-            FilterButton(
-                modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
-                text = stringResource(R.string.search_pharmacies_filter_open_now_and_local),
-                icon = Icons.Outlined.LocationOn,
-                onClick = {
-                    onSelectFilter(QuickFilter.OpenNowNearby)
-                }
-            )
-            FilterButton(
-                modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+                    .clickable(role = Role.Button) { onClickFilter() },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Tiny)
+            ) {
+                Text(
+                    text = stringResource(R.string.search_pharmacies_filter_all),
+                    style = AppTheme.typography.body1,
+                    color = AppTheme.colors.primary700
+                )
+                Icon(
+                    imageVector = Icons.Outlined.Tune,
+                    contentDescription = null,
+                    tint = AppTheme.colors.primary700
+                )
+            }
+        }
+
+        FlowRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = PaddingDefaults.Medium),
+            horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
+        ) {
+            FilterChip(
                 text = stringResource(R.string.search_pharmacies_filter_delivery_service),
-                icon = Icons.Outlined.Moped,
-                onClick = {
-                    onSelectFilter(QuickFilter.DeliveryNearby)
-                }
+                onClick = { onSelectFilter(QuickFilter.DeliveryNearby) }
             )
-            FilterButton(
-                modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+            FilterChip(
                 text = stringResource(R.string.search_pharmacies_filter_online_service),
-                icon = Icons.Outlined.LocalShipping,
-                onClick = {
-                    onSelectFilter(QuickFilter.Online)
-                }
+                onClick = { onSelectFilter(QuickFilter.Online) }
             )
-            FilterButton(
-                modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
-                text = stringResource(R.string.search_pharmacies_filter_by),
-                icon = Icons.Outlined.Tune,
-                onClick = onClickFilter
+            FilterChip(
+                text = stringResource(R.string.search_pharmacies_filter_open_now_and_local),
+                onClick = { onSelectFilter(QuickFilter.OpenNowNearby) }
+            )
+        }
+        SpacerSmall()
+    }
+}
+
+@Preview
+@Composable
+private fun FilterSectionPreview() {
+    PreviewAppTheme {
+        LazyColumn {
+            FilterSection(
+                onSelectFilter = {},
+                onClickFilter = {}
             )
         }
     }

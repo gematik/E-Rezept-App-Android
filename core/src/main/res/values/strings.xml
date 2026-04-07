@@ -93,6 +93,13 @@
     <string name="analytics_how_it_works_title">Wie funktioniert die Analyse und was wird erfasst?</string>
     <string name="analytics_why_important_text">Um die App möglichst für die gesamte Bevölkerung optimal ausgestalten und Nutzungsbarrieren abbauen zu können, möchten wir verstehen, wie die App genutzt wird. Die Erkenntnisse können dann berücksichtigt werden, um die Bedienbarkeit, Übersichtlichkeit und Verständlichkeit der App zu verbessern und die sichere Nutzung ihrer Funktionen sicherzustellen. Die Analyse hilft uns auch festzustellen, wie lange beispielsweise ältere Technik unterstützt werden muss oder wann davon ausgegangen werden kann, dass die meisten Nutzenden auf ein neues Betriebssystem umgestellt haben.</string>
     <string name="analytics_why_important_title">Warum ist die Analyse wichtig?</string>
+    <string name="android8_deprecation_continue_button">App weiter nutzen</string>
+    <string name="android8_deprecation_reason_app_still_works">Die App funktioniert weiterhin auf Ihrem Gerät.</string>
+    <string name="android8_deprecation_reason_no_updates">Sie erhalten keine neuen Updates oder Fehlerbehebungen mehr. Das kann dazu führen, dass Sie in wenigen Jahren keine E‑Rezepte mehr empfangen können.</string>
+    <string name="android8_deprecation_reason_upgrade_recommendation">Um weiterhin von Verbesserungen zu profitieren, empfehlen wir ein Update auf eine aktuellere Android Version.</string>
+    <string name="android8_deprecation_section_header">Was bedeutet das für Sie?</string>
+    <string name="android8_deprecation_subtitle">Ab sofort erhält diese App auf Android 8 keine Updates mehr.</string>
+    <string name="android8_deprecation_title">Kein Support für Android 8 mehr</string>
     <string name="app_name" translatable="false">E-Rezept</string>
     <string name="app_playstore_link" translatable="false">https://play.google.com/store/apps/details?id=de.gematik.ti.erp.app</string>
     <string name="app_update_Button_text">Aktualisieren</string>
@@ -162,6 +169,7 @@
     </plurals>
     <string name="can_input_field_label">Zugangsnummer</string>
     <string name="cancel">Abbrechen</string>
+    <string name="cardwall_gid_bund_search_filter" translatable="false">Heilfürsorge</string>
     <string name="cardwall_gid_help_body">Für die GesundheitsID ist Ihre Versicherung zuständig. Kontaktieren Sie diese bitte bei Fragen zur Anmeldung. Hier einige bewährte Tipps:</string>
     <string name="cardwall_gid_help_button">Hilfe</string>
     <string name="cardwall_gid_help_header">Tipps zur Anmeldung mit der Versicherungsapp</string>
@@ -1094,16 +1102,6 @@
     <string name="onb_page_5_header">Helfen Sie uns, diese App besser zu machen</string>
     <string name="onb_terms_of_use">Nutzungsbedingungen</string>
     <string name="onb_undo_description">Eingabe löschen</string>
-    <string name="onboarding_analytics_agree_button">Zustimmen</string>
-    <string name="onboarding_analytics_bottom_text">Sie können die Analyse in den Einstellungen jederzeit wieder deaktivieren.</string>
-    <string name="onboarding_analytics_consent_text">Mit Ihrer Zustimmung möchten wir eine %s durchführen. Dafür möchten wir Daten zur Nutzung der App und technische Daten erfassen und anonymisiert auswerten und so:</string>
-    <string name="onboarding_analytics_consent_title">Helfen Sie, die App zu verbessern!</string>
-    <string name="onboarding_analytics_link_text">Analyse der Appverwendung</string>
-    <string name="onboarding_analytics_optimize_user_experience_text">Die Nutzungserfahrung für die gesamte Bevölkerung optimal ausgestalten</string>
-    <string name="onboarding_analytics_reduce_barriers_text">Nutzungsbarrieren abbauen</string>
-    <string name="onboarding_analytics_reject_button">Ablehnen</string>
-    <string name="onboarding_analytics_resolve_errors_text">Fehler frühzeitig erkennen und beheben</string>
-    <string name="onboarding_analytics_we_want">Wir werden:</string>
     <string name="onboarding_auth_biometric_info">Die App verwendet die sicherste Methode, die Sie auf Ihrem Gerät zur eingerichtet haben.</string>
     <string name="onboarding_bottom_app_safety_button_next">Weiter</string>
     <string name="onboarding_bottom_button_accept">Akzeptieren</string>
@@ -1229,6 +1227,7 @@
     <string name="pharmacy_detail_title">Apotheke</string>
     <string name="pharmacy_detalls_removed_from_favorites">Apotheke aus Favoriten entfernt</string>
     <string name="pharmacy_detals_added_to_favorites">Apotheke zu Favoriten hinzugefügt</string>
+    <string name="pharmacy_maps_card_header">Kartenansicht</string>
     <string name="pharmacy_maps_header">In meiner Nähe</string>
     <string name="pharmacy_maps_search_here_button">Hier suchen</string>
     <string name="pharmacy_my_pharmacies_header">Meine Apotheken</string>
@@ -1539,19 +1538,60 @@
     <string name="schedule_date_range_save_start">Startdatum auswählen</string>
     <string name="schedule_date_range_start">Start</string>
     <string name="schedule_date_range_unlimited">Unbegrenzt</string>
+    <string name="search_pharmacies_explain">Erklären</string>
     <string name="search_pharmacies_filter">Filtern</string>
+    <string name="search_pharmacies_filter_accessible_entry">Barrierefreier Zugang</string>
+    <string name="search_pharmacies_filter_all">Alle Filter</string>
     <string name="search_pharmacies_filter_by">Filtern nach …</string>
+    <string name="search_pharmacies_filter_delivery_hint">Der Botendienst ist für gesetzlich Versicherte i.d.R. kostenfrei.</string>
     <string name="search_pharmacies_filter_delivery_service">Botendienst</string>
+    <string name="search_pharmacies_filter_favorites">Favoriten</string>
     <string name="search_pharmacies_filter_header">Filter</string>
     <string name="search_pharmacies_filter_nearby">In meiner Nähe</string>
     <string name="search_pharmacies_filter_online_service">Versand</string>
     <string name="search_pharmacies_filter_open_now">Aktuell geöffnet</string>
     <string name="search_pharmacies_filter_open_now_and_local">Aktuell geöffnet und in meiner Nähe</string>
+    <string name="search_pharmacies_filter_parking_option">Parkmöglichkeit</string>
+    <string name="search_pharmacies_filter_pickup">Abholung</string>
+    <string name="search_pharmacies_filter_pickup_station">Abholautomat</string>
+    <string name="search_pharmacies_filter_public_transport_nearby">ÖPNV in der Nähe</string>
+    <string name="search_pharmacies_filter_recently_used">Zuletzt genutzt</string>
     <string name="search_pharmacies_location_na_header">Standort freigeben</string>
     <string name="search_pharmacies_location_na_header_info">Geben Sie Ihren Standort frei, um Apotheken in Ihrer Nähe zu finden.</string>
     <string name="search_pharmacies_location_na_header_okay">Okay</string>
     <string name="search_pharmacies_location_na_services">Standort in den Einstellungen freigeben.</string>
     <string name="search_pharmacies_location_na_settings">Einstellungen</string>
+    <string name="search_pharmacies_not_explain">Nicht erklären</string>
+    <string name="search_pharmacies_popular_filter_header">Beliebte Filter</string>
+    <string name="search_pharmacies_reset_filter">Zurücksetzen</string>
+    <string name="search_pharmacies_section_local">Vor Ort</string>
+    <string name="search_pharmacies_section_preferences">Präferenzen</string>
+    <string name="search_pharmacies_section_redeem_path">Einlöseweg</string>
+    <string name="search_pharmacies_section_services">Services</string>
+    <string name="search_pharmacies_service_allergy_test">Allergietest erwerben</string>
+    <string name="search_pharmacies_service_allergy_test_desc">Bei diesen Apotheken können Sie Allergie-Selbsttests oder Laborkits erwerben.</string>
+    <string name="search_pharmacies_service_blood_pressure">Bluthochdruck kontrollieren**</string>
+    <string name="search_pharmacies_service_blood_pressure_desc">Bei diesen Apotheken können Sie Ihren Blutdruck alle 12 Monate messen, um die Wirkung Ihrer Medikamente zu überprüfen.</string>
+    <string name="search_pharmacies_service_body_values">Körperwerte messen*</string>
+    <string name="search_pharmacies_service_body_values_desc">In diesen Apotheken können Sie Ihre Körperwerte wie Blutdruck, Blutzucker und Cholesterin messen lassen.</string>
+    <string name="search_pharmacies_service_cancer_therapy">Betreuung oraler Krebstherapie*</string>
+    <string name="search_pharmacies_service_cancer_therapy_desc">In diesen Apotheken erhalten Sie bei oraler Einnahme von Krebsmedikamenten z.B. Unterstützung zur Medikamenteneinnahme und dem Umgang mit Nebenwirkungen.</string>
+    <string name="search_pharmacies_service_double_asterisk_a11y">Doppelstern</string>
+    <string name="search_pharmacies_service_hint_all">**Für alle i.d.R kostenlos.</string>
+    <string name="search_pharmacies_service_hint_statutory">*Für gesetzlich Versicherte i.d.R kostenlos.</string>
+    <string name="search_pharmacies_service_inhalation">Inhalationsschulung*</string>
+    <string name="search_pharmacies_service_inhalation_desc">Diese Apotheken können Sie über den korrekten Umgang mit Ihrem Inhalator schulen.</string>
+    <string name="search_pharmacies_service_organ_transplant">Beratung bei Organtransplantation*</string>
+    <string name="search_pharmacies_service_organ_transplant_desc">Diese Apotheken betreuen Sie nach einer Organtransplantation, wenn Sie ein Immunsuppressivum erhalten.</string>
+    <string name="search_pharmacies_service_polymedication">Beratung bei Polymedikation*</string>
+    <string name="search_pharmacies_service_polymedication_desc">Diese Apotheken können Ihre Medikation alle 12 Monate überprüfen, wenn Sie 5 oder mehr Medikamente einnehmen.</string>
+    <string name="search_pharmacies_service_single_asterisk_a11y">Stern</string>
+    <string name="search_pharmacies_service_sterile">Sterilherstellung*</string>
+    <string name="search_pharmacies_service_sterile_desc">Diese Apotheken stellen individuelle sterile Arzneimittel wie Infusionen und parenterale Ernährung her.</string>
+    <string name="search_pharmacies_service_travel_medicine">Reisemedizinberatung**</string>
+    <string name="search_pharmacies_service_travel_medicine_desc">Diese Apotheken können Sie über Impfungen und Medikamente für Ihre Reise beraten.</string>
+    <string name="search_pharmacies_service_vaccination">Impfen lassen*</string>
+    <string name="search_pharmacies_service_vaccination_desc">In diesen Apotheken können Sie sich gegen Grippe- und Corona impfen lassen.</string>
     <string name="search_pharmacies_start_search">Suchen</string>
     <string name="search_pharmacy_closed">Geschlossen</string>
     <string name="search_pharmacy_continuous_open">Durchgehend geöffnet</string>
@@ -1595,11 +1635,9 @@
     <string name="settings_accessibility_header">Bedienungshilfen</string>
     <string name="settings_accessibility_headline">Bedienungshilfen</string>
     <string name="settings_accessibility_statement">Barrierefreiheitserklärung</string>
-    <string name="settings_accessibility_statement_address" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/barrierefreiheitserklaerung-e-rezept-app-android\n    </string>
+    <string name="settings_accessibility_statement_address" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/barrierefreiheitserklaerung-e-rezept-app-android</string>
     <string name="settings_accessibility_statement_talkback">Barrierefreiheitserklärung auf externer Webseite</string>
     <string name="settings_accessibility_zoom_toggle">Zoomen ermöglichen</string>
-    <string name="settings_allow_analytics_header">Anonyme Analyse</string>
-    <string name="settings_allow_analytics_info">Helfen Sie uns, diese App besser zu machen. Alle Nutzungsdaten werden anonym erhoben und dienen ausschließlich der Verbesserung des Nutzungserlebnisses.</string>
     <string name="settings_app_security_change_password">Passwort ändern</string>
     <string name="settings_app_security_device_security">Gerätesicherung</string>
     <string name="settings_app_security_header">App Sicherheit</string>
@@ -1646,8 +1684,6 @@
     <string name="settings_password_suggestions">Empfehlungen: %s</string>
     <string name="settings_password_very_good">Passwortstärke sehr gut</string>
     <string name="settings_personal_settings_header">Persönliche Einstellungen</string>
-    <string name="settings_product_improvement_header">Produktverbesserungen</string>
-    <string name="settings_product_improvement_headline">Produktverbesserungen</string>
     <string name="settings_profile_connected">Verbunden</string>
     <string name="settings_profile_last_authenticated_on">Zuletzt verbunden am %s</string>
     <string name="settings_profile_not_connected">Nicht angemeldet</string>
@@ -1662,15 +1698,6 @@
     <string name="settings_theme_light">Hell</string>
     <string name="settings_theme_system">Systemeinstellung</string>
     <string name="settings_theme_title">Design</string>
-    <string name="settings_tracking_allow_button">Akzeptieren</string>
-    <string name="settings_tracking_allow_emoji" translatable="false">\u2661</string>
-    <string name="settings_tracking_allow_info">%s Vielen Dank für Ihre Unterstützung!</string>
-    <string name="settings_tracking_allow_title">App verbessern</string>
-    <string name="settings_tracking_dialog_text_1">Das umfasst Hard- und Softwareinformationen Ihres Telefons, Einstellungen der E-Rezept App sowie Umfang der Nutzung, jedoch niemals Daten über Ihre Person oder Ihre Gesundheit.</string>
-    <string name="settings_tracking_dialog_text_2">Die Daten werden durch Datenverarbeitungsnehmer nur der gematik GmbH zur Verfügung gestellt und spätestens nach 180 Tagen gelöscht. Sie können die Analyse jederzeit wieder im Menü der App deaktivieren.</string>
-    <string name="settings_tracking_dialog_text_3">Wir können durch diese Daten nachvollziehen, welche Funktionen häufig genutzt werden, und diese verbessern. Ferner können wir einschätzen, wie lange ältere Technik unterstützt werden muss, und wann wir z.B. eine neuere Betriebssystemversion verpflichtend machen können, ohne (zu viele) Nutzende zu betreffen.</string>
-    <string name="settings_tracking_dialog_title">Erlauben Sie E-Rezept Ihr Nutzungsverhalten anonym zu analysieren?</string>
-    <string name="settings_tracking_disallow_info">Anonyme Analyse bleibt deaktiviert</string>
     <string name="several_return_code">Ein oder mehr Rezepte konnten nicht übertragen werden.</string>
     <string name="share_import_error">Ein Fehler beim Importieren ist aufgetreten</string>
     <string name="share_import_prescription_added">Rezept hinzugefügt</string>

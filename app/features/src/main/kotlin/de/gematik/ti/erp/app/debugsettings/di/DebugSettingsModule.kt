@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.debugsettings.di
 import de.gematik.ti.erp.app.debugsettings.data.repository.DebugSettingsRepository
 import de.gematik.ti.erp.app.debugsettings.data.repository.DefaultDebugSettingsRepository
 import de.gematik.ti.erp.app.debugsettings.data.repository.local.DebugSettingsLocalDataSource
+import de.gematik.ti.erp.app.database.datastore.virtualhealthcard.virtualHealthCardLocalDataSource
 import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.usecase.GetShowTelematikIdStateUseCase
 import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.usecase.PharmacyBackendServiceSelectionUseCase
 import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.usecase.PharmacyGetSearchAccessTokenUseCase
@@ -33,12 +34,15 @@ import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.usecase.To
 import de.gematik.ti.erp.app.debugsettings.usecase.BreakSsoTokenUseCase
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
+import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
 val debugSettingsModule = DI.Module("debugSettingsModule") {
 
     bindProvider { DebugSettingsLocalDataSource(instance()) }
     bindProvider<DebugSettingsRepository> { DefaultDebugSettingsRepository(instance()) }
+
+    bindSingleton { virtualHealthCardLocalDataSource(instance()) }
 
     bindProvider { GetShowTelematikIdStateUseCase(instance()) }
     bindProvider { ToggleShowTelematikIdStateUseCase(instance()) }

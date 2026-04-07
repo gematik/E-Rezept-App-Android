@@ -22,25 +22,24 @@
 
 package de.gematik.ti.erp.app.prescription.ui
 
-import android.content.Context
+import android.graphics.ImageFormat
+import android.graphics.Point
+import android.graphics.Rect
 import android.util.Size
-import androidx.annotation.OptIn
-import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import com.google.mlkit.common.MlKit
-import com.google.mlkit.common.sdkinternal.MlKitContext
-import com.google.mlkit.vision.barcode.BarcodeScanner
-import com.google.mlkit.vision.barcode.BarcodeScannerOptions
-import com.google.mlkit.vision.barcode.BarcodeScanning
-import com.google.mlkit.vision.barcode.common.Barcode
-import com.google.mlkit.vision.common.InputImage
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.BinaryBitmap
+import com.google.zxing.DecodeHintType
+import com.google.zxing.MultiFormatReader
+import com.google.zxing.PlanarYUVLuminanceSource
+import com.google.zxing.Result
+import com.google.zxing.common.HybridBinarizer
 import de.gematik.ti.erp.app.Requirement
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import com.google.android.gms.tasks.Task as GoogleTask
-import com.google.android.gms.tasks.Tasks as GoogleTasks
+import kotlin.math.roundToInt
 
 private const val DEFAULT_SCAN_TIME = 250L
 
@@ -54,12 +53,17 @@ private const val DEFAULT_SCAN_TIME = 250L
     sourceSpecification = "BSI-eRp-ePA",
     rationale = "The device camera is also used for scanning data matrix codes."
 )
-class TwoDCodeScanner(
+class TwoDCodeScanner : ImageAnalysis.Analyzer {
+    data class ScannedCode(
+        val rawBytes: ByteArray?,
+        val text: String,
+        val format: BarcodeFormat,
+        val cornerPoints: Array<Point>,
+        val boundingBox: Rect
+    )
 
-    private val context: Context
-) : ImageAnalysis.Analyzer {
     data class Batch(
-        val matrixCodes: List<Barcode>,
+        val matrixCodes: List<ScannedCode>,
         val cameraSize: Size = Size(0, 0),
         val cameraRotation: Int = 0,
         val averageScanTime: Long = DEFAULT_SCAN_TIME
@@ -72,102 +76,129 @@ class TwoDCodeScanner(
     )
         private set
 
-    private val qrScanner by lazy {
-        BarcodeScanning.getClient(
-            BarcodeScannerOptions.Builder()
-                .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
-                .build()
-        )
-    }
-
-    private val dmScanner by lazy {
-        BarcodeScanning.getClient(
-            BarcodeScannerOptions.Builder()
-                .setBarcodeFormats(Barcode.FORMAT_DATA_MATRIX)
-                .build()
-        )
-    }
-
-    private fun detectPreferQr(image: InputImage): GoogleTask<List<Barcode>> {
-        return qrScanner.process(image)
-            .continueWithTask { qrTask ->
-                val qr = qrTask.result.orEmpty().filter { it.format == Barcode.FORMAT_QR_CODE }
-                if (qr.isNotEmpty()) {
-                    GoogleTasks.forResult(qr)
-                } else {
-                    dmScanner.process(image)
-                }
-            }
-            .continueWith { allTask ->
-                // Optional: filter to exactly one format to avoid ambiguity downstream
-                val found = allTask.result.orEmpty()
-                val onlyQr = found.filter { it.format == Barcode.FORMAT_QR_CODE }
-                onlyQr.ifEmpty { found.filter { it.format == Barcode.FORMAT_DATA_MATRIX } }
-            }
-    }
-
-    @Requirement(
-        "O.Data_8#1",
-        sourceSpecification = "BSI-eRp-ePA",
-        rationale = "This controller uses the camera as an input device. Frames are processed but never " +
-            "stored, metadata is never created here."
+    private val supportedImageFormats = listOf(
+        ImageFormat.YUV_420_888,
+        ImageFormat.YUV_422_888,
+        ImageFormat.YUV_444_888
     )
-    private val scanner: BarcodeScanner by lazy {
-        BarcodeScanning.getClient(
-            BarcodeScannerOptions.Builder()
-                .setBarcodeFormats(
-                    Barcode.FORMAT_DATA_MATRIX,
-                    Barcode.FORMAT_QR_CODE
+
+    private val reader by lazy {
+        MultiFormatReader().apply {
+            setHints(
+                mapOf(
+                    DecodeHintType.POSSIBLE_FORMATS to arrayListOf(
+                        BarcodeFormat.QR_CODE,
+                        BarcodeFormat.DATA_MATRIX
+                    ),
+                    DecodeHintType.TRY_HARDER to true
                 )
-                .build()
-        )
+            )
+        }
     }
 
     private val countLock = Any()
     private var averageTime = DEFAULT_SCAN_TIME
 
-    private fun onInitMlKit() {
-        try {
-            // will throw if not initialized
-            MlKitContext.getInstance()
-        } catch (_: Exception) {
-            MlKit.initialize(context)
+    override fun analyze(imageProxy: ImageProxy) {
+        if (imageProxy.format !in supportedImageFormats) {
+            imageProxy.close()
+            return
+        }
+
+        val t0 = System.currentTimeMillis()
+        val (detectedCodes, frameSize) = try {
+            decode(imageProxy)
+        } catch (e: Exception) {
+            Napier.e(tag = "2DScanner", message = "2D code processing error", throwable = e)
+            emptyList<ScannedCode>() to Size(0, 0)
+        } finally {
+            synchronized(countLock) {
+                averageTime = ((System.currentTimeMillis() - t0) + averageTime) / 2
+            }
+            imageProxy.close()
+        }
+
+        if (detectedCodes.isNotEmpty()) {
+            val detectedText = detectedCodes.first().text
+            Napier.d(tag = "2DScanner") {
+                "Detected: format=${detectedCodes.first().format} text='$detectedText'"
+            }
+            batch.tryEmit(
+                Batch(
+                    matrixCodes = detectedCodes,
+                    cameraSize = frameSize,
+                    cameraRotation = imageProxy.imageInfo.rotationDegrees,
+                    averageScanTime = averageTime
+                )
+            )
         }
     }
 
-    @OptIn(ExperimentalGetImage::class)
-    override fun analyze(imageProxy: ImageProxy) {
-        onInitMlKit()
+    private fun decode(imageProxy: ImageProxy): Pair<List<ScannedCode>, Size> {
+        val yPlane = imageProxy.planes.firstOrNull() ?: return emptyList<ScannedCode>() to Size(0, 0)
+        val dataWidth = yPlane.rowStride
+        val dataHeight = imageProxy.height
+        val cropWidth = imageProxy.width
+        val cropHeight = imageProxy.height
 
-        imageProxy.image?.also {
-            val image = InputImage.fromMediaImage(it, imageProxy.imageInfo.rotationDegrees)
+        val buffer = yPlane.buffer
+        val bytes = ByteArray(buffer.remaining())
+        buffer.get(bytes)
 
-            try {
-                val t0 = System.currentTimeMillis()
-                detectPreferQr(image)
-                    .addOnSuccessListener { matrixCodes ->
-                        synchronized(countLock) {
-                            averageTime =
-                                ((System.currentTimeMillis() - t0) + averageTime) / 2
-                        }
+        val source = PlanarYUVLuminanceSource(
+            bytes,
+            dataWidth,
+            dataHeight,
+            0,
+            0,
+            cropWidth,
+            cropHeight,
+            false
+        )
 
-                        if (matrixCodes.isNotEmpty()) {
-                            batch.tryEmit(
-                                Batch(
-                                    matrixCodes = matrixCodes,
-                                    cameraSize = Size(image.width, image.height),
-                                    cameraRotation = image.rotationDegrees
-                                )
-                            )
-                        }
-                    }
-                    .addOnFailureListener {
-                        Napier.e(tag = "2DScanner", message = "2D code processing error", throwable = it)
-                    }
-                    .addOnCompleteListener { imageProxy.close() }
-            } catch (e: Exception) {
-                Napier.e(tag = "2DScanner", message = "2D code processing error", throwable = e)
+        val primarySize = Size(source.width, source.height)
+
+        fun decodeOnce(ls: com.google.zxing.LuminanceSource, size: Size): List<ScannedCode> {
+            return try {
+                val binaryBitmap = BinaryBitmap(HybridBinarizer(ls))
+                val result = reader.decodeWithState(binaryBitmap)
+                result?.toScannedCode(size.width, size.height)?.let { listOf(it) } ?: emptyList()
+            } catch (_: Exception) {
+                emptyList()
+            } finally {
+                reader.reset()
             }
         }
+
+        decodeOnce(source, primarySize).takeIf { it.isNotEmpty() }?.let { return it to primarySize }
+
+        if (source.isRotateSupported) {
+            val rotated = source.rotateCounterClockwise()
+            val rotatedSize = Size(rotated.width, rotated.height)
+            decodeOnce(rotated, rotatedSize).takeIf { it.isNotEmpty() }?.let { return it to rotatedSize }
+        }
+
+        return emptyList<ScannedCode>() to primarySize
+    }
+
+    private fun Result.toScannedCode(imageWidth: Int, imageHeight: Int): ScannedCode? {
+        val points = resultPoints?.takeIf { it.isNotEmpty() }?.map {
+            Point(it.x.roundToInt(), it.y.roundToInt())
+        } ?: return null
+
+        val minX = points.minOf { it.x }.coerceIn(0, imageWidth - 1)
+        val maxX = points.maxOf { it.x }.coerceIn(minX + 1, imageWidth)
+        val minY = points.minOf { it.y }.coerceIn(0, imageHeight - 1)
+        val maxY = points.maxOf { it.y }.coerceIn(minY + 1, imageHeight)
+
+        val box = Rect(minX, minY, maxX, maxY)
+
+        return ScannedCode(
+            rawBytes = rawBytes,
+            text = text.orEmpty(),
+            format = barcodeFormat,
+            cornerPoints = points.toTypedArray(),
+            boundingBox = box
+        )
     }
 }

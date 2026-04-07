@@ -23,7 +23,10 @@
 package de.gematik.ti.erp.app.fhir.pharmacy
 
 import de.gematik.ti.erp.app.data.fhirVzdPharmacyBundle
+import de.gematik.ti.erp.app.data.fhirVzdPharmacyBundleWithServicesOnsiteFeatures
 import de.gematik.ti.erp.app.data.fhirVzdPharmacyNotAvailableTimesBundle
+import de.gematik.ti.erp.app.fhir.pharmacy.model.PharmacyAvailableServiceErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.PharmacyOnSiteFeatureErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal.Instant
@@ -97,6 +100,46 @@ class PharmacyBundleParserTest {
         assertEquals(
             FhirTemporal.LocalDate(value = LocalDate.parse("2025-06-28"), type = FhirTemporalLocalDate),
             firstPeriod.period.end
+        )
+    }
+
+    @Test
+    fun `parse on-site features from characteristic list`() = runTest {
+        // codings inside `characteristic`
+        val bundle = Json.parseToJsonElement(fhirVzdPharmacyBundleWithServicesOnsiteFeatures)
+        val results = parser.extract(bundle)
+        val pharmacy = results.entries.find { it.id == "956a321b-840d-4ed6-bf60-a0f75ac485f5" }
+        requireNotNull(pharmacy) { "Pharmacy 956a321b not found in parsed bundle" }
+
+        val expectedFeatures = listOf(
+            PharmacyOnSiteFeatureErpModel(code = "parkmoeglichkeit"),
+            PharmacyOnSiteFeatureErpModel(code = "oepnv"),
+            PharmacyOnSiteFeatureErpModel(code = "barrierefrei"),
+            PharmacyOnSiteFeatureErpModel(code = "abholautomat")
+        )
+        assertEquals(
+            expectedFeatures.sortedBy { it.code },
+            pharmacy.onSiteFeatures.sortedBy { it.code }
+        )
+    }
+
+    @Test
+    fun `parse available services from specialty list`() = runTest {
+        //   10 (Handverkauf) and 30 (Botendienst) → PharmacyService types, NOT available services
+        //   codes >= 50 → available services
+        val bundle = Json.parseToJsonElement(fhirVzdPharmacyBundleWithServicesOnsiteFeatures)
+        val results = parser.extract(bundle)
+        val pharmacy = results.entries.find { it.id == "956a321b-840d-4ed6-bf60-a0f75ac485f5" }
+        requireNotNull(pharmacy) { "Pharmacy 956a321b not found in parsed bundle" }
+
+        val expectedServices = listOf(
+            PharmacyAvailableServiceErpModel(code = "60"),
+            PharmacyAvailableServiceErpModel(code = "70"),
+            PharmacyAvailableServiceErpModel(code = "80")
+        )
+        assertEquals(
+            expectedServices.sortedBy { it.code },
+            pharmacy.availableServices.sortedBy { it.code }
         )
     }
 }

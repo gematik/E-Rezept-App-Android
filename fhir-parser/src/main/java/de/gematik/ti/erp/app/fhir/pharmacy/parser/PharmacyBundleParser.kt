@@ -37,6 +37,7 @@ import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVZDHealthcareServi
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVZDLocation
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVZDLocation.Companion.getLocation
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdAddress.Companion.toErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdCharacteristic.Companion.getOnSiteFeatures
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdEndpoint
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdIdentifier.Companion.getTelematikId
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdIdentifier.Companion.getUid
@@ -44,6 +45,7 @@ import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdOrganization
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdOrganization.Companion.getOrganization
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdPosition.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdResourceType
+import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdSpecialty.Companion.getAvailableServices
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdTelecom.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.parseSpecialOpeningTimes
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
@@ -231,6 +233,8 @@ class PharmacyBundleParser : BundleParser {
                     specialities = healthcareService.getSpecialities(),
                     notAvailablePeriods = healthcareService.parseNotAvailablePeriods(),
                     specialOpeningTimes = healthcareService.parseSpecialOpeningTimes(),
+                    onSiteFeatures = healthcareService.characteristic.getOnSiteFeatures(),
+                    availableServices = healthcareService.specialty.getAvailableServices(),
                     isClosedToday = false
                 )
             }

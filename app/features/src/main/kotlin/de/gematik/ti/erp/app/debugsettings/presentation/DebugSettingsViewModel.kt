@@ -26,23 +26,20 @@ package de.gematik.ti.erp.app.debugsettings.presentation
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.BCProvider
-import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.ErezeptApp
-import de.gematik.ti.erp.app.VisibleDebugTree
 import de.gematik.ti.erp.app.appupdate.usecase.ChangeAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
 import de.gematik.ti.erp.app.consent.usecase.RevokeConsentUseCase
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.FeatureEntity
+import de.gematik.ti.erp.app.database.datastore.virtualhealthcard.VirtualHealthCardLocalDataSource
 import de.gematik.ti.erp.app.database.settings.CommunicationDigaVersion
 import de.gematik.ti.erp.app.database.settings.CommunicationDigaVersionDataStore
 import de.gematik.ti.erp.app.database.settings.CommunicationVersion
@@ -59,6 +56,7 @@ import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.digas.domain.usecase.GetIknrUseCase
 import de.gematik.ti.erp.app.digas.domain.usecase.UpdateIknrUseCase
 import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
+import de.gematik.ti.erp.app.idp.api.models.IdpScope
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.AccessToken
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
@@ -70,6 +68,9 @@ import de.gematik.ti.erp.app.prescription.usecase.GetTaskIdsUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import de.gematik.ti.erp.app.settings.usecase.GetAndroid8DeprecationOverrideUseCase
+import de.gematik.ti.erp.app.settings.usecase.ResetOnboardingUseCase
+import de.gematik.ti.erp.app.settings.usecase.SetAndroid8DeprecationOverrideUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
@@ -94,17 +95,14 @@ import org.jose4j.base64url.Base64Url
 import org.jose4j.jws.EcdsaUsingShaAlgorithm
 import java.math.BigInteger
 import java.security.KeyFactory
+import java.security.PublicKey
 import java.security.Signature
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlin.time.Duration.Companion.minutes
 
-private val HealthCardCert = BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE
-private val HealthCardCertPrivateKey = BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY
-
 @Suppress("LongParameterList")
 class DebugSettingsViewModel(
-    visibleDebugTree: VisibleDebugTree,
     private val endpointHelper: EndpointHelper,
     private val cardWallUseCase: CardWallUseCase,
     private val prescriptionUseCase: PrescriptionUseCase,
@@ -126,22 +124,35 @@ class DebugSettingsViewModel(
     private val communicationVersionDataStore: CommunicationVersionDataStore,
     private val communicationDigaVersionDataStore: CommunicationDigaVersionDataStore,
     private val euVersionDataStore: EuVersionDataStore,
+    private val getAndroid8DeprecationOverrideUseCase: GetAndroid8DeprecationOverrideUseCase,
+    private val setAndroid8DeprecationOverrideUseCase: SetAndroid8DeprecationOverrideUseCase,
+    private val resetOnboardingUseCase: ResetOnboardingUseCase,
+    private val virtualHealthCardPrivateKeyDataStore: VirtualHealthCardLocalDataSource,
     private val dispatchers: DispatchProvider
 ) : ViewModel() {
-    private val appUpdateManager = MutableStateFlow(true)
-    val appUpdateManagerState
-        @Composable
-        get() = appUpdateManager.collectAsStateWithLifecycle()
+    private val _appUpdateManager = MutableStateFlow(true)
+    val appUpdateManager: StateFlow<Boolean> = _appUpdateManager.asStateFlow()
 
     private val _messageMarkingLoading = MutableStateFlow(false)
-    val messageMarkingLoadingState
-        @Composable
-        get() = _messageMarkingLoading.collectAsStateWithLifecycle()
+    val messageMarkingLoading: StateFlow<Boolean> = _messageMarkingLoading.asStateFlow()
 
     private val _prescriptionDeletionLoading = MutableStateFlow(false)
-    val prescriptionDeletionLoadingState
-        @Composable
-        get() = _prescriptionDeletionLoading.collectAsStateWithLifecycle()
+    val prescriptionDeletionLoading: StateFlow<Boolean> = _prescriptionDeletionLoading.asStateFlow()
+
+    private val _virtualHealthCardLoading = MutableStateFlow(false)
+    val virtualHealthCardLoading: StateFlow<Boolean> = _virtualHealthCardLoading.asStateFlow()
+
+    private val _virtualHealthCardError = MutableStateFlow<String?>(null)
+    val virtualHealthCardError: StateFlow<String?> = _virtualHealthCardError.asStateFlow()
+
+    private val _pairingLoading = MutableStateFlow(false)
+    val pairingLoading: StateFlow<Boolean> = _pairingLoading.asStateFlow()
+
+    private val _pairingError = MutableStateFlow<String?>(null)
+    val pairingError: StateFlow<String?> = _pairingError.asStateFlow()
+
+    val onVirtualHealthCardLoginSuccessEvent = ComposableEvent<Unit>()
+    val onPairingLoginSuccessEvent = ComposableEvent<Unit>()
 
     private val _featureToggles: MutableStateFlow<Set<FeatureEntity>> = MutableStateFlow(emptySet())
     val featureToggles: StateFlow<Set<FeatureEntity>> = _featureToggles
@@ -154,7 +165,7 @@ class DebugSettingsViewModel(
     init {
         viewModelScope.launch {
             val value = getAppUpdateManagerFlagUseCase()
-            appUpdateManager.value = value
+            _appUpdateManager.value = value
             featureToggleRepository.getFeatures().collect {
                 _featureToggles.value = it
             }
@@ -166,7 +177,22 @@ class DebugSettingsViewModel(
 
     var debugSettingsData by mutableStateOf(createDebugSettingsData())
 
-    val rotatingLog = visibleDebugTree.rotatingLog
+    private val _android8DeprecationOverride = MutableStateFlow(getAndroid8DeprecationOverrideUseCase.invoke())
+    val android8DeprecationOverride: StateFlow<Boolean> = _android8DeprecationOverride.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            // populate app update manager flag and other async state
+            val value = getAppUpdateManagerFlagUseCase()
+            _appUpdateManager.value = value
+            featureToggleRepository.getFeatures().collect {
+                _featureToggles.value = it
+            }
+            getIknrUseCase().collectLatest {
+                _iknr.value = it
+            }
+        }
+    }
 
     private fun createDebugSettingsData() = DebugSettingsData(
         eRezeptServiceURL = endpointHelper.eRezeptServiceUri,
@@ -183,28 +209,46 @@ class DebugSettingsViewModel(
         cardAccessNumberIsSet = false,
         multiProfile = false,
         activeProfileId = "",
-        virtualHealthCardCert = HealthCardCert,
-        virtualHealthCardPrivateKey = HealthCardCertPrivateKey,
+        virtualHealthCardCert = "",
+        virtualHealthCardPrivateKey = "",
         clientId = endpointHelper.getClientId()
     )
 
     suspend fun state() {
-        val it = profilesUseCase.activeProfileId().first()
+        val profileId = profilesUseCase.activeProfileId().first()
+        val ssoTokenScope = cardWallUseCase.authenticationData(profileId)
+            .first().singleSignOnTokenScope as? IdpData.TokenWithHealthCardScope
+        val savedCert = virtualHealthCardPrivateKeyDataStore.getCert()
+            .ifEmpty {
+                ssoTokenScope?.healthCardCertificate?.let {
+                    java.util.Base64.getEncoder().encodeToString(it.encoded)
+                } ?: ""
+            }
+        val savedPrivateKey = virtualHealthCardPrivateKeyDataStore.getPrivateKey()
         updateState(
             debugSettingsData.copy(
-                cardAccessNumberIsSet = (
-                    cardWallUseCase.authenticationData(it)
-                        .first().singleSignOnTokenScope as? IdpData.TokenWithHealthCardScope
-                    )?.cardAccessNumber?.isNotEmpty()
-                    ?: false,
-                activeProfileId = it,
-                bearerToken = idpRepository.decryptedAccessToken(it).first()?.accessToken ?: ""
+                cardAccessNumberIsSet = ssoTokenScope?.cardAccessNumber?.isNotEmpty() ?: false,
+                activeProfileId = profileId,
+                bearerToken = idpRepository.decryptedAccessToken(profileId).first()?.accessToken ?: "",
+                virtualHealthCardCert = debugSettingsData.virtualHealthCardCert.ifEmpty { savedCert },
+                virtualHealthCardPrivateKey = debugSettingsData.virtualHealthCardPrivateKey.ifEmpty { savedPrivateKey }
             )
         )
     }
 
     fun updateState(debugSettingsData: DebugSettingsData) {
         this.debugSettingsData = debugSettingsData
+    }
+
+    fun setAndroid8DeprecationOverride(enabled: Boolean) {
+        setAndroid8DeprecationOverrideUseCase.invoke(enabled)
+        _android8DeprecationOverride.value = enabled
+    }
+
+    fun resetOnboarding() {
+        viewModelScope.launch {
+            resetOnboardingUseCase()
+        }
     }
 
     fun selectEnvironment(environment: Environment) {
@@ -327,7 +371,7 @@ class DebugSettingsViewModel(
     fun onRevokeEuConsent() {
         viewModelScope.launch {
             profilesUseCase.activeProfileId().first().let { profile ->
-                revokeEuConsentUseCase(profile, category = ConsentCategory.EUCONSENT).let { state -> }
+                revokeEuConsentUseCase(profile, category = ConsentCategory.EUCONSENT)
             }
         }
     }
@@ -342,21 +386,25 @@ class DebugSettingsViewModel(
         Runtime.getRuntime().exit(0)
     }
 
-    fun onResetVirtualHealthCard() {
-        updateState(
-            debugSettingsData.copy(
-                virtualHealthCardCert = HealthCardCert,
-                virtualHealthCardPrivateKey = HealthCardCertPrivateKey
-            )
-        )
-    }
-
     fun onSetVirtualHealthCardCertificate(cert: String) {
         updateState(debugSettingsData.copy(virtualHealthCardCert = cert))
     }
 
     fun onSetVirtualHealthCardPrivateKey(privateKey: String) {
         updateState(debugSettingsData.copy(virtualHealthCardPrivateKey = privateKey))
+    }
+
+    fun clearVirtualHealthCardError() {
+        _virtualHealthCardError.value = null
+    }
+
+    fun clearPairingError() {
+        _pairingError.value = null
+    }
+
+    fun onPairingAuthFailed() {
+        _pairingError.value = "Secure element authentication failed or was cancelled"
+        _pairingLoading.value = false
     }
 
     fun getVirtualHealthCardCertificateSubjectInfo(): String =
@@ -366,32 +414,85 @@ class DebugSettingsViewModel(
             e.message ?: "Error"
         }
 
-    suspend fun onTriggerVirtualHealthCard(
+    private fun decodeBase64(value: String): ByteArray = java.util.Base64.getDecoder().decode(value)
+
+    private fun signWithVirtualHealthCard(privateKeyBase64: String): suspend (ByteArray) -> ByteArray = {
+        val curveSpec = ECNamedCurveTable.getParameterSpec("brainpoolP256r1")
+        val keySpec = ECPrivateKeySpec(
+            BigInteger(1, decodeBase64(privateKeyBase64)),
+            curveSpec
+        )
+        val privateKey = KeyFactory.getInstance("EC", BCProvider).generatePrivate(keySpec)
+        val signed = Signature.getInstance("NoneWithECDSA").apply {
+            initSign(privateKey)
+            update(it)
+        }.sign()
+        EcdsaUsingShaAlgorithm.convertDerToConcatenated(signed, 64)
+    }
+
+    fun loginWithVirtualHealthCard(
+        cardAccessNumber: String,
         certificateBase64: String,
         privateKeyBase64: String
-    ) = withContext(dispatchers.io) {
-        idpUseCase.authenticationFlowWithHealthCard(
-            profileId = profilesUseCase.activeProfileId().first(),
-            cardAccessNumber = "123123",
-            healthCardCertificate = { java.util.Base64.getDecoder().decode(certificateBase64) },
-            sign = {
-                val curveSpec = ECNamedCurveTable.getParameterSpec("brainpoolP256r1")
-                val keySpec =
-                    ECPrivateKeySpec(
-                        BigInteger(
-                            1,
-                            java.util.Base64.getDecoder().decode(privateKeyBase64)
-                        ),
-                        curveSpec
+    ) {
+        viewModelScope.launch {
+            _virtualHealthCardLoading.value = true
+            val result = withContext(dispatchers.io) {
+                runCatching {
+                    idpUseCase.authenticationFlowWithHealthCard(
+                        profileId = profilesUseCase.activeProfileId().first(),
+                        cardAccessNumber = cardAccessNumber,
+                        healthCardCertificate = { decodeBase64(certificateBase64) },
+                        sign = signWithVirtualHealthCard(privateKeyBase64)
                     )
-                val privateKey = KeyFactory.getInstance("EC", BCProvider).generatePrivate(keySpec)
-                val signed = Signature.getInstance("NoneWithECDSA").apply {
-                    initSign(privateKey)
-                    update(it)
-                }.sign()
-                EcdsaUsingShaAlgorithm.convertDerToConcatenated(signed, 64)
+                }
             }
-        )
+            _virtualHealthCardLoading.value = false
+            result
+                .onSuccess {
+                    virtualHealthCardPrivateKeyDataStore.save(certificateBase64, privateKeyBase64)
+                    onVirtualHealthCardLoginSuccessEvent.trigger()
+                }
+                .onFailure {
+                    _virtualHealthCardError.value = it.message
+                }
+        }
+    }
+
+    fun loginWithVirtualHealthCardAndSecureElement(
+        cardAccessNumber: String,
+        certificateBase64: String,
+        privateKeyBase64: String,
+        aliasOfSecureElementEntry: ByteArray,
+        publicKeyOfSecureElementEntry: PublicKey
+    ) {
+        viewModelScope.launch {
+            _pairingLoading.value = true
+            val result = withContext(dispatchers.io) {
+                runCatching {
+                    val profileId = profilesUseCase.activeProfileId().first()
+                    idpUseCase.pairSecureElementWithHealthCard(
+                        profileId = profileId,
+                        cardAccessNumber = cardAccessNumber,
+                        publicKeyOfSecureElementEntry = publicKeyOfSecureElementEntry,
+                        aliasOfSecureElementEntry = aliasOfSecureElementEntry,
+                        healthCardCertificate = { decodeBase64(certificateBase64) },
+                        signWithHealthCard = signWithVirtualHealthCard(privateKeyBase64)
+                    )
+                    idpUseCase.authenticateWithSecureElement(
+                        profileId = profileId,
+                        scope = IdpScope.Default
+                    )
+                }
+            }
+            _pairingLoading.value = false
+            result
+                .onSuccess {
+                    virtualHealthCardPrivateKeyDataStore.save(certificateBase64, privateKeyBase64)
+                    onPairingLoginSuccessEvent.trigger()
+                }
+                .onFailure { _pairingError.value = it.message }
+        }
     }
 
     fun saveInvoice(invoiceBundle: String) {
@@ -404,7 +505,7 @@ class DebugSettingsViewModel(
 
     fun changeAppUpdateManager(useOriginal: Boolean) {
         viewModelScope.launch {
-            appUpdateManager.value = useOriginal
+            _appUpdateManager.value = useOriginal
             changeAppUpdateManagerFlagUseCase(useOriginal)
         }
     }

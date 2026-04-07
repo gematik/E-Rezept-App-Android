@@ -64,5 +64,11 @@
         "text": "**✨ Improved App Opening** \nUnlocking the app is now faster. \n \n **📞 Expanded Contact Options** \nWe've introduced new contact options for selected insurance policies. \n \n **♿ Accessibility** \nThe accessibility statement has been updated and expanded to include a section documenting the change history. Some buttons have been adjusted for improved visibility.",
         "timestamp": "2026-03-02T08:00:00.000Z",
         "version": "1.37"
+    },
+    {
+        "id": "13",
+        "text": "**🏥 Enhanced Pharmacy Details** \nPharmacies can now add services such as vaccinations and on-site features like barrier-free access. Pharmacies can be filtered based on this new information. \n \n **✨ Improved Pharmacy Search** \nRecently used pharmacies and favorite pharmacies are now more clearly separated. The filters have been improved. \n \n **✅ Health ID for Other Insured Individuals** \nInsured individuals who are not covered by statutory or private health insurance can now also log in using their Health ID. \n \n **🛡️ Tracking Removed** \nWe have removed the tracking tool used in the app. No app usage data is collected anymore. \n \n **♿ Improved Accessibility** \nThe filters now have higher contrast and the filter status is now easier to see.",
+        "timestamp": "2026-03-30T08:00:00.000Z",
+        "version": "1.38"
     }
 ]

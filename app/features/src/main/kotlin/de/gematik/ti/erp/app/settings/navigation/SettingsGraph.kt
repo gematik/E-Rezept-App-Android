@@ -32,13 +32,11 @@ import de.gematik.ti.erp.app.navigation.slideInRight
 import de.gematik.ti.erp.app.navigation.slideOutLeft
 import de.gematik.ti.erp.app.navigation.slideOutUp
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsAdditionalLicencesScreen
-import de.gematik.ti.erp.app.settings.ui.screens.SettingsAllowAnalyticsScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsAppSecurityScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsDataProtectionScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsLanguageScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsLegalNoticeScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsOpenSourceLicencesScreen
-import de.gematik.ti.erp.app.settings.ui.screens.SettingsProductImprovementsScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsSetAppPasswordScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsTermsOfUseScreen
@@ -61,15 +59,6 @@ fun NavGraphBuilder.settingsGraph(
             arguments = SettingsRoutes.SettingsScreen.arguments
         ) { navEntry ->
             SettingsScreen(
-                navController = navController,
-                navBackStackEntry = navEntry
-            )
-        }
-        renderComposable(
-            route = SettingsRoutes.SettingsProductImprovementsScreen.route,
-            arguments = SettingsRoutes.SettingsProductImprovementsScreen.arguments
-        ) { navEntry ->
-            SettingsProductImprovementsScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )
@@ -126,15 +115,6 @@ fun NavGraphBuilder.settingsGraph(
             arguments = SettingsRoutes.SettingsAdditionalLicencesScreen.arguments
         ) { navEntry ->
             SettingsAdditionalLicencesScreen(
-                navController = navController,
-                navBackStackEntry = navEntry
-            )
-        }
-        renderComposable(
-            route = SettingsRoutes.SettingsAllowAnalyticsScreen.route,
-            arguments = SettingsRoutes.SettingsAllowAnalyticsScreen.arguments
-        ) { navEntry ->
-            SettingsAllowAnalyticsScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )

@@ -1,0 +1,58 @@
+@startuml
+scale 0.8
+
+actor "UI Test Runner" as TestRunner
+participant "App (Test)"            as App
+participant "DI Module"             as DI
+participant "Mock Repository"       as MockRepo
+participant "UI Components"         as UI
+participant "Screen ViewModel"      as SVM
+participant "Navigation Graph VM"   as GVM
+participant "Test Reporter"         as Reporter
+
+== Start App with Test Intent ==
+TestRunner -> App: launchApp(testIntent with repoOverride)
+activate App
+App -> DI: setupTestBindings(MockRepo)
+activate DI
+DI --> App: bindingsApplied
+deactivate DI
+
+== Perform click based on test tag ==
+TestRunner -> UI: click(viewTag)
+activate UI
+UI -> SVM: handleClick()
+activate SVM
+SVM -> MockRepo: getData()
+activate MockRepo
+MockRepo --> SVM: mockData
+deactivate MockRepo
+SVM --> UI: render(mockData)
+deactivate SVM
+deactivate UI
+
+== Compare UI data against expected ==
+TestRunner -> UI: getText(viewTag)
+activate UI
+UI --> TestRunner: actualText
+deactivate UI
+TestRunner -> TestRunner: assertEquals(expectedText, actualText)
+
+== Navigate and verify state ==
+TestRunner -> UI: click(navButtonTag)
+activate UI
+UI -> GVM: navigateTo(screenId)
+activate GVM
+GVM --> UI: stateData
+deactivate GVM
+UI --> TestRunner: screenRendered
+deactivate UI
+TestRunner -> TestRunner: assertState(expectedState)
+
+== Generate Test Report ==
+TestRunner -> Reporter: generateAndroidReport()
+activate Reporter
+Reporter --> TestRunner: reportPath
+deactivate Reporter
+
+@enduml

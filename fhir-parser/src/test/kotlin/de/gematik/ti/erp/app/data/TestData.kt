@@ -159,6 +159,12 @@ val kbvBundle_example_3_v1_4_json by lazy { getResourceAsString("/fhir/kbv_parse
 
 // fhir-vzd pharmacy bundle
 val fhirVzdPharmacyBundle by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/pharamcy_bundle_fhirvzd.json") }
+
+val fhirVzdPharmacyBundleWithServicesOnsiteFeatures by lazy {
+    getResourceAsString(
+        "/fhir/pharmacy_fhirvzd_parser/pharamcy_bundle_fhirvzd_with_services_onsite_features.json"
+    )
+}
 val fhirVzdPharmacyNotAvailableTimesBundle by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/pharmacy_bundle_fhirvzd_not_available_times.json") }
 
 // fhir-vzd diga bundle

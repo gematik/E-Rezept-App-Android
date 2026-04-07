@@ -1,3 +1,20 @@
+# Release 1.38.0
+
+### fixed (1 changes):
+
+- NFC activation not detected
+
+### ⚡ enhancements (3 changes):
+
+- Use open source barcode scanning 
+- Implement pharmacies services for physical features and specialty services
+- Prepare app for Google Play’s 16 KB page size compatibility requirement
+
+### improvements (2 change)
+- Pharmacy UI redesign implementation
+- Deprecation of Android 8
+
+
 # Release 1.37.0
 
 ### fixed (2 changes):

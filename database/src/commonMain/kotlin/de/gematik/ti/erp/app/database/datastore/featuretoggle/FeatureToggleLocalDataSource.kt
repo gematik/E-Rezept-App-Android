@@ -32,7 +32,6 @@ const val IsRoomEnabled = "IS_ROOM_ENABLED"
 
 val ROOM_DB = FeatureEntity(name = "Room", isActive = false)
 val EU_REDEEM = FeatureEntity(name = "EuRedeem", isActive = false)
-
 val FEATURE_ENTITIES = setOf(
     ROOM_DB,
     EU_REDEEM

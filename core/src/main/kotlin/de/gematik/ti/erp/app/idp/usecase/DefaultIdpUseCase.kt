@@ -317,7 +317,7 @@ class DefaultIdpUseCase(
         sourceSpecification = "gemSpec_eRp_FdV",
         rationale = "Authenticate to the IDP using the health card certificate an secure element."
     )
-    override suspend fun alternatePairingFlowWithSecureElement(
+    override suspend fun pairSecureElementWithHealthCard(
         profileId: ProfileIdentifier,
         cardAccessNumber: String,
         publicKeyOfSecureElementEntry: PublicKey,
@@ -375,7 +375,7 @@ class DefaultIdpUseCase(
         sourceSpecification = "gemSpec_eRp_FdV",
         rationale = "Authenticate to the IDP using an secure element."
     )
-    override suspend fun alternateAuthenticationFlowWithSecureElement(
+    override suspend fun authenticateWithSecureElement(
         profileId: ProfileIdentifier,
         scope: IdpScope
     ) {

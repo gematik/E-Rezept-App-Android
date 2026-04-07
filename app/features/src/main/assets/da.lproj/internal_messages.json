@@ -64,5 +64,11 @@
         "text": "**✨ Forbedret åbning af app** \nDet er nu hurtigere at låse appen op. \n \n **📞 Udvidede kontaktmuligheder** \nVi har introduceret nye kontaktmuligheder for udvalgte forsikringer. \n \n **♿ Tilgængelighed** \nTilgængelighedserklæringen er blevet opdateret og udvidet til at omfatte et afsnit, der dokumenterer ændringshistorikken. Nogle knapper er blevet justeret for forbedret synlighed.",
         "timestamp": "2026-03-02T08:00:00.000Z",
         "version": "1.37"
+    },
+    {
+        "id": "13",
+        "text": "**🏥 Forbedrede apoteksoplysninger** \nApoteker kan nu tilføje tjenester såsom vaccinationer og funktioner på stedet som handicapvenlig adgang. Apoteker kan filtreres baseret på disse nye oplysninger. \n \n **✨ Forbedret apotekssøgning** \nSenest brugte apoteker og foretrukne apoteker er nu mere tydeligt adskilt. Filtrene er blevet forbedret. \n \n **✅ Sundheds-ID til andre forsikrede personer** \nForsikrede personer, der ikke er dækket af lovpligtig eller privat sygeforsikring, kan nu også logge ind med deres sundheds-ID. \n \n **🛡️ Sporing fjernet** \nVi har fjernet det sporingsværktøj, der bruges i appen. Der indsamles ikke længere app-brugsdata. \n \n **♿ Forbedret tilgængelighed** \nFiltrene har nu højere kontrast, og filterstatussen er nu lettere at se.",
+        "timestamp": "2026-03-30T08:00:00.000Z",
+        "version": "1.38"
     }
 ]

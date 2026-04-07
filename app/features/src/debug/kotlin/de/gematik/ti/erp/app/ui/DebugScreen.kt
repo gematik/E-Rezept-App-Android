@@ -93,6 +93,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -103,6 +104,8 @@ import androidx.navigation.compose.rememberNavController
 import com.chuckerteam.chucker.api.Chucker
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.cardwall.presentation.SaveCredentialsController
+import de.gematik.ti.erp.app.cardwall.presentation.rememberSaveCredentialsScreenController
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.FeatureEntity
@@ -110,6 +113,7 @@ import de.gematik.ti.erp.app.database.settings.CommunicationDigaVersion
 import de.gematik.ti.erp.app.database.settings.CommunicationVersion
 import de.gematik.ti.erp.app.database.settings.ConsentVersion
 import de.gematik.ti.erp.app.database.settings.EuVersion
+import de.gematik.ti.erp.app.debugsettings.encryption.ui.screens.DebugDatabaseEncryptionScreen
 import de.gematik.ti.erp.app.debugsettings.logger.ui.screens.DbMigrationLoggerScreen
 import de.gematik.ti.erp.app.debugsettings.logger.ui.screens.LoggerScreen.LoggerScreen
 import de.gematik.ti.erp.app.debugsettings.navigation.DebugScreenNavigation
@@ -126,6 +130,8 @@ import de.gematik.ti.erp.app.demomode.DemoModeIntent
 import de.gematik.ti.erp.app.demomode.startAppWithNormalMode
 import de.gematik.ti.erp.app.fhir.constant.FhirProfileUrls
 import de.gematik.ti.erp.app.material3.components.switchs.GemSwitch
+import de.gematik.ti.erp.app.navigation.navigateAndClearStack
+import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -302,6 +308,7 @@ private fun DebugActionButton(
 
         Text(
             text = text,
+            textAlign = TextAlign.Center,
             color = if (enabled && !loading) AppTheme.colors.neutral000 else AppTheme.colors.neutral600,
             style = MaterialTheme.typography.button
         )
@@ -445,7 +452,6 @@ fun DebugScreen(
     subDI(diBuilder = {
         bindProvider {
             DebugSettingsViewModel(
-                visibleDebugTree = instance(),
                 endpointHelper = instance(),
                 cardWallUseCase = instance(),
                 prescriptionUseCase = instance(),
@@ -467,6 +473,10 @@ fun DebugScreen(
                 communicationVersionDataStore = instance(),
                 communicationDigaVersionDataStore = instance(),
                 euVersionDataStore = instance(),
+                getAndroid8DeprecationOverrideUseCase = instance(),
+                setAndroid8DeprecationOverrideUseCase = instance(),
+                resetOnboardingUseCase = instance(),
+                virtualHealthCardPrivateKeyDataStore = instance(),
                 dispatchers = instance()
             )
         }
@@ -498,6 +508,12 @@ fun DebugScreen(
                         },
                         onClickDbMigrationLogger = {
                             navController.navigate(DebugScreenNavigation.DebugDbMigrationLoggerScreen.path())
+                        },
+                        onClickDatabaseEncryption = {
+                            navController.navigate(DebugScreenNavigation.DebugDatabaseEncryption.path())
+                        },
+                        onLoginSuccess = {
+                            settingsNavController.navigateAndClearStack(PrescriptionRoutes.PrescriptionListScreen.route)
                         }
                     )
                 }
@@ -536,6 +552,11 @@ fun DebugScreen(
             composable(DebugScreenNavigation.PharmacyVzdSelectionScreen.route) {
                 PharmacyServiceSelectionScreen(onBack = navController::popBackStack)
             }
+            composable(DebugScreenNavigation.DebugDatabaseEncryption.route) {
+                NavigationAnimation(mode = navMode) {
+                    DebugDatabaseEncryptionScreen.Content(onBack = navController::popBackStack)
+                }
+            }
         }
     }
 }
@@ -550,18 +571,20 @@ fun DebugScreenMain(
     onClickBioMetricSettings: () -> Unit,
     onScanQrCode: () -> Unit,
     onClickLogger: () -> Unit,
-    onClickDbMigrationLogger: () -> Unit
+    onClickDbMigrationLogger: () -> Unit,
+    onClickDatabaseEncryption: () -> Unit,
+    onLoginSuccess: () -> Unit
 ) {
     val context = LocalContext.current
-    val activity = LocalActivity.current
+    val currentActivity = LocalActivity.current
     val listState = rememberLazyListState()
     val modal = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    val appUpdateManager by viewModel.appUpdateManagerState
-    val messageMarkingLoading by viewModel.messageMarkingLoadingState
-    val prescriptionDeletionLoading by viewModel.prescriptionDeletionLoadingState
+    val appUpdateManager by viewModel.appUpdateManager.collectAsStateWithLifecycle()
+    val messageMarkingLoading by viewModel.messageMarkingLoading.collectAsStateWithLifecycle()
+    val prescriptionDeletionLoading by viewModel.prescriptionDeletionLoading.collectAsStateWithLifecycle()
     val featureState by viewModel.featureToggles.collectAsStateWithLifecycle()
     val iknr by viewModel.iknr.collectAsStateWithLifecycle()
     val onIknrChangedEvent = viewModel.onIknrChangedEvent
@@ -629,7 +652,7 @@ fun DebugScreenMain(
                         collapsible = true,
                         initiallyExpanded = false
                     ) {
-                        activity.let { DemoModeIntent.startAppWithNormalMode<MainActivity>(it) }
+                        DemoModeIntent.startAppWithNormalMode<MainActivity>(currentActivity)
                     }
                 }
 
@@ -720,6 +743,18 @@ fun DebugScreenMain(
                             text = "DB Migration Logger",
                             subtitle = "Database migration history",
                             onClick = onClickDbMigrationLogger
+                        )
+                    }
+                }
+
+                // 6. Database Encryption
+                item {
+                    DebugCard(title = "Database Encryption") {
+                        DebugNavigationItem(
+                            icon = rememberVectorPainter(Icons.Rounded.LockReset),
+                            text = "DB Encryption",
+                            subtitle = "Toggle encryption, view and delete key",
+                            onClick = onClickDatabaseEncryption
                         )
                     }
                 }
@@ -945,8 +980,8 @@ fun DebugScreenMain(
                             text = "Mark All Messages As Read",
                             loading = messageMarkingLoading,
                             onClick = {
-                                scope.launch {
-                                    viewModel.markAllUnreadMessagesAsRead { result ->
+                                viewModel.markAllUnreadMessagesAsRead { result ->
+                                    scope.launch {
                                         snackbarHostState.showActionResult(
                                             success = result.isSuccess,
                                             successMessage = "All messages marked as read",
@@ -962,11 +997,11 @@ fun DebugScreenMain(
                             text = "Delete All Prescriptions",
                             loading = prescriptionDeletionLoading,
                             onClick = {
-                                scope.launch {
-                                    viewModel.deleteAllPrescriptions(
-                                        profileId = viewModel.debugSettingsData.activeProfileId,
-                                        deleteLocallyOnly = false
-                                    ) { result ->
+                                viewModel.deleteAllPrescriptions(
+                                    profileId = viewModel.debugSettingsData.activeProfileId,
+                                    deleteLocallyOnly = false
+                                ) { result ->
+                                    scope.launch {
                                         snackbarHostState.showActionResult(
                                             success = result.isSuccess,
                                             successMessage = "Successfully deleted all prescriptions",
@@ -982,10 +1017,10 @@ fun DebugScreenMain(
                 // Virtual Health Card
                 item {
                     VirtualHealthCard(
-                        viewModel = viewModel
-                    ) {
-                        onScanQrCode()
-                    }
+                        viewModel = viewModel,
+                        onScanQrCode = onScanQrCode,
+                        onLoginSuccess = onLoginSuccess
+                    )
                 }
 
                 // App Update - near bottom
@@ -1053,24 +1088,35 @@ fun DebugScreenMain(
 private fun VirtualHealthCard(
     modifier: Modifier = Modifier,
     viewModel: DebugSettingsViewModel,
-    onScanQrCode: () -> Unit
+    onScanQrCode: () -> Unit,
+    onLoginSuccess: () -> Unit
 ) {
-    var virtualHealthCardLoading by remember { mutableStateOf(false) }
-    var virtualHealthCardError by remember { mutableStateOf<String?>(null) }
-    virtualHealthCardError?.let { error ->
-        AlertDialog(onDismissRequest = {
-            virtualHealthCardError = null
-        }, buttons = {
-                Button(onClick = { virtualHealthCardError = null }) {
-                    Text("OK")
-                }
-            }, text = {
-                Text(error)
-            })
-    }
+    val saveCredentialsController = rememberSaveCredentialsScreenController()
 
-    DebugCard(modifier, title = "Virtual Health Card", onReset = viewModel::onResetVirtualHealthCard) {
+    val virtualHealthCardLoading by viewModel.virtualHealthCardLoading.collectAsStateWithLifecycle()
+    val virtualHealthCardError by viewModel.virtualHealthCardError.collectAsStateWithLifecycle()
+    val pairingLoading by viewModel.pairingLoading.collectAsStateWithLifecycle()
+    val pairingError by viewModel.pairingError.collectAsStateWithLifecycle()
+
+    viewModel.onVirtualHealthCardLoginSuccessEvent.listen { onLoginSuccess() }
+    viewModel.onPairingLoginSuccessEvent.listen { onLoginSuccess() }
+
+    DebugCard(modifier, title = "Virtual Health Card") {
         val scope = rememberCoroutineScope()
+
+        virtualHealthCardError?.let { error ->
+            AlertDialog(onDismissRequest = {
+                viewModel.clearVirtualHealthCardError()
+            }, buttons = {
+                    Button(onClick = { viewModel.clearVirtualHealthCardError() }) { Text("OK") }
+                }, text = { Text(error) })
+        }
+
+        pairingError?.let { error ->
+            AlertDialog(onDismissRequest = { viewModel.clearPairingError() }, buttons = {
+                Button(onClick = { viewModel.clearPairingError() }) { Text("OK") }
+            }, text = { Text(error) })
+        }
 
         DebugActionButton(
             text = "Scan Virtual Health Card",
@@ -1085,9 +1131,7 @@ private fun VirtualHealthCard(
                 .heightIn(max = SizeDefaults.eighteenfold)
                 .fillMaxWidth(),
             value = viewModel.debugSettingsData.virtualHealthCardCert,
-            onValueChange = {
-                viewModel.onSetVirtualHealthCardCertificate(it)
-            },
+            onValueChange = { viewModel.onSetVirtualHealthCardCertificate(it) },
             label = "Certificate in Base64",
             placeholder = "Certificate in Base64"
         )
@@ -1103,9 +1147,7 @@ private fun VirtualHealthCard(
                 .heightIn(max = SizeDefaults.eighteenfold)
                 .fillMaxWidth(),
             value = viewModel.debugSettingsData.virtualHealthCardPrivateKey,
-            onValueChange = {
-                viewModel.onSetVirtualHealthCardPrivateKey(it)
-            },
+            onValueChange = { viewModel.onSetVirtualHealthCardPrivateKey(it) },
             label = "Private Key in Base64",
             placeholder = "Private Key in Base64"
         )
@@ -1114,20 +1156,35 @@ private fun VirtualHealthCard(
 
         DebugActionButton(
             modifier = Modifier.testTag(TestTag.DebugMenu.SetVirtualHealthCardButton),
-            text = "Set Virtual Health Card for Active Profile",
+            text = "Login with Virtual Health Card",
             loading = virtualHealthCardLoading,
             onClick = {
-                virtualHealthCardLoading = true
+                viewModel.loginWithVirtualHealthCard(
+                    cardAccessNumber = "123123",
+                    certificateBase64 = viewModel.debugSettingsData.virtualHealthCardCert,
+                    privateKeyBase64 = viewModel.debugSettingsData.virtualHealthCardPrivateKey
+                )
+            }
+        )
+
+        SpacerMedium()
+
+        DebugActionButton(
+            text = "Login with Virtual Health Card with Biometrics",
+            loading = pairingLoading,
+            onClick = {
                 scope.launch {
-                    try {
-                        viewModel.onTriggerVirtualHealthCard(
-                            certificateBase64 = viewModel.debugSettingsData.virtualHealthCardCert,
-                            privateKeyBase64 = viewModel.debugSettingsData.virtualHealthCardPrivateKey
-                        )
-                        virtualHealthCardLoading = false
-                    } catch (e: Exception) {
-                        virtualHealthCardError = e.message
-                        virtualHealthCardLoading = false
+                    when (val prompt = saveCredentialsController.initializeAndPrompt(useStrongBox = false)) {
+                        is SaveCredentialsController.AuthResult.Initialized -> {
+                            viewModel.loginWithVirtualHealthCardAndSecureElement(
+                                cardAccessNumber = "123123",
+                                certificateBase64 = viewModel.debugSettingsData.virtualHealthCardCert,
+                                privateKeyBase64 = viewModel.debugSettingsData.virtualHealthCardPrivateKey,
+                                aliasOfSecureElementEntry = prompt.aliasOfSecureElementEntry,
+                                publicKeyOfSecureElementEntry = prompt.publicKey
+                            )
+                        }
+                        else -> viewModel.onPairingAuthFailed()
                     }
                 }
             }
@@ -1166,6 +1223,29 @@ private fun FeatureToggles(
                 )
             }
         }
+
+        // Android 8 deprecation override (debug only)
+        val android8Override by viewModel.android8DeprecationOverride.collectAsStateWithLifecycle()
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Force Android 8 deprecation screen",
+                modifier = Modifier.weight(1f)
+            )
+            GemSwitch(
+                checked = android8Override,
+                onCheckedChange = { viewModel.setAndroid8DeprecationOverride(it) }
+            )
+        }
+
+        SpacerMedium()
+
+        DebugActionButton(
+            text = "Reset Onboarding (show again on next start)",
+            onClick = { viewModel.resetOnboarding() }
+        )
 
         SpacerMedium()
 

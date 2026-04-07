@@ -505,7 +505,7 @@ fun TextButtonPreview() {
         Column(modifier = Modifier.width(200.dp)) {
             TextButton(
                 onClick = {},
-                buttonText = "ButtonButtonButtonButtonButtonButtonButtonButtonButton",
+                buttonText = "Button",
                 leadingIcon = Icons.Default.CameraAlt,
                 trailingIcon = Icons.Default.CameraAlt
             )

@@ -63,7 +63,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.disabled
-import androidx.compose.ui.semantics.invisibleToUser
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -404,7 +404,7 @@ private fun LazyListScope.HealthCardLoginSection(
                             role = Role.Button
                         } else {
                             disabled()
-                            invisibleToUser()
+                            hideFromAccessibility()
                         }
                     },
                 shape = RoundedCornerShape(SizeDefaults.double),

@@ -1,0 +1,499 @@
+{
+  "resourceType": "Bundle",
+  "id": "ed4d629f-6ef6-4c82-a7e1-a6bad02a6f85",
+  "meta": {
+    "lastUpdated": "2026-03-04T17:07:27.742+01:00",
+    "tag": [
+      {
+        "system": "https://gematik.de/fhir/StructureDefinition/filtered-endpoints-count",
+        "code": "0",
+        "display": "Reason: hideVersicherte"
+      }
+    ]
+  },
+  "type": "searchset",
+  "total": 3,
+  "entry": [
+    {
+      "fullUrl": "https://fhir-directory.vzd.ti-dienste.de/fdv/search/HealthcareService/956a321b-840d-4ed6-bf60-a0f75ac485f5",
+      "resource": {
+        "resourceType": "HealthcareService",
+        "id": "956a321b-840d-4ed6-bf60-a0f75ac485f5",
+        "meta": {
+          "versionId": "29",
+          "lastUpdated": "2026-02-01T23:04:09.221+01:00",
+          "profile": [
+            "https://gematik.de/fhir/directory/StructureDefinition/HealthcareServiceDirectory"
+          ],
+          "security": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "akb"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "akhb"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "akhh"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "akmv"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "akn"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "aknr"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "aksa"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "aksh"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "aksl"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "akwl"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "bak"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "blak"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "lakbb"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "lakbw"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "lakh"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "lakrlp"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "lakt"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Holder",
+              "code": "slak"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/OwnerId",
+              "code": "970fa60c-87a9-4b5a-91fb-9baa352e62f3"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+              "code": "6f3d2aff-0308-44c3-b5ca-600b9e365379",
+              "display": "UID of LDAP source entry"
+            }
+          ],
+          "tag": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Origin",
+              "code": "ldap",
+              "display": "Synchronized from LDAP VZD",
+              "userSelected": false
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+            "value": "6f3d2aff-0308-44c3-b5ca-600b9e365379"
+          }
+        ],
+        "providedBy": {
+          "reference": "Organization/edd8fc4e-3c8d-4f21-be96-d28dfd824ee3"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/PharmacyTypeCS",
+                "code": "offizin-apotheke",
+                "display": "Offizin-Apotheke"
+              },
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/PharmacyTypeCS",
+                "code": "versandapotheke",
+                "display": "Versandapotheke"
+              }
+            ],
+            "text": "ldap"
+          }
+        ],
+        "specialty": [
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/PharmacyHealthcareSpecialtyCS",
+                "code": "10",
+                "display": "Handverkauf"
+              },
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/PharmacyHealthcareSpecialtyCS",
+                "code": "30",
+                "display": "Botendienst"
+              },
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/PharmacyHealthcareSpecialtyCS",
+                "code": "60",
+                "display": "Bluthochdruck: Standardisierte Risikoerfassung bei Bluthochdruck"
+              },
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/PharmacyHealthcareSpecialtyCS",
+                "code": "70",
+                "display": "Inhalativa: Üben der Inhalationstechnik"
+              },
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/PharmacyHealthcareSpecialtyCS",
+                "code": "80",
+                "display": "Polymedikation: Erweiterte Medikationsberatung bei Polymedikation"
+              }
+            ],
+            "text": "apo-vzd"
+          }
+        ],
+        "location": [
+          {
+            "reference": "Location/2f4b5b62-6f3d-4f05-b8c6-2571a1f284e2"
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+49 40 7020870",
+            "rank": 10
+          },
+          {
+            "system": "fax",
+            "value": "+49 40 70208719",
+            " rank": 20
+          },
+          {
+            "system": "email",
+            "value": "info@striepen-apotheke.de",
+            "rank": 30
+          },
+          {
+            "system": "url",
+            "value": "www.striepen-apotheke.de",
+            "rank": 40
+          }
+        ],
+        "coverageArea": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/directory/StructureDefinition/ServiceCoverageArea",
+                "valueQuantity": {
+                  "value": 20000,
+                  "system": "http://unitsofmeasure.org",
+                  "code": "m"
+                }
+              },
+              {
+                "url": "https://gematik.de/fhir/directory/StructureDefinition/ServiceCoveragePostalCode",
+                "valueString": "21147"
+              }
+            ]
+          }
+        ],
+        "characteristic": [
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/physicalFeatures",
+                "code": "parkmoeglichkeit",
+                "display": "Parkmöglichkeit"
+              }
+            ]
+          },
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/physicalFeatures",
+                "code": "oepnv",
+                "display": "ÖPNV in der Nähe"
+              }
+            ]
+          },
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/physicalFeatures",
+                "code": "barrierefrei",
+                "display": "Barrierefrei"
+              }
+            ]
+          },
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/physicalFeatures",
+                "code": "abholautomat",
+                "display": "Abholautomat"
+              }
+            ]
+          }
+        ],
+        "availableTime": [
+          {
+            "daysOfWeek": [
+              "mon"
+            ],
+            "availableStartTime": "08:00:00",
+            "availableEndTime": "18:30:00"
+          },
+          {
+            "daysOfWeek": [
+              "tue"
+            ],
+            "availableStartTime": "08:00:00",
+            "availableEndTime": "18:30:00"
+          },
+          {
+            "daysOfWeek": [
+              "wed"
+            ],
+            "availableStartTime": "08:00:00",
+            "availableEndTime": "18:30:00"
+          },
+          {
+            "daysOfWeek": [
+              "thu"
+            ],
+            "availableStartTime": "08:00:00",
+            "availableEndTime": "18:30:00"
+          },
+          {
+            "daysOfWeek": [
+              "fri"
+            ],
+            "availableStartTime": "08:00:00",
+            "availableEndTime": "18:30:00"
+          },
+          {
+            "daysOfWeek": [
+              "sat"
+            ],
+            "availableStartTime": "08:00:00",
+            "availableEndTime": "13:00:00"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/directory/StructureDefinition/SpecialOpeningTimesEX",
+                "extension": [
+                  {
+                    "url": "period",
+                    "valuePeriod": {
+                      "start": "2026-03-08T08:00:00.0000000Z",
+                      "end": "2026-03-09T08:00:00.0000000Z"
+                    }
+                  },
+                  {
+                    "url": "qualifier",
+                    "valueCoding": {
+                      "system": "https://gematik.de/fhir/directory/CodeSystem/OpeningTimeQualifierCS",
+                      "code": "notdienst",
+                      "display": "Notdienst"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/directory/StructureDefinition/SpecialOpeningTimesEX",
+                "extension": [
+                  {
+                    "url": "period",
+                    "valuePeriod": {
+                      "start": "2026-04-01T07:00:00.0000000Z",
+                      "end": "2026-04-02T07:00:00.0000000Z"
+                    }
+                  },
+                  {
+                    "url": "qualifier",
+                    "valueCoding": {
+                      "system": "https://gematik.de/fhir/directory/CodeSystem/OpeningTimeQualifierCS",
+                      "code": "notdienst",
+                      "display": "Notdienst"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "availabilityExceptions": "An Feiertagen geschlossen",
+        "endpoint": [
+          {
+            "reference": "Endpoint/eecc2079-0acc-4e60-a01c-83083d606c52"
+          },
+          {
+            "reference": "Endpoint/1fb38043-1272-4769-9019-6f1f457dea95"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://fhir-directory.vzd.ti-dienste.de/fdv/search/Organization/edd8fc4e-3c8d-4f21-be96-d28dfd824ee3",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "edd8fc4e-3c8d-4f21-be96-d28dfd824ee3",
+        "meta": {
+          "versionId": "5",
+          "lastUpdated": "2025-12-09T03:25:11.244+01:00",
+          "profile": [
+            "https://gematik.de/fhir/directory/StructureDefinition/OrganizationDirectory"
+          ],
+          "security": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/OwnerId",
+              "code": "970fa60c-87a9-4b5a-91fb-9baa352e62f3"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+              "code": "6f3d2aff-0308-44c3-b5ca-600b9e365379",
+              "display": "UID of LDAP source entry"
+            }
+          ],
+          "tag": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Origin",
+              "code": "ldap",
+              "display": "Synchronized from LDAP VZD",
+              "userSelected": false
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/ResourceTag",
+              "code": "fdv-relevant",
+              "display": "Relevant for ePA FdV",
+              "userSelected": false
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PRN"
+                }
+              ]
+            },
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "3-06.2.1043000000.318"
+          },
+          {
+            "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+            "value": "6f3d2aff-0308-44c3-b5ca-600b9e365379"
+          }
+        ],
+        "active": true,
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/OrganizationProfessionOID",
+                "code": "1.2.276.0.76.4.54",
+                "display": "Öffentliche Apotheke"
+              }
+            ]
+          }
+        ],
+        "name": "Striepen-Apotheke"
+      },
+      "search": {
+        "mode": "include"
+      }
+    },
+    {
+      "fullUrl": "https://fhir-directory.vzd.ti-dienste.de/fdv/search/Location/2f4b5b62-6f3d-4f05-b8c6-2571a1f284e2",
+      "resource": {
+        "resourceType": "Location",
+        "id": "2f4b5b62-6f3d-4f05-b8c6-2571a1f284e2",
+        "meta": {
+          "versionId": "5",
+          "lastUpdated": "2025-08-28T11:05:12.783+02:00",
+          "source": "#tutrVmznAZOtnki9",
+          "profile": [
+            "https://gematik.de/fhir/directory/StructureDefinition/LocationDirectory"
+          ],
+          "security": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/OwnerId",
+              "code": "970fa60c-87a9-4b5a-91fb-9baa352e62f3"
+            },
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+              "code": "6f3d2aff-0308-44c3-b5ca-600b9e365379",
+              "display": "UID of LDAP source entry"
+            }
+          ],
+          "tag": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Origin",
+              "code": "ldap",
+              "display": "Synchronized from LDAP VZD",
+              "userSelected": false
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+            "value": "6f3d2aff-0308-44c3-b5ca-600b9e365379"
+          }
+        ],
+        "address": {
+          "use": "work",
+          "type": "postal",
+          "text": "Striepenweg 41, 21147, Hamburg",
+          "line": [
+            "Striepenweg 41"
+          ],
+          "city": "Hamburg",
+          "postalCode": "21147",
+          "country": "DE"
+        },
+        "position": {
+          "longitude": 9.875872,
+          "latitude": 53.47353
+        }
+      },
+      "search": {
+        "mode": "include"
+      }
+    }
+  ]
+}

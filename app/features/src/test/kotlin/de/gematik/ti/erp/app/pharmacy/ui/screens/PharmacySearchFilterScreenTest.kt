@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui.screens
 
+import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyFilterSheetScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.screenshot.BaseAccessibilityTest
 import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
 import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
@@ -30,17 +31,23 @@ import org.junit.Test
 class PharmacySearchFilterScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(config) {
     @Test
     fun screenShotTest() {
-        paparazzi.snapshot {
-            PharmacyFilterSheetScreenPreview()
+        val testParameters = PharmacyFilterSheetScreenPreviewParameterProvider().values.toList()
+        testParameters.forEachIndexed { index, previewData ->
+            paparazzi.snapshot("parameter_$index") {
+                PharmacyFilterSheetScreenPreview(previewData)
+            }
         }
     }
-}
 
-class PharmacySearchFilterScreenAccessibilityTest(config: ScreenshotConfig) : BaseAccessibilityTest(config) {
-    @Test
-    fun screenShotTest() {
-        paparazzi.accessibilitySnapshot {
-            PharmacyFilterSheetScreenPreview()
+    class PharmacySearchFilterScreenAccessibilityTest(config: ScreenshotConfig) : BaseAccessibilityTest(config) {
+        @Test
+        fun screenShotTest() {
+            val testParameters = PharmacyFilterSheetScreenPreviewParameterProvider().values.toList()
+            testParameters.forEachIndexed { index, previewData ->
+                paparazzi.accessibilitySnapshot("parameter_$index") {
+                    PharmacyFilterSheetScreenPreview(previewData)
+                }
+            }
         }
     }
 }

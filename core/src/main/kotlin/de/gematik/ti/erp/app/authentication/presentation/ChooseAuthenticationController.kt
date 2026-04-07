@@ -155,8 +155,8 @@ abstract class ChooseAuthenticationController(
                             GidNavigationData(profile.id, authenticationData.authenticatorId, authenticationData.authenticatorName)
                         )
 
-                        ProfilesUseCaseData.InsuranceType.BUND -> chooseAuthenticationNavigationEvents.showCardWallCanScreenEvent.trigger(
-                            profile.id
+                        ProfilesUseCaseData.InsuranceType.BUND -> chooseAuthenticationNavigationEvents.showCardWallIntroScreenWithGidEvent.trigger(
+                            GidNavigationData(profile.id, authenticationData.authenticatorId, authenticationData.authenticatorName)
                         )
 
                         ProfilesUseCaseData.InsuranceType.NONE -> chooseAuthenticationNavigationEvents.showCardWallSelectInsuranceScreenEvent.trigger(
@@ -178,7 +178,7 @@ abstract class ChooseAuthenticationController(
 
                         ProfilesUseCaseData.InsuranceType.GKV -> chooseAuthenticationNavigationEvents.showCardWallIntroScreenEvent.trigger(profile.id)
                         ProfilesUseCaseData.InsuranceType.PKV -> chooseAuthenticationNavigationEvents.showCardWallGidListScreenEvent.trigger(profile.id)
-                        ProfilesUseCaseData.InsuranceType.BUND -> chooseAuthenticationNavigationEvents.showCardWallCanScreenEvent.trigger(profile.id)
+                        ProfilesUseCaseData.InsuranceType.BUND -> chooseAuthenticationNavigationEvents.showCardWallIntroScreenEvent.trigger(profile.id)
                     }
                 }
                 true

@@ -64,5 +64,11 @@
         "text": "**✨ Apertura de la app mejorada** \nDesbloquear la app ahora es más rápido. \n \n **📞 Opciones de contacto ampliadas** \nHemos introducido nuevas opciones de contacto para pólizas de seguro seleccionadas. \n \n **♿ Accesibilidad** \nLa declaración de accesibilidad se ha actualizado y ampliado para incluir una sección que documenta el historial de cambios. Se han ajustado algunos botones para mejorar la visibilidad.",
         "timestamp": "2026-03-02T08:00:00.000Z",
         "version": "1.37"
+    },
+    {
+        "id": "13",
+        "text": "**🏥 Detalles mejorados de la farmacia** \nLas farmacias ahora pueden agregar servicios como vacunas y características en el sitio como acceso sin barreras. Las farmacias se pueden filtrar según esta nueva información. \n \n **✨ Búsqueda de farmacias mejorada** \nLas farmacias usadas recientemente y las farmacias favoritas ahora están separadas más claramente. Los filtros se han mejorado. \n \n **✅ ID de salud para otras personas aseguradas** \nLas personas aseguradas que no están cubiertas por un seguro de salud público o privado ahora también pueden iniciar sesión usando su ID de salud. \n \n **🛡️ Seguimiento eliminado** \nHemos eliminado la herramienta de seguimiento utilizada en la aplicación. Ya no se recopilan datos de uso de la aplicación. \n \n **♿ Accesibilidad mejorada** \nLos filtros ahora tienen mayor contraste y el estado del filtro ahora es más fácil de ver.",
+        "timestamp": "2026-03-30T08:00:00.000Z",
+        "version": "1.38"
     }
 ]

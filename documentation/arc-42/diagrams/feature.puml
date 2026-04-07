@@ -1,0 +1,63 @@
+@startuml
+scale 0.8
+
+' ─── Force only‐angle connectors ───
+skinparam linetype polyline
+skinparam polylineSmoothness 0
+skinparam orthogonalLayout true
+
+' ─── Portrait layout ───
+top to bottom direction
+
+' ─── Folder style for packages ───
+skinparam packageStyle folder
+skinparam folderBorderColor #444444
+skinparam folderBackgroundColor #EFEFEF
+
+package "Feature" as FeatureGroup {
+  top to bottom direction
+
+  package "ui" as UiGroup {
+    top to bottom direction
+    package "screens"       #FCD34D { }
+    package "ui-components" #FCD34D { }
+    package "ui-mappers"    #FCD34D { }
+    package "ui-models"     #FCD34D { }
+  }
+
+  package "presentation" as PresentationGroup {
+    top to bottom direction
+    package "graph-viewmodel"  #FCD34D { }
+    package "screen-viewmodel" #FCD34D { }
+  }
+
+  package "di" as DiGroup {
+    top to bottom direction
+    package "feature-di" #FCD34D { }
+  }
+
+  package "domain" as DomainGroup {
+    top to bottom direction
+    package "model"       #A2D5AB { }
+    package "usecases"    #A2D5AB { }
+    package "repository"  #A2D5AB { }
+  }
+
+  package "mapper" as MapperGroup {
+    top to bottom direction
+    package "toDomain"    #C4B5FE { }
+  }
+
+  package "navigation" as NavGroup {
+    top to bottom direction
+    package "navigation-graph" #C4B5FE { }
+  }
+}
+
+' ─── Hidden connectors to enforce vertical stacking ───
+UiGroup           -[hidden]-> PresentationGroup
+PresentationGroup -[hidden]-> DiGroup
+DiGroup           -[hidden]-> DomainGroup
+DomainGroup       -[hidden]-> MapperGroup
+MapperGroup       -[hidden]-> NavGroup
+@enduml

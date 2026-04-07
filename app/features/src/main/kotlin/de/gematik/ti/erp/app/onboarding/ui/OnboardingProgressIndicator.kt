@@ -47,10 +47,12 @@ import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 
+const val ONBOARDING_STEPS = 2
+
 @Composable
 fun OnboardingProgressIndicator(
     currentStep: Int?,
-    totalSteps: Int = 3,
+    totalSteps: Int = ONBOARDING_STEPS,
     modifier: Modifier = Modifier,
     activeColor: Color = AppTheme.colors.primary700,
     inactiveColor: Color = AppTheme.colors.primary200,
@@ -97,7 +99,7 @@ fun OnboardingDataProtectionAndTermsOfUseOverviewScreenContentPreview2() {
     PreviewAppTheme {
         OnboardingProgressIndicator(
             currentStep = 1,
-            totalSteps = 3,
+            totalSteps = ONBOARDING_STEPS,
             modifier = Modifier.padding(PaddingDefaults.Medium),
             activeColor = AppTheme.colors.primary600
 

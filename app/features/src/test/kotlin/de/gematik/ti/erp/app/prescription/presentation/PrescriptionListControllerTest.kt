@@ -64,7 +64,6 @@ import de.gematik.ti.erp.app.profiles.usecase.SwitchActiveProfileUseCase
 import de.gematik.ti.erp.app.redeem.usecase.HasRedeemableTasksUseCase
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import de.gematik.ti.erp.app.settings.usecase.GetCanStartToolTipsUseCase
-import de.gematik.ti.erp.app.settings.usecase.GetMLKitAcceptedUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetShowWelcomeDrawerUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveToolTipsShownUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState
@@ -126,7 +125,6 @@ class PrescriptionListControllerTest : TestWatcher() {
     private lateinit var getArchivedDigasUseCase: GetArchivedDigasUseCase
     private lateinit var archiveExpiredDigasUseCase: ArchiveExpiredDigasUseCase
     private lateinit var getConsentUseCase: GetConsentUseCase
-    private lateinit var getMLKitAcceptedUseCase: GetMLKitAcceptedUseCase
     private lateinit var getShowWelcomeDrawerUseCase: GetShowWelcomeDrawerUseCase
     private lateinit var getCanStartToolTipsUseCase: GetCanStartToolTipsUseCase
     private lateinit var saveToolTipsShownUseCase: SaveToolTipsShownUseCase
@@ -165,10 +163,6 @@ class PrescriptionListControllerTest : TestWatcher() {
         )
         getArchivedPrescriptionsUseCase = GetArchivedPrescriptionsUseCase(
             repository = prescriptionRepository,
-            dispatcher = dispatcher
-        )
-        getMLKitAcceptedUseCase = GetMLKitAcceptedUseCase(
-            settingsRepository = settingsRepository,
             dispatcher = dispatcher
         )
         getShowWelcomeDrawerUseCase = GetShowWelcomeDrawerUseCase(
@@ -247,7 +241,6 @@ class PrescriptionListControllerTest : TestWatcher() {
             downloadAllResourcesUseCase = downloadAllResourcesUseCase,
             activePrescriptionsUseCase = getActivePrescriptionsUseCase,
             archivedPrescriptionsUseCase = getArchivedPrescriptionsUseCase,
-            getMLKitAcceptedUseCase = getMLKitAcceptedUseCase,
             getShowWelcomeDrawerUseCase = getShowWelcomeDrawerUseCase,
             showGrantConsentDrawerUseCase = showGrantConsentDrawerUseCase,
             saveToolTipsShownUseCase = saveToolTipsShownUseCase,
@@ -497,18 +490,6 @@ class PrescriptionListControllerTest : TestWatcher() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `ml-kit acceptance test`() {
-        coEvery { prescriptionRepository.scannedTasks(any()) } returns flowOf(emptyList())
-        coEvery { prescriptionRepository.syncedTasks(any()) } returns flowOf(emptyList())
-
-        testScope.runTest {
-            advanceUntilIdle()
-            assert(!controllerUnderTest.isMLKitAccepted.first())
-        }
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
     fun `get the state to check if the welcome drawer needs to be shown`() {
         coEvery { prescriptionRepository.scannedTasks(any()) } returns flowOf(emptyList())
         coEvery { prescriptionRepository.syncedTasks(any()) } returns flowOf(emptyList())
@@ -542,7 +523,6 @@ class PrescriptionListControllerTest : TestWatcher() {
             downloadAllResourcesUseCase = downloadAllResourcesUseCase,
             activePrescriptionsUseCase = getActivePrescriptionsUseCase,
             archivedPrescriptionsUseCase = getArchivedPrescriptionsUseCase,
-            getMLKitAcceptedUseCase = getMLKitAcceptedUseCase,
             getShowWelcomeDrawerUseCase = showWelcomeDrawerUseCase,
             showGrantConsentDrawerUseCase = showGrantConsentDrawerUseCase,
             saveToolTipsShownUseCase = saveToolTipsShownUseCase,
@@ -629,7 +609,6 @@ class PrescriptionListControllerTest : TestWatcher() {
             downloadAllResourcesUseCase = downloadAllResourcesUseCase,
             activePrescriptionsUseCase = getActivePrescriptionsUseCase,
             archivedPrescriptionsUseCase = getArchivedPrescriptionsUseCase,
-            getMLKitAcceptedUseCase = getMLKitAcceptedUseCase,
             getShowWelcomeDrawerUseCase = getShowWelcomeDrawerUseCase,
             showGrantConsentDrawerUseCase = showGrantConsentDrawerUseCase,
             saveToolTipsShownUseCase = saveToolTipsShownUseCase,

@@ -100,7 +100,7 @@ class ProfileChangeInsuranceTypeBottomSheetScreen(
                     controller.logOutProfile()
                     controller.setProfileInsuranceTypeAsBUND()
                     navController.navigate(
-                        CardWallRoutes.CardWallCanScreen.pathWithProfile(profile.id),
+                        CardWallRoutes.CardWallIntroScreen.path(profile.id),
                         navOptions = navOptions {
                             popUpTo(CardWallRoutes.CardWallSelectInsuranceTypeBottomSheetScreen.route) {
                                 inclusive = true

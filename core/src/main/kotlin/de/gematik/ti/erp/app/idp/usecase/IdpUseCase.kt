@@ -51,7 +51,7 @@ interface IdpUseCase {
     /**
      * Pairing flow fetching the sso & access token requiring the health card and generated key material.
      */
-    suspend fun alternatePairingFlowWithSecureElement(
+    suspend fun pairSecureElementWithHealthCard(
         profileId: ProfileId,
         cardAccessNumber: String,
         publicKeyOfSecureElementEntry: PublicKey,
@@ -60,7 +60,7 @@ interface IdpUseCase {
         signWithHealthCard: suspend (hash: ByteArray) -> ByteArray
     )
 
-    suspend fun alternateAuthenticationFlowWithSecureElement(
+    suspend fun authenticateWithSecureElement(
         profileId: ProfileId,
         scope: IdpScope = IdpScope.Default
     )

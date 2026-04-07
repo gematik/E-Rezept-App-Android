@@ -34,6 +34,8 @@ import de.gematik.ti.erp.app.permissions.isLocationServiceEnabled
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.presentation.FilterType.Companion.getUpdatedFilter
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.PreviewMapCoordinatesDataSource.Companion.berlinCoordinates
+import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyFilterServiceOption
+import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyOnSiteFeatureOption
 import de.gematik.ti.erp.app.pharmacy.usecase.GetOrderStateUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPharmaciesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPreviewMapCoordinatesUseCase
@@ -48,12 +50,15 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 
@@ -71,6 +76,9 @@ abstract class PharmacyGraphController : Controller() {
     abstract fun forceLocationFalse()
     abstract fun forceLocationFalseWithSelectedCoordinates(selectedCoordinates: Coordinates)
     abstract fun checkLocationServiceAndPermission(context: Context)
+    abstract fun toggleShowServiceDescriptions()
+    abstract fun toggleOnSiteFeature(option: PharmacyOnSiteFeatureOption)
+    abstract fun toggleAvailableService(option: PharmacyFilterServiceOption)
 
     @Composable
     abstract fun filter(): State<PharmacyUseCaseData.Filter>
@@ -86,6 +94,10 @@ abstract class PharmacyGraphController : Controller() {
 
     @Composable
     abstract fun hasRedeemableOrders(): State<Boolean>
+
+    abstract val showServiceDescriptions: StateFlow<Boolean>
+
+    abstract val selectedServiceCodes: StateFlow<Set<String>>
 
     abstract fun reset()
 }
@@ -111,6 +123,42 @@ class DefaultPharmacyGraphController(
 
     private val _favouritePharmacies by lazy {
         getPharmaciesUseCase().stateIn(controllerScope, SharingStarted.Lazily, emptyList())
+    }
+
+    private val _showServiceDescriptions = MutableStateFlow(false)
+
+    override val showServiceDescriptions: StateFlow<Boolean> = _showServiceDescriptions.asStateFlow()
+    override val selectedServiceCodes: StateFlow<Set<String>> =
+        _filter.map { it.availableServices }.stateIn(controllerScope, SharingStarted.Eagerly, emptySet())
+
+    override fun toggleShowServiceDescriptions() {
+        _showServiceDescriptions.update { !it }
+    }
+
+    override fun toggleOnSiteFeature(option: PharmacyOnSiteFeatureOption) {
+        _filter.update { current ->
+            val code = option.code
+            current.copy(
+                onSiteFeatures = if (code in current.onSiteFeatures) {
+                    current.onSiteFeatures - code
+                } else {
+                    current.onSiteFeatures + code
+                }
+            )
+        }
+    }
+
+    override fun toggleAvailableService(option: PharmacyFilterServiceOption) {
+        _filter.update { current ->
+            val code = option.code
+            current.copy(
+                availableServices = if (code in current.availableServices) {
+                    current.availableServices - code
+                } else {
+                    current.availableServices + code
+                }
+            )
+        }
     }
 
     private fun onPermissionDenied() {
@@ -256,6 +304,7 @@ class DefaultPharmacyGraphController(
 
     override fun reset() {
         _filter.value = PharmacyUseCaseData.Filter()
+        _coordinates.value = null
     }
 
     @Composable

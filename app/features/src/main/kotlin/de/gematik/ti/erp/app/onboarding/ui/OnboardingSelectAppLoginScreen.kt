@@ -91,7 +91,7 @@ class OnboardingSelectAppLoginScreen(
         val dialog = LocalDialog.current
         val currentStep by graphController.currentStep.collectAsStateWithLifecycle(2)
         val lifecycleOwner = LocalLifecycleOwner.current
-
+        val isCreatingProfile by graphController.isCreatingProfile.collectAsStateWithLifecycle()
         val activity = LocalActivity.current
         val biometricPromptBuilder =
             remember { BiometricPromptBuilder(activity as AppCompatActivity) }
@@ -103,16 +103,18 @@ class OnboardingSelectAppLoginScreen(
         val prompt = remember(biometricPromptBuilder) {
             biometricPromptBuilder.buildBiometricPrompt(
                 onSuccess = {
-                    graphController.onChooseAuthentication(
-                        authentication = SettingsData.Authentication(
-                            deviceSecurity = true,
-                            failedAuthenticationAttempts = 0,
-                            password = null,
-                            authenticationTimeOutSystemUptime = null
+                    if (!isCreatingProfile) {
+                        graphController.onChooseAuthentication(
+                            authentication = SettingsData.Authentication(
+                                deviceSecurity = true,
+                                failedAuthenticationAttempts = 0,
+                                password = null,
+                                authenticationTimeOutSystemUptime = null
+                            )
                         )
-                    )
-                    graphController.nextStep()
-                    navController.navigate(OnboardingRoutes.OnboardingAnalyticsPreviewScreen.path())
+                        graphController.createProfile()
+                        navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                    }
                 }
             )
         }

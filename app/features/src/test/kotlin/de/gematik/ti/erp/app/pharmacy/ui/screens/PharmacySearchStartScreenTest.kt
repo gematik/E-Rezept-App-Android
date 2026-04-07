@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui.screens
 
+import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyStartScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.screenshot.BaseAccessibilityTest
 import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
 import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
@@ -31,8 +32,11 @@ class PharmacySearchStartScreenTest(config: ScreenshotConfig) : BaseScreenshotTe
 
     @Test
     fun screenShotTest() {
-        paparazzi.snapshot {
-            PharmacyStartScreenPreview()
+        val testParameters = PharmacyStartScreenPreviewParameterProvider().values.toList()
+        testParameters.forEachIndexed { index, previewData ->
+            paparazzi.snapshot("parameter_$index") {
+                PharmacyStartScreenPreview(previewData)
+            }
         }
     }
 }
@@ -41,8 +45,11 @@ class PharmacySearchStartScreenAccessibilityTest(config: ScreenshotConfig) : Bas
 
     @Test
     fun screenShotTest() {
-        paparazzi.accessibilitySnapshot {
-            PharmacyStartScreenPreview()
+        val testParameters = PharmacyStartScreenPreviewParameterProvider().values.toList()
+        testParameters.forEachIndexed { index, previewData ->
+            paparazzi.accessibilitySnapshot("parameter_$index") {
+                PharmacyStartScreenPreview(previewData)
+            }
         }
     }
 }

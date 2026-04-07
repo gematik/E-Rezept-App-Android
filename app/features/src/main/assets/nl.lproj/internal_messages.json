@@ -64,5 +64,11 @@
         "text": "**✨ Verbeterde app-opening** \nHet ontgrendelen \n \n 📞 Uitgebreidere contactopties** \nWe hebben nieuwe contactopties toegevoegd voor geselecteerde verzekeringspolissen. \n \n **♿ Toegankelijkheid** \nDe toegankelijkheidsverklaring is bijgewerkt en uitgebreid met een sectie waarin de wijzigingsgeschiedenis wordt beschreven. Sommige knoppen zijn aangepast voor een betere zichtbaarheid.",
         "timestamp": "2026-03-02T08:00:00.000Z",
         "version": "1.37"
+    },
+    {
+        "id": "13",
+        "text": "**🏥 Verbeterde apotheekgegevens** \nkunnen nu diensten toevoegen zoals vaccinaties en voorzieningen ter plaatse \n zoals rolstoeltoegankelijkheid. Apotheken kunnen worden gefilterd op basis van deze nieuwe informatie. \n \n**✨ Verbeterde apotheekzoekfunctie** \nRecent gebruikte en favoriete apotheken worden nu duidelijker van elkaar gescheiden. De filters zijn verbeterd. \n \n**✅ Gezondheids-ID voor andere verzekerden** \ndie niet gedekt zijn door een wettelijke of particuliere zorgverzekering kunnen nu ook inloggen met hun gezondheids \n ID. \n \n**🛡️Tracking** \nWe hebben de trackingtool die in de app werd gebruikt verwijderd. Er worden geen gebruiksgegevens \n de app meer verzameld. \n \n**♿ Verbeterde toegankelijkheid** \nDe filters hebben nu hoger contrast en de filterstatus is nu beter zichtbaar.",
+        "timestamp": "2026-03-30T08:00:00.000Z",
+        "version": "1.38"
     }
 ]
