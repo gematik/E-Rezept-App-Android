@@ -75,10 +75,10 @@ class ErpTimeFormatterTests {
 
     @Test
     fun `test US time formats kotlinx Instant`() = with(ErpTimeFormatter(Locale.US)) {
-        assertEquals("12:30 PM", time(TWELVE_THIRTY)) // Style.SHORT
-        assertEquals("12:30:00 PM", time(TWELVE_THIRTY, style = Style.MEDIUM))
-        assertEquals("12:30:00 PM CEST", time(TWELVE_THIRTY, Style.LONG))
-        assertEquals("12:30:00 PM Central European Summer Time", time(TWELVE_THIRTY, Style.FULL))
+        assertEquals("12:30\u202FPM", time(TWELVE_THIRTY)) // Style.SHORT
+        assertEquals("12:30:00\u202FPM", time(TWELVE_THIRTY, style = Style.MEDIUM))
+        assertEquals("12:30:00\u202FPM CEST", time(TWELVE_THIRTY, Style.LONG))
+        assertEquals("12:30:00\u202FPM Central European Summer Time", time(TWELVE_THIRTY, Style.FULL))
     }
 
     @Test
@@ -115,16 +115,16 @@ class ErpTimeFormatterTests {
     fun `test german timestamp formats kotlinx Instant`() = with(ErpTimeFormatter(Locale.GERMANY)) {
         assertEquals("01.06.12, 12:30", timestamp(TWELVE_THIRTY)) // Style.SHORT
         assertEquals("01.06.2012, 12:30:00", timestamp(TWELVE_THIRTY, style = Style.MEDIUM))
-        assertEquals("1. Juni 2012 um 12:30:00 MESZ", timestamp(TWELVE_THIRTY, Style.LONG))
-        assertEquals("Freitag, 1. Juni 2012 um 12:30:00 Mitteleuropäische Sommerzeit", timestamp(TWELVE_THIRTY, Style.FULL))
+        assertEquals("1. Juni 2012, 12:30:00 MESZ", timestamp(TWELVE_THIRTY, Style.LONG))
+        assertEquals("Freitag, 1. Juni 2012, 12:30:00 Mitteleuropäische Sommerzeit", timestamp(TWELVE_THIRTY, Style.FULL))
     }
 
     @Test
     fun `test US timestamp formats kotlinx Instant`() = with(ErpTimeFormatter(Locale.US)) {
-        assertEquals("6/1/12, 12:30 PM", timestamp(TWELVE_THIRTY)) // Style.SHORT
-        assertEquals("Jun 1, 2012, 12:30:00 PM", timestamp(TWELVE_THIRTY, style = Style.MEDIUM))
-        assertEquals("June 1, 2012 at 12:30:00 PM CEST", timestamp(TWELVE_THIRTY, Style.LONG))
-        assertEquals("Friday, June 1, 2012 at 12:30:00 PM Central European Summer Time", timestamp(TWELVE_THIRTY, Style.FULL))
+        assertEquals("6/1/12, 12:30\u202FPM", timestamp(TWELVE_THIRTY)) // Style.SHORT
+        assertEquals("Jun 1, 2012, 12:30:00\u202FPM", timestamp(TWELVE_THIRTY, style = Style.MEDIUM))
+        assertEquals("June 1, 2012, 12:30:00\u202FPM CEST", timestamp(TWELVE_THIRTY, Style.LONG))
+        assertEquals("Friday, June 1, 2012, 12:30:00\u202FPM Central European Summer Time", timestamp(TWELVE_THIRTY, Style.FULL))
     }
 
     @Test
@@ -132,17 +132,17 @@ class ErpTimeFormatterTests {
         assertEquals("01/06/2012 12:30", timestamp(TWELVE_THIRTY)) // Style.SHORT
         assertEquals("1 juin 2012, 12:30:00", timestamp(TWELVE_THIRTY, style = Style.MEDIUM))
         assertEquals("12:30:00 heure d’été d’Europe centrale", time(TWELVE_THIRTY, Style.FULL))
-        assertEquals("1 juin 2012 à 12:30:00 CEST", timestamp(TWELVE_THIRTY, Style.LONG))
+        assertEquals("1 juin 2012, 12:30:00 CEST", timestamp(TWELVE_THIRTY, Style.LONG))
     }
 
     @Test
     fun `test some arabic formats kotlinx Instant`() = with(ErpTimeFormatter(Locale.forLanguageTag("ar"))) {
         assertEquals("12:30 م", time(TWELVE_THIRTY, Style.SHORT))
         assertEquals("1\u200F/6\u200F/2012", date(TWELVE_THIRTY, Style.SHORT))
-        assertEquals("1\u200F/6\u200F/2012, 12:30 م", timestamp(TWELVE_THIRTY))
-        assertEquals("01\u200F/06\u200F/2012, 12:30:00 م", timestamp(TWELVE_THIRTY, style = Style.MEDIUM)) // MEDIUM
+        assertEquals("1\u200F/6\u200F/2012\u060C 12:30 م", timestamp(TWELVE_THIRTY))
+        assertEquals("01\u200F/06\u200F/2012\u060C 12:30:00 م", timestamp(TWELVE_THIRTY, style = Style.MEDIUM)) // MEDIUM
         assertEquals("12:30:00 م توقيت وسط أوروبا الصيفي", time(TWELVE_THIRTY, Style.FULL))
-        assertEquals("1 يونيو 2012 في 12:30:00 م CEST", timestamp(TWELVE_THIRTY, Style.LONG))
+        assertEquals("1 يونيو 2012\u060C 12:30:00 م CEST", timestamp(TWELVE_THIRTY, Style.LONG))
     }
 }
 

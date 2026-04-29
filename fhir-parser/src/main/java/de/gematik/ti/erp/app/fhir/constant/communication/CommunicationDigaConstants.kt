@@ -36,7 +36,7 @@ object CommunicationDigaConstants {
      * * These are profile versions for [FhirCommunicationConstants.COMMUNICATION_DISPENSE_WORKFLOW_PROFILE]
      *   used when building a DiGA (flow type 162) communication resource.
      * * **To add a new version:** Add an entry here; [all] and [FhirCommunicationVersions] auto-update.
-     * * Production default is [V_1_4].
+     * * Production default is [V_1_5].
      */
     enum class DigaDispenseRequestVersion(val profileUrl: String) {
         V_1_4("${FhirCommunicationConstants.COMMUNICATION_DISPENSE_WORKFLOW_PROFILE}|1.4"),
@@ -45,7 +45,7 @@ object CommunicationDigaConstants {
 
         companion object {
             /** Production default – only this version is used in non-debug builds. */
-            val PRODUCTION_DEFAULT: DigaDispenseRequestVersion = V_1_4
+            val PRODUCTION_DEFAULT: DigaDispenseRequestVersion = V_1_5
 
             val all: List<String> = entries.map { it.profileUrl }
         }

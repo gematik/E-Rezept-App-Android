@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.fhir.communication.model
 
-import de.gematik.ti.erp.app.data.communication_diga_dispense_1_4
+import de.gematik.ti.erp.app.data.communication_diga_dispense_request_1_5
 import de.gematik.ti.erp.app.fhir.communication.DigaDispenseRequestBuilder
 import de.gematik.ti.erp.app.fhir.communication.model.CommunicationDigaDispenseRequest.Companion.toJson
 import kotlinx.datetime.Instant
@@ -47,7 +47,7 @@ class CommunicationDigaDispenseRequestTest {
 
         val communicationJsonElement = model.toJson()
 
-        val expectedCommunicationJsonElement = Json.parseToJsonElement(communication_diga_dispense_1_4)
+        val expectedCommunicationJsonElement = Json.parseToJsonElement(communication_diga_dispense_request_1_5)
 
         assertEquals(expectedCommunicationJsonElement, communicationJsonElement)
     }

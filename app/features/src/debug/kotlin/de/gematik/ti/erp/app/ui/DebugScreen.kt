@@ -1569,7 +1569,7 @@ fun CommunicationDigaVersionSelector(viewModel: DebugSettingsViewModel) {
 
     VersionSelector(
         title = "Communication DiGA Version",
-        description = "Select DiGA communication dispense version for testing.\nProduction uses v1.4.",
+        description = "Select DiGA communication dispense version for testing.\nProduction uses v1.5.",
         currentVersion = communicationDigaVersion,
         versions = CommunicationDigaVersion.entries,
         getDisplayName = { it.displayName },

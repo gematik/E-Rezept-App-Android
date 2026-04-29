@@ -52,7 +52,7 @@ class DefaultCommunicationDigaVersionPreferencesDataStore(
 
     private fun getCommunicationDigaVersion(): CommunicationDigaVersion {
         val value = settings.getStringOrNull(KEY_COMMUNICATION_DIGA_VERSION)
-        return value?.let { CommunicationDigaVersion.valueOf(it) } ?: CommunicationDigaVersion.V_1_4
+        return value?.let { CommunicationDigaVersion.valueOf(it) } ?: CommunicationDigaVersion.V_1_5
     }
 
     companion object {
