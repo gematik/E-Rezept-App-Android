@@ -110,11 +110,11 @@ interface EuVersionDataStore {
 /**
  * Communication DiGA version options for DiGA dispense requests.
  * Only used in debug builds for testing different DiGA communication versions.
- * Production default is [V_1_4].
+ * Production default is [V_1_5].
  */
 enum class CommunicationDigaVersion(val version: String, val displayName: String) {
-    V_1_4("1.4", "(Production) Version 1.4"),
-    V_1_5("1.5", "Version 1.5"),
+    V_1_4("1.4", "Version 1.4"),
+    V_1_5("1.5", "(Production) Version 1.5"),
     V_1_6("1.6", "Version 1.6")
 }
 

@@ -32,7 +32,7 @@ val SingleReplyCommV1_3 by lazy { getResourceAsString("/fhir/communications_pars
 val SingleReplyCommV1_2 by lazy { getResourceAsString("/fhir/communications_parser/communications_reply_version_1_2.json") }
 val SingleDispenseCommV1_4 by lazy { getResourceAsString("/fhir/communications_parser/communications_dispense_version_1_4.json") }
 val SingleDispenseCommV1_2 by lazy { getResourceAsString("/fhir/communications_parser/communications_dispense_version_1_2.json") }
-val communication_diga_dispense_1_4 by lazy { getResourceAsString("/fhir/communications_parser/communication_diga_dispense_1_4.json") }
+val communication_diga_dispense_request_1_5 by lazy { getResourceAsString("/fhir/communications_parser/communication_diga_dispense_request_1_5.json") }
 
 // 1.5 versions
 val communication_dispense_with_payload_1_5 by lazy { getResourceAsString("/fhir/communications_parser/communication_dispense_with_payload_version_1_5.json") }
