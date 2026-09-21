@@ -39,7 +39,7 @@ import de.gematik.ti.erp.app.messages.ui.preview.MessageSheetsPreviewData.orderM
 import de.gematik.ti.erp.app.messages.ui.preview.MessageSheetsPreviewData.orderMessageWithOnlyMessage
 import de.gematik.ti.erp.app.messages.ui.preview.MessageSheetsPreviewData.orderMessageWithOnlyURL
 import de.gematik.ti.erp.app.messages.ui.preview.MessageSheetsPreviewData.orderMessageWithPickUpCode
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.Instant
 
@@ -90,13 +90,15 @@ object MessageSheetsPreviewData {
                     hasInvoice = false,
                     invoiceSentOn = time
                 ),
-                prescription = Prescription.ScannedPrescription(
+                prescription = TaskErpModel.Scanned(
+                    profileId = "testProfileId",
                     taskId = "123",
                     name = "Prescription",
                     redeemedOn = time,
                     scannedOn = time,
                     index = 1,
-                    communications = emptyList()
+                    accessCode = "accessCode",
+                    isEuRedeemable = false
                 )
             )
         ),

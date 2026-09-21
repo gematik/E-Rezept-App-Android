@@ -7,9 +7,11 @@
 # ⚠️  CRITICAL: Check Kotlin ⟷ Realm compatibility before ANY Kotlin version update!
 
 [versions]
+kotlinx-coroutines = "1.10.1"
 
 # BOMs
 androidx-compose-bom = "2024.08.00"
+firebase-bom = "34.12.0"
 
 # android
 agp-build = "8.11.1"
@@ -24,27 +26,27 @@ accompanist = "0.36.0"
 accompanist-permission = "0.37.3"
 activity-compose = "1.10.0"
 markdown = "0.5.4"
-appcompat = "1.7.0"
+appcompat = "1.7.1"
 biometric = "1.1.0"
 camera = "1.4.1"
 core-ktx = "1.15.0"
-datastore-preferences = "1.1.2"
+datastore-preferences = "1.2.1"
 secrets-gradle-plugin = "2.0.1"
 security-crypto = "1.1.0-alpha06"
-window = "1.3.0"
-webkit = "1.12.1"
-androidx-work = "2.10.0"
+window = "1.5.1"
+webkit = "1.16.0"
+androidx-work = "2.11.2"
 
 # androidx test
-androidx-test-core = "1.6.1"
-androidx-test-rules = "1.6.1"
-androidx-test-junit = "1.2.1"
-androidx-test-runner = "1.6.2"
+androidx-test-core = "1.7.0"
+androidx-test-rules = "1.7.0"
+androidx-test-junit = "1.3.0"
+androidx-test-runner = "1.7.0"
 androidx-test-services = "1.5.0"
 androidx-test-arch-core = "2.2.0"
 
 # animation
-lottie = "6.6.10"
+lottie = "6.7.1"
 shimmer = "1.3.3"
 
 # buildkonfig
@@ -58,7 +60,7 @@ compose-foundation = "1.7.7"
 compose = "1.7.7"
 compiler = "1.5.15"
 navigation-compose = "2.8.6"
-paging-compose = "3.3.5"
+paging-compose = "3.5.0"
 
 # kotlin
 # NOTE: If you update the Kotlin version here, you MUST also update the hardcoded version in buildSrc/build.gradle.kts plugins block!
@@ -68,7 +70,7 @@ kotlin-reflect = "2.0.21"
 kotlin-test = "2.0.21"
 
 # crypto
-bouncycastle = "1.82"
+bouncycastle = "1.85"
 jose4j = "0.9.6"
 json = "20250517"
 
@@ -81,7 +83,7 @@ realm-plugin = "2.3.0"
 room = "2.8.4"
 ksp = "2.0.21-1.0.28"
 sqlite = "2.6.2"
-sqlcipher = "4.13.0"
+sqlcipher = "4.16.0"
 
 # dependency check
 dependency-check-gradle = "10.0.3"
@@ -94,11 +96,14 @@ material = "1.12.0"
 di = "7.20.2"
 
 # security fixes
-protobuf = "4.33.5"
-netty-codec-http = "4.2.10.Final"
-netty-codec-http2 = "4.2.10.Final"
-netty-handler = "4.2.10.Final"
-guava = "33.5.0-jre"
+protobuf = "4.35.0"
+netty-codec-http = "4.2.16.Final"
+netty-codec-http2 = "4.2.16.Final"
+netty-handler = "4.2.16.Final"
+netty-codec = "4.2.16.Final"
+netty-handler-proxy = "4.2.16.Final"
+jackson-core = "2.18.9"
+guava = "33.6.0-jre"
 
 # serialization
 kotlinx-serialization = "2.0.21"
@@ -111,11 +116,12 @@ coil = "2.7.0"
 barcode-scanning = "17.3.0"
 text-translation = "17.0.3"
 text-recognition = "16.0.1"
-zxing-core = "3.5.3"
+zxing-core = "3.5.4"
 
 jetbrains-kotlin-jvm = "2.0.21"
 kotlin-serilization = "2.0.21"
 junit = "4.13.2"
+robolectric = "4.14.1"
 
 # maps
 maps-compose = "2.15.0"
@@ -125,16 +131,16 @@ maps-location = "21.3.0"
 
 # logging
 napier = "2.7.1"
-slf4j = "2.0.17"
+slf4j = "2.0.18"
 
 # network
-httpclient5 = "5.4"
+httpclient5 = "5.6.1"
 retrofit = "3.0.0"
 retrofit-kotlinx-serialization-converter = "1.0.0"
 okhttp = "4.12.0" # this depends on the certificate transparancy library. Always check if they are compatible
 
 # play
-play-integrity = "1.5.0"
+play-integrity = "1.6.0"
 play-review = "2.0.2"
 play-app-update = "2.1.0"
 
@@ -149,8 +155,8 @@ tracking = "4.41.1"
 
 # testing
 paparazzi = "1.3.5"
-mockk = "1.14.6"
-yaml = "2.5"
+mockk = "1.13.10"
+yaml = "2.6"
 
 # e2e testing
 primsys = "0.13.1"
@@ -172,6 +178,8 @@ kotlin-multiplatform = "2.0.21"
 kotlin-stdlib = "2.1.21"
 kotlin-test-version = "2.0.21"
 espresso-core = "3.7.0"
+google-services = "4.4.4"
+runtime = "1.11.4"
 
 [libraries]
 sqlcipher = { module = "net.zetetic:sqlcipher-android", version.ref = "sqlcipher" }
@@ -228,6 +236,12 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
 androidx-webkit = { module = "androidx.webkit:webkit", version.ref = "webkit" }
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "security-crypto" }
+androidx-concurrent-futures = { module = "androidx.concurrent:concurrent-futures", version = "1.2.0" }
+androidx-concurrent-futures-ktx = { module = "androidx.concurrent:concurrent-futures-ktx", version = "1.2.0" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
 androidx-window = { module = "androidx.window:window", version.ref = "window" }
 androidx-work = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "androidx-work" }
@@ -254,10 +268,10 @@ compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", ve
 compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose" }
 
 # coroutine
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutine-core" }
-kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutine-core" }
-kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutine-core" }
-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutine-core" }
+# kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutine-core" }
+# kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutine-core" }
+# kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutine-core" }
+# kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutine-core" }
 
 # coil
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
@@ -272,9 +286,12 @@ di = { module = "org.kodein.di:kodein-di", version.ref = "di" }
 
 # google
 barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcode-scanning" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 text-translation = { module = "com.google.mlkit:translate", version.ref = "text-translation" }
 text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "text-recognition" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secrets-gradle-plugin" }
+google-services-gradle-plugin = { module = "com.google.gms:google-services", version.ref = "google-services" }
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing-core" }
 
 # kotlin
@@ -335,10 +352,6 @@ play-app-update = { module = "com.google.android.play:app-update-ktx", version.r
 database-realm = { module = "io.realm.kotlin:library-base", version.ref = "realm" }
 database-realm-plugin = { module = "io.realm.kotlin:gradle-plugin", version.ref = "realm-plugin" }
 
-# kmp shared prefs
-multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version = "1.3.0" }
-multiplatform-settings-test = { module = "com.russhwolf:multiplatform-settings-test", version = "1.3.0" }
-
 # reactive-state
 reactive-state = { module = "com.ensody.reactivestate:reactivestate", version.ref = "reactive-state" }
 
@@ -348,6 +361,9 @@ protobuf-java-util = { module = "com.google.protobuf:protobuf-java-util", versio
 netty-codec-http2 = { module = "io.netty:netty-codec-http2", version.ref = "netty-codec-http2" }
 netty-codec-http = { module = "io.netty:netty-codec-http", version.ref = "netty-codec-http" }
 netty-handler = { module = "io.netty:netty-handler", version.ref = "netty-handler" }
+netty-codec = { module = "io.netty:netty-codec", version.ref = "netty-codec" }
+netty-handler-proxy = { module = "io.netty:netty-handler-proxy", version.ref = "netty-handler-proxy" }
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson-core" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 
 # serialization
@@ -368,6 +384,7 @@ pdf-box = { module = "com.tom-roush:pdfbox-android", version = "2.0.27.0" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 
 
@@ -377,6 +394,7 @@ test-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.
 test-kotlin-test-common = { module = "org.jetbrains.kotlin:kotlin-test-common", version.ref = "kotlin-test" }
 test-yaml = { module = "org.yaml:snakeyaml", version.ref = "yaml" }
 test-turbine = { module = "app.cash.turbine:turbine", version = "1.1.0" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 
 # e2e testing
 primsys-client = { module = "de.gematik.test.erezept:primsys-rest-client", version.ref = "primsys" }
@@ -402,6 +420,7 @@ kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", versi
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin-test-version" }
 quality-checkstyle = { module = "com.puppycrawl.tools:checkstyle", version.ref = "checkstyle" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 
 
 [plugins]
@@ -422,12 +441,16 @@ paparazzi = { id = "app.cash.paparazzi", version.ref = "paparazzi" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp-app" }
 
+# google
+google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
+
 # plugins generated from scripts module
 base-android-app = { id = "base-android-application" }
 base-android-library = { id = "base-android-library" }
 base-kmp-library = { id = "base-multiplatform-library" }
 base-java-library = { id = "base-java-library" }
 forced-dependencies = { id = "de.gematik.forced-dependencies" }
+firebase-convention = { id = "de.gematik.firebase-convention" }
 
 # custom gematik plugins
 technical-requirements = { id = "de.gematik.ti.erp.technical-requirements" }
@@ -481,5 +504,5 @@ quality = ["quality-ktlint", "quality-detekt", "quality-composerules"]
 qualitydetektcomposerules = ["quality-composerules"]
 serialization = ["kotlinx-serialization-json", "kotlinx-serialization-core"]
 testing = ["test-junit", "test-kotlin-test", "test-kotlin-test-common", "test-yaml", "androidx-test-junit", "json", "test-mockk-android"]
-testjunit = ["test-junit", "test-yaml", "json", "test-mockk", "multiplatform-settings-test"]
+testjunit = ["test-junit", "test-yaml", "json", "test-mockk"]
 mockandroid = ["test-mockk-android"]

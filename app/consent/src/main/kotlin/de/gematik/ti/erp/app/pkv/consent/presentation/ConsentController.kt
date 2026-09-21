@@ -37,8 +37,8 @@ import de.gematik.ti.erp.app.consent.usecase.RevokeConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.SaveGrantConsentDrawerShownUseCase
 import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.pkv.consent.model.ConsentViewState
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -58,7 +58,7 @@ class ConsentController(
 ) : Controller() {
     private sealed interface RetryAction {
         data class FetchConsent(val profileId: ProfileIdentifier) : RetryAction
-        data class GrantConsent(val profile: ProfilesUseCaseData.Profile) : RetryAction
+        data class GrantConsent(val profile: ProfileErpModel) : RetryAction
         data class RevokeConsent(val profileId: ProfileIdentifier) : RetryAction
     }
 
@@ -124,7 +124,7 @@ class ConsentController(
         }
     }
 
-    fun grantChargeConsent(profile: ProfilesUseCaseData.Profile) {
+    fun grantChargeConsent(profile: ProfileErpModel) {
         lastRetryAction = RetryAction.GrantConsent(profile)
         clearError()
         controllerScope.launch {
@@ -160,7 +160,7 @@ class ConsentController(
         }
     }
 
-    fun onRetry(profile: ProfilesUseCaseData.Profile) {
+    fun onRetry(profile: ProfileErpModel) {
         when (val action = lastRetryAction) {
             is RetryAction.FetchConsent -> getChargeConsent(action.profileId)
             is RetryAction.GrantConsent -> grantChargeConsent(action.profile)

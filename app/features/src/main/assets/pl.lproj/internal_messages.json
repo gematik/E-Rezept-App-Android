@@ -70,5 +70,11 @@
         "text": "**🏥 Ulepszone szczegóły apteki** \nApteki mogą teraz dodawać usługi takie jak szczepienia i funkcje na miejscu, takie jak dostęp bez barier. Apteki można filtrować na podstawie tych nowych informacji. \n \n **✨ Ulepszone wyszukiwanie aptek** \nOstatnio używane apteki i ulubione apteki są teraz wyraźniej oddzielone. Filtry zostały ulepszone. \n \n **✅ Identyfikator zdrowia dla innych ubezpieczonych osób** \nUbezpieczeni, którzy nie są objęci ustawowym lub prywatnym ubezpieczeniem zdrowotnym, mogą teraz również logować się za pomocą swojego identyfikatora zdrowia. \n \n **🛡️ Usunięto śledzenie** \nUsunęliśmy narzędzie śledzące używane w aplikacji. Żadne dane dotyczące korzystania z aplikacji nie są już gromadzone. \n \n **♿ Lepsza dostępność** \nFiltry mają teraz wyższy kontrast, a status filtra jest teraz łatwiejszy do sprawdzenia.",
         "timestamp": "2026-03-30T08:00:00.000Z",
         "version": "1.38"
+    },
+    {
+        "id": "14",
+        "text": "**✅ Dostępne recepty T**\nRecepty T mogą być teraz odbierane i wyświetlane poprawnie. Recepty T są wykorzystywane w przypadku niektórych leków, które wymagają spełnienia specjalnych wymogów bezpieczeństwa.\n\n**⚙️ Ustawienia zostały wyczyszczone**\nUstawienia profilu zostały zmienione i są teraz bardziej przejrzyste.\n\n**♿ Większa dostępność**\nBariery można teraz zgłaszać bezpośrednio z poziomu ustawień. Przyciski, menu, listy i nagłówki zostały zoptymalizowane pod kątem obsługi TalkBack. Poprawiono kontrast, a animacje są teraz odtwarzane tylko raz. Pole nazwy ma teraz stale widoczną etykietę. Większe rozmiary czcionek są teraz również obsługiwane w widokach internetowych aplikacji.",
+        "timestamp": "2026-08-18T08:00:00.000Z",
+        "version": "1.39"
     }
 ]

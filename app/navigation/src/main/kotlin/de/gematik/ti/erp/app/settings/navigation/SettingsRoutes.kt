@@ -38,4 +38,5 @@ object SettingsRoutes : NavigationRoutes {
     object SettingsAdditionalLicencesScreen : Routes(NavigationRouteNames.SettingsAdditionalLicencesScreen.name)
     object SettingsLanguageScreen : Routes(NavigationRouteNames.SettingsLanguageScreen.name)
     object SettingsThemeScreen : Routes(NavigationRouteNames.SettingsThemeScreen.name)
+    object SettingsReportAccessibilityIssueScreen : Routes(NavigationRouteNames.SettingsReportAccessibilityIssueScreen.name)
 }

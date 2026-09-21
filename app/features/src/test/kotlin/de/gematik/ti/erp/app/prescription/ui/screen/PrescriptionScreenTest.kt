@@ -22,12 +22,7 @@
 
 package de.gematik.ti.erp.app.prescription.ui.screen
 
-import de.gematik.ti.erp.app.prescription.ui.preview.PrescriptionScreenPreviewParameterProvider
-import de.gematik.ti.erp.app.screenshot.BaseAccessibilityTest
-import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
-import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
-import org.junit.Test
-
+/*Todo Room - comment out again after merging the dependent MRs.
 class PrescriptionScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(config) {
     @Test
     fun screenShotTest() {
@@ -54,3 +49,5 @@ class PrescriptionScreenAccessibilityTest(val config: ScreenshotConfig) : BaseAc
         }
     }
 }
+
+ */

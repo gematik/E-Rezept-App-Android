@@ -27,6 +27,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import de.gematik.ti.erp.app.pharmacy.model.LocationModeErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyMapsSearchDataErpModel
+import de.gematik.ti.erp.app.pharmacy.model.SearchFilterErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacySearchDataErpModel
+import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toPharmacyFilter
 
 class PharmacyFilterTest {
 
@@ -126,51 +132,45 @@ class PharmacyFilterTest {
 
     @Test
     fun `SearchData toPharmacyFilter includes onSiteFeatures`() {
-        val searchData = PharmacyUseCaseData.SearchData(
+        val searchData = PharmacySearchDataErpModel(
             name = "Test",
-            filter = PharmacyUseCaseData.Filter(
+            filter = SearchFilterErpModel(
                 onSiteFeatures = setOf("abholautomat", "barrierefrei")
             ),
-            locationMode = PharmacyUseCaseData.LocationMode.Disabled
+            locationMode = LocationModeErpModel.Disabled
         )
 
-        val pharmacyFilter = with(PharmacyUseCaseData.SearchData) {
-            searchData.toPharmacyFilter()
-        }
+        val pharmacyFilter = searchData.toPharmacyFilter()
 
         assertEquals(setOf("abholautomat", "barrierefrei"), pharmacyFilter.onSiteFeatureCodes)
     }
 
     @Test
     fun `SearchData toPharmacyFilter includes empty onSiteFeatures when none selected`() {
-        val searchData = PharmacyUseCaseData.SearchData(
+        val searchData = PharmacySearchDataErpModel(
             name = "Test",
-            filter = PharmacyUseCaseData.Filter(),
-            locationMode = PharmacyUseCaseData.LocationMode.Disabled
+            filter = SearchFilterErpModel(),
+            locationMode = LocationModeErpModel.Disabled
         )
 
-        val pharmacyFilter = with(PharmacyUseCaseData.SearchData) {
-            searchData.toPharmacyFilter()
-        }
+        val pharmacyFilter = searchData.toPharmacyFilter()
 
         assertEquals(emptySet(), pharmacyFilter.onSiteFeatureCodes)
     }
 
     @Test
     fun `SearchData toPharmacyFilter with location and onSiteFeatures`() {
-        val coordinates = PharmacyUseCaseData.Coordinates(latitude = 52.52, longitude = 13.405)
-        val searchData = PharmacyUseCaseData.SearchData(
+        val coordinates = PositionErpModel(latitude = 52.52, longitude = 13.405)
+        val searchData = PharmacySearchDataErpModel(
             name = "",
-            filter = PharmacyUseCaseData.Filter(
+            filter = SearchFilterErpModel(
                 nearBy = true,
                 onSiteFeatures = setOf("abholautomat")
             ),
-            locationMode = PharmacyUseCaseData.LocationMode.Enabled(coordinates)
+            locationMode = LocationModeErpModel.Enabled(coordinates)
         )
 
-        val pharmacyFilter = with(PharmacyUseCaseData.SearchData) {
-            searchData.toPharmacyFilter()
-        }
+        val pharmacyFilter = searchData.toPharmacyFilter()
 
         assertNotNull(pharmacyFilter.locationFilter)
         assertEquals(setOf("abholautomat"), pharmacyFilter.onSiteFeatureCodes)
@@ -178,19 +178,17 @@ class PharmacyFilterTest {
 
     @Test
     fun `MapsSearchData toPharmacyFilter includes onSiteFeatures`() {
-        val coordinates = PharmacyUseCaseData.Coordinates(latitude = 52.52, longitude = 13.405)
-        val mapsSearchData = PharmacyUseCaseData.MapsSearchData(
+        val coordinates = PositionErpModel(latitude = 52.52, longitude = 13.405)
+        val mapsSearchData = PharmacyMapsSearchDataErpModel(
             name = "",
-            filter = PharmacyUseCaseData.Filter(
+            filter = SearchFilterErpModel(
                 onSiteFeatures = setOf("parkmoeglichkeit", "oepnv")
             ),
-            locationMode = PharmacyUseCaseData.LocationMode.Enabled(coordinates),
+            locationMode = LocationModeErpModel.Enabled(coordinates),
             coordinates = coordinates
         )
 
-        val pharmacyFilter = with(PharmacyUseCaseData.MapsSearchData) {
-            mapsSearchData.toPharmacyFilter(forcedRadius = null)
-        }
+        val pharmacyFilter = mapsSearchData.toPharmacyFilter(forcedRadius = null)
 
         assertEquals(setOf("parkmoeglichkeit", "oepnv"), pharmacyFilter.onSiteFeatureCodes)
         assertNotNull(pharmacyFilter.locationFilter)
@@ -198,17 +196,15 @@ class PharmacyFilterTest {
 
     @Test
     fun `MapsSearchData toPharmacyFilter with empty onSiteFeatures`() {
-        val coordinates = PharmacyUseCaseData.Coordinates(latitude = 52.52, longitude = 13.405)
-        val mapsSearchData = PharmacyUseCaseData.MapsSearchData(
+        val coordinates = PositionErpModel(latitude = 52.52, longitude = 13.405)
+        val mapsSearchData = PharmacyMapsSearchDataErpModel(
             name = "",
-            filter = PharmacyUseCaseData.Filter(),
-            locationMode = PharmacyUseCaseData.LocationMode.Enabled(coordinates),
+            filter = SearchFilterErpModel(),
+            locationMode = LocationModeErpModel.Enabled(coordinates),
             coordinates = coordinates
         )
 
-        val pharmacyFilter = with(PharmacyUseCaseData.MapsSearchData) {
-            mapsSearchData.toPharmacyFilter(forcedRadius = 5.0)
-        }
+        val pharmacyFilter = mapsSearchData.toPharmacyFilter(forcedRadius = 5.0)
 
         assertEquals(emptySet(), pharmacyFilter.onSiteFeatureCodes)
     }

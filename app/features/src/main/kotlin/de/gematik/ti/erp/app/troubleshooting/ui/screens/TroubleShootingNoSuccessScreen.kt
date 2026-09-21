@@ -22,12 +22,15 @@
 
 package de.gematik.ti.erp.app.troubleshooting.ui.screens
 
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
+import android.view.accessibility.AccessibilityManager
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -87,12 +90,26 @@ private fun TroubleShootingNoSuccessScreenContent(
 ) {
     val mailAddress = stringResource(R.string.settings_contact_mail_address)
     val subject = stringResource(R.string.settings_feedback_mail_subject)
+    val configuration = LocalConfiguration.current
+    val talkbackEnabled = try {
+        val accessibilityManager: AccessibilityManager =
+            context.getSystemService(Context.ACCESSIBILITY_SERVICE) as? AccessibilityManager
+                ?: throw IllegalStateException("AccessibilityManager not found")
+        val enabledServices = accessibilityManager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)
+        enabledServices.isNotEmpty()
+    } catch (e: Exception) {
+        false
+    }
+    val yes = stringResource(R.string.yes)
+    val no = stringResource(R.string.no)
     val body = buildFeedbackBodyWithDeviceInfo(
         darkMode = buildConfig.inDarkTheme(),
         language = buildConfig.language(),
         versionName = buildConfig.versionName(),
         nfcInfo = buildConfig.nfcInformation(context),
-        phoneModel = buildConfig.model()
+        phoneModel = buildConfig.model(),
+        talkback = if (talkbackEnabled) yes else no,
+        fontScale = configuration.fontScale
     )
 
     Column {

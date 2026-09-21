@@ -37,7 +37,7 @@ class DemoShippingContactRepository : ShippingContactRepository {
                 zip = "12345",
                 city = "Berlin",
                 phone = "123456789",
-                mail = "schmetterling@butterfly.com",
+                mail = "",
                 deliveryInfo = "Bitte klingeln"
             )
         )

@@ -49,6 +49,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.AnnotatedString
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -57,13 +58,17 @@ import de.gematik.ti.erp.app.theme.SizeDefaults
 
 data class SelectionSummaryButtonData(
     val buttonTitleText: String,
-    val errorTitleText: String,
-    val errorHintText: String,
+    val infoTitleText: String,
+    val infoHintText: String,
     val buttonTexts: List<SelectionSummaryButtonText>
 )
 
+enum class SelectionSummaryButtonState {
+    None, Error, Warning, Info
+}
+
 data class SelectionSummaryButtonText(
-    val text: String,
+    val text: AnnotatedString,
     val style: TextStyle,
     val color: Color,
     val maxLines: Int
@@ -93,7 +98,7 @@ data class SelectionSummaryButtonText(
  *
  * @param text The visible text to display in the button content area.
  * @param style The text style to apply (default is [AppTheme.typography.subtitle1]).
- * @param color The color of the text (default is [AppTheme.colors.neutral700]).
+ * @param color The color of the text (default is [AppTheme.colors.neutral900]).
  * @param maxLines The maximum number of lines this text may occupy.
  *
  * @return A [SelectionSummaryButtonText] model used in [SelectionSummaryButtonData].
@@ -101,6 +106,23 @@ data class SelectionSummaryButtonText(
 @Composable
 fun selectionSummaryButtonText(
     text: String,
+    style: TextStyle = AppTheme.typography.body1,
+    color: Color = AppTheme.colors.neutral900,
+    maxLines: Int = 1
+): SelectionSummaryButtonText {
+    return remember(text) {
+        SelectionSummaryButtonText(
+            text = AnnotatedString(text),
+            style = style,
+            color = color,
+            maxLines = maxLines
+        )
+    }
+}
+
+@Composable
+fun selectionSummaryButtonText(
+    text: AnnotatedString,
     style: TextStyle = AppTheme.typography.body1,
     color: Color = AppTheme.colors.neutral900,
     maxLines: Int = 1
@@ -139,8 +161,8 @@ fun selectionSummaryButtonText(
  *
  * @param modifier Modifier to be applied to the button container.
  * @param data Holds the title, content lines, error title, and error hint text. See [SelectionSummaryButtonData].
- * @param isError Whether the button is in an error state (e.g., required selection not made).
- * @param errorContentDescription Localized prefix (e.g. "Fehler:") to be included in screen reader descriptions when [isError] is true.
+ * @param selectionSummaryButtonState Whether the button is in an error state (e.g., required selection not made).
+ * @param errorContentDescription Localized prefix (e.g. "Fehler:") to be included in screen reader descriptions when [selectionSummaryButtonState] is true.
  * @param leadingContent Optional composable (e.g. icon or image) displayed at the start of the button.
  * @param bottomContent Optional additional UI displayed beneath the main content area (inside the button).
  * @param onClick Lambda triggered when the user taps the button.
@@ -154,21 +176,36 @@ fun SelectionSummaryButton(
     modifier: Modifier = Modifier,
     data: SelectionSummaryButtonData,
     overrideIcon: Boolean = false,
-    isError: Boolean,
+    selectionSummaryButtonState: SelectionSummaryButtonState,
     errorContentDescription: String = "",
     leadingContent: (@Composable () -> Unit)? = null,
     bottomContent: (@Composable ColumnScope.() -> Unit)? = null,
     onClick: () -> Unit
 ) {
-    val borderColor = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral300
-    val contentColor = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral900
-    val hintColor = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral700
+    val borderColor = when (selectionSummaryButtonState) {
+        SelectionSummaryButtonState.Info -> AppTheme.colors.primary700
+        SelectionSummaryButtonState.Error -> AppTheme.colors.red700
+        SelectionSummaryButtonState.Warning -> AppTheme.colors.yellow800
+        SelectionSummaryButtonState.None -> AppTheme.colors.neutral300
+    }
+    val contentColor = when (selectionSummaryButtonState) {
+        SelectionSummaryButtonState.Info -> AppTheme.colors.primary700
+        SelectionSummaryButtonState.Error -> AppTheme.colors.red700
+        SelectionSummaryButtonState.Warning -> AppTheme.colors.yellow800
+        SelectionSummaryButtonState.None -> AppTheme.colors.neutral900
+    }
+    val hintColor = when (selectionSummaryButtonState) {
+        SelectionSummaryButtonState.Info -> AppTheme.colors.primary700
+        SelectionSummaryButtonState.Error -> AppTheme.colors.red700
+        SelectionSummaryButtonState.Warning -> AppTheme.colors.yellow800
+        SelectionSummaryButtonState.None -> AppTheme.colors.neutral700
+    }
 
     val hasContent = data.buttonTexts.isNotEmpty()
 
     val semanticsErrorDescription = buildString {
-        if (isError) {
-            append(", $errorContentDescription ${data.errorHintText}")
+        if (selectionSummaryButtonState != SelectionSummaryButtonState.None) {
+            append(", $errorContentDescription ${data.infoHintText}")
         }
     }
 
@@ -220,8 +257,12 @@ fun SelectionSummaryButton(
                         } else {
                             // error or empty scenario when there is no content
                             Text(
-                                text = data.errorTitleText,
-                                color = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral700,
+                                text = data.infoTitleText,
+                                color = if (selectionSummaryButtonState == SelectionSummaryButtonState.Error) {
+                                    AppTheme.colors.red700
+                                } else {
+                                    AppTheme.colors.neutral700
+                                },
                                 style = AppTheme.typography.subtitle1l,
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1
@@ -236,7 +277,12 @@ fun SelectionSummaryButton(
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                tint = if (isError) AppTheme.colors.red900 else AppTheme.colors.neutral700,
+                                tint = when (selectionSummaryButtonState) {
+                                    SelectionSummaryButtonState.Info -> AppTheme.colors.primary700
+                                    SelectionSummaryButtonState.Error -> AppTheme.colors.red900
+                                    SelectionSummaryButtonState.Warning -> AppTheme.colors.yellow800
+                                    SelectionSummaryButtonState.None -> AppTheme.colors.neutral700
+                                },
                                 contentDescription = null
                             )
                         }
@@ -248,9 +294,9 @@ fun SelectionSummaryButton(
             }
         }
 
-        if (isError) {
+        if (selectionSummaryButtonState != SelectionSummaryButtonState.None) {
             Text(
-                text = data.errorHintText,
+                text = data.infoHintText,
                 style = AppTheme.typography.caption1,
                 color = hintColor,
                 modifier = Modifier
@@ -270,11 +316,11 @@ fun SelectionSummaryButtonPrescriptionsWithErrorPreview() {
         SelectionSummaryButton(
             data = SelectionSummaryButtonData(
                 buttonTitleText = "Rezepte",
-                errorTitleText = "Rezept wählen",
+                infoTitleText = "Rezept wählen",
                 buttonTexts = emptyList(),
-                errorHintText = "Bitte wählen Sie ein Rezept"
+                infoHintText = "Bitte wählen Sie ein Rezept"
             ),
-            isError = true
+            selectionSummaryButtonState = SelectionSummaryButtonState.Error
         ) { }
     }
 }
@@ -286,15 +332,15 @@ fun SelectionSummaryButtonPrescriptionsPreview() {
         SelectionSummaryButton(
             data = SelectionSummaryButtonData(
                 buttonTitleText = "Rezepte",
-                errorTitleText = "Rezept wählen",
+                infoTitleText = "Rezept wählen",
                 buttonTexts = listOf(
                     selectionSummaryButtonText(
                         "Zampa-Zok mitte 47,5 mg, Zampa-Zok mitte 22,5 mg"
                     )
                 ),
-                errorHintText = "Bitte wählen Sie ein Rezept"
+                infoHintText = "Bitte wählen Sie ein Rezept"
             ),
-            isError = false
+            selectionSummaryButtonState = SelectionSummaryButtonState.None
         ) { }
     }
 }
@@ -306,7 +352,7 @@ fun SelectionSummaryButtonPharmacyPreview() {
         SelectionSummaryButton(
             data = SelectionSummaryButtonData(
                 buttonTitleText = "Apotheke",
-                errorTitleText = "Apotheke wählen",
+                infoTitleText = "Apotheke wählen",
                 buttonTexts = listOf(
                     selectionSummaryButtonText(
                         text = "Albrecht Apotheke ULMENDORFER Test Only",
@@ -317,17 +363,17 @@ fun SelectionSummaryButtonPharmacyPreview() {
                     selectionSummaryButtonText(
                         text = "Hubertus Strasse 12",
                         style = AppTheme.typography.subtitle2,
-                        color = AppTheme.colors.neutral400
+                        color = AppTheme.colors.neutral700
                     ),
                     selectionSummaryButtonText(
                         text = "12099 Berlin",
                         style = AppTheme.typography.subtitle2,
-                        color = AppTheme.colors.neutral400
+                        color = AppTheme.colors.neutral700
                     )
                 ),
-                errorHintText = "Bitte wählen Sie ein Apotheke"
+                infoHintText = "Bitte wählen Sie ein Apotheke"
             ),
-            isError = false
+            selectionSummaryButtonState = SelectionSummaryButtonState.None
         ) {
             // extra area for more composable view
         }
@@ -341,7 +387,7 @@ fun SelectionSummaryButtonProfileImagePreview() {
         SelectionSummaryButton(
             data = SelectionSummaryButtonData(
                 buttonTitleText = "Profil",
-                errorTitleText = "",
+                infoTitleText = "",
                 buttonTexts = listOf(
                     selectionSummaryButtonText(
                         text = "Ada Muster",
@@ -350,9 +396,9 @@ fun SelectionSummaryButtonProfileImagePreview() {
                         maxLines = 1
                     )
                 ),
-                errorHintText = "Bitte geben Sie eine Telefonnummer an"
+                infoHintText = "Bitte geben Sie eine Telefonnummer an"
             ),
-            isError = true,
+            selectionSummaryButtonState = SelectionSummaryButtonState.Error,
             overrideIcon = true,
             leadingContent = {
                 Icon(

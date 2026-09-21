@@ -35,7 +35,7 @@ class MessageListScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(confi
         val parameters = MessageListParameterProvider().values.toList()
         parameters.forEachIndexed { index, orderData ->
             paparazzi.snapshot("$index") {
-                MessageScreenContentPreview(orderData)
+                MessageScreenScaffoldPreview(orderData)
             }
         }
     }
@@ -48,7 +48,7 @@ class MessageListScreenAccessibilityTest(config: ScreenshotConfig) : BaseAccessi
         val parameters = MessageListParameterProvider().values.toList()
         parameters.forEachIndexed { index, orderData ->
             paparazzi.accessibilitySnapshot("$index") {
-                MessageScreenContentPreview(orderData)
+                MessageScreenScaffoldPreview(orderData)
             }
         }
     }

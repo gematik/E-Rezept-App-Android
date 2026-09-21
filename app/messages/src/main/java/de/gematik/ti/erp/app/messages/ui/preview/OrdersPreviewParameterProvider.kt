@@ -22,17 +22,38 @@
 
 package de.gematik.ti.erp.app.messages.ui.preview
 
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.Instant
 
-private val PREVIEW_PRESCRIPTION = Prescription.ScannedPrescription(
+class OrdersPreviewParameterProvider : PreviewParameterProvider<UiState<List<OrderUseCaseData.Order>>> {
+    override val values = sequenceOf(
+        UiState.Loading(),
+        UiState.Empty(),
+        UiState.Error(Throwable("Error")),
+        UiState.Data(
+            listOf(
+                PREVIEW_ORDER_1,
+                PREVIEW_ORDER_2,
+                PREVIEW_ORDER_3,
+                PREVIEW_ORDER_4,
+                PREVIEW_ORDER_5
+            )
+        )
+    )
+}
+
+private val PREVIEW_PRESCRIPTION = TaskErpModel.Scanned(
+    profileId = "testProfileId",
     taskId = "123",
     name = "Prescription",
     redeemedOn = Instant.parse("2023-07-08T15:20:00Z"),
     scannedOn = Instant.parse("2023-07-08T15:20:00Z"),
     index = 0,
-    communications = emptyList()
+    accessCode = "accessCode",
+    isEuRedeemable = false
 )
 
 private val PREVIEW_ORDER_1 = OrderUseCaseData.Order(

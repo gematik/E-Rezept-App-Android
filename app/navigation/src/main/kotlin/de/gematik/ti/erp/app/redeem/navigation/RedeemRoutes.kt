@@ -30,8 +30,8 @@ import de.gematik.ti.erp.app.navigation.NavigationRoutes
 import de.gematik.ti.erp.app.navigation.Routes
 import de.gematik.ti.erp.app.navigation.fromNavigationString
 import de.gematik.ti.erp.app.navigation.toNavigationString
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 
 object RedeemRoutes : NavigationRoutes {
@@ -54,9 +54,16 @@ object RedeemRoutes : NavigationRoutes {
 
     object RedeemPrescriptionSelection : Routes(
         path = NavigationRouteNames.RedeemPrescriptionSelection.name,
-        navArgument(REDEEM_NAV_MODAL_BEHAVIOUR) { type = NavType.BoolType }
+        navArgument(REDEEM_NAV_MODAL_BEHAVIOUR) { type = NavType.BoolType },
+        navArgument(REDEEM_NAV_SELECTED_PHARMACY) { type = NavType.StringType }
     ) {
-        fun path(isModal: Boolean): String = path(REDEEM_NAV_MODAL_BEHAVIOUR to isModal)
+        fun path(
+            isModal: Boolean,
+            pharmacy: PharmacyDetailsErpModel?
+        ): String = path(
+            REDEEM_NAV_MODAL_BEHAVIOUR to isModal,
+            REDEEM_NAV_SELECTED_PHARMACY to (pharmacy?.let { it.toNavigationString() } ?: "")
+        )
     }
 
     object RedeemOrderOverviewScreen : Routes(
@@ -67,8 +74,8 @@ object RedeemRoutes : NavigationRoutes {
 
     ) {
         fun path(
-            pharmacy: PharmacyUseCaseData.Pharmacy?,
-            orderOption: PharmacyScreenData.OrderOption?,
+            pharmacy: PharmacyDetailsErpModel?,
+            orderOption: OrderOptionErpModel?,
             taskId: String?
         ): String = path(
             REDEEM_NAV_SELECTED_PHARMACY to (pharmacy?.let { it.toNavigationString() } ?: ""),
@@ -81,18 +88,18 @@ object RedeemRoutes : NavigationRoutes {
         path = NavigationRouteNames.RedeemEditShippingContactScreen.name,
         navArgument(REDEEM_NAV_ORDER_OPTION) { type = NavType.StringType }
     ) {
-        fun path(orderOption: PharmacyScreenData.OrderOption): String = path(REDEEM_NAV_ORDER_OPTION to orderOption.name)
+        fun path(orderOption: OrderOptionErpModel): String = path(REDEEM_NAV_ORDER_OPTION to orderOption.name)
     }
 }
 
 class RedeemRouteBackStackEntryArguments(
     private val navBackStackEntry: NavBackStackEntry
 ) {
-    fun getPharmacy(): PharmacyUseCaseData.Pharmacy? =
+    fun getPharmacy(): PharmacyDetailsErpModel? =
         navBackStackEntry.arguments?.let { bundle ->
             bundle.getString(RedeemRoutes.REDEEM_NAV_SELECTED_PHARMACY)?.let {
                 when {
-                    it.isNotNullOrEmpty() -> fromNavigationString<PharmacyUseCaseData.Pharmacy>(it)
+                    it.isNotNullOrEmpty() -> fromNavigationString<PharmacyDetailsErpModel>(it)
                     else -> null
                 }
             }
@@ -102,7 +109,7 @@ class RedeemRouteBackStackEntryArguments(
         navBackStackEntry.arguments?.let { bundle ->
             bundle.getString(RedeemRoutes.REDEEM_NAV_ORDER_OPTION)?.let {
                 when {
-                    it.isNotNullOrEmpty() -> PharmacyScreenData.OrderOption.valueOf(it)
+                    it.isNotNullOrEmpty() -> OrderOptionErpModel.valueOf(it)
                     else -> null
                 }
             }

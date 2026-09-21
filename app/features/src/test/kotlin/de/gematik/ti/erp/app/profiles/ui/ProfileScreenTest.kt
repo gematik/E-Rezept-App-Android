@@ -24,17 +24,39 @@ package de.gematik.ti.erp.app.profiles.ui
 
 import de.gematik.ti.erp.app.profiles.ui.preview.ProfileStatePreviewParameterProvider
 import de.gematik.ti.erp.app.profiles.ui.screens.ProfileScreenPreview
+import de.gematik.ti.erp.app.screenshot.BaseAccessibilityTest
 import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
 import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
 import org.junit.Test
 
-class ProfileScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(config) {
-
+class ProfileScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(
+    config = object : ScreenshotConfig {
+        override val deviceConfig = config.deviceConfig.copy(screenHeight = 5000)
+        override val theme = config.theme
+    }
+) {
     @Test
     fun screenShotTest() {
         val testParameters = ProfileStatePreviewParameterProvider().values.toList()
         testParameters.forEachIndexed { index, profileState ->
             paparazzi.snapshot("parameter_$index") {
+                ProfileScreenPreview(profileState)
+            }
+        }
+    }
+}
+
+class ProfileScreenAccessibilityTest(config: ScreenshotConfig) : BaseAccessibilityTest(
+    config = object : ScreenshotConfig {
+        override val deviceConfig = config.deviceConfig.copy(screenHeight = 5000)
+        override val theme = config.theme
+    }
+) {
+    @Test
+    fun screenShotTest() {
+        val testParameters = ProfileStatePreviewParameterProvider().values.toList()
+        testParameters.forEachIndexed { index, profileState ->
+            paparazzi.accessibilitySnapshot("parameter_$index") {
                 ProfileScreenPreview(profileState)
             }
         }

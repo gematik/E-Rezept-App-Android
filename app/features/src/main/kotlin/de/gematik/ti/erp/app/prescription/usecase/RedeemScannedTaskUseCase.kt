@@ -22,14 +22,14 @@
 
 package de.gematik.ti.erp.app.prescription.usecase
 
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 
 class RedeemScannedTaskUseCase(
-    private val repository: PrescriptionRepository,
+    private val repository: TaskOperationsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend operator fun invoke(
@@ -37,7 +37,7 @@ class RedeemScannedTaskUseCase(
         redeem: Boolean
     ) {
         withContext(dispatcher) {
-            repository.updateRedeemedOn(taskId, if (redeem) Clock.System.now() else null)
+            repository.updateScannedTaskRedeemedOn(taskId, if (redeem) Clock.System.now() else null)
         }
     }
 }

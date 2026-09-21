@@ -78,8 +78,8 @@ import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.idp.model.HealthInsuranceData
+import de.gematik.ti.erp.app.profile.model.InsuranceType
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.shimmer.RowTextShimmer
 import de.gematik.ti.erp.app.shimmer.SquareShapeShimmer
@@ -133,7 +133,7 @@ class CardWallGidListScreen(
         val initialSearchValue = remember {
             when {
                 gidEventData != null -> gidEventData.authenticatorName
-                profileInsuranceType == ProfilesData.InsuranceType.BUND -> bundSearchFilter
+                profileInsuranceType == InsuranceType.BUND -> bundSearchFilter
                 else -> ""
             }
         }
@@ -209,7 +209,7 @@ class CardWallGidListScreen(
             onFilterList = controller::onFilterList,
             onRemoveFilterList = controller::onRemoveFilterList,
             searchValue = searchValue,
-            reloadHealthInsuranceAppList = { controller.getHealthInsuranceAppList(profileInsuranceType == ProfilesData.InsuranceType.PKV) },
+            reloadHealthInsuranceAppList = { controller.getHealthInsuranceAppList(profileInsuranceType == InsuranceType.PKV) },
             startAuthorizationWithExternal = controller::startAuthorizationWithExternal,
             onCancel = {
                 navController.popBackStack(CardWallRoutes.subGraphName(), inclusive = true)

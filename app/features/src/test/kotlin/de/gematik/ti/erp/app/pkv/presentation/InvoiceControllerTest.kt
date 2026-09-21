@@ -42,8 +42,8 @@ import de.gematik.ti.erp.app.invoice.usecase.GetInvoiceByTaskIdUseCase
 import de.gematik.ti.erp.app.invoice.usecase.GetInvoicesByProfileUseCase
 import de.gematik.ti.erp.app.mocks.PROFILE_ID
 import de.gematik.ti.erp.app.mocks.TASK_ID
-import de.gematik.ti.erp.app.mocks.invoice.model.mockPkvInvoiceRecord
 import de.gematik.ti.erp.app.mocks.invoice.model.mockedInvoiceChargeItemBundle
+import de.gematik.ti.erp.app.mocks.prescription.model.mockPKVInvoiceErpModel
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
 import de.gematik.ti.erp.app.pkv.usecase.ShareInvoiceUseCase
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
@@ -124,6 +124,10 @@ class InvoiceControllerTest : TestWatcher() {
         MockKAnnotations.init(this)
 
         every { networkStatusTracker.networkStatus } returns flowOf(true)
+        every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
+        every { profileRepository.profiles() } returns flowOf(listOf(API_MOCK_PROFILE))
+        coEvery { profileRepository.getProfileById(PROFILE_ID) } returns flowOf(API_MOCK_PROFILE)
+        coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPKVInvoiceErpModel()))
 
         getProfileByIdUseCase = GetProfileByIdUseCase(profileRepository, dispatcher)
         getProfilesUseCase = GetProfilesUseCase(profileRepository, dispatcher)
@@ -175,15 +179,14 @@ class InvoiceControllerTest : TestWatcher() {
     @Test
     fun `getting the list of invoices with loading state at start`() {
         coEvery { profileRepository.getProfileById(PROFILE_ID) } returns flowOf(API_MOCK_PROFILE)
-        coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPkvInvoiceRecord()))
+        coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPKVInvoiceErpModel()))
         coEvery { invoiceRepository.deleteLocalInvoiceById(TASK_ID) } returns Unit
 
-        val result = mapOf(Year(2024) to listOf(mockPkvInvoiceRecord()))
+        val result = mapOf(Year(2024) to listOf(mockPKVInvoiceErpModel()))
         testScope.runTest {
             advanceUntilIdle()
             val item = controllerUnderTest.invoices.first()
             assertEquals(UiState.Data(result), item)
-            coVerify(exactly = 1) { getInvoicesByProfileUseCase.invoke(PROFILE_ID) }
             coVerify(exactly = 1) { invoiceRepository.invoices(PROFILE_ID) }
         }
     }
@@ -194,7 +197,7 @@ class InvoiceControllerTest : TestWatcher() {
         every { askUserToLoginEvent.trigger(Unit) } just Runs
         coEvery { profileRepository.isSsoTokenValid(PROFILE_ID) } returns flowOf(false)
         coEvery { invoiceRepository.deleteRemoteInvoiceById(TASK_ID, PROFILE_ID) } returns Result.success(Unit)
-        coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPkvInvoiceRecord(PROFILE_ID)))
+        coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPKVInvoiceErpModel(PROFILE_ID)))
 
         testScope.runTest {
             advanceUntilIdle()
@@ -211,7 +214,7 @@ class InvoiceControllerTest : TestWatcher() {
         coEvery { profileRepository.isSsoTokenValid(PROFILE_ID) } returns flowOf(true)
         coEvery { invoiceRepository.deleteRemoteInvoiceById(TASK_ID, PROFILE_ID) } returns Result.failure(InvoiceError(HttpErrorState.Unknown))
         coEvery { invoiceRepository.deleteLocalInvoiceById(TASK_ID) } returns Unit
-        coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPkvInvoiceRecord(PROFILE_ID)))
+        coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPKVInvoiceErpModel(PROFILE_ID)))
 
         testScope.runTest {
             advanceUntilIdle()
@@ -226,7 +229,7 @@ class InvoiceControllerTest : TestWatcher() {
         coEvery { profileRepository.isSsoTokenValid(PROFILE_ID) } returns flowOf(true)
         coEvery { invoiceRepository.deleteRemoteInvoiceById(TASK_ID, PROFILE_ID) } returns Result.success(Unit)
         coEvery { invoiceRepository.deleteLocalInvoiceById(TASK_ID) } returns Unit
-        coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPkvInvoiceRecord(PROFILE_ID)))
+        coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPKVInvoiceErpModel(PROFILE_ID)))
 
         testScope.runTest {
             advanceUntilIdle()
@@ -257,7 +260,7 @@ class InvoiceControllerTest : TestWatcher() {
         coEvery { profileRepository.isSsoTokenValid(PROFILE_ID) } returns flowOf(true)
         coEvery { invoiceRepository.getLatestTimeStamp(PROFILE_ID) } returns flowOf(latestTimestamp)
         coEvery { invoiceRepository.downloadChargeItemBundle(PROFILE_ID, latestTimestamp) } returns Result.failure(error)
-        coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPkvInvoiceRecord(PROFILE_ID)))
+        coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPKVInvoiceErpModel(PROFILE_ID)))
 
         testScope.runTest {
             advanceUntilIdle()
@@ -279,7 +282,7 @@ class InvoiceControllerTest : TestWatcher() {
             mockedInvoiceChargeItemBundle(listOf(TASK_ID))
         )
         coEvery { invoiceRepository.downloadChargeItemByTaskId(PROFILE_ID, TASK_ID) } returns Result.failure(error)
-        coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPkvInvoiceRecord(PROFILE_ID)))
+        coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPKVInvoiceErpModel(PROFILE_ID)))
 
         testScope.runTest {
             advanceUntilIdle()
@@ -303,7 +306,7 @@ class InvoiceControllerTest : TestWatcher() {
         )
         coEvery { invoiceRepository.downloadChargeItemByTaskId(PROFILE_ID, TASK_ID) } returns Result.success(someJson)
         coEvery { invoiceRepository.saveInvoice(PROFILE_ID, bundle) } returns Unit
-        coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPkvInvoiceRecord(PROFILE_ID)))
+        coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPKVInvoiceErpModel(PROFILE_ID)))
 
         testScope.runTest {
             advanceUntilIdle()

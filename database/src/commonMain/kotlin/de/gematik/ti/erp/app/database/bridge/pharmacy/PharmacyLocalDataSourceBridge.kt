@@ -22,44 +22,26 @@
 package de.gematik.ti.erp.app.database.bridge.pharmacy
 
 import de.gematik.ti.erp.app.base.utils.getCurrentMethodName
-import de.gematik.ti.erp.app.database.api.PharmacyLocalDataSource
-import de.gematik.ti.erp.app.logger.DbMigrationFunctionalState.CheckFunctionalityForDifferentModels
-import de.gematik.ti.erp.app.logger.DbMigrationFunctionalState.OperationNoCheck
-import de.gematik.ti.erp.app.logger.DbMigrationLogEntry
-import de.gematik.ti.erp.app.logger.DbMigrationLogHolder
+import de.gematik.ti.erp.app.database.api.pharmacy.PharmacyLocalDataSource
+import de.gematik.ti.erp.app.database.datastore.debug.logger.DbMigrationLogHolder
+import de.gematik.ti.erp.app.database.datastore.featuretoggle.RoomFeatureToggle
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel.Companion.toJson
 import de.gematik.ti.erp.app.pharmacy.model.TelematikId
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.runBlocking
 
-internal class PharmacyLocalDataSourceBridge(
+class PharmacyLocalDataSourceBridge(
     private val pharmacyLocalDataSourceV1: PharmacyLocalDataSource,
     private val pharmacyLocalDataSourceV2: PharmacyLocalDataSource,
     private val logger: DbMigrationLogHolder,
-    private val useRoom: Boolean
+    private val roomFeatureToggle: RoomFeatureToggle
 ) : PharmacyLocalDataSource {
+
+    private val useRoom: Boolean get() = roomFeatureToggle.isEnabled()
+
     override fun loadPharmacies(): Flow<List<PharmacyErpModel>> {
-        val operationName = getCurrentMethodName()
         return when {
             useRoom -> pharmacyLocalDataSourceV2.loadPharmacies()
             else -> pharmacyLocalDataSourceV1.loadPharmacies()
-        }.also {
-            runBlocking(Dispatchers.IO) {
-                val dataFromRealmDb = pharmacyLocalDataSourceV1.loadPharmacies().firstOrNull()
-                val dataFromRoomDb = pharmacyLocalDataSourceV2.loadPharmacies().firstOrNull()
-                logger.addLog(
-                    DbMigrationLogEntry(
-                        operation = operationName,
-                        usesRoom = useRoom,
-                        functionalState = CheckFunctionalityForDifferentModels,
-                        roomData = dataFromRoomDb?.map { it.toJson() }.toString(),
-                        realmData = dataFromRealmDb?.map { it.toJson() }.toString()
-                    )
-                )
-            }
         }
     }
 
@@ -77,15 +59,7 @@ internal class PharmacyLocalDataSourceBridge(
             else -> pharmacyLocalDataSourceV1.deletePharmacy(telematikId)
         }.also {
             run {
-                logger.addLog(
-                    DbMigrationLogEntry(
-                        operation = operationName,
-                        usesRoom = useRoom,
-                        functionalState = OperationNoCheck,
-                        roomData = if (useRoom) "deleting with telematikId = ${telematikId.value}" else null,
-                        realmData = if (!useRoom) "deleting with telematikId = ${telematikId.value}" else null
-                    )
-                )
+                logger.logOperation(operationName, useRoom)
             }
         }
     }
@@ -97,15 +71,7 @@ internal class PharmacyLocalDataSourceBridge(
             else -> pharmacyLocalDataSourceV1.deleteFavoritePharmacy(telematikId)
         }.also {
             run {
-                logger.addLog(
-                    DbMigrationLogEntry(
-                        operation = operationName,
-                        usesRoom = useRoom,
-                        functionalState = OperationNoCheck,
-                        roomData = if (useRoom) "demark favorite or delete with telematikId = ${telematikId.value}" else null,
-                        realmData = if (!useRoom) "demark favorite or delete with telematikId = ${telematikId.value}" else null
-                    )
-                )
+                logger.logOperation(operationName, useRoom)
             }
         }
     }
@@ -117,15 +83,7 @@ internal class PharmacyLocalDataSourceBridge(
             else -> pharmacyLocalDataSourceV1.deleteOftenUsedPharmacy(telematikId)
         }.also {
             run {
-                logger.addLog(
-                    DbMigrationLogEntry(
-                        operation = operationName,
-                        usesRoom = useRoom,
-                        functionalState = OperationNoCheck,
-                        roomData = if (useRoom) "demark oftenUsed or delete with telematikId = ${telematikId.value}" else null,
-                        realmData = if (!useRoom) "demark oftenUsed or delete with telematikId = ${telematikId.value}" else null
-                    )
-                )
+                logger.logOperation(operationName, useRoom)
             }
         }
     }
@@ -137,17 +95,7 @@ internal class PharmacyLocalDataSourceBridge(
             else -> pharmacyLocalDataSourceV1.markPharmacyAsFavourite(pharmacy)
         }.also {
             run {
-                val dataFromRealmDb = pharmacyLocalDataSourceV1.getPharmacy(TelematikId(pharmacy.telematikId)).firstOrNull()
-                val dataFromRoomDb = pharmacyLocalDataSourceV2.getPharmacy(TelematikId(pharmacy.telematikId)).firstOrNull()
-                logger.addLog(
-                    DbMigrationLogEntry(
-                        operation = operationName,
-                        usesRoom = useRoom,
-                        functionalState = OperationNoCheck,
-                        roomData = dataFromRoomDb?.toJson(),
-                        realmData = dataFromRealmDb?.toJson()
-                    )
-                )
+                logger.logOperation(operationName, useRoom)
             }
         }
     }
@@ -159,62 +107,22 @@ internal class PharmacyLocalDataSourceBridge(
             else -> pharmacyLocalDataSourceV1.markPharmacyAsOftenUsed(pharmacy)
         }.also {
             run {
-                val dataFromRealmDb = pharmacyLocalDataSourceV1.getPharmacy(TelematikId(pharmacy.telematikId)).firstOrNull()
-                val dataFromRoomDb = pharmacyLocalDataSourceV2.getPharmacy(TelematikId(pharmacy.telematikId)).firstOrNull()
-                logger.addLog(
-                    DbMigrationLogEntry(
-                        operation = operationName,
-                        functionalState = OperationNoCheck,
-                        usesRoom = useRoom,
-                        roomData = dataFromRoomDb?.toJson(),
-                        realmData = dataFromRealmDb?.toJson()
-                    )
-                )
+                logger.logOperation(operationName, useRoom)
             }
         }
     }
 
     override fun isPharmacyInFavorites(pharmacy: PharmacyErpModel): Flow<Boolean> {
-        val operationName = getCurrentMethodName()
         return when {
             useRoom -> pharmacyLocalDataSourceV2.isPharmacyInFavorites(pharmacy)
             else -> pharmacyLocalDataSourceV1.isPharmacyInFavorites(pharmacy)
-        }.also {
-            runBlocking(Dispatchers.IO) {
-                val dataFromRealmDb = pharmacyLocalDataSourceV1.getPharmacy(TelematikId(pharmacy.telematikId)).firstOrNull()
-                val dataFromRoomDb = pharmacyLocalDataSourceV2.getPharmacy(TelematikId(pharmacy.telematikId)).firstOrNull()
-                logger.addLog(
-                    DbMigrationLogEntry(
-                        operation = operationName,
-                        functionalState = OperationNoCheck,
-                        usesRoom = useRoom,
-                        roomData = dataFromRoomDb?.toJson(),
-                        realmData = dataFromRealmDb?.toJson()
-                    )
-                )
-            }
         }
     }
 
     override fun isPharmacyOftenUsed(pharmacy: PharmacyErpModel): Flow<Boolean> {
-        val operationName = getCurrentMethodName()
         return when {
             useRoom -> pharmacyLocalDataSourceV2.isPharmacyOftenUsed(pharmacy)
             else -> pharmacyLocalDataSourceV1.isPharmacyOftenUsed(pharmacy)
-        }.also {
-            runBlocking(Dispatchers.IO) {
-                val dataFromRealmDb = pharmacyLocalDataSourceV1.getPharmacy(TelematikId(pharmacy.telematikId)).firstOrNull()
-                val dataFromRoomDb = pharmacyLocalDataSourceV2.getPharmacy(TelematikId(pharmacy.telematikId)).firstOrNull()
-                logger.addLog(
-                    DbMigrationLogEntry(
-                        operation = operationName,
-                        functionalState = OperationNoCheck,
-                        usesRoom = useRoom,
-                        roomData = dataFromRoomDb?.toJson(),
-                        realmData = dataFromRealmDb?.toJson()
-                    )
-                )
-            }
         }
     }
 }

@@ -29,7 +29,7 @@ import kotlinx.serialization.json.JsonElement
 
 class DefaultConsentRepository(
     private val remoteDataSource: ConsentRemoteDataSource,
-    private val localDataSource: ConsentLocalDataSource,
+    private val localDataSource: ProfileLocalStore,
     private val parsers: FhirConsentParser
 ) : ConsentRepository {
 

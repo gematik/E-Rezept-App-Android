@@ -22,9 +22,6 @@
 package de.gematik.ti.erp.app.database.room.v2.truststore
 
 import de.gematik.ti.erp.app.database.api.TrustStoreLocalDataSource
-import de.gematik.ti.erp.app.database.room.v2.truststrore.SINGLETON_ID
-import de.gematik.ti.erp.app.database.room.v2.truststrore.TrustStoreDao
-import de.gematik.ti.erp.app.database.room.v2.truststrore.TrustStoreEntity
 import de.gematik.ti.erp.app.vau.model.TrustStoreErpModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

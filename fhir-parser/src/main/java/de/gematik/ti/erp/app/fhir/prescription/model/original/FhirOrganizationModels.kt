@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.fhir.prescription.model.original
 
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirAddress
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirAddress.Companion.toErpModel
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
@@ -68,7 +69,8 @@ internal data class FhirOrganization(
     @SerialName("identifier") override val identifiers: List<FhirIdentifier>? = emptyList(),
     @SerialName("name") val name: String? = null,
     @SerialName("telecom") val telecoms: List<FhirTelecom>? = emptyList(),
-    @SerialName("address") val addresses: List<FhirAddress>? = emptyList()
+    @SerialName("address") val addresses: List<FhirAddress>? = emptyList(),
+    @SerialName("extension") val extensions: List<FhirExtension>? = emptyList()
 ) : FhirOrganizationBase {
 
     companion object {

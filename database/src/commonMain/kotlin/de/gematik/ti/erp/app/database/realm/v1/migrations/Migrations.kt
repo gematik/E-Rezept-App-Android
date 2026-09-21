@@ -29,27 +29,18 @@ import de.gematik.ti.erp.app.database.realm.utils.toInstant
 import de.gematik.ti.erp.app.database.realm.utils.toLocalDateTime
 import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
 import de.gematik.ti.erp.app.database.realm.v1.AddressEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.AuthenticationEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.AuthenticationPasswordEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.AvatarFigureV1
-import de.gematik.ti.erp.app.database.realm.v1.IdpAuthenticationDataEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.IdpConfigurationEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.InAppMessageEntity
-import de.gematik.ti.erp.app.database.realm.v1.InsuranceTypeV1
 import de.gematik.ti.erp.app.database.realm.v1.InternalMessageEntity
 import de.gematik.ti.erp.app.database.realm.v1.InternalMessageEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.PasswordEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.PharmacySearchEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.SettingsAuthenticationMethodV1
-import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.ShippingContactEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.SingleSignOnTokenScopeV1
 import de.gematik.ti.erp.app.database.realm.v1.TruststoreEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.appauthentication.AuthenticationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.appauthentication.AuthenticationPasswordEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.debugsettings.DebugSettingsEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.euredeem.EuAccessCodeEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.euredeem.EuOrderEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.euredeem.EuTaskEventLogEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.idp.IdpConfigurationEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.ChargeableItemV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.PKVInvoiceEntityV1
@@ -59,9 +50,15 @@ import de.gematik.ti.erp.app.database.realm.v1.medicationplan.MedicationSchedule
 import de.gematik.ti.erp.app.database.realm.v1.medicationplan.MedicationScheduleNotificationEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.pharmacy.FavoritePharmacyEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.pharmacy.OftenUsedPharmacyEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.pharmacy.PharmacyCacheEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.pharmacy.PharmacyRemoteDataSourceSelectionEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.pharmacy.SearchAccessTokenEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.profile.AvatarFigureV1
+import de.gematik.ti.erp.app.database.realm.v1.profile.InsuranceTypeV1
+import de.gematik.ti.erp.app.database.realm.v1.profile.ProfileEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.PasswordEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.PharmacySearchEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.SettingsAuthenticationMethodV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.SettingsEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.AccidentTypeV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.CoverageTypeV1
@@ -81,6 +78,9 @@ import de.gematik.ti.erp.app.database.realm.v1.task.entity.QuantityEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.RatioEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.SyncedTaskEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.TeratogenicPrescriptionEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.userauthentication.IdpAuthenticationDataEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.userauthentication.SingleSignOnTokenScopeV1
 import de.gematik.ti.erp.app.db.entities.v1.medicationplan.MedicationScheduleDurationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.medicationplan.MedicationScheduleIntervalEntityV1
 import io.realm.kotlin.ext.copyFromRealm
@@ -128,7 +128,6 @@ fun appSchemas(profileName: String): Set<AppRealmSchema> {
                 IngredientEntityV1::class,
                 QuantityEntityV1::class,
                 RatioEntityV1::class,
-                PharmacyCacheEntityV1::class,
                 OftenUsedPharmacyEntityV1::class,
                 MultiplePrescriptionInfoEntityV1::class,
                 FavoritePharmacyEntityV1::class,
@@ -155,7 +154,9 @@ fun appSchemas(profileName: String): Set<AppRealmSchema> {
                 // support for euredeem
                 EuAccessCodeEntityV1::class,
                 EuOrderEntityV1::class,
-                EuTaskEventLogEntityV1::class
+                EuTaskEventLogEntityV1::class,
+                // support for T-Rezept
+                TeratogenicPrescriptionEntityV1::class
             ),
             migrateData = { migrationStartedFrom ->
                 queryFirst<SettingsEntityV1>() ?: run {
@@ -386,6 +387,11 @@ fun appSchemas(profileName: String): Set<AppRealmSchema> {
                     query<MedicationDispenseEntityV1>().find().forEach { medicationDispense ->
                         medicationDispense.pharmacyName = ""
                         medicationDispense.address = null
+                    }
+                }
+                if (migrationStartedFrom < 69) {
+                    query<CommunicationEntityV1>().find().forEach { communication ->
+                        communication.pharmacyName = ""
                     }
                 }
             },

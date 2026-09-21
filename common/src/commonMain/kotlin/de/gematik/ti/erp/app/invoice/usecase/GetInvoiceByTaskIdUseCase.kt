@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.invoice.usecase
 
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +32,6 @@ class GetInvoiceByTaskIdUseCase(
     private val invoiceRepository: InvoiceRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(taskId: String): Flow<InvoiceData.PKVInvoiceRecord?> =
+    operator fun invoke(taskId: String): Flow<PKVInvoiceErpModel?> =
         invoiceRepository.invoiceByTaskId(taskId).flowOn(dispatcher)
 }

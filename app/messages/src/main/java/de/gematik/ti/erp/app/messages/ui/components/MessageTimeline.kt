@@ -45,8 +45,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.semantics.hideFromAccessibility
-import androidx.compose.ui.semantics.semantics
 import com.valentinilk.shimmer.shimmer
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
@@ -89,8 +87,6 @@ internal fun MessageTimeline(
     Row(
         Modifier
             .alpha(alphaAnim.value)
-            .semantics(mergeDescendants = true) { hideFromAccessibility() }
-            // animate size only when content changes, not skeletons
             .let {
                 if (!internalLoading) it.animateContentSize()
                 else it

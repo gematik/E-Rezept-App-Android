@@ -32,18 +32,18 @@ import de.gematik.ti.erp.app.fhir.parser.filterWith
 import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.parser.stringValue
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskStatusErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.fhir.temporal.asFhirInstant
 import de.gematik.ti.erp.app.fhir.temporal.asFhirLocalDate
-import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
-import de.gematik.ti.erp.app.task.model.TaskStatus
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 
 data class TaskData(
     val taskId: String,
-    val status: TaskStatus,
+    val status: FhirTaskStatusErpModel,
     val lastModified: FhirTemporal?
 )
 
@@ -71,7 +71,7 @@ fun extractActualTaskData(
             .contained()
 
         val status = mapTaskStatus(resource.containedString("status"))
-        val lastModified = resource.contained("lastModified").jsonPrimitive.toFhirTemporal()
+        val lastModified = resource.contained("lastModified").jsonPrimitive.asFhirTemporal()
         val taskId = when {
             profileString.isProfileValue(
                 "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task",
@@ -162,7 +162,7 @@ fun extractTask(
         expiresOn: FhirTemporal.LocalDate?,
         acceptUntil: FhirTemporal.LocalDate?,
         authoredOn: FhirTemporal.Instant,
-        status: TaskStatus,
+        status: FhirTaskStatusErpModel,
         lastMedicationDispense: FhirTemporal.Instant?
     ) -> Unit
 ) {
@@ -225,4 +225,4 @@ fun extractTask(
     )
 }
 
-private fun mapTaskStatus(status: String): TaskStatus = TaskStatus.fromString(status)
+private fun mapTaskStatus(status: String): FhirTaskStatusErpModel = FhirTaskStatusErpModel.fromString(status)

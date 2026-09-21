@@ -24,21 +24,23 @@ package de.gematik.ti.erp.app.invoice.repository
 
 import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.api.ErpService
+import de.gematik.ti.erp.app.database.api.invoice.InvoiceLocalDataSource
+import de.gematik.ti.erp.app.database.realm.v1.invoice.InvoiceLocalDataSourceV1
 import de.gematik.ti.erp.app.database.realm.v1.AddressEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.AuthenticationEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.AuthenticationPasswordEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.IdpAuthenticationDataEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.IdpConfigurationEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.PasswordEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.PharmacySearchEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.ShippingContactEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.appauthentication.AuthenticationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.appauthentication.AuthenticationPasswordEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.idp.IdpConfigurationEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.ChargeableItemV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.PriceComponentV1
 import de.gematik.ti.erp.app.database.realm.v1.migrations.SchemaVersion
+import de.gematik.ti.erp.app.database.realm.v1.profile.ProfileEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.profile.ProfileLocalDataSourceV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.PasswordEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.PharmacySearchEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.SettingsEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.DeviceRequestDispenseEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.DeviceRequestEntityV1
@@ -56,6 +58,9 @@ import de.gematik.ti.erp.app.database.realm.v1.task.entity.QuantityEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.RatioEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.SyncedTaskEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.TeratogenicPrescriptionEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.userauthentication.IdpAuthenticationDataEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.userauthentication.UserAuthenticationLocalDataSourceV1
 import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.fhir.model.chargeItem_freetext
 import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemBundleEntryParser
@@ -129,7 +134,8 @@ class InvoiceRepositoryTest : TestDB() {
                     AuthenticationPasswordEntityV1::class,
                     AuthenticationEntityV1::class,
                     DeviceRequestEntityV1::class,
-                    DeviceRequestDispenseEntityV1::class
+                    DeviceRequestDispenseEntityV1::class,
+                    TeratogenicPrescriptionEntityV1::class
                 )
             )
                 .schemaVersion(SchemaVersion.ACTUAL)
@@ -137,7 +143,7 @@ class InvoiceRepositoryTest : TestDB() {
                 .build()
         )
 
-        invoiceLocalDataSource = InvoiceLocalDataSource(realm)
+        invoiceLocalDataSource = InvoiceLocalDataSourceV1(realm)
         invoiceRemoteDataSource = InvoiceRemoteDataSource(erpService)
         invoiceRepository = DefaultInvoiceRepository(
             invoiceRemoteDataSource,
@@ -145,7 +151,10 @@ class InvoiceRepositoryTest : TestDB() {
             ChargeItemEPrescriptionParsers(entryParser, bundleParser),
             coroutineRule.dispatchers
         )
-        profileRepository = DefaultProfilesRepository(realm)
+        profileRepository = DefaultProfilesRepository(
+            profileLocalDataSource = ProfileLocalDataSourceV1(realm),
+            userAuthenticationLocalDataSource = UserAuthenticationLocalDataSourceV1(realm)
+        )
     }
 
     @Test
@@ -162,7 +171,7 @@ class InvoiceRepositoryTest : TestDB() {
 
             assertEquals("200.334.138.469.717.92", invoice.taskId)
             assertEquals("abd4afed9f3f458114fc3407878213e110f238d1afa919fbed7282abbef68bfd", invoice.accessCode)
-            assertEquals(36.15, invoice.invoice.totalBruttoAmount)
+            assertEquals(36.15, invoice.invoice!!.totalBruttoAmount)
             assertEquals(Instant.parse("2023-07-07T23:30:00Z"), invoice.timestamp)
 
             val attachments = invoiceRepository.loadInvoiceAttachments(invoice.taskId)

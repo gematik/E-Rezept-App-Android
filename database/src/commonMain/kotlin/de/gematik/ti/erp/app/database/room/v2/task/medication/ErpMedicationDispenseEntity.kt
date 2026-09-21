@@ -25,16 +25,12 @@ package de.gematik.ti.erp.app.database.room.v2.task.medication
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import de.gematik.ti.erp.app.database.room.v2.task.util.InstantConverter
 import kotlinx.datetime.Instant
-
-@Suppress("EnumEntryNameCase")
-enum class ErpDispenseType {
-    Unknown, TypeA, TypeB
-}
 
 @Suppress("EnumEntryNameCase")
 enum class ErpMedicationDispenseType {
@@ -47,7 +43,6 @@ enum class ErpMedicationDispenseType {
 }
 
 // ---------- Converters ----------
-
 class EnumConverters {
     @TypeConverter
     fun fromDispenseType(v: ErpMedicationDispenseType?): String? = v?.name
@@ -55,58 +50,69 @@ class EnumConverters {
     @TypeConverter
     fun toDispenseType(s: String?): ErpMedicationDispenseType =
         runCatching { ErpMedicationDispenseType.valueOf(s ?: "") }.getOrElse { ErpMedicationDispenseType.Other }
-
-    @TypeConverter
-    fun fromType(v: ErpDispenseType?): String? = v?.name
-
-    @TypeConverter
-    fun toType(s: String?): ErpDispenseType =
-        runCatching { ErpDispenseType.valueOf(s ?: "") }.getOrElse { ErpDispenseType.Unknown }
 }
 
 @Entity(
     tableName = "medication_dispense",
     foreignKeys = [
-        ForeignKey( // ingredient
+        ForeignKey(
             entity = ErpIngredientEntity::class,
             parentColumns = ["ingredientId"],
             childColumns = ["ingredientId"],
-            onUpdate = ForeignKey.Companion.CASCADE,
-            onDelete = ForeignKey.Companion.SET_NULL
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.SET_NULL
+        ),
+        ForeignKey(
+            entity = ErpMedicationEntity::class,
+            parentColumns = ["medicationId"],
+            childColumns = ["medicationId"],
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = ErpMedicationDispenseEntity::class,
+            parentColumns = ["dispenseId"],
+            childColumns = ["childId"],
+            onDelete = ForeignKey.CASCADE
         )
-    ]
+
+    ],
+    indices = [Index("medicationId")]
 )
 @TypeConverters(InstantConverter::class, EnumConverters::class)
 data class ErpMedicationDispenseEntity(
     // Primary key
     @PrimaryKey val dispenseId: String,
-    val ingredientId: String,
+    val childId: String?, // ID of the parent entity (e.g., Task or MedicationDispenseE)
+    val medicationId: String,
+    val taskId: String,
+    val ingredientId: String?,
 
     // Core attributes
     val patientIdentifier: String, // KVNR
     val substitutionAllowed: Boolean,
-    val dosageInstruction: Boolean, // per spec (if this should be text, change to String)
+    val dosageInstruction: String,
     val performer: String, // Telematik-ID
     val handedOverOn: Instant, // DateTime -> Instant
     val text: String,
-
+    val euCountryCode: String? = null,
+    val pharmacyName: String? = null,
     // Classification
     val medicationDispenseType: ErpMedicationDispenseType,
-    val type: ErpDispenseType, // rename/expand enum as needed
 
     // Medication facets
-    val form: String,
+    val form: String?,
     @Embedded(prefix = "amount_")
     val amount: ErpRatioEmbeddable, // embedded ratio (num_*/den_* columns)
     val isVaccine: Boolean,
-    val lotNumber: Boolean, // per spec (often String; keep Boolean as requested)
-    val expirationDate: Boolean, // per spec (often date; keep Boolean as requested)
+    val lotNumber: String,
+    val expirationDate: Instant?,
     val pzn: String,
     val deepLink: String? = null,
     val redeemCode: String? = null,
     val declineCode: String? = null,
     val note: String? = null,
-    val modifiedDate: Instant? = null, // DateTime -> Instant
-    val display: Instant? = null, // DateTime -> Instant
-    val status: Instant? = null
+    val modifiedDate: Instant? = null,
+    val display: String? = null,
+    val status: String? = null
 )

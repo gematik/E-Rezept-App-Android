@@ -22,17 +22,20 @@
 
 package de.gematik.ti.erp.app.diga.repository
 
-import de.gematik.ti.erp.app.diga.local.DigaLocalDataSource
+import de.gematik.ti.erp.app.database.api.task.TaskLocalDataSource
 import de.gematik.ti.erp.app.diga.model.DigaStatus
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 
-class DefaultDigaRepository(private val localDataSource: DigaLocalDataSource) : DigaRepository {
+// TODO: move to app:digas module
+class DefaultDigaRepository(
+    private val localDataSource: TaskLocalDataSource
+) : DigaRepository {
 
     override suspend fun updateDigaAsSeen(taskId: String) {
-        localDataSource.setDigaIsNotNew(taskId)
+        localDataSource.setDigaAsNotNew(taskId)
     }
 
     override suspend fun updateDigaStatus(taskId: String, status: DigaStatus, lastModified: Instant?) {
@@ -47,7 +50,7 @@ class DefaultDigaRepository(private val localDataSource: DigaLocalDataSource) : 
         localDataSource.updateDigaCommunicationSent(taskId, time)
     }
 
-    override fun loadDigaByTaskId(taskId: String): Flow<SyncedTaskData.SyncedTask?> {
+    override fun loadDigaByTaskId(taskId: String): Flow<TaskErpModel.Synced.Diga?> {
         return localDataSource.loadDigaByTaskId(taskId)
     }
 
@@ -56,16 +59,16 @@ class DefaultDigaRepository(private val localDataSource: DigaLocalDataSource) : 
         lastModified: Instant,
         setArchiveStatus: Boolean
     ) {
-        localDataSource.updateArchiveStatus(
+        localDataSource.updateDigaArchiveStatus(
             taskId = taskId,
             lastModified = lastModified,
             isArchive = setArchiveStatus
         )
     }
 
-    override suspend fun loadDigasByProfileId(profileId: ProfileIdentifier): Flow<List<SyncedTaskData.SyncedTask>> =
-        localDataSource.loadDigasByProfileId(profileId = profileId)
+    override suspend fun loadDigasByProfileId(profileId: ProfileIdentifier): Flow<List<TaskErpModel.Synced.Diga>> =
+        localDataSource.loadDigaListByProfileId(profileId = profileId)
 
-    override fun loadArchiveDigasByProfileId(profileId: ProfileIdentifier): Flow<List<SyncedTaskData.SyncedTask>> =
-        localDataSource.loadArchiveDigasByProfileId(profileId = profileId)
+    override fun loadArchiveDigasByProfileId(profileId: ProfileIdentifier): Flow<List<TaskErpModel.Synced.Diga>> =
+        localDataSource.loadArchiveDigaListByProfileId(profileId = profileId)
 }

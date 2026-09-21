@@ -22,19 +22,20 @@
 
 package de.gematik.ti.erp.app.messages.usecase
 
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.messages.domain.usecase.GetRepliedMessagesUseCase
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_DISP_REPLY_COMMUNICATION_01
-import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_DISP_REPLY_COMMUNICATION_02
-import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_TASK_ID_01
-import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_TASK_ID_02
+import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_DISP_REPLY_COMMUNICATION_01_ERP
+import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_DISP_REPLY_COMMUNICATION_02_ERP
 import io.mockk.coEvery
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
@@ -51,12 +52,8 @@ class GetRepliedMessagesUseCaseTest {
     @Before
     fun setup() {
         coEvery {
-            communicationRepository.taskIdsByOrder(any())
-        } returns flowOf(listOf(MOCK_TASK_ID_01, MOCK_TASK_ID_02))
-
-        coEvery {
-            communicationRepository.loadRepliedCommunications(any(), any())
-        } returns flowOf(listOf(MOCK_DISP_REPLY_COMMUNICATION_01, MOCK_DISP_REPLY_COMMUNICATION_02))
+            communicationRepository.loadRepliedCommunications(any<String>(), any<String>())
+        } returns flowOf(listOf(MOCK_DISP_REPLY_COMMUNICATION_01_ERP, MOCK_DISP_REPLY_COMMUNICATION_02_ERP))
 
         useCase = GetRepliedMessagesUseCase(
             communicationRepository = communicationRepository,
@@ -66,13 +63,14 @@ class GetRepliedMessagesUseCaseTest {
 
     @Test
     fun `invoke should return list of replied messages`() = runTest(dispatcher) {
-        /*TODO fix with ERA-11877
-        val expectedRepliedMessages = listOf(MOCK_MESSAGE_01, MOCK_MESSAGE_02)
+        val expectedRepliedMessages = listOf(
+            MOCK_DISP_REPLY_COMMUNICATION_01_ERP,
+            MOCK_DISP_REPLY_COMMUNICATION_02_ERP
+        )
 
-        val resultRepliedMessages: Flow<List<OrderUseCaseData.Message>> =
-            useCase(MOCK_ORDER_ID, "")
+        val resultRepliedMessages: List<CommunicationErpModel> =
+            useCase("MOCK_ORDER_ID", "").first()
 
-        assertEquals(expectedRepliedMessages, resultRepliedMessages.first())
-         */
+        assertEquals(expectedRepliedMessages, resultRepliedMessages)
     }
 }

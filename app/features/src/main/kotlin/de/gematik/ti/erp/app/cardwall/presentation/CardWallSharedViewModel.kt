@@ -33,8 +33,8 @@ import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.idp.model.UniversalLinkIdp
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError
 import de.gematik.ti.erp.app.idp.usecase.GetUniversalLinkForHealthInsuranceAppsUseCase
+import de.gematik.ti.erp.app.profile.model.InsuranceType
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileInsuranceTypeUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.viewmodel.rememberGraphScopedViewModel
@@ -54,14 +54,14 @@ class CardWallSharedViewModel(
     private val _can = MutableStateFlow("")
     private val _pin = MutableStateFlow("")
     private val _saveCredentials: MutableStateFlow<SaveCredentialsController.AuthResult?> = MutableStateFlow(null)
-    private val _profileInsuranceType: MutableStateFlow<ProfilesData.InsuranceType> = MutableStateFlow(ProfilesData.InsuranceType.None)
+    private val _profileInsuranceType: MutableStateFlow<InsuranceType> = MutableStateFlow(InsuranceType.NONE)
     private val _scannedCan = MutableStateFlow<String?>(null)
     val profileId: StateFlow<ProfileIdentifier> = _profileId
     val can: StateFlow<String> = _can
     val pin: StateFlow<String> = _pin
     val saveCredentials: StateFlow<SaveCredentialsController.AuthResult?> = _saveCredentials
     val scannedCan: StateFlow<String?> = _scannedCan.asStateFlow()
-    val profileInsuranceType: StateFlow<ProfilesData.InsuranceType> = _profileInsuranceType
+    val profileInsuranceType: StateFlow<InsuranceType> = _profileInsuranceType
 
     val authorizationWithExternalAppInBackgroundEvent = ComposableEvent<Boolean>()
     val redirectUriEvent = ComposableEvent<Pair<URI, GidNavigationData>>()

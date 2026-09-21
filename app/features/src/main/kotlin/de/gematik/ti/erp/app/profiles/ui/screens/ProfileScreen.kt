@@ -26,7 +26,10 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
@@ -35,10 +38,12 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -49,8 +54,15 @@ import androidx.compose.material.LocalContentColor
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.CloudQueue
+import androidx.compose.material.icons.outlined.NotificationsNone
+import androidx.compose.material.icons.rounded.Devices
+import androidx.compose.material.icons.rounded.EuroSymbol
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.ListItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -58,8 +70,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -69,6 +83,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -82,23 +97,23 @@ import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
+import de.gematik.ti.erp.app.listitem.GemListItemDefaults
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profiles.model.EuConsentStatus
 import de.gematik.ti.erp.app.profiles.model.ProfileCombinedData
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
 import de.gematik.ti.erp.app.profiles.presentation.rememberProfileScreenController
 import de.gematik.ti.erp.app.profiles.ui.components.DeleteProfileDialog
 import de.gematik.ti.erp.app.profiles.ui.components.ProfileAvatarSection
-import de.gematik.ti.erp.app.profiles.ui.components.ProfileEditPairedDeviceSection
-import de.gematik.ti.erp.app.profiles.ui.components.ProfileEuConsentSection
 import de.gematik.ti.erp.app.profiles.ui.components.ProfileInsuranceInformationSection
-import de.gematik.ti.erp.app.profiles.ui.components.ProfileInvoiceInformationSection
 import de.gematik.ti.erp.app.profiles.ui.components.ProfileNameSection
-import de.gematik.ti.erp.app.profiles.ui.components.ProfileSecuritySection
 import de.gematik.ti.erp.app.profiles.ui.preview.ProfileStatePreviewParameterProvider
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LightDarkLongPreview
@@ -127,6 +142,7 @@ class ProfileScreen(
         val hasEuRedeemablePrescriptions by profileScreenController.hasEuRedeemablePrescriptions.collectAsStateWithLifecycle()
         val euConsentStatus by profileScreenController.euConsentStatus.collectAsStateWithLifecycle()
         val euRedeemFeatureFlag by profileScreenController.euRedeemFeatureFlag.collectAsStateWithLifecycle()
+        val pushNotificationsFeatureFlag by profileScreenController.pushNotificationsFeatureFlag.collectAsStateWithLifecycle()
         val activity = LocalActivity.current as? BaseActivity
         val isDemoMode = remember { activity?.isDemoMode?.value ?: false }
         val listState = rememberLazyListState()
@@ -168,6 +184,7 @@ class ProfileScreen(
             hasEuRedeemablePrescriptions = hasEuRedeemablePrescriptions,
             euConsentStatus = euConsentStatus,
             euRedeemFeatureFlag = euRedeemFeatureFlag,
+            pushNotificationsFeatureFlag = pushNotificationsFeatureFlag,
             isDemoMode = isDemoMode,
             isKVNRCopied = isKVNRCopied,
             color = color,
@@ -220,6 +237,11 @@ class ProfileScreen(
                     navController.navigate(ProfileRoutes.ProfileAuditEventsScreen.path(profileId = profile.id))
                 }
             },
+            onClickPushNotifications = {
+                combinedProfileState.data?.selectedProfile?.let { profile ->
+                    navController.navigate(ProfileRoutes.ProfilePushNotificationSettingsScreen.path(profileId = profile.id))
+                }
+            },
             onClickChangeInsuranceType = {
                 navController.navigate(
                     ProfileRoutes.ProfileChangeInsuranceTypeBottomSheetScreen.path(profileId = profileId)
@@ -236,8 +258,9 @@ internal fun ProfileScreenScaffold(
     scaffoldState: ScaffoldState,
     listState: LazyListState,
     hasEuRedeemablePrescriptions: Boolean,
-    euConsentStatus: Boolean?,
+    euConsentStatus: EuConsentStatus,
     euRedeemFeatureFlag: Boolean,
+    pushNotificationsFeatureFlag: Boolean,
     isDemoMode: Boolean,
     color: Color,
     isKVNRCopied: Boolean,
@@ -253,6 +276,7 @@ internal fun ProfileScreenScaffold(
     onClickEuConsent: () -> Unit,
     onShowPairedDevices: () -> Unit,
     onClickAuditEvents: () -> Unit,
+    onClickPushNotifications: () -> Unit,
     onBack: () -> Unit
 ) {
     AnimatedElevationScaffold(
@@ -303,6 +327,7 @@ internal fun ProfileScreenScaffold(
                         hasEuRedeemablePrescriptions = hasEuRedeemablePrescriptions,
                         euConsentStatus = euConsentStatus,
                         euRedeemFeatureFlag = euRedeemFeatureFlag,
+                        pushNotificationsFeatureFlag = pushNotificationsFeatureFlag,
                         isDemoMode = isDemoMode,
                         isKVNRCopied = isKVNRCopied,
                         keyboardController = keyboardController,
@@ -317,7 +342,8 @@ internal fun ProfileScreenScaffold(
                         onClickInvoices = onClickInvoices,
                         onClickEuConsent = onClickEuConsent,
                         onShowPairedDevices = onShowPairedDevices,
-                        onClickAuditEvents = onClickAuditEvents
+                        onClickAuditEvents = onClickAuditEvents,
+                        onClickPushNotifications = onClickPushNotifications
                     )
                 }
             }
@@ -330,11 +356,12 @@ internal fun ProfileScreenScaffold(
 internal fun ProfileScreenContent(
     listState: LazyListState,
     profileState: UiState<ProfileCombinedData>,
-    selectedProfile: ProfilesUseCaseData.Profile,
+    selectedProfile: ProfileErpModel,
     isKVNRCopied: Boolean,
     hasEuRedeemablePrescriptions: Boolean,
-    euConsentStatus: Boolean?,
+    euConsentStatus: EuConsentStatus,
     euRedeemFeatureFlag: Boolean,
+    pushNotificationsFeatureFlag: Boolean,
     isDemoMode: Boolean,
     color: Color,
     keyboardController: SoftwareKeyboardController?,
@@ -348,7 +375,8 @@ internal fun ProfileScreenContent(
     onClickInvoices: () -> Unit,
     onClickEuConsent: () -> Unit,
     onShowPairedDevices: () -> Unit,
-    onClickAuditEvents: () -> Unit
+    onClickAuditEvents: () -> Unit,
+    onClickPushNotifications: () -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.testTag(TestTag.Profile.ProfileScreenContent),
@@ -388,52 +416,20 @@ internal fun ProfileScreenContent(
                 color = AppTheme.colors.neutral300
             )
         }
-        if (selectedProfile.isPkvOrBund()) {
-            item {
-                ProfileInvoiceInformationSection {
-                    onClickInvoices()
-                }
-            }
-            item {
-                Divider(
-                    modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
-                    color = AppTheme.colors.neutral300
-                )
-            }
-        }
-        if (euRedeemFeatureFlag && hasEuRedeemablePrescriptions) {
-            item {
-                ProfileEuConsentSection(
-                    euConsentStatus = euConsentStatus
-                ) {
-                    onClickEuConsent()
-                }
-            }
-            item {
-                Divider(
-                    modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
-                    color = AppTheme.colors.neutral300
-                )
-            }
-        }
-        if (!isDemoMode) {
-            item {
-                ProfileEditPairedDeviceSection {
-                    onShowPairedDevices()
-                }
-            }
-            item {
-                Divider(
-                    modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
-                    color = AppTheme.colors.neutral300
-                )
-            }
-        }
-
         item {
-            ProfileSecuritySection {
-                onClickAuditEvents()
-            }
+            ProfileMainAreaSection(
+                selectedProfile = selectedProfile,
+                euRedeemFeatureFlag = euRedeemFeatureFlag,
+                pushNotificationsFeatureFlag = pushNotificationsFeatureFlag,
+                hasEuRedeemablePrescriptions = hasEuRedeemablePrescriptions,
+                euConsentStatus = euConsentStatus,
+                isDemoMode = isDemoMode,
+                onClickInvoices = onClickInvoices,
+                onClickEuConsent = onClickEuConsent,
+                onShowPairedDevices = onShowPairedDevices,
+                onClickAuditEvents = onClickAuditEvents,
+                onClickPushNotifications = onClickPushNotifications
+            )
         }
         item {
             PrimaryButtonLarge(
@@ -454,20 +450,165 @@ internal fun ProfileScreenContent(
 }
 
 @Composable
+private fun ProfileMainAreaSection(
+    selectedProfile: ProfileErpModel,
+    euRedeemFeatureFlag: Boolean,
+    pushNotificationsFeatureFlag: Boolean,
+    hasEuRedeemablePrescriptions: Boolean,
+    euConsentStatus: EuConsentStatus,
+    isDemoMode: Boolean,
+    onClickInvoices: () -> Unit,
+    onClickEuConsent: () -> Unit,
+    onShowPairedDevices: () -> Unit,
+    onClickAuditEvents: () -> Unit,
+    onClickPushNotifications: () -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
+    ) {
+        Text(
+            text = stringResource(R.string.profile_main_area_header),
+            style = AppTheme.typography.h6,
+            modifier = Modifier
+                .padding(horizontal = PaddingDefaults.Medium)
+                .semanticsHeading()
+        )
+        if (selectedProfile.isPkvOrBund()) {
+            ProfileMainAreaRow(
+                icon = Icons.Rounded.EuroSymbol,
+                title = stringResource(R.string.profile_invoices),
+                onClick = onClickInvoices
+            )
+        }
+        if (pushNotificationsFeatureFlag) {
+            ProfileMainAreaRow(
+                icon = Icons.Outlined.NotificationsNone,
+                title = stringResource(R.string.profile_push_notifications),
+                onClick = onClickPushNotifications
+            )
+        }
+        if (euRedeemFeatureFlag && hasEuRedeemablePrescriptions) {
+            ProfileMainAreaRow(
+                icon = Icons.Rounded.Public,
+                title = stringResource(R.string.eu_consent_countries_text),
+                trailingContent = {
+                    when (euConsentStatus) {
+                        EuConsentStatus.Loading -> CircularProgressIndicator(
+                            modifier = Modifier.size(SizeDefaults.oneHalf),
+                            strokeWidth = SizeDefaults.quarter,
+                            color = AppTheme.colors.neutral400
+                        )
+
+                        EuConsentStatus.Accepted -> Text(
+                            text = stringResource(R.string.eu_consent_staus_text_accept),
+                            style = AppTheme.typography.body2,
+                            color = AppTheme.colors.neutral700
+                        )
+
+                        EuConsentStatus.Declined, EuConsentStatus.Error -> Text(
+                            text = stringResource(R.string.eu_consent_staus_text_decline),
+                            style = AppTheme.typography.body2,
+                            color = AppTheme.colors.neutral700
+                        )
+                    }
+                },
+                onClick = onClickEuConsent
+            )
+        }
+
+        @Requirement(
+            "O.Auth_6#1",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "Button to display audit events for profile."
+        )
+
+        @Requirement(
+            "A_19177#2",
+            sourceSpecification = "gemSpec_eRp_FdV",
+            rationale = "Button to display audit events for profile."
+        )
+        ProfileMainAreaRow(
+            icon = Icons.Outlined.CloudQueue,
+            title = stringResource(R.string.autitEvents_headline),
+            modifier = Modifier.testTag(TestTag.Profile.OpenAuditEventsScreenButton),
+            onClick = onClickAuditEvents
+        )
+        if (!isDemoMode) {
+            ProfileMainAreaRow(
+                icon = Icons.Rounded.Devices,
+                title = stringResource(R.string.settings_login_connected_devices),
+                onClick = onShowPairedDevices
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProfileMainAreaRow(
+    icon: ImageVector,
+    title: String,
+    modifier: Modifier = Modifier,
+    trailingContent: (@Composable () -> Unit)? = null,
+    onClick: (() -> Unit)? = null
+) {
+    val baseModifier = modifier
+        .fillMaxWidth()
+        .let {
+            if (onClick != null) {
+                it
+                    .clickable(onClick = onClick, role = Role.Button)
+                    .semantics(mergeDescendants = true) {}
+            } else {
+                it
+            }
+        }
+    ListItem(
+        colors = GemListItemDefaults.gemListItemColors(),
+        modifier = baseModifier,
+        leadingContent = {
+            Icon(icon, null, tint = AppTheme.colors.primary700)
+        },
+        headlineContent = {
+            Text(
+                text = title,
+                style = AppTheme.typography.body1
+            )
+        },
+        trailingContent = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
+            ) {
+                trailingContent?.invoke()
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = AppTheme.colors.neutral700
+                )
+            }
+        }
+    )
+}
+
+@Composable
 internal fun ThreeDotMenu(
-    selectedProfile: ProfilesUseCaseData.Profile,
+    selectedProfile: ProfileErpModel,
     onClickLogIn: () -> Unit,
     onClickLogout: () -> Unit,
     onClickDelete: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     val description = stringResource(R.string.profile_show_options)
+    val closeHint = stringResource(R.string.a11y_three_dot_menu_options_hint)
     val isSsoTokenValid by remember(selectedProfile) { mutableStateOf(selectedProfile.isSSOTokenValid()) }
     IconButton(
         onClick = { expanded = true },
         modifier = Modifier
             .testTag(TestTag.Profile.ThreeDotMenuButton)
-            .semantics { contentDescription = description }
+            .semantics {
+                contentDescription = description
+                stateDescription = closeHint
+            }
     ) {
         Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral700)
     }
@@ -534,8 +675,9 @@ fun ProfileScreenPreview(
             listState = listState,
             profileState = profileState,
             hasEuRedeemablePrescriptions = true,
-            euConsentStatus = true,
+            euConsentStatus = EuConsentStatus.Accepted,
             euRedeemFeatureFlag = true,
+            pushNotificationsFeatureFlag = true,
             isDemoMode = false,
             color = color,
             keyboardController = null,
@@ -548,6 +690,7 @@ fun ProfileScreenPreview(
             onShowPairedDevices = {},
             onClickChangeInsuranceType = {},
             onClickAuditEvents = {},
+            onClickPushNotifications = {},
             onBack = {},
             onClickCopy = {},
             onClickDelete = {},

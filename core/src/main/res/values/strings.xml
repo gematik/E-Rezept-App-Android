@@ -10,6 +10,7 @@
     <string name="a11y_datamatrix_code_zoom_in_button_description">Code vergrößern</string>
     <string name="a11y_datamatrix_code_zoom_out_button_description">Code verkleinern</string>
     <string name="a11y_delete_access_code_dialog">Dialog: Zugriffscode löschen</string>
+    <string name="a11y_delete_device">Gerät löschen</string>
     <string name="a11y_deleted_text">Text löschen</string>
     <string name="a11y_diga_arrow">bis</string>
     <string name="a11y_diga_change_insurance">Ändern der Versicherung</string>
@@ -26,9 +27,11 @@
     <string name="a11y_eu_access_code_deleting">Zugriffscode wird gelöscht …</string>
     <string name="a11y_eu_instructions_flag_accessibility_text">Sie können folgendes sagen</string>
     <string name="a11y_eu_instructions_open_in_browser">Im Browser öffnen</string>
+    <string name="a11y_favorite_pharmacy_toggle">Favoritenstatus ändern</string>
     <string name="a11y_local_redeem_back">Vorherigen Code anzeigen</string>
     <string name="a11y_local_redeem_forward">Nächsten Code anzeigen</string>
     <string name="a11y_long_press_copy">Kopieren</string>
+    <string name="a11y_medication_schedule_delete_notification_time">Uhrzeit entfernen</string>
     <string name="a11y_medication_schedule_three_dot_menu">Einnahmeerinnerungsoptionen anzeigen</string>
     <string name="a11y_messages_empty_state">Keine Nachrichten</string>
     <string name="a11y_messages_error_state">Fehler beim Laden der Nachrichten</string>
@@ -36,11 +39,14 @@
     <string name="a11y_not_selected">nicht ausgewählt</string>
     <string name="a11y_onboarding_progress_description">Seite %1$d von %2$d</string>
     <string name="a11y_open_link_submit">Link auf externer Webseite öffnen</string>
+    <string name="a11y_open_message">öffnen</string>
     <string name="a11y_open_pdf_submit">PDF auf externer Webseite öffnen</string>
     <string name="a11y_password_input_show_password_description_off">Passwort ausgeblendet</string>
     <string name="a11y_password_input_show_password_description_on">Passwort eingeblendet</string>
     <string name="a11y_password_input_show_password_description_onClick_off">Passwort einblenden</string>
     <string name="a11y_password_input_show_password_description_onClick_on">Passwort ausblenden</string>
+    <string name="a11y_pharmacy_search_favorite_toggle">Zu Favoriten hinzufügen</string>
+    <string name="a11y_pharmacy_search_favorite_toggle_off">Von Favoriten entfernen</string>
     <string name="a11y_pharmacy_search_pharmacy_card_click_description">Apothekendetails öffnen</string>
     <string name="a11y_pharmacy_search_searchbar_with_click_description">Apothekensuche; Namen, Ort oder Postleitzahl eingeben, um nach einer Apotheke zu suchen</string>
     <string name="a11y_pharmacy_start_search_on_click_description">Suchen in der Listenansicht</string>
@@ -53,10 +59,14 @@
     <string name="a11y_prescription_not_available">Nicht verfügbar</string>
     <string name="a11y_prescription_not_selected">Nicht ausgewählt</string>
     <string name="a11y_prescription_selected">Ausgewählt</string>
+    <string name="a11y_profile_edit_name_delete_entry_description">Eingabe löschen</string>
+    <string name="a11y_profile_icon_offline">nicht angemeldet</string>
+    <string name="a11y_profile_icon_online">angemeldet</string>
     <string name="a11y_select_all_not_selected">Alle auswählen, nicht ausgewählt</string>
     <string name="a11y_select_all_selected">Alle auswählen, ausgewählt</string>
     <string name="a11y_selected">ausgewählt</string>
     <string name="a11y_success_icon">Erfolg</string>
+    <string name="a11y_three_dot_menu_options_hint">um das Menu später zu schließen, mit zwei Fingern wischen</string>
     <string name="about_buildhash">Build-Hash: %s</string>
     <string name="about_version">Version: %s</string>
     <string name="accept_now">Angenommen gerade eben</string>
@@ -93,13 +103,14 @@
     <string name="analytics_how_it_works_title">Wie funktioniert die Analyse und was wird erfasst?</string>
     <string name="analytics_why_important_text">Um die App möglichst für die gesamte Bevölkerung optimal ausgestalten und Nutzungsbarrieren abbauen zu können, möchten wir verstehen, wie die App genutzt wird. Die Erkenntnisse können dann berücksichtigt werden, um die Bedienbarkeit, Übersichtlichkeit und Verständlichkeit der App zu verbessern und die sichere Nutzung ihrer Funktionen sicherzustellen. Die Analyse hilft uns auch festzustellen, wie lange beispielsweise ältere Technik unterstützt werden muss oder wann davon ausgegangen werden kann, dass die meisten Nutzenden auf ein neues Betriebssystem umgestellt haben.</string>
     <string name="analytics_why_important_title">Warum ist die Analyse wichtig?</string>
-    <string name="android8_deprecation_continue_button">App weiter nutzen</string>
-    <string name="android8_deprecation_reason_app_still_works">Die App funktioniert weiterhin auf Ihrem Gerät.</string>
-    <string name="android8_deprecation_reason_no_updates">Sie erhalten keine neuen Updates oder Fehlerbehebungen mehr. Das kann dazu führen, dass Sie in wenigen Jahren keine E‑Rezepte mehr empfangen können.</string>
-    <string name="android8_deprecation_reason_upgrade_recommendation">Um weiterhin von Verbesserungen zu profitieren, empfehlen wir ein Update auf eine aktuellere Android Version.</string>
-    <string name="android8_deprecation_section_header">Was bedeutet das für Sie?</string>
-    <string name="android8_deprecation_subtitle">Ab sofort erhält diese App auf Android 8 keine Updates mehr.</string>
-    <string name="android8_deprecation_title">Kein Support für Android 8 mehr</string>
+    <string name="android13_deprecation_banner">Kein Support für Android 13 mehr</string>
+    <string name="android13_deprecation_continue_button">Verstanden</string>
+    <string name="android13_deprecation_reason_app_still_works">Die E-Rezept App funktioniert innerhalb der nächsten Wochen nicht mehr auf Ihrem Gerät.</string>
+    <string name="android13_deprecation_reason_no_updates">Um die E-Rezept App weiterhin nutzen zu können, benötigen Sie mindestens Android 14.</string>
+    <string name="android13_deprecation_reason_upgrade_recommendation">Durch die Nutzung von mindestens Android 14 erhalten Sie weiterhin Sicherheitsupdates von Google.</string>
+    <string name="android13_deprecation_section_header">Was bedeutet das für Sie?</string>
+    <string name="android13_deprecation_subtitle">Wir können Android 13 und darunter leider nicht mehr unterstützen, da Google keine Sicherheitsupdates mehr für diese Versionen bereitstellt.</string>
+    <string name="android13_deprecation_title">Diese App gibt es bald nur noch ab Android 14</string>
     <string name="app_name" translatable="false">E-Rezept</string>
     <string name="app_playstore_link" translatable="false">https://play.google.com/store/apps/details?id=de.gematik.ti.erp.app</string>
     <string name="app_update_Button_text">Aktualisieren</string>
@@ -403,6 +414,14 @@
     <string name="country_selection_pt">Portugal</string>
     <string name="country_selection_se">Schweden</string>
     <string name="country_selection_uk">England</string>
+    <string name="data_migration_accept">Verstanden</string>
+    <string name="data_migration_body">Wir laden Ihre Daten.</string>
+    <string name="data_migration_error_header">Wir konnten Ihre Daten leider nicht übertragen</string>
+    <string name="data_migration_error_info">Aus Sicherheitsgründen haben wir Ihre Daten verschoben. Leider ist dabei etwas schief gegangen. Daher müssen Sie die App leider neu installieren. Ihre Rezept- und Nachrichtendaten der letzten 100 Tage bleiben erhalten.</string>
+    <string name="data_migration_failure_header">Wir konnten Ihre Daten leider nicht übertragen</string>
+    <string name="data_migration_failure_info">"Aus Sicherheitsgründen haben wir Ihre Daten verschoben. Leider ist dabei etwas schief gegangen. Es kann sein, dass Ihre Favoritenapotheke oder Ihre Lieferadressen nicht mehr vorhanden sind. "</string>
+    <string name="data_migration_header">E-Rezept</string>
+    <string name="data_migration_open_playstore">Playstore öffnen</string>
     <string name="data_terms_accept_update">Akzeptieren</string>
     <string name="data_terms_first_update_header">Was passiert, wenn Sie die App öffnen?</string>
     <string name="data_terms_first_update_text" translatable="false">Die Erhebung Ihrer IP-Adresse durch unser System ist notwendig, um Ihnen die Nutzung unserer App zu ermöglichen. Bei dem Aufruf und während der Nutzung unserer App synchronisiert unser Server die Daten mit der App auf Ihrem Endgerät, damit Ihnen die aktuellen Informationen zu Ihren E-Rezepten zur Verfügung stehen. Dabei verarbeiten wird Ihre IP-Adresse, Ihr Internet-Service-Provider und das Datum und die Uhrzeit des Zugriffs.\n\n\nWir führen bei jedem Start der E-Rezept App eine Integritätsprüfung Ihres Gerätes durch. Smartphones können mit einem modifiziertem und somit potenziell unsicheren Betriebssystem ausgestattet werden. Nicht jeder Nutzende ist sich bewusst (z.B. bei gebraucht gekauften Geräten), dass sein Gerät „gerootet“ ist, und welche möglichen Gefahren damit einhergehen. Daher nutzen wir Google SafetyNet, um die Integrität des Gerätes zu prüfen, und informieren Nutzer, wenn ihr Gerät betroffen ist.\n\n\nUm die Integrität zu prüfen, erhebt Google SafetyNet diverse Informationen über das Gerät und das installierte Betriebssystem, und leitet diese zur Integritätsprüfung an eigene Server. Diese Server befinden sich möglicherweise im außereuropäischen Ausland und unterliegen anderen Datenschutzgrundsätzen.</string>
@@ -602,7 +621,7 @@
     <string name="eu_availability_title">Die EU Einlösung ist bald verfügbar</string>
     <string name="eu_consent_accept">Zustimmen</string>
     <string name="eu_consent_close">Abbrechen</string>
-    <string name="eu_consent_countires_text">EU Ausland</string>
+    <string name="eu_consent_countries_text">Einwilligung EU Ausland</string>
     <string name="eu_consent_decline">Ablehnen</string>
     <string name="eu_consent_description">Um Ihre E-Rezepte im Ausland einzulösen, werden Ihre Versicherten- und Rezeptinformationen über den National Contact Point der Europäischen Union in das ausgewählte Land übermittelt. Es gelten die Bedingungen der grenzüberschreitenden Dienste der Europäischen Union.</string>
     <string name="eu_consent_error_generic">Bei der Überprüfung Ihrer Einwilligung ist ein Fehler aufgetreten.</string>
@@ -682,6 +701,7 @@
     <string name="eu_prescription_selection_select_all">Alle Rezepte wählen</string>
     <string name="eu_prescription_selection_selected">Ausgewählt</string>
     <string name="eu_prescription_selection_title">Rezepte</string>
+    <string name="eu_prescription_unknown_medication">Unbekanntes Medikament</string>
     <string name="eu_redeem_button">Einlösen</string>
     <string name="eu_redeem_country_title">Land</string>
     <string name="eu_redeem_instructions_link">Anleitung</string>
@@ -736,6 +756,7 @@
     <string name="female_doctor">Ärztin</string>
     <string name="female_doctor_with_phone">Ärztin mit Telefon</string>
     <string name="freetext_dosage_info_body">Ihr Arzt oder Ihre Ärztin hat Ihnen diese Informationen zur Einnahme des Medikaments mitgegeben.</string>
+    <string name="gematik_logo">Gematik Logo</string>
     <string name="generic_error_info">Bitte probieren Sie es zu einem späteren Zeitpunkt erneut.</string>
     <string name="generic_error_retry">Erneut versuchen</string>
     <string name="generic_error_title">Das hat leider nicht geklappt</string>
@@ -1067,6 +1088,7 @@
     <string name="nfc_instruction_headline">Gesundheitskarte an Rückseite des Telefons anlegen</string>
     <string name="nfc_instruction_help_button">Hilfe</string>
     <string name="nfc_instruction_time_hint">Der folgende Prozess kann bis zu 30 Sekunden lang dauern.</string>
+    <string name="no">nein</string>
     <string name="no_access_token">Kein Access Token verfügbar</string>
     <string name="no_audit_events_empty_protocol_list_info">Es liegen noch keine Zugriffsprotokolle vor.</string>
     <string name="no_audit_events_header">Keine Zugriffsprotokolle</string>
@@ -1228,7 +1250,7 @@
     <string name="pharmacy_detalls_removed_from_favorites">Apotheke aus Favoriten entfernt</string>
     <string name="pharmacy_detals_added_to_favorites">Apotheke zu Favoriten hinzugefügt</string>
     <string name="pharmacy_maps_card_header">Kartenansicht</string>
-    <string name="pharmacy_maps_header">In meiner Nähe</string>
+    <string name="pharmacy_maps_header">Kartenansicht</string>
     <string name="pharmacy_maps_search_here_button">Hier suchen</string>
     <string name="pharmacy_my_pharmacies_header">Meine Apotheken</string>
     <string name="pharmacy_order_add_contacts">Kontaktdaten hinzufügen</string>
@@ -1270,6 +1292,10 @@
         <item quantity="other">Für die Rezepte %s übernimmt Ihre Versicherung keine Kosten.</item>
     </plurals>
     <string name="pharmacy_order_send">Abschicken</string>
+    <string name="pharmacy_order_teratogenic_prescription_error">T-Rezepte müssen abgeholt oder per Bote bestellt werden.</string>
+    <string name="pharmacy_order_teratogenic_prescription_error_change_order_option">Bitte wählen Sie Abholung oder Bote</string>
+    <string name="pharmacy_order_teratogenic_prescription_info" translatable="false">ⓘ</string>
+    <string name="pharmacy_order_teratogenic_prescription_warning" translatable="false">⚠︎</string>
     <string name="pharmacy_order_title">Meine Bestellung</string>
     <string name="pharmacy_order_with_prescriptions_button_subtitle">Rezepte</string>
     <string name="pharmacy_search_active_filter">Filter aktiv</string>
@@ -1281,7 +1307,6 @@
     <string name="pharmacy_search_apovz_call_no_internet_info">Derzeit können keine aktuellen Informationen über diese Apotheke abgerufen werden. Bitte überprüfen Sie Ihre Internetverbindung.</string>
     <string name="pharmacy_search_apovz_call_no_internet_retry">Erneut versuchen</string>
     <string name="pharmacy_search_delete_button">Sucheingabe löschen</string>
-    <string name="pharmacy_search_favorite_toggle">Zu Favoriten hinzufügen</string>
     <string name="pharmacy_search_favorite_toggle_active">aktiv</string>
     <string name="pharmacy_search_favorite_toggle_inactive">inaktiv</string>
     <string name="pharmacy_search_placeholder">Suchen</string>
@@ -1363,6 +1388,13 @@
     <string name="pres_detail_practitioner_label_name">Name</string>
     <string name="pres_detail_practitioner_label_qualification">Facharzt / Fachärztin</string>
     <string name="pres_detail_technical_information">Technische Informationen</string>
+    <string name="pres_detail_teratogenic_prescription_screen_child_bearing">Bei der Patientin handelt es sich um eine gebärfähige Frau.</string>
+    <string name="pres_detail_teratogenic_prescription_screen_info">Der Patientin bzw. dem Patienten wurde vor Beginn der Behandlung medizinisches Informationsmaterial gemäß den Anforderungen der Fachinformation entsprechender Fertigarzneimittel ausgehändigt.</string>
+    <string name="pres_detail_teratogenic_prescription_screen_offlabel">Die Behandlung erfolgt außerhalb der zugelassenen Anwendungsgebiete (Off-Label)</string>
+    <string name="pres_detail_teratogenic_prescription_screen_prescriber">Die verschreibende Person verfügt ausreichende Sachkenntnisse zur Verschreibung von Arzneimitteln nach § 3a AMVV.</string>
+    <string name="pres_detail_teratogenic_prescription_screen_savety">Alle Sicherheitsbestimmungen gemäß der Fachinformation entsprechender Fertigarzneimittel werden eingehalten.</string>
+    <string name="pres_detail_teratogenic_prescription_screen_title">Angaben zum T-Rezept</string>
+    <string name="pres_detail_teratogenic_prescription_title">Angaben zum T-Rezept</string>
     <string name="pres_detail_yes">Ja</string>
     <string name="pres_details_additional_fee">Zuzahlung</string>
     <string name="pres_details_direct_assignment_received_state">Dieses Rezept wurde im Rahmen einer Behandlung für Sie eingelöst.</string>
@@ -1384,6 +1416,9 @@
     <string name="pres_details_exp_scanned_title">Gescanntes Rezept</string>
     <string name="pres_details_exp_sel_payer_info">Für dieses Rezept erfolgt in der Regel keine Kostenübernahme durch die Krankenversicherung. Als Patient*in sind Sie daher für die vollständige Bezahlung verantwortlich. Ob die Kosten im Rahmen einer Zusatzversicherung oder Satzungsleistung erstattet werden, ist individuell zu prüfen.</string>
     <string name="pres_details_exp_sel_payer_prescription">Keine Kostenübernahme</string>
+    <string name="pres_details_exp_teratogenic">T-Rezept</string>
+    <string name="pres_details_exp_teratogenic_bottomsheet_info">Ein T-Rezept ist ein streng reguliertes Sonderrezept in Deutschland zur Verschreibung von Arzneimitteln mit den teratogenen Wirkstoffen Lenalidomid, Pomalidomid oder Thalidomid. Diese Wirkstoffe können schwere Fehlbildungen beim Ungeborenen verursachen. Das Rezept ist nur 6 Tage gültig.</string>
+    <string name="pres_details_exp_teratogenic_bottomsheet_title">Was ist ein T-Rezept?</string>
     <string name="pres_details_exp_valid_info_accept">Innerhalb dieses Zeitraums können Sie Ihr Rezept in einer beliebigen Apotheke mit einer Zuzahlung von maximal 10€ einlösen.</string>
     <string name="pres_details_exp_valid_info_accept_eu">Innerhalb dieses Zeitraums können Sie Ihr Rezept in einer beliebigen Apotheke in Deutschland mit einer Zuzahlung von maximal 10€ einlösen.\nIn einer Apotheke im EU Ausland bezahlen Sie den vollen Betrag, können aber eine Erstattung bei Ihrer Krankenkasse beantragen.</string>
     <string name="pres_details_exp_valid_info_expiry_time">Innerhalb dieses Zeitraums können Sie das Rezept nach wie vor in einer Apotheke einlösen, müssen jedoch die gesamte Kaufsumme des Medikaments selbst übernehmen. Alternativ können Sie in Ihrer Praxis um eine erneute Ausstellung des Rezepts bitten.</string>
@@ -1464,6 +1499,7 @@
     <string name="profile_edit_name_for_default_info">Die App benötigt mindestens ein Profil. Bitte geben Sie einen Namen für das neue Profil ein.</string>
     <string name="profile_edit_name_for_rename_info">Geben Sie den neuen Namen für das Profil ein.</string>
     <string name="profile_edit_name_info">Bitte geben Sie einen Namen für das neue Profil ein.</string>
+    <string name="profile_edit_name_label">Profilname</string>
     <string name="profile_edit_name_place_holder">Profilname</string>
     <string name="profile_grant_consent">Aktivieren</string>
     <string name="profile_grant_consent_header">Apothekenrechnungen empfangen</string>
@@ -1485,8 +1521,16 @@
     <string name="profile_invoiceInformation_header">Apothekenrechnungen</string>
     <string name="profile_invoices">Apothekenrechnungen</string>
     <string name="profile_invoices_cancel">Abbrechen</string>
+    <string name="profile_main_area_header">Mein Bereich</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">Anmelden</string>
     <string name="profile_picture">Profilbild</string>
+    <string name="profile_push_notifications">Push Nachrichten</string>
+    <string name="profile_push_notifications_external_access">Fremdzugriffe</string>
+    <string name="profile_push_notifications_info">Bitte wählen Sie aus, zu welchen Inhalten Sie benachrichtigt werden möchten.</string>
+    <string name="profile_push_notifications_new_invoice">Neue Apothekenrechnung</string>
+    <string name="profile_push_notifications_new_message">Neue Nachricht</string>
+    <string name="profile_push_notifications_new_prescription">Neues E-Rezept</string>
+    <string name="profile_push_notifications_status_change">Statusänderung</string>
     <string name="profile_revoke_consent">Deaktivieren</string>
     <string name="profile_revoke_consent_header">Funktion deaktivieren</string>
     <string name="profile_revoke_consent_info">Hierdurch werden alle Apothekenrechnungen von diesem Gerät und vom Server gelöscht.</string>
@@ -1516,6 +1560,7 @@
     <string name="redeem_prescriptions_dialog_header">Rezepte eingelöst?</string>
     <string name="redeem_prescriptions_dialog_info">Möchten Sie die Rezepte als eingelöst markieren?</string>
     <string name="redeem_prescriptions_dialog_redeem">Eingelöst</string>
+    <string name="redeem_selection_teratogenic_prescription_hint">T-Rezepte müssen abgeholt oder per Bote bestellt werden.</string>
     <string name="redeemable_until_date">Bis zum %s einlösbar</string>
     <string name="refresh">Aktualisieren</string>
     <string name="remove_medication_schedule">Löschen</string>
@@ -1556,6 +1601,7 @@
     <string name="search_pharmacies_filter_pickup_station">Abholautomat</string>
     <string name="search_pharmacies_filter_public_transport_nearby">ÖPNV in der Nähe</string>
     <string name="search_pharmacies_filter_recently_used">Zuletzt genutzt</string>
+    <string name="search_pharmacies_filter_removed">Filter %s entfernt</string>
     <string name="search_pharmacies_location_na_header">Standort freigeben</string>
     <string name="search_pharmacies_location_na_header_info">Geben Sie Ihren Standort frei, um Apotheken in Ihrer Nähe zu finden.</string>
     <string name="search_pharmacies_location_na_header_okay">Okay</string>
@@ -1656,6 +1702,7 @@
     <string name="settings_contact_hotline">Telefonischen Support anrufen</string>
     <string name="settings_contact_hotline_number" translatable="false">+49 800 277 377 7</string>
     <string name="settings_contact_mail_address" translatable="false">app-feedback@gematik.de</string>
+    <string name="settings_contact_report_accessibility_issue">Barriere melden</string>
     <string name="settings_contact_survey_address" translatable="false">https://gematik.shortcm.li/E-Rezept-App_Feedback</string>
     <string name="settings_contact_technical_support_description">Kostenfrei für den Anrufenden. Servicezeiten: Mo – Fr 08:00 – 20:00 Uhr außer an bundeseinheitlichen Feiertagen</string>
     <string name="settings_device_security_allow">Erlauben</string>
@@ -1688,6 +1735,31 @@
     <string name="settings_profile_last_authenticated_on">Zuletzt verbunden am %s</string>
     <string name="settings_profile_not_connected">Nicht angemeldet</string>
     <string name="settings_profiles_headline">Profile</string>
+    <string name="settings_report_accessibility_issue_button">Barriere melden</string>
+    <string name="settings_report_accessibility_issue_description">Bitte beachten Sie diese Hinweise, bevor Sie eine Barriere melden.</string>
+    <string name="settings_report_accessibility_issue_how_to_report_item1">Screenshots (optional)</string>
+    <string name="settings_report_accessibility_issue_how_to_report_item1_description">Müssen in den Einstellungen aktiviert werden.</string>
+    <string name="settings_report_accessibility_issue_how_to_report_item2">"Weg zur Barriere"</string>
+    <string name="settings_report_accessibility_issue_how_to_report_item2_description">z.B. Startseite → Profil → Einstellungen</string>
+    <string name="settings_report_accessibility_issue_how_to_report_item3">"Geste oder Aktion "</string>
+    <string name="settings_report_accessibility_issue_how_to_report_item3_description">z.B. \"Doppeltipp funktioniert nicht\"</string>
+    <string name="settings_report_accessibility_issue_how_to_report_item4">Beschreibung des Problems</string>
+    <string name="settings_report_accessibility_issue_how_to_report_title">So melden Sie eine Barriere:</string>
+    <string name="settings_report_accessibility_issue_mail_address" translatable="false">app-feedback@gematik.de</string>
+    <string name="settings_report_accessibility_issue_mail_info">Beim Senden dieser Nachricht werden die folgenden Informationen automatisch vom System hinzugefügt:</string>
+    <string name="settings_report_accessibility_issue_mail_subject">Barriere melden</string>
+    <string name="settings_report_accessibility_issue_mail_title">"Liebes App Team, \n\nich habe folgende Barriere: "</string>
+    <string name="settings_report_accessibility_issue_title">Barriere melden</string>
+    <string name="settings_report_accessibility_issue_what_is_next_description">Ihre Meldung geht direkt an unser UX-Team zur Analyse und Behebung oder Aufnahme in die Barrierefreiheitserklärung.</string>
+    <string name="settings_report_accessibility_issue_what_is_next_title">Wie geht es weiter?</string>
+    <string name="settings_report_accessibility_issue_what_not_to_report_item1">Anmeldeproblemen</string>
+    <string name="settings_report_accessibility_issue_what_not_to_report_item1_description">Der Anmeldeprozess ist nicht vollständig barrierefrei und liegt außerhalb unseres Einflusses.</string>
+    <string name="settings_report_accessibility_issue_what_not_to_report_item2">Allgemeinem Feedback</string>
+    <string name="settings_report_accessibility_issue_what_not_to_report_title">Bitte keine Meldungen zu:</string>
+    <string name="settings_report_accessibility_issue_what_to_report_item1">Elemente sind mit Tastatur/Screenreader nicht erreichbar.</string>
+    <string name="settings_report_accessibility_issue_what_to_report_item2">Geste funktioniert nicht.</string>
+    <string name="settings_report_accessibility_issue_what_to_report_item3">Button ist nicht beschriftet oder unklar.</string>
+    <string name="settings_report_accessibility_issue_what_to_report_title">Melden Sie Barrieren wie:</string>
     <string name="settings_screenshots_toggle_text">Screenshots erlauben</string>
     <string name="settings_show_audit_events">Zugriffsprotokolle anzeigen</string>
     <string name="settings_show_audit_events_info">Hier können Sie sehen, wer wann auf Ihre Rezepte zugegriffen hat.</string>
@@ -1710,6 +1782,7 @@
     <string name="share_invoice_information_header">Wie reichen Sie Belege ein?</string>
     <string name="show_cost_receipt" translatable="false">"Apothekenrechnung anzeigen."</string>
     <string name="single_sign_on_token_title">SSO Token</string>
+    <string name="skip">Überspringen</string>
     <string name="snackbar_close">Schließen</string>
     <string name="start_demo_mode">Demomodus nutzen</string>
     <string name="step">"Schritt %1$s von 4"</string>
@@ -1794,6 +1867,7 @@
         <item quantity="one">Bitte probieren Sie es in %s Sekunde erneut.</item>
         <item quantity="other">Bitte probieren Sie es in %s Sekunden erneut.</item>
     </plurals>
+    <string name="yes">ja</string>
     <string name="your_fee">Ihr Beitrag</string>
     <string name="zero_prescriptions_updatet">Keine neuen Rezepte verfügbar</string>
 </resources>

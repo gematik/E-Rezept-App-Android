@@ -71,7 +71,7 @@ import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.mainscreen.model.ProfileIconState
 import de.gematik.ti.erp.app.prescription.ui.preview.AvatarPreview
 import de.gematik.ti.erp.app.prescription.ui.preview.AvatarPreviewParameterProvider
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -88,7 +88,7 @@ private const val IconDelayDuration = 2500L
  * A composable that represents a clickable profile chip UI element with dynamic states,
  * styling, and behavior based on the provided profile and connectivity state.
  *
- * @param profile The [ProfilesUseCaseData.Profile] object containing user-related information.
+ * @param profile The [ProfileErpModel] object containing user-related information.
  * @param profileIconState A variable that provides the state at which the profile icon is going to be
  * @param selected A boolean indicating if this chip is currently selected.
  * @param onClickChangeProfileName A lambda invoked when the chip is long-pressed, allowing the user to change the profile name.
@@ -98,11 +98,11 @@ private const val IconDelayDuration = 2500L
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProfileChip(
-    profile: ProfilesUseCaseData.Profile,
+    profile: ProfileErpModel,
     profileIconState: ProfileIconState,
     selected: Boolean,
-    onClickChangeProfileName: (profile: ProfilesUseCaseData.Profile) -> Unit,
-    onClickChip: (ProfilesUseCaseData.Profile) -> Unit
+    onClickChangeProfileName: (profile: ProfileErpModel) -> Unit,
+    onClickChip: (ProfileErpModel) -> Unit
 ) {
     var iconVisible by remember { mutableStateOf(true) }
 
@@ -177,7 +177,7 @@ fun ProfileChip(
                     .weight(1f)
                     .clearAndSetSemantics {
                         stateDescription = profile.name
-                        contentDescription = if (profile.isActive) {
+                        contentDescription = if (profile.active) {
                             activeProfileDescription
                         } else {
                             inactiveProfileDescription
@@ -241,7 +241,13 @@ fun ProfileChip(
                             alpha = if (profileIconState is ProfileIconState.IsRefreshing) shimmerAlpha else animatedAlpha
                         },
                     imageVector = profileIconState.chip().icon,
-                    contentDescription = null,
+                    contentDescription = when (
+                        profileIconState
+                    ) {
+                        is ProfileIconState.IsOnline -> stringResource(R.string.a11y_profile_icon_online)
+                        is ProfileIconState.IsOffline -> stringResource(R.string.a11y_profile_icon_offline)
+                        else -> ""
+                    },
                     tint = profileIconState.chip().color
                 )
             }

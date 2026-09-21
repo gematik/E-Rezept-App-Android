@@ -46,7 +46,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.em
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.ui.model.SentOrCompletedPhrase
 import de.gematik.ti.erp.app.prescription.ui.model.sentOrCompleted
 import de.gematik.ti.erp.app.prescription.ui.preview.prescriptionStatePreviews
@@ -54,6 +53,8 @@ import de.gematik.ti.erp.app.prescription.ui.preview.prescriptionStatePreviewsNe
 import de.gematik.ti.erp.app.prescription.ui.screen.ONE_DAY_LEFT
 import de.gematik.ti.erp.app.prescription.ui.screen.TWO_DAYS_LEFT
 import de.gematik.ti.erp.app.prescription.ui.screen.ZERO_DAYS_LEFT
+import de.gematik.ti.erp.app.task.model.TaskStateErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
@@ -69,7 +70,7 @@ import kotlinx.datetime.Instant
 @Suppress("CyclomaticComplexMethod")
 @Composable
 fun PrescriptionStateInfo(
-    state: SyncedTaskData.SyncedTask.TaskState,
+    state: TaskStateErpModel,
     now: Instant = Clock.System.now(),
     textColor: Color = AppTheme.colors.neutral800,
     textAlign: TextAlign = TextAlign.Left
@@ -94,7 +95,7 @@ fun PrescriptionStateInfo(
         )
 
     when (state) {
-        is SyncedTaskData.SyncedTask.LaterRedeemable -> {
+        is TaskStateErpModel.LaterRedeemable -> {
             Text(
                 text =
                 dateWithIntroductionString(
@@ -107,7 +108,7 @@ fun PrescriptionStateInfo(
             )
         }
 
-        is SyncedTaskData.SyncedTask.Ready -> {
+        is TaskStateErpModel.Ready -> {
             val acceptDaysLeft = state.acceptDaysLeft(now)
             val expiryDaysLeft = state.expiryDaysLeft(now)
             val text = readyPrescriptionStateInfo(acceptDaysLeft, expiryDaysLeft)
@@ -134,22 +135,22 @@ fun PrescriptionStateInfo(
             }
         }
 
-        is SyncedTaskData.SyncedTask.Provided -> {
+        is TaskStateErpModel.Provided -> {
             val text = sentOrCompletedPhrase(state.lastMedicationDispense, now, state = state)
             Text(text, style = AppTheme.typography.body2, color = textColor, textAlign = textAlign)
         }
 
-        is SyncedTaskData.SyncedTask.InProgress -> {
+        is TaskStateErpModel.InProgress -> {
             val text = sentOrCompletedPhrase(state.lastModified, now, state = state)
             Text(text, style = AppTheme.typography.body2, color = textColor, textAlign = textAlign)
         }
 
-        is SyncedTaskData.SyncedTask.Pending -> {
+        is TaskStateErpModel.Pending -> {
             val text = sentOrCompletedPhrase(state.sentOn, now, state = state)
             Text(text, style = AppTheme.typography.body2, color = textColor, textAlign = textAlign)
         }
 
-        is SyncedTaskData.SyncedTask.Deleted -> {
+        is TaskStateErpModel.Deleted -> {
             Text(
                 dateWithIntroductionString(
                     R.string.pres_detail_medication_deleted,
@@ -161,7 +162,7 @@ fun PrescriptionStateInfo(
             )
         }
 
-        is SyncedTaskData.SyncedTask.Expired -> {
+        is TaskStateErpModel.Expired -> {
             Text(
                 dateWithIntroductionString(
                     R.string.pres_detail_medication_expired_on,
@@ -173,8 +174,9 @@ fun PrescriptionStateInfo(
             )
         }
 
-        is SyncedTaskData.SyncedTask.Other -> {
-            if (state.state == SyncedTaskData.TaskStatus.Completed) {
+        is TaskStateErpModel.Other -> {
+            // TODO: mabe we dont need 2 types
+            if (state.state.name == TaskStatusEnum.Completed.name) {
                 val text = sentOrCompletedPhrase(state.lastModified, now, true, state = state)
                 Text(text, style = AppTheme.typography.body2, color = textColor, textAlign = textAlign)
             }
@@ -275,7 +277,7 @@ private fun sentOrCompletedPhrase(
     lastModified: Instant,
     now: Instant,
     completed: Boolean = false,
-    state: SyncedTaskData.SyncedTask.TaskState
+    state: TaskStateErpModel
 ): String {
     val formatter = rememberErpTimeFormatter()
     return when (
@@ -283,12 +285,12 @@ private fun sentOrCompletedPhrase(
             lastModified = lastModified,
             now = now,
             completed = completed,
-            provided = state is SyncedTaskData.SyncedTask.Provided
+            provided = state is TaskStateErpModel.Provided
         )
     ) {
         SentOrCompletedPhrase.RedeemedJustNow -> stringResource(R.string.received_now)
         SentOrCompletedPhrase.SentJustNow -> {
-            if (state is SyncedTaskData.SyncedTask.Pending) {
+            if (state is TaskStateErpModel.Pending) {
                 stringResource(R.string.sent_now)
             } else {
                 stringResource(R.string.accept_now)
@@ -301,6 +303,7 @@ private fun sentOrCompletedPhrase(
                 remember { formatter.time(lastModified) }
             ).toString()
         }
+
         SentOrCompletedPhrase.ProvidedJustNow -> stringResource(R.string.provided_now)
         is SentOrCompletedPhrase.ProvidedMinutesAgo ->
             annotatedStringResource(R.string.provided_minutes_ago, phrase.minutes).toString()
@@ -316,7 +319,7 @@ private fun sentOrCompletedPhrase(
 
         is SentOrCompletedPhrase.SentMinutesAgo -> {
             val resourceId =
-                if (state is SyncedTaskData.SyncedTask.Pending) {
+                if (state is TaskStateErpModel.Pending) {
                     R.string.sent_x_min_ago
                 } else {
                     R.string.accept_x_min_ago
@@ -333,7 +336,7 @@ private fun sentOrCompletedPhrase(
 
         is SentOrCompletedPhrase.SentHoursAgo -> {
             val resourceId =
-                if (state is SyncedTaskData.SyncedTask.Pending) {
+                if (state is TaskStateErpModel.Pending) {
                     R.string.sent_on_minute
                 } else {
                     R.string.accept_on_minute
@@ -353,7 +356,7 @@ private fun sentOrCompletedPhrase(
 
         is SentOrCompletedPhrase.SentOn -> {
             val resourceId =
-                if (state is SyncedTaskData.SyncedTask.Pending) {
+                if (state is TaskStateErpModel.Pending) {
                     R.string.sent_on_day
                 } else {
                     R.string.accept_on_day

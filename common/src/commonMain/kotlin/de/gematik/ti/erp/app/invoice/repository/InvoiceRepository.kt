@@ -23,7 +23,8 @@
 package de.gematik.ti.erp.app.invoice.repository
 
 import de.gematik.ti.erp.app.fhir.FhirPkvChargeItemsErpModelCollection
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.invoice.model.InvoiceStatusErpModel
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
@@ -39,17 +40,17 @@ interface InvoiceRepository {
 
     suspend fun downloadInvoices(profileId: ProfileIdentifier): Result<Int>
 
-    fun invoices(profileId: ProfileIdentifier): Flow<List<InvoiceData.PKVInvoiceRecord>>
+    fun invoices(profileId: ProfileIdentifier): Flow<List<PKVInvoiceErpModel>>
 
-    fun getInvoiceTaskIdAndConsumedStatus(profileId: ProfileIdentifier): Flow<List<InvoiceData.InvoiceStatus>>
+    fun getInvoiceTaskIdAndConsumedStatus(profileId: ProfileIdentifier): Flow<List<InvoiceStatusErpModel>>
 
-    fun getAllUnreadInvoices(): Flow<List<InvoiceData.InvoiceStatus>>
+    fun getAllUnreadInvoices(): Flow<List<InvoiceStatusErpModel>>
 
     suspend fun updateInvoiceCommunicationStatus(taskId: String, consumed: Boolean)
 
     fun hasUnreadInvoiceMessages(taskIds: List<String>): Flow<Boolean>
 
-    fun invoiceByTaskId(taskId: String): Flow<InvoiceData.PKVInvoiceRecord?>
+    fun invoiceByTaskId(taskId: String): Flow<PKVInvoiceErpModel?>
 
     suspend fun saveInvoice(profileId: ProfileIdentifier, bundle: FhirPkvChargeItemsErpModelCollection)
 

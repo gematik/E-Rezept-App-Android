@@ -23,6 +23,9 @@
 package de.gematik.ti.erp.app.idp.repository
 
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.database.api.IdpConfigurationLocalDataSource
+import de.gematik.ti.erp.app.database.api.UserAuthenticationLocalDataSource
+import de.gematik.ti.erp.app.idp.IdpConfigurationErpModel
 import de.gematik.ti.erp.app.idp.api.models.Challenge
 import de.gematik.ti.erp.app.idp.api.models.IdpDiscoveryInfo
 import de.gematik.ti.erp.app.idp.api.models.IdpNonce
@@ -36,11 +39,11 @@ import de.gematik.ti.erp.app.idp.api.models.RemoteFederationIdps
 import de.gematik.ti.erp.app.idp.api.models.TokenResponse
 import de.gematik.ti.erp.app.idp.api.models.UniversalLinkToken
 import de.gematik.ti.erp.app.idp.extension.extractNullableQueryParameter
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError.Companion.parseToError
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError.Companion.parsedUriToError
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.vau.extractECPublicKey
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
@@ -55,7 +58,8 @@ import java.security.PublicKey
 
 class DefaultIdpRepository(
     private val remoteDataSource: IdpRemoteDataSource,
-    private val localDataSource: IdpLocalDataSource,
+    private val idpConfigurationLocalDataSource: IdpConfigurationLocalDataSource,
+    private val userAuthenticationLocalDataSource: UserAuthenticationLocalDataSource,
     private val accessTokenDataSource: AccessTokenDataSource
 ) : IdpRepository {
     private val json = Json { ignoreUnknownKeys = true }
@@ -81,12 +85,12 @@ class DefaultIdpRepository(
         sourceSpecification = "BSI-eRp-ePA",
         rationale = "Store SSO token to encrypted local data source."
     )
-    override suspend fun saveSingleSignOnToken(profileId: ProfileIdentifier, token: IdpData.SingleSignOnTokenScope) {
-        localDataSource.saveSingleSignOnToken(profileId, token)
+    override suspend fun saveUserAuthentication(profileId: ProfileIdentifier, authentication: UserAuthenticationErpModel) {
+        userAuthenticationLocalDataSource.saveUserAuthenticationForProfile(profileId, authentication)
     }
 
-    override fun authenticationData(profileId: ProfileIdentifier): Flow<IdpData.AuthenticationData> =
-        localDataSource.authenticationData(profileId)
+    override fun getUserAuthentication(profileId: ProfileIdentifier): Flow<UserAuthenticationErpModel> =
+        userAuthenticationLocalDataSource.getUserAuthenticationForProfile(profileId)
 
     override suspend fun fetchChallenge(
         url: String,
@@ -113,13 +117,11 @@ class DefaultIdpRepository(
     /**
      * Returns an unchecked and possible invalid idp configuration parsed from the discovery document.
      */
-
-    // TODO
-    override suspend fun loadUncheckedIdpConfiguration(): IdpData.IdpConfiguration {
-        return localDataSource.loadIdpInfo() ?: run {
+    override suspend fun loadUncheckedIdpConfiguration(): IdpConfigurationErpModel {
+        return idpConfigurationLocalDataSource.getIdpConfiguration() ?: run {
             extractUncheckedIdpConfiguration(
                 remoteDataSource.fetchDiscoveryDocument().getOrThrow()
-            ).also { localDataSource.saveIdpInfo(it) }
+            ).also { idpConfigurationLocalDataSource.saveIdpConfiguration(it) }
         }
     }
 
@@ -167,7 +169,7 @@ class DefaultIdpRepository(
         return json.decodeFromString<RemoteFederationIdps>(payload).items
     }
 
-    private fun extractUncheckedIdpConfiguration(discoveryDocument: JWSDiscoveryDocument): IdpData.IdpConfiguration {
+    private fun extractUncheckedIdpConfiguration(discoveryDocument: JWSDiscoveryDocument): IdpConfigurationErpModel {
         val x5c = requireNotNull(
             (discoveryDocument.jws.headers?.getObjectHeaderValue("x5c") as? ArrayList<*>)?.firstOrNull() as? String
         ) { "Missing certificate" }
@@ -177,7 +179,7 @@ class DefaultIdpRepository(
 
         val discoveryDocumentBody = parseDiscoveryDocumentBody(discoveryDocument.jws.payload)
 
-        return IdpData.IdpConfiguration(
+        return IdpConfigurationErpModel(
             authorizationEndpoint = overwriteEndpoint(discoveryDocumentBody.authorizationUrl),
             ssoEndpoint = overwriteEndpoint(discoveryDocumentBody.ssoUrl),
             tokenEndpoint = overwriteEndpoint(discoveryDocumentBody.tokenUrl),
@@ -187,7 +189,7 @@ class DefaultIdpRepository(
             pukIdpSigEndpoint = overwriteEndpoint(discoveryDocumentBody.uriPukIdpSig),
             expirationTimestamp = Instant.fromEpochSeconds(discoveryDocumentBody.expirationTime),
             issueTimestamp = Instant.fromEpochSeconds(discoveryDocumentBody.issuedAt),
-            certificate = certificateHolder,
+            certificate = certificateHolder.encoded,
             externalAuthorizationIDsEndpoint = overwriteEndpoint(discoveryDocumentBody.healthInsuranceAppV1Url),
             thirdPartyAuthorizationEndpoint = overwriteEndpoint(discoveryDocumentBody.thirdPartyAuthorizationV1Url),
             federationAuthorizationIDsEndpoint = overwriteEndpoint(discoveryDocumentBody.healthInsuranceAppV2Url),
@@ -263,11 +265,11 @@ class DefaultIdpRepository(
     override suspend fun invalidate(profileId: ProfileIdentifier) {
         invalidateConfig()
         invalidateDecryptedAccessToken(profileId)
-        localDataSource.invalidateAuthenticationData(profileId)
+        userAuthenticationLocalDataSource.deleteUserAuthenticationDataForProfile(profileId)
     }
 
     override suspend fun invalidateConfig() {
-        localDataSource.invalidateConfiguration()
+        idpConfigurationLocalDataSource.invalidateIdpConfiguration()
     }
 
     @Requirement(
@@ -278,7 +280,7 @@ class DefaultIdpRepository(
         codeLines = 4
     )
     override suspend fun invalidateSingleSignOnTokenRetainingScope(profileId: ProfileIdentifier) {
-        localDataSource.invalidateSingleSignOnTokenRetainingScope(profileId)
+        userAuthenticationLocalDataSource.invalidateSingleSignOnTokenForProfile(profileId)
         invalidateDecryptedAccessToken(profileId)
     }
 

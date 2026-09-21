@@ -23,6 +23,10 @@ package de.gematik.ti.erp.app.prescription.model
 
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 
+@Deprecated(
+    message = "Use TaskErpModel instead",
+    level = DeprecationLevel.WARNING
+)
 interface TaskData {
     val profileId: ProfileIdentifier
     val taskId: String

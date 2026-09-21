@@ -22,16 +22,14 @@
 
 package de.gematik.ti.erp.app.prescription.usecase
 
-import de.gematik.ti.erp.app.prescription.mapper.filterActiveTasks
-import de.gematik.ti.erp.app.prescription.mapper.flatMapToPrescriptions
+import de.gematik.ti.erp.app.prescription.mapper.filterActiveDigaTasks
+import de.gematik.ti.erp.app.prescription.mapper.filterActivePrescriptionTasks
+import de.gematik.ti.erp.app.prescription.mapper.flatMapToBaseErpModel
 import de.gematik.ti.erp.app.prescription.mapper.groupByHospitalsOrDoctors
 import de.gematik.ti.erp.app.prescription.mapper.sortByExpiredDateAndAuthoredDate
-import de.gematik.ti.erp.app.prescription.mapper.toPrescription
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -46,46 +44,38 @@ import kotlinx.coroutines.flow.flowOn
  *
  */
 class GetActivePrescriptionsUseCase(
-    private val repository: PrescriptionRepository,
+    private val repository: TaskOperationsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(
-        id: ProfileIdentifier
-    ): Flow<List<Prescription>> = combine(
-        repository.scannedTasks(id),
-        repository.syncedTasks(id)
-    ) { scannedTasks, syncedTasks ->
+    operator fun invoke(id: ProfileIdentifier): Flow<List<TaskErpModel>> = combine(
+        repository.loadScannedTaskListByProfileId(id),
+        repository.loadSyncedTaskListByProfileId(id),
+        repository.loadDigaTaskListByProfileId(id)
+    ) { scannedTasks, syncedTasks, digas ->
         val scannedPrescriptions = scannedTasks
-            .filterActiveTasks()
-            .map(ScannedTaskData.ScannedTask::toPrescription)
-            .sortedBy { it.startedOn }
+            .filterActivePrescriptionTasks()
+            .sortedBy { it.scannedOn }
 
-        val digaTasks = syncedTasks.filterActiveDigaTasks()
+        val activeSyncedTasks = syncedTasks.filterActivePrescriptionTasks()
 
-        val activeSyncedTasks = syncedTasks
-            .filterNonDigaTasks()
-            .filterActiveTasks()
+        val activeDigas = digas.filterActiveDigaTasks()
 
-        val syncedPrescriptions = (digaTasks + activeSyncedTasks)
-            .sortByExpiredDateAndAuthoredDate()
+        val syncedPrescriptionsAndDigas = buildList<TaskErpModel.Synced> {
+            addAll(activeDigas)
+            addAll(activeSyncedTasks)
+        }.sortByExpiredDateAndAuthoredDate()
             .groupByHospitalsOrDoctors()
-            .flatMapToPrescriptions()
+            .flatMapToBaseErpModel()
 
-        (scannedPrescriptions + syncedPrescriptions).sortActives()
+        val syncedTaskIds = syncedPrescriptionsAndDigas.map { it.taskId }.toSet()
+        val filteredScannedPrescriptions = scannedPrescriptions.filter { it.taskId !in syncedTaskIds }
+
+        (filteredScannedPrescriptions + syncedPrescriptionsAndDigas).sortActives()
     }.flowOn(dispatcher)
 
     companion object {
 
-        private fun List<SyncedTaskData.SyncedTask>.filterActiveDigaTasks() =
-            filter {
-                it.deviceRequest != null &&
-                    it.deviceRequest?.isArchived == false
-            }
-
-        private fun List<SyncedTaskData.SyncedTask>.filterNonDigaTasks() =
-            filter { it.deviceRequest == null } // TODO: define as a Type
-
-        private fun List<Prescription>.sortActives() =
-            sortedWith(compareByDescending<Prescription> { it.startedOn }.thenBy { it.name })
+        private fun List<TaskErpModel>.sortActives() =
+            sortedWith(compareByDescending<TaskErpModel> { it.startedOn }.thenBy { it.name })
     }
 }

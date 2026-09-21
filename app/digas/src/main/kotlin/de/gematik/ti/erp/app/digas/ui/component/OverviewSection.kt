@@ -47,7 +47,7 @@ fun LazyListScope.overviewSection(
     modifier: Modifier = Modifier,
     uiState: UiState<DigaMainScreenUiModel>,
     uiStateBfarm: UiState<DigaBfarmUiModel>,
-    lastRefreshedTime: Instant,
+    lastRefreshedTime: Instant?,
     isDownloading: Boolean,
     errorTitle: String,
     errorBody: String,

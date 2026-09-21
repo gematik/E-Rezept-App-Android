@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.pharmacy.usecase
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 
 sealed interface ShippingContactState {
@@ -139,10 +139,10 @@ class GetShippingContactValidationUseCase {
     )
     operator fun invoke(
         contact: ShippingInfoErpModel,
-        selectedOrderOption: PharmacyScreenData.OrderOption?
+        selectedOrderOption: OrderOptionErpModel?
     ): ShippingContactState {
         val errors = mutableListOf<ShippingContactState.ShippingContactError>()
-        if (selectedOrderOption == PharmacyScreenData.OrderOption.Pickup &&
+        if (selectedOrderOption == OrderOptionErpModel.Pickup &&
             contact.isEmpty()
         ) {
             return ShippingContactState.ValidShippingContactState.OK
@@ -170,14 +170,14 @@ class GetShippingContactValidationUseCase {
             )
             checkPhoneNumber(
                 contact.phone,
-                selectedOrderOption == PharmacyScreenData.OrderOption.Pickup,
+                selectedOrderOption == OrderOptionErpModel.Pickup,
                 onPhoneNumberIsEmpty = { errors.add(it) },
                 onPhoneNumberIsInvalid = { errors.add(it) }
             )
 
             checkMailAddress(
                 contact.mail,
-                selectedOrderOption == PharmacyScreenData.OrderOption.Pickup,
+                selectedOrderOption == OrderOptionErpModel.Pickup,
                 onMailIsEmpty = {
                     if (contact.phone.isEmpty()) {
                         errors.add(it)

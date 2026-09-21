@@ -23,20 +23,24 @@
 package de.gematik.ti.erp.app.messages.presentation
 
 import android.content.Context
+import de.gematik.ti.erp.app.communication.model.InternalMessageErpModel
 import app.cash.turbine.test
 import de.gematik.ti.erp.app.analytics.tracker.Tracker
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.domain.model.InternalMessageResources
+import de.gematik.ti.erp.app.messages.domain.model.MessagesStringProvider
 import de.gematik.ti.erp.app.messages.domain.repository.ChangeLogLocalDataSource
+import de.gematik.ti.erp.app.messages.domain.usecase.GetCombinedMessagesAsInAppMessageUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.GetExternalInAppMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetInternalMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetLatestEuOrderMessageAsInAppMessageUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessagesUseCase
-import de.gematik.ti.erp.app.messages.mappers.EuOrderToMessagesMapper
+import de.gematik.ti.erp.app.messages.mapper.OrderToInAppMessageMapper
+import de.gematik.ti.erp.app.messages.mapper.EuOrderToMessagesMapper
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
-import de.gematik.ti.erp.app.mocks.order.model.CACHED_PHARMACY
 import de.gematik.ti.erp.app.mocks.order.model.COMMUNICATION_DATA
 import de.gematik.ti.erp.app.mocks.order.model.IN_APP_MESSAGE_TEXT
 import de.gematik.ti.erp.app.mocks.order.model.TASK_ID
@@ -44,7 +48,7 @@ import de.gematik.ti.erp.app.mocks.order.model.WELCOME_MESSAGE_VERSION
 import de.gematik.ti.erp.app.mocks.order.model.welcomeMessage
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isEmptyState
@@ -89,12 +93,16 @@ class MessageListControllerTest {
 
     private lateinit var controllerUnderTest: MessageListController
 
+    private lateinit var getCombinedMessagesAsInAppMessageUseCase: GetCombinedMessagesAsInAppMessageUseCase
+    private lateinit var getExternalInAppMessagesUseCase: GetExternalInAppMessagesUseCase
     private lateinit var getMessagesUseCase: GetMessagesUseCase
     private lateinit var getInternalMessagesUseCase: GetInternalMessagesUseCase
+    private lateinit var orderToInAppMessageMapper: OrderToInAppMessageMapper
+    private lateinit var messagesStringProvider: MessagesStringProvider
     private lateinit var tracker: Tracker
 
     val euRepository: EuRepository = mockk()
-    val prescriptionRepository: PrescriptionRepository = mockk()
+    val taskOperationsRepository: TaskOperationsRepository = mockk()
     val mapper: EuOrderToMessagesMapper = mockk()
 
     private lateinit var getLatestEuOrderMessageAsInAppMessageUseCase: GetLatestEuOrderMessageAsInAppMessageUseCase
@@ -111,7 +119,6 @@ class MessageListControllerTest {
         coEvery {
             profileRepository.profiles()
         } returns flowOf(listOf(API_MOCK_PROFILE, API_MOCK_PROFILE.copy(id = "2", active = false)))
-        coEvery { communicationRepository.loadPharmacies() } returns flowOf(listOf(CACHED_PHARMACY))
         coEvery { communicationRepository.hasUnreadDispenseMessage(any(), any()) } returns flowOf(
             true
         )
@@ -124,7 +131,10 @@ class MessageListControllerTest {
         coEvery { communicationRepository.loadDispReqCommunicationsByProfileId(any()) } returns flowOf(
             listOf(COMMUNICATION_DATA)
         )
-        coEvery { communicationRepository.loadRepliedCommunications(any(), any()) } returns flowOf(
+        coEvery { communicationRepository.loadRepliedCommunicationsByProfileId(any()) } returns flowOf(
+            emptyList()
+        )
+        coEvery { communicationRepository.loadRepliedCommunications(any<List<String>>(), any<String>()) } returns flowOf(
             emptyList()
         )
         coEvery { communicationRepository.loadDispReqCommunications(any()) } returns flowOf(
@@ -136,8 +146,9 @@ class MessageListControllerTest {
             )
         )
         coEvery { invoiceRepository.hasUnreadInvoiceMessages(any()) } returns flowOf(false)
-        coEvery { pharmacyRepository.savePharmacyToCache(any()) } returns Unit
-        every { pharmacyRepository.loadCachedPharmacies() } returns flowOf(emptyList())
+        coEvery { pharmacyRepository.findLocalPharmacyByTelematikId(any()) } returns null
+        coEvery { pharmacyRepository.searchPharmacyByTelematikId(any()) } returns Result.failure(Exception())
+        coEvery { communicationRepository.updatePharmacyName(any(), any()) } returns Unit
         every { mockContext.getString(any()) } returns IN_APP_MESSAGE_TEXT
         every { mockContext.resources.configuration.locales[0].language } returns "de"
         coEvery { tracker.trackMetric(any()) } just Runs
@@ -153,22 +164,38 @@ class MessageListControllerTest {
         )
         getInternalMessagesUseCase = GetInternalMessagesUseCase(
             internalMessagesRepository,
-            changeLogLocalDataSource
+            changeLogLocalDataSource,
+            dispatcher
         )
 
         getLatestEuOrderMessageAsInAppMessageUseCase = GetLatestEuOrderMessageAsInAppMessageUseCase(
             mockContext,
             euRepository,
-            prescriptionRepository,
+            taskOperationsRepository,
             mapper
+        )
+
+        messagesStringProvider = object : MessagesStringProvider {
+            override fun getString(resourceId: Int, vararg args: Any): String = IN_APP_MESSAGE_TEXT
+        }
+        orderToInAppMessageMapper = OrderToInAppMessageMapper(messagesStringProvider)
+        getExternalInAppMessagesUseCase = GetExternalInAppMessagesUseCase(
+            communicationRepository = communicationRepository,
+            getMessagesUseCase = getMessagesUseCase,
+            orderToInAppMessageMapper = orderToInAppMessageMapper,
+            dispatcher = dispatcher
+        )
+        getCombinedMessagesAsInAppMessageUseCase = GetCombinedMessagesAsInAppMessageUseCase(
+            getExternalInAppMessagesUseCase = getExternalInAppMessagesUseCase,
+            getInternalMessagesUseCase = getInternalMessagesUseCase,
+            getLatestEuOrderMessageAsInAppMessageUseCase = getLatestEuOrderMessageAsInAppMessageUseCase,
+            dispatcher = dispatcher
         )
 
         controllerUnderTest =
             MessageListController(
-                getMessagesUseCase = getMessagesUseCase,
-                getInternalMessagesUseCase = getInternalMessagesUseCase,
+                getCombinedMessagesAsInAppMessageUseCase = getCombinedMessagesAsInAppMessageUseCase,
                 context = mockContext,
-                getLatestEuOrderMessageAsInAppMessageUseCase = getLatestEuOrderMessageAsInAppMessageUseCase,
                 tracker = tracker
             )
     }
@@ -193,7 +220,7 @@ class MessageListControllerTest {
             WELCOME_MESSAGE_VERSION
         )
         coEvery { buildConfigInformation.versionName() } returns (WELCOME_MESSAGE_VERSION)
-        coEvery { changeLogLocalDataSource.getInternalMessageInCurrentLanguage(welcomeMessage) } returns welcomeMessage
+        every { changeLogLocalDataSource.getInternalMessageInCurrentLanguage(any<InternalMessageErpModel>()) } returns welcomeMessage
         coEvery { internalMessagesRepository.updateInternalMessage(welcomeMessage) } returns Unit
 
         testScope.runTest {
@@ -251,10 +278,13 @@ class MessageListControllerTest {
         coEvery { internalMessagesRepository.getInternalMessages() } returns flowOf(emptyList())
         coEvery { profileRepository.profiles() } returns flowOf(emptyList())
         testScope.runTest {
-            advanceUntilIdle()
-            val orders = controllerUnderTest.messagesList.first()
-            // orders check
-            assertEquals(true, orders.isEmptyState)
+            controllerUnderTest.messagesList.test {
+                val item1 = awaitItem()
+                assertEquals(true, item1.isLoadingState)
+                advanceUntilIdle()
+                val item2 = awaitItem()
+                assertEquals(true, item2.isEmptyState)
+            }
         }
     }
 
@@ -267,12 +297,14 @@ class MessageListControllerTest {
                 welcomeMessage
             )
         )
-        coEvery { changeLogLocalDataSource.getInternalMessageInCurrentLanguage(welcomeMessage) } returns welcomeMessage
+        coEvery { changeLogLocalDataSource.getInternalMessageInCurrentLanguage(any<InternalMessageErpModel>()) } returns welcomeMessage
         coEvery { internalMessagesRepository.updateInternalMessage(welcomeMessage) } returns Unit
 
         testScope.runTest {
             advanceUntilIdle()
-            val orders = controllerUnderTest.messagesList.first()
+            var orders = controllerUnderTest.messagesList.first()
+            advanceUntilIdle()
+            orders = controllerUnderTest.messagesList.first()
             // orders check
             assertEquals(true, orders.isDataState)
         }

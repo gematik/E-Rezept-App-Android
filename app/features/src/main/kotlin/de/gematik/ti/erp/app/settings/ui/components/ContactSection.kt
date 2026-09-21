@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccessibilityNew
 import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material.icons.outlined.Poll
 import androidx.compose.material.icons.rounded.Phone
@@ -66,6 +67,13 @@ fun ContactSection(
             text = stringResource(R.string.settings_contact_feedback_form),
             onClick = {
                 contactClickActions.onClickMail()
+            }
+        )
+        LabelButton(
+            icon = Icons.Outlined.AccessibilityNew,
+            text = stringResource(R.string.settings_contact_report_accessibility_issue),
+            onClick = {
+                contactClickActions.onClickReportAccessibilityIssue()
             }
         )
         LabelButton(

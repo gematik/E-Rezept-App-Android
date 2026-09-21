@@ -70,6 +70,42 @@ val medicationRequestJson_vers_1_3 by lazy {
     )
 }
 
+val medicationRequestJson_vers_1_4_with_teratogenic by lazy {
+    getResourceAsString(
+        "/fhir/kbv_parser/medication_request/medication_request_1_4_with_teratogenic.json"
+    )
+}
+
+val medicationRequestJson_vers_1_4_teratogenic_off_label_true by lazy {
+    getResourceAsString(
+        "/fhir/kbv_parser/medication_request/medication_request_1_4_teratogenic_off_label_true.json"
+    )
+}
+
+val medicationRequestJson_vers_1_4_teratogenic_gebaerfaehige_frau_true by lazy {
+    getResourceAsString(
+        "/fhir/kbv_parser/medication_request/medication_request_1_4_teratogenic_gebaerfaehige_frau_true.json"
+    )
+}
+
+val medicationRequestJson_vers_1_4_teratogenic_sicherheitsmassnahmen_true by lazy {
+    getResourceAsString(
+        "/fhir/kbv_parser/medication_request/medication_request_1_4_teratogenic_sicherheitsmassnahmen_true.json"
+    )
+}
+
+val medicationRequestJson_vers_1_4_teratogenic_informationsmaterialien_true by lazy {
+    getResourceAsString(
+        "/fhir/kbv_parser/medication_request/medication_request_1_4_teratogenic_informationsmaterialien_true.json"
+    )
+}
+
+val medicationRequestJson_vers_1_4_teratogenic_sachkenntnis_true by lazy {
+    getResourceAsString(
+        "/fhir/kbv_parser/medication_request/medication_request_1_4_teratogenic_sachkenntnis_true.json"
+    )
+}
+
 // medication
 
 val medicationPzn_vers_1_6_sumatripanmedication by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication-sumatripanmedication_1_6.json") }

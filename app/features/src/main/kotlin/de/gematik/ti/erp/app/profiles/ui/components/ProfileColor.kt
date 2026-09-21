@@ -27,49 +27,49 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
 import de.gematik.ti.erp.app.theme.AppTheme
 
 @Immutable
 data class ProfileColor(val textColor: Color, val colorName: String, val backgroundColor: Color, val borderColor: Color)
 
 @Composable
-fun ProfilesData.ProfileColorNames.color(): ProfileColor {
+fun ProfileColorNames.color(): ProfileColor {
     return profileColor(this)
 }
 
 @Composable
-fun profileColor(profileColorNames: ProfilesData.ProfileColorNames): ProfileColor {
+fun profileColor(profileColorNames: ProfileColorNames): ProfileColor {
     return when (profileColorNames) {
-        ProfilesData.ProfileColorNames.SPRING_GRAY -> ProfileColor(
+        ProfileColorNames.SPRING_GRAY -> ProfileColor(
             textColor = AppTheme.colors.neutral700,
             colorName = stringResource(R.string.profile_color_name_gray),
             backgroundColor = AppTheme.colors.neutral200,
             borderColor = AppTheme.colors.neutral400
         )
 
-        ProfilesData.ProfileColorNames.SUN_DEW -> ProfileColor(
+        ProfileColorNames.SUN_DEW -> ProfileColor(
             textColor = AppTheme.colors.yellow700,
             colorName = stringResource(R.string.profile_color_sun_dew),
             backgroundColor = AppTheme.colors.yellow200,
             borderColor = AppTheme.colors.yellow400
         )
 
-        ProfilesData.ProfileColorNames.PINK -> ProfileColor(
+        ProfileColorNames.PINK -> ProfileColor(
             textColor = AppTheme.colors.red700,
             colorName = stringResource(R.string.profile_color_name_pink),
             backgroundColor = AppTheme.colors.red200,
             borderColor = AppTheme.colors.red400
         )
 
-        ProfilesData.ProfileColorNames.TREE -> ProfileColor(
+        ProfileColorNames.TREE -> ProfileColor(
             textColor = AppTheme.colors.green700,
             colorName = stringResource(R.string.profile_color_name_tree),
             backgroundColor = AppTheme.colors.green200,
             borderColor = AppTheme.colors.green400
         )
 
-        ProfilesData.ProfileColorNames.BLUE_MOON -> ProfileColor(
+        ProfileColorNames.BLUE_MOON -> ProfileColor(
             textColor = AppTheme.colors.primary700,
             colorName = stringResource(R.string.profile_color_name_moon),
             backgroundColor = AppTheme.colors.primary200,

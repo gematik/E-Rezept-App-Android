@@ -32,25 +32,30 @@ import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.EU_REDEEM
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
 import de.gematik.ti.erp.app.medicationplan.usecase.GetMedicationScheduleByTaskIdUseCase
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.usecase.DeletePrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetPrescriptionByTaskIdUseCase
 import de.gematik.ti.erp.app.prescription.usecase.RedeemScannedTaskUseCase
 import de.gematik.ti.erp.app.prescription.usecase.UpdateScannedTaskNameUseCase
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profiles.ui.extension.extract
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.uistate.UiState
+import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isEmptyState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -63,43 +68,45 @@ class PrescriptionDetailController(
     chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase,
     networkStatusTracker: NetworkStatusTracker,
     biometricAuthenticator: BiometricAuthenticator,
-
+    loadMedicationScheduleByTaskIdUseCase: GetMedicationScheduleByTaskIdUseCase,
     private val taskId: String,
     private val redeemScannedTaskUseCase: RedeemScannedTaskUseCase,
     private val deletePrescriptionUseCase: DeletePrescriptionUseCase,
-    private val loadMedicationScheduleByTaskIdUseCase: GetMedicationScheduleByTaskIdUseCase,
     private val getPrescriptionByTaskIdUseCase: GetPrescriptionByTaskIdUseCase,
     private val updateScannedTaskNameUseCase: UpdateScannedTaskNameUseCase,
-    private val isFeatureToggleEnabledUseCase: IsFeatureToggleEnabledUseCase,
-    private val _profilePrescription:
-        MutableStateFlow<UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>> =
-            MutableStateFlow(UiState.Loading()),
-    val profilePrescription: StateFlow<UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>> =
-        _profilePrescription
+    private val isFeatureToggleEnabledUseCase: IsFeatureToggleEnabledUseCase
 ) : ChooseAuthenticationController(
     getProfileByIdUseCase = getProfileByIdUseCase,
     getProfilesUseCase = getProfilesUseCase,
     getActiveProfileUseCase = getActiveProfileUseCase,
     chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
     networkStatusTracker = networkStatusTracker,
-    biometricAuthenticator = biometricAuthenticator,
-    onActiveProfileSuccess = { profile, scope ->
-        scope.launch {
-            runCatching { getPrescriptionByTaskIdUseCase(taskId).first() }.fold(
-                onSuccess = { _profilePrescription.value = UiState.Data(profile to it) },
-                onFailure = { _profilePrescription.value = UiState.Error(it) }
-            )
-        }
-    },
-    onActiveProfileFailure = { error, _ ->
-        _profilePrescription.value = UiState.Error(error)
-    }
+    biometricAuthenticator = biometricAuthenticator
 ) {
     private val _euRedeemFeatureFlag: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val euRedeemFeatureFlag: StateFlow<Boolean> = _euRedeemFeatureFlag
-
     val onBiometricAuthenticationSubmitSuccessEvent = ComposableEvent<Unit>()
     val onBiometricAuthenticationDeletedSuccessEvent = ComposableEvent<Unit>()
+
+    val profilePrescription: StateFlow<UiState<Pair<ProfileErpModel, TaskErpModel>>> by lazy {
+        combine(
+            activeProfile,
+            getPrescriptionByTaskIdUseCase(taskId)
+                .map { UiState.Data(it) }
+                .catch { emit(UiState.Error(it)) }
+                .onEmpty { emit(UiState.Empty()) }
+        ) { profileState, taskState ->
+            val profile = profileState.data
+            val task = taskState.data
+            when {
+                profile != null && task != null -> UiState.Data(profile to task)
+                profileState.error != null -> UiState.Error(profileState.error!!)
+                taskState.error != null -> UiState.Error(taskState.error!!)
+                profileState.isEmptyState || taskState.isEmptyState -> UiState.Empty()
+                else -> UiState.Loading()
+            }
+        }.stateIn(controllerScope, SharingStarted.WhileSubscribed(), UiState.Loading())
+    }
 
     init {
         biometricAuthenticationSuccessEvent.listen(controllerScope) { reason ->
@@ -127,7 +134,7 @@ class PrescriptionDetailController(
             }
         } ?: false
 
-    val medicationSchedule: StateFlow<MedicationSchedule?> = loadMedicationScheduleByTaskIdUseCase(taskId)
+    val medicationScheduleErpModel: StateFlow<MedicationScheduleErpModel?> = loadMedicationScheduleByTaskIdUseCase(taskId)
         .stateIn(controllerScope, SharingStarted.WhileSubscribed(), null)
 
     private val _prescriptionDeleted by lazy {
@@ -146,7 +153,6 @@ class PrescriptionDetailController(
     ) {
         controllerScope.launch {
             redeemScannedTaskUseCase(taskId, redeem)
-            refreshActiveProfile()
         }
     }
 
@@ -156,7 +162,6 @@ class PrescriptionDetailController(
     ) {
         controllerScope.launch {
             updateScannedTaskNameUseCase(taskId, name)
-            refreshActiveProfile()
         }
     }
 
@@ -164,13 +169,19 @@ class PrescriptionDetailController(
         isAuthenticationSuccess: Boolean = false
     ) = controllerScope.launch {
         activeProfile.extract()?.let { profile ->
-            if (isAuthenticationSuccess || profile.isSSOTokenValid()) {
-                deletePrescriptionUseCase(profile.id, taskId, false).first().apply {
-                    _prescriptionDeleted.value = this as DeletePrescriptionUseCase.DeletePrescriptionState
-                }
-            } else {
-                chooseAuthenticationMethod(profile, authenticationReason = AuthReason.DELETED)
-                _profilePrescription.value = UiState.Loading()
+            when {
+                profilePrescription.value.data?.second is TaskErpModel.Scanned ->
+                    deletePrescriptionUseCase(profile.id, taskId, true).first().apply {
+                        _prescriptionDeleted.value = this as DeletePrescriptionUseCase.DeletePrescriptionState
+                    }
+
+                isAuthenticationSuccess || profile.isSSOTokenValid() ->
+                    deletePrescriptionUseCase(profile.id, taskId, false).first().apply {
+                        _prescriptionDeleted.value = this as DeletePrescriptionUseCase.DeletePrescriptionState
+                    }
+
+                else ->
+                    chooseAuthenticationMethod(profile, authenticationReason = AuthReason.DELETED)
             }
         }
     }
@@ -205,7 +216,7 @@ fun rememberPrescriptionDetailController(taskId: String): PrescriptionDetailCont
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
     val isFeatureToggleEnabledUseCase by rememberInstance<IsFeatureToggleEnabledUseCase>()
 
-    return remember {
+    return remember(taskId) {
         PrescriptionDetailController(
             getProfileByIdUseCase = getProfileByIdUseCase,
             getProfilesUseCase = getProfilesUseCase,

@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.idp.usecase
 
 import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.idp.IdpConfigurationErpModel
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.vau.repository.VauRemoteDataSource
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
@@ -33,7 +33,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import io.mockk.spyk
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
@@ -59,7 +58,7 @@ class IdpBasicUseCaseTest {
     private lateinit var useCase: IdpBasicUseCase
 
     private val now = Clock.System.now()
-    private val idpConfigNow = IdpData.IdpConfiguration(
+    private val idpConfigNow = IdpConfigurationErpModel(
         authorizationEndpoint = "",
         ssoEndpoint = "",
         tokenEndpoint = "",
@@ -67,7 +66,7 @@ class IdpBasicUseCaseTest {
         authenticationEndpoint = "",
         pukIdpEncEndpoint = "",
         pukIdpSigEndpoint = "",
-        certificate = mockk(),
+        certificate = byteArrayOf(0x01),
         expirationTimestamp = now + 24.hours,
         issueTimestamp = now,
         externalAuthorizationIDsEndpoint = "",

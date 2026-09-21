@@ -22,20 +22,11 @@
 
 package de.gematik.ti.erp.app.diga.local
 
-import de.gematik.ti.erp.app.database.realm.utils.queryFirst
-import de.gematik.ti.erp.app.database.realm.utils.safeWrite
-import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
-import de.gematik.ti.erp.app.database.realm.v1.task.entity.SyncedTaskEntityV1
-import de.gematik.ti.erp.app.diga.model.DigaStatus
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.repository.toSyncedTask
-import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import io.realm.kotlin.Realm
-import io.realm.kotlin.ext.query
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+/*
+@Deprecated(
+    message = "Use TaskLocalDataSource instead",
+    level = DeprecationLevel.ERROR
+)
 
 class DigaLocalDataSource(
     private val realm: Realm
@@ -117,4 +108,4 @@ class DigaLocalDataSource(
                     syncedTask.toSyncedTask()
                 }
             }
-}
+} */

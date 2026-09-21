@@ -26,7 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.profiles.usecase.model.PairedDevice
+import de.gematik.ti.erp.app.profile.model.PairedDeviceErpModel
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
@@ -42,9 +42,9 @@ private data class DeleteDeviceDialogParams(
 
 @Composable
 fun DeleteDeviceDialog(
-    event: ComposableEvent<PairedDevice>,
+    event: ComposableEvent<PairedDeviceErpModel>,
     dialogScaffold: DialogScaffold,
-    onClickAction: (PairedDevice) -> Unit
+    onClickAction: (PairedDeviceErpModel) -> Unit
 ) {
     event.listen { device ->
         dialogScaffold.show {

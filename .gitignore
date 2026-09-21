@@ -1,6 +1,7 @@
 *.iml
 .gradle
 /local.properties
+/ci/local/
 /.idea
 .DS_Store
 /build
@@ -30,10 +31,30 @@ downloads/
 /.github/prompt-index.md
 /.github/prompt-naming-guidelines.md
 /.github/copilot-instructions.md
-/.junie/guidelines.md
 /documentation/arc-42/node_modules/
 /documentation/arc-42/.vscode/
 /documentation/arc-42/RUNNING.md
+/.ai/mcp/mcp.json
+/ci/test-mr-notification.sh
+/ci/test-release-notification.sh
+/ci/test-nightly-notification.sh
+/check_ci_leaks.sh
+/.junie/
+/.bundle/
+/.ai/
+/vendor/
+/.gemini/agents/entire-search.md
+/.entire/settings.json
+/.gemini/settings.json
+/.entire/
+/.gemini/
+/AGENTS.md
+/.github/agents/
+/.agents/
+/.claude/
+/skills-lock.json
+/.env
+/.tool-versions
 
 Jenkinsfile
 Nightly.Jenkinsfile
@@ -63,6 +84,7 @@ desktop
 smartcard-wrapper
 common/src/desktopMain
 app/test-actions
+app/android/google-services.json
 documentation-internal
 app/android/src/androidTest
 ci
@@ -78,3 +100,5 @@ documentation/arc-42/node_modules
 documentation/arc-42/package.json
 documentation/arc-42/package-lock.json
 documentation/arc-42/RUNNING.md
+/ci/local/
+local.properties

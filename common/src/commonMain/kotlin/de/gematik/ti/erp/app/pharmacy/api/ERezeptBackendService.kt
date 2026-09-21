@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.pharmacy.api
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.digas.data.model.DigaData
+import de.gematik.ti.erp.app.diga.model.DigaData
 import de.gematik.ti.erp.app.pharmacy.api.model.SearchAccessTokenResponse
 import retrofit2.Call
 import retrofit2.http.GET

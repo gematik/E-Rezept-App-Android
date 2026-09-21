@@ -35,9 +35,10 @@ import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 
-@Deprecated("Use Prescription instead")
+@Deprecated("Use TaskErpModel and its subtypes instead")
 object PrescriptionData {
     @Immutable
+    @Deprecated("Use TaskErpModel and its subtypes instead")
     sealed interface Prescription {
         val profileId: ProfileIdentifier
         val name: String?
@@ -50,6 +51,7 @@ object PrescriptionData {
     }
 
     @Stable
+    @Deprecated("Use TaskErpModel and its subtypes instead")
     data class Scanned(
         val task: ScannedTaskData.ScannedTask
     ) : Prescription {
@@ -67,6 +69,7 @@ object PrescriptionData {
     }
 
     @Stable
+    @Deprecated("Use TaskErpModel and its subtypes instead")
     data class Synced(
         val task: SyncedTaskData.SyncedTask,
         val now: Instant = Clock.System.now()
@@ -96,6 +99,7 @@ object PrescriptionData {
         val deviceRequest: FhirTaskKbvDeviceRequestErpModel? = task.deviceRequest
         override val isEuRedeemable = task.isEuRedeemable
         val isEuRedeemableByPatientAuthorization = task.isEuRedeemableByPatientAuthorization
+        val isTeratogenicPrescription = task.medicationRequest.isTeratogenic()
         override fun isActive(): Boolean = task.isActive()
         override fun isReady(): Boolean = task.isReady()
     }

@@ -29,8 +29,10 @@ import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodMetadata
 import de.gematik.ti.erp.app.fhir.pharmacy.model.SpecialOpeningTimeErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.SpecialOpeningTimeMetadata
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyOpeningHoursErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyOpeningTimeErpModel
+import de.gematik.ti.erp.app.pharmacy.model.ContactInformationErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -127,13 +129,13 @@ val mockSpecialOpeningTimes = listOf(
     )
 )
 
-val mockPharmacy = Pharmacy(
+val mockPharmacy = PharmacyDetailsErpModel(
     id = "pharmacy",
-    name = "Test - Pharmacy",
+    name = "Test - PharmacyDetailsErpModel",
     address = null,
     coordinates = null,
     distance = null,
-    contact = PharmacyUseCaseData.PharmacyContact(
+    contact = ContactInformationErpModel(
         phone = "0123456",
         mail = "mail@mail.com",
         url = "https://website.com"
@@ -145,16 +147,16 @@ val mockPharmacy = Pharmacy(
     telematikId = "telematik-id"
 )
 
-val openingTimeA = PharmacyUseCaseData.OpeningTime(
+val openingTimeA = PharmacyOpeningTimeErpModel(
     LocalTime.parse("08:00:00"),
     LocalTime.parse("12:00:00")
 )
-val openingTimeB = PharmacyUseCaseData.OpeningTime(
+val openingTimeB = PharmacyOpeningTimeErpModel(
     LocalTime.parse("14:00:00"),
     LocalTime.parse("18:00:00")
 )
 
-val mockOpeningHours = PharmacyUseCaseData.OpeningHours(
+val mockOpeningHours = PharmacyOpeningHoursErpModel(
     openingTime = mapOf(
         DayOfWeek.MONDAY to listOf(openingTimeA, openingTimeB),
         DayOfWeek.TUESDAY to listOf(openingTimeA, openingTimeB),

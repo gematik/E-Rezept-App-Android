@@ -38,11 +38,11 @@ import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isConsentGrant
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.fhir.temporal.Year
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.invoice.model.InvoiceResult
 import de.gematik.ti.erp.app.invoice.model.InvoiceResult.InvoiceError
 import de.gematik.ti.erp.app.invoice.model.InvoiceResult.InvoiceSuccess.SuccessOnDeletion
 import de.gematik.ti.erp.app.invoice.model.InvoiceResult.UserNotLoggedInError
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
 import de.gematik.ti.erp.app.invoice.usecase.DeleteAllLocalInvoices
 import de.gematik.ti.erp.app.invoice.usecase.DeleteInvoiceUseCase
 import de.gematik.ti.erp.app.invoice.usecase.DownloadInvoicesUseCase
@@ -111,7 +111,7 @@ class InvoiceController(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val invoices: StateFlow<UiState<Map<Year, List<InvoiceData.PKVInvoiceRecord>>>> by lazy {
+    val invoices: StateFlow<UiState<Map<Year, List<PKVInvoiceErpModel>>>> by lazy {
         getInvoicesTrigger.flatMapLatest { getInvoices() }
             .stateIn(
                 controllerScope,
@@ -135,7 +135,7 @@ class InvoiceController(
         }
     }
 
-    fun getInvoiceForTaskId(taskId: String): Flow<InvoiceData.PKVInvoiceRecord?> =
+    fun getInvoiceForTaskId(taskId: String): Flow<PKVInvoiceErpModel?> =
         getInvoiceByTaskIdUseCase(taskId)
 
     fun deleteInvoice(
@@ -246,7 +246,7 @@ class InvoiceController(
     fun uiState(
         consentState: ConsentState,
         ssoTokenValid: Boolean,
-        invoice: InvoiceData.PKVInvoiceRecord?
+        invoice: PKVInvoiceErpModel?
     ): InvoiceCardUiState {
         return when {
             consentState == ConsentState.ValidState.Loading && ssoTokenValid -> InvoiceCardUiState.Loading

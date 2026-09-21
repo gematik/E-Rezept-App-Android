@@ -38,7 +38,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
-import de.gematik.ti.erp.app.base.model.DownloadResourcesState.Companion.isInProgress
 import de.gematik.ti.erp.app.core.LocalNavController
 import de.gematik.ti.erp.app.mainscreen.navigation.NavigationGraph
 import de.gematik.ti.erp.app.mainscreen.presentation.rememberAppController
@@ -49,7 +48,7 @@ import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.settings.navigation.SettingsRoutes
-import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
+import de.gematik.ti.erp.app.appauthentication.observer.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
 import de.gematik.ti.erp.app.utils.extensions.LocalUiScopeScaffold
 
@@ -84,14 +83,6 @@ fun ApplicationScaffold(
         )
     }
 
-    LaunchedEffect(refreshState) {
-        if (!refreshState.isInProgress()) {
-            activeProfile.data?.let {
-                appController.updateUnreadOrders(it)
-            }
-        }
-    }
-
     val bottomRoutes = listOf(
         PrescriptionRoutes.PrescriptionListScreen.route,
         PharmacyRoutes.PharmacyStartScreen.route,
@@ -104,12 +95,6 @@ fun ApplicationScaffold(
             // todo: use MainScreenBottomNavigationItems instead of bottomRoutes
             bottomRoutes.contains(it.destination.route)
         } ?: false
-    }
-
-    LaunchedEffect(currentRoute) {
-        activeProfile.data?.let {
-            appController.updateUnreadOrders(it)
-        }
     }
 
     CompositionLocalProvider(

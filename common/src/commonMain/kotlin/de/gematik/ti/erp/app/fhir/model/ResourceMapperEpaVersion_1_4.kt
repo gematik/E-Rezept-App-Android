@@ -30,7 +30,7 @@ import de.gematik.ti.erp.app.fhir.parser.containedStringOrNull
 import de.gematik.ti.erp.app.fhir.parser.filterWith
 import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.stringValue
-import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -113,7 +113,7 @@ fun <Medication, Ingredient, Ratio, Quantity> extractEpaMedications(
 
     val lotNumber = resource.containedOrNull("batch")?.containedStringOrNull("lotNumber")
     val expirationDate = resource.containedOrNull("batch")
-        ?.containedOrNull("expirationDate")?.jsonPrimitive?.toFhirTemporal()
+        ?.containedOrNull("expirationDate")?.jsonPrimitive?.asFhirTemporal()
 
     return processMedication(
         text,
@@ -200,7 +200,7 @@ fun <Medication, Ingredient, Ratio, Quantity> extractContainedMedication(
 
     val lotNumber = resource.containedOrNull("batch")?.containedStringOrNull("lotNumber")
     val expirationDate = resource.containedOrNull("batch")
-        ?.containedOrNull("expirationDate")?.jsonPrimitive?.toFhirTemporal()
+        ?.containedOrNull("expirationDate")?.jsonPrimitive?.asFhirTemporal()
 
     return processIngredientMedication(
         text,

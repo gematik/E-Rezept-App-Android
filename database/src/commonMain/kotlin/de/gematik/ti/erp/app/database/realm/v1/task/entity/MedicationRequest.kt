@@ -60,9 +60,11 @@ class MedicationRequestEntityV1 : RealmObject, Cascading {
     var multiplePrescriptionInfo: MultiplePrescriptionInfoEntityV1? = null
     var bvg: Boolean = false
     var additionalFee: String? = null
+    var teratogenicPrescription: TeratogenicPrescriptionEntityV1? = null
 
     override fun objectsToFollow(): Iterator<Deleteable> = iterator {
         medication?.let { yield(it) }
         multiplePrescriptionInfo?.let { yield(it) }
+        teratogenicPrescription?.let { yield(it) }
     }
 }

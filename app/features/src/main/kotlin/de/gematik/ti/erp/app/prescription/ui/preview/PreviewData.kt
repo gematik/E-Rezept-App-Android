@@ -23,26 +23,31 @@
 package de.gematik.ti.erp.app.prescription.ui.preview
 
 import de.gematik.ti.erp.app.BuildKonfig
-import de.gematik.ti.erp.app.diga.model.DigaStatus
-import de.gematik.ti.erp.app.idp.model.IdpData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
+import de.gematik.ti.erp.app.task.model.MedicationRequestErpModel
+import de.gematik.ti.erp.app.task.model.MultiplePrescriptionInfo
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
+import de.gematik.ti.erp.app.userauthentication.model.SingleSignOnTokenErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.bouncycastle.util.encoders.Base64
 import java.util.UUID
 import kotlin.time.Duration.Companion.days
 
-private val validSingleSignOnToken = IdpData.SingleSignOnToken(
+private val validSingleSignOnToken = SingleSignOnTokenErpModel(
     token = UUID.randomUUID().toString(),
     expiresOn = Clock.System.now().plus(200.days),
     validOn = Clock.System.now().minus(20.days)
 )
 
-private val invalidSingleSignOnToken = IdpData.SingleSignOnToken(
+private val invalidSingleSignOnToken = SingleSignOnTokenErpModel(
     token = UUID.randomUUID().toString(),
     expiresOn = Clock.System.now().plus(200.days),
     validOn = Clock.System.now().plus(20.days)
@@ -51,298 +56,267 @@ private val invalidSingleSignOnToken = IdpData.SingleSignOnToken(
 private const val CAN = "123123"
 private val healthCardCertificate = Base64.decode(BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE)
 
-val PREVIEW_ACTIVE_PROFILE = ProfilesUseCaseData.Profile(
+val PREVIEW_ACTIVE_PROFILE = ProfileErpModel(
     id = "1",
     name = "Max Mustermann",
-    insurance = ProfileInsuranceInformation(
-        insuranceType = ProfilesUseCaseData.InsuranceType.GKV
+    profileImageData = ProfileImageDataErpModel(
+        avatar = Avatar.ManWithPhone,
+        image = null,
+        color = ProfileColorNames.SPRING_GRAY
     ),
-    isActive = true,
-    color = ProfilesData.ProfileColorNames.SPRING_GRAY,
+    insuranceData = ProfileInsuranceDataErpModel(
+        insurantName = "Max Mustermann",
+        insuranceIdentifier = "123456789",
+        insuranceName = "AOK",
+        insuranceType = InsuranceType.GKV,
+        organizationIdentifier = "DE123456789"
+    ),
+    active = true,
     lastAuthenticated = Instant.parse("2024-08-01T10:00:00Z"),
-    ssoTokenScope = IdpData.DefaultToken(
-        token = validSingleSignOnToken,
+    userAuthentication = UserAuthenticationErpModel.HealthCard(
+        singleSignOnTokenErpModel = validSingleSignOnToken,
         cardAccessNumber = CAN,
         healthCardCertificate = healthCardCertificate
     ),
-    avatar = ProfilesData.Avatar.ManWithPhone,
-    image = null
+    lastTaskSynced = Instant.parse("2024-08-01T10:00:00Z"),
+    lastAuditEventSynced = Instant.parse("2024-08-01T10:00:00Z"),
+    isNewlyCreated = false,
+    isConsentDrawerShown = true
 )
 
 val PREVIEW_INVALID_PROFILE = PREVIEW_ACTIVE_PROFILE.copy(
-    ssoTokenScope = IdpData.DefaultToken(
-        token = invalidSingleSignOnToken,
+    userAuthentication = UserAuthenticationErpModel.HealthCard(
+        singleSignOnTokenErpModel = invalidSingleSignOnToken,
         cardAccessNumber = CAN,
         healthCardCertificate = healthCardCertificate
     )
 )
 
-val MOCK_MODEL_PROFILE = ProfilesUseCaseData.Profile(
+val MOCK_MODEL_PROFILE = ProfileErpModel(
     id = "id-1",
     name = "first profile",
-    insurance = ProfileInsuranceInformation(
+    insuranceData = ProfileInsuranceDataErpModel(
         insurantName = "insurantName",
         insuranceIdentifier = "insuranceIdentifier",
         insuranceName = "insuranceName",
-        insuranceType = ProfilesUseCaseData.InsuranceType.GKV
+        insuranceType = InsuranceType.GKV,
+        organizationIdentifier = "organizationIdentifier"
     ),
-    isActive = true,
-    color = ProfilesData.ProfileColorNames.PINK,
-    avatar = ProfilesData.Avatar.Baby,
-    image = byteArrayOf(0x00, 0x01, 0x02),
-    lastAuthenticated = Instant.parse("2024-08-01T10:00:00Z"),
-    ssoTokenScope = null
+    active = true,
+    profileImageData = ProfileImageDataErpModel(
+        color = ProfileColorNames.PINK,
+        avatar = Avatar.Baby,
+        image = byteArrayOf(0x00, 0x01, 0x02)
+    ),
+    userAuthentication = UserAuthenticationErpModel.NotInitialized,
+    lastAuthenticated = null,
+    lastTaskSynced = null,
+    lastAuditEventSynced = null,
+    isNewlyCreated = true,
+    isConsentDrawerShown = true
 )
 
-val MOCK_MODEL_PROFILE_LOGGED_IN = ProfilesUseCaseData.Profile(
+val MOCK_MODEL_PROFILE_LOGGED_IN = ProfileErpModel(
     id = "id-1",
     name = "logged-in",
-    insurance = ProfileInsuranceInformation(
+    insuranceData = ProfileInsuranceDataErpModel(
         insurantName = "insurantName",
         insuranceIdentifier = "insuranceIdentifier",
         insuranceName = "insuranceName",
-        insuranceType = ProfilesUseCaseData.InsuranceType.GKV
+        insuranceType = InsuranceType.GKV,
+        organizationIdentifier = "organizationIdentifier"
     ),
-    isActive = true,
-    color = ProfilesData.ProfileColorNames.SUN_DEW,
-    avatar = ProfilesData.Avatar.FemaleDoctor,
-    image = byteArrayOf(0x00, 0x01, 0x02),
+    active = true,
+    profileImageData = ProfileImageDataErpModel(
+        color = ProfileColorNames.SUN_DEW,
+        avatar = Avatar.FemaleDoctor,
+        image = byteArrayOf(0x00, 0x01, 0x02)
+    ),
     lastAuthenticated = Instant.parse("2024-08-01T10:00:00Z"),
-    ssoTokenScope = IdpData.ExternalAuthenticationToken(
-        token = IdpData.SingleSignOnToken(
+    userAuthentication = UserAuthenticationErpModel.External(
+        singleSignOnTokenErpModel = SingleSignOnTokenErpModel(
             token = "token",
             expiresOn = Instant.parse("3024-08-01T10:00:00Z"),
             validOn = Instant.parse("2023-08-01T10:00:00Z")
         ),
-        authenticatorName = "authenticatorName",
-        authenticatorId = "authenticatorId"
-    )
+        externalAuthenticatorName = "authenticatorName",
+        externalAuthenticatorId = "authenticatorId"
+    ),
+    lastTaskSynced = null,
+    lastAuditEventSynced = null,
+    isNewlyCreated = true,
+    isConsentDrawerShown = true
 )
 
-val MOCK_MODEL_PROFILE_LOGGED_INVALID = ProfilesUseCaseData.Profile(
+val MOCK_MODEL_PROFILE_LOGGED_INVALID = ProfileErpModel(
     id = "id-invalid",
     name = "token-null",
-    insurance = ProfileInsuranceInformation(
+    insuranceData = ProfileInsuranceDataErpModel(
         insurantName = "insurantName",
         insuranceIdentifier = "insuranceIdentifier",
         insuranceName = "insuranceName",
-        insuranceType = ProfilesUseCaseData.InsuranceType.GKV
+        insuranceType = InsuranceType.GKV,
+        organizationIdentifier = "organizationIdentifier"
     ),
-    isActive = true,
-    color = ProfilesData.ProfileColorNames.SUN_DEW,
-    avatar = ProfilesData.Avatar.WomanWithPhone,
-    image = byteArrayOf(0x00, 0x01, 0x02),
+    active = true,
+    profileImageData = ProfileImageDataErpModel(
+        color = ProfileColorNames.SUN_DEW,
+        avatar = Avatar.WomanWithPhone,
+        image = byteArrayOf(0x00, 0x01, 0x02)
+    ),
     lastAuthenticated = Instant.parse("2024-08-01T10:00:00Z"),
-    ssoTokenScope = IdpData.ExternalAuthenticationToken(
-        token = null,
-        authenticatorName = "authenticatorName",
-        authenticatorId = "authenticatorId"
-    )
+    userAuthentication = UserAuthenticationErpModel.External(
+        singleSignOnTokenErpModel = null,
+        externalAuthenticatorName = "authenticatorName",
+        externalAuthenticatorId = "authenticatorId"
+    ),
+    lastTaskSynced = null,
+    lastAuditEventSynced = null,
+    isNewlyCreated = true,
+    isConsentDrawerShown = true
 )
 
-val MOCK_MODEL_PROFILE_2 = ProfilesUseCaseData.Profile(
+val MOCK_MODEL_PROFILE_2 = ProfileErpModel(
     id = "id-2",
     name = "second profile",
-    insurance = ProfileInsuranceInformation(
+    insuranceData = ProfileInsuranceDataErpModel(
         insurantName = "insurantName",
         insuranceIdentifier = "insuranceIdentifier",
         insuranceName = "insuranceName",
-        insuranceType = ProfilesUseCaseData.InsuranceType.GKV
+        insuranceType = InsuranceType.GKV,
+        organizationIdentifier = "organizationIdentifier"
     ),
-    isActive = true,
-    color = ProfilesData.ProfileColorNames.PINK,
-    avatar = ProfilesData.Avatar.FemaleDoctor,
-    image = byteArrayOf(0x00, 0x01, 0x02),
+    active = true,
+    profileImageData = ProfileImageDataErpModel(
+        color = ProfileColorNames.SUN_DEW,
+        avatar = Avatar.FemaleDoctor,
+        image = byteArrayOf(0x00, 0x01, 0x02)
+    ),
     lastAuthenticated = Instant.parse("2024-08-01T10:00:00Z"),
-    ssoTokenScope = null
+    userAuthentication = UserAuthenticationErpModel.NotInitialized,
+    lastTaskSynced = null,
+    lastAuditEventSynced = null,
+    isNewlyCreated = true,
+    isConsentDrawerShown = true
 )
 
-val MOCK_PRESCRIPTION_SELF_PAYER = Prescription.SyncedPrescription(
+private fun buildPrescription(
+    taskId: String,
+    name: String,
+    status: TaskStatusEnum,
+    expiresOn: Instant = Instant.parse("3024-08-01T10:00:00Z"),
+    acceptUntil: Instant = Instant.parse("3024-08-01T10:00:00Z"),
+    authoredOn: Instant = Instant.parse("2024-08-01T10:00:00Z"),
+    isIncomplete: Boolean = false,
+    medicationRequest: MedicationRequestErpModel? = null
+) = TaskErpModel.Synced.Prescription(
+    profileId = "preview-profile",
+    taskId = taskId,
+    name = name,
+    accessCode = "",
+    isEuRedeemable = false,
+    isEuRedeemableByPatientAuthorization = false,
+    lastModified = Instant.fromEpochSeconds(123456),
+    organization = null,
+    practitioner = null,
+    patient = null,
+    insuranceInformation = null,
+    expiresOn = expiresOn,
+    acceptUntil = acceptUntil,
+    authoredOn = authoredOn,
+    status = status,
+    isIncomplete = isIncomplete,
+    pvsIdentifier = "",
+    failureToReport = "",
+    medicationRequest = medicationRequest,
+    medicationDispenses = emptyList()
+)
+
+val MOCK_PRESCRIPTION_SELF_PAYER = buildPrescription(
     taskId = "Amlodipine",
     name = "Amlodipine",
-    redeemedOn = null,
+    status = TaskStatusEnum.Ready,
     expiresOn = Instant.parse("3024-08-01T10:00:00Z"),
-    state = SyncedTaskData.SyncedTask.Ready(
-        expiresOn = Instant.parse("2023-08-01T10:00:00Z"),
-        acceptUntil = Instant.parse("2024-08-01T10:00:00Z")
-    ),
-    isIncomplete = false,
-    organization = "MOCK_PRACTITIONER_NAME",
-    authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
-    acceptUntil = Instant.parse("2024-08-01T10:00:00Z"), // decides self-payment
-    isDirectAssignment = false,
-    deviceRequestState = DigaStatus.Ready,
-    lastModified = Instant.fromEpochSeconds(123456),
-    prescriptionChipInformation = Prescription.PrescriptionChipInformation(
-        isPartOfMultiplePrescription = false,
-        numerator = null,
-        denominator = null,
-        start = Instant.parse("2024-08-01T10:00:00Z")
-    )
+    acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
+    authoredOn = Instant.parse("2024-08-01T10:00:00Z")
 )
 
-val MOCK_PRESCRIPTION_DIRECT_ASSIGNMENT = MOCK_PRESCRIPTION_SELF_PAYER.copy(
-    taskId = "Atorvastatin",
+val MOCK_PRESCRIPTION_DIRECT_ASSIGNMENT = buildPrescription(
+    taskId = "169.Atorvastatin",
     name = "Atorvastatin",
-    isDirectAssignment = true
+    status = TaskStatusEnum.Ready,
+    expiresOn = Instant.parse("3024-08-01T10:00:00Z"),
+    acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
+    authoredOn = Instant.parse("2024-08-01T10:00:00Z")
 )
 
-val MOCK_PRESCRIPTION_EXPIRED = Prescription.SyncedPrescription(
+val MOCK_PRESCRIPTION_EXPIRED = buildPrescription(
     taskId = "Cetirizine",
     name = "Cetirizine",
-    redeemedOn = null,
-    expiresOn = Instant.parse("3024-08-01T10:00:00Z"),
-    state = SyncedTaskData.SyncedTask.Expired(expiredOn = Instant.parse("2024-08-01T10:00:00Z")),
-    isIncomplete = false,
-    organization = "MOCK_PRACTITIONER_NAME",
-    authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
+    status = TaskStatusEnum.Ready,
+    expiresOn = Instant.parse("2024-08-01T10:00:00Z"),
     acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
-    isDirectAssignment = false,
-    deviceRequestState = DigaStatus.Ready,
-    lastModified = Instant.fromEpochSeconds(123456),
-    prescriptionChipInformation = Prescription.PrescriptionChipInformation(
-        isPartOfMultiplePrescription = false,
-        numerator = null,
-        denominator = null,
-        start = Instant.parse("2024-08-01T10:00:00Z")
-    )
+    authoredOn = Instant.parse("2024-08-01T10:00:00Z")
 )
 
-val MOCK_PRESCRIPTION_DELETED = Prescription.SyncedPrescription(
+val MOCK_PRESCRIPTION_DELETED = buildPrescription(
     taskId = "Glipizide",
     name = "Glipizide",
-    redeemedOn = null,
+    status = TaskStatusEnum.Canceled,
     expiresOn = Instant.parse("3024-08-01T10:00:00Z"),
-    state = SyncedTaskData.SyncedTask.Deleted(lastModified = Instant.parse("2024-08-01T10:00:00Z")),
-    isIncomplete = false,
-    organization = "MOCK_PRACTITIONER_NAME",
-    authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
     acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
-    isDirectAssignment = false,
-    deviceRequestState = DigaStatus.Ready,
-    lastModified = Instant.fromEpochSeconds(123456),
-    prescriptionChipInformation = Prescription.PrescriptionChipInformation(
-        isPartOfMultiplePrescription = false,
-        numerator = null,
-        denominator = null,
-        start = Instant.parse("2024-08-01T10:00:00Z")
-    )
+    authoredOn = Instant.parse("2024-08-01T10:00:00Z")
 )
 
-val MOCK_PRESCRIPTION_PENDING = Prescription.SyncedPrescription(
+val MOCK_PRESCRIPTION_PENDING = buildPrescription(
     taskId = "Metformin",
     name = "Metformin",
-    redeemedOn = null,
+    status = TaskStatusEnum.Ready,
     expiresOn = Instant.parse("3024-08-01T10:00:00Z"),
-    state = SyncedTaskData.SyncedTask.Pending(
-        sentOn = Instant.parse("2024-08-01T10:00:00Z"),
-        toTelematikId = "toTelematikId"
-    ),
-    isIncomplete = false,
-    organization = "MOCK_PRACTITIONER_NAME",
-    authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
     acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
-    isDirectAssignment = false,
-    deviceRequestState = DigaStatus.Ready,
-    lastModified = Instant.fromEpochSeconds(123456),
-    prescriptionChipInformation = Prescription.PrescriptionChipInformation(
-        isPartOfMultiplePrescription = false,
-        numerator = null,
-        denominator = null,
-        start = Instant.parse("2024-08-01T10:00:00Z")
-    )
+    authoredOn = Instant.parse("2024-08-01T10:00:00Z")
 )
 
-val MOCK_PRESCRIPTION_IN_PROGRESS = Prescription.SyncedPrescription(
+val MOCK_PRESCRIPTION_IN_PROGRESS = buildPrescription(
     taskId = "Montelukast",
     name = "Montelukast",
-    redeemedOn = null,
+    status = TaskStatusEnum.InProgress,
     expiresOn = Instant.parse("3024-08-01T10:00:00Z"),
-    state = SyncedTaskData.SyncedTask.InProgress(
-        lastModified = Instant.parse("2024-08-01T10:00:00Z")
-    ),
-    isIncomplete = false,
-    organization = "MOCK_PRACTITIONER_NAME",
-    authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
     acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
-    isDirectAssignment = false,
-    deviceRequestState = DigaStatus.Ready,
-    lastModified = Instant.fromEpochSeconds(123456),
-    prescriptionChipInformation = Prescription.PrescriptionChipInformation(
-        isPartOfMultiplePrescription = false,
-        numerator = null,
-        denominator = null,
-        start = Instant.parse("2024-08-01T10:00:00Z")
-    )
+    authoredOn = Instant.parse("2024-08-01T10:00:00Z")
 )
 
-val MOCK_PRESCRIPTION_LATER_REDEEMABLE = Prescription.SyncedPrescription(
+val MOCK_PRESCRIPTION_LATER_REDEEMABLE = buildPrescription(
     taskId = "Zolpidem",
     name = "Zolpidem",
-    redeemedOn = null,
+    status = TaskStatusEnum.Ready,
     expiresOn = Instant.parse("3024-08-01T10:00:00Z"),
-    state = SyncedTaskData.SyncedTask.LaterRedeemable(
-        redeemableOn = Instant.parse("2024-08-01T10:00:00Z")
-    ),
-    isIncomplete = false,
-    organization = "MOCK_PRACTITIONER_NAME",
-    authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
     acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
-    isDirectAssignment = false,
-    deviceRequestState = DigaStatus.Ready,
-    lastModified = Instant.fromEpochSeconds(123456),
-    prescriptionChipInformation = Prescription.PrescriptionChipInformation(
-        isPartOfMultiplePrescription = false,
-        numerator = null,
-        denominator = null,
-        start = Instant.parse("2024-08-01T10:00:00Z")
+    authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
+    medicationRequest = MedicationRequestErpModel(
+        substitutionAllowed = false,
+        multiplePrescriptionInfo = MultiplePrescriptionInfo(
+            indicator = true,
+            start = Instant.parse("3024-08-01T10:00:00Z")
+        ),
+        note = null
     )
 )
 
-val MOCK_PRESCRIPTION_OTHER = Prescription.SyncedPrescription(
+val MOCK_PRESCRIPTION_OTHER = buildPrescription(
     taskId = "Fluoxetine",
     name = "Fluoxetine",
-    redeemedOn = null,
+    status = TaskStatusEnum.Failed,
     expiresOn = Instant.parse("3024-08-01T10:00:00Z"),
-    state = SyncedTaskData.SyncedTask.Other(
-        state = SyncedTaskData.TaskStatus.Failed,
-        lastModified = Instant.parse("2024-08-01T10:00:00Z")
-    ),
-    isIncomplete = false,
-    organization = "MOCK_PRACTITIONER_NAME",
-    authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
     acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
-    isDirectAssignment = false,
-    deviceRequestState = DigaStatus.Ready,
-    lastModified = Instant.fromEpochSeconds(123456),
-    prescriptionChipInformation = Prescription.PrescriptionChipInformation(
-        isPartOfMultiplePrescription = false,
-        numerator = null,
-        denominator = null,
-        start = Instant.parse("2024-08-01T10:00:00Z")
-    )
+    authoredOn = Instant.parse("2024-08-01T10:00:00Z")
 )
 
-val MOCK_PRESCRIPTION_READY = Prescription.SyncedPrescription(
-    taskId = "Fluoxetine",
+val MOCK_PRESCRIPTION_READY = buildPrescription(
+    taskId = "FluoxetineReady",
     name = "Fluoxetine",
-    redeemedOn = null,
+    status = TaskStatusEnum.Ready,
     expiresOn = Instant.parse("3024-08-01T10:00:00Z"),
-    state = SyncedTaskData.SyncedTask.Ready(
-        expiresOn = Instant.parse("3024-08-01T10:00:00Z"),
-        acceptUntil = Instant.parse("3024-08-01T10:00:00Z")
-    ),
-    isIncomplete = false,
-    organization = "MOCK_PRACTITIONER_NAME",
-    authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
     acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
-    isDirectAssignment = false,
-    deviceRequestState = DigaStatus.Ready,
-    lastModified = Instant.fromEpochSeconds(123456),
-    prescriptionChipInformation = Prescription.PrescriptionChipInformation(
-        isPartOfMultiplePrescription = false,
-        numerator = null,
-        denominator = null,
-        start = Instant.parse("2024-08-01T10:00:00Z")
-    )
+    authoredOn = Instant.parse("2024-08-01T10:00:00Z")
 )

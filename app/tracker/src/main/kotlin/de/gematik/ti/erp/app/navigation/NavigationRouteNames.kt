@@ -29,10 +29,12 @@ enum class NavigationRouteNames(
     DeviceCheckLoadingScreen,
     InsecureDeviceScreen,
     IntegrityWarningScreen,
-    Android8DeprecationScreen,
+    Android13DeprecationScreen,
+    DataMigrationScreen,
 
     // Profile
     ProfileScreen,
+    ProfilePushNotificationSettingsScreen,
     ProfileEditPictureScreen,
     ProfileImageCropperScreen,
     ProfileImageEmojiScreen,
@@ -60,6 +62,7 @@ enum class NavigationRouteNames(
     PrescriptionDetailOrganizationScreen,
     PrescriptionDetailMedicationOverviewScreen,
     PrescriptionDetailMedicationIngredientsScreen,
+    PrescriptionDetailTeratogenicPrescriptionScreen,
     PrescriptionDetailAccidentInfoScreen,
     PrescriptionDetailTechnicalInfoScreen,
     PrescriptionDetailSelfPayerPrescriptionBottomSheetScreen,
@@ -73,6 +76,7 @@ enum class NavigationRouteNames(
     PrescriptionDetailEmergencyFeeExemptBottomSheetScreen,
     PrescriptionDetailEmergencyFeeNotExemptBottomSheetScreen,
     PrescriptionDetailHowLongValidBottomSheetScreen,
+    PrescriptionDetailTeratogenicPrescriptionBottomSheetScreen,
 
     // Onboarding
     OnboardingWelcomeScreen,
@@ -93,6 +97,7 @@ enum class NavigationRouteNames(
     SettingsAdditionalLicencesScreen,
     SettingsLanguageScreen,
     SettingsThemeScreen,
+    SettingsReportAccessibilityIssueScreen,
 
     // Prescriptions
     PrescriptionListScreen,
@@ -103,7 +108,9 @@ enum class NavigationRouteNames(
 
     // Messages
     MessageListScreen,
-    MessageDetailScreen,
+    OrderMessageDetailScreen,
+    UnknownOrderMessageDetailScreen,
+    InternalMessageDetailScreen,
     MessageBottomSheetScreen,
 
     // showcase screen
@@ -170,8 +177,8 @@ enum class NavigationRouteNames(
     MedicationPlanDosageInstructionBottomSheetScreen,
     MedicationPlanScheduleDurationAndIntervalScreen,
 
-    // UserAuthentication
-    UserAuthenticationScreen,
+    // AppAuthentication
+    AppAuthenticationScreen,
 
     // Digas
     DigasMainScreen,

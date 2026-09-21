@@ -29,15 +29,15 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.info.BuildConfigInformation
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profiles.presentation.ProfileController.Companion.DEFAULT_EMPTY_PROFILE
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.settings.presentation.SettingStatesData
 
 val LocalIsPreviewMode = compositionLocalOf { false }
 
 data class SettingsScreenPreviewData(
     val name: String,
-    val profiles: List<ProfilesUseCaseData.Profile>,
+    val profiles: List<ProfileErpModel>,
     val buildConfig: BuildConfigInformation,
     val zoomState: MutableState<SettingStatesData.ZoomState>,
     val screenShotsState: MutableState<Boolean>

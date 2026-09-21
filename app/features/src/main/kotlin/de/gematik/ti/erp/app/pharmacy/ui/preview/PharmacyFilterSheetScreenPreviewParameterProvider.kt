@@ -23,10 +23,10 @@
 package de.gematik.ti.erp.app.pharmacy.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.SearchFilterErpModel
 
 data class PharmacyFilterSheetScreenPreviewData(
-    val filter: PharmacyUseCaseData.Filter,
+    val filter: SearchFilterErpModel,
     val isNearbyFilter: Boolean,
     val navWithStartButton: Boolean,
     val isLoading: Boolean,
@@ -37,7 +37,7 @@ data class PharmacyFilterSheetScreenPreviewData(
 class PharmacyFilterSheetScreenPreviewParameterProvider : PreviewParameterProvider<PharmacyFilterSheetScreenPreviewData> {
     override val values = sequenceOf(
         PharmacyFilterSheetScreenPreviewData(
-            filter = PharmacyUseCaseData.Filter(
+            filter = SearchFilterErpModel(
                 nearBy = true,
                 openNow = false,
                 deliveryService = false,
@@ -50,7 +50,7 @@ class PharmacyFilterSheetScreenPreviewParameterProvider : PreviewParameterProvid
             selectedServiceCodes = emptySet()
         ),
         PharmacyFilterSheetScreenPreviewData(
-            filter = PharmacyUseCaseData.Filter(
+            filter = SearchFilterErpModel(
                 nearBy = false,
                 openNow = true,
                 deliveryService = true,

@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.digas.domain.usecase
 
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -34,7 +34,7 @@ class GetDigaByTaskIdUseCase(
     private val repository: DigaRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(taskId: String): Flow<SyncedTaskData.SyncedTask> =
+    operator fun invoke(taskId: String): Flow<TaskErpModel.Synced.Diga> =
         repository
             .loadDigaByTaskId(taskId)
             .mapNotNull { it }

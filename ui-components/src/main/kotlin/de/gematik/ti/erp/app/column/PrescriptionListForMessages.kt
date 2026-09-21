@@ -94,7 +94,7 @@ fun PrescriptionListForMessages(
                     Icon(
                         imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                         contentDescription = null,
-                        tint = AppTheme.colors.neutral400
+                        tint = AppTheme.colors.neutral700
                     )
                 }
             }

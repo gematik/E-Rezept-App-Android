@@ -22,12 +22,12 @@
 
 package de.gematik.ti.erp.app.medicationplan.presentation
 
-import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
+import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstructionErpModel
 import de.gematik.ti.erp.app.medicationplan.usecase.GetDosageInstructionByTaskIdUseCase
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SCANNED_TASK
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isErrorState
 import io.mockk.MockKAnnotations
@@ -49,7 +49,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MedicationPlanDosageInstructionBottomSheetControllerTest {
-    private val prescriptionRepository: PrescriptionRepository = mockk()
+    private val taskOperationsRepository: TaskOperationsRepository = mockk()
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
 
@@ -60,7 +60,7 @@ class MedicationPlanDosageInstructionBottomSheetControllerTest {
     fun setUp() {
         MockKAnnotations.init(this)
         Dispatchers.setMain(dispatcher)
-        getDosageInstructionByTaskIdUseCase = GetDosageInstructionByTaskIdUseCase(prescriptionRepository, dispatcher)
+        getDosageInstructionByTaskIdUseCase = GetDosageInstructionByTaskIdUseCase(taskOperationsRepository, dispatcher)
 
         controllerUnderTest = object : MedicationPlanDosageInstructionBottomSheetController(
             getDosageInstructionByTaskIdUseCase = getDosageInstructionByTaskIdUseCase,
@@ -76,10 +76,10 @@ class MedicationPlanDosageInstructionBottomSheetControllerTest {
     @Test
     fun `test getDosageInstruction empty`() {
         coEvery {
-            prescriptionRepository
+            taskOperationsRepository
                 .loadSyncedTaskByTaskId(any())
         } returns flowOf()
-        coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns flowOf()
+        coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf()
         runTest {
             testScope.runTest {
                 advanceUntilIdle()
@@ -92,10 +92,10 @@ class MedicationPlanDosageInstructionBottomSheetControllerTest {
     @Test
     fun `test getDosageInstruction loading`() {
         coEvery {
-            prescriptionRepository
+            taskOperationsRepository
                 .loadSyncedTaskByTaskId(any())
         } returns flowOf()
-        coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns flowOf()
+        coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf()
         runTest {
             testScope.runTest {
                 val dosageInstruction = controllerUnderTest.dosageInstruction.first()
@@ -107,16 +107,16 @@ class MedicationPlanDosageInstructionBottomSheetControllerTest {
     @Test
     fun `test getDosageInstruction empty data for scanned prescription`() {
         coEvery {
-            prescriptionRepository
+            taskOperationsRepository
                 .loadSyncedTaskByTaskId(any())
         } returns flowOf()
-        coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SCANNED_TASK)
+        coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SCANNED_TASK)
         runTest {
             testScope.runTest {
                 advanceUntilIdle()
                 val dosageInstruction = controllerUnderTest.dosageInstruction.first()
                 assert(dosageInstruction.isDataState)
-                assert(dosageInstruction.data == MedicationPlanDosageInstruction.Empty)
+                assert(dosageInstruction.data == MedicationPlanDosageInstructionErpModel.Empty)
             }
         }
     }
@@ -124,16 +124,16 @@ class MedicationPlanDosageInstructionBottomSheetControllerTest {
     @Test
     fun `test getDosageInstruction data for synced prescription`() {
         coEvery {
-            prescriptionRepository
+            taskOperationsRepository
                 .loadScannedTaskByTaskId(any())
         } returns flowOf()
-        coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SYNCED_TASK)
+        coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SYNCED_TASK)
         runTest {
             testScope.runTest {
                 advanceUntilIdle()
                 val dosageInstruction = controllerUnderTest.dosageInstruction.first()
                 assert(dosageInstruction.isDataState)
-                assert(dosageInstruction.data == MedicationPlanDosageInstruction.FreeText("Dosage"))
+                assert(dosageInstruction.data == MedicationPlanDosageInstructionErpModel.FreeText("Dosage"))
             }
         }
     }
@@ -141,10 +141,10 @@ class MedicationPlanDosageInstructionBottomSheetControllerTest {
     @Test
     fun `test structured getDosageInstruction data for synced prescription`() {
         coEvery {
-            prescriptionRepository
+            taskOperationsRepository
                 .loadScannedTaskByTaskId(any())
         } returns flowOf()
-        coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns
+        coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns
             flowOf(API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE)
         runTest {
             testScope.runTest {
@@ -152,11 +152,11 @@ class MedicationPlanDosageInstructionBottomSheetControllerTest {
                 val dosageInstruction = controllerUnderTest.dosageInstruction.first()
                 assert(dosageInstruction.isDataState)
                 assert(
-                    dosageInstruction.data == MedicationPlanDosageInstruction.Structured(
+                    dosageInstruction.data == MedicationPlanDosageInstructionErpModel.Structured(
                         text = "1-0-1-0",
                         interpretation = mapOf(
-                            MedicationPlanDosageInstruction.DayTime.MORNING to "1",
-                            MedicationPlanDosageInstruction.DayTime.EVENING to "1"
+                            MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1",
+                            MedicationPlanDosageInstructionErpModel.DayTime.EVENING to "1"
                         )
                     )
                 )

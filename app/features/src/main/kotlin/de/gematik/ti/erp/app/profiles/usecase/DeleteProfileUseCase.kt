@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.profiles.usecase
 
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -37,11 +38,15 @@ class DeleteProfileUseCase(
     private val profileRepository: ProfileRepository,
     private val idpRepository: IdpRepository,
     private val medicationPlanRepository: MedicationPlanRepository,
+    private val taskOperationsRepository: TaskOperationsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend operator fun invoke(profileIdentifier: ProfileIdentifier, profileName: String) {
         withContext(dispatcher) {
             medicationPlanRepository.deleteAllMedicationSchedulesForProfile(profileIdentifier)
+            taskOperationsRepository.deleteCommunicationsByProfileId(profileIdentifier)
+            taskOperationsRepository.deleteInvoicesByProfileId(profileIdentifier)
+            taskOperationsRepository.deleteTasksByProfileId(profileIdentifier)
             idpRepository.invalidateDecryptedAccessToken(profileIdentifier)
             profileRepository.removeProfile(profileIdentifier, profileName = profileName)
         }

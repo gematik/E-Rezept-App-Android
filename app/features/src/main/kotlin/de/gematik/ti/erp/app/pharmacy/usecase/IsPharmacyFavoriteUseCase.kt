@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.pharmacy.usecase
 
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -33,7 +33,7 @@ class IsPharmacyFavoriteUseCase(
     private val repository: PharmacyRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(pharmacy: PharmacyUseCaseData.Pharmacy): Flow<Boolean> =
+    operator fun invoke(pharmacy: PharmacyErpModel): Flow<Boolean> =
         repository.isPharmacyInFavorites(pharmacy)
             .flowOn(dispatcher)
 }

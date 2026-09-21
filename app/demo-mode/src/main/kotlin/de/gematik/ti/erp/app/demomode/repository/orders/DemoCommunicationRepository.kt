@@ -25,6 +25,9 @@
 package de.gematik.ti.erp.app.demomode.repository.orders
 
 import de.gematik.ti.erp.app.api.ResourcePaging
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel.CommunicationProfile.ErxCommunicationReply
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
 import de.gematik.ti.erp.app.demomode.datasource.INDEX_OUT_OF_BOUNDS
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.longerRandomTimeToday
@@ -33,15 +36,11 @@ import de.gematik.ti.erp.app.demomode.extensions.demo
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfileLinkedCommunication
 import de.gematik.ti.erp.app.demomode.model.toProfile
 import de.gematik.ti.erp.app.demomode.model.toSyncedTaskDataCommunication
-import de.gematik.ti.erp.app.messages.model.Communication
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile.ErxCommunicationDispReq
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile.ErxCommunicationReply
-import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -78,13 +77,12 @@ class DemoCommunicationRepository(
         dataSource.communications.value = dataSource.communications.updateAndGet { communications ->
             val taskIds = dataSource.syncedTasks.first()
                 .filter { it.profileId == profileId }
-                .filter { it.status == SyncedTaskData.TaskStatus.InProgress }
+                .filter { it.status == TaskStatusEnum.InProgress }
                 .map { it.taskId }
             communications.all { it.taskId in taskIds }
 
             taskIds.map { taskId ->
                 when {
-                    // if the task is not already in the list
                     communications.none { it.taskId == taskId && it.profile == ErxCommunicationReply } -> {
                         communications.add(
                             DemoModeDataSource.replyCommunications(
@@ -156,18 +154,16 @@ class DemoCommunicationRepository(
             }
         }
 
-    override fun loadPharmacies(): Flow<List<CachedPharmacy>> = dataSource.cachedPharmacies
-
-    override fun loadSyncedByTaskId(taskId: String): Flow<SyncedTaskData.SyncedTask?> =
+    override fun loadSyncedByTaskId(taskId: String): Flow<TaskErpModel.Synced.Prescription?> =
         try {
             dataSource.syncedTasks.map { syncedTasks ->
-                syncedTasks.find { it.taskId == taskId }
+                syncedTasks.filterIsInstance<TaskErpModel.Synced.Prescription>().find { it.taskId == taskId }
             }.flowOn(dispatcher)
         } catch (e: Throwable) {
             flowOf(null)
         }
 
-    override fun loadScannedByTaskId(taskId: String): Flow<ScannedTaskData.ScannedTask?> =
+    override fun loadScannedByTaskId(taskId: String): Flow<TaskErpModel.Scanned?> =
         try {
             dataSource.scannedTasks.map { scannedTask ->
                 scannedTask.find { it.taskId == taskId }
@@ -176,7 +172,7 @@ class DemoCommunicationRepository(
             flowOf(null)
         }
 
-    override fun loadDispReqCommunications(orderId: String): Flow<List<Communication>> =
+    override fun loadDispReqCommunications(orderId: String): Flow<List<CommunicationErpModel>> =
         try {
             dataSource.communications.mapNotNull { communications ->
                 communications
@@ -188,14 +184,14 @@ class DemoCommunicationRepository(
             flowOf(emptyList())
         }
 
-    override fun loadDispReqCommunicationsByProfileId(profileId: ProfileIdentifier): Flow<List<Communication>> =
+    override fun loadDispReqCommunicationsByProfileId(profileId: ProfileIdentifier): Flow<List<CommunicationErpModel>> =
         try {
             loadOrdersByProfileId(profileId).mapNotNull { communications ->
                 communications.asSequence().filter {
                     it.profileId == profileId && it.profile == ErxCommunicationDispReq
                 }
                     .map { it.toSyncedTaskDataCommunication() }
-                    .sortedByDescending { it.sentOn }
+                    .sortedByDescending { it.timeStamp }
                     .distinctBy { it.orderId }
                     .toList()
             }.flowOn(dispatcher)
@@ -203,7 +199,31 @@ class DemoCommunicationRepository(
             flowOf(emptyList())
         }
 
-    override fun loadRepliedCommunications(taskIds: List<String>, telematikId: String): Flow<List<Communication>> =
+    override fun loadDispReqCommunicationsByTaskId(taskId: String): Flow<List<CommunicationErpModel>> =
+        try {
+            dataSource.communications.map { list ->
+                list.filter { it.taskId == taskId && it.profile == ErxCommunicationDispReq }
+                    .map { it.toSyncedTaskDataCommunication() }
+            }.flowOn(dispatcher)
+        } catch (e: Throwable) {
+            flowOf(emptyList())
+        }
+
+    override fun loadRepliedCommunications(orderId: String): Flow<List<CommunicationErpModel>> {
+        return flowOf(emptyList())
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun loadRepliedCommunications(orderId: String, telematikId: String): Flow<List<CommunicationErpModel>> =
+        taskIdsByOrder(orderId).flatMapLatest { taskIds ->
+            loadRepliedCommunications(taskIds = taskIds, telematikId = telematikId)
+        }.flowOn(dispatcher)
+
+    override fun loadRepliedCommunicationsByProfileId(profileId: ProfileIdentifier): Flow<List<CommunicationErpModel>> {
+        return flowOf(emptyList())
+    }
+
+    override fun loadRepliedCommunications(taskIds: List<String>, telematikId: String): Flow<List<CommunicationErpModel>> =
         try {
             dataSource.communications
                 .mapNotNull { communications ->
@@ -216,7 +236,7 @@ class DemoCommunicationRepository(
             flowOf(emptyList())
         }
 
-    override fun loadAllRepliedCommunications(taskIds: List<String>): Flow<List<Communication>> =
+    override fun loadAllRepliedCommunications(taskIds: List<String>): Flow<List<CommunicationErpModel>> =
         try {
             dataSource.communications
                 .mapNotNull { communications ->
@@ -276,7 +296,7 @@ class DemoCommunicationRepository(
         }.flowOn(dispatcher)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun profileByOrderId(orderId: String): Flow<ProfilesData.Profile> =
+    override fun profileByOrderId(orderId: String): Flow<ProfileErpModel> =
         dataSource.communications.mapNotNull { communications ->
             communications.find { communication -> communication.orderId == orderId }
         }.flatMapLatest { communication ->
@@ -285,7 +305,17 @@ class DemoCommunicationRepository(
             }.flowOn(dispatcher)
         }
 
-    override fun getAllUnreadMessages(): Flow<List<Communication>> {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun profileByTaskId(taskId: String): Flow<ProfileErpModel> =
+        dataSource.communications.mapNotNull { communications ->
+            communications.find { communication -> communication.taskId == taskId }
+        }.flatMapLatest { communication ->
+            dataSource.profiles.mapNotNull { profiles ->
+                profiles.find { it.id == communication.profileId }?.toProfile()
+            }.flowOn(dispatcher)
+        }
+
+    override fun getAllUnreadMessages(): Flow<List<CommunicationErpModel>> {
         return flowOf(emptyList())
     }
 
@@ -327,12 +357,7 @@ class DemoCommunicationRepository(
                 profile = ErxCommunicationDispReq
             )
             dataSource.scannedTasks.value = dataSource.scannedTasks.updateAndGet { scannedTasks ->
-                val index = scannedTasks.indexOfFirst { it.taskId == taskId }.takeIf { it != INDEX_OUT_OF_BOUNDS }
-                index?.let { nonNullIndex ->
-                    scannedTasks[nonNullIndex] = scannedTasks[nonNullIndex].copy(
-                        communications = listOf()
-                    )
-                }
+                // TaskErpModel.Scanned has no communications field; just return as-is
                 scannedTasks
             }
             dataSource.communications.value = dataSource.communications.updateAndGet { communications ->
@@ -347,7 +372,21 @@ class DemoCommunicationRepository(
         return flowOf(false)
     }
 
-    private fun ScannedTaskData.ScannedTask.makeRequestCommunication(
+    override suspend fun updatePharmacyName(communicationId: String, pharmacyName: String) {
+        withContext(dispatcher) {
+            dataSource.communications.value = dataSource.communications.updateAndGet { communications ->
+                communications
+                    .indexOfFirst { it.communicationId == communicationId }
+                    .takeIf { it != INDEX_OUT_OF_BOUNDS }
+                    ?.let { index ->
+                        communications[index] = communications[index].copy(pharmacyName = pharmacyName)
+                    }
+                communications
+            }
+        }
+    }
+
+    private fun TaskErpModel.Scanned.makeRequestCommunication(
         id: String,
         pharmacyId: String,
         consumed: Boolean = false

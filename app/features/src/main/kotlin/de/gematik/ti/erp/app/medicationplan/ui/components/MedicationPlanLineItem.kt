@@ -26,11 +26,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.digas.ui.component.Label
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
 
 @Composable
 fun MedicationPlanLineItem(
-    medicationSchedule: MedicationSchedule?,
+    medicationSchedule: MedicationScheduleErpModel?,
     onClick: () -> Unit
 ) {
     val text = when {

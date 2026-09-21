@@ -1,3 +1,16 @@
+# Release 1.39.0
+
+### fixed (1 change):
+
+- Default communication version for Diga is 1.5
+
+### ⚡ enhancements (4 changes):
+
+- Add deprecation warning for Android 13 and below to show no support in future
+- Recommend GiD as the default mode of login
+- T-Rezept
+- Add Room as the default database for users and prepare code to remove Realm database in future
+
 # Release 1.38.0
 
 ### fixed (1 changes):
@@ -6,14 +19,14 @@
 
 ### ⚡ enhancements (3 changes):
 
-- Use open source barcode scanning 
+- Use open source barcode scanning
 - Implement pharmacies services for physical features and specialty services
 - Prepare app for Google Play’s 16 KB page size compatibility requirement
 
 ### improvements (2 change)
+
 - Pharmacy UI redesign implementation
 - Deprecation of Android 8
-
 
 # Release 1.37.0
 

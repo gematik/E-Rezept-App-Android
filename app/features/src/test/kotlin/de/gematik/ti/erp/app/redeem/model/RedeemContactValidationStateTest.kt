@@ -22,9 +22,9 @@
 
 package de.gematik.ti.erp.app.redeem.model
 
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData.OrderOption.Delivery
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData.OrderOption.Online
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData.OrderOption.Pickup
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel.Delivery
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel.Online
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel.Pickup
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Companion.redeemValidationState
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.EmptyName
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.EmptyPhoneNumber

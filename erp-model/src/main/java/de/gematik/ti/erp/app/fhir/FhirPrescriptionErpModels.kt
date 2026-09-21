@@ -30,10 +30,10 @@ import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvPatientErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvPractitionerErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskMetaDataPayloadErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskOrganizationErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskStatusErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.FirTaskKbvPayloadErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirTaskEntryDataErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
-import de.gematik.ti.erp.app.task.model.TaskStatus
 import kotlinx.serialization.Serializable
 
 // Interface for all Task-related internal models
@@ -66,8 +66,9 @@ data class FhirTaskMetaDataErpModel(
     val expiresOn: FhirTemporal.LocalDate? = null,
     val acceptUntil: FhirTemporal.LocalDate? = null,
     val authoredOn: FhirTemporal.Instant,
-    val status: TaskStatus, // todo, using the TaskStatus from the fhir model, need to move it
+    val status: FhirTaskStatusErpModel, // todo, using the FhirTaskStatusErpModel from the fhir model, need to move it
     val lastMedicationDispense: FhirTemporal.Instant? = null,
+    val medication: FhirTaskKbvMedicationErpModel? = null,
     // values only become true after version 1.5
     val isEuRedeemableByProperties: Boolean = false,
     val isEuRedeemableByPatientAuthorization: Boolean = false

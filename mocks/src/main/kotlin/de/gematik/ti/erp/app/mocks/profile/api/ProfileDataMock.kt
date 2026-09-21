@@ -22,9 +22,15 @@
 
 package de.gematik.ti.erp.app.mocks.profile.api
 
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.mocks.PROFILE_ID
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.userauthentication.model.SingleSignOnTokenErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
 import io.mockk.mockk
 
 const val MOCK_SSO_TOKEN = "eyJlbmMiOiJBMjU2R0NNIiwiY3R5IjoiTkpXVCIsImV4cCI6MzMyNz" +
@@ -48,38 +54,54 @@ const val MOCK_SSO_TOKEN = "eyJlbmMiOiJBMjU2R0NNIiwiY3R5IjoiTkpXVCIsImV4cCI6MzMy
     "kAY0U8MXvSu8EsMq-Z61XCDMBOhOQHwfA7-2vwEb7RRSi8Q4BzZnINI_" +
     "s0dYH6xug5Uwve1CdMgzB2uSgivPKc9SyN5wqdjcfrpSzwdA.s1-YFy125OJvqElKe-qDCw"
 
-val API_MOCK_PROFILE = ProfilesData.Profile(
+val API_MOCK_PROFILE = ProfileErpModel(
     id = PROFILE_ID,
-    color = ProfilesData.ProfileColorNames.PINK,
-    avatar = ProfilesData.Avatar.Baby,
-    image = null,
     name = "Erna Mustermann",
-    insurantName = "Erna Mustermann",
-    insuranceIdentifier = "AOK",
-    insuranceType = ProfilesData.InsuranceType.GKV,
+    active = true,
+    isNewlyCreated = false,
+    profileImageData = ProfileImageDataErpModel(
+        color = ProfileColorNames.PINK,
+        avatar = Avatar.Baby,
+        image = null
+    ),
+    insuranceData = ProfileInsuranceDataErpModel(
+        insurantName = "Erna Mustermann",
+        insuranceIdentifier = "AOK",
+        insuranceName = null,
+        insuranceType = InsuranceType.GKV,
+        organizationIdentifier = null
+    ),
     isConsentDrawerShown = true,
     lastAuthenticated = mockk(),
+    lastAuditEventSynced = null,
     lastTaskSynced = mockk(),
-    active = true,
-    singleSignOnTokenScope = null
+    userAuthentication = UserAuthenticationErpModel.NotInitialized
 )
 
-val API_MOCK_WITH_SSO_TOKEN_PROFILE = ProfilesData.Profile(
+val API_MOCK_WITH_SSO_TOKEN_PROFILE = ProfileErpModel(
     id = PROFILE_ID,
-    color = ProfilesData.ProfileColorNames.PINK,
-    avatar = ProfilesData.Avatar.Baby,
-    image = null,
     name = "Erna Mustermann",
-    insurantName = "Erna Mustermann",
-    insuranceIdentifier = "AOK",
-    insuranceType = ProfilesData.InsuranceType.GKV,
+    active = true,
+    isNewlyCreated = false,
+    profileImageData = ProfileImageDataErpModel(
+        color = ProfileColorNames.PINK,
+        avatar = Avatar.Baby,
+        image = null
+    ),
+    insuranceData = ProfileInsuranceDataErpModel(
+        insurantName = "Erna Mustermann",
+        insuranceIdentifier = "AOK",
+        insuranceName = null,
+        insuranceType = InsuranceType.GKV,
+        organizationIdentifier = null
+    ),
     isConsentDrawerShown = true,
     lastAuthenticated = mockk(),
+    lastAuditEventSynced = null,
     lastTaskSynced = mockk(),
-    active = true,
-    singleSignOnTokenScope = IdpData.ExternalAuthenticationToken(
-        authenticatorId = "0001",
-        authenticatorName = "Authenticator",
-        token = IdpData.SingleSignOnToken(MOCK_SSO_TOKEN)
+    userAuthentication = UserAuthenticationErpModel.External(
+        externalAuthenticatorId = "0001",
+        externalAuthenticatorName = "Authenticator",
+        singleSignOnTokenErpModel = SingleSignOnTokenErpModel(MOCK_SSO_TOKEN)
     )
 )

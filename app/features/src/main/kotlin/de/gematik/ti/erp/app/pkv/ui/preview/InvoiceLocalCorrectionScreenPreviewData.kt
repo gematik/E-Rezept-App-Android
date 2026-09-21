@@ -23,20 +23,16 @@
 package de.gematik.ti.erp.app.pkv.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
-import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
-import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
-import de.gematik.ti.erp.app.pkv.ui.preview.InvoiceLocalCorrectionScreenPreviewData.pkvInvoiceRecord
-import de.gematik.ti.erp.app.prescription.model.Quantity
-import de.gematik.ti.erp.app.prescription.model.Ratio
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.invoice.model.InvoiceErpModel
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
+import de.gematik.ti.erp.app.pkv.ui.preview.InvoiceLocalCorrectionScreenPreviewData.pkvInvoiceErpModel
+import de.gematik.ti.erp.app.task.model.OrganizationErpModel
 import kotlinx.datetime.Instant
 
-class InvoiceLocalCorrectionScreenPreviewParameterProvider : PreviewParameterProvider<InvoiceData.PKVInvoiceRecord?> {
+class InvoiceLocalCorrectionScreenPreviewParameterProvider : PreviewParameterProvider<PKVInvoiceErpModel?> {
     override val values = sequenceOf(
-        pkvInvoiceRecord,
+        pkvInvoiceErpModel,
         null
     )
 }
@@ -45,69 +41,27 @@ object InvoiceLocalCorrectionScreenPreviewData {
 
     val time: Instant = Instant.parse("2023-06-14T10:15:30Z")
 
-    val pkvInvoiceRecord = InvoiceData.PKVInvoiceRecord(
+    val pkvInvoiceErpModel = PKVInvoiceErpModel(
         profileId = "1234",
         taskId = "01234",
         accessCode = "98765",
         timestamp = time,
-        invoice = InvoiceData.Invoice(
-            2.30,
-            6.80,
-            "EUR",
-            listOf(),
-            listOf()
+        invoice = InvoiceErpModel(
+            totalAdditionalFee = 2.30,
+            totalBruttoAmount = 6.80,
+            currency = "EUR",
+            chargeableItems = listOf(),
+            additionalDispenseItems = listOf()
         ),
-        pharmacyOrganization = SyncedTaskData.Organization(
-            "Pharmacy",
-            SyncedTaskData.Address("", "", "", ""),
-            null,
-            null,
-            null
+        pharmacyOrganization = OrganizationErpModel(
+            name = "Pharmacy"
         ),
-        practitionerOrganization = SyncedTaskData.Organization(
-            "Practitioner",
-            SyncedTaskData.Address("", "", "", ""),
-            null,
-            null,
-            null
+        practitionerOrganization = OrganizationErpModel(
+            name = "Practitioner"
         ),
-        practitioner = SyncedTaskData.Practitioner("Practitioner", "", ""),
-        patient = SyncedTaskData.Patient(
-            "Patient",
-            SyncedTaskData.Address("", "", "", ""),
-            null,
-            null
-        ),
-        medicationRequest = SyncedTaskData.MedicationRequest(
-            SyncedTaskData.Medication(
-                category = SyncedTaskData.MedicationCategory.ARZNEI_UND_VERBAND_MITTEL,
-                medicationProfile = FhirTaskKbvMedicationProfileErpModel(
-                    type = ErpMedicationProfileType.PZN,
-                    version = ErpMedicationProfileVersion.V_110
-                ),
-                vaccine = true,
-                text = "Medication Name",
-                form = "Form",
-                lotNumber = "lot number",
-                expirationDate = null,
-                identifier = SyncedTaskData.Identifier("1234567890"),
-                normSizeCode = "norm size code",
-                amount = Ratio(
-                    numerator = Quantity(
-                        value = "2",
-                        unit = "1"
-                    ),
-                    denominator = null
-                ),
-                ingredientMedications = emptyList(),
-                ingredients = emptyList(),
-                manufacturingInstructions = null,
-                packaging = null
-            ),
-            null, null, SyncedTaskData.AccidentType.None,
-            null, null, false, null,
-            SyncedTaskData.MultiplePrescriptionInfo(false), 1, "Note", true, SyncedTaskData.AdditionalFee.NotExempt
-        ),
+        practitioner = null,
+        patient = null,
+        medicationRequest = null,
         whenHandedOver = time.asFhirTemporal(),
         consumed = false
     )

@@ -22,8 +22,7 @@
 
 package de.gematik.ti.erp.app.pharmacy.model
 
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
@@ -31,11 +30,11 @@ import kotlin.contracts.ExperimentalContracts
 internal fun orderID(): UUID = UUID.randomUUID()
 
 sealed class PrescriptionRedeemArguments(
-    open val profile: ProfilesUseCaseData.Profile? = null,
+    open val profile: ProfileErpModel? = null,
     open val orderId: UUID,
-    open val prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionInOrder>,
-    open val redeemOption: PharmacyScreenData.OrderOption,
-    open val pharmacy: PharmacyUseCaseData.Pharmacy,
+    open val prescriptionOrderInfos: List<PrescriptionInOrderErpModel>,
+    open val redeemOption: OrderOptionErpModel,
+    open val pharmacy: PharmacyDetailsErpModel,
     open val contact: ShippingInfoErpModel
 ) {
     @OptIn(ExperimentalContracts::class)
@@ -47,20 +46,20 @@ sealed class PrescriptionRedeemArguments(
 
     // arguments required to redeem a prescription for a logged in user
     data class LoggedInUserRedemptionArguments(
-        override val profile: ProfilesUseCaseData.Profile,
+        override val profile: ProfileErpModel,
         override val orderId: UUID,
-        override val prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionInOrder>,
-        override val redeemOption: PharmacyScreenData.OrderOption,
-        override val pharmacy: PharmacyUseCaseData.Pharmacy,
+        override val prescriptionOrderInfos: List<PrescriptionInOrderErpModel>,
+        override val redeemOption: OrderOptionErpModel,
+        override val pharmacy: PharmacyDetailsErpModel,
         override val contact: ShippingInfoErpModel
     ) : PrescriptionRedeemArguments(profile, orderId, prescriptionOrderInfos, redeemOption, pharmacy, contact)
 
     companion object {
         fun UUID.from(
-            profile: ProfilesUseCaseData.Profile,
-            order: PharmacyUseCaseData.OrderState,
-            redeemOption: PharmacyScreenData.OrderOption,
-            pharmacy: PharmacyUseCaseData.Pharmacy
+            profile: ProfileErpModel,
+            order: OrderStateErpModel,
+            redeemOption: OrderOptionErpModel,
+            pharmacy: PharmacyDetailsErpModel
         ): PrescriptionRedeemArguments =
             LoggedInUserRedemptionArguments(
                 profile = profile,

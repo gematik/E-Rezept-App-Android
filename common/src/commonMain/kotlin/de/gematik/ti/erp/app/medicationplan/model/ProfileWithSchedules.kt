@@ -22,9 +22,9 @@
 
 package de.gematik.ti.erp.app.medicationplan.model
 
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 
 data class ProfileWithSchedules(
-    val profile: ProfilesUseCaseData.Profile,
-    val medicationSchedules: List<MedicationSchedule>
+    val profile: ProfileErpModel,
+    val medicationSchedules: List<MedicationScheduleErpModel>
 )

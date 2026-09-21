@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.model.SelectedFavouritePharmacyState
+import de.gematik.ti.erp.app.pharmacy.usecase.ChangePharmacyFavoriteStateUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.DeleteOverviewPharmacyUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPharmacyByTelematikIdUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,6 +38,7 @@ import org.kodein.di.compose.rememberInstance
 
 class PharmacyStartController(
     private val getPharmacyByTelematikIdUseCase: GetPharmacyByTelematikIdUseCase,
+    private val changePharmacyFavoriteStateUseCase: ChangePharmacyFavoriteStateUseCase,
     private val deleteOverviewPharmacyUseCase: DeleteOverviewPharmacyUseCase
 ) : Controller() {
 
@@ -56,9 +58,16 @@ class PharmacyStartController(
         }
     }
 
+    fun onToggleFavorite(pharmacy: PharmacyErpModel) {
+        controllerScope.launch {
+            changePharmacyFavoriteStateUseCase(pharmacy, !pharmacy.isFavorite)
+        }
+    }
+
     fun clearSelectedPharmacy() {
         controllerScope.launch {
             selectedPharmacyByTelematikId.value?.let {
+                changePharmacyFavoriteStateUseCase(it, false)
                 deleteOverviewPharmacyUseCase(it)
                 selectedPharmacyByTelematikId.value = null
             }
@@ -92,10 +101,12 @@ class PharmacyStartController(
 @Composable
 fun rememberPharmacyStartController(): PharmacyStartController {
     val getPharmacyByTelematikIdUseCase by rememberInstance<GetPharmacyByTelematikIdUseCase>()
+    val changePharmacyFavoriteStateUseCase by rememberInstance<ChangePharmacyFavoriteStateUseCase>()
     val deleteOverviewPharmacyUseCase by rememberInstance<DeleteOverviewPharmacyUseCase>()
     return remember {
         PharmacyStartController(
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
+            changePharmacyFavoriteStateUseCase = changePharmacyFavoriteStateUseCase,
             deleteOverviewPharmacyUseCase = deleteOverviewPharmacyUseCase
         )
     }

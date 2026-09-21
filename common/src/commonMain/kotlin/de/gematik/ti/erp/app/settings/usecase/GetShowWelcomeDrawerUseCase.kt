@@ -33,7 +33,7 @@ class GetShowWelcomeDrawerUseCase(
     private val settingsRepository: SettingsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(): Flow<Boolean> = settingsRepository.general.map {
+    operator fun invoke(): Flow<Boolean> = settingsRepository.loadSettings().map {
         !it.welcomeDrawerShown
     }.flowOn(dispatcher)
 }

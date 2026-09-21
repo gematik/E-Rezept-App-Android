@@ -25,9 +25,9 @@ package de.gematik.ti.erp.app.datasource
 import de.gematik.ti.erp.app.datasource.data.MockPrescriptionInfo
 import de.gematik.ti.erp.app.datasource.data.MockProfileInfo.mockProfile01
 import de.gematik.ti.erp.app.model.MockProfileLinkedCommunication
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import kotlinx.coroutines.flow.MutableStateFlow
 
 const val INDEX_OUT_OF_BOUNDS = -1
@@ -35,26 +35,26 @@ const val INDEX_OUT_OF_BOUNDS = -1
 class MockDataSource {
 // todo: include pharmacies data source here in future!
 
-    val profiles: MutableStateFlow<MutableList<ProfilesData.Profile>> =
+    val profiles: MutableStateFlow<MutableList<ProfileErpModel>> =
         MutableStateFlow(mutableListOf(mockProfile01))
 
-    val syncedTasks: MutableStateFlow<MutableList<SyncedTaskData.SyncedTask>> =
+    val syncedTasks: MutableStateFlow<MutableList<TaskErpModel.Synced.Prescription>> =
         MutableStateFlow(
             mutableListOf(
                 MockPrescriptionInfo.MockSyncedPrescription.syncedTask(
                     mockProfile01.id,
-                    status = SyncedTaskData.TaskStatus.Ready,
+                    status = TaskStatusEnum.Ready,
                     index = 0
                 ),
                 MockPrescriptionInfo.MockSyncedPrescription.syncedTask(
                     mockProfile01.id,
-                    status = SyncedTaskData.TaskStatus.InProgress,
+                    status = TaskStatusEnum.InProgress,
                     index = 1
                 )
             )
         )
 
-    val scannedTasks: MutableStateFlow<MutableList<ScannedTaskData.ScannedTask>> =
+    val scannedTasks: MutableStateFlow<MutableList<TaskErpModel.Scanned>> =
         MutableStateFlow(
             mutableListOf(
                 MockPrescriptionInfo.MockScannedPrescription.mockScannedTask01,

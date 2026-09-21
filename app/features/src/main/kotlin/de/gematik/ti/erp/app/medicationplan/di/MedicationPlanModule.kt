@@ -24,7 +24,6 @@ package de.gematik.ti.erp.app.medicationplan.di
 
 import de.gematik.ti.erp.app.medicationplan.alarm.MedicationPlanNotificationScheduler
 import de.gematik.ti.erp.app.medicationplan.repository.DefaultMedicationPlanRepository
-import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanLocalDataSource
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 import de.gematik.ti.erp.app.medicationplan.usecase.DeactivateMedicationScheduleUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.DeleteMedicationScheduleNotificationUseCase
@@ -46,7 +45,6 @@ import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
 val medicationPlanModule = DI.Module("medicationPlanModule") {
-    bindProvider { MedicationPlanLocalDataSource(instance()) }
     bindProvider<MedicationPlanRepository> { DefaultMedicationPlanRepository(instance(), instance()) }
     bindProvider { GetAllMedicationSchedulesUseCase(instance()) }
     bindProvider { GetMedicationScheduleByTaskIdUseCase(instance()) }

@@ -40,6 +40,7 @@ sealed class FhirCommunicationEntryErpModel {
     abstract val orderId: String?
     abstract val sent: FhirTemporal.Instant?
     abstract val isDiga: Boolean
+    abstract var pharmacyName: String?
 }
 
 // Reply specific communication model
@@ -54,7 +55,8 @@ data class FhirReplyCommunicationEntryErpModel(
     override val sent: FhirTemporal.Instant?,
     val received: FhirTemporal.Instant?,
     val payload: ReplyCommunicationPayloadContentErpModel,
-    override val isDiga: Boolean = false
+    override val isDiga: Boolean = false,
+    override var pharmacyName: String? = null
 ) : FhirCommunicationEntryErpModel()
 
 // Dispense specific communication model
@@ -69,5 +71,6 @@ data class FhirDispenseCommunicationEntryErpModel(
     override val sent: FhirTemporal.Instant?,
     val payload: DispenseCommunicationPayloadContentErpModel,
     val prescriptionType: DispensePrescriptionTypeErpModel? = null,
-    override val isDiga: Boolean = false
+    override val isDiga: Boolean = false,
+    override var pharmacyName: String? = null
 ) : FhirCommunicationEntryErpModel()

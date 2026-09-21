@@ -53,7 +53,7 @@ import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarWrapper
 import de.gematik.ti.erp.app.mainscreen.model.ProfileIconState.IsError.rememberProfileIconState
 import de.gematik.ti.erp.app.mainscreen.ui.components.AddProfileChip
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -69,9 +69,9 @@ internal fun MultiProfileTopAppBar(
     multiProfileData: MultiProfileAppBarWrapper,
     elevated: Boolean,
     onClickAddPrescription: () -> Unit,
-    onClickChangeProfileName: (profile: Profile) -> Unit,
+    onClickChangeProfileName: (profile: ProfileErpModel) -> Unit,
     onClickAddProfile: () -> Unit,
-    switchActiveProfile: (Profile) -> Unit
+    switchActiveProfile: (ProfileErpModel) -> Unit
 ) {
     val accScan = stringResource(R.string.main_scan_acc)
     val elevation = remember(elevated) { if (elevated) AppBarDefaults.TopAppBarElevation else SizeDefaults.zero }
@@ -123,8 +123,8 @@ private fun MainScreenTopBarTitle() {
 @Composable
 private fun ProfilesChipBar(
     multiProfileData: MultiProfileAppBarWrapper,
-    onClickChangeActiveProfile: (Profile) -> Unit,
-    onClickChangeProfileName: (profile: Profile) -> Unit,
+    onClickChangeActiveProfile: (ProfileErpModel) -> Unit,
+    onClickChangeProfileName: (profile: ProfileErpModel) -> Unit,
     onClickAddProfile: () -> Unit
 ) {
     val rowState = rememberLazyListState()

@@ -51,8 +51,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.diga.model.DigaStatus
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.core.LocalNow
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskStatusErpModel
 import de.gematik.ti.erp.app.prescription.ui.CompletedStatusChip
 import de.gematik.ti.erp.app.prescription.ui.DeletedStatusChip
 import de.gematik.ti.erp.app.prescription.ui.DirectAssignmentStatusChip
@@ -66,10 +66,12 @@ import de.gematik.ti.erp.app.prescription.ui.ProvidedStatusChip
 import de.gematik.ti.erp.app.prescription.ui.ReadyStatusChip
 import de.gematik.ti.erp.app.prescription.ui.SelfPayerPrescriptionChip
 import de.gematik.ti.erp.app.prescription.ui.UnknownStatusChip
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
 import de.gematik.ti.erp.app.prescriptionId
 import de.gematik.ti.erp.app.semantics.semanticsMergedButton
+import de.gematik.ti.erp.app.task.model.InsuranceErpModelCoverageType
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStateErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -77,27 +79,39 @@ import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
-import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
+import de.gematik.ti.erp.app.utils.letNotNull
 import kotlinx.datetime.Instant
-import kotlinx.datetime.plus
 
+// TODO: (dinesh) only prescription
 @Suppress("CyclomaticComplexMethod")
 @OptIn(ExperimentalMaterialApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun FullDetailMedication(
-    prescription: SyncedPrescription,
+    prescription: TaskErpModel.Synced.Prescription,
     modifier: Modifier = Modifier,
-    now: Instant = Clock.System.now(),
     onClick: () -> Unit
 ) {
+    val now = LocalNow.current
     val showDirectAssignmentLabel by remember(prescription) {
         derivedStateOf {
             val isCompleted =
-                (prescription.state as? SyncedTaskData.SyncedTask.Other)?.state == SyncedTaskData.TaskStatus.Completed
+                (prescription.state() as? TaskStateErpModel.Other)?.state == FhirTaskStatusErpModel.Completed
 
-            prescription.isDirectAssignment && !isCompleted
+            prescription.isDirectAssignment() && !isCompleted
         }
+    }
+
+    val chipInfo = remember(prescription) {
+        val multiplePrescriptionInfo = prescription.medicationRequest?.multiplePrescriptionInfo
+        Triple(
+            multiplePrescriptionInfo?.indicator == true,
+            multiplePrescriptionInfo?.numbering?.numerator?.value,
+            multiplePrescriptionInfo?.numbering?.denominator?.value
+        )
+    }
+    val (isPartOfMultiplePrescription, numerator, denominator) = chipInfo
+    val isSelfPayPrescription = remember(prescription) {
+        prescription.insuranceInformation?.coverageType == InsuranceErpModelCoverageType.SEL
     }
 
     Box {
@@ -133,53 +147,50 @@ fun FullDetailMedication(
 
                     SpacerTiny()
 
-                    if (!prescription.isDirectAssignment) {
+                    if (!prescription.isDirectAssignment()) {
                         PrescriptionStateInfo(
-                            state = prescription.state,
+                            state = prescription.state(),
                             now = now
                         )
                     }
 
-                    SpacerSmall()
-
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(SizeDefaults.one)
+                        verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Small),
+                        horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
                     ) {
                         if (prescription.isIncomplete) {
                             FailureStatusChip()
                         } else if (showDirectAssignmentLabel) {
                             DirectAssignmentStatusChip(prescription.redeemedOn != null)
                         } else {
-                            when (prescription.state) {
-                                is SyncedTaskData.SyncedTask.Ready -> ReadyStatusChip()
+                            when (prescription.state()) {
+                                is TaskStateErpModel.Ready -> ReadyStatusChip()
 
-                                is SyncedTaskData.SyncedTask.InProgress -> InProgressStatusChip()
+                                is TaskStateErpModel.InProgress -> InProgressStatusChip()
 
-                                is SyncedTaskData.SyncedTask.Pending -> PendingStatusChip()
-                                is SyncedTaskData.SyncedTask.Expired -> ExpiredStatusChip()
-                                is SyncedTaskData.SyncedTask.LaterRedeemable -> LaterRedeemableStatusChip()
+                                is TaskStateErpModel.Pending -> PendingStatusChip()
+                                is TaskStateErpModel.Expired -> ExpiredStatusChip()
+                                is TaskStateErpModel.LaterRedeemable -> LaterRedeemableStatusChip()
 
-                                is SyncedTaskData.SyncedTask.Other -> {
-                                    when ((prescription.state as? SyncedTaskData.SyncedTask.Other)?.state) {
-                                        SyncedTaskData.TaskStatus.Completed -> CompletedStatusChip()
+                                is TaskStateErpModel.Other -> {
+                                    when ((prescription.state() as? TaskStateErpModel.Other)?.state) {
+                                        FhirTaskStatusErpModel.Completed -> CompletedStatusChip()
                                         else -> UnknownStatusChip()
                                     }
                                 }
 
-                                is SyncedTaskData.SyncedTask.Deleted -> DeletedStatusChip()
-                                is SyncedTaskData.SyncedTask.Provided -> ProvidedStatusChip()
+                                is TaskStateErpModel.Deleted -> DeletedStatusChip()
+                                is TaskStateErpModel.Provided -> ProvidedStatusChip()
                             }
                         }
-                        if (prescription.prescriptionChipInformation.isPartOfMultiplePrescription) {
-                            prescription.prescriptionChipInformation.numerator?.let { numerator ->
-                                prescription.prescriptionChipInformation.denominator?.let { denominator ->
-                                    SpacerSmall()
-                                    NumeratorChip(numerator, denominator)
-                                }
+                        if (isPartOfMultiplePrescription) {
+                            letNotNull(numerator, denominator) { numerator, denominator ->
+                                SpacerSmall()
+                                NumeratorChip(numerator, denominator)
                             }
                         }
-                        if (prescription.prescriptionChipInformation.isSelfPayPrescription) {
+                        if (isSelfPayPrescription) {
                             SpacerSmall()
                             SelfPayerPrescriptionChip()
                         }
@@ -204,35 +215,39 @@ fun FullDetailMedication(
 @LightDarkPreview
 @Composable
 fun FullDetailMedicationPreview() {
-    val now = Clock.System.now()
-    val later = now.plus(2, DateTimeUnit.HOUR)
     PreviewAppTheme {
         FullDetailMedication(
-            prescription =
-            SyncedPrescription(
+            prescription = TaskErpModel.Synced.Prescription(
+                profileId = "preview-profile",
                 taskId = "1",
                 name = "Ibuprofen",
-                state =
-                SyncedTaskData.SyncedTask.Ready(
-                    expiresOn = Instant.DISTANT_FUTURE,
-                    acceptUntil = Instant.DISTANT_FUTURE
-                ),
-                isDirectAssignment = false,
-                isIncomplete = false,
-                acceptUntil = later,
-                authoredOn = now,
-                expiresOn = later,
-                redeemedOn = null,
-                organization = "Organization",
-                isDiga = false,
-                deviceRequestState = DigaStatus.Ready,
+                accessCode = "",
+                isEuRedeemable = false,
+                isEuRedeemableByPatientAuthorization = false,
                 lastModified = Instant.fromEpochSeconds(123456),
-                prescriptionChipInformation =
-                Prescription.PrescriptionChipInformation(
-                    isPartOfMultiplePrescription = true,
-                    numerator = "1",
-                    denominator = "2"
-                )
+                organization = null,
+                practitioner = null,
+                patient = null,
+                insuranceInformation = null,
+                expiresOn = Instant.DISTANT_FUTURE,
+                acceptUntil = Instant.DISTANT_FUTURE,
+                authoredOn = Instant.fromEpochSeconds(123456),
+                status = TaskStatusEnum.Ready,
+                isIncomplete = false,
+                pvsIdentifier = "",
+                failureToReport = "",
+                medicationRequest = de.gematik.ti.erp.app.task.model.MedicationRequestErpModel(
+                    substitutionAllowed = false,
+                    multiplePrescriptionInfo = de.gematik.ti.erp.app.task.model.MultiplePrescriptionInfo(
+                        indicator = true,
+                        numbering = de.gematik.ti.erp.app.task.model.RatioErpModel(
+                            numerator = de.gematik.ti.erp.app.task.model.QuantityErpModel("1", ""),
+                            denominator = de.gematik.ti.erp.app.task.model.QuantityErpModel("2", "")
+                        )
+                    ),
+                    note = null
+                ),
+                medicationDispenses = emptyList()
             )
         ) { }
     }
@@ -242,32 +257,29 @@ fun FullDetailMedicationPreview() {
 @LightDarkPreview
 @Composable
 private fun FullDetailMedicationInProcessPreview() {
-    val now = Clock.System.now()
-    val later = now.plus(2, DateTimeUnit.HOUR)
     PreviewAppTheme {
         FullDetailMedication(
-            prescription =
-            SyncedPrescription(
+            prescription = TaskErpModel.Synced.Prescription(
+                profileId = "preview-profile",
                 taskId = "1",
                 name = "Ibuprofen",
-                state =
-                SyncedTaskData.SyncedTask.InProgress(SyncedTaskData.TaskStateSerializationType.InProgress, Instant.DISTANT_FUTURE),
-                isDirectAssignment = false,
-                isIncomplete = false,
-                acceptUntil = later,
-                authoredOn = now,
-                expiresOn = later,
-                redeemedOn = null,
-                organization = "Organization",
-                isDiga = false,
-                deviceRequestState = DigaStatus.Ready,
+                accessCode = "",
+                isEuRedeemable = false,
+                isEuRedeemableByPatientAuthorization = false,
                 lastModified = Instant.fromEpochSeconds(123456),
-                prescriptionChipInformation =
-                Prescription.PrescriptionChipInformation(
-                    isPartOfMultiplePrescription = false,
-                    numerator = "1",
-                    denominator = "2"
-                )
+                organization = null,
+                practitioner = null,
+                patient = null,
+                insuranceInformation = null,
+                expiresOn = Instant.DISTANT_FUTURE,
+                acceptUntil = Instant.DISTANT_FUTURE,
+                authoredOn = Instant.fromEpochSeconds(123456),
+                status = TaskStatusEnum.InProgress,
+                isIncomplete = false,
+                pvsIdentifier = "",
+                failureToReport = "",
+                medicationRequest = null,
+                medicationDispenses = emptyList()
             )
         ) { }
     }
@@ -277,32 +289,29 @@ private fun FullDetailMedicationInProcessPreview() {
 @LightDarkPreview
 @Composable
 private fun FullDetailMedicationCompletedPreview() {
-    val now = Clock.System.now()
-    val later = now.plus(2, DateTimeUnit.HOUR)
     PreviewAppTheme {
         FullDetailMedication(
-            prescription =
-            SyncedPrescription(
+            prescription = TaskErpModel.Synced.Prescription(
+                profileId = "preview-profile",
                 taskId = "1",
                 name = "Ibuprofen",
-                state =
-                SyncedTaskData.SyncedTask.Other(state = SyncedTaskData.TaskStatus.Completed, lastModified = Instant.DISTANT_FUTURE),
-                isDirectAssignment = false,
-                isIncomplete = false,
-                acceptUntil = later,
-                authoredOn = now,
-                expiresOn = later,
-                redeemedOn = null,
-                organization = "Organization",
-                isDiga = false,
-                deviceRequestState = DigaStatus.Ready,
+                accessCode = "",
+                isEuRedeemable = false,
+                isEuRedeemableByPatientAuthorization = false,
                 lastModified = Instant.fromEpochSeconds(123456),
-                prescriptionChipInformation =
-                Prescription.PrescriptionChipInformation(
-                    isPartOfMultiplePrescription = false,
-                    numerator = "1",
-                    denominator = "2"
-                )
+                organization = null,
+                practitioner = null,
+                patient = null,
+                insuranceInformation = null,
+                expiresOn = Instant.DISTANT_FUTURE,
+                acceptUntil = Instant.DISTANT_FUTURE,
+                authoredOn = Instant.fromEpochSeconds(123456),
+                status = TaskStatusEnum.Completed,
+                isIncomplete = false,
+                pvsIdentifier = "",
+                failureToReport = "",
+                medicationRequest = null,
+                medicationDispenses = emptyList()
             )
         ) { }
     }

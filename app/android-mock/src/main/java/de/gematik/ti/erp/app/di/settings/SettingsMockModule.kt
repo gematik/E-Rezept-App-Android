@@ -22,19 +22,15 @@
 
 package de.gematik.ti.erp.app.di.settings
 
-import de.gematik.ti.erp.app.mocks.settings.OnboardingDoneMockSettingsDataSource
 import de.gematik.ti.erp.app.repository.MockSettingsRepository
 import de.gematik.ti.erp.app.settings.ApplicationPreferencesTag
-import de.gematik.ti.erp.app.settings.datasource.SettingsDataSource
 import de.gematik.ti.erp.app.settings.repository.CardWallRepository
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
-import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
 val mockSettingsRepositoryModule = DI.Module("mockSettingsModule", allowSilentOverride = true) {
     bindProvider { CardWallRepository(prefs = instance(ApplicationPreferencesTag)) }
-    bindProvider<SettingsRepository> { MockSettingsRepository(instance(), instance(), instance()) }
-    bindSingleton<SettingsDataSource> { OnboardingDoneMockSettingsDataSource() }
+    bindProvider<SettingsRepository> { MockSettingsRepository() }
 }

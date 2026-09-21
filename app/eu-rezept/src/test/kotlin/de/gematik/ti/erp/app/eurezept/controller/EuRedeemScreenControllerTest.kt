@@ -26,12 +26,12 @@ import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseC
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.base.usecase.ObserveNavigationTriggerUseCase
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData
+import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockInvalidProfileMock
+import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockValidProfileMock
 import de.gematik.ti.erp.app.eurezept.presentation.EuRedeemScreenController
 import de.gematik.ti.erp.app.eurezept.ui.model.EuRedeemSelector.WAS_EU_REDEEM_INSTRUCTION_VIEWED
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.navigation.triggers.NavigationTriggerDataStore
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
@@ -68,38 +68,36 @@ class EuRedeemScreenControllerTest {
     private val biometricAuthenticator: BiometricAuthenticator = mockk(relaxed = true)
 
     private lateinit var observeNavigationTriggerUseCase: ObserveNavigationTriggerUseCase
-    private lateinit var getActiveProfileUseCase: GetActiveProfileUseCase
-    private lateinit var getProfileByIdUseCase: GetProfileByIdUseCase
-    private lateinit var getProfilesUseCase: GetProfilesUseCase
     private lateinit var chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase
 
+    private val getActiveProfileUseCase: GetActiveProfileUseCase = mockk()
+    private val getProfileByIdUseCase: GetProfileByIdUseCase = mockk()
+    private val getProfilesUseCase: GetProfilesUseCase = mockk()
+
     private lateinit var controller: EuRedeemScreenController
+
+    private val mockValidProfile = mockValidProfileMock
+    private val mockInvalidProfile = mockInvalidProfileMock
 
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
 
         observeNavigationTriggerUseCase = ObserveNavigationTriggerUseCase(navigationTriggerDataStore, dispatcher)
-        getActiveProfileUseCase = GetActiveProfileUseCase(profileRepository, dispatcher)
-        getProfileByIdUseCase = GetProfileByIdUseCase(profileRepository, dispatcher)
-        getProfilesUseCase = GetProfilesUseCase(profileRepository, dispatcher)
         chooseAuthenticationDataUseCase = ChooseAuthenticationDataUseCase(profileRepository, idpRepository, dispatcher)
 
         coEvery {
             navigationTriggerDataStore.shouldNavigate(WAS_EU_REDEEM_INSTRUCTION_VIEWED.name)
         } returns flowOf(false)
 
-        val mockProfileData = MockEuTestData.profileData
-        coEvery { profileRepository.profiles() } returns flowOf(listOf(mockProfileData))
-        coEvery { profileRepository.activeProfile() } returns flowOf(mockProfileData)
-        coEvery { profileRepository.getProfileById(any()) } returns flowOf(mockProfileData)
+        coEvery { getActiveProfileUseCase.invoke() } returns flowOf(mockValidProfile)
+        coEvery { getProfilesUseCase.invoke() } returns flowOf(listOf(mockValidProfile))
+        coEvery { getProfileByIdUseCase.invoke(any()) } returns flowOf(mockValidProfile)
+        coEvery { profileRepository.getProfileById(any()) } returns flowOf(mockValidProfile)
+
+        val mockAuthData = MockEuTestData.mockValidUserAuthentication
+        coEvery { idpRepository.getUserAuthentication(any()) } returns flowOf(mockAuthData)
         coEvery { profileRepository.updateLastAuthenticated(any(), any()) } returns Unit
-
-        val mockAuthData = IdpData.AuthenticationData(
-            singleSignOnTokenScope = mockk(relaxed = true)
-        )
-        coEvery { idpRepository.authenticationData(any()) } returns flowOf(mockAuthData)
-
         controller = EuRedeemScreenController(
             getProfileByIdUseCase = getProfileByIdUseCase,
             getProfilesUseCase = getProfilesUseCase,
@@ -146,6 +144,8 @@ class EuRedeemScreenControllerTest {
             var showInstructionsCalled = false
             var startRedemptionCalled = false
 
+            advanceUntilIdle() // let activeProfile settle to Data(mockValidProfile)
+
             controller.handleRedeemAction(
                 onStartRedemption = { startRedemptionCalled = true },
                 onShowInstructions = { showInstructionsCalled = true }
@@ -168,12 +168,27 @@ class EuRedeemScreenControllerTest {
             navigationTriggerDataStore.shouldNavigate(WAS_EU_REDEEM_INSTRUCTION_VIEWED.name)
         } returns flowOf(true)
 
-        val mockInvalidProfileData = mockk<ProfilesData.Profile>(relaxed = true)
-        coEvery { profileRepository.activeProfile() } returns flowOf(mockInvalidProfileData)
+        // Recreate controller with invalid profile
+        coEvery { getActiveProfileUseCase.invoke() } returns flowOf(mockInvalidProfile)
+        coEvery { getProfilesUseCase.invoke() } returns flowOf(listOf(mockInvalidProfile))
+        coEvery { getProfileByIdUseCase.invoke(any()) } returns flowOf(mockInvalidProfile)
+        coEvery { profileRepository.getProfileById(any()) } returns flowOf(mockInvalidProfile)
+
+        controller = EuRedeemScreenController(
+            getProfileByIdUseCase = getProfileByIdUseCase,
+            getProfilesUseCase = getProfilesUseCase,
+            getActiveProfileUseCase = getActiveProfileUseCase,
+            chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
+            observeNavigationTriggerUseCase = observeNavigationTriggerUseCase,
+            networkStatusTracker = networkStatusTracker,
+            biometricAuthenticator = biometricAuthenticator
+        )
 
         testScope.runTest {
             var showInstructionsCalled = false
             var startRedemptionCalled = false
+
+            advanceUntilIdle() // let activeProfile settle to Data(mockInvalidProfile)
 
             controller.handleRedeemAction(
                 onStartRedemption = { startRedemptionCalled = true },

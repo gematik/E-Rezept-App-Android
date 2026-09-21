@@ -68,7 +68,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
 import de.gematik.ti.erp.app.invoice.model.PkvHtmlTemplate.joinMedicationInfo
 import de.gematik.ti.erp.app.labels.TextLabel
 import de.gematik.ti.erp.app.navigation.Screen
@@ -296,7 +296,7 @@ private fun InvoiceDetailScreenScaffold(
         bottomBar = {
             invoiceState.OnInvoiceLoaded { invoices ->
                 InvoiceDetailBottomBar(
-                    invoices.record.invoice.totalBruttoAmount,
+                    invoices.record.invoice?.totalBruttoAmount ?: 0.0,
                     onClickSubmit = {
                         onAction(
                             InvoiceAction.Submit(
@@ -355,7 +355,7 @@ private fun InvoiceDetailsScreenContent(
                         end = padding.calculateEndPadding(LayoutDirection.Ltr)
                     ),
                     description = stringResource(R.string.invoice_prescribed_by),
-                    content = invoice.record.practitioner.name
+                    content = invoice.record.practitioner?.name
                 )
             }
             item {
@@ -365,7 +365,7 @@ private fun InvoiceDetailsScreenContent(
                         end = padding.calculateEndPadding(LayoutDirection.Ltr)
                     ),
                     description = stringResource(R.string.invoice_redeemed_in),
-                    content = invoice.record.pharmacyOrganization.name
+                    content = invoice.record.pharmacyOrganization?.name
                 )
             }
             item {
@@ -499,7 +499,7 @@ private fun LinkToInvoiceList(
 @Composable
 fun InvoiceMedicationHeader(
     modifier: Modifier = Modifier,
-    invoice: InvoiceData.PKVInvoiceRecord
+    invoice: PKVInvoiceErpModel
 ) {
     val medicationInfo = joinMedicationInfo(invoice.medicationRequest)
     Text(modifier = modifier, text = medicationInfo, style = AppTheme.typography.h5)

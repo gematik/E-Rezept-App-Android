@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.messages.model
 
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.timestate.TimeState
 import io.realm.kotlin.types.annotations.PrimaryKey
 import kotlinx.datetime.Instant
@@ -38,9 +39,11 @@ data class InAppMessage(
     val tag: String,
     var isUnread: Boolean,
     val lastMessage: LastMessage?,
-    val messageProfile: CommunicationProfile?,
+    val messageProfile: CommunicationErpModel.CommunicationProfile?,
     // added for Changelogs
-    val version: String,
+    val version: String? = null,
+    // add for unknown Orders
+    val taskId: String? = null,
     // add for EU
     val threadOrderId: String? = null,
     val threadStart: Instant? = null,

@@ -25,21 +25,18 @@ package de.gematik.ti.erp.app.messages.usecase
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessageUsingOrderIdUseCase
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_DISP_REQ_COMMUNICATION_01
-import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_DISP_REQ_COMMUNICATION_02
+import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_DISP_REQ_COMMUNICATION_01_ERP
+import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_DISP_REQ_COMMUNICATION_02_ERP
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_INVOICE_01
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_INVOICE_02
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_ORDER_DETAIL
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_ORDER_ID
-import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_PHARMACY_O1
-import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_PHARMACY_O2
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_SYNCED_TASK_DATA_01
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_SYNCED_TASK_DATA_02
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_TASK_ID_01
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_TASK_ID_02
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -67,8 +64,7 @@ class GetMessageUsingOrderIdUseCaseTest {
     fun setup() {
         coEvery {
             communicationRepository.loadDispReqCommunications(any())
-        } returns flowOf(listOf(MOCK_DISP_REQ_COMMUNICATION_01, MOCK_DISP_REQ_COMMUNICATION_02))
-        coEvery { communicationRepository.loadPharmacies() } returns flowOf(listOf(MOCK_PHARMACY_O1, MOCK_PHARMACY_O2))
+        } returns flowOf(listOf(MOCK_DISP_REQ_COMMUNICATION_01_ERP, MOCK_DISP_REQ_COMMUNICATION_02_ERP))
         coEvery { communicationRepository.taskIdsByOrder(any()) } returns flowOf(listOf(MOCK_TASK_ID_01, MOCK_TASK_ID_02))
         coEvery { communicationRepository.hasUnreadDispenseMessage(any(), any()) } returns flowOf(false)
         coEvery { communicationRepository.hasUnreadRepliedMessages(any(), any()) } returns flowOf(false)
@@ -76,8 +72,6 @@ class GetMessageUsingOrderIdUseCaseTest {
         coEvery { communicationRepository.loadSyncedByTaskId(MOCK_TASK_ID_02) } returns flowOf(MOCK_SYNCED_TASK_DATA_02)
         coEvery { invoiceRepository.invoiceByTaskId(MOCK_TASK_ID_01) } returns flowOf(MOCK_INVOICE_01)
         coEvery { invoiceRepository.invoiceByTaskId(MOCK_TASK_ID_02) } returns flowOf(MOCK_INVOICE_02)
-        every { pharmacyRepository.loadCachedPharmacies() } returns flowOf(listOf(MOCK_PHARMACY_O1, MOCK_PHARMACY_O2))
-        coEvery { pharmacyRepository.savePharmacyToCache(any()) } returns Unit
         coEvery { pharmacyRepository.searchPharmacyByTelematikId(any()) } returns Result.failure(Exception())
         useCase = GetMessageUsingOrderIdUseCase(
             communicationRepository = communicationRepository,

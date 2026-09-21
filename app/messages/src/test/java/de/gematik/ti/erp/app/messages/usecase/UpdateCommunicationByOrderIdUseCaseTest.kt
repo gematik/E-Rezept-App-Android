@@ -52,8 +52,8 @@ class UpdateCommunicationByOrderIdUseCaseTest {
             repository.loadDispReqCommunications(any())
         } returns flowOf(
             listOf(
-                MessageMocks.MOCK_DISP_REQ_COMMUNICATION_01,
-                MessageMocks.MOCK_DISP_REQ_COMMUNICATION_02
+                MessageMocks.MOCK_DISP_REQ_COMMUNICATION_01_ERP,
+                MessageMocks.MOCK_DISP_REQ_COMMUNICATION_02_ERP
             )
         )
 
@@ -72,8 +72,8 @@ class UpdateCommunicationByOrderIdUseCaseTest {
             repository.loadDispReqCommunications(any())
         } returns flowOf(
             listOf(
-                MessageMocks.MOCK_DISP_REQ_COMMUNICATION_01,
-                MessageMocks.MOCK_DISP_REQ_COMMUNICATION_02
+                MessageMocks.MOCK_DISP_REQ_COMMUNICATION_01_ERP,
+                MessageMocks.MOCK_DISP_REQ_COMMUNICATION_02_ERP
             )
         )
         coEvery {

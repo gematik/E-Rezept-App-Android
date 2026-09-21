@@ -42,6 +42,7 @@ import de.gematik.ti.erp.app.prescription.detail.ui.PrescriptionDetailPatientScr
 import de.gematik.ti.erp.app.prescription.detail.ui.PrescriptionDetailPrescriberScreen
 import de.gematik.ti.erp.app.prescription.detail.ui.PrescriptionDetailScreen
 import de.gematik.ti.erp.app.prescription.detail.ui.PrescriptionDetailTechnicalInformationScreen
+import de.gematik.ti.erp.app.prescription.detail.ui.PrescriptionDetailTeratogenicPrescriptionScreen
 
 @Suppress("LongMethod")
 fun NavGraphBuilder.prescriptionDetailGraph(
@@ -144,6 +145,18 @@ fun NavGraphBuilder.prescriptionDetailGraph(
             arguments = PrescriptionDetailRoutes.PrescriptionDetailOrganizationScreen.arguments
         ) { navEntry ->
             PrescriptionDetailOrganizationScreen(
+                navController = navController,
+                navBackStackEntry = navEntry
+            )
+        }
+        renderComposable(
+            stackEnterAnimation = { slideInRight() },
+            stackExitAnimation = { slideOutLeft() },
+            popExitAnimation = { slideOutLeft() },
+            route = PrescriptionDetailRoutes.PrescriptionDetailTeratogenicPrescriptionScreen.route,
+            arguments = PrescriptionDetailRoutes.PrescriptionDetailTeratogenicPrescriptionScreen.arguments
+        ) { navEntry ->
+            PrescriptionDetailTeratogenicPrescriptionScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )
@@ -255,6 +268,15 @@ fun NavGraphBuilder.prescriptionDetailGraph(
             arguments = PrescriptionDetailRoutes.HowLongValidBottomSheetScreen.arguments
         ) { navEntry ->
             HowLongValidBottomSheetScreen(
+                navController = navController,
+                navBackStackEntry = navEntry
+            )
+        }
+        renderBottomSheet(
+            route = PrescriptionDetailRoutes.TeratogenicPrescriptionBottomSheetScreen.route,
+            arguments = PrescriptionDetailRoutes.TeratogenicPrescriptionBottomSheetScreen.arguments
+        ) { navEntry ->
+            PrescriptionDetailBottomSheetScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )

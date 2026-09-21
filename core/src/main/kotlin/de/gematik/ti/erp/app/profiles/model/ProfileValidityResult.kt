@@ -21,7 +21,7 @@
  */
 package de.gematik.ti.erp.app.profiles.model
 
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import kotlinx.coroutines.flow.StateFlow
@@ -35,7 +35,7 @@ import kotlinx.datetime.Instant
  * @property profile The profile being checked.
  * @property isValid True if the profile's SSO token is valid at the given time, false otherwise.
  */
-data class ProfileValidityResult(val profile: ProfilesUseCaseData.Profile, val isValid: Boolean) {
+data class ProfileValidityResult(val profile: ProfileErpModel, val isValid: Boolean) {
     companion object {
         /**
          * Calls [onValid] if this [ProfileValidityResult] is valid, otherwise calls [onInvalid].
@@ -44,8 +44,8 @@ data class ProfileValidityResult(val profile: ProfilesUseCaseData.Profile, val i
          * @param onInvalid Lambda to invoke if the profile is invalid.
          */
         inline fun ProfileValidityResult?.fold(
-            onValid: (ProfilesUseCaseData.Profile) -> Unit,
-            onInvalid: (ProfilesUseCaseData.Profile) -> Unit
+            onValid: (ProfileErpModel) -> Unit,
+            onInvalid: (ProfileErpModel) -> Unit
         ) {
             this?.let { if (it.isValid) onValid(it.profile) else onInvalid(it.profile) }
         }
@@ -56,11 +56,11 @@ data class ProfileValidityResult(val profile: ProfilesUseCaseData.Profile, val i
          * @param now The current time to check token validity against. Defaults to [Clock.System.now()].
          * @return [ProfileValidityResult] containing the profile and its validity, or null if no profile data is available.
          */
-        suspend fun StateFlow<UiState<ProfilesUseCaseData.Profile>>.withValidSSOToken(
+        suspend fun StateFlow<UiState<ProfileErpModel>>.withValidSSOToken(
             now: Instant = Clock.System.now()
         ): ProfileValidityResult? {
             val profile = first { it.isDataState }.data ?: return null
-            val isValid = profile.ssoTokenScope?.token?.isValid(now) == true
+            val isValid = profile.userAuthentication.singleSignOnTokenErpModel?.isValid(now) == true
             return ProfileValidityResult(profile, isValid)
         }
     }

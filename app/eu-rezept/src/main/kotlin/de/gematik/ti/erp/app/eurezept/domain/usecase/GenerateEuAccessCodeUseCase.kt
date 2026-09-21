@@ -23,14 +23,14 @@
 package de.gematik.ti.erp.app.eurezept.domain.usecase
 
 import androidx.compose.ui.graphics.ImageBitmap
+import de.gematik.ti.erp.app.debug.repository.EuVersionRepository
 import de.gematik.ti.erp.app.eurezept.domain.model.EuRedemptionDetails
-import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCodeErpModel
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.eurezept.util.QrCodeGenerator
 import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeRequestConstants.FhirEuRedeemAccessCodeRequestMeta
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.settings.repository.EuVersionRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -62,7 +62,7 @@ internal class GenerateEuAccessCodeUseCase(
      * @return [Result] containing [EuRedemptionDetails] on success, or an error on failure.
      */
     suspend operator fun invoke(
-        profile: ProfilesUseCaseData.Profile,
+        profile: ProfileErpModel,
         countryCode: String,
         relatedTaskIds: List<String>
     ): Result<EuRedemptionDetails> =
@@ -74,15 +74,17 @@ internal class GenerateEuAccessCodeUseCase(
                 countryCode = countryCode,
                 relatedTaskIds = relatedTaskIds
             ).mapCatching { euAccessCode ->
-                val qrCode = generateCode(
-                    euAccessCode = euAccessCode,
-                    insuranceNumber = profile.insurance.insuranceIdentifier
-                )
-                EuRedemptionDetails(
-                    euAccessCode = euAccessCode,
-                    insuranceNumber = profile.insurance.insuranceIdentifier,
-                    qrCodeBitmap = qrCode
-                )
+                profile.insuranceData.insuranceIdentifier?.let { insuranceIdentifier ->
+                    val qrCode = generateCode(
+                        euAccessCode = euAccessCode,
+                        insuranceNumber = insuranceIdentifier
+                    )
+                    EuRedemptionDetails(
+                        euAccessCode = euAccessCode,
+                        insuranceNumber = insuranceIdentifier,
+                        qrCodeBitmap = qrCode
+                    )
+                } ?: throw IllegalArgumentException("Insurance identifier is missing")
             }
         }
 
@@ -99,7 +101,7 @@ internal class GenerateEuAccessCodeUseCase(
         metadata: FhirEuRedeemAccessCodeRequestMeta,
         countryCode: String,
         relatedTaskIds: List<String>
-    ): Result<EuAccessCode> =
+    ): Result<EuAccessCodeErpModel> =
         euRepository.createEuRedeemAccessCode(
             profileId = profileIdentifier,
             countryCode = countryCode,
@@ -115,7 +117,7 @@ internal class GenerateEuAccessCodeUseCase(
      * @return [ImageBitmap] of the QR code, or null if generation fails.
      */
     private suspend fun generateCode(
-        euAccessCode: EuAccessCode,
+        euAccessCode: EuAccessCodeErpModel,
         insuranceNumber: String
     ): ImageBitmap? = try {
         qrCodeGenerator.generateQrCode(

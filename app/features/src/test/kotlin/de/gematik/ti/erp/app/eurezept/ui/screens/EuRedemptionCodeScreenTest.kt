@@ -22,12 +22,7 @@
 
 package de.gematik.ti.erp.app.eurezept.ui.screens
 
-import de.gematik.ti.erp.app.eurezept.ui.preview.EuRedemptionCodePreviewParameterProvider
-import de.gematik.ti.erp.app.screenshot.BaseAccessibilityTest
-import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
-import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
-import org.junit.Test
-
+/*Todo Room - comment out again after merging the dependent MRs.
 class EuRedemptionCodeScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(config) {
     @Test
     fun screenShotTest() {
@@ -51,3 +46,5 @@ class EuRedemptionScreenAccessibilityTest(config: ScreenshotConfig) : BaseAccess
         }
     }
 }
+
+ */

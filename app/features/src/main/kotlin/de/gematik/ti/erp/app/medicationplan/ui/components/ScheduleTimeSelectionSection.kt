@@ -45,36 +45,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.fhir.temporal.formattedStringShort
 import de.gematik.ti.erp.app.fhir.temporal.isBeforeCurrentDate
 import de.gematik.ti.erp.app.fhir.temporal.toHourMinuteString
-import de.gematik.ti.erp.app.medicationplan.model.MedicationNotificationMessage
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDuration
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleInterval
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
-import de.gematik.ti.erp.app.prescription.model.Quantity
-import de.gematik.ti.erp.app.prescription.model.Ratio
+import de.gematik.ti.erp.app.medicationplan.model.MedicationNotificationMessageErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDurationErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleIntervalErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosageErpModel
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.semantics.semanticsHeading
+import de.gematik.ti.erp.app.task.model.QuantityErpModel
+import de.gematik.ti.erp.app.task.model.RatioErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 
 internal fun LazyListScope.scheduleTimeSelectionSection(
-    medicationSchedule: MedicationSchedule,
+    medicationScheduleErpModel: MedicationScheduleErpModel,
     currentDate: LocalDate,
     onClickChangeDateRange: () -> Unit,
     onAddNewItem: () -> Unit,
-    onRemoveNotificationTime: (MedicationScheduleNotification) -> Unit,
-    onNotificationTimeClick: (MedicationScheduleNotification) -> Unit,
-    onDosageClicked: (MedicationScheduleNotification) -> Unit
+    onRemoveNotificationTime: (MedicationScheduleNotificationErpModel) -> Unit,
+    onNotificationTimeClick: (MedicationScheduleNotificationErpModel) -> Unit,
+    onDosageClicked: (MedicationScheduleNotificationErpModel) -> Unit
 ) {
     item {
         Column(
@@ -86,12 +88,12 @@ internal fun LazyListScope.scheduleTimeSelectionSection(
                 style = AppTheme.typography.h6
             )
             ScheduleDateRangeCard(
-                medicationSchedule = medicationSchedule,
+                medicationScheduleErpModel = medicationScheduleErpModel,
                 currentDate = currentDate,
                 onClickChangeDateRange = onClickChangeDateRange
             )
             ScheduleTimeCard(
-                medicationSchedule = medicationSchedule,
+                medicationScheduleErpModel = medicationScheduleErpModel,
                 onRemoveNotificationTime = onRemoveNotificationTime,
                 onAddNewItem = onAddNewItem,
                 onNotificationTimeClick = onNotificationTimeClick,
@@ -104,7 +106,7 @@ internal fun LazyListScope.scheduleTimeSelectionSection(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun ScheduleDateRangeCard(
-    medicationSchedule: MedicationSchedule,
+    medicationScheduleErpModel: MedicationScheduleErpModel,
     currentDate: LocalDate,
     onClickChangeDateRange: () -> Unit
 ) {
@@ -115,7 +117,7 @@ private fun ScheduleDateRangeCard(
         elevation = SizeDefaults.quarter
     ) {
         Column(modifier = Modifier.padding(vertical = PaddingDefaults.Small)) {
-            val text = getScheduleDurationString(medicationSchedule, currentDate)
+            val text = getScheduleDurationString(medicationScheduleErpModel, currentDate)
             ListItem(
                 modifier = Modifier.clickable {
                     onClickChangeDateRange()
@@ -154,20 +156,20 @@ private fun ScheduleDateRangeCard(
 private fun ScheduleDateRangeCardPreview() {
     PreviewAppTheme {
         ScheduleDateRangeCard(
-            medicationSchedule = MedicationSchedule(
+            medicationScheduleErpModel = MedicationScheduleErpModel(
                 isActive = true,
                 profileId = "profileId",
                 taskId = "taskId",
-                amount = Ratio(
-                    numerator = Quantity(value = "10", unit = "Stk"),
-                    denominator = Quantity(value = "1", unit = "Tag")
+                amount = RatioErpModel(
+                    numerator = QuantityErpModel(value = "10", unit = "Stk"),
+                    denominator = QuantityErpModel(value = "1", unit = "Tag")
                 ),
-                duration = MedicationScheduleDuration.Personalized(
+                duration = MedicationScheduleDurationErpModel.Personalized(
                     startDate = LocalDate(2024, 1, 1),
                     endDate = LocalDate(2024, 12, 31)
                 ),
-                interval = MedicationScheduleInterval.Daily,
-                message = MedicationNotificationMessage(title = "Title", body = "Body"),
+                interval = MedicationScheduleIntervalErpModel.Daily,
+                message = MedicationNotificationMessageErpModel(title = "Title", body = "Body"),
                 notifications = emptyList()
             ),
             currentDate = LocalDate(2024, 6, 15),
@@ -179,12 +181,13 @@ private fun ScheduleDateRangeCardPreview() {
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun ScheduleTimeCard(
-    medicationSchedule: MedicationSchedule,
+    medicationScheduleErpModel: MedicationScheduleErpModel,
     onAddNewItem: () -> Unit,
-    onRemoveNotificationTime: (MedicationScheduleNotification) -> Unit,
-    onNotificationTimeClick: (MedicationScheduleNotification) -> Unit,
-    onDosageClicked: (MedicationScheduleNotification) -> Unit
+    onRemoveNotificationTime: (MedicationScheduleNotificationErpModel) -> Unit,
+    onNotificationTimeClick: (MedicationScheduleNotificationErpModel) -> Unit,
+    onDosageClicked: (MedicationScheduleNotificationErpModel) -> Unit
 ) {
+    val deleteDescription = stringResource(R.string.a11y_medication_schedule_delete_notification_time)
     Card(
         backgroundColor = AppTheme.colors.neutral000,
         border = BorderStroke(SizeDefaults.eighth, AppTheme.colors.neutral100),
@@ -192,16 +195,16 @@ private fun ScheduleTimeCard(
         elevation = SizeDefaults.quarter
     ) {
         Column(modifier = Modifier.padding(vertical = PaddingDefaults.Small)) {
-            medicationSchedule.notifications.forEach { notification ->
+            medicationScheduleErpModel.notifications.forEach { notification ->
                 ListItem(
                     modifier = Modifier,
                     icon = {
                         Icon(
-                            modifier = Modifier.clickable {
+                            modifier = Modifier.clickable(role = Role.Button) {
                                 onRemoveNotificationTime(notification)
                             },
                             imageVector = Icons.Filled.DoDisturbOn,
-                            contentDescription = null,
+                            contentDescription = deleteDescription,
                             tint = AppTheme.colors.red700
                         )
                     },
@@ -214,7 +217,7 @@ private fun ScheduleTimeCard(
                                     color = AppTheme.colors.neutral200
                                 )
                                 .clip(RoundedCornerShape(SizeDefaults.one))
-                                .clickable {
+                                .clickable(role = Role.Button) {
                                     onNotificationTimeClick(notification)
                                 }
                                 .padding(
@@ -237,7 +240,7 @@ private fun ScheduleTimeCard(
             }
             ListItem(
                 modifier = Modifier
-                    .clickable { onAddNewItem() },
+                    .clickable(role = Role.Button) { onAddNewItem() },
                 icon = {
                     Icon(
                         imageVector = Icons.Filled.AddCircle,
@@ -262,28 +265,28 @@ private fun ScheduleTimeCard(
 private fun ScheduleTimeCardPreview() {
     PreviewAppTheme {
         ScheduleTimeCard(
-            medicationSchedule = MedicationSchedule(
+            medicationScheduleErpModel = MedicationScheduleErpModel(
                 isActive = true,
                 profileId = "profileId",
                 taskId = "taskId",
-                amount = Ratio(
-                    numerator = Quantity(value = "10", unit = "Stk"),
-                    denominator = Quantity(value = "1", unit = "Tag")
+                amount = RatioErpModel(
+                    numerator = QuantityErpModel(value = "10", unit = "Stk"),
+                    denominator = QuantityErpModel(value = "1", unit = "Tag")
                 ),
-                duration = MedicationScheduleDuration.Personalized(
+                duration = MedicationScheduleDurationErpModel.Personalized(
                     startDate = LocalDate(2024, 1, 1),
                     endDate = LocalDate(2024, 12, 31)
                 ),
-                interval = MedicationScheduleInterval.Daily,
-                message = MedicationNotificationMessage(title = "Title", body = "Body"),
+                interval = MedicationScheduleIntervalErpModel.Daily,
+                message = MedicationNotificationMessageErpModel(title = "Title", body = "Body"),
                 notifications = listOf(
-                    MedicationScheduleNotification(
-                        time = kotlinx.datetime.LocalTime(8, 0),
-                        dosage = MedicationScheduleNotificationDosage(form = "Tablette", ratio = "1")
+                    MedicationScheduleNotificationErpModel(
+                        time = LocalTime(8, 0),
+                        dosage = MedicationScheduleNotificationDosageErpModel(form = "Tablette", ratio = "1")
                     ),
-                    MedicationScheduleNotification(
-                        time = kotlinx.datetime.LocalTime(18, 0),
-                        dosage = MedicationScheduleNotificationDosage(form = "Tablette", ratio = "1")
+                    MedicationScheduleNotificationErpModel(
+                        time = LocalTime(18, 0),
+                        dosage = MedicationScheduleNotificationDosageErpModel(form = "Tablette", ratio = "1")
                     )
                 )
             ),
@@ -297,17 +300,17 @@ private fun ScheduleTimeCardPreview() {
 
 @Composable
 private fun getScheduleDurationString(
-    medicationSchedule: MedicationSchedule,
+    medicationScheduleErpModel: MedicationScheduleErpModel,
     currentDate: LocalDate
 ): String {
     val text = when {
-        medicationSchedule.duration is MedicationScheduleDuration.Endless -> stringResource(R.string.medication_plan_endless)
-        medicationSchedule.duration.endDate.isBeforeCurrentDate(currentDate) ->
+        medicationScheduleErpModel.duration is MedicationScheduleDurationErpModel.Endless -> stringResource(R.string.medication_plan_endless)
+        medicationScheduleErpModel.duration.endDate.isBeforeCurrentDate(currentDate) ->
             stringResource(R.string.medication_plan_ended)
 
         else -> stringResource(
             R.string.medication_plan_ends,
-            medicationSchedule.duration.endDate.formattedStringShort()
+            medicationScheduleErpModel.duration.endDate.formattedStringShort()
         )
     }
     return text

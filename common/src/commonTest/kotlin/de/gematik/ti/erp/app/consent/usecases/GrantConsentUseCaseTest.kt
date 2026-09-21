@@ -30,10 +30,14 @@ import de.gematik.ti.erp.app.consent.usecase.GrantConsentUseCase
 import de.gematik.ti.erp.app.fhir.consent.FhirConsentParser
 import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.fhir.constant.consent.ConsentConstants
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.settings.repository.ConsentVersionRepository
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.debug.repository.ConsentVersionRepository
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -109,16 +113,28 @@ class GrantConsentUseCaseTest {
     companion object {
         private const val profileId = "7fo98w-43tgv-23w"
 
-        val profile = ProfilesUseCaseData.Profile(
+        val profile = ProfileErpModel(
             id = "7fo98w-43tgv-23w",
             name = "Test",
-            insurance = ProfileInsuranceInformation(),
-            isActive = false,
-            color = ProfilesData.ProfileColorNames.PINK,
+            profileImageData = ProfileImageDataErpModel(
+                color = ProfileColorNames.PINK,
+                image = null,
+                avatar = Avatar.PersonalizedImage
+            ),
+            insuranceData = ProfileInsuranceDataErpModel(
+                insurantName = "Erna P",
+                insuranceIdentifier = "AOK",
+                insuranceName = null,
+                insuranceType = InsuranceType.GKV,
+                organizationIdentifier = null
+            ),
             lastAuthenticated = null,
-            ssoTokenScope = null,
-            image = null,
-            avatar = ProfilesData.Avatar.PersonalizedImage
+            userAuthentication = UserAuthenticationErpModel.NotInitialized,
+            lastAuditEventSynced = null,
+            lastTaskSynced = null,
+            active = true,
+            isNewlyCreated = false,
+            isConsentDrawerShown = true
         )
     }
 }

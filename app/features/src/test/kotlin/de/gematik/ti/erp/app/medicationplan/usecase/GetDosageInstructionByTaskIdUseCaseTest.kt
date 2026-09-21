@@ -23,10 +23,10 @@
 package de.gematik.ti.erp.app.medicationplan.usecase
 
 import de.gematik.ti.erp.app.medicationplan.MEDICATION_REQUEST
-import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
+import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstructionErpModel
 import de.gematik.ti.erp.app.medicationplan.scannedTask
 import de.gematik.ti.erp.app.medicationplan.syncedTask
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.emptyFlow
@@ -42,31 +42,31 @@ import kotlin.test.assertEquals
 class GetDosageInstructionByTaskIdUseCaseTest {
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
-    private val prescriptionRepository: PrescriptionRepository = mockk()
+    private val taskOperationsRepository: TaskOperationsRepository = mockk()
     private lateinit var useCase: GetDosageInstructionByTaskIdUseCase
 
     @BeforeTest
     fun setup() {
         useCase = GetDosageInstructionByTaskIdUseCase(
-            repository = prescriptionRepository
+            repository = taskOperationsRepository
         )
     }
 
     @Test
     fun `scanned prescription should return empty dosage instruction`() {
-        coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns flowOf(scannedTask)
-        coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
+        coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf(scannedTask)
+        coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
 
         testScope.runTest {
             val dosageInstruction = useCase.invoke("taskId").first()
-            assertEquals(MedicationPlanDosageInstruction.Empty, dosageInstruction)
+            assertEquals(MedicationPlanDosageInstructionErpModel.Empty, dosageInstruction)
         }
     }
 
     @Test
     fun `synced prescription should return empty dosage instruction`() {
-        coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
-        coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(
+        coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+        coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(
             syncedTask.copy(
                 medicationRequest = MEDICATION_REQUEST.copy(dosageInstruction = null)
             )
@@ -74,14 +74,14 @@ class GetDosageInstructionByTaskIdUseCaseTest {
 
         testScope.runTest {
             val dosageInstruction = useCase.invoke("taskId").first()
-            assertEquals(MedicationPlanDosageInstruction.Empty, dosageInstruction)
+            assertEquals(MedicationPlanDosageInstructionErpModel.Empty, dosageInstruction)
         }
     }
 
     @Test
     fun `synced prescription should return freetext dosage instruction`() {
-        coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
-        coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(
+        coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+        coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(
             syncedTask.copy(
                 medicationRequest = MEDICATION_REQUEST.copy(dosageInstruction = "freetext")
             )
@@ -89,14 +89,14 @@ class GetDosageInstructionByTaskIdUseCaseTest {
 
         testScope.runTest {
             val dosageInstruction = useCase.invoke("taskId").first()
-            assertEquals(MedicationPlanDosageInstruction.FreeText("freetext"), dosageInstruction)
+            assertEquals(MedicationPlanDosageInstructionErpModel.FreeText("freetext"), dosageInstruction)
         }
     }
 
     @Test
     fun `synced prescription should return structured dosage instruction`() {
-        coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
-        coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(
+        coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+        coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(
             syncedTask.copy(
                 medicationRequest = MEDICATION_REQUEST.copy(dosageInstruction = "1-0-1-0")
             )
@@ -105,11 +105,11 @@ class GetDosageInstructionByTaskIdUseCaseTest {
         testScope.runTest {
             val dosageInstruction = useCase.invoke("taskId").first()
             assertEquals(
-                MedicationPlanDosageInstruction.Structured(
+                MedicationPlanDosageInstructionErpModel.Structured(
                     text = "1-0-1-0",
                     interpretation = mapOf(
-                        MedicationPlanDosageInstruction.DayTime.MORNING to "1",
-                        MedicationPlanDosageInstruction.DayTime.EVENING to "1"
+                        MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1",
+                        MedicationPlanDosageInstructionErpModel.DayTime.EVENING to "1"
                     )
                 ),
                 dosageInstruction

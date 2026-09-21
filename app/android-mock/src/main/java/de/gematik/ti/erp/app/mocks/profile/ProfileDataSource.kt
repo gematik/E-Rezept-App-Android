@@ -23,8 +23,14 @@
 package de.gematik.ti.erp.app.mocks.profile
 
 import de.gematik.ti.erp.app.BuildKonfig
-import de.gematik.ti.erp.app.idp.model.IdpData
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
+import de.gematik.ti.erp.app.userauthentication.model.SingleSignOnTokenErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
 import org.bouncycastle.cert.X509CertificateHolder
@@ -37,26 +43,37 @@ class ProfileDataSource {
     private val can = "123123"
     private val byteArray = Base64.decode(BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE)
     private val healthCertificate = X509CertificateHolder(byteArray)
-    private val singleSignOnToken = IdpData.SingleSignOnToken(
+    private val singleSignOnToken = SingleSignOnTokenErpModel(
         token = UUID.randomUUID().toString(),
         expiresOn = Clock.System.now().plus(200.days),
         validOn = Clock.System.now().plus(20.days)
     )
 
-    private val firstProfile = ProfilesData.Profile(
+    private val firstProfile = ProfileErpModel(
         id = "1",
         name = "Max Mustermann",
-        color = ProfilesData.ProfileColorNames.BLUE_MOON,
-        lastAuthenticated = Clock.System.now(),
-        avatar = ProfilesData.Avatar.ManWithPhone,
-        insuranceName = "AOK",
-        insuranceType = ProfilesData.InsuranceType.GKV,
+        profileImageData = ProfileImageDataErpModel(
+            color = ProfileColorNames.BLUE_MOON,
+            avatar = Avatar.ManWithPhone,
+            image = null
+        ),
         isConsentDrawerShown = true,
+        insuranceData = ProfileInsuranceDataErpModel(
+            insurantName = "Max Mustermann",
+            insuranceIdentifier = null,
+            insuranceName = "AOK",
+            insuranceType = InsuranceType.GKV,
+            organizationIdentifier = null
+        ),
+        lastAuthenticated = Clock.System.now(),
+        lastAuditEventSynced = null,
+        lastTaskSynced = null,
         active = true,
-        singleSignOnTokenScope = IdpData.DefaultToken(
-            token = singleSignOnToken,
+        isNewlyCreated = false,
+        userAuthentication = UserAuthenticationErpModel.HealthCard(
+            singleSignOnTokenErpModel = singleSignOnToken,
             cardAccessNumber = can,
-            healthCardCertificate = healthCertificate
+            healthCardCertificate = healthCertificate.encoded
         )
     )
 

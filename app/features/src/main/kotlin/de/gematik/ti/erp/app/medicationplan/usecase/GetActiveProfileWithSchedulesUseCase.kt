@@ -22,11 +22,10 @@
 
 package de.gematik.ti.erp.app.medicationplan.usecase
 
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationErpModel
 import de.gematik.ti.erp.app.medicationplan.model.ProfileWithSchedules
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
-import de.gematik.ti.erp.app.profiles.usecase.mapper.toModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -52,7 +51,7 @@ class GetActiveProfileWithSchedulesUseCase(
     ) { schedules, profiles ->
         // only display active Schedules and only notifications from today and yesterday
         val filteredSchedules = schedules.filter {
-            it.isActive && it.duration.startDate <= now.date && it.daysSinceTheLastNotification(now.date) <= 1
+            it.isActive && it.notifications.isNotEmpty() && it.duration.startDate <= now.date && it.daysSinceTheLastNotification(now.date) <= 1
         }
         filteredSchedules.groupBy { it.profileId }
             .map { (profileId, schedulesForProfile) ->
@@ -66,7 +65,7 @@ class GetActiveProfileWithSchedulesUseCase(
                     )
                 }
                 ProfileWithSchedules(
-                    profile.toModel(),
+                    profile,
                     scheduleWithSortedNotifications
                 )
             }.sortedBy { profileWithSchedules ->
@@ -83,8 +82,8 @@ class GetActiveProfileWithSchedulesUseCase(
 
     private fun sortNotificationsByClosestTime(
         now: LocalDateTime,
-        notifications: List<MedicationScheduleNotification>
-    ): List<MedicationScheduleNotification> {
+        notifications: List<MedicationScheduleNotificationErpModel>
+    ): List<MedicationScheduleNotificationErpModel> {
         val localTime = now.time
         val first = notifications.minBy {
             Duration.between(localTime.toJavaLocalTime(), it.time.toJavaLocalTime()).abs()

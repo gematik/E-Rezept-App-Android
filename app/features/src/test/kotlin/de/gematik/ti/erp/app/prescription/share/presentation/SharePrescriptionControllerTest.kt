@@ -25,10 +25,10 @@ package de.gematik.ti.erp.app.prescription.share.presentation
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.share.presentation.SharePrescriptionController.HandleResult
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import io.mockk.CapturingSlot
 import io.mockk.MockKAnnotations
 import io.mockk.Runs
@@ -153,7 +153,7 @@ class SharePrescriptionControllerTest {
                 profileId = profileId,
                 tasks = withArg { list ->
                     require(list.size == 1)
-                    val t = list.first() as ScannedTaskData.ScannedTask
+                    val t = list.first()
                     assertThat("", t.taskId.startsWith("160."))
                     assertThat("", t.accessCode.length >= 16)
                     // assertEquals("Kaletra 200 mg/50 mg Filmtabletten", t.name)
@@ -196,7 +196,7 @@ class SharePrescriptionControllerTest {
         val results = controllerWithProfile().handle(url)
         assertEquals(listOf(HandleResult.TaskSaved), results)
 
-        val tasksSlot = slot<List<ScannedTaskData.ScannedTask>>()
+        val tasksSlot = slot<List<TaskErpModel.Scanned>>()
         val medSlot = slot<String>()
 
         coVerify(exactly = 1) {

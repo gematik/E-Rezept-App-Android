@@ -22,9 +22,9 @@
 
 package de.gematik.ti.erp.app.messages.mapper
 
+import de.gematik.ti.erp.app.communication.model.CommunicationProfileV1
 import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationProfileV1
 import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
 import kotlinx.datetime.Clock

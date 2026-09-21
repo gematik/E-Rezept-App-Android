@@ -28,6 +28,7 @@ import de.gematik.ti.erp.app.BCProvider
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.generateRandomAES256Key
 import de.gematik.ti.erp.app.idp.EllipticCurvesExtending
+import de.gematik.ti.erp.app.idp.IdpConfigurationErpModel
 import de.gematik.ti.erp.app.idp.api.IdpService
 import de.gematik.ti.erp.app.idp.api.REDIRECT_URI
 import de.gematik.ti.erp.app.idp.api.models.IdpAuthFlowResult
@@ -44,7 +45,6 @@ import de.gematik.ti.erp.app.idp.api.models.TokenResponse
 import de.gematik.ti.erp.app.idp.buildJsonWebSignatureWithHealthCard
 import de.gematik.ti.erp.app.idp.buildKeyVerifier
 import de.gematik.ti.erp.app.idp.extension.issuerCommonName
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.secureRandomInstance
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
@@ -60,6 +60,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.long
+import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
 import org.jose4j.base64url.Base64
 import org.jose4j.base64url.Base64Url
@@ -297,10 +298,10 @@ class IdpBasicUseCase(
      * Network issues or expired cached configs can cause temporary failures.
      * One retry with fresh data often resolves the issue.
      *
-     * @return Valid [IdpData.IdpConfiguration] ready for use
+     * @return Valid [IdpConfigurationErpModel] ready for use
      * @throws Exception if config cannot be loaded or validated after retry
      */
-    private suspend fun loadAndValidateIdpConfiguration(): IdpData.IdpConfiguration =
+    private suspend fun loadAndValidateIdpConfiguration(): IdpConfigurationErpModel =
         retryOnce(
             operation = {
                 repository.loadUncheckedIdpConfiguration()
@@ -384,7 +385,7 @@ class IdpBasicUseCase(
         codeLines = 6
     )
     suspend fun checkIdpConfigurationValidity(
-        config: IdpData.IdpConfiguration,
+        config: IdpConfigurationErpModel,
         timestamp: Instant
     ) {
         // truststore / OCSP validation (config cert + PUK SIG cert)
@@ -438,7 +439,7 @@ class IdpBasicUseCase(
      * @param config The IDP configuration containing certificate information
      * @throws Exception if trust chain validation fails
      */
-    private suspend fun validateIdpTrustChainFromRepo(config: IdpData.IdpConfiguration) {
+    private suspend fun validateIdpTrustChainFromRepo(config: IdpConfigurationErpModel) {
         val pukSigKey: JWSPublicKey =
             repository.fetchIdpPukSig(config.pukIdpSigEndpoint).getOrThrow()
 
@@ -500,7 +501,7 @@ class IdpBasicUseCase(
      * @throws Exception if any certificate is invalid, revoked, or untrusted
      */
     private suspend fun validateIdpTrustChain(
-        config: IdpData.IdpConfiguration,
+        config: IdpConfigurationErpModel,
         pukSigKey: List<JWSPublicKey>,
         invalidateStoreOnFailure: Boolean
     ) {
@@ -511,9 +512,8 @@ class IdpBasicUseCase(
         require(idpSignatureCertificates.isNotEmpty()) {
             "No IDP SIG EE certificate available"
         }
-
         // Configuration certificate and its OCSP response (shared for all validations)
-        val configurationCertificateHolder = config.certificate
+        val configurationCertificateHolder = X509CertificateHolder(config.certificate)
         val configCertOcspResponse = remoteDataSource
             .loadOcspResponse(
                 configurationCertificateHolder.issuer.issuerCommonName(),

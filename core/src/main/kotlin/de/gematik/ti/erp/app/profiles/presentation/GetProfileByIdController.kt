@@ -22,12 +22,12 @@
 
 package de.gematik.ti.erp.app.profiles.presentation
 
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.model.ProfileCombinedData
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,9 +46,9 @@ abstract class GetProfileByIdController(
     private val getProfileByIdUseCase: GetProfileByIdUseCase,
     private val getProfilesUseCase: GetProfilesUseCase,
     getActiveProfileUseCase: GetActiveProfileUseCase,
-    protected open val onSelectedProfileSuccess: ((ProfilesUseCaseData.Profile, CoroutineScope) -> Unit)? = null,
+    protected open val onSelectedProfileSuccess: ((ProfileErpModel, CoroutineScope) -> Unit)? = null,
     protected open val onSelectedProfileFailure: ((Throwable, CoroutineScope) -> Unit)? = null,
-    protected open val onActiveProfileSuccess: ((ProfilesUseCaseData.Profile, CoroutineScope) -> Unit)? = null,
+    protected open val onActiveProfileSuccess: ((ProfileErpModel, CoroutineScope) -> Unit)? = null,
     protected open val onActiveProfileFailure: ((Throwable, CoroutineScope) -> Unit)? = null
 ) : GetActiveProfileController(
     getActiveProfileUseCase = getActiveProfileUseCase,
@@ -66,9 +66,9 @@ abstract class GetProfileByIdController(
     }
 
     val isSsoTokenValidForSelectedProfile: StateFlow<Boolean> by lazy {
-        combinedProfile.map { it.data?.selectedProfile?.ssoTokenScope }
+        combinedProfile.map { it.data?.selectedProfile?.userAuthentication }
             .distinctUntilChanged()
-            .map { it?.token?.isValid() ?: false }
+            .map { it?.singleSignOnTokenErpModel?.isValid() ?: false }
             .stateIn(
                 scope = controllerScope,
                 started = SharingStarted.Companion.Eagerly,
@@ -81,16 +81,20 @@ abstract class GetProfileByIdController(
             _combinedProfile.update { UiState.Loading() }
             selectedProfileId?.let {
                 combine(
-                    getProfilesUseCase.invoke(),
+                    getProfilesUseCase.invoke()
+                        .distinctUntilChanged { old, new ->
+                            old.size == new.size && old.zip(new).all { (a, b) -> !a.hasChanged(b) }
+                        },
                     getProfileByIdUseCase(selectedProfileId)
+                        .distinctUntilChanged { old, new -> !old.hasChanged(new) }
                 ) { profileList, selectedProfile ->
-                    onSelectedProfileSuccess?.invoke(selectedProfile, controllerScope)
                     ProfileCombinedData(
                         selectedProfile = selectedProfile,
                         profiles = profileList
                     )
                 }.onEmpty { throw IllegalStateException("profileList- or selectedProfileFlow is empty") }
                     .collect { combinedData ->
+                        onSelectedProfileSuccess?.invoke(combinedData.selectedProfile!!, controllerScope)
                         _combinedProfile.update {
                             UiState.Data(
                                 combinedData
@@ -99,6 +103,9 @@ abstract class GetProfileByIdController(
                     }
             }
                 ?: getProfilesUseCase.invoke()
+                    .distinctUntilChanged { old, new ->
+                        old.size == new.size && old.zip(new).all { (a, b) -> !a.hasChanged(b) }
+                    }
                     .onEmpty { throw IllegalStateException("profileListFlow is empty") }
                     .collect {
                             profileList ->

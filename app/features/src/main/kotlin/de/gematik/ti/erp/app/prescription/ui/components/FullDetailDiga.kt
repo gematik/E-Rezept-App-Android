@@ -48,11 +48,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -67,7 +63,6 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.timeStateParser
 import de.gematik.ti.erp.app.diga.model.DigaStatus
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.ui.ArchivedChip
 import de.gematik.ti.erp.app.prescription.ui.CodeRejectChip
 import de.gematik.ti.erp.app.prescription.ui.InReguestStatusChip
@@ -77,9 +72,10 @@ import de.gematik.ti.erp.app.prescription.ui.PendingStatusChip
 import de.gematik.ti.erp.app.prescription.ui.WaitingForCodeChip
 import de.gematik.ti.erp.app.prescription.ui.preview.FullDetailDigaPreviewData
 import de.gematik.ti.erp.app.prescription.ui.preview.FullDetailDigaPreviewProvider
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
 import de.gematik.ti.erp.app.prescriptionId
 import de.gematik.ti.erp.app.semantics.semanticsMergedButton
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStateErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -101,17 +97,13 @@ import kotlinx.datetime.daysUntil
 @Composable
 internal fun FullDetailDiga(
     modifier: Modifier = Modifier,
-    prescription: SyncedPrescription,
+    prescription: TaskErpModel.Synced.Diga,
     now: Instant = Clock.System.now(),
     onClick: () -> Unit
 ) {
-    var showNew by remember { mutableStateOf(false) }
+    val showNew = remember(prescription.taskId) { prescription.deviceRequest?.isNew == true }
 
-    LaunchedEffect(Unit) {
-        showNew = prescription.isNew
-    }
-
-    val newBadgeText = if (prescription.isNew) stringResource(R.string.diga_new) + ". " else ""
+    val newBadgeText = if (prescription.deviceRequest?.isNew == true) stringResource(R.string.diga_new) + ". " else ""
     val medicationName = prescription.name ?: stringResource(R.string.diga_default_name)
     val description = newBadgeText + medicationName
     Box(
@@ -145,7 +137,7 @@ internal fun FullDetailDiga(
                     Column(modifier = Modifier.fillMaxWidth()) {
                         when {
                             prescription.deviceRequestState is DigaStatus.SelfArchiveDiga ||
-                                prescription.isArchived -> {
+                                prescription.deviceRequest?.isArchived == true -> {
                                 Text(
                                     dateWithIntroductionString(
                                         R.string.code_received_on_date,
@@ -158,7 +150,7 @@ internal fun FullDetailDiga(
                                 ArchivedChip()
                             }
 
-                            prescription.state is SyncedTaskData.SyncedTask.Pending -> DigaPendingChip()
+                            prescription.state() is TaskStateErpModel.Pending -> DigaPendingChip()
                             prescription.deviceRequestState is DigaStatus.Ready -> DigaReadyChip(prescription, now)
                             prescription.deviceRequestState is DigaStatus.InProgress ->
                                 (prescription.deviceRequestState as? DigaStatus.InProgress)
@@ -247,10 +239,10 @@ private fun DigaPendingChip() {
 
 @Composable
 private fun DigaReadyChip(
-    prescription: SyncedPrescription,
+    prescription: TaskErpModel.Synced.Diga,
     now: Instant = Clock.System.now()
 ) {
-    val expiresOn = (prescription.state as? SyncedTaskData.SyncedTask.Ready)?.expiresOn
+    val expiresOn = (prescription.state() as? TaskStateErpModel.Ready)?.expiresOn
     if (expiresOn?.let { now.daysUntil(it, TimeZone.currentSystemDefault()) } == 0) {
         Text(
             dateWithIntroductionString(
@@ -264,7 +256,7 @@ private fun DigaReadyChip(
         NotLongerValidChip()
     } else {
         PrescriptionStateInfo(
-            state = prescription.state,
+            state = prescription.state(),
             now = now
         )
         SpacerSmall()

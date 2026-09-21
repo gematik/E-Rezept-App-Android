@@ -87,6 +87,10 @@ gradlePlugin {
             id = "de.gematik.forced-dependencies"
             implementationClass = "plugins.ForcedDependenciesPlugin"
         }
+        register("firebaseConvention") {
+            id = "de.gematik.firebase-convention"
+            implementationClass = "plugins.FirebaseConventionPlugin"
+        }
     }
 }
 
@@ -108,6 +112,7 @@ dependencies {
     implementation(libs.kotlin.gradle.plugin)
     implementation(libs.buildkonfig.gradle.plugin)
     implementation(libs.secrets.gradle.plugin)
+    implementation(libs.google.services.gradle.plugin)
     implementation(libs.dependency.check.gradle)
     implementation(libs.gradle.license.plugin)
     implementation(libs.database.realm.plugin)

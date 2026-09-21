@@ -28,8 +28,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyMapsUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.DEFAULT_RADIUS_IN_KM
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.pharmacy.model.LocationModeErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyMapsSearchDataErpModel
+import de.gematik.ti.erp.app.pharmacy.model.SearchFilterErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,18 +43,18 @@ import kotlinx.coroutines.flow.shareIn
 import org.kodein.di.compose.rememberInstance
 
 class PharmacySearchMapsController(
-    pharmacyFilter: PharmacyUseCaseData.Filter,
-    coordinates: Coordinates?,
+    pharmacyFilter: SearchFilterErpModel,
+    coordinates: PositionErpModel?,
     private val pharmacyMapsUseCase: PharmacyMapsUseCase
 ) : Controller() {
 
     private val defaultSearch by lazy {
-        PharmacyUseCaseData.MapsSearchData(
+        PharmacyMapsSearchDataErpModel(
             name = WILDCARD,
             filter = pharmacyFilter,
             locationMode = coordinates?.let {
-                PharmacyUseCaseData.LocationMode.Enabled(it)
-            } ?: PharmacyUseCaseData.LocationMode.Disabled,
+                LocationModeErpModel.Enabled(it)
+            } ?: LocationModeErpModel.Disabled,
             coordinates = coordinates
         )
     }
@@ -67,7 +69,7 @@ class PharmacySearchMapsController(
     private val pharmacies by lazy {
         searchParams.onEach {
             searchParams.value = it.copy(
-                locationMode = (it.locationMode as? PharmacyUseCaseData.LocationMode.Enabled)
+                locationMode = (it.locationMode as? LocationModeErpModel.Enabled)
                     ?.copy(radiusInMeter = cameraRadius.value) ?: it.locationMode
             )
         }.flatMapLatest { searchParams ->
@@ -114,8 +116,8 @@ class PharmacySearchMapsController(
 
 @Composable
 fun rememberPharmacySearchMapsController(
-    pharmacyFilter: PharmacyUseCaseData.Filter,
-    coordinates: Coordinates?
+    pharmacyFilter: SearchFilterErpModel,
+    coordinates: PositionErpModel?
 ): PharmacySearchMapsController {
     val mapsUseCase by rememberInstance<PharmacyMapsUseCase>()
 

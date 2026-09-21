@@ -23,35 +23,38 @@
 package de.gematik.ti.erp.app.pharmacy.presentation
 
 import com.google.android.gms.maps.model.LatLng
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.isOpenAt
+import de.gematik.ti.erp.app.pharmacy.model.LocationModeErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
+import de.gematik.ti.erp.app.pharmacy.model.isOpenAt
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 internal const val WILDCARD = ""
-internal fun PharmacyUseCaseData.Pharmacy.location(locationMode: PharmacyUseCaseData.LocationMode) =
+internal fun PharmacyDetailsErpModel.location(locationMode: LocationModeErpModel) =
     when (locationMode) {
-        is PharmacyUseCaseData.LocationMode.Enabled -> copy(
+        is LocationModeErpModel.Enabled -> copy(
             distance = coordinates?.minus(locationMode.coordinates)
         )
 
         else -> this
     }
 
-internal fun PharmacyUseCaseData.Pharmacy.deliveryService(isDeliveryServiceFiltered: Boolean) =
+internal fun PharmacyDetailsErpModel.deliveryService(isDeliveryServiceFiltered: Boolean) =
     when {
-        isDeliveryServiceFiltered -> provides.any { it is PharmacyUseCaseData.PharmacyService.DeliveryPharmacyService }
+        isDeliveryServiceFiltered -> provides.any { it is PharmacyServiceErpModel.DeliveryPharmacyServiceErpModel }
         else -> true
     }
 
-internal fun PharmacyUseCaseData.Pharmacy.onlineService(isOnlineServiceFiltered: Boolean) =
+internal fun PharmacyDetailsErpModel.onlineService(isOnlineServiceFiltered: Boolean) =
     when {
-        isOnlineServiceFiltered -> provides.any { it is PharmacyUseCaseData.PharmacyService.OnlinePharmacyService }
+        isOnlineServiceFiltered -> provides.any { it is PharmacyServiceErpModel.OnlinePharmacyServiceErpModel }
         else -> true
     }
 
-internal fun PharmacyUseCaseData.Pharmacy.isOpenNow(isOpenNow: Boolean): Boolean =
+internal fun PharmacyDetailsErpModel.isOpenNow(isOpenNow: Boolean): Boolean =
     if (isOpenNow) {
         openingHours?.isOpenAt(
             Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
@@ -60,7 +63,7 @@ internal fun PharmacyUseCaseData.Pharmacy.isOpenNow(isOpenNow: Boolean): Boolean
         true
     }
 
-internal fun PharmacyUseCaseData.Pharmacy.recentlyUsed(
+internal fun PharmacyDetailsErpModel.recentlyUsed(
     isRecentlyUsedFiltered: Boolean,
     oftenUsedTelematikIds: Set<String>
 ) =
@@ -69,14 +72,14 @@ internal fun PharmacyUseCaseData.Pharmacy.recentlyUsed(
         else -> true
     }
 
-internal fun PharmacyUseCaseData.Coordinates.toLatLng() = LatLng(latitude, longitude)
+internal fun PositionErpModel.toLatLng() = LatLng(latitude, longitude)
 
-internal fun PharmacyUseCaseData.LocationMode.Enabled.toLatLng() = coordinates.toLatLng()
+internal fun LocationModeErpModel.Enabled.toLatLng() = coordinates.toLatLng()
 
-internal fun LatLng.toCoordinates() = PharmacyUseCaseData.Coordinates(latitude, longitude)
+internal fun LatLng.toCoordinates() = PositionErpModel(latitude, longitude)
 
-internal fun PharmacyUseCaseData.Pharmacy.hasAllOnSiteFeatures(codes: Set<String>) =
+internal fun PharmacyDetailsErpModel.hasAllOnSiteFeatures(codes: Set<String>) =
     if (codes.isEmpty()) true else codes.all { code -> onSiteFeatures.any { it.code == code } }
 
-internal fun PharmacyUseCaseData.Pharmacy.hasAllAvailableServices(codes: Set<String>) =
+internal fun PharmacyDetailsErpModel.hasAllAvailableServices(codes: Set<String>) =
     if (codes.isEmpty()) true else codes.all { code -> availableServices.any { it.code == code } }

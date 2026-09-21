@@ -24,12 +24,11 @@ package de.gematik.ti.erp.app.debugsettings.pkv.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profiles.presentation.GetActiveProfileController
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
-import de.gematik.ti.erp.app.profiles.usecase.IsProfilePKVUseCase
 import de.gematik.ti.erp.app.profiles.usecase.SwitchProfileInsuranceTypeUseCase
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.Data
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.Loading
@@ -37,6 +36,7 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
@@ -44,8 +44,7 @@ import org.kodein.di.compose.rememberInstance
 class DebugPkvController(
     private val getActiveProfileUseCase: GetActiveProfileUseCase,
     private val switchProfileInsuranceTypeUseCase: SwitchProfileInsuranceTypeUseCase,
-    private val isProfilePKVUseCase: IsProfilePKVUseCase,
-    private val _activeProfile: MutableStateFlow<UiState<ProfilesUseCaseData.Profile>> = MutableStateFlow(Loading())
+    private val _activeProfile: MutableStateFlow<UiState<ProfileErpModel>> = MutableStateFlow(Loading())
 ) : GetActiveProfileController(
     getActiveProfileUseCase = getActiveProfileUseCase,
     onSuccess = { activeProfile, scope ->
@@ -66,17 +65,7 @@ class DebugPkvController(
         controllerScope.launch {
             activeProfile.collectLatest {
                 it.data?.let { profile ->
-                    runCatching {
-                        isProfilePKVUseCase.invoke(profile.id)
-                    }.fold(
-                        onSuccess = { result ->
-                            _isProfilePkv.value = Data(result)
-                        },
-                        onFailure = {
-                            Napier.e { "error on checking pkv, ${it.message}" }
-                            _isProfilePkv.value = Data(false)
-                        }
-                    )
+                    _isProfilePkv.update { Data(profile.isPkv()) }
                 }
             }
         }
@@ -86,9 +75,9 @@ class DebugPkvController(
         controllerScope.launch {
             activeProfile.value.data?.let { profile ->
                 runCatching {
-                    switchProfileInsuranceTypeUseCase.invoke(profile.id, ProfilesData.InsuranceType.PKV)
+                    switchProfileInsuranceTypeUseCase.invoke(profile.id, InsuranceType.PKV)
                 }.onSuccess { result ->
-                    _isProfilePkv.value = Data(result)
+                    _isProfilePkv.value = Data(true)
                 }.onFailure {
                     Napier.e { "error on changing to pkv, ${it.message}" }
                     _isProfilePkv.value = Data(false)
@@ -101,13 +90,9 @@ class DebugPkvController(
         controllerScope.launch {
             activeProfile.value.data?.let { profile ->
                 runCatching {
-                    switchProfileInsuranceTypeUseCase.invoke(profile.id, ProfilesData.InsuranceType.GKV)
+                    switchProfileInsuranceTypeUseCase.invoke(profile.id, InsuranceType.GKV)
                 }.onSuccess { result ->
-                    if (result) {
-                        _isProfilePkv.value = Data(false)
-                    } else {
-                        _isProfilePkv.value = Data(true)
-                    }
+                    _isProfilePkv.value = Data(false)
                 }.onFailure {
                     Napier.e { "error on changing to pkv, ${it.message}" }
                     _isProfilePkv.value = Data(false)
@@ -121,13 +106,11 @@ class DebugPkvController(
 fun rememberDebugPkvController(): DebugPkvController {
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
     val switchProfileInsuranceTypeUseCase by rememberInstance<SwitchProfileInsuranceTypeUseCase>()
-    val isProfilePKVUseCase by rememberInstance<IsProfilePKVUseCase>()
 
     return remember {
         DebugPkvController(
             getActiveProfileUseCase = getActiveProfileUseCase,
-            switchProfileInsuranceTypeUseCase = switchProfileInsuranceTypeUseCase,
-            isProfilePKVUseCase = isProfilePKVUseCase
+            switchProfileInsuranceTypeUseCase = switchProfileInsuranceTypeUseCase
         )
     }
 }

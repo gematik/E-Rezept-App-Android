@@ -139,8 +139,9 @@ class IntegrityWarningScreen(
         }
         if (BuildConfigExtension.isInternalDebug) {
             SkipOnBoardingButton {
-                onboardingController.createProfileOnSkipOnboarding()
-                navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                onboardingController.createProfileOnSkipOnboarding {
+                    navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                }
             }
         }
     }

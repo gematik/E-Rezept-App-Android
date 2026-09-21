@@ -22,13 +22,13 @@
 
 package de.gematik.ti.erp.app.prescription.usecase
 
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class UpdateScannedTaskNameUseCase(
-    private val repository: PrescriptionRepository,
+    private val repository: TaskOperationsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend operator fun invoke(

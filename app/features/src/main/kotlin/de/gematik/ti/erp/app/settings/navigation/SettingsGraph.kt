@@ -37,6 +37,7 @@ import de.gematik.ti.erp.app.settings.ui.screens.SettingsDataProtectionScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsLanguageScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsLegalNoticeScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsOpenSourceLicencesScreen
+import de.gematik.ti.erp.app.settings.ui.screens.SettingsReportAccessibilityIssueScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsSetAppPasswordScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsTermsOfUseScreen
@@ -135,6 +136,15 @@ fun NavGraphBuilder.settingsGraph(
             arguments = SettingsRoutes.SettingsLanguageScreen.arguments
         ) { navEntry ->
             SettingsLanguageScreen(
+                navController = navController,
+                navBackStackEntry = navEntry
+            )
+        }
+        renderComposable(
+            route = SettingsRoutes.SettingsReportAccessibilityIssueScreen.route,
+            arguments = SettingsRoutes.SettingsReportAccessibilityIssueScreen.arguments
+        ) { navEntry ->
+            SettingsReportAccessibilityIssueScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )

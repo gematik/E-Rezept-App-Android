@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.medicationplan.usecase
 import de.gematik.ti.erp.app.medicationplan.MEDICATION_SCHEDULE
 import de.gematik.ti.erp.app.medicationplan.alarm.MedicationPlanNotificationScheduler
 import de.gematik.ti.erp.app.medicationplan.repository.DefaultMedicationPlanRepository
-import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanLocalDataSource
+import de.gematik.ti.erp.app.database.realm.v1.medicationplan.MedicationPlanLocalDataSourceV1
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.first
@@ -38,7 +38,7 @@ import kotlin.test.assertEquals
 
 class LoadAllMedicationSchedulesUseCaseTest {
     private val dispatcher = StandardTestDispatcher()
-    private val medicationPlanLocalDataSource: MedicationPlanLocalDataSource = mockk()
+    private val medicationPlanLocalDataSource: MedicationPlanLocalDataSourceV1 = mockk()
     private lateinit var defaultMedicationPlanRepository: DefaultMedicationPlanRepository
     private lateinit var useCase: GetAllMedicationSchedulesUseCase
     private val scheduler: MedicationPlanNotificationScheduler = mockk()

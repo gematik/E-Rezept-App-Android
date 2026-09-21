@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.medicationplan.usecase
 
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -30,6 +30,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 class GetMedicationScheduleByTaskIdUseCase(
     private val medicationPlanRepository: MedicationPlanRepository
 ) {
-    operator fun invoke(taskId: String): Flow<MedicationSchedule?> =
+    operator fun invoke(taskId: String): Flow<MedicationScheduleErpModel?> =
         medicationPlanRepository.getMedicationSchedule(taskId).distinctUntilChanged()
 }

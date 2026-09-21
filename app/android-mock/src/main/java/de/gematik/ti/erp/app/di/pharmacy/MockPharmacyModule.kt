@@ -26,10 +26,6 @@ import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.PreviewMapCoordinatesRepository
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.PreviewMapCoordinatesDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.DefaultFavouritePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.DefaultOftenUsePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.FavouritePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.OftenUsedPharmacyLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.DefaultPharmacyRemoteDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.PharmacyRemoteDataSource
 import de.gematik.ti.erp.app.redeem.repository.datasource.DefaultRedeemLocalDataSource
@@ -44,10 +40,8 @@ import org.kodein.di.instance
 val mockPharmacyRepositoryModule = DI.Module("mockPharmacyModule") {
     bindProvider<PharmacyRemoteDataSource> { DefaultPharmacyRemoteDataSource(instance()) }
     bindProvider<RedeemLocalDataSource> { DefaultRedeemLocalDataSource(instance()) }
-    bindProvider<OftenUsedPharmacyLocalDataSource> { DefaultOftenUsePharmacyLocalDataSource(instance()) }
-    bindProvider<FavouritePharmacyLocalDataSource> { DefaultFavouritePharmacyLocalDataSource(instance()) }
     bindSingleton { PreviewMapCoordinatesDataSource() }
     bindProvider { PreviewMapCoordinatesRepository(instance()) }
-    bindProvider<PharmacyRepository> { MockPharmacyRepository(instance(), instance(), instance()) }
+    bindProvider<PharmacyRepository> { MockPharmacyRepository(instance()) }
     bindProvider<ShippingContactRepository> { MockShippingContactRepository() }
 }

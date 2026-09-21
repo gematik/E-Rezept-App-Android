@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.medicationplan.ui.preview.mocks
 
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 
+// TODO: Replace ScannedTaskData.ScannedTask with TaskErpModel.Scanned
 val SCANNED_TASK = ScannedTaskData.ScannedTask(
     profileId = "PROFILE_ID",
     taskId = "active-scanned-task-id-1",

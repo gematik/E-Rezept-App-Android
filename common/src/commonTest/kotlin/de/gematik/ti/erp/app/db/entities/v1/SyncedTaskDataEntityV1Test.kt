@@ -25,14 +25,14 @@ package de.gematik.ti.erp.app.db.entities.v1
 import de.gematik.ti.erp.app.database.realm.utils.deleteAll
 import de.gematik.ti.erp.app.database.realm.utils.queryFirst
 import de.gematik.ti.erp.app.database.realm.v1.AddressEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.AuthenticationEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.AuthenticationPasswordEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.IdpAuthenticationDataEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.IdpConfigurationEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.PasswordEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.PharmacySearchEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.userauthentication.IdpAuthenticationDataEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.idp.IdpConfigurationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.PasswordEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.PharmacySearchEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.appauthentication.AuthenticationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.appauthentication.AuthenticationPasswordEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.profile.ProfileEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.SettingsEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.ShippingContactEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.TruststoreEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.ChargeableItemV1
@@ -57,6 +57,7 @@ import de.gematik.ti.erp.app.database.realm.v1.task.entity.RatioEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.SyncedTaskEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.TaskStatusV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.TeratogenicPrescriptionEntityV1
 import de.gematik.ti.erp.app.db.TestDB
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
@@ -103,7 +104,8 @@ class SyncedTaskDataEntityV1Test : TestDB() {
                     AuthenticationEntityV1::class,
                     AuthenticationPasswordEntityV1::class,
                     DeviceRequestEntityV1::class,
-                    DeviceRequestDispenseEntityV1::class
+                    DeviceRequestDispenseEntityV1::class,
+                    TeratogenicPrescriptionEntityV1::class
                 )
             )
                 .schemaVersion(0)

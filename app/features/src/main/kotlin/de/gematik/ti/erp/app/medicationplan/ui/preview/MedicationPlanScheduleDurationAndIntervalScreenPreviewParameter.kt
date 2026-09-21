@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.medicationplan.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SCANNED_PRESCRIPTION_SCHEDULE_ACTIVE_ENDLESS
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SYNCED_PRESCRIPTION_SCHEDULE_ACTIVE_EVERY_TWO_DAYS
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS
@@ -34,7 +34,7 @@ import kotlinx.datetime.LocalDate
 
 data class MedicationPlanScheduleDurationAndIntervalScreenPreview(
     val name: String,
-    val state: UiState<MedicationSchedule>,
+    val state: UiState<MedicationScheduleErpModel>,
     val previewEndOfPackDate: LocalDate? = null
 )
 

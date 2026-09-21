@@ -23,63 +23,84 @@
 package de.gematik.ti.erp.app.profiles.presentation
 
 import android.graphics.Bitmap
-import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.base.Controller
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.model.ProfilesData.Avatar.PersonalizedImage
-import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
-import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileUseCase
-import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileUseCase.Companion.ProfileModifier.Avatar
-import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileUseCase.Companion.ProfileModifier.Color
-import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileUseCase.Companion.ProfileModifier.Image
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
+import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileAvatarUseCase
+import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileColorUseCase
+import de.gematik.ti.erp.app.profiles.usecase.SavePersonalizedProfileImageUseCase
+import de.gematik.ti.erp.app.profiles.usecase.ClearPersonalizedProfileImageUseCase
+import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
-/**
- * Controller for [ProfileImageCameraScreen] and [ProfileImageEmojiScreen]
- * If those screens become bigger, then we can split this
- */
 class ProfileImagePersonalizedImageScreenController(
-    private val profileId: ProfileIdentifier,
-    private val updateProfileUseCase: UpdateProfileUseCase,
-    private val getProfilesUseCase: GetProfilesUseCase
+    private val getProfileByIdUseCase: GetProfileByIdUseCase,
+    private val updateProfileAvatarUseCase: UpdateProfileAvatarUseCase,
+    private val updateProfileColorUseCase: UpdateProfileColorUseCase,
+    private val savePersonalizedProfileImageUseCase: SavePersonalizedProfileImageUseCase,
+    private val clearPersonalizedProfileImageUseCase: ClearPersonalizedProfileImageUseCase,
+    private val profileId: ProfileIdentifier
 ) : Controller() {
-
-    private val _profile: MutableStateFlow<ProfilesUseCaseData.Profile?> = MutableStateFlow(null)
-    val profile: StateFlow<ProfilesUseCaseData.Profile?> = _profile
+    private val _profile: MutableStateFlow<UiState<ProfileErpModel>> = MutableStateFlow(UiState.Loading())
+    val profile: StateFlow<UiState<ProfileErpModel>> = _profile
 
     init {
+        _profile.update { UiState.Loading() }
         controllerScope.launch {
-            getProfilesUseCase().firstOrNull()?.let {
-                _profile.value = it.firstOrNull { profile -> profile.id == profileId }
+            try {
+                getProfileByIdUseCase.invoke(profileId).collect { profile ->
+                    _profile.update { UiState.Data(profile) }
+                }
+            } catch (_: Exception) {
+                _profile.update { UiState.Error(error = IllegalArgumentException("ProfileId is null")) }
             }
         }
     }
 
+    fun onSelectAvatar(avatar: Avatar) {
+        controllerScope.launch {
+            updateProfileAvatarUseCase(profileId, avatar)
+        }
+    }
+
+    fun savePersonalizedProfileImage(image: Bitmap) {
+        controllerScope.launch {
+            savePersonalizedProfileImageUseCase(profileId, image)
+            updateProfileAvatarUseCase(profileId, Avatar.PersonalizedImage)
+        }
+    }
+
+    fun clearPersonalizedImage() {
+        controllerScope.launch {
+            clearPersonalizedProfileImageUseCase(profileId)
+        }
+    }
+
+    fun updateAvatar(avatar: Avatar) {
+        onSelectAvatar(avatar)
+    }
+
+    fun updateProfileColor(color: ProfileColorNames) {
+        controllerScope.launch {
+            updateProfileColorUseCase(profileId, color)
+        }
+    }
+
     fun updateProfileImageBitmap(bitmap: Bitmap) {
-        controllerScope.launch {
-            updateProfileUseCase(modifier = Image(bitmap), id = profileId)
-            updateProfileUseCase(modifier = Avatar(value = PersonalizedImage), id = profileId)
-        }
+        savePersonalizedProfileImage(bitmap)
     }
 
-    fun updateProfileColor(color: ProfilesData.ProfileColorNames) {
-        controllerScope.launch {
-            _profile.value = _profile.value?.copy(color = color)
-            updateProfileUseCase(modifier = Color(color), id = profileId)
-        }
-    }
-
-    // need this as memojis are not supported on Samsung devices
     fun isSamsungDevice(): Boolean {
-        return Build.MANUFACTURER.equals("Samsung", ignoreCase = true)
+        return android.os.Build.MANUFACTURER.equals("Samsung", ignoreCase = true)
     }
 }
 
@@ -87,13 +108,19 @@ class ProfileImagePersonalizedImageScreenController(
 fun rememberProfileImagePersonalizedImageScreenController(
     profileId: ProfileIdentifier
 ): ProfileImagePersonalizedImageScreenController {
-    val updateProfileUseCase by rememberInstance<UpdateProfileUseCase>()
-    val getProfilesUseCase by rememberInstance<GetProfilesUseCase>()
+    val getProfileByIdUseCase by rememberInstance<GetProfileByIdUseCase>()
+    val updateProfileAvatarUseCase by rememberInstance<UpdateProfileAvatarUseCase>()
+    val updateProfileColorUseCase by rememberInstance<UpdateProfileColorUseCase>()
+    val savePersonalizedProfileImageUseCase by rememberInstance<SavePersonalizedProfileImageUseCase>()
+    val clearPersonalizedProfileImageUseCase by rememberInstance<ClearPersonalizedProfileImageUseCase>()
     return remember {
         ProfileImagePersonalizedImageScreenController(
-            profileId = profileId,
-            updateProfileUseCase = updateProfileUseCase,
-            getProfilesUseCase = getProfilesUseCase
+            getProfileByIdUseCase = getProfileByIdUseCase,
+            updateProfileAvatarUseCase = updateProfileAvatarUseCase,
+            updateProfileColorUseCase = updateProfileColorUseCase,
+            savePersonalizedProfileImageUseCase = savePersonalizedProfileImageUseCase,
+            clearPersonalizedProfileImageUseCase = clearPersonalizedProfileImageUseCase,
+            profileId = profileId
         )
     }
 }

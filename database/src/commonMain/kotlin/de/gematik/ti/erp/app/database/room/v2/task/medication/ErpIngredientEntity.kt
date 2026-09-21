@@ -22,16 +22,41 @@
 
 package de.gematik.ti.erp.app.database.room.v2.task.medication
 
+import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "Ingredient")
+@Entity(
+    tableName = "Ingredient",
+    foreignKeys = [
+        ForeignKey(
+            entity = ErpMedicationEntity::class,
+            parentColumns = ["medicationId"],
+            childColumns = ["medicationId"],
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = ErpMedicationDispenseEntity::class,
+            parentColumns = ["dispenseId"],
+            childColumns = ["dispenseId"],
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("medicationId"), Index("dispenseId")]
+)
 data class ErpIngredientEntity(
     @PrimaryKey
     val ingredientId: String,
+    val medicationId: String? = null,
+    val dispenseId: String? = null,
     val text: String,
-    val form: String,
-    val amount: String,
-    // val strength: ErpRatioEntity,
-    val number: String
+    val form: String?,
+    val amount: String?,
+    val number: String?,
+    @Embedded(prefix = "strength_")
+    val strength: ErpRatioEmbeddable?
 )

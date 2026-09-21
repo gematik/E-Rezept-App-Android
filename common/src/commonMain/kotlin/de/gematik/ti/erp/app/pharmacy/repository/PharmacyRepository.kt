@@ -26,10 +26,8 @@ package de.gematik.ti.erp.app.pharmacy.repository
 
 import de.gematik.ti.erp.app.fhir.FhirInsuranceProvider
 import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
-import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import kotlinx.coroutines.flow.Flow
 
 interface PharmacyRepository {
@@ -39,23 +37,21 @@ interface PharmacyRepository {
 
     fun loadPharmacies(): Flow<List<PharmacyErpModel>>
 
-    suspend fun markPharmacyAsOftenUsed(pharmacy: PharmacyUseCaseData.Pharmacy)
+    suspend fun findLocalPharmacyByTelematikId(telematikId: String): PharmacyErpModel?
+
+    suspend fun markPharmacyAsOftenUsed(pharmacy: PharmacyErpModel)
 
     suspend fun deleteOverviewPharmacy(overviewPharmacy: PharmacyErpModel)
 
-    suspend fun markPharmacyAsFavourite(pharmacy: PharmacyUseCaseData.Pharmacy)
+    suspend fun markPharmacyAsFavourite(pharmacy: PharmacyErpModel)
 
-    suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyUseCaseData.Pharmacy)
+    suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyErpModel)
 
     suspend fun searchInsuranceProviderByInstitutionIdentifier(iknr: String): Result<FhirInsuranceProvider?>
 
     suspend fun searchPharmacyByTelematikId(telematikId: String): Result<FhirPharmacyErpModelCollection>
 
-    fun isPharmacyInFavorites(pharmacy: PharmacyUseCaseData.Pharmacy): Flow<Boolean>
+    fun isPharmacyInFavorites(pharmacy: PharmacyErpModel): Flow<Boolean>
 
     suspend fun markAsRedeemed(taskId: String)
-
-    suspend fun savePharmacyToCache(cachedPharmacy: CachedPharmacy)
-
-    fun loadCachedPharmacies(): Flow<List<CachedPharmacy>>
 }

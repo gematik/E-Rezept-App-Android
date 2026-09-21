@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.pharmacy.ui.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,6 +43,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyAddressErpModel
@@ -58,8 +61,10 @@ import kotlinx.datetime.Instant
 fun FavoritePharmacyCard(
     modifier: Modifier = Modifier,
     overviewPharmacy: PharmacyErpModel,
-    onClickPharmacy: (PharmacyErpModel) -> Unit
+    onClickPharmacy: (PharmacyErpModel) -> Unit,
+    onToggleFavorite: (PharmacyErpModel) -> Unit
 ) {
+    val onClickLabel = stringResource(R.string.a11y_favorite_pharmacy_toggle)
     Card(
         modifier = modifier
             .clip(RoundedCornerShape(SizeDefaults.double))
@@ -95,11 +100,18 @@ fun FavoritePharmacyCard(
             AnimatedVisibility(overviewPharmacy.isFavorite) {
                 Icon(
                     Icons.Rounded.Star,
-                    contentDescription = "favourite star",
+                    contentDescription = null,
                     modifier = Modifier
                         .padding(end = PaddingDefaults.Medium)
-                        .size(SizeDefaults.triple),
-                    tint = AppTheme.colors.yellow500
+                        .size(SizeDefaults.triple)
+                        .clickable(
+                            onClickLabel = onClickLabel,
+                            role = Role.Button,
+                            onClick = {
+                                onToggleFavorite(overviewPharmacy)
+                            }
+                        ),
+                    tint = AppTheme.colors.yellow700
                 )
             }
         }
@@ -137,7 +149,8 @@ fun FavoritePharmacyCardPreview() {
                     city = "Berlin"
                 )
             ),
-            onClickPharmacy = {}
+            onClickPharmacy = {},
+            onToggleFavorite = {}
         )
     }
 }

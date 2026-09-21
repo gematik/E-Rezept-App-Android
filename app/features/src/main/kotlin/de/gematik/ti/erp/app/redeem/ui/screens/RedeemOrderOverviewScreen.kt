@@ -61,7 +61,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -77,7 +76,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
@@ -87,6 +89,7 @@ import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigat
 import de.gematik.ti.erp.app.bottombar.AnimatedBottomBar
 import de.gematik.ti.erp.app.button.SelectionSummaryButton
 import de.gematik.ti.erp.app.button.SelectionSummaryButtonData
+import de.gematik.ti.erp.app.button.SelectionSummaryButtonState
 import de.gematik.ti.erp.app.button.selectionSummaryButtonText
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.core.R
@@ -95,19 +98,20 @@ import de.gematik.ti.erp.app.mainscreen.presentation.rememberAppController
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.navigateAndClearStack
 import de.gematik.ti.erp.app.navigation.onReturnAction
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
+import de.gematik.ti.erp.app.pharmacy.model.OrderStateErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
 import de.gematik.ti.erp.app.pharmacy.model.PrescriptionRedeemArguments.Companion.from
 import de.gematik.ti.erp.app.pharmacy.model.orderID
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
 import de.gematik.ti.erp.app.pharmacy.ui.components.TopBarColor
 import de.gematik.ti.erp.app.pharmacy.ui.components.VideoContent
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PrescriptionInOrder
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profiles.ui.components.Avatar
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
 import de.gematik.ti.erp.app.redeem.mapper.getText
 import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState
@@ -133,6 +137,7 @@ import de.gematik.ti.erp.app.redeem.ui.preview.PrescriptionSelectionSectionParam
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenParameter
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewData
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParameter
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -165,7 +170,7 @@ class RedeemOrderOverviewScreen(
 
         navBackStackEntry.onReturnAction(RedeemRoutes.RedeemOrderOverviewScreen) {
             // reload profile when user comes back to this screen to check for valid sso token
-            sharedViewModel.refreshActiveProfile()
+            sharedViewModel.refresh()
         }
 
         val hasOrderOptionInitializedFromNav = rememberSaveable { mutableStateOf(false) }
@@ -189,6 +194,7 @@ class RedeemOrderOverviewScreen(
 
         val redeemPrescriptionState by redeemController.redeemedState.collectAsStateWithLifecycle()
         val isProfileRefreshing by orderOverviewController.isProfileRefreshing.collectAsStateWithLifecycle()
+        val hasTeratogenicPrescriptionError by sharedViewModel.hasTeratogenicPrescriptionError.collectAsStateWithLifecycle()
         val listState = rememberLazyListState()
         val scaffoldState = rememberScaffoldState()
         ChooseAuthenticationNavigationEventsListener(
@@ -212,69 +218,58 @@ class RedeemOrderOverviewScreen(
             }
         }
 
-        val isRedeemEnabled by remember(
+        val isRedeemEnabled = remember(
             pharmacy,
             contactValidationState,
             orderOption,
             selectedOrderState,
-            hasAttemptedRedeem
+            hasAttemptedRedeem,
+            hasTeratogenicPrescriptionError
         ) {
-            derivedStateOf {
-                when {
-                    !hasAttemptedRedeem -> true
-                    else ->
-
-                        pharmacy != null &&
-                            orderOption != null &&
-                            contactValidationState.isValid() &&
-                            selectedOrderState.prescriptionsInOrder.isNotEmpty()
-                }
-            }
+            !hasTeratogenicPrescriptionError &&
+                pharmacy != null &&
+                orderOption != null &&
+                contactValidationState.isValid() &&
+                selectedOrderState.prescriptionsInOrder.isNotEmpty()
         }
         val intentHandler = LocalIntentHandler.current
         LaunchedEffect(Unit) {
             intentHandler.gidSuccessfulIntent.collectLatest {
-                sharedViewModel.refreshActiveProfile()
+                sharedViewModel.refresh()
             }
         }
 
-        val isPrescriptionError by remember(
+        val isPrescriptionError = remember(
             selectedOrderState.prescriptionsInOrder,
             hasAttemptedRedeem
         ) {
-            derivedStateOf {
-                when {
-                    selectedOrderState.isLoading -> false
-                    !hasAttemptedRedeem -> false
-                    else -> selectedOrderState.prescriptionsInOrder.isEmpty()
-                }
+            when {
+                selectedOrderState.isLoading -> false
+                !hasAttemptedRedeem -> false
+                else -> selectedOrderState.prescriptionsInOrder.isEmpty()
             }
         }
 
-        val isPharmacyError by remember(
+        val isPharmacyError = remember(
             pharmacy,
             hasAttemptedRedeem
         ) {
-            derivedStateOf {
-                when {
-                    !hasAttemptedRedeem -> false
-                    else -> pharmacy == null || pharmacy.name.isEmpty() || pharmacy.address?.isEmpty() == true
-                }
+            when {
+                !hasAttemptedRedeem -> false
+                else -> pharmacy == null || pharmacy.name.isEmpty() || pharmacy.address?.isEmpty() == true
             }
         }
 
-        val isContactError by remember(
+        val isContactError = remember(
             orderOption,
             contactValidationState,
             selectedOrderState.contact,
             hasAttemptedRedeem
         ) {
-            derivedStateOf {
-                when {
-                    !hasAttemptedRedeem || orderOption == null -> false
-                    orderOption == PharmacyScreenData.OrderOption.Pickup -> !contactValidationState.isValid()
-                    else -> !contactValidationState.isValid() || selectedOrderState.contact.isEmpty()
-                }
+            when {
+                !hasAttemptedRedeem || orderOption == null -> false
+                orderOption == OrderOptionErpModel.Pickup -> !contactValidationState.isValid()
+                else -> !contactValidationState.isValid() || selectedOrderState.contact.isEmpty()
             }
         }
 
@@ -330,14 +325,14 @@ class RedeemOrderOverviewScreen(
             observerProfileRefresh(isProfileRefreshing, this)
             observeRedeemState(redeemPrescriptionState, this)
             onBiometricAuthenticationSuccessEvent.listen {
-                sharedViewModel.refreshActiveProfile()
+                sharedViewModel.refresh()
             }
         }
 
         val redeemClickEvent = RedeemClickEvent(
             onSelectPrescriptions = {
                 orderOverviewController.disableLoadingIndicator()
-                navController.navigate(RedeemRoutes.RedeemPrescriptionSelection.path(isModal = true))
+                navController.navigate(RedeemRoutes.RedeemPrescriptionSelection.path(isModal = true, pharmacy = pharmacy))
             },
             onChangePharmacy = {
                 orderOverviewController.disableLoadingIndicator()
@@ -385,6 +380,7 @@ class RedeemOrderOverviewScreen(
             isPrescriptionError = isPrescriptionError,
             isPharmacyError = isPharmacyError,
             isContactError = isContactError,
+            hasTeratogenicPrescriptionError = hasTeratogenicPrescriptionError,
             videoContent = {
                 val videoHeightPx = remember { mutableFloatStateOf(0f) }
                 val shape = RoundedCornerShape(bottomStart = SizeDefaults.fourfold, bottomEnd = SizeDefaults.fourfold)
@@ -457,16 +453,16 @@ class RedeemOrderOverviewScreen(
  */
 private fun redeemOrder(
     redeemController: RedeemPrescriptionsController,
-    profile: Profile,
-    selectedOrderState: PharmacyUseCaseData.OrderState,
-    selectedOrderOption: PharmacyScreenData.OrderOption?,
-    selectedPharmacy: PharmacyUseCaseData.Pharmacy?,
+    profile: ProfileErpModel,
+    selectedOrderState: OrderStateErpModel,
+    selectedOrderOption: OrderOptionErpModel?,
+    selectedPharmacy: PharmacyDetailsErpModel?,
     isRedemptionAllowed: Boolean,
     attemptRedeemValidation: (
         contact: ShippingInfoErpModel,
-        selectedOrderOption: PharmacyScreenData.OrderOption?,
-        prescriptions: List<PrescriptionInOrder>,
-        pharmacy: PharmacyUseCaseData.Pharmacy?
+        selectedOrderOption: OrderOptionErpModel?,
+        prescriptions: List<PrescriptionInOrderErpModel>,
+        pharmacy: PharmacyDetailsErpModel?
     ) -> Boolean,
     onNotRedeemable: () -> Unit
 ) {
@@ -534,18 +530,19 @@ private fun observerProfileRefresh(
 
 @Composable
 fun RedeemOrderOverviewScreenScaffold(
-    activeProfile: UiState<Profile>,
+    activeProfile: UiState<ProfileErpModel>,
     listState: LazyListState,
     scaffoldState: ScaffoldState,
-    selectedOrderState: PharmacyUseCaseData.OrderState,
-    selectedOrderOption: PharmacyScreenData.OrderOption?,
+    selectedOrderState: OrderStateErpModel,
+    selectedOrderOption: OrderOptionErpModel?,
     contactValidationState: RedeemContactValidationState,
-    selectedPharmacy: PharmacyUseCaseData.Pharmacy?,
+    selectedPharmacy: PharmacyDetailsErpModel?,
     isLoadingIndicatorShown: Boolean,
     isRedeemEnabled: Boolean,
     isPrescriptionError: Boolean,
     isPharmacyError: Boolean,
     isContactError: Boolean,
+    hasTeratogenicPrescriptionError: Boolean,
     processStateEvent: ProcessStateEvent,
     redeemClickEvent: RedeemClickEvent,
     videoContent: @Composable BoxScope.() -> Unit,
@@ -587,6 +584,21 @@ fun RedeemOrderOverviewScreenScaffold(
                         )
                     }
                     AnimatedVisibility(
+                        visible = hasTeratogenicPrescriptionError,
+                        enter = fadeIn() + expandVertically(expandFrom = Alignment.Top) + slideInVertically(),
+                        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top) + slideOutVertically()
+                    ) {
+                        // Teratogenic error banner
+                        Banner(
+                            modifier = Modifier,
+                            startIcon = BannerClickableIcon(BannerIcon.Warning) {},
+                            contentColor = AppTheme.colors.yellow800,
+                            containerColor = AppTheme.colors.yellow100,
+                            borderColor = AppTheme.colors.yellow800,
+                            text = stringResource(R.string.pharmacy_order_teratogenic_prescription_error_change_order_option)
+                        )
+                    }
+                    AnimatedVisibility(
                         visible = selectedOrderState.selfPayerPrescriptionNames.isNotEmpty(),
                         enter = fadeIn() + expandVertically(expandFrom = Alignment.Top) + slideInVertically(),
                         exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top) + slideOutVertically()
@@ -623,7 +635,8 @@ fun RedeemOrderOverviewScreenScaffold(
                     isPharmacyError = isPharmacyError,
                     isContactError = isContactError,
                     redeemClickEvent = redeemClickEvent,
-                    videoContent = videoContent
+                    videoContent = videoContent,
+                    hasTeratogenicPrescriptionError = hasTeratogenicPrescriptionError
                 )
                 if (isLoadingIndicatorShown) {
                     LoadingIndicator()
@@ -635,15 +648,16 @@ fun RedeemOrderOverviewScreenScaffold(
 
 @Composable
 private fun RedeemOrderOverviewScreenContent(
-    profile: Profile,
+    profile: ProfileErpModel,
     listState: LazyListState,
-    selectedOrderState: PharmacyUseCaseData.OrderState,
-    selectedOrderOption: PharmacyScreenData.OrderOption?,
+    selectedOrderState: OrderStateErpModel,
+    selectedOrderOption: OrderOptionErpModel?,
     contactValidationState: RedeemContactValidationState,
-    selectedPharmacy: PharmacyUseCaseData.Pharmacy?,
+    selectedPharmacy: PharmacyDetailsErpModel?,
     isPrescriptionError: Boolean,
     isPharmacyError: Boolean,
     isContactError: Boolean,
+    hasTeratogenicPrescriptionError: Boolean,
     redeemClickEvent: RedeemClickEvent,
     videoContent: @Composable BoxScope.() -> Unit
 ) {
@@ -666,11 +680,14 @@ private fun RedeemOrderOverviewScreenContent(
         prescriptionSelectionSection(
             prescriptions = selectedOrderState.prescriptionsInOrder,
             isPrescriptionError = isPrescriptionError,
+            hasTeratogenicPrescriptionError = hasTeratogenicPrescriptionError,
+            selectedPharmacy = selectedPharmacy,
             onClick = redeemClickEvent.onSelectPrescriptions
         )
         pharmacySelectionSection(
             selectedPharmacy = selectedPharmacy,
             selectedOrderOption = selectedOrderOption,
+            prescriptions = selectedOrderState.prescriptionsInOrder,
             isPharmacyError = isPharmacyError,
             onClick = redeemClickEvent.onChangePharmacy,
             onServiceSelection = redeemClickEvent.onChangeService
@@ -701,14 +718,17 @@ private fun LazyListScope.redeemOrderOverviewTitle() {
             style = AppTheme.typography.h5,
             modifier = Modifier
                 .fillMaxWidth()
+                .semanticsHeading()
                 .padding(horizontal = PaddingDefaults.Medium)
         )
     }
 }
 
 private fun LazyListScope.prescriptionSelectionSection(
-    prescriptions: List<PrescriptionInOrder>,
+    prescriptions: List<PrescriptionInOrderErpModel>,
+    selectedPharmacy: PharmacyDetailsErpModel?,
     isPrescriptionError: Boolean,
+    hasTeratogenicPrescriptionError: Boolean,
     onClick: () -> Unit
 ) {
     item {
@@ -718,22 +738,53 @@ private fun LazyListScope.prescriptionSelectionSection(
                 .testTag(TestTag.PharmacySearch.OrderSummary.PrescriptionSelectionButton),
             data = SelectionSummaryButtonData(
                 buttonTitleText = stringResource(R.string.pharmacy_order_with_prescriptions_button_subtitle),
-                errorTitleText = stringResource(R.string.pharmacy_order_no_prescriptions),
-                errorHintText = stringResource(R.string.pharmacy_order_no_prescriptions_error),
-                buttonTexts = prescriptions.mapNotNull { it.title }.map { selectionSummaryButtonText(it) }
+                infoTitleText = stringResource(R.string.pharmacy_order_no_prescriptions),
+                infoHintText = when {
+                    isPrescriptionError -> stringResource(R.string.pharmacy_order_no_prescriptions_error)
+                    prescriptions.any { it.isTeratogenicPrescription } -> stringResource(R.string.pharmacy_order_teratogenic_prescription_error)
+                    else -> ""
+                },
+                buttonTexts = prescriptions.mapNotNull { prescription ->
+                    val title = prescription.title ?: return@mapNotNull null
+                    if (prescription.isTeratogenicPrescription && selectedPharmacy?.isOnlineService == true) {
+                        val prefix = if (hasTeratogenicPrescriptionError) {
+                            stringResource(R.string.pharmacy_order_teratogenic_prescription_warning)
+                        } else {
+                            stringResource(R.string.pharmacy_order_teratogenic_prescription_info)
+                        }
+                        val color = if (hasTeratogenicPrescriptionError) AppTheme.colors.yellow800 else AppTheme.colors.primary700
+                        selectionSummaryButtonText(
+                            text = buildAnnotatedString {
+                                withStyle(SpanStyle(color = color)) {
+                                    append(prefix)
+                                }
+                                append(" $title")
+                            },
+                            maxLines = 1
+                        )
+                    } else {
+                        selectionSummaryButtonText(title)
+                    }
+                }
             ),
             errorContentDescription = stringResource(R.string.a11y_error_prefix),
-            isError = isPrescriptionError,
+            selectionSummaryButtonState = when {
+                isPrescriptionError -> SelectionSummaryButtonState.Error
+                hasTeratogenicPrescriptionError -> SelectionSummaryButtonState.Warning
+                prescriptions.any { it.isTeratogenicPrescription } && selectedPharmacy?.isOnlineService == true -> SelectionSummaryButtonState.Info
+                else -> SelectionSummaryButtonState.None
+            },
             onClick = onClick
         )
     }
 }
 
 private fun LazyListScope.pharmacySelectionSection(
-    selectedPharmacy: PharmacyUseCaseData.Pharmacy?,
-    selectedOrderOption: PharmacyScreenData.OrderOption?,
+    selectedPharmacy: PharmacyDetailsErpModel?,
+    selectedOrderOption: OrderOptionErpModel?,
+    prescriptions: List<PrescriptionInOrderErpModel>,
     isPharmacyError: Boolean,
-    onServiceSelection: (PharmacyScreenData.OrderOption) -> Unit,
+    onServiceSelection: (OrderOptionErpModel) -> Unit,
     onClick: () -> Unit
 ) {
     item {
@@ -752,17 +803,18 @@ private fun LazyListScope.pharmacySelectionSection(
                 .testTag(TestTag.PharmacySearch.OrderSummary.PharmacySelectionButton),
             data = SelectionSummaryButtonData(
                 buttonTitleText = stringResource(R.string.pharmacy_order_pharmacy),
-                errorTitleText = stringResource(R.string.pharmacy_order_no_pharmacy),
-                errorHintText = stringResource(R.string.pharmacy_order_no_pharmacy_error),
+                infoTitleText = stringResource(R.string.pharmacy_order_no_pharmacy),
+                infoHintText = stringResource(R.string.pharmacy_order_no_pharmacy_error),
                 buttonTexts = listOfNotNull(pharmacyName, address)
             ),
             errorContentDescription = stringResource(R.string.a11y_error_prefix),
-            isError = isPharmacyError,
+            selectionSummaryButtonState = if (isPharmacyError) SelectionSummaryButtonState.Error else SelectionSummaryButtonState.None,
             onClick = onClick,
             bottomContent = {
                 if (selectedPharmacy != null) {
                     HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDefaults.Medium))
                     OrderSelectedServicesRow(
+                        prescriptions = prescriptions,
                         selectedOption = selectedOrderOption,
                         pharmacy = selectedPharmacy
                     ) {
@@ -792,10 +844,10 @@ private fun LazyListScope.contactSelectionAnimatedItem(
 
 @Composable
 private fun ContactSelectionSection(
-    profile: Profile,
+    profile: ProfileErpModel,
     contactValidationState: RedeemContactValidationState,
     contact: ShippingInfoErpModel,
-    selectedOrderOption: PharmacyScreenData.OrderOption?,
+    selectedOrderOption: OrderOptionErpModel?,
     isContactError: Boolean,
     onClick: () -> Unit
 ) {
@@ -805,12 +857,12 @@ private fun ContactSelectionSection(
             .testTag(TestTag.PharmacySearch.OrderSummary.ContactSelectionButton),
         data = SelectionSummaryButtonData(
             buttonTitleText = stringResource(R.string.pharmacy_order_contact),
-            errorHintText = contactValidationState.error?.let { stringResource(it) } ?: "",
+            infoHintText = contactValidationState.error?.let { stringResource(it) } ?: "",
             buttonTexts = listOfNotNull(selectionSummaryButtonText(profile.name)),
-            errorTitleText = "" // does not apply for contact section since buttonText always exist
+            infoTitleText = "" // does not apply for contact section since buttonText always exist
         ),
         errorContentDescription = stringResource(R.string.a11y_error_prefix),
-        isError = isContactError,
+        selectionSummaryButtonState = if (isContactError) SelectionSummaryButtonState.Error else SelectionSummaryButtonState.None,
         onClick = onClick,
         overrideIcon = true,
         leadingContent = {
@@ -818,7 +870,7 @@ private fun ContactSelectionSection(
                 modifier = Modifier.size(SizeDefaults.fivefold),
                 iconModifier = Modifier.size(SizeDefaults.double),
                 emptyIcon = Icons.Rounded.PersonOutline,
-                profile = profile
+                imageData = profile.profileImageData
             )
         },
         bottomContent = {
@@ -840,11 +892,16 @@ private fun ContactSelectionSection(
 @LightDarkPreview
 @Composable
 private fun PrescriptionSelectionSectionPreview(
-    @PreviewParameter(PrescriptionSelectionSectionParameter::class) state: List<PrescriptionInOrder>
+    @PreviewParameter(PrescriptionSelectionSectionParameter::class) state: List<PrescriptionInOrderErpModel>
 ) {
     PreviewTheme {
         LazyColumn {
-            prescriptionSelectionSection(state, false) {}
+            prescriptionSelectionSection(
+                state,
+                selectedPharmacy = null,
+                false,
+                hasTeratogenicPrescriptionError = false
+            ) {}
         }
     }
 }
@@ -856,7 +913,8 @@ private fun PharmacySelectionSectionPreview() {
         LazyColumn {
             pharmacySelectionSection(
                 selectedPharmacy = RedeemOverviewScreenPreviewParameter.pharmacyPreviewData,
-                selectedOrderOption = PharmacyScreenData.OrderOption.Pickup,
+                selectedOrderOption = OrderOptionErpModel.Pickup,
+                prescriptions = emptyList(),
                 isPharmacyError = false,
                 onServiceSelection = {},
                 onClick = {}
@@ -876,7 +934,7 @@ private fun ContactSelectionSectionPreview() {
                         profile = it,
                         contactValidationState = RedeemContactValidationState.NoError,
                         contact = RedeemOverviewScreenPreviewParameter.contactPreviewData,
-                        selectedOrderOption = PharmacyScreenData.OrderOption.Pickup,
+                        selectedOrderOption = OrderOptionErpModel.Pickup,
                         isContactError = false
                     ) {}
                 }
@@ -925,6 +983,7 @@ fun RedeemOrderOverviewScreenContentPreview(
             listState = listState,
             scaffoldState = scaffoldState,
             isLoadingIndicatorShown = false,
+            hasTeratogenicPrescriptionError = state.hasTeratogenicPrescriptionError,
             onClickRedeem = {}
         )
     }

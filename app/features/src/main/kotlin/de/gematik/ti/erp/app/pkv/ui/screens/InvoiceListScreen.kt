@@ -72,6 +72,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.DpOffset
@@ -85,7 +87,7 @@ import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isNotGranted
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.fhir.temporal.Year
-import de.gematik.ti.erp.app.invoice.model.InvoiceData.PKVInvoiceRecord
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
 import de.gematik.ti.erp.app.invoice.model.currencyString
 import de.gematik.ti.erp.app.loading.LoadingIndicator
 import de.gematik.ti.erp.app.navigation.Screen
@@ -159,7 +161,7 @@ class InvoiceListScreen(
         val invoiceController = rememberInvoiceController(profileId)
         val consentController = rememberConsentController()
 
-        val invoicesState: UiState<Map<Year, List<PKVInvoiceRecord>>> by invoiceController.invoices.collectAsStateWithLifecycle()
+        val invoicesState: UiState<Map<Year, List<PKVInvoiceErpModel>>> by invoiceController.invoices.collectAsStateWithLifecycle()
         val isSsoTokenValid by invoiceController.isSsoTokenValidForSelectedProfile.collectAsStateWithLifecycle()
         val isRefreshing by invoiceController.isRefreshing.collectAsStateWithLifecycle()
         val activeProfile by invoiceController.activeProfile.collectAsStateWithLifecycle()
@@ -320,7 +322,7 @@ private fun InvoiceListScreenScaffold(
     scaffoldState: ScaffoldState,
     consentState: ConsentState,
     isConsentGranted: Boolean,
-    invoicesState: UiState<Map<Year, List<PKVInvoiceRecord>>>,
+    invoicesState: UiState<Map<Year, List<PKVInvoiceErpModel>>>,
     onClickConnect: (profileId: ProfileIdentifier) -> Unit,
     onClickInvoice: (profileId: ProfileIdentifier, taskId: String) -> Unit,
     onClickGrantConsent: () -> Unit,
@@ -375,7 +377,7 @@ private fun InvoiceListScreenScaffold(
 @Composable
 private fun RefreshInvoicesContent(
     listState: LazyListState,
-    invoicesState: UiState<Map<Year, List<PKVInvoiceRecord>>>,
+    invoicesState: UiState<Map<Year, List<PKVInvoiceErpModel>>>,
     onClickInvoice: (String) -> Unit
 ) {
     UiStateMachine(
@@ -397,8 +399,11 @@ private fun InvoicesHeaderThreeDotMenu(
     onClickRevokeConsent: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-
+    val closeHint = stringResource(R.string.a11y_three_dot_menu_options_hint)
     IconButton(
+        modifier = Modifier.semantics {
+            stateDescription = closeHint
+        },
         onClick = { expanded = true }
     ) {
         Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral700)
@@ -439,7 +444,7 @@ private fun InvoicesHeaderThreeDotMenu(
 @Composable
 private fun Invoices(
     listState: LazyListState,
-    invoices: Map<Year, List<PKVInvoiceRecord>>,
+    invoices: Map<Year, List<PKVInvoiceErpModel>>,
     onClickInvoice: (String) -> Unit
 ) {
     LazyColumn(
@@ -471,10 +476,10 @@ private fun Invoices(
                     val totalSumOfInvoices =
                         entry.value
                             .sumOf {
-                                it.invoice.totalBruttoAmount
+                                it.invoice?.totalBruttoAmount ?: 0.0
                             }.currencyString()
                     SpacerMedium()
-                    HeadingPerYear(formattedYear, totalSumOfInvoices, entry.value[0].invoice.currency)
+                    HeadingPerYear(formattedYear, totalSumOfInvoices, entry.value[0].invoice?.currency ?: "€")
                 }
                 entry.value.forEach { invoice ->
                     item {
@@ -502,7 +507,7 @@ private fun Invoices(
 
 @Composable
 private fun Invoice(
-    invoice: PKVInvoiceRecord,
+    invoice: PKVInvoiceErpModel,
     formattedDate: String,
     onClickInvoice: (String) -> Unit
 ) {
@@ -525,7 +530,7 @@ private fun Invoice(
                 )
                 .weight(1f)
         ) {
-            val itemName = invoice.medicationRequest.medication?.name() ?: ""
+            val itemName = invoice.medicationRequest?.medication?.name() ?: ""
 
             Text(
                 itemName,
@@ -542,11 +547,11 @@ private fun Invoice(
             )
             SpacerSmall()
             TotalBruttoAmountChip(
-                text = invoice.invoice.totalBruttoAmount.currencyString() + " " + invoice.invoice.currency
+                text = (invoice.invoice?.totalBruttoAmount ?: 0.0).currencyString() + " " + (invoice.invoice?.currency ?: "€")
             )
         }
         Row(modifier = Modifier.padding(horizontal = PaddingDefaults.Medium), horizontalArrangement = Arrangement.End) {
-            Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
+            Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral700)
         }
     }
 }

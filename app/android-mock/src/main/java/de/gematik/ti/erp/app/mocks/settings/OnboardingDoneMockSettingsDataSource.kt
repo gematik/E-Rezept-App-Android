@@ -29,9 +29,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class OnboardingDoneMockSettingsDataSource : SettingsDataSource {
     override val appVersion = SETTINGS_APP_VERSION_DATA
 
-    override val authentication: MutableStateFlow<SettingsData.Authentication> =
-        MutableStateFlow(SETTINGS_PASSWORD)
-
     override val pharmacySearch: MutableStateFlow<SettingsData.PharmacySearch> =
         MutableStateFlow(SETTINGS_PHARMACY_SEARCH_RESULT_DATA)
 

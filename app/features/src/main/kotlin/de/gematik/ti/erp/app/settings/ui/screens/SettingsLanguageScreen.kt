@@ -23,12 +23,8 @@
 package de.gematik.ti.erp.app.settings.ui.screens
 
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -40,9 +36,9 @@ import androidx.compose.material.Divider
 import androidx.compose.material.RadioButton
 import androidx.compose.material.RadioButtonDefaults
 import androidx.compose.material.Text
+import androidx.compose.material3.ListItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -53,17 +49,18 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.listitem.GemListItemDefaults
 import de.gematik.ti.erp.app.localization.LanguageCode
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.settings.presentation.rememberSettingsLanguageScreenController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.preview.LanguageCodePreviewParameterProvider
+import de.gematik.ti.erp.app.settings.ui.preview.SettingsLanguageScreenPreviewData
+import de.gematik.ti.erp.app.settings.ui.preview.SettingsLanguageScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.compose.preview.TestScaffold
 import java.util.Locale
@@ -77,10 +74,10 @@ class SettingsLanguageScreen(
         val controller = rememberSettingsLanguageScreenController()
         val languages = controller.languageList
         val lazyListState = rememberLazyListState()
+        val selectedAppLocale = AppCompatDelegate.getApplicationLocales()
 
-        val selectedLanguage = remember {
-            val selectedAppLanguage = AppCompatDelegate.getApplicationLocales().toLanguageTags()
-            selectedAppLanguage.ifEmpty {
+        val selectedLanguage = remember() {
+            selectedAppLocale.toLanguageTags().ifEmpty {
                 Locale.getDefault().language
             }
         }
@@ -94,7 +91,11 @@ class SettingsLanguageScreen(
             onBack = navController::popBackStack,
             listState = lazyListState
         ) {
-            SettingsLanguageScreenContent(lazyListState, languages, selectedLanguage)
+            SettingsLanguageScreenContent(
+                lazyListState = lazyListState,
+                languages = languages,
+                selectedLanguage = selectedLanguage
+            )
         }
     }
 }
@@ -109,9 +110,6 @@ private fun SettingsLanguageScreenContent(
         state = lazyListState,
         modifier = Modifier
             .wrapContentSize()
-            .padding(
-                horizontal = PaddingDefaults.Medium
-            )
             .testTag(TestTag.Settings.LanguageColumnList)
     ) {
         item {
@@ -120,8 +118,8 @@ private fun SettingsLanguageScreenContent(
 
         itemsIndexed(languages) { index, languageCode ->
             LanguageSelectionItem(
-                isFirstItem = index == 0,
                 language = languageCode.mapToName(),
+                showDivider = index == 0,
                 checked = languageCode.code == selectedLanguage ||
                     (languageCode.code == "iw" && selectedLanguage == "he"),
                 onCheckedChange = { checked ->
@@ -140,53 +138,45 @@ private fun SettingsLanguageScreenContent(
 
 @Composable
 private fun LanguageSelectionItem(
-    isFirstItem: Boolean,
     language: String,
-    standardText: String = stringResource(R.string.language_selection_is_standard),
+    enabled: Boolean = true,
+    showDivider: Boolean = false,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
     Column {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium),
-            verticalAlignment = Alignment.CenterVertically,
+        ListItem(
+            colors = GemListItemDefaults.gemListItemColors(),
             modifier = Modifier
-                .fillMaxWidth()
                 .toggleable(
                     value = checked,
                     onValueChange = onCheckedChange,
-                    role = Role.RadioButton
-                )
-        ) {
-            RadioButton(
-                selected = checked,
-                colors = RadioButtonDefaults.colors(
-                    selectedColor = AppTheme.colors.primary700,
-                    unselectedColor = AppTheme.colors.primary700
+                    role = Role.RadioButton,
+                    enabled = enabled
                 ),
-                onClick = {
-                    onCheckedChange(!checked)
-                }
-
-            )
-            Text(
-                language,
-                style = AppTheme.typography.body1
-            )
-        }
-        if (isFirstItem) {
-            Text(
-                modifier = Modifier
-                    .padding(start = SizeDefaults.eightfoldAndHalf)
-                    .offset(y = (-SizeDefaults.one)),
-                text = standardText,
-                style = AppTheme.typography.body2l
-            )
+            headlineContent = {
+                Text(
+                    text = language,
+                    style = AppTheme.typography.body1
+                )
+            },
+            leadingContent = {
+                RadioButton(
+                    selected = checked,
+                    enabled = enabled,
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = AppTheme.colors.primary700,
+                        unselectedColor = AppTheme.colors.primary700
+                    ),
+                    onClick = null
+                )
+            }
+        )
+        if (showDivider) {
             Divider(
                 color = AppTheme.colors.neutral300,
                 modifier = Modifier
                     .padding(PaddingDefaults.Medium)
-
             )
         }
     }
@@ -195,7 +185,7 @@ private fun LanguageSelectionItem(
 @LightDarkPreview
 @Composable
 fun SettingsLanguageScreenScaffoldPreview(
-    @PreviewParameter(LanguageCodePreviewParameterProvider::class) selectedLanguage: String
+    @PreviewParameter(SettingsLanguageScreenPreviewParameterProvider::class) previewData: SettingsLanguageScreenPreviewData
 ) {
     PreviewAppTheme {
         val listState = rememberLazyListState()
@@ -204,7 +194,11 @@ fun SettingsLanguageScreenScaffoldPreview(
             topBarTitle = stringResource(R.string.language_selection_title),
             navigationMode = NavigationBarMode.Back
         ) {
-            SettingsLanguageScreenContent(listState, LanguageCode.entries, selectedLanguage)
+            SettingsLanguageScreenContent(
+                lazyListState = listState,
+                languages = LanguageCode.entries,
+                selectedLanguage = previewData.selectedLanguage
+            )
         }
     }
 }

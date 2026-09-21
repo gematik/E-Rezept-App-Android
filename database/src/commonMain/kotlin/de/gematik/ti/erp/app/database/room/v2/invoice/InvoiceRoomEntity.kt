@@ -23,14 +23,34 @@
 package de.gematik.ti.erp.app.database.room.v2.invoice
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import de.gematik.ti.erp.app.database.room.v2.profile.ProfileEntity
+import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskEntity
 
 @Entity(
     tableName = "invoices",
+    foreignKeys = [
+        ForeignKey(
+            entity = ProfileEntity::class,
+            parentColumns = ["identifier"],
+            childColumns = ["profileId"],
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = ErpTaskEntity::class,
+            parentColumns = ["taskId"],
+            childColumns = ["taskId"],
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
     indices = [
         Index(value = ["profileId"], unique = false),
-        Index(value = ["taskId"], unique = true)
+        Index(value = ["taskId"], unique = true),
+        Index(value = ["consumed"], unique = false)
     ]
 )
 data class InvoiceRoomEntity(
@@ -40,13 +60,10 @@ data class InvoiceRoomEntity(
     val timestampEpochMillis: Long,
     val consumed: Boolean,
     val whenHandedOverIso: String?,
-    val invoiceBinaryB64: String,
-    val kbvBinaryB64: String,
-    val erpPrBinaryB64: String,
-    // Light denormalized columns (optional, from nested objects)
-    val pharmacyOrgName: String?,
-    val practitionerOrgName: String?,
-    val patientName: String?,
-    val practitionerName: String?,
-    val medicationPzn: String?
+    // The full model serialized as JSON, excluding large binaries if they are stored separately
+    val dataJson: String,
+    // Large binaries are stored as Base64 strings in separate columns for performance
+    val invoiceBinaryB64: String?,
+    val kbvBinaryB64: String?,
+    val erpPrBinaryB64: String?
 )

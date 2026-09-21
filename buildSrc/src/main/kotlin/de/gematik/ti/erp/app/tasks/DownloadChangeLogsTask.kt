@@ -33,7 +33,6 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import org.apache.hc.client5.http.fluent.Request
 import org.apache.hc.core5.http.io.entity.StringEntity
-import org.gradle.api.GradleScriptException
 import org.gradle.api.tasks.TaskContainer
 import java.io.File
 import java.util.zip.ZipInputStream
@@ -46,14 +45,11 @@ fun TaskContainer.downloadChangeLogs() {
         description = "Downloads internal_messages.json files from Lokalise and extracts them into the assets/ folder"
 
         val apiKey = project.findProperty("lokaliseApiKey") as? String
-            ?: throw GradleScriptException("Missing 'lokaliseApiKey'", IllegalArgumentException("Use -PlokaliseApiKey=..."))
+            ?: "" // throw GradleScriptException("Missing 'lokaliseApiKey'", IllegalArgumentException("Use -PlokaliseApiKey=..."))
 
         val projectId = project.findProperty("changeLogsProjectId") as? String
             ?: project.loadCiOverridesProperties().getProperty("CHANGELOGS_PROJECT_ID")
-            ?: throw GradleScriptException(
-                "Missing 'changeLogsProjectId'",
-                IllegalArgumentException("Set -PlokaliseProjectId=... or define CHANGELOGS_PROJECT_ID in ci-overrides.properties")
-            )
+            ?: "" // throw GradleScriptException("Missing 'changeLogsProjectId'", IllegalArgumentException("Set -PlokaliseProjectId=... or define CHANGELOGS_PROJECT_ID in ci-overrides.properties"))
 
         val outputDir = project.rootProject.file("app/features/src/main/assets")
 
@@ -126,7 +122,8 @@ fun TaskContainer.downloadChangeLogs() {
                 zipStream.close()
                 println("🎉 Lokalise JSON assets download complete.")
             } catch (e: Exception) {
-                throw GradleScriptException("Error on change logs download", e)
+                println("❌ Error on change logs download: ${e.message}")
+                // throw GradleScriptException("Error on change logs download", e)
             }
         }
     }

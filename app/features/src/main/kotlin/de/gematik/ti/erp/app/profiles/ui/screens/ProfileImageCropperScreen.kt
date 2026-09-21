@@ -65,10 +65,10 @@ import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.permissions.removeMetadataFromBitmap
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel.Companion.profileById
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
 import de.gematik.ti.erp.app.profiles.presentation.rememberProfileController
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile.Companion.profileById
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
 
@@ -89,7 +89,7 @@ class ProfileImageCropperScreen(
             )
         }
         val profilesController = rememberProfileController()
-        val profiles by profilesController.getProfilesState2()
+        val profiles by profilesController.getProfilesState()
         profiles?.profileById(profileId)?.let { selectedProfile ->
             val context = LocalContext.current
             val cropView = remember {
@@ -148,7 +148,7 @@ class ProfileImageCropperScreen(
                                     reqHeight = CROPPED_IMAGE_SIZE
                                 )?.let {
                                     profilesController.savePersonalizedProfileImage(selectedProfile.id, it)
-                                    profilesController.saveAvatarFigure(selectedProfile.id, ProfilesData.Avatar.PersonalizedImage)
+                                    profilesController.saveAvatarFigure(selectedProfile.id, Avatar.PersonalizedImage)
                                     navController.popBackStack()
                                 }
                             }) {

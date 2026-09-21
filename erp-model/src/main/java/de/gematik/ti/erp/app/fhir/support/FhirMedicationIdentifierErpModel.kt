@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.fhir.support
 
+import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import kotlinx.serialization.Serializable
 
 // To be modified on DB update, right now can't change
@@ -31,4 +32,12 @@ data class FhirMedicationIdentifierErpModel(
     val atc: String?,
     val ask: String?,
     val snomed: String?
-)
+) {
+    internal fun getFirstAvailableIdentifier(): String? = when {
+        pzn.isNotNullOrEmpty() -> pzn
+        atc.isNotNullOrEmpty() -> atc
+        ask.isNotNullOrEmpty() -> ask
+        snomed.isNotNullOrEmpty() -> snomed
+        else -> null
+    }
+}

@@ -25,8 +25,8 @@ package de.gematik.ti.erp.app.prescription.detail.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.base.Controller
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.usecase.GetPrescriptionByTaskIdUseCase
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -38,8 +38,8 @@ open class GetPrescriptionByTaskIdController(
     private val taskId: String,
     private val getPrescriptionByTaskIdUseCase: GetPrescriptionByTaskIdUseCase
 ) : Controller() {
-    private val _prescription = MutableStateFlow<UiState<PrescriptionData.Prescription>>(UiState.Loading())
-    val prescription: StateFlow<UiState<PrescriptionData.Prescription>> = _prescription
+    private val _prescription = MutableStateFlow<UiState<TaskErpModel>>(UiState.Loading())
+    val prescription: StateFlow<UiState<TaskErpModel>> = _prescription
 
     init {
         initPrescription()

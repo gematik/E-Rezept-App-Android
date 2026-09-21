@@ -29,11 +29,11 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier.Companion
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier.Companion.findPrescriptionId
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirTaskResource.Companion.getResourceIdentifiers
 import de.gematik.ti.erp.app.fhir.error.fhirError
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskStatusErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirTaskExtensionValues.Companion.getExtensionValues
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirTaskLifeCycleMetadata.Companion.getAuthoredOn
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirTaskLifeCycleMetadata.Companion.getLastModified
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirTaskStatus.Companion.getStatus
-import de.gematik.ti.erp.app.task.model.TaskStatus
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement
 
@@ -87,7 +87,7 @@ class TaskMetadataParser : BundleParser {
             FhirTaskMetaDataErpModel(
                 taskId = taskId,
                 accessCode = taskResource.identifiers.findAccessCode() ?: "", // 169 and 209 direct assignments have no access code
-                status = TaskStatus.fromString(bundle.getStatus()),
+                status = FhirTaskStatusErpModel.fromString(bundle.getStatus()),
                 authoredOn = bundle.getAuthoredOn() ?: fhirError("Couldn't parse `authoredOn`"),
                 lastModified = bundle.getLastModified() ?: fhirError("Couldn't parse `lastModified`"),
                 expiresOn = extensionValues.expiryDate(),

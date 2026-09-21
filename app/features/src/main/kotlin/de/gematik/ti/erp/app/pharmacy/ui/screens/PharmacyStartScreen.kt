@@ -69,7 +69,7 @@ import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacySearchButton
 import de.gematik.ti.erp.app.pharmacy.ui.model.QuickFilter
 import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyStartScreenPreviewData
 import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyStartScreenPreviewParameterProvider
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 import de.gematik.ti.erp.app.preview.LightDarkLongPreview
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
@@ -284,6 +284,9 @@ class PharmacyStartScreen(
                 },
                 onClickFavouritePharmacy = {
                     controller.onPharmacySelected(it)
+                },
+                onToggleFavorite = {
+                    controller.onToggleFavorite(it)
                 }
             )
 
@@ -325,12 +328,13 @@ class PharmacyStartScreen(
 private fun PharmacyStartScreenContent(
     isModalFlow: Boolean,
     favouritePharmacies: List<PharmacyErpModel> = emptyList(),
-    previewCoordinates: Coordinates,
+    previewCoordinates: PositionErpModel,
     previewMap: PharmacyMap,
     listState: LazyListState,
     isGooglePlayServicesAvailable: Boolean = true,
     onClickQuickFilterSearch: (QuickFilter) -> Unit,
     onClickFavouritePharmacy: (PharmacyErpModel) -> Unit,
+    onToggleFavorite: (PharmacyErpModel) -> Unit,
     onClickPharmacySearch: () -> Unit,
     onClickMapsSearch: () -> Unit,
     onClickFilter: () -> Unit,
@@ -356,7 +360,8 @@ private fun PharmacyStartScreenContent(
                 onClickMapsSearch = onClickMapsSearch,
                 onClickQuickFilterSearch = onClickQuickFilterSearch,
                 onClickFilter = onClickFilter,
-                onClickFavouritePharmacy = onClickFavouritePharmacy
+                onClickFavouritePharmacy = onClickFavouritePharmacy,
+                onToggleFavorite = onToggleFavorite
             )
         }
     )
@@ -365,7 +370,7 @@ private fun PharmacyStartScreenContent(
 @Composable
 private fun PharmacyStartScreenBody(
     contentPadding: PaddingValues,
-    previewCoordinates: Coordinates,
+    previewCoordinates: PositionErpModel,
     previewMap: PharmacyMap,
     favouritePharmacies: List<PharmacyErpModel>,
     listState: LazyListState,
@@ -374,7 +379,8 @@ private fun PharmacyStartScreenBody(
     onClickMapsSearch: () -> Unit,
     onClickQuickFilterSearch: (QuickFilter) -> Unit,
     onClickFilter: () -> Unit,
-    onClickFavouritePharmacy: (PharmacyErpModel) -> Unit
+    onClickFavouritePharmacy: (PharmacyErpModel) -> Unit,
+    onToggleFavorite: (PharmacyErpModel) -> Unit
 ) {
     val activity = LocalActivity.current
     val padding = (activity as? BaseActivity)?.applicationInnerPadding
@@ -407,10 +413,10 @@ private fun PharmacyStartScreenBody(
                 modifier = Modifier
                     .padding(horizontal = PaddingDefaults.Medium)
                     .fillMaxWidth(),
-                pharmacies = favouritePharmacies
-            ) {
-                onClickFavouritePharmacy(it)
-            }
+                pharmacies = favouritePharmacies,
+                onToggleFavorite = { onToggleFavorite(it) },
+                onClickPharmacy = { onClickFavouritePharmacy(it) }
+            )
         }
         item {
             SpacerLarge()
@@ -478,6 +484,7 @@ fun PharmacyStartScreenPreview(
             listState = rememberLazyListState(),
             isGooglePlayServicesAvailable = previewData.isGooglePlayServicesAvailable,
             onClickQuickFilterSearch = {},
+            onToggleFavorite = {},
             onClickFavouritePharmacy = {},
             onClickPharmacySearch = {},
             onClickMapsSearch = {},

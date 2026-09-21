@@ -23,9 +23,9 @@
 package de.gematik.ti.erp.app.pharmacy.ui.model
 
 import com.google.maps.android.compose.MarkerState
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
 
 data class SelectedPharmacyUi(
-    val item: PharmacyUseCaseData.Pharmacy,
+    val item: PharmacyDetailsErpModel,
     val state: MarkerState?
 )

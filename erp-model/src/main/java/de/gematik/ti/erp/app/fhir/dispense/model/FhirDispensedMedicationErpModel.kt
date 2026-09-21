@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.fhir.dispense.model
 
+import de.gematik.ti.erp.app.fhir.support.FhirMedicationIdentifierErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirRatioErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.serialization.Serializable
@@ -36,7 +37,9 @@ import kotlinx.serialization.Serializable
  * - DispensedEpaMedicationErpModel
  */
 @Serializable
-sealed class DispensedMedicationErpModel : CommonDispensedMedicationFields
+sealed class DispensedMedicationErpModel : CommonDispensedMedicationFields {
+    abstract val identifier: FhirMedicationIdentifierErpModel?
+}
 
 interface CommonDispensedMedicationFields {
     val text: String?

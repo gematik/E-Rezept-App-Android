@@ -29,32 +29,42 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.base.Controller
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.SwitchActiveProfileUseCase
-import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileUseCase
-import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileUseCase.Companion.ProfileModifier
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
+import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileNameUseCase
+import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileColorUseCase
+import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileAvatarUseCase
+import de.gematik.ti.erp.app.profiles.usecase.SavePersonalizedProfileImageUseCase
+import de.gematik.ti.erp.app.profiles.usecase.ClearPersonalizedProfileImageUseCase
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
+import de.gematik.ti.erp.app.profile.model.Avatar as ErpAvatar
 
 class ProfileController(
     private val getActiveProfileUseCase: GetActiveProfileUseCase,
     private val getProfilesUseCase: GetProfilesUseCase,
     private val switchActiveProfileUseCase: SwitchActiveProfileUseCase,
-    private val updateProfileUseCase: UpdateProfileUseCase
+    private val updateProfileNameUseCase: UpdateProfileNameUseCase,
+    private val updateProfileColorUseCase: UpdateProfileColorUseCase,
+    private val updateProfileAvatarUseCase: UpdateProfileAvatarUseCase,
+    private val savePersonalizedProfileImageUseCase: SavePersonalizedProfileImageUseCase,
+    private val clearPersonalizedProfileImageUseCase: ClearPersonalizedProfileImageUseCase
 ) : Controller() {
 
-    private val _profile: MutableStateFlow<Profile?> = MutableStateFlow(null)
-    val profile: StateFlow<Profile?> = _profile
+    private val _profile: MutableStateFlow<ProfileErpModel?> = MutableStateFlow(null)
+    val profile: StateFlow<ProfileErpModel?> = _profile
 
     private val _profiles by lazy {
         getProfilesUseCase().stateIn(controllerScope, SharingStarted.Eagerly, null)
@@ -64,9 +74,8 @@ class ProfileController(
         getActiveProfileUseCase().stateIn(controllerScope, SharingStarted.Lazily, DEFAULT_EMPTY_PROFILE)
     }
 
-    // todo: replace getProfilesState with getProfilesState2
     @Composable
-    fun getProfilesState2() = _profiles.collectAsStateWithLifecycle()
+    fun getProfilesState() = _profiles.collectAsStateWithLifecycle()
 
     @Composable
     fun getActiveProfileState() = activeProfile.collectAsStateWithLifecycle()
@@ -77,48 +86,59 @@ class ProfileController(
         }
     }
 
-    fun updateProfileColor(profile: Profile, color: ProfilesData.ProfileColorNames) {
+    fun updateProfileColor(profile: ProfileErpModel, color: ProfileColorNames) {
         controllerScope.launch {
-            updateProfileUseCase(modifier = ProfileModifier.Color(color), id = profile.id)
+            updateProfileColorUseCase(profile.id, color)
         }
     }
 
     fun savePersonalizedProfileImage(profileId: ProfileIdentifier, image: Bitmap) {
         controllerScope.launch {
-            updateProfileUseCase(modifier = ProfileModifier.Image(image), id = profileId)
+            savePersonalizedProfileImageUseCase(profileId, image)
         }
     }
 
     fun updateProfileName(profileId: ProfileIdentifier, name: String) {
         controllerScope.launch {
-            updateProfileUseCase(modifier = ProfileModifier.Name(name), id = profileId)
+            updateProfileNameUseCase(profileId, name)
         }
     }
 
-    fun saveAvatarFigure(profileId: ProfileIdentifier, avatar: ProfilesData.Avatar) {
+    fun saveAvatarFigure(profileId: ProfileIdentifier, avatar: ErpAvatar) {
         controllerScope.launch {
-            updateProfileUseCase(modifier = ProfileModifier.Avatar(avatar), id = profileId)
+            updateProfileAvatarUseCase(profileId, avatar)
         }
     }
 
     fun clearPersonalizedImage(profileId: ProfileIdentifier) {
         controllerScope.launch {
-            updateProfileUseCase(modifier = ProfileModifier.ClearImage, id = profileId)
+            clearPersonalizedProfileImageUseCase(profileId)
         }
     }
 
     companion object {
-        val DEFAULT_EMPTY_PROFILE = Profile(
+        val DEFAULT_EMPTY_PROFILE = ProfileErpModel(
             id = "no-id",
             name = "no-name",
-            insurance = ProfileInsuranceInformation(
-                insuranceType = ProfilesUseCaseData.InsuranceType.NONE
+            active = false,
+            profileImageData = ProfileImageDataErpModel(
+                color = ProfileColorNames.SPRING_GRAY,
+                avatar = ErpAvatar.PersonalizedImage,
+                image = null
             ),
-            isActive = false,
-            color = ProfilesData.ProfileColorNames.SPRING_GRAY,
+            insuranceData = ProfileInsuranceDataErpModel(
+                insuranceType = InsuranceType.NONE,
+                insurantName = null,
+                insuranceIdentifier = null,
+                organizationIdentifier = null,
+                insuranceName = null
+            ),
             lastAuthenticated = null,
-            ssoTokenScope = null,
-            avatar = ProfilesData.Avatar.PersonalizedImage
+            userAuthentication = UserAuthenticationErpModel.NotInitialized,
+            isNewlyCreated = false,
+            isConsentDrawerShown = true,
+            lastAuditEventSynced = null,
+            lastTaskSynced = null
         )
     }
 }
@@ -128,14 +148,22 @@ fun rememberProfileController(): ProfileController {
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
     val getProfilesUseCase by rememberInstance<GetProfilesUseCase>()
     val switchActiveProfileUseCase by rememberInstance<SwitchActiveProfileUseCase>()
-    val updateProfileUseCase by rememberInstance<UpdateProfileUseCase>()
+    val updateProfileNameUseCase by rememberInstance<UpdateProfileNameUseCase>()
+    val updateProfileColorUseCase by rememberInstance<UpdateProfileColorUseCase>()
+    val updateProfileAvatarUseCase by rememberInstance<UpdateProfileAvatarUseCase>()
+    val savePersonalizedProfileImageUseCase by rememberInstance<SavePersonalizedProfileImageUseCase>()
+    val clearPersonalizedProfileImageUseCase by rememberInstance<ClearPersonalizedProfileImageUseCase>()
 
     return remember {
         ProfileController(
             getActiveProfileUseCase = getActiveProfileUseCase,
             getProfilesUseCase = getProfilesUseCase,
             switchActiveProfileUseCase = switchActiveProfileUseCase,
-            updateProfileUseCase = updateProfileUseCase
+            updateProfileNameUseCase = updateProfileNameUseCase,
+            updateProfileColorUseCase = updateProfileColorUseCase,
+            updateProfileAvatarUseCase = updateProfileAvatarUseCase,
+            savePersonalizedProfileImageUseCase = savePersonalizedProfileImageUseCase,
+            clearPersonalizedProfileImageUseCase = clearPersonalizedProfileImageUseCase
         )
     }
 }

@@ -26,18 +26,20 @@ import de.gematik.ti.erp.app.consent.repository.ConsentLocalDataSource
 import de.gematik.ti.erp.app.consent.repository.ConsentRemoteDataSource
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.consent.repository.DefaultConsentRepository
+import de.gematik.ti.erp.app.consent.repository.ProfileLocalStore
 import de.gematik.ti.erp.app.consent.usecase.GetConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.GrantConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.RevokeConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.SaveGrantConsentDrawerShownUseCase
 import de.gematik.ti.erp.app.consent.usecase.ShowGrantConsentDrawerUseCase
-import de.gematik.ti.erp.app.database.settings.ConsentVersionDataStore
+import de.gematik.ti.erp.app.database.api.debug.ConsentVersionLocalDataSource
+import de.gematik.ti.erp.app.debug.repository.ConsentVersionRepository
+import de.gematik.ti.erp.app.debug.repository.DefaultConsentVersionRepository
 import de.gematik.ti.erp.app.fhir.consent.FhirConsentParser
 import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemBundleEntryParser
 import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemBundleParser
 import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemEPrescriptionParsers
 import de.gematik.ti.erp.app.invoice.repository.DefaultInvoiceRepository
-import de.gematik.ti.erp.app.invoice.repository.InvoiceLocalDataSource
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRemoteDataSource
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.invoice.usecase.DeleteAllLocalInvoices
@@ -48,8 +50,6 @@ import de.gematik.ti.erp.app.invoice.usecase.GetInvoicesByProfileUseCase
 import de.gematik.ti.erp.app.invoice.usecase.SaveInvoiceUseCase
 import de.gematik.ti.erp.app.pkv.consent.presentation.ConsentController
 import de.gematik.ti.erp.app.pkv.usecase.ShareInvoiceUseCase
-import de.gematik.ti.erp.app.settings.repository.ConsentVersionRepository
-import de.gematik.ti.erp.app.settings.repository.DefaultConsentVersionRepository
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
@@ -60,7 +60,7 @@ val pkvModule = DI.Module("pkvModule") {
     bindProvider { GetConsentUseCase(instance()) }
     bindProvider<ConsentVersionRepository> {
         DefaultConsentVersionRepository(
-            dataStore = runCatching { instance<ConsentVersionDataStore>() }.getOrNull(),
+            dataStore = runCatching { instance<ConsentVersionLocalDataSource>() }.getOrNull(),
             isDebugMode = BuildConfigExtension.isDebug
         )
     }
@@ -87,13 +87,13 @@ val pkvModule = DI.Module("pkvModule") {
     // end: parsers
     bindProvider<InvoiceRepository> { DefaultInvoiceRepository(instance(), instance(), instance(), instance()) }
     bindProvider { InvoiceRemoteDataSource(instance()) }
-    bindProvider { InvoiceLocalDataSource(instance()) }
     bindSingleton { ConsentController(instance(), instance(), instance(), instance()) }
     bindSingleton { FhirConsentParser() }
 }
 
 val consentRepositoryModule = DI.Module("consentRepositoryModule", allowSilentOverride = true) {
     bindProvider<ConsentRepository> { DefaultConsentRepository(instance(), instance(), instance()) }
-    bindProvider { ConsentLocalDataSource(instance()) }
+    // Provide ProfileLocalStore via Realm-backed local data source
+    bindProvider<ProfileLocalStore> { ConsentLocalDataSource(instance()) }
     bindProvider { ConsentRemoteDataSource(instance()) }
 }

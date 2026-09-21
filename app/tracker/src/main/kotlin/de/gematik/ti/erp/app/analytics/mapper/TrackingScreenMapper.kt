@@ -40,7 +40,8 @@ class TrackingScreenMapper {
                 NavigationRouteNames.DeviceCheckLoadingScreen -> null
                 NavigationRouteNames.InsecureDeviceScreen -> "main:deviceSecurity"
                 NavigationRouteNames.IntegrityWarningScreen -> "main:integrityWarning"
-                NavigationRouteNames.Android8DeprecationScreen -> "main:android8Deprecation"
+                NavigationRouteNames.DataMigrationScreen -> "main:dataMigration"
+                NavigationRouteNames.Android13DeprecationScreen -> "main:android13Deprecation"
 
                 NavigationRouteNames.PrescriptionDetailScreen -> "prescriptionDetail"
                 NavigationRouteNames.PrescriptionDetailMedicationScreen -> "prescriptionDetail:medication"
@@ -50,10 +51,11 @@ class TrackingScreenMapper {
                 NavigationRouteNames.PrescriptionDetailMedicationOverviewScreen -> "prescriptionDetail:medicationOverview"
                 NavigationRouteNames.PrescriptionDetailMedicationIngredientsScreen ->
                     "prescriptionDetail:medication_ingredients"
-
                 NavigationRouteNames.PrescriptionDetailAccidentInfoScreen -> "prescriptionDetail:accidentInfo"
                 NavigationRouteNames.PrescriptionDetailTechnicalInfoScreen -> "prescriptionDetail:technicalInfo"
-
+                NavigationRouteNames.PrescriptionDetailTeratogenicPrescriptionScreen -> "prescriptionDetail:teratogenicPrescriptionInfo"
+                NavigationRouteNames.PrescriptionDetailTeratogenicPrescriptionBottomSheetScreen ->
+                    "prescriptionDetail:teratogenicPrescriptionBottomSheet"
                 NavigationRouteNames.PrescriptionDetailSelfPayerPrescriptionBottomSheetScreen ->
                     "prescriptionDetail:selfPayerPrescriptionBottomSheet"
 
@@ -81,6 +83,7 @@ class TrackingScreenMapper {
                 NavigationRouteNames.PrescriptionDetailHowLongValidBottomSheetScreen -> "prescriptionDetail:howLongValidBottomSheet"
 
                 NavigationRouteNames.ProfileScreen -> "profile"
+                NavigationRouteNames.ProfilePushNotificationSettingsScreen -> "profile:pushNotifications"
                 NavigationRouteNames.ProfileEditPictureScreen -> "profile:editPicture:fullscreen"
                 NavigationRouteNames.ProfileImageCropperScreen -> "profile:editPicture:imageCropper"
                 NavigationRouteNames.ProfileImageEmojiScreen -> "profile:editPicture:imageEmoji"
@@ -139,6 +142,7 @@ class TrackingScreenMapper {
                 NavigationRouteNames.SettingsAdditionalLicencesScreen -> "settings:additionalLicence"
                 NavigationRouteNames.SettingsLanguageScreen -> "settings:language"
                 NavigationRouteNames.SettingsThemeScreen -> "settings:theme"
+                NavigationRouteNames.SettingsReportAccessibilityIssueScreen -> "settings:reportAccessibilityIssue"
 
                 NavigationRouteNames.PrescriptionListScreen -> "main"
                 NavigationRouteNames.PrescriptionsArchiveScreen -> "main:prescriptionArchive"
@@ -146,7 +150,9 @@ class TrackingScreenMapper {
                 NavigationRouteNames.GrantConsentBottomSheetScreen -> "main:grantConsent"
 
                 NavigationRouteNames.MessageListScreen -> "orders"
-                NavigationRouteNames.MessageDetailScreen -> "orders:details"
+                NavigationRouteNames.OrderMessageDetailScreen -> "orders:details"
+                NavigationRouteNames.UnknownOrderMessageDetailScreen -> "orders:details:unknown"
+                NavigationRouteNames.InternalMessageDetailScreen -> "orders:details:internal"
                 NavigationRouteNames.MessageBottomSheetScreen -> "orders:details:reply"
                 NavigationRouteNames.PharmacyDetailsFromMessageScreen -> "orders:details:selectedPharmacy"
 
@@ -178,7 +184,7 @@ class TrackingScreenMapper {
                 NavigationRouteNames.OrderHealthCardSelectOptionScreen -> "contactInsuranceCompany:selectReason"
                 NavigationRouteNames.OrderHealthCardSelectMethodScreen -> "contactInsuranceCompany:selectMethod"
 
-                NavigationRouteNames.UserAuthenticationScreen -> "userAuthentication"
+                NavigationRouteNames.AppAuthenticationScreen -> "appAuthentication"
 
                 NavigationRouteNames.DigasMainScreen -> "digas:detail"
                 NavigationRouteNames.DigasValidityBottomSheetScreen -> "digas:validity"

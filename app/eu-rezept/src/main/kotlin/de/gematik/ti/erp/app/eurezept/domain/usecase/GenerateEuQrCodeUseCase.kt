@@ -22,7 +22,7 @@
 package de.gematik.ti.erp.app.eurezept.domain.usecase
 
 import androidx.compose.ui.graphics.ImageBitmap
-import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCodeErpModel
 import de.gematik.ti.erp.app.eurezept.util.QrCodeGenerator
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
@@ -43,7 +43,7 @@ internal class GenerateEuQrCodeUseCase(
      * @return [ImageBitmap] of the QR code, or null if generation fails.
      */
     suspend operator fun invoke(
-        euAccessCode: EuAccessCode,
+        euAccessCode: EuAccessCodeErpModel,
         insuranceNumber: String
     ): Flow<ImageBitmap?> = try {
         withContext(dispatcher) {

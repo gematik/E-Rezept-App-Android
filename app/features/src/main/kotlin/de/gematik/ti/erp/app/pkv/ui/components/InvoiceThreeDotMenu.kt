@@ -39,7 +39,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.DpOffset
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -57,8 +60,11 @@ fun InvoiceThreeDotMenu(
 ) {
     var isMenuExpanded by remember { mutableStateOf(false) }
     var isDropDownExpanded by remember { mutableStateOf(false) }
-
+    val closeHint = stringResource(R.string.a11y_three_dot_menu_options_hint)
     IconButton(
+        modifier = Modifier.semantics {
+            stateDescription = closeHint
+        },
         onClick = { isMenuExpanded = true }
     ) {
         Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral700)
@@ -94,7 +100,7 @@ fun InvoiceThreeDotMenu(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = stringResource(R.string.invoice_menu_correct_invoice))
                     SpacerSmall()
-                    Icon(arrow, null, tint = AppTheme.colors.neutral400)
+                    Icon(arrow, null, tint = AppTheme.colors.neutral700)
                 }
 
                 if (isDropDownExpanded) {

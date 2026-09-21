@@ -22,14 +22,14 @@
 
 package de.gematik.ti.erp.app.medicationplan.usecase
 
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 import kotlinx.coroutines.flow.Flow
 
 class GetAllMedicationSchedulesUseCase(
     private val medicationPlanRepository: MedicationPlanRepository
 ) {
-    operator fun invoke(): Flow<List<MedicationSchedule>> {
+    operator fun invoke(): Flow<List<MedicationScheduleErpModel>> {
         return medicationPlanRepository.getAllMedicationSchedules()
     }
 }

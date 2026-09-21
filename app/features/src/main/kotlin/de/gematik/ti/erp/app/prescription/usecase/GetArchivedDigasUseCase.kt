@@ -23,15 +23,12 @@
 package de.gematik.ti.erp.app.prescription.usecase
 
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
-import de.gematik.ti.erp.app.prescription.mapper.toPrescription
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 
 /**
  * The prescription [repository] obtains the active
@@ -46,9 +43,8 @@ class GetArchivedDigasUseCase(
 ) {
     operator fun invoke(
         id: ProfileIdentifier
-    ): Flow<List<Prescription>> =
+    ): Flow<List<TaskErpModel.Synced.Diga>> =
         repository
             .loadArchiveDigasByProfileId(id)
-            .map { it.map(SyncedTask::toPrescription) }
             .flowOn(dispatcher)
 }

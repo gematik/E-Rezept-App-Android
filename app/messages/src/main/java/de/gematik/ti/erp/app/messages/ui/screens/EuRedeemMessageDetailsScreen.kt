@@ -60,11 +60,10 @@ import de.gematik.ti.erp.app.messages.ui.preview.EuRedeemMessageDetailsPreviewPa
 import de.gematik.ti.erp.app.messages.ui.preview.MessagePreviewMocks.MOCK_SYNCED_TASK_DATA_01
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.model.TaskData
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.preview.LightPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
@@ -95,6 +94,7 @@ internal class EuRedeemMessageDetailsScreen(
         val threadStart = arguments.threadStart
         val threadEnd = arguments.threadEnd
         val orderId = arguments.orderId
+        val euPharmacyName = arguments.euPharmacyName
 
         val controller = rememberEuRedeemMessageDetailsController(orderId, threadStart, threadEnd)
 
@@ -109,6 +109,7 @@ internal class EuRedeemMessageDetailsScreen(
             listState = listState,
             messages = messages,
             tasks = tasks,
+            euPharmacyName = euPharmacyName,
             onBack = navController::popBackStack,
             markEventsAsRead = {
                 controller.markEuEventsRead(it)
@@ -144,7 +145,8 @@ internal class EuRedeemMessageDetailsScreen(
 private fun EuRedeemMessageContent(
     listState: LazyListState,
     messages: UiState<List<EuOrderMessageUiModel>>,
-    tasks: UiState<List<TaskData>>,
+    tasks: UiState<List<TaskErpModel>>,
+    euPharmacyName: String?,
     markEventsAsRead: (List<EuOrderMessageUiModel>) -> Unit,
     onPrescriptionClick: (String) -> Unit,
     onShowCode: (String) -> Unit,
@@ -155,7 +157,7 @@ private fun EuRedeemMessageContent(
         modifier = Modifier.testTag(""),
         backLabel = stringResource(R.string.back),
         closeLabel = stringResource(R.string.cancel),
-        topBarTitle = stringResource(R.string.eu_messages_list_latest_title),
+        topBarTitle = euPharmacyName ?: stringResource(R.string.eu_messages_list_latest_title),
         listState = listState,
         navigationMode = NavigationBarMode.Back,
         onBack = onBack,
@@ -190,7 +192,7 @@ private fun EuRedeemMessageContent(
                         Text(
                             stringResource(R.string.messages_history_title),
                             style = AppTheme.typography.h6,
-                            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
+                            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium).semanticsHeading()
                         )
                     }
                     items(items) {
@@ -213,12 +215,7 @@ private fun EuRedeemMessageContent(
                                 PrescriptionListForMessages(
                                     items = tasks.map { it.taskId },
                                     onName = { taskId ->
-                                        val task = tasks.find { it.taskId == taskId }
-                                        when (task) {
-                                            is SyncedTaskData.SyncedTask -> task.medicationName() ?: ""
-                                            is ScannedTaskData.ScannedTask -> task.name
-                                            else -> ""
-                                        }
+                                        tasks.find { it.taskId == taskId }?.medicationName().orEmpty()
                                     }
                                 ) { taskId ->
                                     onPrescriptionClick(taskId)
@@ -355,12 +352,13 @@ fun EuRedeemMessageContentPreview(
     PreviewTheme {
         EuRedeemMessageContent(
             listState = rememberLazyListState(),
+            euPharmacyName = "Pharmacy Name",
             messages = UiState.Data(previewData),
             tasks = UiState.Data(listOf(MOCK_SYNCED_TASK_DATA_01)),
+            markEventsAsRead = {},
             onPrescriptionClick = {},
             onShowCode = {},
             onRevokeAccess = {},
-            markEventsAsRead = {},
             onBack = {}
         )
     }

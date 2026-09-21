@@ -27,16 +27,16 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.di.EndpointHelper
-import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.settings.model.ThemeMode
 import de.gematik.ti.erp.app.settings.usecase.AllowScreenshotsUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetScreenShotsAllowedUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetThemeModeUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetZoomStateUseCase
-import de.gematik.ti.erp.app.settings.usecase.SaveZoomPreferenceUseCase
+import de.gematik.ti.erp.app.settings.usecase.SaveZoomEnabledUseCase
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -54,7 +54,7 @@ class SettingsController(
     getZoomStateUseCase: GetZoomStateUseCase,
     getThemeModeUseCase: GetThemeModeUseCase,
     private val allowScreenshotsUseCase: AllowScreenshotsUseCase,
-    private val saveZoomPreferenceUseCase: SaveZoomPreferenceUseCase,
+    private val saveZoomPreferenceUseCase: SaveZoomEnabledUseCase,
     private val getActiveProfileUseCase: GetActiveProfileUseCase,
     private val endpointHelper: EndpointHelper
 ) : Controller() {
@@ -62,7 +62,7 @@ class SettingsController(
     private val zoomFlow = getZoomStateUseCase.invoke().map { SettingStatesData.ZoomState(it) }
     private val screenShotsAllowedFlow = getScreenShotsAllowedUseCase.invoke()
 
-    val profiles: StateFlow<List<ProfilesUseCaseData.Profile>> = getProfilesUseCase()
+    val profiles: StateFlow<List<ProfileErpModel>> = getProfilesUseCase()
         .stateIn(controllerScope, SharingStarted.WhileSubscribed(), emptyList())
 
     val zoomState: StateFlow<SettingStatesData.ZoomState> = zoomFlow.stateIn(
@@ -111,10 +111,10 @@ class SettingsController(
             var url = endpointHelper.getOrganDonationRegisterInfoHost()
 
             profile.let {
-                val token = profile?.ssoTokenScope
+                val userAuthentication = profile?.userAuthentication
 
-                if (token is IdpData.ExternalAuthenticationToken) {
-                    val iss = token.authenticatorId
+                if (userAuthentication is UserAuthenticationErpModel.External) {
+                    val iss = userAuthentication.externalAuthenticatorId
                     val issSafe = URLEncoder.encode(iss, StandardCharsets.UTF_8.toString())
                     url = "${endpointHelper.getOrganDonationRegisterIntentHost()}?iss=$issSafe"
                 }
@@ -131,7 +131,7 @@ fun rememberSettingsController(): SettingsController {
     val allowScreenshotsUseCase by rememberInstance<AllowScreenshotsUseCase>()
     val getZoomStateUseCase by rememberInstance<GetZoomStateUseCase>()
     val getThemeModeUseCase by rememberInstance<GetThemeModeUseCase>()
-    val saveZoomPreferenceUseCase by rememberInstance<SaveZoomPreferenceUseCase>()
+    val saveZoomPreferenceUseCase by rememberInstance<SaveZoomEnabledUseCase>()
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
     val endpointHelper by rememberInstance<EndpointHelper>()
 

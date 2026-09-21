@@ -22,11 +22,11 @@
 
 package de.gematik.ti.erp.app
 
+import de.gematik.ti.erp.app.database.api.task.TaskLocalDataSource
 import de.gematik.ti.erp.app.features.BuildConfig
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionLocalDataSource
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRemoteDataSource
-import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import de.gematik.ti.erp.app.prescription.remote.PrescriptionRemoteDataSource
+import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -45,9 +45,9 @@ import java.security.Signature
 private const val SignatureOutputSize = 64
 
 class TestWrapper(
-    private val profilesUseCase: ProfilesUseCase,
+    private val getActiveProfileUseCase: GetActiveProfileUseCase,
     private val remoteDataSource: PrescriptionRemoteDataSource,
-    private val localDataSource: PrescriptionLocalDataSource,
+    private val localDataSource: TaskLocalDataSource,
     private val idpUseCase: IdpUseCase
 ) {
     init {
@@ -56,20 +56,20 @@ class TestWrapper(
     }
 
     fun deleteTask(taskId: String) = runBlocking(Dispatchers.IO) {
-        remoteDataSource.deleteTask(profilesUseCase.activeProfile.first().id, taskId)
+        remoteDataSource.deleteTask(getActiveProfileUseCase().first().id, taskId)
     }
 
     fun deleteAllTasksSafe() = runBlocking(Dispatchers.IO) {
-        val profileId = profilesUseCase.activeProfile.first().id
-        localDataSource.loadTaskIds().first().forEach { taskId ->
-            remoteDataSource.deleteTask(profileId, taskId)
+        val profileId = getActiveProfileUseCase().first().id
+        localDataSource.loadTaskListByProfileId(profileId).first().forEach { taskErpModel ->
+            remoteDataSource.deleteTask(profileId, taskErpModel.taskId)
                 .onSuccess {
-                    Napier.d { "Deleted $taskId" }
+                    Napier.d { "Deleted ${taskErpModel.taskId}" }
                 }
                 .onFailure {
-                    Napier.e { "Could not delete $taskId" }
+                    Napier.e { "Could not delete ${taskErpModel.taskId}" }
                 }
-            localDataSource.deleteTask(taskId)
+            localDataSource.deleteTaskByTaskId(taskErpModel.taskId)
         }
     }
 
@@ -79,7 +79,7 @@ class TestWrapper(
     ) {
         runBlocking(Dispatchers.IO) {
             idpUseCase.authenticationFlowWithHealthCard(
-                profileId = profilesUseCase.activeProfileId().first(),
+                profileId = getActiveProfileUseCase().first().id,
                 cardAccessNumber = "123123",
                 healthCardCertificate = { Base64.decode(certificateBase64) },
                 sign = {

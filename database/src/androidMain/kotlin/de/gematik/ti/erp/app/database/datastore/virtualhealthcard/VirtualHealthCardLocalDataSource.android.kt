@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.database.datastore.virtualhealthcard
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
+import de.gematik.ti.erp.app.database.api.debug.VirtualHealthCardLocalDataSource
 import de.gematik.ti.erp.app.database.datastore.AndroidDataStoreCryptography
 
 val Context.virtualHealthCardDataStore: DataStore<VirtualHealthCardEntitySchema> by dataStore(
@@ -33,5 +34,5 @@ val Context.virtualHealthCardDataStore: DataStore<VirtualHealthCardEntitySchema>
     produceMigrations = { listOf(VirtualHealthCardDataMigration()) }
 )
 
-fun virtualHealthCardLocalDataSource(context: Context) =
-    VirtualHealthCardLocalDataSource(context.virtualHealthCardDataStore)
+fun virtualHealthCardLocalDataSource(context: Context): VirtualHealthCardLocalDataSource =
+    VirtualHealthCardLocalDataStore(context.virtualHealthCardDataStore)

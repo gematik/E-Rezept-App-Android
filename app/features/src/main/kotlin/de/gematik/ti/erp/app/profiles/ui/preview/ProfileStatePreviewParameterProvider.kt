@@ -23,11 +23,11 @@
 package de.gematik.ti.erp.app.profiles.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profiles.model.ProfileCombinedData
 import de.gematik.ti.erp.app.profiles.ui.preview.ProfilePreviewParameterData.emptyGkvProfileError
 import de.gematik.ti.erp.app.profiles.ui.preview.ProfilePreviewParameterData.existingGkvProfile
 import de.gematik.ti.erp.app.profiles.ui.preview.ProfilePreviewParameterData.newGkvProfile
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.utils.uistate.UiState
 
 class ProfileStatePreviewParameterProvider : PreviewParameterProvider<UiState<ProfileCombinedData>> {
@@ -44,7 +44,7 @@ class ProfileStatePreviewParameterProvider : PreviewParameterProvider<UiState<Pr
 }
 
 data class ProfileEditData(
-    val profile: ProfilesUseCaseData.Profile,
+    val profile: ProfileErpModel,
     val initialDuplicated: Boolean = false,
     val initialHasUserInteracted: Boolean = false
 )

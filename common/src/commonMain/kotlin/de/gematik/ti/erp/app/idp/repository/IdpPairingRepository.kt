@@ -23,8 +23,10 @@
 package de.gematik.ti.erp.app.idp.repository
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.database.api.UserAuthenticationLocalDataSource
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.userauthentication.model.SingleSignOnTokenErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -32,11 +34,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
 class IdpPairingRepository(
-    private val localDataSource: IdpLocalDataSource
+    private val localDataSource: UserAuthenticationLocalDataSource
 ) {
     private val decryptedAccessTokenMap: MutableStateFlow<Map<String, AccessToken>> =
         MutableStateFlow(mutableMapOf())
-    private val singleSignOnTokenMap: MutableStateFlow<Map<ProfileIdentifier, IdpData.SingleSignOnToken>> =
+    private val singleSignOnTokenMap: MutableStateFlow<Map<ProfileIdentifier, SingleSignOnTokenErpModel>> =
         MutableStateFlow(mutableMapOf())
 
     fun decryptedAccessToken(profileId: ProfileIdentifier) =
@@ -66,60 +68,45 @@ class IdpPairingRepository(
     /**
      * This function fuses the scope of the original prescription token with the token scoped to pairing.
      */
-    fun singleSignOnTokenScope(profileId: ProfileIdentifier) =
+    fun userAuthentication(profileId: ProfileIdentifier) =
         combine(
-            localDataSource.authenticationData(profileId),
+            localDataSource.getUserAuthenticationForProfile(profileId),
             singleSignOnTokenMap
                 .map { it[profileId] }
                 .distinctUntilChanged()
-        ) { authData, pairingToken ->
-            when (val originalToken = authData.singleSignOnTokenScope) {
-                is IdpData.ExternalAuthenticationToken ->
+        ) { authenticationErpModel, pairingToken ->
+            when (authenticationErpModel) {
+                is UserAuthenticationErpModel.External ->
                     pairingToken?.let {
-                        IdpData.ExternalAuthenticationToken(
-                            token = it,
-                            authenticatorId = originalToken.authenticatorId,
-                            authenticatorName = originalToken.authenticatorName
+                        UserAuthenticationErpModel.External(
+                            singleSignOnTokenErpModel = it,
+                            externalAuthenticatorId = authenticationErpModel.externalAuthenticatorId,
+                            externalAuthenticatorName = authenticationErpModel.externalAuthenticatorName
                         )
                     }
-
-                is IdpData.AlternateAuthenticationToken ->
+                is UserAuthenticationErpModel.HealthCardWithSavedCredentials ->
                     pairingToken?.let {
-                        IdpData.AlternateAuthenticationToken(
-                            token = it,
-                            cardAccessNumber = originalToken.cardAccessNumber,
-                            aliasOfSecureElementEntry = originalToken.aliasOfSecureElementEntry,
-                            healthCardCertificate = originalToken.healthCardCertificate
+                        UserAuthenticationErpModel.HealthCardWithSavedCredentials(
+                            singleSignOnTokenErpModel = it,
+                            cardAccessNumber = authenticationErpModel.cardAccessNumber,
+                            aliasOfSecureElementEntry = authenticationErpModel.aliasOfSecureElementEntry,
+                            healthCardCertificate = authenticationErpModel.healthCardCertificate
                         )
-                    }
-
-                is IdpData.AlternateAuthenticationWithoutToken ->
-                    if (pairingToken == null) {
-                        originalToken
-                    } else {
-                        IdpData.AlternateAuthenticationToken(
-                            token = pairingToken,
-                            cardAccessNumber = originalToken.cardAccessNumber,
-                            aliasOfSecureElementEntry = originalToken.aliasOfSecureElementEntry,
-                            healthCardCertificate = originalToken.healthCardCertificate
-                        )
-                    }
-
-                is IdpData.DefaultToken ->
+                    } ?: authenticationErpModel
+                is UserAuthenticationErpModel.HealthCard ->
                     pairingToken?.let {
-                        IdpData.DefaultToken(
-                            token = it,
-                            cardAccessNumber = originalToken.cardAccessNumber,
-                            healthCardCertificate = originalToken.healthCardCertificate
+                        UserAuthenticationErpModel.HealthCard(
+                            singleSignOnTokenErpModel = it,
+                            cardAccessNumber = authenticationErpModel.cardAccessNumber,
+                            healthCardCertificate = authenticationErpModel.healthCardCertificate
                         )
                     }
-
-                null -> null
+                is UserAuthenticationErpModel.NotInitialized -> UserAuthenticationErpModel.NotInitialized
             }
         }
 
-    fun saveSingleSignOnToken(profileId: ProfileIdentifier, token: IdpData.SingleSignOnToken?) {
-        token?.let { nonNullToken ->
+    fun saveSingleSignOnToken(profileId: ProfileIdentifier, ssoToken: SingleSignOnTokenErpModel?) {
+        ssoToken?.let { nonNullToken ->
             singleSignOnTokenMap.update {
                 it + (profileId to nonNullToken)
             }

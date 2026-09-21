@@ -22,13 +22,13 @@
 
 package de.gematik.ti.erp.app.redeem.model
 
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData.OrderOption
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
 
-sealed class ContactValidationState(open val selectedOrderOption: OrderOption?) {
-    data class Valid(override val selectedOrderOption: OrderOption?) : ContactValidationState(selectedOrderOption)
-    data class Invalid(override val selectedOrderOption: OrderOption?, val errors: Set<Error>) : ContactValidationState(selectedOrderOption)
+sealed class ContactValidationState(open val selectedOrderOption: OrderOptionErpModel?) {
+    data class Valid(override val selectedOrderOption: OrderOptionErpModel?) : ContactValidationState(selectedOrderOption)
+    data class Invalid(override val selectedOrderOption: OrderOptionErpModel?, val errors: Set<Error>) : ContactValidationState(selectedOrderOption)
 
-    data class NoOrderOption(override val selectedOrderOption: OrderOption?) : ContactValidationState(selectedOrderOption)
+    data class NoOrderOption(override val selectedOrderOption: OrderOptionErpModel?) : ContactValidationState(selectedOrderOption)
 
     enum class Error {
         EmptyName, InvalidName,
@@ -83,9 +83,9 @@ sealed class ContactValidationState(open val selectedOrderOption: OrderOption?) 
             }
 
             return when (option) {
-                OrderOption.Pickup -> RedeemContactValidationState.NoError
+                OrderOptionErpModel.Pickup -> RedeemContactValidationState.NoError
 
-                OrderOption.Delivery, OrderOption.Online -> when {
+                OrderOptionErpModel.Delivery, OrderOptionErpModel.Online -> when {
                     isPersonalInformationMissing() -> RedeemContactValidationState.MissingPersonalInfo
                     isContactPhoneInformationMissing() -> RedeemContactValidationState.MissingPhone
                     isDeliveryInformationMissing() -> RedeemContactValidationState.MissingDeliveryInfo

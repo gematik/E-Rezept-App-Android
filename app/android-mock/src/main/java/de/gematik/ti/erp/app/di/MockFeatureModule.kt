@@ -31,13 +31,14 @@ import de.gematik.ti.erp.app.database.di.databaseModule
 import de.gematik.ti.erp.app.debugsettings.di.debugSettingsModule
 import de.gematik.ti.erp.app.di.datasource.mockDataSourceModule
 import de.gematik.ti.erp.app.di.pharmacy.mockPharmacyRepositoryModule
-import de.gematik.ti.erp.app.di.prescription.mockPrescriptionRepositoryModule
-import de.gematik.ti.erp.app.di.prescription.mockTaskRepositoryModule
+import de.gematik.ti.erp.app.di.prescription.mockTaskOperationsRepositoryModule
+import de.gematik.ti.erp.app.di.prescription.mockTaskSyncRepositoryModule
 import de.gematik.ti.erp.app.di.profile.mockProfileRepositoryModule
 import de.gematik.ti.erp.app.di.settings.mockSettingsRepositoryModule
 import de.gematik.ti.erp.app.digas.di.digaModule
 import de.gematik.ti.erp.app.digas.di.digaRepositoryModule
 import de.gematik.ti.erp.app.eurezept.di.euModule
+import de.gematik.ti.erp.app.pushnotifications.di.pushNotificationsModule
 import de.gematik.ti.erp.app.idp.idpModule
 import de.gematik.ti.erp.app.idp.idpUseCaseModule
 import de.gematik.ti.erp.app.logger.di.loggerModule
@@ -49,7 +50,7 @@ import de.gematik.ti.erp.app.pharmacy.di.pharmacyModule
 import de.gematik.ti.erp.app.pkv.consentRepositoryModule
 import de.gematik.ti.erp.app.pkv.pkvModule
 import de.gematik.ti.erp.app.prescription.prescriptionModule
-import de.gematik.ti.erp.app.prescription.prescriptionRepositoryModule
+import de.gematik.ti.erp.app.prescription.taskOperationsRepositoryModule
 import de.gematik.ti.erp.app.prescription.taskModule
 import de.gematik.ti.erp.app.profiles.profilesModule
 import de.gematik.ti.erp.app.protocol.auditEventsModule
@@ -57,13 +58,13 @@ import de.gematik.ti.erp.app.protocol.auditEventsRepositoryModule
 import de.gematik.ti.erp.app.redeem.redeemModule
 import de.gematik.ti.erp.app.settings.settingsModule
 import de.gematik.ti.erp.app.timeouts.di.timeoutsSharedPrefsModule
-import de.gematik.ti.erp.app.userauthentication.di.userAuthenticationModule
+import de.gematik.ti.erp.app.appauthentication.di.appAuthenticationModule
 import de.gematik.ti.erp.app.vau.vauModule
 import org.kodein.di.DI
 
 val mockFeatureModule = DI.Module("featureModule", allowSilentOverride = true) {
     importAll(
-        userAuthenticationModule,
+        appAuthenticationModule,
         applicationControllerModule,
         onboardingModule,
         dispatchersModule,
@@ -89,6 +90,7 @@ val mockFeatureModule = DI.Module("featureModule", allowSilentOverride = true) {
         pkvModule,
         digaModule,
         euModule,
+        pushNotificationsModule,
         // shared-prefs modules
         timeoutsSharedPrefsModule,
         // other modules
@@ -97,7 +99,7 @@ val mockFeatureModule = DI.Module("featureModule", allowSilentOverride = true) {
         appUpdateModule,
         prescriptionModule,
         // repositories
-        prescriptionRepositoryModule,
+        taskOperationsRepositoryModule,
         consentRepositoryModule,
         auditEventsRepositoryModule,
         messageRepositoryModule,
@@ -106,10 +108,10 @@ val mockFeatureModule = DI.Module("featureModule", allowSilentOverride = true) {
         databaseModule(),
         // mocked modules
         mockPharmacyRepositoryModule,
-        mockTaskRepositoryModule,
+        mockTaskSyncRepositoryModule,
         mockProfileRepositoryModule,
         mockDataSourceModule,
-        mockPrescriptionRepositoryModule,
+        mockTaskOperationsRepositoryModule,
         mockSettingsRepositoryModule,
         allowOverride = true
     )

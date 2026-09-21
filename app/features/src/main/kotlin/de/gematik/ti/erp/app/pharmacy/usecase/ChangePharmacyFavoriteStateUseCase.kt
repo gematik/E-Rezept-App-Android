@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.pharmacy.usecase
 
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -32,7 +32,7 @@ class ChangePharmacyFavoriteStateUseCase(
     private val repository: PharmacyRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(pharmacy: PharmacyUseCaseData.Pharmacy, isFavorite: Boolean) {
+    suspend operator fun invoke(pharmacy: PharmacyErpModel, isFavorite: Boolean) {
         withContext(dispatcher) {
             when {
                 isFavorite -> repository.markPharmacyAsFavourite(pharmacy)

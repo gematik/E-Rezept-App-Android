@@ -23,13 +23,14 @@
 package de.gematik.ti.erp.app.prescription.detail.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.task.model.AccidentType
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import kotlinx.datetime.Instant
 
 data class AccidentInfoPreviewParameter(
     val name: String,
-    val syncedPrescription: PrescriptionData.Synced
+    val syncedPrescription: TaskErpModel.Synced.Prescription
 )
 
 class AccidentInfoPreviewParameterProvider : PreviewParameterProvider<AccidentInfoPreviewParameter> {
@@ -55,48 +56,40 @@ class AccidentInfoPreviewParameterProvider : PreviewParameterProvider<AccidentIn
         )
 }
 
-private val PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_NONE = PrescriptionData.Synced(
-    task = SYNCED_TASK.copy(
-        status = SyncedTaskData.TaskStatus.Ready,
-        medicationRequest = SYNCED_TASK.medicationRequest.copy(
-            accidentType = SyncedTaskData.AccidentType.None,
-            dateOfAccident = null,
-            location = null
-        )
+private val PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_NONE = SYNCED_TASK.copy(
+    status = TaskStatusEnum.Ready,
+    medicationRequest = SYNCED_TASK.medicationRequest?.copy(
+        accidentType = AccidentType.None,
+        dateOfAccident = null,
+        location = null
     )
 )
 
 val time = Instant.parse("2024-07-03T14:20:00Z")
 
-private val PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_ACCIDENT = PrescriptionData.Synced(
-    task = SYNCED_TASK.copy(
-        status = SyncedTaskData.TaskStatus.Ready,
-        medicationRequest = SYNCED_TASK.medicationRequest.copy(
-            accidentType = SyncedTaskData.AccidentType.Unfall,
-            dateOfAccident = time,
-            location = "somewhere"
-        )
+private val PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_ACCIDENT = SYNCED_TASK.copy(
+    status = TaskStatusEnum.Ready,
+    medicationRequest = SYNCED_TASK.medicationRequest?.copy(
+        accidentType = AccidentType.Unfall,
+        dateOfAccident = time,
+        location = "somewhere"
     )
 )
 
-private val PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_WORK_ACCIDENT = PrescriptionData.Synced(
-    task = SYNCED_TASK.copy(
-        status = SyncedTaskData.TaskStatus.Ready,
-        medicationRequest = SYNCED_TASK.medicationRequest.copy(
-            accidentType = SyncedTaskData.AccidentType.Arbeitsunfall,
-            dateOfAccident = time,
-            location = "work"
-        )
+private val PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_WORK_ACCIDENT = SYNCED_TASK.copy(
+    status = TaskStatusEnum.Ready,
+    medicationRequest = SYNCED_TASK.medicationRequest?.copy(
+        accidentType = AccidentType.Arbeitsunfall,
+        dateOfAccident = time,
+        location = "work"
     )
 )
 
-private val PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_OCCUPATIONAL_ILLNESS = PrescriptionData.Synced(
-    task = SYNCED_TASK.copy(
-        status = SyncedTaskData.TaskStatus.Ready,
-        medicationRequest = SYNCED_TASK.medicationRequest.copy(
-            accidentType = SyncedTaskData.AccidentType.Berufskrankheit,
-            dateOfAccident = time,
-            location = "home"
-        )
+private val PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_OCCUPATIONAL_ILLNESS = SYNCED_TASK.copy(
+    status = TaskStatusEnum.Ready,
+    medicationRequest = SYNCED_TASK.medicationRequest?.copy(
+        accidentType = AccidentType.Berufskrankheit,
+        dateOfAccident = time,
+        location = "home"
     )
 )

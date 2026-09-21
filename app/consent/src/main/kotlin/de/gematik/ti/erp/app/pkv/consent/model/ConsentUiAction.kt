@@ -33,6 +33,9 @@ sealed interface ConsentUiAction {
     ) : ConsentUiAction
     data object NoOp : ConsentUiAction
 }
+fun getCurrentMethodName(): String {
+    return Thread.currentThread().stackTrace.getOrNull(3)?.methodName ?: "unknown"
+}
 enum class ConsentDialogAction {
     RETRY,
     SHOW_CARD_WALL

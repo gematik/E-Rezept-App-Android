@@ -24,38 +24,43 @@ package de.gematik.ti.erp.app.messages.di
 
 import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationParser
 import de.gematik.ti.erp.app.messages.domain.model.InternalMessageResources
+import de.gematik.ti.erp.app.messages.domain.model.MessagesStringProvider
 import de.gematik.ti.erp.app.messages.domain.repository.ChangeLogLocalDataSource
+import de.gematik.ti.erp.app.messages.domain.usecase.GetCombinedMessagesAsInAppMessageUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.GetDispenseMessagesByTaskIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetEuOrderMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetEuOrderTasksUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.GetExternalInAppMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetInternalMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetLatestEuOrderMessageAsInAppMessageUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessageUsingOrderIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetProfileByOrderIdUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.GetProfileByTaskIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetRepliedMessagesUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.GetReplyMessagesByTaskIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetUnreadMessagesCountUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.MarkAllUnreadMessagesAsReadUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.MarkEuEventsReadUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.SaveLocalCommunicationUseCase
-import de.gematik.ti.erp.app.messages.domain.usecase.SetInternalMessagesAsReadUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.SetInternalMessageAsReadUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationConsumedStatusUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInternalMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInvoicesByOrderIdAndTaskIdUseCase
-import de.gematik.ti.erp.app.messages.mappers.EuOrderToMessagesMapper
-import de.gematik.ti.erp.app.messages.repository.CommunicationLocalDataSource
+import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInvoicesByTaskIdUseCase
+import de.gematik.ti.erp.app.messages.mapper.OrderToInAppMessageMapper
+import de.gematik.ti.erp.app.messages.mapper.EuOrderToMessagesMapper
+import de.gematik.ti.erp.app.messages.presentation.AndroidMessagesStringProvider
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.messages.repository.DefaultCommunicationRepository
 import de.gematik.ti.erp.app.messages.repository.DefaultInternalMessagesRepository
 import de.gematik.ti.erp.app.messages.repository.InternalMessagesLocalDataSource
 import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
-import de.gematik.ti.erp.app.messages.repository.PharmacyCacheLocalDataSource
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
 val messagesModule = DI.Module("messagesModule") {
-    bindProvider { PharmacyCacheLocalDataSource(instance()) }
-    bindProvider { CommunicationLocalDataSource(instance()) }
     bindProvider { GetRepliedMessagesUseCase(instance(), instance()) }
     bindProvider { GetMessagesUseCase(instance(), instance(), instance(), instance()) }
     bindProvider { GetMessageUsingOrderIdUseCase(instance(), instance(), instance()) }
@@ -69,18 +74,27 @@ val messagesModule = DI.Module("messagesModule") {
     bindProvider { InternalMessageResources(instance()) }
     bindProvider { ChangeLogLocalDataSource(instance()) }
     bindProvider { GetInternalMessagesUseCase(instance(), instance()) }
-    bindProvider { SetInternalMessagesAsReadUseCase(instance()) }
+    bindProvider<MessagesStringProvider> { AndroidMessagesStringProvider(instance()) }
+    bindProvider { OrderToInAppMessageMapper(instance()) }
+    bindProvider { GetExternalInAppMessagesUseCase(instance(), instance(), instance()) }
+    bindProvider { GetCombinedMessagesAsInAppMessageUseCase(instance(), instance(), instance()) }
+    bindProvider { SetInternalMessageAsReadUseCase(instance()) }
     bindProvider { CommunicationParser() }
     bindProvider { EuOrderToMessagesMapper(instance(), instance()) }
     bindProvider { GetEuOrderMessagesUseCase(instance(), instance(), instance()) }
     bindProvider { GetLatestEuOrderMessageAsInAppMessageUseCase(instance(), instance(), instance(), instance()) }
     bindProvider { GetEuOrderTasksUseCase(instance(), instance()) }
     bindProvider { MarkEuEventsReadUseCase(instance()) }
+    bindProvider { UpdateInvoicesByTaskIdUseCase(instance(), instance()) }
+    bindProvider { GetReplyMessagesByTaskIdUseCase(instance(), instance()) }
+    bindProvider { GetDispenseMessagesByTaskIdUseCase(instance(), instance(), instance()) }
+    bindProvider { GetProfileByTaskIdUseCase(instance()) }
 }
 
 val messageRepositoryModule = DI.Module("messageRepositoryModule", allowSilentOverride = true) {
     bindProvider<CommunicationRepository> {
         DefaultCommunicationRepository(
+            instance(),
             instance(),
             instance(),
             instance(),

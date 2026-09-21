@@ -23,16 +23,16 @@
 package de.gematik.ti.erp.app.prescription.usecase
 
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.prescription.mapper.toPrescription
 import de.gematik.ti.erp.app.prescription.model.ParsedScannedQrCode
 import de.gematik.ti.erp.app.prescription.model.ParserScannedDataMatrix
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
-import de.gematik.ti.erp.app.prescription.repository.TaskRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskSyncRepository
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeValidator.Companion.taskPattern
 import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import de.gematik.ti.erp.app.utils.letNotNull
 import kotlinx.coroutines.flow.Flow
@@ -43,21 +43,23 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 class PrescriptionUseCase(
-    private val repository: PrescriptionRepository,
-    private val taskRepository: TaskRepository,
+    private val repository: TaskOperationsRepository,
+    private val taskRepository: TaskSyncRepository,
     private val dispatchers: DispatchProvider
 ) {
 
+    @Deprecated("Used only in tests")
     fun syncedActiveRecipes(
         profileId: ProfileIdentifier,
         now: Instant = Clock.System.now()
     ): Flow<List<PrescriptionUseCaseData.Prescription.Synced>> =
         syncedTasks(profileId).map { tasks ->
-            tasks.filter { it.isActive(now) }
-                .sortedWith(compareBy<SyncedTaskData.SyncedTask> { it.expiresOn }.thenBy { it.authoredOn })
-                .groupBy { it.practitioner.name ?: it.organization.name }
+            tasks.filter { it.isActive() }
+                .sortedWith(compareBy<TaskErpModel.Synced.Prescription> { it.expiresOn }.thenBy { it.authoredOn })
+                .groupBy { it.practitioner?.name ?: it.organization?.name }
                 .flatMap { (_, tasks) ->
                     tasks.map {
+                        val prescription = it.toPrescription()
                         PrescriptionUseCaseData.Prescription.Synced(
                             taskId = it.taskId,
                             name = it.medicationName(),
@@ -67,26 +69,24 @@ class PrescriptionUseCase(
                             redeemedOn = null,
                             expiresOn = it.expiresOn,
                             acceptUntil = it.acceptUntil,
-                            state = it.state(now = now),
-                            isDiga = it.deviceRequest?.appName.isNotNullOrEmpty(),
+                            state = prescription.state,
+                            isDiga = false,
                             isDirectAssignment = it.isDirectAssignment(),
                             multiplePrescriptionState = PrescriptionUseCaseData.Prescription.MultiplePrescriptionState(
                                 isPartOfMultiplePrescription = it.medicationRequest
-                                    .multiplePrescriptionInfo.indicator,
+                                    ?.multiplePrescriptionInfo?.indicator ?: false,
                                 numerator = it.medicationRequest
-                                    .multiplePrescriptionInfo.numbering?.numerator?.value,
+                                    ?.multiplePrescriptionInfo?.numbering?.numerator?.value,
                                 denominator = it.medicationRequest
-                                    .multiplePrescriptionInfo.numbering?.denominator?.value,
-                                start = it.medicationRequest.multiplePrescriptionInfo.start
+                                    ?.multiplePrescriptionInfo?.numbering?.denominator?.value,
+                                start = it.medicationRequest?.multiplePrescriptionInfo?.start
                             )
                         )
                     }
                 }
         }
 
-    /**
-     * Tasks grouped by timestamp. Mapped to [PrescriptionUseCaseData.Prescription.Scanned].
-     */
+    @Deprecated("Used only in tests")
     fun scannedActiveRecipes(profileId: ProfileIdentifier): Flow<List<PrescriptionUseCaseData.Prescription.Scanned>> =
         scannedTasks(profileId).map { tasks ->
             tasks
@@ -97,11 +97,12 @@ class PrescriptionUseCase(
                         taskId = task.taskId,
                         scannedOn = task.scannedOn,
                         redeemedOn = task.redeemedOn,
-                        communications = task.communications
+                        communications = emptyList()
                     )
                 }
         }
 
+    @Deprecated("Used only in tests")
     fun redeemedPrescriptions(
         profileId: ProfileIdentifier,
         now: Instant = Clock.System.now()
@@ -111,25 +112,26 @@ class PrescriptionUseCase(
             syncedTasks(profileId)
         ) { scannedTasks, syncedTasks ->
             val syncedPrescriptions = syncedTasks
-                .filter { !it.isActive(now) }
+                .filter { !it.isActive() }
                 .map {
+                    val prescription = it.toPrescription()
                     PrescriptionUseCaseData.Prescription.Synced(
                         taskId = it.taskId,
                         isIncomplete = it.isIncomplete,
                         name = it.medicationName(),
-                        organization = it.practitioner.name ?: it.organization.name ?: "",
-                        authoredOn = requireNotNull(it.authoredOn),
-                        redeemedOn = it.redeemedOn(),
+                        organization = it.practitioner?.name ?: it.organization?.name ?: "",
+                        authoredOn = it.authoredOn,
+                        redeemedOn = it.redeemedOn,
                         expiresOn = it.expiresOn,
                         acceptUntil = it.acceptUntil,
-                        state = it.state(now),
-                        isDiga = it.deviceRequest?.appName.isNotNullOrEmpty(),
+                        state = prescription.state,
+                        isDiga = false,
                         isDirectAssignment = it.isDirectAssignment(),
                         multiplePrescriptionState = PrescriptionUseCaseData.Prescription.MultiplePrescriptionState(
-                            isPartOfMultiplePrescription = it.medicationRequest.multiplePrescriptionInfo.indicator,
-                            numerator = it.medicationRequest.multiplePrescriptionInfo.numbering?.numerator?.value,
-                            denominator = it.medicationRequest.multiplePrescriptionInfo.numbering?.denominator?.value,
-                            start = it.medicationRequest.multiplePrescriptionInfo.start
+                            isPartOfMultiplePrescription = it.medicationRequest?.multiplePrescriptionInfo?.indicator ?: false,
+                            numerator = it.medicationRequest?.multiplePrescriptionInfo?.numbering?.numerator?.value,
+                            denominator = it.medicationRequest?.multiplePrescriptionInfo?.numbering?.denominator?.value,
+                            start = it.medicationRequest?.multiplePrescriptionInfo?.start
                         )
                     )
                 }
@@ -141,7 +143,7 @@ class PrescriptionUseCase(
                         taskId = task.taskId,
                         scannedOn = task.scannedOn,
                         redeemedOn = task.redeemedOn,
-                        communications = task.communications
+                        communications = emptyList()
                     )
                 }
 
@@ -156,14 +158,16 @@ class PrescriptionUseCase(
                 )
         }
 
+    // TODO: Only used in Share viewmodel, needs its own usecase
     suspend fun saveScannedTasks(
         profileId: ProfileIdentifier,
-        tasks: List<ScannedTaskData.ScannedTask>,
+        tasks: List<TaskErpModel.Scanned>,
         medicationString: String
     ) {
-        repository.saveScannedTasks(profileId, tasks, medicationString)
+        repository.saveScannedTaskList(profileId, tasks, medicationString)
     }
 
+    // TODO: Used in scan controller, needs its own usecase
     suspend fun saveScannedCodes(
         profileId: ProfileIdentifier,
         scannedCodes: List<ValidScannedCode>,
@@ -172,14 +176,15 @@ class PrescriptionUseCase(
         val tasks = scannedCodes.flatMap { codesEmbeddedInScan ->
             codesEmbeddedInScan.codes.mapIndexed { index, parsedCode ->
                 when (parsedCode) {
-                    is ParsedScannedQrCode -> ScannedTaskData.ScannedTask(
+                    is ParsedScannedQrCode -> TaskErpModel.Scanned(
                         profileId = profileId,
                         taskId = parsedCode.taskId,
                         index = index,
                         name = if (parsedCode.name.isNotNullOrEmpty()) parsedCode.name else "", // if empty name will be set at database
                         accessCode = parsedCode.accessCode,
                         scannedOn = codesEmbeddedInScan.raw.scannedOn,
-                        redeemedOn = null
+                        redeemedOn = null,
+                        isEuRedeemable = false
                     )
 
                     is ParserScannedDataMatrix -> {
@@ -188,14 +193,15 @@ class PrescriptionUseCase(
                         val accessCode = match?.groupValues?.get(2)
 
                         letNotNull(taskId, accessCode) { task, taskAccessCode ->
-                            ScannedTaskData.ScannedTask(
+                            TaskErpModel.Scanned(
                                 profileId = profileId,
                                 taskId = task,
                                 index = index,
                                 name = "", // name will be set at database
                                 accessCode = taskAccessCode,
                                 scannedOn = codesEmbeddedInScan.raw.scannedOn,
-                                redeemedOn = null
+                                redeemedOn = null,
+                                isEuRedeemable = false
                             )
                         }
                     }
@@ -205,15 +211,17 @@ class PrescriptionUseCase(
         tasks.takeIf { it.isNotEmpty() }?.let { saveScannedTasks(profileId, it, medicationString) }
     }
 
-    fun scannedTasks(profileId: ProfileIdentifier): Flow<List<ScannedTaskData.ScannedTask>> =
-        repository.scannedTasks(profileId).flowOn(dispatchers.io)
+    fun scannedTasks(profileId: ProfileIdentifier): Flow<List<TaskErpModel.Scanned>> =
+        repository.loadScannedTaskListByProfileId(profileId).flowOn(dispatchers.io)
 
-    fun syncedTasks(profileId: ProfileIdentifier): Flow<List<SyncedTaskData.SyncedTask>> =
-        repository.syncedTasks(profileId).flowOn(dispatchers.io)
+    fun syncedTasks(profileId: ProfileIdentifier): Flow<List<TaskErpModel.Synced.Prescription>> =
+        repository.loadSyncedTaskListByProfileId(profileId).flowOn(dispatchers.io)
 
+    // TODO: used in debug, maybe can be moved to debug module?
     suspend fun downloadTasks(profileId: ProfileIdentifier): Result<Int> =
         taskRepository.downloadTasks(profileId)
 
+    // TODO: Own usecase , used in share controller
     fun getAllTasksWithTaskIdOnly(): Flow<List<String>> =
         repository.loadTaskIds()
 }

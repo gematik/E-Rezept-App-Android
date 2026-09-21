@@ -47,13 +47,13 @@ import de.gematik.ti.erp.app.fhir.pharmacy.model.NotAvailablePeriodMetadata.Comp
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.listitem.GemListItemDefaults
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyImagePlaceholder
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.DeliveryPharmacyService
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.LocalPharmacyService
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.OnlinePharmacyService
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.PickUpPharmacyService
+import de.gematik.ti.erp.app.pharmacy.model.ContactInformationErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyOpeningHoursErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel.DeliveryPharmacyServiceErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel.LocalPharmacyServiceErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel.OnlinePharmacyServiceErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel.PickUpPharmacyServiceErpModel
 import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -80,7 +80,7 @@ internal fun formattedDistance(distanceInMeters: Double): String {
 @Composable
 internal fun PharmacyResultCard(
     modifier: Modifier,
-    pharmacy: Pharmacy,
+    pharmacy: PharmacyDetailsErpModel,
     onClick: () -> Unit
 ) {
     val clickDescription = stringResource(R.string.a11y_pharmacy_search_pharmacy_card_click_description)
@@ -123,7 +123,7 @@ internal fun PharmacyResultCard(
                 Icon(
                     Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                     null,
-                    tint = AppTheme.colors.neutral400,
+                    tint = AppTheme.colors.neutral700,
                     modifier = Modifier
                         .size(SizeDefaults.triple)
                         .align(Alignment.CenterVertically)
@@ -148,7 +148,7 @@ internal fun PharmacyResultCard(
                     )
                 } else {
                     val pharmacyLocalServices =
-                        pharmacy.provides.find { it is LocalPharmacyService } as? LocalPharmacyService
+                        pharmacy.provides.find { it is LocalPharmacyServiceErpModel } as? LocalPharmacyServiceErpModel
                     val now =
                         remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()) }
 
@@ -164,7 +164,7 @@ internal fun PharmacyResultCard(
                         Text(
                             text,
                             style = AppTheme.typography.subtitle2l,
-                            color = AppTheme.colors.green600
+                            color = AppTheme.colors.green700
                         )
                     } else {
                         val text =
@@ -178,7 +178,7 @@ internal fun PharmacyResultCard(
                             Text(
                                 text,
                                 style = AppTheme.typography.subtitle2l,
-                                color = AppTheme.colors.yellow600
+                                color = AppTheme.colors.yellow800
                             )
                         }
                     }
@@ -194,30 +194,30 @@ internal fun PharmacyResultCardPreview() {
     PreviewTheme {
         PharmacyResultCard(
             modifier = Modifier,
-            pharmacy = Pharmacy(
+            pharmacy = PharmacyDetailsErpModel(
                 id = "pharmacy-id",
                 name = "2Königen-Aptheke",
                 address = "Ostwall 97, 47798 Krefeld",
                 coordinates = null,
                 distance = null,
-                contact = PharmacyUseCaseData.PharmacyContact(
+                contact = ContactInformationErpModel(
                     phone = "12345678",
                     mail = "pharmacy@mail.com",
                     url = "https://pharmacy.com"
                 ),
                 provides = listOf(
-                    DeliveryPharmacyService(
+                    DeliveryPharmacyServiceErpModel(
                         name = "delivery-service",
-                        openingHours = OpeningHours(openingTime = mapOf())
+                        openingHours = PharmacyOpeningHoursErpModel(openingTime = mapOf())
                     ),
-                    OnlinePharmacyService(name = "online-service"),
-                    PickUpPharmacyService(name = "pickup-service"),
-                    LocalPharmacyService(
+                    OnlinePharmacyServiceErpModel(name = "online-service"),
+                    PickUpPharmacyServiceErpModel(name = "pickup-service"),
+                    LocalPharmacyServiceErpModel(
                         name = "local-service",
-                        openingHours = OpeningHours(openingTime = mapOf())
+                        openingHours = PharmacyOpeningHoursErpModel(openingTime = mapOf())
                     )
                 ),
-                openingHours = OpeningHours(openingTime = mapOf()),
+                openingHours = PharmacyOpeningHoursErpModel(openingTime = mapOf()),
                 telematikId = "telematikId"
             ),
             onClick = {}
@@ -231,30 +231,30 @@ internal fun PharmacyResultCardClosedPreview() {
     PreviewTheme {
         PharmacyResultCard(
             modifier = Modifier,
-            pharmacy = Pharmacy(
+            pharmacy = PharmacyDetailsErpModel(
                 id = "pharmacy-id",
                 name = "2Königen-Aptheke",
                 address = "Ostwall 97, 47798 Krefeld",
                 coordinates = null,
                 distance = 4500.0,
-                contact = PharmacyUseCaseData.PharmacyContact(
+                contact = ContactInformationErpModel(
                     phone = "12345678",
                     mail = "pharmacy@mail.com",
                     url = "https://pharmacy.com"
                 ),
                 provides = listOf(
-                    DeliveryPharmacyService(
+                    DeliveryPharmacyServiceErpModel(
                         name = "delivery-service",
-                        openingHours = OpeningHours(openingTime = mapOf())
+                        openingHours = PharmacyOpeningHoursErpModel(openingTime = mapOf())
                     ),
-                    OnlinePharmacyService(name = "online-service"),
-                    PickUpPharmacyService(name = "pickup-service"),
-                    LocalPharmacyService(
+                    OnlinePharmacyServiceErpModel(name = "online-service"),
+                    PickUpPharmacyServiceErpModel(name = "pickup-service"),
+                    LocalPharmacyServiceErpModel(
                         name = "local-service",
-                        openingHours = OpeningHours(openingTime = mapOf())
+                        openingHours = PharmacyOpeningHoursErpModel(openingTime = mapOf())
                     )
                 ),
-                openingHours = OpeningHours(openingTime = mapOf()),
+                openingHours = PharmacyOpeningHoursErpModel(openingTime = mapOf()),
                 specialClosingTimes = listOf(
                     NotAvailablePeriodMetadata(
                         erpModel = NotAvailablePeriodErpModel(

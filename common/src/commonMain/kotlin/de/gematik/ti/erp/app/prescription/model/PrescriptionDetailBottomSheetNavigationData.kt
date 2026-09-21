@@ -20,7 +20,7 @@
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
-package de.gematik.ti.erp.app.prescription.detail.ui.model
+package de.gematik.ti.erp.app.prescription.model
 
 data class PrescriptionDetailBottomSheetNavigationData(
     val selPayerPrescriptionBottomSheet: () -> Unit = {},
@@ -32,5 +32,6 @@ data class PrescriptionDetailBottomSheetNavigationData(
     val substitutionNotAllowedBottomSheet: () -> Unit = {},
     val emergencyFeeNotExemptBottomSheet: () -> Unit = {},
     val emergencyFeeExemptBottomSheet: () -> Unit = {},
-    val scannedPrescriptionBottomSheet: () -> Unit = {}
+    val scannedPrescriptionBottomSheet: () -> Unit = {},
+    val teratogenicPrescriptionBottomSheet: () -> Unit = {}
 )

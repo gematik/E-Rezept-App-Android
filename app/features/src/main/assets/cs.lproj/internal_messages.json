@@ -70,5 +70,11 @@
         "text": "**🏥 Vylepšené podrobnosti o lékárnách** \nLékárny nyní mohou přidávat služby, jako je očkování, a funkce na místě, jako je bezbariérový přístup. Lékárny lze filtrovat na základě těchto nových informací. \n \n **✨ Vylepšené vyhledávání lékáren** \nNaposledy použité lékárny a oblíbené lékárny jsou nyní jasněji odděleny. Filtry byly vylepšeny. \n \n **✅ Zdravotní průkaz pro ostatní pojištěné osoby** \nPojištěné osoby, které nejsou hrazeny zákonným ani soukromým zdravotním pojištěním, se nyní mohou také přihlásit pomocí svého zdravotního průkazu. \n \n **🛡️ Sledování odstraněno** \nOdstranili jsme nástroj pro sledování používaný v aplikaci. Již se neshromažďují žádná data o používání aplikace. \n \n **♿ Vylepšená přístupnost** \nFiltry nyní mají vyšší kontrast a stav filtru je nyní snáze viditelný.",
         "timestamp": "2026-03-30T08:00:00.000Z",
         "version": "1.38"
+    },
+    {
+        "id": "14",
+        "text": "**✅ K dispozici jsou léky na předpis T**\nLéky na předpis T-Prespections lze nyní správně přijímat a zobrazovat. Léky na předpis T-Prespections se používají pro určité léky se zvláštními bezpečnostními požadavky.\n\n**⚙️ Vyčištění nastavení**\nNastavení profilu bylo přepracováno a zpřehledněno.\n\n**♿ Větší přístupnost**\nBariéry lze nyní hlásit přímo z nastavení. Tlačítka, nabídky, seznamy a nadpisy byly optimalizovány pro použití s ​​aplikací TalkBack. Byl vylepšen kontrast a animace se nyní přehrávají pouze jednou. Pole s názvem má nyní trvale viditelný popisek. Větší velikosti písma jsou nyní podporovány i ve webových zobrazeních aplikace.",
+        "timestamp": "2026-08-18T08:00:00.000Z",
+        "version": "1.39"
     }
 ]

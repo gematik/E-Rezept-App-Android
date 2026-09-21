@@ -67,7 +67,7 @@ internal fun DownloadedLanguageItem(
             )
             Text(
                 text = language.displayName,
-                color = if (language.deletable) AppTheme.colors.neutral800 else AppTheme.colors.neutral400,
+                color = if (language.deletable) AppTheme.colors.neutral900 else AppTheme.colors.neutral700,
                 style = AppTheme.typography.body1,
                 modifier = Modifier.weight(1f)
             )
@@ -89,7 +89,7 @@ internal fun DownloadedLanguageItem(
             } else {
                 Icon(
                     imageVector = Icons.Rounded.Lock,
-                    tint = AppTheme.colors.neutral400,
+                    tint = AppTheme.colors.neutral700,
                     contentDescription = "Not deletable",
                     modifier = Modifier
                         .padding(PaddingDefaults.Medium)

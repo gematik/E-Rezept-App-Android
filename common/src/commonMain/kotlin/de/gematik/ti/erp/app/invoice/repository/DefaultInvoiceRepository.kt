@@ -24,9 +24,11 @@ package de.gematik.ti.erp.app.invoice.repository
 
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.ResourcePaging
+import de.gematik.ti.erp.app.database.api.invoice.InvoiceLocalDataSource
 import de.gematik.ti.erp.app.fhir.FhirPkvChargeItemsErpModelCollection
 import de.gematik.ti.erp.app.fhir.pkv.parser.ChargeItemEPrescriptionParsers
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.invoice.model.InvoiceStatusErpModel
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -71,13 +73,13 @@ class DefaultInvoiceRepository(
             it ?: 0
         }
 
-    override fun invoices(profileId: ProfileIdentifier): Flow<List<InvoiceData.PKVInvoiceRecord>> =
+    override fun invoices(profileId: ProfileIdentifier): Flow<List<PKVInvoiceErpModel>> =
         localDataSource.loadInvoices(profileId)
 
-    override fun getInvoiceTaskIdAndConsumedStatus(profileId: ProfileIdentifier): Flow<List<InvoiceData.InvoiceStatus>> =
+    override fun getInvoiceTaskIdAndConsumedStatus(profileId: ProfileIdentifier): Flow<List<InvoiceStatusErpModel>> =
         localDataSource.getInvoiceTaskIdAndConsumedStatus(profileId)
 
-    override fun getAllUnreadInvoices(): Flow<List<InvoiceData.InvoiceStatus>> =
+    override fun getAllUnreadInvoices(): Flow<List<InvoiceStatusErpModel>> =
         localDataSource.getAllUnreadInvoices()
 
     override suspend fun updateInvoiceCommunicationStatus(taskId: String, consumed: Boolean) {
@@ -87,7 +89,7 @@ class DefaultInvoiceRepository(
     override fun hasUnreadInvoiceMessages(taskIds: List<String>): Flow<Boolean> =
         localDataSource.hasUnreadInvoiceMessages(taskIds)
 
-    override fun invoiceByTaskId(taskId: String): Flow<InvoiceData.PKVInvoiceRecord?> =
+    override fun invoiceByTaskId(taskId: String): Flow<PKVInvoiceErpModel?> =
         localDataSource.loadInvoiceByTaskId(taskId)
 
     override suspend fun saveInvoice(profileId: ProfileIdentifier, bundle: FhirPkvChargeItemsErpModelCollection) {

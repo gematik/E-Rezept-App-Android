@@ -22,12 +22,12 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository.datasource
 
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class PreviewMapCoordinatesDataSource {
     val coordinates = MutableStateFlow(berlinCoordinates)
     companion object {
-        val berlinCoordinates = Coordinates(52.51947562977698, 13.404335795642881)
+        val berlinCoordinates = PositionErpModel(52.51947562977698, 13.404335795642881)
     }
 }

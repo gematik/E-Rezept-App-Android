@@ -24,8 +24,8 @@ package de.gematik.ti.erp.app.medicationplan.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.fhir.temporal.toLocalDate
-import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstructionErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SCANNED_PRESCRIPTION_SCHEDULE_ACTIVE_ENDLESS
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SCANNED_PRESCRIPTION_SCHEDULE_INACTIVE
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SYNCED_PRESCRIPTION_SCHEDULE_ACTIVE_EVERY_TWO_DAYS
@@ -39,8 +39,8 @@ import kotlinx.datetime.LocalDate
 
 data class MedicationPlanScheduleDetailScreenPreview(
     val name: String,
-    val dosageInstruction: MedicationPlanDosageInstruction,
-    val state: UiState<MedicationSchedule>,
+    val dosageInstruction: MedicationPlanDosageInstructionErpModel,
+    val state: UiState<MedicationScheduleErpModel>,
     val currentDate: LocalDate = medicationPlanPreviewCurrentTime.toLocalDate(),
     val isIgnoringBatteryOptimizations: Boolean = true
 )
@@ -52,44 +52,44 @@ class MedicationPlanScheduleDetailScreenPreviewParameter : PreviewParameterProvi
             MedicationPlanScheduleDetailScreenPreview(
                 name = "error state",
                 state = UiState.Error(Throwable("test error")),
-                dosageInstruction = MedicationPlanDosageInstruction.Empty,
+                dosageInstruction = MedicationPlanDosageInstructionErpModel.Empty,
                 isIgnoringBatteryOptimizations = false
             ),
             MedicationPlanScheduleDetailScreenPreview(
                 name = "scanned prescription schedule inactive",
-                dosageInstruction = MedicationPlanDosageInstruction.Empty,
+                dosageInstruction = MedicationPlanDosageInstructionErpModel.Empty,
                 state = UiState.Data(SCANNED_PRESCRIPTION_SCHEDULE_INACTIVE)
             ),
             MedicationPlanScheduleDetailScreenPreview(
                 name = "scanned prescription schedule active",
-                dosageInstruction = MedicationPlanDosageInstruction.Empty,
+                dosageInstruction = MedicationPlanDosageInstructionErpModel.Empty,
                 state = UiState.Data(SCANNED_PRESCRIPTION_SCHEDULE_ACTIVE_ENDLESS)
             ),
             MedicationPlanScheduleDetailScreenPreview(
                 name = "synced prescription schedule inactive",
                 state = UiState.Data(SYNCED_PRESCRIPTION_SCHEDULE_INACTIVE),
-                dosageInstruction = MedicationPlanDosageInstruction.External,
+                dosageInstruction = MedicationPlanDosageInstructionErpModel.External,
                 isIgnoringBatteryOptimizations = false
             ),
             MedicationPlanScheduleDetailScreenPreview(
                 name = "synced prescription schedule active",
                 state = UiState.Data(SYNCED_PRESCRIPTION_SCHEDULE_ACTIVE_EVERY_TWO_DAYS),
-                dosageInstruction = MedicationPlanDosageInstruction.External,
+                dosageInstruction = MedicationPlanDosageInstructionErpModel.External,
                 isIgnoringBatteryOptimizations = false
             ),
             MedicationPlanScheduleDetailScreenPreview(
                 name = "synced prescription structured schedule active",
-                dosageInstruction = MedicationPlanDosageInstruction.FreeText("dosage"),
+                dosageInstruction = MedicationPlanDosageInstructionErpModel.FreeText("dosage"),
                 state = UiState.Data(SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_INACTIVE)
             ),
             MedicationPlanScheduleDetailScreenPreview(
                 name = "synced prescription structured schedule active and personalized",
-                dosageInstruction = MedicationPlanDosageInstruction.FreeText("dosage"),
+                dosageInstruction = MedicationPlanDosageInstructionErpModel.FreeText("dosage"),
                 state = UiState.Data(SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_PERSONALIZED)
             ),
             MedicationPlanScheduleDetailScreenPreview(
                 name = "synced prescription structured schedule active endless",
-                dosageInstruction = MedicationPlanDosageInstruction.Empty,
+                dosageInstruction = MedicationPlanDosageInstructionErpModel.Empty,
                 state = UiState.Data(SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS)
             )
         )

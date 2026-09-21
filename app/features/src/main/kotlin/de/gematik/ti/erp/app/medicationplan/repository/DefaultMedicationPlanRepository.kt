@@ -22,12 +22,13 @@
 
 package de.gematik.ti.erp.app.medicationplan.repository
 
+import de.gematik.ti.erp.app.database.api.MedicationPlanLocalDataSource
 import de.gematik.ti.erp.app.medicationplan.alarm.MedicationPlanNotificationScheduler
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDuration
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleInterval
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDurationErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleIntervalErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosageErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -37,11 +38,11 @@ class DefaultMedicationPlanRepository(
     private val localDataSource: MedicationPlanLocalDataSource,
     private val scheduler: MedicationPlanNotificationScheduler
 ) : MedicationPlanRepository {
-    override fun getMedicationSchedule(taskId: String): Flow<MedicationSchedule?> {
+    override fun getMedicationSchedule(taskId: String): Flow<MedicationScheduleErpModel?> {
         return localDataSource.getMedicationSchedule(taskId = taskId)
     }
 
-    override fun getAllMedicationSchedules(): Flow<List<MedicationSchedule>> {
+    override fun getAllMedicationSchedules(): Flow<List<MedicationScheduleErpModel>> {
         return localDataSource.getAllMedicationSchedules()
     }
 
@@ -60,31 +61,40 @@ class DefaultMedicationPlanRepository(
         }
     }
 
-    override suspend fun setOrCreateActiveMedicationSchedule(medicationSchedule: MedicationSchedule) {
-        return localDataSource.setOrCreateActiveMedicationSchedule(medicationSchedule = medicationSchedule)
+    override suspend fun setOrCreateActiveMedicationSchedule(medicationScheduleErpModel: MedicationScheduleErpModel) {
+        return localDataSource.setOrCreateActiveMedicationSchedule(medicationScheduleErpModel = medicationScheduleErpModel)
     }
 
     override suspend fun deactivateMedicationSchedule(taskId: String) {
         return localDataSource.deactivateMedicationSchedule(taskId = taskId)
     }
 
-    override suspend fun setMedicationScheduleDuration(taskId: String, medicationScheduleDuration: MedicationScheduleDuration) {
-        return localDataSource.setMedicationScheduleDuration(taskId = taskId, medicationScheduleDuration = medicationScheduleDuration)
+    override suspend fun setMedicationScheduleDuration(taskId: String, medicationScheduleDurationErpModel: MedicationScheduleDurationErpModel) {
+        return localDataSource.setMedicationScheduleDuration(taskId = taskId, medicationScheduleDurationErpModel = medicationScheduleDurationErpModel)
     }
 
-    override suspend fun setMedicationScheduleInterval(taskId: String, medicationScheduleInterval: MedicationScheduleInterval) {
-        return localDataSource.setMedicationScheduleInterval(taskId = taskId, medicationScheduleInterval = medicationScheduleInterval)
+    override suspend fun setMedicationScheduleInterval(taskId: String, medicationScheduleIntervalErpModel: MedicationScheduleIntervalErpModel) {
+        return localDataSource.setMedicationScheduleInterval(taskId = taskId, medicationScheduleIntervalErpModel = medicationScheduleIntervalErpModel)
     }
 
-    override suspend fun setOrCreateMedicationScheduleNotification(taskId: String, medicationScheduleNotification: MedicationScheduleNotification) {
-        return localDataSource.setOrCreateMedicationScheduleNotification(taskId = taskId, medicationScheduleNotification = medicationScheduleNotification)
+    override suspend fun setOrCreateMedicationScheduleNotification(
+        taskId: String,
+        medicationScheduleNotificationErpModel: MedicationScheduleNotificationErpModel
+    ) {
+        return localDataSource.setOrCreateMedicationScheduleNotification(
+            taskId = taskId,
+            medicationScheduleNotificationErpModel = medicationScheduleNotificationErpModel
+        )
     }
 
     override suspend fun deleteMedicationScheduleNotification(medicationScheduleNotificationId: String) {
         return localDataSource.deleteMedicationScheduleNotification(medicationScheduleNotificationId = medicationScheduleNotificationId)
     }
 
-    override suspend fun setMedicationScheduleNotificationDosage(medicationScheduleNotificationId: String, dosage: MedicationScheduleNotificationDosage) {
+    override suspend fun setMedicationScheduleNotificationDosage(
+        medicationScheduleNotificationId: String,
+        dosage: MedicationScheduleNotificationDosageErpModel
+    ) {
         return localDataSource.setMedicationScheduleNotificationDosage(medicationScheduleNotificationId = medicationScheduleNotificationId, dosage = dosage)
     }
 

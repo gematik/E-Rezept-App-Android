@@ -22,10 +22,10 @@
 
 package de.gematik.ti.erp.app.demomode.repository.orders
 
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
 import de.gematik.ti.erp.app.demomode.datasource.INDEX_OUT_OF_BOUNDS
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfileLinkedCommunication
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -80,8 +80,8 @@ class DemoDownloadCommunicationResource(
                                 sentOn = Clock.System.now().minus(45.minutes),
                                 orderId = UUID.randomUUID().toString(),
                                 profile = when (isCommunicationRequest) {
-                                    true -> CommunicationProfile.ErxCommunicationDispReq
-                                    false -> CommunicationProfile.ErxCommunicationReply
+                                    true -> CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq
+                                    false -> CommunicationErpModel.CommunicationProfile.ErxCommunicationReply
                                 }
                             )
                         communication to isCommunicationFetched
@@ -97,8 +97,8 @@ class DemoDownloadCommunicationResource(
                             sender = "sender",
                             sentOn = Clock.System.now().minus(3.days),
                             profile = when (isCommunicationRequest) {
-                                true -> CommunicationProfile.ErxCommunicationDispReq
-                                false -> CommunicationProfile.ErxCommunicationReply
+                                true -> CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq
+                                false -> CommunicationErpModel.CommunicationProfile.ErxCommunicationReply
                             }
                         )
                         communication to isCommunicationFetched

@@ -34,23 +34,23 @@ import retrofit2.Response
  * - ServiceFilter: for service types (Handverkauf, Botendienst, Versand)
  * - LocationFilter: for location-based search (latitude, longitude, radius)
  * - TextFilter: for additional user-provided search text (properly sanitized)
+ * - onSiteFeatureCodes: on-site feature codes converted to German text keywords (e.g., "abholautomat", "barrierefrei")
  */
 suspend fun FhirVzdService.searchPharmacyWithLocation(
     serviceFilter: ServiceFilter?,
     locationFilter: LocationFilter? = null,
     textFilter: TextFilter? = null,
-    characteristics: List<String> = emptyList(),
+    onSiteFeatureCodes: Set<String> = emptySet(),
     count: Int = 100
 ): Response<JsonElement> {
     val additionalText = textFilter?.toSanitizedSearchText()
-    val textSearch = serviceFilter?.buildTextSearch(additionalText) ?: additionalText
+    val textSearch = serviceFilter?.buildTextSearch(additionalText, onSiteFeatureCodes) ?: additionalText
 
     return searchNearPharmacy(
         textSearch = textSearch,
         longitude = locationFilter?.longitude,
         latitude = locationFilter?.latitude,
         distance = locationFilter?.radius?.toInt(),
-        characteristics = characteristics,
         count = count
     )
 }

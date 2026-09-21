@@ -91,8 +91,9 @@ class DeviceCheckLoadingStartScreen(
         if (BuildConfigExtension.isInternalDebug) {
             SkipOnBoardingButton {
                 isSkipped = true // Prevents LaunchedEffect from continuing
-                onboardingController.createProfileOnSkipOnboarding()
-                navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                onboardingController.createProfileOnSkipOnboarding {
+                    navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                }
             }
         }
 

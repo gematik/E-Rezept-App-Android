@@ -34,10 +34,6 @@ import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.PreviewMapCoordinatesRepository
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.PreviewMapCoordinatesDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.DefaultFavouritePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.DefaultOftenUsePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.FavouritePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.OftenUsedPharmacyLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacyRemoteSelectorLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.DefaultPharmacyRemoteDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.PharmacyRemoteDataSource
@@ -75,7 +71,7 @@ val pharmacyModule = DI.Module("pharmacyModule", allowSilentOverride = true) {
         )
     }
     bindProvider { GetShippingContactValidationUseCase() }
-    bindProvider { PharmacyMapsUseCase(instance(), instance(), instance()) }
+    bindProvider { PharmacyMapsUseCase(instance(), instance()) }
     bindProvider { PharmacySearchUseCase(instance(), instance()) }
     bindProvider { GetPharmaciesUseCase(instance()) }
     bindProvider { GetOrderStateUseCase(instance(), instance(), instance()) }
@@ -102,15 +98,12 @@ val pharmacyRepositoryModule = DI.Module("pharmacyRepositoryModule", allowSilent
     // data-sources
     bindProvider<PharmacyRemoteDataSource> { DefaultPharmacyRemoteDataSource(instance()) }
     bindProvider<RedeemLocalDataSource> { DefaultRedeemLocalDataSource(instance()) }
-    bindProvider<FavouritePharmacyLocalDataSource> { DefaultFavouritePharmacyLocalDataSource(instance()) }
-    bindProvider<OftenUsedPharmacyLocalDataSource> { DefaultOftenUsePharmacyLocalDataSource(instance()) }
     bindProvider { PharmacyRemoteSelectorLocalDataSource(instance(), BuildConfigExtension.isReleaseMode) }
 
     // repos
     bindProvider { PreviewMapCoordinatesRepository(instance()) }
     bindProvider<PharmacyRepository> {
         DefaultPharmacyRepository(
-            instance(),
             instance(),
             instance(),
             instance(),

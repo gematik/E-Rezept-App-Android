@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.database.room.v2.pharmacy
 
-import de.gematik.ti.erp.app.database.api.PharmacyLocalDataSource
+import de.gematik.ti.erp.app.database.api.pharmacy.PharmacyLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.model.ContactInformationErpModel
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyAddressErpModel
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
@@ -51,33 +51,33 @@ class PharmacyLocalDataSourceV2(
 
     override fun getPharmacy(telematikId: TelematikId): Flow<PharmacyErpModel?> {
         return loadPharmacies().map { models ->
-            models.firstOrNull { it.telematikId == telematikId.value }
+            models.firstOrNull { it.telematikId == telematikId }
         }
     }
 
     override suspend fun deletePharmacy(telematikId: TelematikId) {
-        dao.deleteById(telematikId.value)
+        dao.deleteById(telematikId)
     }
 
     override suspend fun deleteFavoritePharmacy(telematikId: TelematikId) {
-        val existing = dao.getPharmacyById(telematikId.value) ?: return
+        val existing = dao.getPharmacyById(telematikId) ?: return
         if (existing.isOftenUsed) {
             // demark favorite only
             dao.upsert(existing.copy(isFavourite = false))
         } else {
             // both flags would be false -> delete
-            dao.deleteById(telematikId.value)
+            dao.deleteById(telematikId)
         }
     }
 
     override suspend fun deleteOftenUsedPharmacy(telematikId: TelematikId) {
-        val existing = dao.getPharmacyById(telematikId.value) ?: return
+        val existing = dao.getPharmacyById(telematikId) ?: return
         if (existing.isFavourite) {
             // demark often used only
             dao.upsert(existing.copy(isOftenUsed = false))
         } else {
             // both flags would be false -> delete
-            dao.deleteById(telematikId.value)
+            dao.deleteById(telematikId)
         }
     }
 

@@ -22,12 +22,12 @@
 
 package de.gematik.ti.erp.app.di.prescription
 
-import de.gematik.ti.erp.app.prescription.repository.TaskRepository
-import de.gematik.ti.erp.app.repository.prescription.MockTaskRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskSyncRepository
+import de.gematik.ti.erp.app.repository.prescription.MockTaskSyncRepository
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
-val mockTaskRepositoryModule = DI.Module("mockTaskRepositoryModule", allowSilentOverride = true) {
-    bindProvider<TaskRepository> { MockTaskRepository(instance()) }
+val mockTaskSyncRepositoryModule = DI.Module("mockTaskSyncRepositoryModule", allowSilentOverride = true) {
+    bindProvider<TaskSyncRepository> { MockTaskSyncRepository(instance()) }
 }

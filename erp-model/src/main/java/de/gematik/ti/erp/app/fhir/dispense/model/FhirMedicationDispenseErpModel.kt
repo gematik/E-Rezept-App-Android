@@ -37,8 +37,10 @@ data class FhirMedicationDispenseErpModel(
     val handedOver: FhirTemporal?,
     val dispensedMedication: List<DispensedMedicationErpModel> = emptyList(),
     val dispensedDeviceRequest: FhirDispenseDeviceRequestErpModel?,
+    // eu-specific
     val pharmacyName: String? = null,
-    val pharmacyAddress: FhirTaskKbvAddressErpModel? = null
+    val pharmacyAddress: FhirTaskKbvAddressErpModel? = null,
+    val euCountryCode: String? = null
 ) {
     // alias to make getting the information easier
     val kvnrNumber = patientId

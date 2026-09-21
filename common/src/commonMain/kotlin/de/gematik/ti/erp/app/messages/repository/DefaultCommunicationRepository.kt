@@ -24,19 +24,27 @@ package de.gematik.ti.erp.app.messages.repository
 
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.ResourcePaging
-import de.gematik.ti.erp.app.diga.local.DigaLocalDataSource
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.database.api.task.TaskLocalDataSource
+import de.gematik.ti.erp.app.fhir.FhirCommunicationBundleErpModel
+import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.communication.model.FhirCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationParser
-import de.gematik.ti.erp.app.messages.model.Communication
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionLocalDataSource
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRemoteDataSource
+import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.PharmacyRemoteDataSource
+import de.gematik.ti.erp.app.prescription.remote.PrescriptionRemoteDataSource
+import de.gematik.ti.erp.app.database.api.CommunicationLocalDataSource as DbCommunicationLocalDataSource
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
@@ -45,11 +53,12 @@ private const val COMMUNICATION_MAX_PAGE_SIZE = 50
 @Suppress("TooManyFunctions")
 class DefaultCommunicationRepository(
     private val taskRemoteDataSource: PrescriptionRemoteDataSource,
-    private val taskLocalDataSource: PrescriptionLocalDataSource,
-    private val communicationLocalDataSource: CommunicationLocalDataSource,
-    private val digaLocalDataSource: DigaLocalDataSource,
-    private val cacheLocalDataSource: PharmacyCacheLocalDataSource,
+    private val pharmacyRemoteDataSource: PharmacyRemoteDataSource,
+    private val taskLocalDataSource: TaskLocalDataSource,
+    private val communicationLocalDataSource: DbCommunicationLocalDataSource,
     private val communicationParser: CommunicationParser,
+    private val pharmacyBundleParser: PharmacyBundleParser,
+    private val profiles: ProfileRepository,
     dispatchers: DispatchProvider
 ) : ResourcePaging<Unit>(dispatchers, COMMUNICATION_MAX_PAGE_SIZE), CommunicationRepository {
 
@@ -73,33 +82,39 @@ class DefaultCommunicationRepository(
                     return@mapCatching 0
                 }
 
-            val prescriptionMessages = communicationErpModel.messages.filter { !it.isDiga }
+            val messages = communicationErpModel.messages
+            val prescriptionMessages = messages.filter { !it.isDiga }
+            val digaMessages = messages.filter { it.isDiga }
 
-            val digaMessages = communicationErpModel.messages.filter { it.isDiga }
             updateDigaMessageTimestamps(digaMessages)
-
-            val totalMessages = prescriptionMessages.size
-
-            if (totalMessages > 0) {
-                taskLocalDataSource.saveCommunications(
-                    communicationErpModel.copy(
-                        messages = prescriptionMessages,
-                        total = totalMessages
-                    )
-                )
-            } else {
-                0
-            }
+            val messagesWithPharmacyNames = updatePharmacyNames(prescriptionMessages)
+            savePrescriptionMessages(communicationErpModel, messagesWithPharmacyNames)
         }.map { savedCount ->
             ResourceResult(savedCount, Unit)
         }
+
+    private suspend fun savePrescriptionMessages(
+        bundle: FhirCommunicationBundleErpModel,
+        prescriptionMessages: List<FhirCommunicationEntryErpModel>
+    ): Int {
+        return if (prescriptionMessages.isNotEmpty()) {
+            communicationLocalDataSource.saveCommunications(
+                bundle.copy(
+                    messages = prescriptionMessages,
+                    total = prescriptionMessages.size
+                )
+            )
+        } else {
+            0
+        }
+    }
 
     private suspend fun updateDigaMessageTimestamps(
         messages: List<FhirCommunicationEntryErpModel>
     ) {
         messages.forEach { message ->
             message.taskId?.let {
-                digaLocalDataSource.updateDigaCommunicationSent(
+                taskLocalDataSource.updateDigaCommunicationSent(
                     taskId = it,
                     time = message.sent?.toInstant() ?: Clock.System.now()
                 )
@@ -107,34 +122,76 @@ class DefaultCommunicationRepository(
         }
     }
 
+    private suspend fun updatePharmacyNames(
+        messages: List<FhirCommunicationEntryErpModel>
+    ): List<FhirCommunicationEntryErpModel> {
+        messages.forEach { message ->
+
+            val telematikId = if (message is FhirReplyCommunicationEntryErpModel) message.sender?.identifier else message.recipient?.identifier
+            if (telematikId != null) {
+                pharmacyRemoteDataSource.searchPharmacyByTelematikId(telematikId) {
+                    // ignore unauthorized here, as we are in a background sync
+                }.onSuccess { json ->
+                    val pharmacyCollection = pharmacyBundleParser.extract(json) as FhirPharmacyErpModelCollection
+                    message.pharmacyName = pharmacyCollection.entries.firstOrNull()?.name
+                }
+            }
+        }
+        return messages
+    }
+
     override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =
         communicationLocalDataSource.latestCommunicationTimestamp(profileId).first()
 
-    override fun loadPharmacies(): Flow<List<CachedPharmacy>> =
-        cacheLocalDataSource.loadPharmacies()
+    override fun loadSyncedByTaskId(taskId: String): Flow<TaskErpModel.Synced.Prescription?> =
+        taskLocalDataSource.loadTaskByTaskId(taskId).map { it as? TaskErpModel.Synced.Prescription }
 
-    override fun loadSyncedByTaskId(taskId: String): Flow<SyncedTaskData.SyncedTask?> =
-        taskLocalDataSource.loadSyncedTaskByTaskId(taskId)
+    override fun loadScannedByTaskId(taskId: String): Flow<TaskErpModel.Scanned?> =
+        taskLocalDataSource.loadTaskByTaskId(taskId).map { it as? TaskErpModel.Scanned }
 
-    override fun loadScannedByTaskId(taskId: String): Flow<ScannedTaskData.ScannedTask?> =
-        taskLocalDataSource.loadScannedTaskByTaskId(taskId)
-
-    override fun loadDispReqCommunications(orderId: String): Flow<List<Communication>> =
+    override fun loadDispReqCommunications(orderId: String): Flow<List<CommunicationErpModel>> =
         communicationLocalDataSource.loadDispReqCommunications(orderId)
 
-    override fun loadDispReqCommunicationsByProfileId(profileId: ProfileIdentifier): Flow<List<Communication>> =
+    override fun loadDispReqCommunicationsByProfileId(profileId: ProfileIdentifier): Flow<List<CommunicationErpModel>> =
         communicationLocalDataSource.loadDispReqCommunicationsByProfileId(profileId)
 
-    override fun loadRepliedCommunications(taskIds: List<String>, telematikId: String): Flow<List<Communication>> =
+    override fun loadDispReqCommunicationsByTaskId(taskId: String): Flow<List<CommunicationErpModel>> =
+        communicationLocalDataSource.loadDispReqCommunicationsByTaskId(taskId)
+
+    override fun loadRepliedCommunications(taskIds: List<String>, telematikId: String): Flow<List<CommunicationErpModel>> =
         communicationLocalDataSource.loadRepliedCommunications(
             taskIds = taskIds,
             telematikId = telematikId
         )
 
-    override fun loadAllRepliedCommunications(taskIds: List<String>): Flow<List<Communication>> =
-        communicationLocalDataSource.loadAllRepliedCommunications(
-            taskIds = taskIds
-        )
+    override fun loadRepliedCommunications(orderId: String): Flow<List<CommunicationErpModel>> =
+        communicationLocalDataSource.loadRepliedCommunications(orderId = orderId)
+
+    override fun loadRepliedCommunications(orderId: String, telematikId: String): Flow<List<CommunicationErpModel>> =
+        communicationLocalDataSource.loadRepliedCommunications(orderId = orderId, telematikId = telematikId)
+
+    override fun loadRepliedCommunicationsByProfileId(profileId: ProfileIdentifier): Flow<List<CommunicationErpModel>> =
+        communicationLocalDataSource.loadRepliedCommunicationsByProfileId(profileId = profileId)
+
+    override fun loadAllRepliedCommunications(taskIds: List<String>): Flow<List<CommunicationErpModel>> =
+        communicationLocalDataSource.loadAllRepliedCommunications(taskIds)
+
+    override fun getAllUnreadMessages(): Flow<List<CommunicationErpModel>> =
+        communicationLocalDataSource.getAllUnreadMessages()
+
+    override fun unreadMessagesCount(): Flow<Long> =
+        communicationLocalDataSource.unreadMessagesCount()
+
+    override suspend fun setCommunicationStatus(communicationId: String, consumed: Boolean) {
+        communicationLocalDataSource.setCommunicationStatus(communicationId, consumed)
+    }
+
+    override suspend fun updatePharmacyName(communicationId: String, pharmacyName: String) {
+        communicationLocalDataSource.updatePharmacyName(communicationId, pharmacyName)
+    }
+
+    override fun taskIdsByOrder(orderId: String): Flow<List<String>> =
+        communicationLocalDataSource.taskIdsByOrder(orderId)
 
     override fun hasUnreadDispenseMessage(taskIds: List<String>, orderId: String): Flow<Boolean> =
         communicationLocalDataSource.hasUnreadDispenseMessage(taskIds, orderId)
@@ -142,28 +199,26 @@ class DefaultCommunicationRepository(
     override fun hasUnreadDispenseMessage(profileId: ProfileIdentifier): Flow<Boolean> =
         communicationLocalDataSource.hasUnreadDispenseMessage(profileId)
 
-    override fun unreadMessagesCount(): Flow<Long> =
-        communicationLocalDataSource.unreadMessagesCount()
-
-    override fun getAllUnreadMessages(): Flow<List<Communication>> =
-        communicationLocalDataSource.getAllUnreadMessages()
-
     override fun unreadPrescriptionsInAllOrders(profileId: ProfileIdentifier): Flow<Long> =
         communicationLocalDataSource.unreadPrescriptionsInAllOrders(profileId)
 
-    override fun taskIdsByOrder(orderId: String): Flow<List<String>> =
-        communicationLocalDataSource.taskIdsByOrder(orderId)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun profileByOrderId(orderId: String): Flow<ProfileErpModel> =
+        communicationLocalDataSource.getProfileIdByOrderId(orderId).flatMapLatest { pid ->
+            if (pid == null) kotlinx.coroutines.flow.emptyFlow()
+            else profiles.getProfileById(pid)
+        }
 
-    override fun profileByOrderId(orderId: String): Flow<ProfilesData.Profile> {
-        return communicationLocalDataSource.getProfileByOrderId(orderId)
-    }
-
-    override suspend fun setCommunicationStatus(communicationId: String, consumed: Boolean) {
-        communicationLocalDataSource.setCommunicationStatus(communicationId, consumed)
-    }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun profileByTaskId(taskId: String): Flow<ProfileErpModel> =
+        communicationLocalDataSource.getProfileIdByTaskId(taskId).flatMapLatest { pid ->
+            if (pid == null) kotlinx.coroutines.flow.emptyFlow()
+            else profiles.getProfileById(pid)
+        }
 
     override suspend fun saveLocalCommunication(taskId: String, pharmacyId: String, transactionId: String) {
-        taskLocalDataSource.saveLocalCommunication(taskId, pharmacyId, transactionId)
+        // Persist via communication DB API (bridged V1/V2) so it works for Realm and Room
+        communicationLocalDataSource.saveLocalCommunication(taskId, pharmacyId, transactionId)
     }
 
     override suspend fun hasUnreadRepliedMessages(taskIds: List<String>, telematikId: String): Flow<Boolean> =

@@ -31,4 +31,5 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(libs.test.junit)
     testImplementation(libs.quality.ktlint.test)
+    testImplementation(project(":"))
 }

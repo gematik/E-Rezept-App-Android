@@ -23,13 +23,12 @@
 package de.gematik.ti.erp.app.medicationplan.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleInterval
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleIntervalErpModel
 import de.gematik.ti.erp.app.medicationplan.model.ProfileWithSchedules
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.PROFILE1
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.PROFILE2
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_PERSONALIZED
-import de.gematik.ti.erp.app.profiles.usecase.mapper.toModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 
 data class MedicationSuccessScreenPreview(
@@ -54,7 +53,7 @@ class MedicationSuccessScreenPreviewParameter : PreviewParameterProvider<Medicat
                 state = UiState.Data(
                     listOf(
                         ProfileWithSchedules(
-                            PROFILE1.toModel(),
+                            PROFILE1,
                             medicationSchedules = listOf(
                                 SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS
                             )
@@ -67,17 +66,17 @@ class MedicationSuccessScreenPreviewParameter : PreviewParameterProvider<Medicat
                 state = UiState.Data(
                     listOf(
                         ProfileWithSchedules(
-                            PROFILE1.toModel(),
+                            PROFILE1,
                             medicationSchedules = listOf(
                                 SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS
                             )
                         ),
                         ProfileWithSchedules(
-                            PROFILE2.toModel(),
+                            PROFILE2,
                             medicationSchedules = listOf(
                                 @Suppress("MagicNumber")
                                 SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_PERSONALIZED.copy(
-                                    interval = MedicationScheduleInterval.Daily
+                                    interval = MedicationScheduleIntervalErpModel.Daily
                                 )
                             )
                         )

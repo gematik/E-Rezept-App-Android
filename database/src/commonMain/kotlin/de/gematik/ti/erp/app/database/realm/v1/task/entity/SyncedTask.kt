@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.database.realm.v1.task.entity
 
 import de.gematik.ti.erp.app.database.realm.utils.Cascading
 import de.gematik.ti.erp.app.database.realm.utils.enumName
-import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.profile.ProfileEntityV1
 import io.realm.kotlin.Deleteable
 import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.types.RealmInstant
@@ -70,6 +70,7 @@ class SyncedTaskEntityV1 : TaskEntity, RealmObject, Cascading {
     var medicationDispenses: RealmList<MedicationDispenseEntityV1> = realmListOf() // Code amd deepLink
 
     var communications: RealmList<CommunicationEntityV1> = realmListOf()
+    var medication: MedicationEntityV1? = null
 
     // back reference
     var parent: ProfileEntityV1? = null
@@ -88,5 +89,6 @@ class SyncedTaskEntityV1 : TaskEntity, RealmObject, Cascading {
             deviceRequest?.let { yield(it) }
             yield(medicationDispenses)
             yield(communications)
+            medication?.let { yield(it) }
         }
 }

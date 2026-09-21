@@ -56,9 +56,7 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.PersonOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -76,9 +74,13 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
-import de.gematik.ti.erp.app.profiles.presentation.rememberProfileController
 import de.gematik.ti.erp.app.profiles.presentation.rememberProfileEditPictureController
 import de.gematik.ti.erp.app.profiles.ui.components.ChooseAvatar
 import de.gematik.ti.erp.app.profiles.ui.components.ProfileBackgroundColorComponent
@@ -87,10 +89,11 @@ import de.gematik.ti.erp.app.profiles.ui.components.ProfileImageSelectorDialog
 import de.gematik.ti.erp.app.profiles.ui.components.color
 import de.gematik.ti.erp.app.profiles.ui.components.profileColor
 import de.gematik.ti.erp.app.profiles.ui.components.toDescription
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.Center
@@ -105,7 +108,6 @@ import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.circularBorder
 
-// TODO: this is duplicated from EditProfilePicture.kt, needs to be combined into one view
 class ProfileEditPictureScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry
@@ -116,7 +118,6 @@ class ProfileEditPictureScreen(
         val profileId =
             remember { requireNotNull(navBackStackEntry.arguments?.getString(ProfileRoutes.PROFILE_NAV_PROFILE_ID)) }
         val imageTypeDialogEvent by lazy { ComposableEvent<Unit>() }
-        val profilesController = rememberProfileController()
         val profileEditPictureController = rememberProfileEditPictureController(profileId)
         val profileData by profileEditPictureController.profile.collectAsStateWithLifecycle()
 
@@ -154,7 +155,6 @@ class ProfileEditPictureScreen(
             },
             onContent = { selectedProfile ->
                 val listState = rememberLazyListState()
-                var editableProfile by remember(selectedProfile.image) { mutableStateOf(selectedProfile) }
                 Scaffold(
                     modifier = Modifier.imePadding(),
                     topBar = {
@@ -177,35 +177,29 @@ class ProfileEditPictureScreen(
                     ) {
                         item {
                             SpacerMedium()
-                            ProfileImage(editableProfile) {
-                                editableProfile = editableProfile.copy(
-                                    avatar = ProfilesData.Avatar.PersonalizedImage,
-                                    image = null
-                                )
-                                profilesController.clearPersonalizedImage(selectedProfile.id)
+                            ProfileImage(selectedProfile) {
+                                profileEditPictureController.clearPersonalizedImage()
                             }
                         }
                         item {
                             SpacerXXLarge()
                             AvatarPicker(
-                                profile = editableProfile,
-                                currentAvatar = editableProfile.avatar,
+                                profile = selectedProfile,
+                                currentAvatar = selectedProfile.profileImageData.avatar,
                                 onPickPersonalizedImage = {
                                     imageTypeDialogEvent.trigger()
                                 },
                                 onSelectAvatar = {
-                                    editableProfile = editableProfile.copy(avatar = it)
-                                    profilesController.saveAvatarFigure(selectedProfile.id, it)
+                                    profileEditPictureController.updateAvatar(it)
                                 }
                             )
                         }
                         item {
                             CenterColumn {
                                 ProfileBackgroundColorComponent(
-                                    color = editableProfile.color
+                                    color = selectedProfile.profileImageData.color
                                 ) {
-                                    editableProfile = editableProfile.copy(color = it)
-                                    profilesController.updateProfileColor(selectedProfile, it)
+                                    profileEditPictureController.updateProfileColor(it)
                                 }
                             }
                         }
@@ -218,10 +212,10 @@ class ProfileEditPictureScreen(
 
 @Composable
 fun AvatarPicker(
-    profile: ProfilesUseCaseData.Profile,
-    currentAvatar: ProfilesData.Avatar?,
+    profile: ProfileErpModel,
+    currentAvatar: Avatar?,
     onPickPersonalizedImage: () -> Unit,
-    onSelectAvatar: (ProfilesData.Avatar) -> Unit
+    onSelectAvatar: (Avatar) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -229,16 +223,16 @@ fun AvatarPicker(
         state = listState,
         horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)
     ) {
-        ProfilesData.Avatar.entries.forEachIndexed { index, figure ->
+        Avatar.entries.forEachIndexed { index, figure ->
             item {
                 AvatarSelector(
                     modifier = when (index) {
-                        ProfilesData.Avatar.lastIndex -> Modifier.padding(end = PaddingDefaults.Small)
-                        ProfilesData.Avatar.firstIndex -> Modifier.padding(start = PaddingDefaults.Small)
+                        Avatar.entries.lastIndex -> Modifier.padding(end = PaddingDefaults.Small)
+                        0 -> Modifier.padding(start = PaddingDefaults.Small)
                         else -> Modifier
                     },
                     figure = figure,
-                    profile = profile.copy(image = null),
+                    profileImageData = profile.profileImageData.copy(image = null),
                     selected = figure == currentAvatar,
                     onPickPersonalizedImage = onPickPersonalizedImage,
                     onSelectAvatar = onSelectAvatar
@@ -251,13 +245,13 @@ fun AvatarPicker(
 @Composable
 private fun AvatarSelector(
     modifier: Modifier = Modifier,
-    profile: ProfilesUseCaseData.Profile,
-    figure: ProfilesData.Avatar,
+    profileImageData: ProfileImageDataErpModel,
+    figure: Avatar,
     selected: Boolean,
     onPickPersonalizedImage: () -> Unit,
-    onSelectAvatar: (ProfilesData.Avatar) -> Unit
+    onSelectAvatar: (Avatar) -> Unit
 ) {
-    val selectedColor = profileColor(profileColorNames = profile.color)
+    val selectedColor = profileColor(profileColorNames = profileImageData.color)
     val avatarDescription = figure.toDescription()
     val selectedDescription = stringResource(R.string.active_description)
     val notSelectedDescription = stringResource(R.string.inactive_description)
@@ -277,7 +271,7 @@ private fun AvatarSelector(
             .clickable(
                 onClickLabel = onClickDescription,
                 onClick = {
-                    if (figure == ProfilesData.Avatar.PersonalizedImage) {
+                    if (figure == Avatar.PersonalizedImage) {
                         onPickPersonalizedImage()
                         onSelectAvatar(figure)
                     }
@@ -287,7 +281,7 @@ private fun AvatarSelector(
         shape = CircleShape,
         border = if (selected) {
             BorderStroke(SizeDefaults.fivefoldHalf, color = AppTheme.colors.primary700)
-        } else if (figure != ProfilesData.Avatar.PersonalizedImage) {
+        } else if (figure != Avatar.PersonalizedImage) {
             BorderStroke(SizeDefaults.eighth, color = selectedColor.borderColor)
         } else {
             null
@@ -298,7 +292,7 @@ private fun AvatarSelector(
                 .testTag(TestTag.Profile.EditProfileIcon.AvatarSelectorRow)
                 .background(
                     color = when (figure) {
-                        ProfilesData.Avatar.PersonalizedImage -> AppTheme.colors.neutral100
+                        Avatar.PersonalizedImage -> AppTheme.colors.neutral100
                         else -> AppTheme.colors.neutral025
                     }
                 ),
@@ -310,8 +304,8 @@ private fun AvatarSelector(
                 emptyIcon = Icons.Rounded.AddAPhoto,
                 modifier = Modifier
                     .size(SizeDefaults.triple),
-                image = profile.image,
-                profileColor = profile.color.color(),
+                image = profileImageData.image,
+                profileColor = profileImageData.color.color(),
                 avatar = figure
             )
         }
@@ -321,8 +315,8 @@ private fun AvatarSelector(
 @Composable
 fun ColorPicker(
     modifier: Modifier = Modifier,
-    profileColorName: ProfilesData.ProfileColorNames,
-    onSelectProfileColor: (ProfilesData.ProfileColorNames) -> Unit
+    profileColorName: ProfileColorNames,
+    onSelectProfileColor: (ProfileColorNames) -> Unit
 ) {
     val currentSelectedColors = profileColor(profileColorNames = profileColorName)
 
@@ -335,24 +329,24 @@ fun ColorPicker(
             horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium),
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
-            ProfilesData.ProfileColorNames.entries.forEach {
+            ProfileColorNames.entries.forEach {
                 val currentValueColors = profileColor(profileColorNames = it)
                 ColorSelector(
                     modifier = Modifier.testTag(
                         when (it) {
-                            ProfilesData.ProfileColorNames.SPRING_GRAY ->
+                            ProfileColorNames.SPRING_GRAY ->
                                 TestTag.Profile.EditProfileIcon.ColorSelectorSpringGrayButton
 
-                            ProfilesData.ProfileColorNames.SUN_DEW ->
+                            ProfileColorNames.SUN_DEW ->
                                 TestTag.Profile.EditProfileIcon.ColorSelectorSunDewButton
 
-                            ProfilesData.ProfileColorNames.PINK ->
+                            ProfileColorNames.PINK ->
                                 TestTag.Profile.EditProfileIcon.ColorSelectorPinkButton
 
-                            ProfilesData.ProfileColorNames.TREE ->
+                            ProfileColorNames.TREE ->
                                 TestTag.Profile.EditProfileIcon.ColorSelectorTreeButton
 
-                            ProfilesData.ProfileColorNames.BLUE_MOON ->
+                            ProfileColorNames.BLUE_MOON ->
                                 TestTag.Profile.EditProfileIcon.ColorSelectorBlueMoonButton
                         }
                     ),
@@ -374,16 +368,16 @@ fun ColorPicker(
 }
 
 @Composable
-private fun createProfileColor(colors: ProfilesData.ProfileColorNames): ProfileColor {
+private fun createProfileColor(colors: ProfileColorNames): ProfileColor {
     return profileColor(profileColorNames = colors)
 }
 
 @Composable
 private fun ColorSelector(
     modifier: Modifier,
-    profileColorName: ProfilesData.ProfileColorNames,
+    profileColorName: ProfileColorNames,
     selected: Boolean,
-    onSelectColor: (ProfilesData.ProfileColorNames) -> Unit
+    onSelectColor: (ProfileColorNames) -> Unit
 ) {
     val colors = createProfileColor(profileColorName)
     val activeProfileDescription = stringResource(R.string.active_description)
@@ -424,10 +418,10 @@ private fun ColorSelector(
 
 @Composable
 fun ProfileImage(
-    selectedProfile: ProfilesUseCaseData.Profile,
+    selectedProfile: ProfileErpModel,
     onClickDeleteAvatar: () -> Unit
 ) {
-    val selectedColor = profileColor(profileColorNames = selectedProfile.color)
+    val selectedColor = profileColor(profileColorNames = selectedProfile.profileImageData.color)
     val deleteDescription = stringResource(R.string.delete_profile_picture)
     val contentDescription = stringResource(R.string.profile_picture)
     Column(
@@ -450,10 +444,10 @@ fun ProfileImage(
             ) {
                 ChooseAvatar(
                     modifier = Modifier.size(SizeDefaults.fourfoldAndHalf),
-                    image = selectedProfile.image,
-                    profileColor = selectedProfile.color.color(),
+                    image = selectedProfile.profileImageData.image,
+                    profileColor = selectedProfile.profileImageData.color.color(),
                     emptyIcon = Icons.Rounded.PersonOutline,
-                    avatar = selectedProfile.avatar
+                    avatar = selectedProfile.profileImageData.avatar
                 )
             }
             if (!(selectedProfile.hasNoImageSelected())) {
@@ -494,8 +488,8 @@ fun AvatarSelectorPreview() {
     val profile = mockProfile()
     PreviewAppTheme {
         AvatarSelector(
-            profile = profile,
-            figure = profile.avatar,
+            profileImageData = profile.profileImageData,
+            figure = profile.profileImageData.avatar,
             selected = false,
             onPickPersonalizedImage = {},
             onSelectAvatar = {}
@@ -507,9 +501,9 @@ fun AvatarSelectorPreview() {
 @Composable
 fun AvatarPickerPreview() {
     val profile = mockProfile()
-    val currentAvatar = ProfilesData.Avatar.PersonalizedImage
+    val currentAvatar = Avatar.PersonalizedImage
     val onPickPersonalizedImage: () -> Unit = {}
-    val onSelectAvatar: (ProfilesData.Avatar) -> Unit = {}
+    val onSelectAvatar: (Avatar) -> Unit = {}
     PreviewAppTheme {
         AvatarPicker(
             profile = profile,
@@ -523,8 +517,8 @@ fun AvatarPickerPreview() {
 @LightDarkPreview
 @Composable
 fun ColorPickerPreview() {
-    val profileColorName = ProfilesData.ProfileColorNames.SPRING_GRAY
-    val onSelectProfileColor: (ProfilesData.ProfileColorNames) -> Unit = {}
+    val profileColorName = ProfileColorNames.SPRING_GRAY
+    val onSelectProfileColor: (ProfileColorNames) -> Unit = {}
     PreviewAppTheme {
         ColorPicker(
             modifier = Modifier.fillMaxWidth(),
@@ -548,16 +542,28 @@ fun ProfileImagePreview() {
 }
 
 @Composable
-fun mockProfile(): ProfilesUseCaseData.Profile {
-    return ProfilesUseCaseData.Profile(
+fun mockProfile(): ProfileErpModel {
+    return ProfileErpModel(
         id = "",
         name = "",
-        avatar = ProfilesData.Avatar.BoyWithHealthCard,
-        color = ProfilesData.ProfileColorNames.PINK,
-        isActive = false,
-        insurance = de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation(),
+        profileImageData = ProfileImageDataErpModel(
+            image = null,
+            avatar = Avatar.BoyWithHealthCard,
+            color = ProfileColorNames.PINK
+        ),
+        insuranceData = ProfileInsuranceDataErpModel(
+            insurantName = "",
+            insuranceIdentifier = null,
+            insuranceName = null,
+            insuranceType = InsuranceType.NONE,
+            organizationIdentifier = null
+        ),
+        active = false,
         lastAuthenticated = null,
-        ssoTokenScope = null,
-        image = null
+        userAuthentication = UserAuthenticationErpModel.NotInitialized,
+        isNewlyCreated = false,
+        isConsentDrawerShown = true,
+        lastAuditEventSynced = null,
+        lastTaskSynced = null
     )
 }

@@ -50,7 +50,9 @@ object TaskNames {
     const val updateFdApiKeys = "updateFdApiKeys"
     const val updateApoFzdApiKeys = "updateApoFzdApiKeys"
     const val generateSchemaMigrationsFile = "generateSchemaMigrationsFile"
+    const val generateRoomSchemaMigrationsFile = "generateRoomSchemaMigrationsFile"
     const val downloadLokaliseStrings = "downloadLokaliseStrings"
     const val uploadLokaliseStrings = "uploadLokaliseStrings"
     const val downloadChangeLogs = "downloadChangeLogs"
+    const val downloadSecretsProperties = "downloadSecretsProperties"
 }

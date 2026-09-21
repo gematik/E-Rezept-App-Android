@@ -22,15 +22,15 @@
 
 package de.gematik.ti.erp.app.prescription.detail.presentation
 
+import app.cash.turbine.test
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
 import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.FeatureToggleLocalDataSource
-import de.gematik.ti.erp.app.datastore.featuretoggle.DefaultFeatureToggleRepository
 import de.gematik.ti.erp.app.fhir.model.json
-import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.medicationplan.repository.DefaultMedicationPlanRepository
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
@@ -39,8 +39,7 @@ import de.gematik.ti.erp.app.mocks.PROFILE_ID
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SCANNED_TASK
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.prescription.usecase.DeletePrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetPrescriptionByTaskIdUseCase
 import de.gematik.ti.erp.app.prescription.usecase.RedeemScannedTaskUseCase
@@ -49,12 +48,13 @@ import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
-import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.userauthentication.model.SingleSignOnTokenErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
+import de.gematik.ti.erp.app.utils.uistate.UiState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isEmptyState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isErrorState
-import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isLoadingState
 import io.mockk.MockKAnnotations
-import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -63,7 +63,7 @@ import io.mockk.spyk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -78,17 +78,20 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.rules.TestWatcher
 import java.net.HttpURLConnection
+import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.hours
 
 class PrescriptionDetailControllerTest : TestWatcher() {
 
     private val medicationPlanRepository: MedicationPlanRepository = mockk()
-    private val prescriptionRepository: PrescriptionRepository = mockk()
+    private val taskOperationsRepository: TaskOperationsRepository = mockk()
     private val invoiceRepository: InvoiceRepository = mockk()
-    private val featureToggleDataStore: DefaultFeatureToggleRepository = mockk()
     private val featureToggleLocalDataSource: FeatureToggleLocalDataSource = mockk()
     private val defaultMedicationPlanRepository: DefaultMedicationPlanRepository = mockk()
     private val profileRepository: ProfileRepository = mockk()
+    private val idpRepository: IdpRepository = mockk()
+    private val networkStatusTracker: NetworkStatusTracker = mockk()
+    private val biometricAuthenticator: BiometricAuthenticator = mockk()
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
 
@@ -100,12 +103,9 @@ class PrescriptionDetailControllerTest : TestWatcher() {
     private lateinit var getActiveProfileUseCase: GetActiveProfileUseCase
     private lateinit var loadMedicationScheduleByTaskIdUseCase: GetMedicationScheduleByTaskIdUseCase
     private lateinit var isFeatureToggleEnabledUseCase: IsFeatureToggleEnabledUseCase
-
     private lateinit var getProfilesUseCase: GetProfilesUseCase
     private lateinit var getProfileByIdUseCase: GetProfileByIdUseCase
     private lateinit var chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase
-    private lateinit var networkStatusTracker: NetworkStatusTracker
-    private lateinit var biometricAuthenticator: BiometricAuthenticator
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
@@ -113,56 +113,62 @@ class PrescriptionDetailControllerTest : TestWatcher() {
         Dispatchers.setMain(dispatcher)
         MockKAnnotations.init(this)
 
+        every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
+        every { defaultMedicationPlanRepository.getMedicationSchedule(any()) } returns flowOf(null)
+        every { featureToggleLocalDataSource.isFeatureEnabled(any()) } returns flowOf(true)
+        every { networkStatusTracker.networkStatus } returns flowOf(true)
+        every { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(null)
+        every { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf(null)
+        every { taskOperationsRepository.loadDigaTaskByTaskId(any()) } returns flowOf(null)
+
         getPrescriptionByTaskIdUseCase = GetPrescriptionByTaskIdUseCase(
-            repository = prescriptionRepository,
+            repository = taskOperationsRepository,
             dispatcher = dispatcher
         )
-        loadMedicationScheduleByTaskIdUseCase = spyk(
-            GetMedicationScheduleByTaskIdUseCase(
-                medicationPlanRepository = defaultMedicationPlanRepository
-            )
+        loadMedicationScheduleByTaskIdUseCase = GetMedicationScheduleByTaskIdUseCase(
+            medicationPlanRepository = defaultMedicationPlanRepository
         )
         redeemScannedTaskUseCase = spyk(
             RedeemScannedTaskUseCase(
-                repository = prescriptionRepository,
+                repository = taskOperationsRepository,
                 dispatcher = dispatcher
             )
         )
-        deletePrescriptionUseCase = DeletePrescriptionUseCase(
-            prescriptionRepository = prescriptionRepository,
-            invoiceRepository = invoiceRepository,
-            medicationPlanRepository = medicationPlanRepository,
-            dispatcher = dispatcher
+        deletePrescriptionUseCase = spyk(
+            DeletePrescriptionUseCase(
+                taskOperationsRepository = taskOperationsRepository,
+                invoiceRepository = invoiceRepository,
+                medicationPlanRepository = medicationPlanRepository,
+                profileRepository = profileRepository,
+                dispatcher = dispatcher
+            )
         )
         updateScannedTaskNameUseCase = spyk(
             UpdateScannedTaskNameUseCase(
-                repository = prescriptionRepository,
+                repository = taskOperationsRepository,
                 dispatcher = dispatcher
             )
         )
-        getActiveProfileUseCase = spyk(
-            GetActiveProfileUseCase(
-                repository = profileRepository,
-                dispatcher = dispatcher
-            )
+        getActiveProfileUseCase = GetActiveProfileUseCase(
+            repository = profileRepository,
+            dispatcher = dispatcher
         )
-        every { defaultMedicationPlanRepository.getMedicationSchedule(any()) } returns flowOf(null)
-
-        every { featureToggleDataStore.isFeatureEnabled(any()) } returns flowOf(true)
-
-        every { featureToggleLocalDataSource.isFeatureEnabled(any()) } returns flowOf(true)
-
-        isFeatureToggleEnabledUseCase = spyk(
-            IsFeatureToggleEnabledUseCase(
-                featureToggleLocalDataSource = featureToggleLocalDataSource
-            )
+        isFeatureToggleEnabledUseCase = IsFeatureToggleEnabledUseCase(
+            featureToggleLocalDataSource = featureToggleLocalDataSource
         )
-
-        getProfilesUseCase = mockk(relaxed = true)
-        getProfileByIdUseCase = mockk(relaxed = true)
-        chooseAuthenticationDataUseCase = mockk(relaxed = true)
-        networkStatusTracker = mockk(relaxed = true)
-        biometricAuthenticator = mockk(relaxed = true)
+        getProfilesUseCase = GetProfilesUseCase(
+            repository = profileRepository,
+            dispatcher = dispatcher
+        )
+        getProfileByIdUseCase = GetProfileByIdUseCase(
+            repository = profileRepository,
+            dispatcher = dispatcher
+        )
+        chooseAuthenticationDataUseCase = ChooseAuthenticationDataUseCase(
+            profileRepository = profileRepository,
+            idpRepository = idpRepository,
+            dispatcher = dispatcher
+        )
 
         controllerUnderTest = PrescriptionDetailController(
             getProfileByIdUseCase = getProfileByIdUseCase,
@@ -179,113 +185,101 @@ class PrescriptionDetailControllerTest : TestWatcher() {
             updateScannedTaskNameUseCase = updateScannedTaskNameUseCase,
             isFeatureToggleEnabledUseCase = isFeatureToggleEnabledUseCase
         )
-        coEvery { profileRepository.activeProfile() } returns flowOf(
-            API_MOCK_PROFILE.copy(
-                singleSignOnTokenScope = IdpData.ExternalAuthenticationToken(
-                    token = IdpData.SingleSignOnToken(
-                        token = "dummy",
-                        expiresOn = Clock.System.now().plus(2.hours),
-                        validOn = Clock.System.now().minus(1.hours)
-                    ),
-                    authenticatorId = "0001",
-                    authenticatorName = "Authenticator"
-                )
-            )
-        )
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @After
     fun tearDown() {
         Dispatchers.resetMain()
-        clearMocks(
-            invoiceRepository,
-            prescriptionRepository,
-            profileRepository
-        )
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `active profile is loaded and prescription is empty screen in error state`() {
-        every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
-        every { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
-        every { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+    fun `active profile is loaded and prescription is empty screen in error state`() = testScope.runTest {
+        every { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flow { throw Exception("Error") }
+        every { taskOperationsRepository.loadDigaTaskByTaskId(any()) } returns flowOf()
+        every { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf()
 
-        testScope.runTest {
-            advanceUntilIdle()
-            val prescription = controllerUnderTest.profilePrescription.first()
-            assert(prescription.isErrorState)
-        }
-    }
-
-    @Test
-    fun `profilePrescription is loading and screen in loading state`() {
-        every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
-        every { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
-        every { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
-
-        testScope.runTest {
-            val prescription = controllerUnderTest.profilePrescription.first()
-            assert(prescription.isLoadingState)
+        advanceUntilIdle()
+        controllerUnderTest.profilePrescription.test {
+            assertEquals(UiState.Loading(), awaitItem())
+            val state = awaitItem()
+            assertEquals(true, state.isErrorState)
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `prescription is empty and screen in empty state`() {
-        every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
-        every { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf()
-        every { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns flowOf()
+    fun `profilePrescription is loading and screen in loading state`() = testScope.runTest {
+        every { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
+        every { taskOperationsRepository.loadDigaTaskByTaskId(any()) } returns emptyFlow()
+        every { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
 
-        testScope.runTest {
-            advanceUntilIdle()
-            val prescription = controllerUnderTest.profilePrescription.first()
-            assert(prescription.isEmptyState)
+        advanceUntilIdle()
+        controllerUnderTest.profilePrescription.test {
+            assertEquals(UiState.Loading(), awaitItem())
+            val state = awaitItem()
+            assertEquals(true, state.isEmptyState)
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `a synced prescription is loaded and screen is in data state with a synced prescription`() {
-        every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
-        every { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SYNCED_TASK)
-        every { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns flowOf()
+    fun `prescription is empty and screen in empty state`() = testScope.runTest {
+        every { taskOperationsRepository.loadDigaTaskByTaskId(any()) } returns flowOf(null)
+        every { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(null)
+        every { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf(null)
 
-        testScope.runTest {
-            advanceUntilIdle()
-            val prescription = controllerUnderTest.profilePrescription.first()
-            assert(prescription.isDataState)
-            assert(prescription.data?.second is PrescriptionData.Synced)
+        advanceUntilIdle()
+        controllerUnderTest.profilePrescription.test {
+            assertEquals(UiState.Loading(), awaitItem())
+            val state = awaitItem()
+            assertEquals(true, state.isEmptyState)
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `a scanned prescription is loaded and screen is in data state with a scanned prescription`() {
-        every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
-        every { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf()
-        every { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SCANNED_TASK)
+    fun `a synced prescription is loaded and screen is in data state with a synced prescription`() = testScope.runTest {
+        every { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SYNCED_TASK)
+        every { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf()
+        every { taskOperationsRepository.loadDigaTaskByTaskId(any()) } returns flowOf()
 
-        testScope.runTest {
-            advanceUntilIdle()
-            val prescription = controllerUnderTest.profilePrescription.first()
-            assert(prescription.isDataState)
-            assert(prescription.data?.second is PrescriptionData.Scanned)
+        advanceUntilIdle()
+        controllerUnderTest.profilePrescription.test {
+            assertEquals(UiState.Loading(), awaitItem())
+            val state = awaitItem()
+            assertEquals(API_ACTIVE_SYNCED_TASK, state.data?.second)
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `redeem scanned task (false) should invoke the redeemScannedTaskUseCase and prescriptionRepository`() {
-        coEvery { prescriptionRepository.updateRedeemedOn(any(), any()) } returns Unit
-        testScope.runTest {
-            controllerUnderTest.redeemScannedTask("taskId", false)
+    fun `a scanned prescription is loaded and screen is in data state with a scanned prescription`() = testScope.runTest {
+        every { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf()
+        every { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SCANNED_TASK)
+        every { taskOperationsRepository.loadDigaTaskByTaskId(any()) } returns flowOf()
+
+        advanceUntilIdle()
+        controllerUnderTest.profilePrescription.test {
+            assertEquals(UiState.Loading(), awaitItem())
+            val state = awaitItem()
+            assertEquals(true, state.data?.second is TaskErpModel.Scanned)
         }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `redeem scanned task (false) should invoke the redeemScannedTaskUseCase and taskOperationsRepository`() = testScope.runTest {
+        coEvery { taskOperationsRepository.updateScannedTaskRedeemedOn(any(), any()) } returns Unit
+        controllerUnderTest.redeemScannedTask("taskId", false)
+        advanceUntilIdle()
+
         coVerify(exactly = 1) {
             redeemScannedTaskUseCase.invoke("taskId", false)
         }
         coVerify(exactly = 1) {
-            prescriptionRepository.updateRedeemedOn(
+            taskOperationsRepository.updateScannedTaskRedeemedOn(
                 "taskId",
                 null
             )
@@ -294,12 +288,11 @@ class PrescriptionDetailControllerTest : TestWatcher() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `redeem scanned task (true) should invoke the redeemScannedTaskUseCase`() {
-        coEvery { prescriptionRepository.updateRedeemedOn(any(), any()) } returns Unit
-        testScope.runTest {
-            advanceUntilIdle()
-            controllerUnderTest.redeemScannedTask("taskId", true)
-        }
+    fun `redeem scanned task (true) should invoke the redeemScannedTaskUseCase`() = testScope.runTest {
+        coEvery { taskOperationsRepository.updateScannedTaskRedeemedOn(any(), any()) } returns Unit
+        controllerUnderTest.redeemScannedTask("taskId", true)
+        advanceUntilIdle()
+
         coVerify(exactly = 1) {
             redeemScannedTaskUseCase.invoke("taskId", true)
         }
@@ -307,114 +300,152 @@ class PrescriptionDetailControllerTest : TestWatcher() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `Delete prescription should invoke the deletePrescriptionUseCase and remove data in the repository`() {
+    fun `Delete prescription should invoke the deletePrescriptionUseCase and remove data in the repository`() = testScope.runTest {
+        val profileWithToken = API_MOCK_PROFILE.copy(
+            userAuthentication = UserAuthenticationErpModel.External(
+                singleSignOnTokenErpModel = SingleSignOnTokenErpModel(
+                    token = "dummy",
+                    expiresOn = Clock.System.now().plus(2.hours),
+                    validOn = Clock.System.now().minus(1.hours)
+                ),
+                externalAuthenticatorId = "0001",
+                externalAuthenticatorName = "Authenticator"
+            )
+        )
+        every { profileRepository.activeProfile() } returns flowOf(profileWithToken)
+
         coEvery {
-            prescriptionRepository.deleteRemoteTaskById(any(), any())
+            taskOperationsRepository.deleteRemoteTaskById(any(), any())
         } returns Result.success(json.parseToJsonElement("{}"))
-        coEvery { prescriptionRepository.deleteLocalTaskById(any()) } returns Unit
+        coEvery { taskOperationsRepository.deleteTaskByTaskIdOnlyInLocalDatabase(any()) } returns Unit
         coEvery { medicationPlanRepository.deleteMedicationSchedule(any()) } returns Unit
         coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.success(Unit)
-        coEvery { prescriptionRepository.wasProfileEverAuthenticated(any()) } returns true
+        coEvery { profileRepository.wasProfileEverAuthenticated(any()) } returns true
 
-        testScope.runTest {
-            // Ensure activeProfile has emitted before invoking delete
-            controllerUnderTest.activeProfile.first { it.isDataState }
-            advanceUntilIdle()
-            controllerUnderTest.deletePrescription(true)
-        }
+        advanceUntilIdle()
+        controllerUnderTest.deletePrescription(true)
+        advanceUntilIdle()
+
         coVerify(exactly = 1) {
             deletePrescriptionUseCase.invoke(profileId = PROFILE_ID, taskId = "taskId", deleteLocallyOnly = false)
         }
-        coVerify(exactly = 1) { prescriptionRepository.deleteRemoteTaskById(PROFILE_ID, "taskId") }
-        coVerify(exactly = 1) { prescriptionRepository.deleteLocalTaskById("taskId") }
+        coVerify(exactly = 1) { taskOperationsRepository.deleteRemoteTaskById(PROFILE_ID, "taskId") }
+        coVerify(exactly = 1) { taskOperationsRepository.deleteTaskByTaskIdOnlyInLocalDatabase("taskId") }
         coVerify(exactly = 1) { invoiceRepository.deleteRemoteInvoiceById("taskId", PROFILE_ID) }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `Delete prescription on a unauthenticated profile should only remove local prescription`() {
+    fun `Delete prescription on a unauthenticated profile should only remove local prescription`() = testScope.runTest {
         coEvery {
-            prescriptionRepository.deleteRemoteTaskById(any(), any())
+            taskOperationsRepository.deleteRemoteTaskById(any(), any())
         } returns Result.success(json.parseToJsonElement("{}"))
-        coEvery { prescriptionRepository.deleteLocalTaskById(any()) } returns Unit
+        coEvery { taskOperationsRepository.deleteTaskByTaskIdOnlyInLocalDatabase(any()) } returns Unit
         coEvery { invoiceRepository.deleteLocalInvoiceById(any()) } returns Unit
         coEvery { medicationPlanRepository.deleteMedicationSchedule(any()) } returns Unit
         coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.success(Unit)
-        coEvery { prescriptionRepository.wasProfileEverAuthenticated(any()) } returns false
-        testScope.runTest {
-            controllerUnderTest.activeProfile.first { it.isDataState }
-            advanceUntilIdle()
-            controllerUnderTest.deletePrescription(true)
-        }
+        coEvery { profileRepository.wasProfileEverAuthenticated(any()) } returns false
+
+        advanceUntilIdle()
+        controllerUnderTest.deletePrescription(true)
+        advanceUntilIdle()
+
         coVerify(exactly = 1) {
             deletePrescriptionUseCase.invoke(profileId = PROFILE_ID, taskId = "taskId", deleteLocallyOnly = false)
         }
-        coVerify(exactly = 0) { prescriptionRepository.deleteRemoteTaskById(PROFILE_ID, "taskId") }
-        coVerify(exactly = 1) { prescriptionRepository.deleteLocalTaskById("taskId") }
+        coVerify(exactly = 0) { taskOperationsRepository.deleteRemoteTaskById(PROFILE_ID, "taskId") }
+        coVerify(exactly = 1) { taskOperationsRepository.deleteTaskByTaskIdOnlyInLocalDatabase("taskId") }
         coVerify(exactly = 0) { invoiceRepository.deleteRemoteInvoiceById("taskId", PROFILE_ID) }
         coVerify(exactly = 1) { invoiceRepository.deleteLocalInvoiceById("taskId") }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `Delete prescription locally should only remove local prescription and invoices`() {
-        coEvery { prescriptionRepository.deleteLocalTaskById(any()) } returns Unit
+    fun `Delete scanned prescription should delete locally without requiring authentication`() = testScope.runTest {
+        every { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf()
+        every { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SCANNED_TASK)
+        every { taskOperationsRepository.loadDigaTaskByTaskId(any()) } returns flowOf()
+        coEvery { taskOperationsRepository.deleteTaskByTaskIdOnlyInLocalDatabase(any()) } returns Unit
         coEvery { invoiceRepository.deleteLocalInvoiceById(any()) } returns Unit
         coEvery { medicationPlanRepository.deleteMedicationSchedule(any()) } returns Unit
-        coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.success(Unit)
-        coEvery { prescriptionRepository.wasProfileEverAuthenticated(any()) } returns true
+        coEvery { profileRepository.wasProfileEverAuthenticated(any()) } returns true
 
-        testScope.runTest {
-            advanceUntilIdle()
-            controllerUnderTest.deletePrescriptionFromLocal()
+        controllerUnderTest.profilePrescription.test {
+            awaitItem() // Loading
+            awaitItem() // Data
         }
+
+        controllerUnderTest.deletePrescription()
+        advanceUntilIdle()
+
         coVerify(exactly = 1) {
             deletePrescriptionUseCase.invoke(profileId = PROFILE_ID, taskId = "taskId", deleteLocallyOnly = true)
         }
-        coVerify(exactly = 0) { prescriptionRepository.deleteRemoteTaskById(PROFILE_ID, "taskId") }
-        coVerify(exactly = 1) { prescriptionRepository.deleteLocalTaskById("taskId") }
+        coVerify(exactly = 0) { taskOperationsRepository.deleteRemoteTaskById(PROFILE_ID, "taskId") }
+        coVerify(exactly = 1) { taskOperationsRepository.deleteTaskByTaskIdOnlyInLocalDatabase("taskId") }
         coVerify(exactly = 0) { invoiceRepository.deleteRemoteInvoiceById("taskId", PROFILE_ID) }
         coVerify(exactly = 1) { invoiceRepository.deleteLocalInvoiceById("taskId") }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `Delete prescription but deleteRemoteTask fails`() {
+    fun `Delete prescription locally should only remove local prescription and invoices`() = testScope.runTest {
+        coEvery { taskOperationsRepository.deleteTaskByTaskIdOnlyInLocalDatabase(any()) } returns Unit
+        coEvery { invoiceRepository.deleteLocalInvoiceById(any()) } returns Unit
+        coEvery { medicationPlanRepository.deleteMedicationSchedule(any()) } returns Unit
+        coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.success(Unit)
+        coEvery { profileRepository.wasProfileEverAuthenticated(any()) } returns true
+
+        advanceUntilIdle()
+        controllerUnderTest.deletePrescriptionFromLocal()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            deletePrescriptionUseCase.invoke(profileId = PROFILE_ID, taskId = "taskId", deleteLocallyOnly = true)
+        }
+        coVerify(exactly = 0) { taskOperationsRepository.deleteRemoteTaskById(PROFILE_ID, "taskId") }
+        coVerify(exactly = 1) { taskOperationsRepository.deleteTaskByTaskIdOnlyInLocalDatabase("taskId") }
+        coVerify(exactly = 0) { invoiceRepository.deleteRemoteInvoiceById("taskId", PROFILE_ID) }
+        coVerify(exactly = 1) { invoiceRepository.deleteLocalInvoiceById("taskId") }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `Delete prescription but deleteRemoteTask fails`() = testScope.runTest {
         coEvery {
-            prescriptionRepository.deleteRemoteTaskById(any(), any())
+            taskOperationsRepository.deleteRemoteTaskById(any(), any())
         } returns Result.failure(
             ApiCallException(
                 message = "Error executing safe api call",
                 response = retrofit2.Response.error<Any>(HttpURLConnection.HTTP_GONE, "Error executing safe api call".toResponseBody(null))
             )
         )
-        coEvery { prescriptionRepository.deleteLocalTaskById(any()) } returns Unit
+        coEvery { taskOperationsRepository.deleteTaskByTaskIdOnlyInLocalDatabase(any()) } returns Unit
         coEvery { invoiceRepository.deleteLocalInvoiceById(any()) } returns Unit
         coEvery { medicationPlanRepository.deleteMedicationSchedule(any()) } returns Unit
         coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.success(Unit)
-        coEvery { prescriptionRepository.wasProfileEverAuthenticated(any()) } returns true
+        coEvery { profileRepository.wasProfileEverAuthenticated(any()) } returns true
 
-        testScope.runTest {
-            controllerUnderTest.activeProfile.first { it.isDataState }
-            advanceUntilIdle()
-            controllerUnderTest.deletePrescription(true)
-        }
+        advanceUntilIdle()
+        controllerUnderTest.deletePrescription(true)
+        advanceUntilIdle()
+
         coVerify(exactly = 1) {
             deletePrescriptionUseCase.invoke(profileId = PROFILE_ID, taskId = "taskId", deleteLocallyOnly = false)
         }
-        coVerify(exactly = 1) { prescriptionRepository.deleteRemoteTaskById(PROFILE_ID, "taskId") }
-        coVerify(exactly = 1) { prescriptionRepository.deleteLocalTaskById("taskId") }
+        coVerify(exactly = 1) { taskOperationsRepository.deleteRemoteTaskById(PROFILE_ID, "taskId") }
+        coVerify(exactly = 1) { taskOperationsRepository.deleteTaskByTaskIdOnlyInLocalDatabase("taskId") }
         coVerify(exactly = 0) { invoiceRepository.deleteRemoteInvoiceById("taskId", PROFILE_ID) }
         coVerify(exactly = 1) { invoiceRepository.deleteLocalInvoiceById("taskId") }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `Delete prescription but deleteRemoteInvoice fails`() {
+    fun `Delete prescription but deleteRemoteInvoice fails`() = testScope.runTest {
         coEvery {
-            prescriptionRepository.deleteRemoteTaskById(any(), any())
+            taskOperationsRepository.deleteRemoteTaskById(any(), any())
         } returns Result.success(json.parseToJsonElement("{}"))
-        coEvery { prescriptionRepository.deleteLocalTaskById(any()) } returns Unit
+        coEvery { taskOperationsRepository.deleteTaskByTaskIdOnlyInLocalDatabase(any()) } returns Unit
         coEvery { invoiceRepository.deleteLocalInvoiceById(any()) } returns Unit
         coEvery { medicationPlanRepository.deleteMedicationSchedule(any()) } returns Unit
         coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.failure(
@@ -423,32 +454,33 @@ class PrescriptionDetailControllerTest : TestWatcher() {
                 response = retrofit2.Response.error<Any>(HttpURLConnection.HTTP_GONE, "Error executing safe api call".toResponseBody(null))
             )
         )
-        coEvery { prescriptionRepository.wasProfileEverAuthenticated(any()) } returns true
+        coEvery { profileRepository.wasProfileEverAuthenticated(any()) } returns true
 
-        testScope.runTest {
-            controllerUnderTest.activeProfile.first { it.isDataState }
-            controllerUnderTest.deletePrescription(true)
-            advanceUntilIdle()
-        }
+        advanceUntilIdle()
+        controllerUnderTest.deletePrescription(true)
+        advanceUntilIdle()
+
         coVerify(exactly = 1) {
             deletePrescriptionUseCase.invoke(profileId = PROFILE_ID, taskId = "taskId", deleteLocallyOnly = false)
         }
-        coVerify(exactly = 1) { prescriptionRepository.deleteRemoteTaskById(PROFILE_ID, "taskId") }
-        coVerify(exactly = 1) { prescriptionRepository.deleteLocalTaskById("taskId") }
+        coVerify(exactly = 1) { taskOperationsRepository.deleteRemoteTaskById(PROFILE_ID, "taskId") }
+        coVerify(exactly = 1) { taskOperationsRepository.deleteTaskByTaskIdOnlyInLocalDatabase("taskId") }
         coVerify(exactly = 1) { invoiceRepository.deleteRemoteInvoiceById("taskId", PROFILE_ID) }
         coVerify(exactly = 1) { invoiceRepository.deleteLocalInvoiceById("taskId") }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `Update scanned task name should only invoke the useCase and repository`() {
-        coEvery { prescriptionRepository.updateScannedTaskName(any(), any()) } returns Unit
+    fun `Update scanned task name should only invoke the useCase and repository`() = testScope.runTest {
+        coEvery { taskOperationsRepository.updateScannedTaskName(any(), any()) } returns Unit
 
-        testScope.runTest {
-            controllerUnderTest.updateScannedTaskName("taskId", "newName")
-        }
+        advanceUntilIdle()
+        controllerUnderTest.updateScannedTaskName("taskId", "newName")
+        advanceUntilIdle()
+
         coVerify(exactly = 1) {
             updateScannedTaskNameUseCase.invoke(taskId = "taskId", name = "newName")
         }
-        coVerify(exactly = 1) { prescriptionRepository.updateScannedTaskName("taskId", "newName") }
+        coVerify(exactly = 1) { taskOperationsRepository.updateScannedTaskName("taskId", "newName") }
     }
 }

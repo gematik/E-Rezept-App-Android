@@ -36,8 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosageErpModel
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
@@ -47,12 +47,12 @@ import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 
 @Composable
 fun ChangeMedicationDosageDialog(
-    event: ComposableEvent<MedicationScheduleNotification>,
+    event: ComposableEvent<MedicationScheduleNotificationErpModel>,
     dialog: DialogScaffold,
-    onDosageChanged: (MedicationScheduleNotification, MedicationScheduleNotificationDosage) -> Unit
+    onDosageChanged: (MedicationScheduleNotificationErpModel, MedicationScheduleNotificationDosageErpModel) -> Unit
 ) {
     var dosage by remember {
-        mutableStateOf(event.payload?.dosage ?: MedicationScheduleNotificationDosage("", ""))
+        mutableStateOf(event.payload?.dosage ?: MedicationScheduleNotificationDosageErpModel("", ""))
     }
     event.listen {
         dosage = it.dosage

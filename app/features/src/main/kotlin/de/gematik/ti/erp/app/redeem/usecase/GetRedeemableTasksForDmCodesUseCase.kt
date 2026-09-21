@@ -22,9 +22,9 @@
 
 package de.gematik.ti.erp.app.redeem.usecase
 
-import de.gematik.ti.erp.app.pharmacy.mapper.toOrder
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
+import de.gematik.ti.erp.app.pharmacy.mapper.toPrescriptionInOrder
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -34,32 +34,32 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapNotNull
 
 class GetRedeemableTasksForDmCodesUseCase(
-    private val prescriptionRepository: PrescriptionRepository,
+    private val taskOperationsRepository: TaskOperationsRepository,
     private val dispatchers: CoroutineDispatcher = Dispatchers.IO
 ) {
     operator fun invoke(
         profileId: ProfileIdentifier
 
-    ): Flow<List<PharmacyUseCaseData.PrescriptionInOrder>> =
+    ): Flow<List<PrescriptionInOrderErpModel>> =
         combine(
-            prescriptionRepository.syncedTasks(profileId).mapNotNull { tasks ->
+            taskOperationsRepository.loadSyncedTaskListByProfileId(profileId).mapNotNull { tasks ->
                 tasks.filter {
-                    it.redeemState().isRedeemable() && it.deviceRequest == null // TODO: define as a Type
+                    it.redeemState().isRedeemable()
                 }.sortedByDescending { it.authoredOn }
                     .map {
-                        it.toOrder()
+                        it.toPrescriptionInOrder()
                     }
             },
-            prescriptionRepository.scannedTasks(profileId).mapNotNull { tasks ->
+            taskOperationsRepository.loadScannedTaskListByProfileId(profileId).mapNotNull { tasks ->
                 tasks.filter {
                     it.isRedeemable()
                 }.sortedByDescending { it.scannedOn }
                     .map {
-                        it.toOrder()
+                        it.toPrescriptionInOrder()
                     }
             }
         ) { syncedTasks, scannedTasks ->
-            val prescriptionOrderList = mutableListOf<PharmacyUseCaseData.PrescriptionInOrder>()
+            val prescriptionOrderList = mutableListOf<PrescriptionInOrderErpModel>()
             prescriptionOrderList.addAll(scannedTasks)
             prescriptionOrderList.addAll(syncedTasks)
             prescriptionOrderList

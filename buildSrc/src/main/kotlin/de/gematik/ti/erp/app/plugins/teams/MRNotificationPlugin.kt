@@ -28,7 +28,7 @@ import de.gematik.ti.erp.app.ErpPlugin
 import de.gematik.ti.erp.app.utils.TaskNames
 import de.gematik.ti.erp.app.utils.detectPropertyOrNull
 import de.gematik.ti.erp.app.utils.detectPropertyOrThrow
-import de.gematik.ti.erp.app.utils.loadCiOverridesProperties
+import de.gematik.ti.erp.app.utils.resolveFromEnvOrCiOverrides
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -48,8 +48,9 @@ import java.time.format.DateTimeFormatter
 /**
  * Gradle plugin that registers the [TaskNames.sendMRTeamsNotification] task.
  *
- * Reads [TEAMS_MR_WEBHOOK_URL], [GITLAB_PROJECT_API_URL], and [GITLAB_PRIVATE_TOKEN] from
- * `ci-overrides.properties`. Fetches MR metadata and commits from the GitLab API, then posts a
+ * Reads `TEAMS_MR_WEBHOOK_URL`, `GITLAB_PROJECT_API_URL`, and `GITLAB_PRIVATE_TOKEN` from
+ * `ci/local/ci-overrides.properties` (with environment-variable precedence). Fetches MR metadata
+ * and commits from the GitLab API, then posts a
  * reviewer-friendly Teams card showing:
  *   - MR title, status, labels, milestone, assignees
  *   - Commit list
@@ -62,7 +63,7 @@ import java.time.format.DateTimeFormatter
  *     -Pstatus=SUCCESS \
  *     -PbuildNr=42 \
  *     -PgitHash=abc1234 \
- *     -PfirebaseUrl=https://install.appcenter.ms/... \
+ *     -PfirebaseUrl=https://firebase.app.de/... \
  *     -Pjob="eRp-Android-App-Multibranch/MR-2315"
  * ```
  */
@@ -71,14 +72,31 @@ class MRNotificationPlugin : ErpPlugin {
     override fun apply(project: Project) {
         project.tasks.register(TaskNames.sendMRTeamsNotification) {
             doLast {
-                val ciProps = project.loadCiOverridesProperties()
+                val webhookUrl = project.resolveFromEnvOrCiOverrides(
+                    "CI_ANDROID_TEAMS_MR_WEBHOOK",
+                    "CI_TEAMS_MR_WEBHOOK",
+                    "TEAMS_MR_WEBHOOK_URL"
+                ) ?: throw GradleException(
+                    "MR webhook URL not found. Set CI_ANDROID_TEAMS_MR_WEBHOOK/CI_TEAMS_MR_WEBHOOK env var " +
+                        "or TEAMS_MR_WEBHOOK_URL in ci/local/ci-overrides.properties"
+                )
 
-                val webhookUrl = ciProps.getProperty("TEAMS_MR_WEBHOOK_URL")
-                    ?: throw GradleException("TEAMS_MR_WEBHOOK_URL not found in ci-overrides.properties")
-                val gitlabApiUrl = ciProps.getProperty("GITLAB_PROJECT_API_URL")
-                    ?: throw GradleException("GITLAB_PROJECT_API_URL not found in ci-overrides.properties")
-                val gitlabToken = ciProps.getProperty("GITLAB_PRIVATE_TOKEN")
-                    ?: throw GradleException("GITLAB_PRIVATE_TOKEN not found in ci-overrides.properties")
+                val gitlabApiUrl = project.resolveFromEnvOrCiOverrides(
+                    "GITLAB_PROJECT_API_URL",
+                    "CI_GITLAB_PROJECT_API_URL"
+                ) ?: throw GradleException(
+                    "GitLab API URL not found. Set GITLAB_PROJECT_API_URL env var " +
+                        "or GITLAB_PROJECT_API_URL in ci/local/ci-overrides.properties"
+                )
+
+                val gitlabToken = project.resolveFromEnvOrCiOverrides(
+                    "GITLAB_PRIVATE_TOKEN",
+                    "GITLAB_ACCESS_API_TOKEN",
+                    "CI_GITLAB_PRIVATE_TOKEN"
+                ) ?: throw GradleException(
+                    "GitLab token not found. Set GITLAB_PRIVATE_TOKEN/GITLAB_ACCESS_API_TOKEN env var " +
+                        "or GITLAB_PRIVATE_TOKEN in ci/local/ci-overrides.properties"
+                )
 
                 val mrBranch = project.detectPropertyOrThrow("mrBranch") // e.g. "MR-2315"
                 val buildStatus = project.detectPropertyOrThrow("status")

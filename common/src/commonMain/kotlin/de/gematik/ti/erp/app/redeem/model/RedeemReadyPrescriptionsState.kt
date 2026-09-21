@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.redeem.model
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.redeem.model.PrescriptionReadinessState.Companion.readinessState
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 
 /**
  * Represents the state of redeemable prescriptions during the redemption process.
@@ -126,6 +127,28 @@ data class RedeemablePrescriptionInfo(
                     taskId = taskId,
                     name = name,
                     state = state.readinessState()
+                )
+            }
+        }
+
+        fun TaskErpModel.toPrescriptionInfo(): RedeemablePrescriptionInfo {
+            return when (this) {
+                is TaskErpModel.Scanned -> RedeemablePrescriptionInfo(
+                    taskId = taskId,
+                    name = name,
+                    state = PrescriptionReadinessState.Ready
+                )
+                is TaskErpModel.Synced.Prescription -> RedeemablePrescriptionInfo(
+                    taskId = taskId,
+                    name = medicationName(),
+                    state = if (isReady()) PrescriptionReadinessState.Ready
+                    else if (status == de.gematik.ti.erp.app.task.model.TaskStatusEnum.Canceled) PrescriptionReadinessState.Deleted
+                    else PrescriptionReadinessState.NotReady
+                )
+                is TaskErpModel.Synced.Diga -> RedeemablePrescriptionInfo(
+                    taskId = taskId,
+                    name = deviceRequest?.appName,
+                    state = if (isReady()) PrescriptionReadinessState.Ready else PrescriptionReadinessState.NotReady
                 )
             }
         }

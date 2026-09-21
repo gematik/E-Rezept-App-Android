@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.model
 
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.task.model.AddressErpModel
 import kotlinx.serialization.Serializable
 import org.json.JSONObject
 
@@ -80,10 +80,10 @@ data class MockCommunicationPayloadContent(
     val supplyOptionType: String
         get() = jsonObject().getString("supplyOptionsType")
 
-    val address: SyncedTaskData.Address
+    val address: AddressErpModel
         get() {
             val item = jsonObject().getString("address").split(',')
-            return SyncedTaskData.Address(
+            return AddressErpModel(
                 line1 = item[0],
                 line2 = item[1],
                 postalCode = item[2],

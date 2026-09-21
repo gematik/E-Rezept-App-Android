@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.eurezept.ui.preview
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.eurezept.domain.model.EuRedemptionDetails
-import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCodeErpModel
 import de.gematik.ti.erp.app.eurezept.util.QrCodeGenerator
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.Instant
@@ -51,7 +51,7 @@ class EuRedemptionCodePreviewParameterProvider : PreviewParameterProvider<EuRede
             name = "Data - Qr Code",
             uiState = UiState.Data(
                 EuRedemptionDetails(
-                    euAccessCode = EuAccessCode(
+                    euAccessCode = EuAccessCodeErpModel(
                         countryCode = "IT",
                         accessCode = "123456",
                         validUntil = Instant.DISTANT_FUTURE,
@@ -67,7 +67,7 @@ class EuRedemptionCodePreviewParameterProvider : PreviewParameterProvider<EuRede
             name = "Data - Code",
             uiState = UiState.Data(
                 EuRedemptionDetails(
-                    euAccessCode = EuAccessCode(
+                    euAccessCode = EuAccessCodeErpModel(
                         countryCode = "IT",
                         accessCode = "123456",
                         validUntil = Instant.DISTANT_FUTURE,
@@ -84,7 +84,7 @@ class EuRedemptionCodePreviewParameterProvider : PreviewParameterProvider<EuRede
             name = "Data - Code Expired",
             uiState = UiState.Data(
                 EuRedemptionDetails(
-                    euAccessCode = EuAccessCode(
+                    euAccessCode = EuAccessCodeErpModel(
                         countryCode = "IT",
                         accessCode = "123456",
                         validUntil = Instant.DISTANT_PAST,
@@ -101,7 +101,7 @@ class EuRedemptionCodePreviewParameterProvider : PreviewParameterProvider<EuRede
             name = "Data - QR Code Expired",
             uiState = UiState.Data(
                 EuRedemptionDetails(
-                    euAccessCode = EuAccessCode(
+                    euAccessCode = EuAccessCodeErpModel(
                         countryCode = "IT",
                         accessCode = "123456",
                         validUntil = Instant.DISTANT_PAST,

@@ -54,10 +54,10 @@ import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.toNavigationString
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
+import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionMedicationUiModel
 import de.gematik.ti.erp.app.prescription.detail.ui.preview.PrescriptionDetailMedicationOverviewPreviewParameter
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
@@ -88,11 +88,11 @@ class PrescriptionDetailMedicationOverviewScreen(
         PrescriptionDetailMedicationOverviewScreenScaffold(
             state = profilePrescriptionData,
             onBack = navController::popBackStack,
-            onNavigateToMedicationDetail = { labelTaskId, selectedMedication ->
+            onNavigateToMedicationDetail = { labelTaskId, uiModel ->
                 navController.navigate(
                     PrescriptionDetailRoutes.PrescriptionDetailMedicationScreen.path(
                         taskId = labelTaskId,
-                        selectedMedication = selectedMedication
+                        selectedMedication = uiModel.toNavigationString()
                     )
                 )
             }
@@ -102,9 +102,9 @@ class PrescriptionDetailMedicationOverviewScreen(
 
 @Composable
 private fun PrescriptionDetailMedicationOverviewScreenScaffold(
-    state: UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>,
+    state: UiState<Pair<ProfileErpModel, TaskErpModel>>,
     onBack: () -> Unit,
-    onNavigateToMedicationDetail: (String, String) -> Unit
+    onNavigateToMedicationDetail: (String, PrescriptionMedicationUiModel) -> Unit
 ) {
     val scaffoldState = rememberScaffoldState()
     val listState = rememberLazyListState()
@@ -142,12 +142,11 @@ private fun PrescriptionDetailMedicationOverviewScreenScaffold(
                 )
             },
             onContent = { (_, prescription) ->
-                val syncedPrescription = prescription as? PrescriptionData.Synced
+                val syncedPrescription = prescription as? TaskErpModel.Synced.Prescription
                 syncedPrescription?.medicationRequest?.medication?.let { medication ->
                     PrescriptionDetailMedicationOverviewScreenContent(
                         listState = listState,
                         innerPadding = innerPadding,
-                        medication = medication,
                         syncedPrescription = syncedPrescription,
                         taskId = syncedPrescription.taskId,
                         onLabelClick = onNavigateToMedicationDetail
@@ -162,10 +161,9 @@ private fun PrescriptionDetailMedicationOverviewScreenScaffold(
 private fun PrescriptionDetailMedicationOverviewScreenContent(
     listState: LazyListState,
     innerPadding: PaddingValues,
-    medication: SyncedTaskData.Medication,
-    syncedPrescription: PrescriptionData.Synced,
+    syncedPrescription: TaskErpModel.Synced.Prescription,
     taskId: String,
-    onLabelClick: (String, String) -> Unit
+    onLabelClick: (String, PrescriptionMedicationUiModel) -> Unit
 ) {
     LazyColumn(
         state = listState,
@@ -183,12 +181,12 @@ private fun PrescriptionDetailMedicationOverviewScreenContent(
             )
             SpacerMedium()
             Label(
-                text = medication.name(),
+                text = syncedPrescription.medicationRequest?.medication?.name() ?: "",
                 label = null,
                 onClick = {
                     onLabelClick(
                         taskId,
-                        PrescriptionData.Medication.Request(syncedPrescription.medicationRequest).toNavigationString()
+                        PrescriptionMedicationUiModel.Request(syncedPrescription.medicationRequest)
                     )
                 }
             )
@@ -207,12 +205,12 @@ private fun PrescriptionDetailMedicationOverviewScreenContent(
             dispense.medication?.let { medication ->
                 item {
                     Label(
-                        text = medication.name(),
+                        text = medication.name().ifBlank { stringResource(R.string.medication_plan_default_notification_title) },
                         label = null,
                         onClick = {
                             onLabelClick(
                                 taskId,
-                                PrescriptionData.Medication.Dispense(dispense).toNavigationString()
+                                PrescriptionMedicationUiModel.Dispense(dispense)
                             )
                         }
                     )
@@ -226,7 +224,7 @@ private fun PrescriptionDetailMedicationOverviewScreenContent(
 @Composable
 fun PrescriptionDetailMedicationOverviewScreenPreview(
     @PreviewParameter(PrescriptionDetailMedicationOverviewPreviewParameter::class)
-    state: UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>
+    state: UiState<Pair<ProfileErpModel, TaskErpModel>>
 ) {
     PreviewAppTheme {
         PrescriptionDetailMedicationOverviewScreenScaffold(

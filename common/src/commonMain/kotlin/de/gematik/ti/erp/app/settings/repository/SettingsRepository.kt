@@ -22,29 +22,22 @@
 
 package de.gematik.ti.erp.app.settings.repository
 
-import de.gematik.ti.erp.app.database.realm.utils.writeToRealm
-import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
-import de.gematik.ti.erp.app.settings.AnalyticsSettings
-import de.gematik.ti.erp.app.settings.AuthenticationSettings
-import de.gematik.ti.erp.app.settings.GeneralSettings
-import de.gematik.ti.erp.app.settings.PharmacySettings
-import io.realm.kotlin.Realm
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import de.gematik.ti.erp.app.settings.model.AppVersionErpModel
+import de.gematik.ti.erp.app.settings.model.SettingsErpModel
+import de.gematik.ti.erp.app.settings.model.ThemeMode
+import kotlinx.coroutines.flow.Flow
 
-abstract class SettingsRepository(
-    private val dispatchers: CoroutineDispatcher = Dispatchers.IO,
-    private val realm: Realm
-) : GeneralSettings,
-    PharmacySettings,
-    AnalyticsSettings,
-    AuthenticationSettings {
-    suspend fun writeToRealm(block: SettingsEntityV1.() -> Unit) {
-        withContext(dispatchers) {
-            realm.writeToRealm<SettingsEntityV1, Unit> {
-                it.block()
-            }
-        }
-    }
+interface SettingsRepository {
+    fun loadSettings(): Flow<SettingsErpModel>
+    fun isAnalyticsAllowed(): Flow<Boolean>
+    suspend fun saveLatestAppVersion(appVersion: AppVersionErpModel)
+    suspend fun saveOnboardingShownIn(appVersion: AppVersionErpModel)
+    suspend fun saveTheme(theme: ThemeMode)
+    suspend fun saveZoomEnabled(enabled: Boolean)
+    suspend fun acceptInsecureDevice()
+    suspend fun saveWelcomeDrawerShown()
+    suspend fun saveAllowScreenshots(allow: Boolean)
+    suspend fun saveAllowTracking(allow: Boolean)
+    suspend fun acceptIntegrityNotOk()
+    suspend fun resetOnboardingShownIn()
 }

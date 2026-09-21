@@ -22,13 +22,15 @@
 
 package de.gematik.ti.erp.app.logger.di
 
-import de.gematik.ti.erp.app.logger.DbMigrationLogHolder
+import de.gematik.ti.erp.app.base.BaseConstants.applicationScope
+import de.gematik.ti.erp.app.database.datastore.debug.logger.DbMigrationLogHolder
 import de.gematik.ti.erp.app.logger.SessionLogHolder
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import org.kodein.di.DI
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
 val loggerModule = DI.Module("Logger Module") {
     bindSingleton { SessionLogHolder() }
-    bindSingleton { DbMigrationLogHolder(instance()) }
+    bindSingleton { DbMigrationLogHolder(instance(), instance(tag = applicationScope), switchOnLogs = BuildConfigExtension.isInternalDebug) }
 }

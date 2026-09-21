@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.digas.mapper
 
-import de.gematik.ti.erp.app.digas.data.model.DigaData
+import de.gematik.ti.erp.app.diga.model.DigaData
 import de.gematik.ti.erp.app.digas.ui.model.DigaBfarmUiModel
 
 internal fun DigaData.toDigaBfarmUiModel(): DigaBfarmUiModel {

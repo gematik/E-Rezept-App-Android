@@ -22,6 +22,8 @@
 
 package de.gematik.ti.erp.app.demomode.datasource
 
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel.CommunicationProfile.ErxCommunicationReply
 import de.gematik.ti.erp.app.database.realm.v1.InternalMessageEntityV1
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource.Companion.requestCommunication
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoAuditEventInfo
@@ -36,17 +38,14 @@ import de.gematik.ti.erp.app.demomode.datasource.data.internalMessageEntityV1
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfile
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfileLinkedCommunication
 import de.gematik.ti.erp.app.eurezept.domain.model.Country
-import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
-import de.gematik.ti.erp.app.eurezept.model.EuOrder
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCodeErpModel
+import de.gematik.ti.erp.app.eurezept.model.EuOrderErpModel
 import de.gematik.ti.erp.app.fhir.audit.model.FhirAuditEventErpModel
 import de.gematik.ti.erp.app.idp.api.models.PairingData
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile.ErxCommunicationDispReq
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile.ErxCommunicationReply
-import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -71,52 +70,53 @@ class DemoModeDataSource(
     private val syncedTasksList = listOf(
         syncedTask(
             profileIdentifier = demoProfile01.id,
-            status = SyncedTaskData.TaskStatus.Ready,
+            status = TaskStatusEnum.Ready,
             medicationNamesIndex = 0,
             isEuRedeemable = true,
             isEuRedeemableByPatientAuthorization = true
         ),
         syncedTask(
             profileIdentifier = demoProfile01.id,
-            status = SyncedTaskData.TaskStatus.Ready,
+            status = TaskStatusEnum.Ready,
             medicationNamesIndex = 30,
             isEuRedeemable = true,
             isEuRedeemableByPatientAuthorization = true
         ),
 
-        syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Completed, medicationNamesIndex = 1),
-        syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Completed, medicationNamesIndex = 2),
+        syncedTask(demoProfile01.id, status = TaskStatusEnum.Completed, medicationNamesIndex = 1),
+        syncedTask(demoProfile01.id, status = TaskStatusEnum.Completed, medicationNamesIndex = 2),
 
         syncedTask(
             demoProfile01.id,
-            status = SyncedTaskData.TaskStatus.Ready,
+            status = TaskStatusEnum.Ready,
             isDirectAssignment = true,
             medicationNamesIndex = 3
         ),
 
-        syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Canceled, medicationNamesIndex = 4),
-        syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 5),
-        syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 6),
-        syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 7),
-        syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 8),
-        syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 9),
-        syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 10),
-        syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 11),
-        syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 12),
-        syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 13),
-
-        syncedTask(demoProfile02.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 14),
-        syncedTask(demoProfile02.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 15),
-        syncedTask(demoProfile02.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 16),
-        syncedTask(demoProfile02.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 17),
-        syncedTask(demoProfile02.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 18),
-        syncedTask(demoProfile02.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 19),
-        syncedTask(demoProfile02.id, status = SyncedTaskData.TaskStatus.Completed, medicationNamesIndex = 20),
-        syncedTask(demoProfile02.id, status = SyncedTaskData.TaskStatus.Completed, medicationNamesIndex = 21),
+        syncedTask(demoProfile01.id, status = TaskStatusEnum.Canceled, medicationNamesIndex = 4),
+        syncedTask(demoProfile01.id, status = TaskStatusEnum.Ready, medicationNamesIndex = 5),
+        // dvg syncedTask(demoProfile01.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 5, isTeratogenicPrescription = true),
+        syncedTask(demoProfile01.id, status = TaskStatusEnum.Ready, medicationNamesIndex = 6),
+        syncedTask(demoProfile01.id, status = TaskStatusEnum.Ready, medicationNamesIndex = 7),
+        syncedTask(demoProfile01.id, status = TaskStatusEnum.Ready, medicationNamesIndex = 8),
+        syncedTask(demoProfile01.id, status = TaskStatusEnum.Ready, medicationNamesIndex = 9),
+        syncedTask(demoProfile01.id, status = TaskStatusEnum.Ready, medicationNamesIndex = 10),
+        syncedTask(demoProfile01.id, status = TaskStatusEnum.Ready, medicationNamesIndex = 11),
+        syncedTask(demoProfile01.id, status = TaskStatusEnum.Ready, medicationNamesIndex = 12),
+        syncedTask(demoProfile01.id, status = TaskStatusEnum.Ready, medicationNamesIndex = 13),
+        // dvg syncedTask(demoProfile02.id, status = SyncedTaskData.TaskStatus.Ready, medicationNamesIndex = 14, isTeratogenicPrescription = true),
+        syncedTask(demoProfile02.id, status = TaskStatusEnum.Ready, medicationNamesIndex = 14),
+        syncedTask(demoProfile02.id, status = TaskStatusEnum.Ready, medicationNamesIndex = 15),
+        syncedTask(demoProfile02.id, status = TaskStatusEnum.Ready, medicationNamesIndex = 16),
+        syncedTask(demoProfile02.id, status = TaskStatusEnum.Ready, medicationNamesIndex = 17),
+        syncedTask(demoProfile02.id, status = TaskStatusEnum.Ready, medicationNamesIndex = 18),
+        syncedTask(demoProfile02.id, status = TaskStatusEnum.Ready, medicationNamesIndex = 19),
+        syncedTask(demoProfile02.id, status = TaskStatusEnum.Completed, medicationNamesIndex = 20),
+        syncedTask(demoProfile02.id, status = TaskStatusEnum.Completed, medicationNamesIndex = 21),
 
         syncedTask(
             demoProfile01.id,
-            status = SyncedTaskData.TaskStatus.Completed,
+            status = TaskStatusEnum.Completed,
             isDirectAssignment = true,
             medicationNamesIndex = 22
         ),
@@ -124,13 +124,13 @@ class DemoModeDataSource(
             demoProfile01.id,
             isDeviceRequest = true,
             deviceRequestStatusIndex = 0,
-            status = SyncedTaskData.TaskStatus.Ready,
+            status = TaskStatusEnum.Ready,
             medicationNamesIndex = 23,
             appName = appNameProvider.next()
         ),
         syncedTask(
             demoProfile01.id,
-            status = SyncedTaskData.TaskStatus.Ready,
+            status = TaskStatusEnum.Ready,
             isDeviceRequest = true,
             deviceRequestStatusIndex = 1,
             medicationNamesIndex = 24,
@@ -139,7 +139,7 @@ class DemoModeDataSource(
 
         syncedTask(
             demoProfile02.id,
-            status = SyncedTaskData.TaskStatus.InProgress,
+            status = TaskStatusEnum.InProgress,
             isDeviceRequest = true,
             deviceRequestStatusIndex = 1,
             medicationNamesIndex = 25,
@@ -147,7 +147,7 @@ class DemoModeDataSource(
         ),
         syncedTask(
             demoProfile02.id,
-            status = SyncedTaskData.TaskStatus.Completed,
+            status = TaskStatusEnum.Completed,
             isDeviceRequest = true,
             deviceRequestStatusIndex = 2,
             medicationNamesIndex = 26,
@@ -155,7 +155,7 @@ class DemoModeDataSource(
         ),
         syncedTask(
             demoProfile02.id,
-            status = SyncedTaskData.TaskStatus.Completed,
+            status = TaskStatusEnum.Completed,
             isDeviceRequest = true,
             deviceRequestStatusIndex = 2,
             medicationNamesIndex = 27,
@@ -163,7 +163,7 @@ class DemoModeDataSource(
         ),
         syncedTask(
             demoProfile01.id,
-            status = SyncedTaskData.TaskStatus.Completed,
+            status = TaskStatusEnum.Completed,
             isDeviceRequest = true,
             deviceRequestStatusIndex = 4,
             medicationNamesIndex = 28,
@@ -171,7 +171,7 @@ class DemoModeDataSource(
         ),
         syncedTask(
             demoProfile02.id,
-            status = SyncedTaskData.TaskStatus.Completed,
+            status = TaskStatusEnum.Completed,
             isDeviceRequest = true,
             deviceRequestStatusIndex = 5,
             medicationNamesIndex = 29,
@@ -179,7 +179,7 @@ class DemoModeDataSource(
         ),
         syncedTask(
             demoProfile01.id,
-            status = SyncedTaskData.TaskStatus.Ready,
+            status = TaskStatusEnum.Ready,
             isDeviceRequest = true,
             deviceRequestStatusIndex = 1,
             medicationNamesIndex = 1,
@@ -190,13 +190,13 @@ class DemoModeDataSource(
     /**
      * Data sources for the [syncedTasks] created in the demo-mode
      */
-    val syncedTasks: MutableStateFlow<MutableList<SyncedTaskData.SyncedTask>> =
+    val syncedTasks: MutableStateFlow<MutableList<TaskErpModel.Synced>> =
         MutableStateFlow(syncedTasksList.toMutableList())
 
     /**
      * Data sources for the [scannedTasks] created in the demo-mode
      */
-    val scannedTasks: MutableStateFlow<MutableList<ScannedTaskData.ScannedTask>> =
+    val scannedTasks: MutableStateFlow<MutableList<TaskErpModel.Scanned>> =
         MutableStateFlow(mutableListOf(demoScannedTask01, demoScannedTask02))
 
     /**
@@ -256,12 +256,6 @@ class DemoModeDataSource(
         MutableStateFlow(mutableMapOf("no-profile-id" to false))
 
     /**
-     * Data source for the [cachedPharmacies] used for communications
-     */
-    val cachedPharmacies: MutableStateFlow<MutableList<CachedPharmacy>> =
-        MutableStateFlow(mutableListOf())
-
-    /**
      * Data source for the connected device [pairedDevices] that will be shown to the user
      */
     val pairedDevices: MutableStateFlow<MutableList<Pair<PairingResponseEntry, PairingData>>> =
@@ -284,9 +278,9 @@ class DemoModeDataSource(
             )
         )
 
-    val euOrders: MutableStateFlow<MutableList<EuOrder>> = MutableStateFlow(mutableListOf())
-    val euAccessCodes: MutableStateFlow<MutableList<EuAccessCode>> = MutableStateFlow(mutableListOf())
-    val orders: MutableStateFlow<MutableList<EuOrder>> = MutableStateFlow(mutableListOf())
+    val euOrders: MutableStateFlow<MutableList<EuOrderErpModel>> = MutableStateFlow(mutableListOf())
+    val euAccessCodes: MutableStateFlow<MutableList<EuAccessCodeErpModel>> = MutableStateFlow(mutableListOf())
+    val orders: MutableStateFlow<MutableList<EuOrderErpModel>> = MutableStateFlow(mutableListOf())
     val events: MutableStateFlow<MutableList<FhirAuditEventErpModel>> = MutableStateFlow(mutableListOf())
 
     /**

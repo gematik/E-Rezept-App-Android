@@ -38,7 +38,10 @@ data class DispensedPznMedicationErpModel(
     override val expirationDate: FhirTemporal?,
     // pzn-specific
     val contextualData: PznContextualData
-) : DispensedMedicationErpModel()
+) : DispensedMedicationErpModel() {
+    override val identifier: FhirMedicationIdentifierErpModel?
+        get() = contextualData.identifier
+}
 
 @Serializable
 data class PznContextualData(

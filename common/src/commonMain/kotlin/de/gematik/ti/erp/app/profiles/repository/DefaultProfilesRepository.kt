@@ -22,127 +22,106 @@
 
 package de.gematik.ti.erp.app.profiles.repository
 
-import de.gematik.ti.erp.app.database.realm.utils.deleteAll
-import de.gematik.ti.erp.app.database.realm.utils.queryFirst
-import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
-import de.gematik.ti.erp.app.database.realm.v1.AvatarFigureV1
-import de.gematik.ti.erp.app.database.realm.v1.InsuranceTypeV1
-import de.gematik.ti.erp.app.database.realm.v1.ProfileColorNamesV1
-import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
+import de.gematik.ti.erp.app.database.api.ProfileLocalDataSource
+import de.gematik.ti.erp.app.database.api.UserAuthenticationLocalDataSource
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.mapper.toProfileData
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import io.realm.kotlin.Realm
-import io.realm.kotlin.ext.asFlow
-import io.realm.kotlin.ext.query
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Instant
-
-sealed interface SetToActiveProfile {
-    data object NoChange : SetToActiveProfile
-    data object ChangeActiveState : SetToActiveProfile
-}
-
-class KVNRAlreadyAssignedException(
-    message: String,
-    val isActiveProfile: Boolean,
-    val inProfile: String,
-    val insuranceIdentifier: String
-) : IllegalStateException(message)
-
-private const val DEBUG_ORGANIZATION_IDENTIFIER = "104212505"
+import de.gematik.ti.erp.app.profile.model.InsuranceType as ErpInsuranceType
 
 class DefaultProfilesRepository(
-    private val realm: Realm,
+    private val profileLocalDataSource: ProfileLocalDataSource,
+    private val userAuthenticationLocalDataSource: UserAuthenticationLocalDataSource,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ProfileRepository {
     private val lock = Mutex()
 
-    override fun profiles(): Flow<List<ProfilesData.Profile>> =
-        realm.query<ProfileEntityV1>().asFlow().mapNotNull {
-            val hasActiveProfile = it.list.any { profile -> profile.active }
+    override fun profiles(): Flow<List<ProfileErpModel>> =
+        profileLocalDataSource.loadProfiles()
+            .map { erpProfiles ->
+                val hasActiveProfile = erpProfiles.any { it.active }
 
-            val state = if (it.list.size == 1 && !hasActiveProfile) {
-                SetToActiveProfile.ChangeActiveState
-            } else {
-                SetToActiveProfile.NoChange
+                if (erpProfiles.size == 1 && !hasActiveProfile) {
+                    erpProfiles.map { it.copy(active = true) }
+                } else {
+                    erpProfiles
+                }
             }
+            .flowOn(dispatcher)
 
-            it.list.map { profile ->
-                profile.toProfileData(state)
-            }
-        }.flowOn(dispatcher)
-
-    override fun activeProfile(): Flow<ProfilesData.Profile> =
-        profiles().mapNotNull {
-            it.find { profile -> profile.active }
-        }
+    override fun activeProfile(): Flow<ProfileErpModel> =
+        profileLocalDataSource.activeProfile()
+            .mapNotNull { it }
+            .flowOn(dispatcher)
 
     override suspend fun createNewProfile(profileName: String) {
-        realm.write {
-            query<ProfileEntityV1>().find().forEach {
-                it.active = false
-            }
-
-            copyToRealm(
-                ProfileEntityV1().apply {
-                    this.name = profileName
-                    this.active = true
-                    this.color = ProfileColorNamesV1.entries.toTypedArray().random()
-                }
-            )
-        }
+        val randomColor = ProfileColorNames.entries.toTypedArray().random()
+        val newProfile = ProfileErpModel(
+            id = java.util.UUID.randomUUID().toString(),
+            name = profileName,
+            active = true,
+            isNewlyCreated = true,
+            profileImageData = ProfileImageDataErpModel(
+                color = randomColor,
+                avatar = Avatar.PersonalizedImage,
+                image = null
+            ),
+            insuranceData = ProfileInsuranceDataErpModel(
+                insurantName = null,
+                insuranceIdentifier = null,
+                insuranceName = null,
+                insuranceType = ErpInsuranceType.NONE,
+                organizationIdentifier = null
+            ),
+            isConsentDrawerShown = false,
+            lastAuthenticated = null,
+            lastAuditEventSynced = null,
+            lastTaskSynced = null,
+            userAuthentication = UserAuthenticationErpModel.NotInitialized
+        )
+        profileLocalDataSource.deactivateAllProfiles()
+        profileLocalDataSource.saveProfile(newProfile)
+        userAuthenticationLocalDataSource.saveUserAuthenticationForProfile(
+            newProfile.id,
+            newProfile.userAuthentication
+        )
     }
 
     override suspend fun activateProfile(profileId: ProfileIdentifier) {
-        realm.write {
-            query<ProfileEntityV1>("id != $0", profileId).find().forEach {
-                it.active = false
-            }
-            query<ProfileEntityV1>("id = $0", profileId).first().find()?.apply {
-                this.active = true
-            }
-        }
+        profileLocalDataSource.activateProfile(profileId)
     }
 
     override suspend fun removeProfile(profileId: ProfileIdentifier, profileName: String) {
         lock.withLock {
-            realm.writeBlocking {
-                val profiles = query<ProfileEntityV1>().find()
+            val profiles = profileLocalDataSource.loadProfiles().first()
 
-                if (profiles.size == 1) {
-                    // create new default profile before deleting the last profile
-                    query<ProfileEntityV1>().find().forEach {
-                        it.active = false
-                    }
-                    copyToRealm(
-                        ProfileEntityV1().apply {
-                            this.name = profileName
-                            this.active = true
-                            this.color = ProfileColorNamesV1.entries.toTypedArray().random()
-                        }
-                    )
-                }
+            if (profiles.size == 1) {
+                createNewProfile(profileName)
+            }
 
-                queryFirst<ProfileEntityV1>("id = $0", profileId)?.let { profileToDelete ->
-                    if (profileToDelete.active) {
-                        profiles.query("id != $0", profileId).first().find()?.let {
-                            findLatest(it)?.active = true
-                        }
-                    }
-                    deleteAll(profileToDelete)
+            val profileToDelete = profiles.find { it.id == profileId }
+            if (profileToDelete?.active == true && profiles.size > 1) {
+                val nextProfile = profiles.find { it.id != profileId }
+                nextProfile?.let {
+                    profileLocalDataSource.activateProfile(it.id)
                 }
             }
+
+            profileLocalDataSource.deleteProfile(profileId)
         }
     }
 
@@ -154,172 +133,113 @@ class DefaultProfilesRepository(
         insuranceName: String
     ) {
         lock.withLock {
-            realm.queryFirst<ProfileEntityV1>("insuranceIdentifier == $0 AND id != $1", insuranceIdentifier, profileId)
-                ?.let {
-                    throw KVNRAlreadyAssignedException(
-                        "KVNR already assigned to another profile",
-                        false,
-                        it.name,
-                        it.insuranceIdentifier!!
-                    )
-                }
+            val allProfiles = profileLocalDataSource.loadProfiles().first()
 
-            realm.queryFirst<ProfileEntityV1>(
-                "insuranceIdentifier != NULL && insuranceIdentifier != $0 AND id == $1",
-                insuranceIdentifier,
-                profileId
-            )
-                ?.let {
-                    throw KVNRAlreadyAssignedException(
-                        "Profile already assigned to another KVNR",
-                        true,
-                        profileId,
-                        it.insuranceIdentifier!!
-                    )
-                }
-
-            realm.write {
-                queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
-                    this.insuranceName = insuranceName
-                    this.insuranceIdentifier = insuranceIdentifier
-                    this.organizationIdentifier = organizationIdentifier
-                    this.insurantName = insurantName
-                    if (this.isNewlyCreated) {
-                        this.name = insurantName
-                    }
-                }
+            val existingProfile = allProfiles.find {
+                it.insuranceData.insuranceIdentifier == insuranceIdentifier && it.id != profileId
             }
+            if (existingProfile != null) {
+                throw KVNRAlreadyAssignedException(
+                    "KVNR already assigned to another profile",
+                    false,
+                    existingProfile.name,
+                    existingProfile.insuranceData.insuranceIdentifier!!
+                )
+            }
+
+            val currentProfile = allProfiles.find { it.id == profileId }
+            if (currentProfile?.insuranceData?.insuranceIdentifier != null &&
+                currentProfile.insuranceData.insuranceIdentifier != insuranceIdentifier
+            ) {
+                throw KVNRAlreadyAssignedException(
+                    "Profile already assigned to another KVNR",
+                    true,
+                    profileId,
+                    currentProfile.insuranceData.insuranceIdentifier!!
+                )
+            }
+
+            profileLocalDataSource.updateInsuranceInformation(
+                profileId,
+                insurantName,
+                insuranceIdentifier,
+                organizationIdentifier,
+                insuranceName
+            )
         }
     }
 
     override suspend fun updateProfileName(profileId: ProfileIdentifier, profileName: String) {
-        realm.write {
-            queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
-                this.name = profileName
-                this.isNewlyCreated = false
-            }
-        }
+        profileLocalDataSource.updateProfileName(profileId, profileName)
     }
 
-    override suspend fun updateProfileColor(profileId: ProfileIdentifier, color: ProfilesData.ProfileColorNames) {
-        realm.write<Unit> {
-            queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
-                this.color = when (color) {
-                    ProfilesData.ProfileColorNames.SPRING_GRAY -> ProfileColorNamesV1.SPRING_GRAY
-                    ProfilesData.ProfileColorNames.SUN_DEW -> ProfileColorNamesV1.SUN_DEW
-                    ProfilesData.ProfileColorNames.PINK -> ProfileColorNamesV1.PINK
-                    ProfilesData.ProfileColorNames.TREE -> ProfileColorNamesV1.TREE
-                    ProfilesData.ProfileColorNames.BLUE_MOON -> ProfileColorNamesV1.BLUE_MOON
-                }
-            }
-        }
+    override suspend fun updateProfileColor(profileId: ProfileIdentifier, color: ProfileColorNames) {
+        profileLocalDataSource.updateProfileColor(profileId, color)
     }
 
     override suspend fun updateLastAuthenticated(profileId: ProfileIdentifier, lastAuthenticated: Instant) {
-        realm.write {
-            queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
-                this.lastAuthenticated = lastAuthenticated.toRealmInstant()
-            }
-        }
+        profileLocalDataSource.updateLastAuthenticated(profileId, lastAuthenticated)
     }
 
-    @Suppress("CyclomaticComplexMethod")
-    override suspend fun saveAvatarFigure(profileId: ProfileIdentifier, avatar: ProfilesData.Avatar) {
-        realm.write {
-            queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
-                this.avatarFigure = when (avatar) {
-                    ProfilesData.Avatar.PersonalizedImage -> AvatarFigureV1.PersonalizedImage
-                    ProfilesData.Avatar.FemaleDoctor -> AvatarFigureV1.FemaleDoctor
-                    ProfilesData.Avatar.WomanWithHeadScarf -> AvatarFigureV1.WomanWithHeadScarf
-                    ProfilesData.Avatar.Grandfather -> AvatarFigureV1.Grandfather
-                    ProfilesData.Avatar.BoyWithHealthCard -> AvatarFigureV1.BoyWithHealthCard
-                    ProfilesData.Avatar.OldManOfColor -> AvatarFigureV1.OldManOfColor
-                    ProfilesData.Avatar.WomanWithPhone -> AvatarFigureV1.WomanWithPhone
-                    ProfilesData.Avatar.Grandmother -> AvatarFigureV1.Grandmother
-                    ProfilesData.Avatar.ManWithPhone -> AvatarFigureV1.ManWithPhone
-                    ProfilesData.Avatar.WheelchairUser -> AvatarFigureV1.WheelchairUser
-                    ProfilesData.Avatar.Baby -> AvatarFigureV1.Baby
-                    ProfilesData.Avatar.MaleDoctorWithPhone -> AvatarFigureV1.MaleDoctorWithPhone
-                    ProfilesData.Avatar.FemaleDoctorWithPhone -> AvatarFigureV1.FemaleDoctorWithPhone
-                    ProfilesData.Avatar.FemaleDeveloper -> AvatarFigureV1.FemaleDeveloper
-                }
-            }
-        }
+    override suspend fun updateLastTaskSynced(profileId: ProfileIdentifier, lastTaskSynced: Instant) {
+        profileLocalDataSource.updateLastTaskSynced(profileId, lastTaskSynced)
+    }
+
+    override suspend fun saveAvatarFigure(profileId: ProfileIdentifier, avatar: Avatar) {
+        profileLocalDataSource.saveAvatarFigure(profileId, avatar)
     }
 
     override suspend fun savePersonalizedProfileImage(profileId: ProfileIdentifier, profileImage: ByteArray) {
-        realm.write {
-            queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
-                this.personalizedImage = profileImage
-            }
-        }
+        profileLocalDataSource.savePersonalizedProfileImage(profileId, profileImage)
     }
 
     override suspend fun clearPersonalizedProfileImage(profileId: ProfileIdentifier) {
-        realm.write {
-            queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
-                this.personalizedImage = null
-                this.avatarFigure = AvatarFigureV1.PersonalizedImage
-            }
-        }
+        profileLocalDataSource.clearPersonalizedProfileImage(profileId)
     }
 
-    override suspend fun switchProfileToPKV(profileId: ProfileIdentifier): Boolean {
-        val entity = realm.write {
-            queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
-                this.insuranceType = InsuranceTypeV1.PKV
-            }
-        }
-        return entity?.insuranceType == InsuranceTypeV1.PKV
+    override suspend fun switchProfileToPKV(profileId: ProfileIdentifier) {
+        profileLocalDataSource.updateInsuranceType(profileId, ErpInsuranceType.PKV)
     }
 
-    override suspend fun switchProfileToGKV(profileId: ProfileIdentifier): Boolean {
-        val entity = realm.write {
-            queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
-                this.insuranceType = InsuranceTypeV1.GKV
-            }
-        }
-        return entity?.insuranceType == InsuranceTypeV1.GKV
+    override suspend fun switchProfileToGKV(profileId: ProfileIdentifier) {
+        profileLocalDataSource.updateInsuranceType(profileId, ErpInsuranceType.GKV)
     }
 
-    override suspend fun switchProfileToBUND(profileId: ProfileIdentifier): Boolean {
-        val entity = realm.write {
-            queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
-                this.insuranceType = InsuranceTypeV1.BUND
-            }
-        }
-        return entity?.insuranceType == InsuranceTypeV1.BUND
+    override suspend fun switchProfileToBUND(profileId: ProfileIdentifier) {
+        profileLocalDataSource.updateInsuranceType(profileId, ErpInsuranceType.BUND)
     }
 
     override suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean =
-        getProfileById(profileId).first().insuranceType == ProfilesData.InsuranceType.PKV
+        getProfileById(profileId).first().isPkv()
 
-    override fun getProfileById(
-        profileId: ProfileIdentifier
-    ): Flow<ProfilesData.Profile> =
-        realm.queryFirst<ProfileEntityV1>("id = $0", profileId)?.asFlow()?.mapNotNull {
-            it.obj?.toProfileData()
-        } ?: emptyFlow()
+    override fun getProfileById(profileId: ProfileIdentifier): Flow<ProfileErpModel> =
+        profileLocalDataSource.getProfileById(profileId)
+            .mapNotNull { it }
+            .flowOn(dispatcher)
 
     override suspend fun isSsoTokenValid(profileId: ProfileIdentifier): Flow<Boolean> =
-        realm.queryFirst<ProfileEntityV1>("id = $0", profileId)
-            ?.asFlow()?.mapNotNull { it.obj?.toProfileData() }
-            ?.map { it.isSSOTokenValid() } ?: flowOf(false)
+        profileLocalDataSource.getProfileById(profileId)
+            .mapNotNull { it }
+            .map { it.isSSOTokenValid() }
+            .flowOn(dispatcher)
 
     override suspend fun getOrganizationIdentifier(profileId: ProfileIdentifier): Flow<String> =
-        realm.queryFirst<ProfileEntityV1>("id = $0", profileId)?.asFlow()?.mapNotNull {
-            it.obj?.organizationIdentifier
-        } ?: emptyFlow()
+        profileLocalDataSource.getProfileById(profileId)
+            .mapNotNull { it?.insuranceData?.organizationIdentifier ?: "" }
+            .flowOn(dispatcher)
 
     override suspend fun updateOrganizationIdentifier(iknr: String) {
-        activeProfile()
-            .first()
-            .let { activeProfile ->
-                realm.write {
-                    queryFirst<ProfileEntityV1>("id = $0", activeProfile.id)?.apply {
-                        this.organizationIdentifier = iknr
-                    }
-                }
-            }
+        val activeProfile = activeProfile().first()
+        profileLocalDataSource.updateOrganizationIdentifier(activeProfile.id, iknr)
     }
+
+    override suspend fun wasProfileEverAuthenticated(profileId: ProfileIdentifier): Boolean =
+        profileLocalDataSource.wasProfileEverAuthenticated(profileId)
 }
+
+class KVNRAlreadyAssignedException(
+    message: String,
+    val isActiveProfile: Boolean,
+    val inProfile: String,
+    val insuranceIdentifier: String
+) : IllegalStateException(message)

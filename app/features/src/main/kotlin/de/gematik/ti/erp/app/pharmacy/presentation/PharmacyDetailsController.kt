@@ -28,7 +28,8 @@ import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.usecase.GetShowTelematikIdStateUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.ChangePharmacyFavoriteStateUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.IsPharmacyFavoriteUseCase
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel.Companion.toPharmacyErpModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -46,17 +47,17 @@ class PharmacyDetailsController(
 
     val showTelematikId = getShowTelematikIdStateUseCase.invoke()
 
-    fun isPharmacyFavorite(pharmacy: PharmacyUseCaseData.Pharmacy) {
+    fun isPharmacyFavorite(pharmacy: PharmacyDetailsErpModel) {
         controllerScope.launch {
-            isPharmacyFavoriteUseCase(pharmacy).collectLatest {
+            isPharmacyFavoriteUseCase(pharmacy.toPharmacyErpModel()).collectLatest {
                 _isPharmacyFavorite.value = it
             }
         }
     }
 
-    fun changePharmacyAsFavorite(pharmacy: PharmacyUseCaseData.Pharmacy, state: Boolean) {
+    fun changePharmacyAsFavorite(pharmacy: PharmacyDetailsErpModel, state: Boolean) {
         controllerScope.launch {
-            changePharmacyFavoriteStateUseCase(pharmacy, state)
+            changePharmacyFavoriteStateUseCase(pharmacy.toPharmacyErpModel(), state)
             _isPharmacyFavorite.value = state
         }
     }

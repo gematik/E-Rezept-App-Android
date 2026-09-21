@@ -22,14 +22,11 @@
 
 package de.gematik.ti.erp.app.database.realm.v1.task.entity
 
+import de.gematik.ti.erp.app.communication.model.CommunicationProfileV1
 import de.gematik.ti.erp.app.database.realm.utils.enumName
 import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.Ignore
-
-enum class CommunicationProfileV1 {
-    ErxCommunicationDispReq, ErxCommunicationReply, Unknown, InApp
-}
 
 class CommunicationEntityV1 : RealmObject {
     var taskId: String = ""
@@ -49,6 +46,7 @@ class CommunicationEntityV1 : RealmObject {
     var payload: String? = null
 
     var consumed: Boolean = false
+    var pharmacyName: String? = null
 
     // back reference
     var parent: SyncedTaskEntityV1? = null

@@ -64,7 +64,7 @@ class ExternalAuthenticationHandler(
             Napier.i("Authenticate with GID ...")
             idpUseCase.invoke(URI(intent.uriData))
             handlerState.value = AuthenticationHandlerState.Success
-            intent.resultChannel.send(intent.uriData) // the result is sent here, after the idpUseCase saves the token
+            intent.onSuccess(intent.uriData) // the result is sent here, after the idpUseCase saves the token
             Napier.i("... authenticated")
         } catch (e: Throwable) {
             when (e) {

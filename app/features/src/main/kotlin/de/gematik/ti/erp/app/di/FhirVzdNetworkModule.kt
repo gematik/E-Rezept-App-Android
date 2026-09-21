@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.di
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.digas.data.repository.DigaInformationRemoteDataSource
+import de.gematik.ti.erp.app.diga.remote.DigaInformationRemoteDataSource
 import de.gematik.ti.erp.app.interceptor.ERezeptBackendTokenApiKeyInterceptor
 import de.gematik.ti.erp.app.interceptor.PharmacySearchApiKeyInterceptor
 import de.gematik.ti.erp.app.pharmacy.api.ERezeptBackendService

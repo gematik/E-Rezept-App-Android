@@ -23,14 +23,14 @@
 package de.gematik.ti.erp.app.prescription.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
 import de.gematik.ti.erp.app.prescription.ui.preview.OnlineRedeemPreferencesScreenPreviewData.PharmacyOrders
 import de.gematik.ti.erp.app.prescription.ui.preview.OnlineRedeemPreferencesScreenPreviewData.emptyPharmacyOrders
 import kotlinx.datetime.Instant
 
-class OnlineRedeemPreferencesScreenPreviewParameterProvider : PreviewParameterProvider<List<PharmacyUseCaseData.PrescriptionInOrder>> {
+class OnlineRedeemPreferencesScreenPreviewParameterProvider : PreviewParameterProvider<List<PrescriptionInOrderErpModel>> {
 
-    override val values: Sequence<List<PharmacyUseCaseData.PrescriptionInOrder>>
+    override val values: Sequence<List<PrescriptionInOrderErpModel>>
         get() = sequenceOf(
             PharmacyOrders,
             emptyPharmacyOrders
@@ -41,7 +41,7 @@ object OnlineRedeemPreferencesScreenPreviewData {
     val time = Instant.parse("2021-11-25T15:20:00Z")
 
     val PharmacyOrders = listOf(
-        PharmacyUseCaseData.PrescriptionInOrder(
+        PrescriptionInOrderErpModel(
             taskId = "1",
             accessCode = "ABC123",
             title = "Prescription 1",
@@ -49,9 +49,10 @@ object OnlineRedeemPreferencesScreenPreviewData {
             index = 1,
             timestamp = time,
             substitutionsAllowed = true,
-            isScanned = false
+            isScanned = false,
+            isTeratogenicPrescription = true
         ),
-        PharmacyUseCaseData.PrescriptionInOrder(
+        PrescriptionInOrderErpModel(
             taskId = "2",
             accessCode = "XYZ456",
             title = "Prescription 2",
@@ -59,9 +60,10 @@ object OnlineRedeemPreferencesScreenPreviewData {
             index = 2,
             timestamp = time,
             substitutionsAllowed = false,
-            isScanned = true
+            isScanned = true,
+            isTeratogenicPrescription = false
         ),
-        PharmacyUseCaseData.PrescriptionInOrder(
+        PrescriptionInOrderErpModel(
             taskId = "2",
             accessCode = "XYZ456",
             title = "Prescription 2",
@@ -69,8 +71,9 @@ object OnlineRedeemPreferencesScreenPreviewData {
             index = 2,
             timestamp = time,
             substitutionsAllowed = false,
-            isScanned = true
+            isScanned = true,
+            isTeratogenicPrescription = false
         )
     )
-    val emptyPharmacyOrders = emptyList<PharmacyUseCaseData.PrescriptionInOrder>()
+    val emptyPharmacyOrders = emptyList<PrescriptionInOrderErpModel>()
 }

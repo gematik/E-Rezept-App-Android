@@ -23,10 +23,11 @@
 package de.gematik.ti.erp.app.messages.domain.model
 
 import de.gematik.ti.erp.app.messages.model.LastMessage
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
+@Deprecated("Remove this whole class. Use ErpModel from commResV3 instead")
 object OrderUseCaseData {
     @Serializable
     data class Pharmacy(
@@ -37,7 +38,7 @@ object OrderUseCaseData {
     @Serializable
     data class Order(
         val orderId: String,
-        val prescriptions: List<Prescription?>,
+        val prescriptions: List<TaskErpModel?>,
         val sentOn: Instant,
         val pharmacy: Pharmacy,
         val hasUnreadMessages: Boolean,
@@ -57,13 +58,14 @@ object OrderUseCaseData {
     @Serializable
     data class InvoiceInfo(
         val hasInvoice: Boolean = false,
-        val invoiceSentOn: Instant? = null
+        val invoiceSentOn: Instant? = null,
+        val medicationName: String? = null
     )
 
     @Serializable
     data class TaskDetailedBundle(
         val invoiceInfo: InvoiceInfo = InvoiceInfo(),
-        val prescription: Prescription?
+        val prescription: TaskErpModel?
     )
 
     @Serializable
@@ -76,7 +78,7 @@ object OrderUseCaseData {
         val pickUpCodeHR: String?,
         val link: String?,
         val consumed: Boolean,
-        val prescriptions: List<Prescription?>,
+        val prescriptions: List<TaskErpModel?>,
         val taskIds: List<String> = emptyList(),
         val isTaskIdCountMatching: Boolean = false
     ) {

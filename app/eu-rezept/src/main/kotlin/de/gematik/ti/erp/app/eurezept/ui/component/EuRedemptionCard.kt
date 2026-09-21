@@ -52,7 +52,7 @@ import de.gematik.ti.erp.app.button.GemIconButtonDefaults
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.eurezept.domain.model.CountrySpecificLabels
 import de.gematik.ti.erp.app.eurezept.domain.model.EuRedemptionDetails
-import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCodeErpModel
 import de.gematik.ti.erp.app.extensions.dashedBorder
 import de.gematik.ti.erp.app.fhir.temporal.toHourMinuteString
 import de.gematik.ti.erp.app.preview.LightDarkPreview
@@ -267,7 +267,7 @@ private fun EuRedemptionCardActivePreview() {
     PreviewTheme {
         EuRedemptionCodeCard(
             redemptionData = EuRedemptionDetails(
-                euAccessCode = EuAccessCode(
+                euAccessCode = EuAccessCodeErpModel(
                     countryCode = "IT",
                     accessCode = "123456",
                     validUntil = Instant.DISTANT_FUTURE,

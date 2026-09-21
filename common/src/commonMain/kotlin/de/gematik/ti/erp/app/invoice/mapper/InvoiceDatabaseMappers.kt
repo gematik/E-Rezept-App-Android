@@ -23,18 +23,18 @@
 package de.gematik.ti.erp.app.invoice.mapper
 
 import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
-import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.profile.ProfileEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.ChargeableItemV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.DescriptionTypeV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.PriceComponentV1
+import de.gematik.ti.erp.app.database.realm.v1.task.mappers.TaskDatabaseMappers.toDatabaseModel
 import de.gematik.ti.erp.app.fhir.FhirPkvChargeItem
 import de.gematik.ti.erp.app.fhir.pkv.model.FhirPkvInvoiceChargeItemErpModel
 import de.gematik.ti.erp.app.fhir.pkv.model.FhirPkvInvoiceErpModel
 import de.gematik.ti.erp.app.fhir.support.ChargeItemType
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
-import de.gematik.ti.erp.app.prescription.mapper.TaskDatabaseMappers.toDatabaseModel
 
 object InvoiceDatabaseMappers {
 

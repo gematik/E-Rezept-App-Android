@@ -46,10 +46,11 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.appauthentication.model.AppAuthenticationErpModel
+import de.gematik.ti.erp.app.appauthentication.model.AppAuthenticationMethodErpModel
 import de.gematik.ti.erp.app.authentication.ui.components.EnrollBiometricDialog
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
-import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.navigation.SettingsRoutes
 import de.gematik.ti.erp.app.settings.presentation.rememberAppSecuritySettingsController
 import de.gematik.ti.erp.app.settings.ui.preview.AppSecuritySettingsParameter
@@ -112,7 +113,7 @@ class SettingsAppSecurityScreen(
 @Composable
 private fun SettingsAppSecurityScreenScaffold(
     listState: LazyListState,
-    authenticationState: SettingsData.Authentication,
+    authenticationState: AppAuthenticationErpModel,
     onSwitchDeviceSecurityAuthentication: (Boolean) -> Unit,
     onSwitchPasswordAuthentication: (Boolean) -> Unit,
     onOpenPasswordScreen: () -> Unit,
@@ -141,7 +142,7 @@ private fun SettingsAppSecurityScreenScaffold(
 private fun SettingsAppSecurityScreenContent(
     contentPadding: PaddingValues,
     listState: LazyListState,
-    authentication: SettingsData.Authentication,
+    authentication: AppAuthenticationErpModel,
     onNavigateToPasswordScreen: () -> Unit,
     onSwitchDeviceSecurityAuthentication: (Boolean) -> Unit,
     onSwitchPasswordAuthentication: (Boolean) -> Unit
@@ -170,7 +171,9 @@ private fun SettingsAppSecurityScreenContent(
             )
         }
         item {
-            if (authentication.passwordIsSet) {
+            if (authentication.authenticationMethod is AppAuthenticationMethodErpModel.Password ||
+                authentication.authenticationMethod is AppAuthenticationMethodErpModel.Both
+            ) {
                 ChangePasswordSection(
                     text = stringResource(id = R.string.settings_app_security_change_password),
                     onOpenPasswordScreen = onNavigateToPasswordScreen
@@ -182,27 +185,31 @@ private fun SettingsAppSecurityScreenContent(
 
 @Composable
 private fun DeviceSecuritySwitch(
-    authentication: SettingsData.Authentication,
+    authentication: AppAuthenticationErpModel,
     onSwitchDeviceSecurityAuthentication: (Boolean) -> Unit
 ) {
     SwitchRightWithText(
         text = stringResource(id = R.string.settings_app_security_device_security),
-        checked = authentication.deviceSecurity,
+        checked = authentication.authenticationMethod is AppAuthenticationMethodErpModel.DeviceSecurity ||
+            authentication.authenticationMethod is AppAuthenticationMethodErpModel.Both,
         onCheckedChange = { onSwitchDeviceSecurityAuthentication(it) },
-        enabled = !authentication.methodIsDeviceSecurity // enabled only if device security is not the only method
+        enabled = authentication.authenticationMethod
+        !is AppAuthenticationMethodErpModel.DeviceSecurity // enabled only if device security is not the only method
     )
 }
 
 @Composable
 private fun PasswordSwitch(
-    authentication: SettingsData.Authentication,
+    authentication: AppAuthenticationErpModel,
     onSwitchPasswordAuthentication: (Boolean) -> Unit
 ) {
     SwitchRightWithText(
         text = stringResource(id = R.string.settings_app_security_password),
-        checked = authentication.passwordIsSet,
+        checked = authentication.authenticationMethod is AppAuthenticationMethodErpModel.Password ||
+            authentication.authenticationMethod is AppAuthenticationMethodErpModel.Both,
         onCheckedChange = { onSwitchPasswordAuthentication(it) },
-        enabled = !authentication.methodIsPassword // enabled only if password is not the only method
+        enabled = authentication.authenticationMethod
+        !is AppAuthenticationMethodErpModel.Password // enabled only if password is not the only method
     )
 }
 

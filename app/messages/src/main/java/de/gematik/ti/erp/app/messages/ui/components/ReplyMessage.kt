@@ -40,7 +40,7 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.em
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.messages.mappers.ReplyMessageType
+import de.gematik.ti.erp.app.messages.mapper.ReplyMessageType
 import de.gematik.ti.erp.app.messages.ui.model.ReplyMessageUiModel
 import de.gematik.ti.erp.app.messages.ui.preview.MessagePreviewMocks.MOCK_PRESCRIPTION_01
 import de.gematik.ti.erp.app.messages.ui.preview.MessagePreviewMocks.MOCK_PRESCRIPTION_02
@@ -119,7 +119,7 @@ private fun AnnotatedInfoText(info: String) {
     val annotatedText = buildAnnotatedString {
         append(info)
         append(" ")
-        appendInlineContent("button", "button")
+        appendInlineContent("button")
     }
 
     val inlineContent = mapOf(

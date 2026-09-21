@@ -62,13 +62,15 @@ import kotlinx.datetime.Instant
 
 @Composable
 fun OverviewWaitStateSection(
-    lastRefreshedTime: Instant,
+    lastRefreshedTime: Instant?,
     isDownloading: Boolean,
     onRefresh: () -> Unit
 ) {
-    val timeString = timeStateParser(
-        timeState = getTimeState(lastRefreshedTime)
-    )
+    val timeString = lastRefreshedTime?.let {
+        timeStateParser(
+            timeState = getTimeState(lastRefreshedTime)
+        )
+    } ?: ""
     val rotation by rememberInfiniteTransition(label = "rotate")
         .animateFloat(
             initialValue = 0f,

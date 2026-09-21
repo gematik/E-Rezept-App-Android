@@ -28,7 +28,7 @@ import de.gematik.ti.erp.app.messages.domain.usecase.GetEuOrderMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetEuOrderTasksUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.MarkEuEventsReadUseCase
 import de.gematik.ti.erp.app.messages.ui.model.EuOrderMessageUiModel
-import de.gematik.ti.erp.app.prescription.model.TaskData
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -61,7 +61,7 @@ class EuRedeemMessageDetailsController(
 
     private val _euMessages = MutableStateFlow<UiState<List<EuOrderMessageUiModel>>>(UiState.Loading())
 
-    private val _euTasks = MutableStateFlow<UiState<List<TaskData>>>(UiState.Loading())
+    private val _euTasks = MutableStateFlow<UiState<List<TaskErpModel>>>(UiState.Loading())
 
     /**
      * State flow containing the list of EU order messages in different UI states (Loading, Empty, Data, Error).
@@ -73,7 +73,7 @@ class EuRedeemMessageDetailsController(
      * State flow containing the list of prescription tasks associated with the EU order in different UI states.
      * Observing this flow will provide updates when tasks are loaded or changed.
      */
-    val euTasks: StateFlow<UiState<List<TaskData>>> = _euTasks.asStateFlow()
+    val euTasks: StateFlow<UiState<List<TaskErpModel>>> = _euTasks.asStateFlow()
 
     /**
      * Initializes the controller by loading EU order messages and associated prescription tasks.

@@ -28,5 +28,7 @@ import kotlinx.coroutines.flow.map
 class GetZoomStateUseCase(
     private val settingsRepository: SettingsRepository
 ) {
-    operator fun invoke() = settingsRepository.general.map { it.zoomEnabled }
+    operator fun invoke() = settingsRepository.loadSettings().map {
+        it.zoomEnabled
+    }
 }

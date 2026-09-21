@@ -22,12 +22,22 @@
 
 package extensions
 
+import generated.androidxConcurrentFuturesKtxLibrary
+import generated.androidxConcurrentFuturesLibrary
 import generated.guavaLibrary
+import generated.jacksonCoreLibrary
+import generated.kotlinReflectLibrary
 import generated.kotlinStdlibJdk8Library
 import generated.kotlinStdlibLibrary
+import generated.kotlinxCoroutinesAndroidLibrary
+import generated.kotlinxCoroutinesCoreLibrary
+import generated.kotlinxCoroutinesPlayServicesLibrary
+import generated.kotlinxCoroutinesTestLibrary
 import generated.nettyCodecHttp2Library
 import generated.nettyCodecHttpLibrary
+import generated.nettyCodecLibrary
 import generated.nettyHandlerLibrary
+import generated.nettyHandlerProxyLibrary
 import generated.protobufJavaLibrary
 import generated.protobufJavaUtilLibrary
 import generated.qualityCheckstyleLibrary
@@ -44,13 +54,28 @@ fun Project.applyForcedDependencies(versionCatalog: VersionCatalog) {
                 force(versionCatalog.nettyCodecHttpLibrary)
                 force(versionCatalog.nettyCodecHttp2Library)
                 force(versionCatalog.nettyHandlerLibrary)
+                // Fixes CVE-2026-42583, CVE-2026-42587 (netty-codec 4.1.x via grpc-netty)
+                force(versionCatalog.nettyCodecLibrary)
+                // Fixes CVE-2026-42578 (netty-handler-proxy 4.1.x via grpc-netty)
+                force(versionCatalog.nettyHandlerProxyLibrary)
+                // Fixes jackson-core DoS (via primsys-rest-client)
+                force(versionCatalog.jacksonCoreLibrary)
                 force(versionCatalog.guavaLibrary)
+                force(versionCatalog.androidxConcurrentFuturesLibrary)
+                force(versionCatalog.androidxConcurrentFuturesKtxLibrary)
+                force(versionCatalog.kotlinxCoroutinesCoreLibrary)
+                force(versionCatalog.kotlinxCoroutinesAndroidLibrary)
+                force(versionCatalog.kotlinxCoroutinesPlayServicesLibrary)
+                force(versionCatalog.kotlinxCoroutinesTestLibrary)
                 force(versionCatalog.qualityCheckstyleLibrary)
                 // Fixes CVE-2022-1471
                 force(versionCatalog.testYamlLibrary)
                 // external dependencies bring kotlin to 1.9.* transitively
                 force(versionCatalog.kotlinStdlibLibrary)
                 force(versionCatalog.kotlinStdlibJdk8Library)
+                // mockk 1.14.11+ is compiled with Kotlin 2.2 and pulls kotlin-reflect:2.2.x
+                // which is incompatible with this project's Kotlin 2.0.21 compiler
+                force(versionCatalog.kotlinReflectLibrary)
             }
         }
     }

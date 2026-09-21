@@ -59,7 +59,7 @@ import androidx.compose.ui.text.style.TextAlign
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.pharmacy.ui.preview.mockPharmacy
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -72,7 +72,7 @@ import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 
 @Composable
 fun PharmacyContactSelection(
-    pharmacy: Pharmacy,
+    pharmacy: PharmacyDetailsErpModel,
     onPhoneClicked: (String) -> Unit,
     onMailClicked: (String) -> Unit
 ) {

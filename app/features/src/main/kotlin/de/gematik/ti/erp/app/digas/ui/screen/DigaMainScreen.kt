@@ -476,7 +476,7 @@ fun DigaMainScreenScaffold(
     isDownloading: Boolean,
     logo: @Composable ColumnScope.() -> Unit,
     selectedTab: DigaSegmentedControllerTap,
-    lastRefreshedTime: Instant,
+    lastRefreshedTime: Instant?,
     actions: DigasActions,
     isConnectionValid: Boolean,
     showLoadingIndicator: Boolean,

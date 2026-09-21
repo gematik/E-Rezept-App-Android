@@ -148,10 +148,6 @@
 -dontwarn org.bouncycastle.**
 -dontwarn org.openjsse.**
 
-# Keep all classes, methods, and fields in the com.appmattus.certificatetransparency package
--keep class com.appmattus.certificatetransparency.** { *; }
--keep class com.appmattus.certificatetransparency.**$* { *; }
-
 -keep class de.gematik.ti.erp.app.** { *; }
 
 -printconfiguration "~/tmp/full-r8-config.txt"

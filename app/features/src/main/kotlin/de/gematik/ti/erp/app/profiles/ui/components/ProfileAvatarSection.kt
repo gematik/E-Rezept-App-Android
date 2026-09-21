@@ -50,7 +50,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.style.TextAlign
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.semantics.semanticsMergeDescendants
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -59,10 +59,10 @@ import de.gematik.ti.erp.app.utils.extensions.circularBorder
 
 @Composable
 fun ProfileAvatarSection(
-    profile: ProfilesUseCaseData.Profile,
+    profile: ProfileErpModel,
     onClickEditAvatar: () -> Unit
 ) {
-    val selectedColor = profileColor(profileColorNames = profile.color)
+    val selectedColor = profileColor(profileColorNames = profile.profileImageData.color)
     val contentDesription = stringResource(R.string.edit_profile_picture)
     Column(
         modifier =
@@ -97,9 +97,9 @@ fun ProfileAvatarSection(
                 ChooseAvatar(
                     emptyIcon = Icons.Rounded.AddAPhoto,
                     modifier = Modifier.size(SizeDefaults.triple),
-                    image = profile.image,
-                    profileColor = profile.color.color(),
-                    avatar = profile.avatar
+                    image = profile.profileImageData.image,
+                    profileColor = profile.profileImageData.color.color(),
+                    avatar = profile.profileImageData.avatar
                 )
             }
         }

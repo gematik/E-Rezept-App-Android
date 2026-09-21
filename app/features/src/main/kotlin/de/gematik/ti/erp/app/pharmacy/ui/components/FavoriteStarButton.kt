@@ -51,7 +51,7 @@ internal fun FavoriteStarButton(
     onChange: (Boolean) -> Unit
 ) {
     val color = if (isMarked) {
-        AppTheme.colors.yellow500
+        AppTheme.colors.yellow700
     } else {
         AppTheme.colors.primary700
     }
@@ -64,7 +64,8 @@ internal fun FavoriteStarButton(
 
     val addedText = stringResource(R.string.pharmacy_detals_added_to_favorites)
     val removedText = stringResource(R.string.pharmacy_detalls_removed_from_favorites)
-    val contentDescription = stringResource(id = R.string.pharmacy_search_favorite_toggle)
+    val addDescription = stringResource(id = R.string.a11y_pharmacy_search_favorite_toggle)
+    val removeDescription = stringResource(id = R.string.a11y_pharmacy_search_favorite_toggle_off)
     val activeDescription = stringResource(id = R.string.pharmacy_search_favorite_toggle_active)
     val inactiveDescription = stringResource(id = R.string.pharmacy_search_favorite_toggle_inactive)
     val context = LocalContext.current
@@ -91,7 +92,7 @@ internal fun FavoriteStarButton(
     ) {
         Icon(
             icon,
-            contentDescription = contentDescription,
+            contentDescription = if (isMarked) removeDescription else addDescription,
             tint = color
         )
     }

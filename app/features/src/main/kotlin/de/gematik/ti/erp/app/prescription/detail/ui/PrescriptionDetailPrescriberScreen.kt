@@ -48,8 +48,8 @@ import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.task.model.PractitionerErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
@@ -92,7 +92,7 @@ class PrescriptionDetailPrescriberScreen(
                 )
             },
             onContent = { (_, prescription) ->
-                val syncedPrescription = prescription as? PrescriptionData.Synced
+                val syncedPrescription = prescription as? TaskErpModel.Synced
                 val practitioner = syncedPrescription?.practitioner
                 val listState = rememberLazyListState()
                 AnimatedElevationScaffold(
@@ -118,7 +118,7 @@ class PrescriptionDetailPrescriberScreen(
 private fun PrescriptionDetailPrescriberScreenContent(
     listState: LazyListState,
     innerPadding: PaddingValues,
-    practitioner: SyncedTaskData.Practitioner?
+    practitioner: PractitionerErpModel?
 ) {
     val noValueText = stringResource(R.string.pres_details_no_value)
     LazyColumn(

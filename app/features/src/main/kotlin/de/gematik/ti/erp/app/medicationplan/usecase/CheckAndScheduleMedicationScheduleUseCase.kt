@@ -23,30 +23,30 @@
 package de.gematik.ti.erp.app.medicationplan.usecase
 
 import de.gematik.ti.erp.app.medicationplan.alarm.MedicationPlanNotificationScheduler
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDuration
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDurationErpModel
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 
 class CheckAndScheduleMedicationScheduleUseCase(
     private val scheduler: MedicationPlanNotificationScheduler,
     private val medicationPlanRepository: MedicationPlanRepository
 ) {
-    suspend operator fun invoke(medicationSchedule: MedicationSchedule) {
-        val endDate = medicationSchedule.calculateEndOfPack()
+    suspend operator fun invoke(medicationScheduleErpModel: MedicationScheduleErpModel) {
+        val endDate = medicationScheduleErpModel.calculateEndOfPack()
         when {
-            medicationSchedule.duration is MedicationScheduleDuration.EndOfPack &&
-                medicationSchedule.duration.endDate != endDate -> {
+            medicationScheduleErpModel.duration is MedicationScheduleDurationErpModel.EndOfPack &&
+                medicationScheduleErpModel.duration.endDate != endDate -> {
                 medicationPlanRepository.setMedicationScheduleDuration(
-                    taskId = medicationSchedule.taskId,
-                    medicationScheduleDuration = MedicationScheduleDuration.EndOfPack(
-                        startDate = medicationSchedule.duration.startDate,
+                    taskId = medicationScheduleErpModel.taskId,
+                    medicationScheduleDurationErpModel = MedicationScheduleDurationErpModel.EndOfPack(
+                        startDate = medicationScheduleErpModel.duration.startDate,
                         endDate = endDate
                     )
                 )
             }
             else -> {
                 // this scheduler will always be executed since the usecase is invoked again after db update
-                scheduler.scheduleMedicationSchedule(medicationSchedule)
+                scheduler.scheduleMedicationSchedule(medicationScheduleErpModel)
             }
         }
     }

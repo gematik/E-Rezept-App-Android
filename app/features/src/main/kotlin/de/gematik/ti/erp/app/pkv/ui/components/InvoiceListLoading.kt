@@ -67,7 +67,7 @@ private fun InvoiceListLoadingItem() {
                 modifier = Modifier.weight(0.15f),
                 imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 contentDescription = null,
-                tint = AppTheme.colors.neutral400
+                tint = AppTheme.colors.neutral700
             )
         }
 

@@ -67,7 +67,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -344,7 +343,7 @@ private fun CardAndAnimation(modifier: Modifier) {
     val healthCardLottie = rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.healthcard_lottie))
     val progress by animateLottieCompositionAsState(
         animationComposition.value,
-        iterations = LottieConstants.IterateForever
+        iterations = 1
     )
     Box(
         modifier = modifier,

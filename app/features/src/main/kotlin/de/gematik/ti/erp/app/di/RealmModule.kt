@@ -31,7 +31,7 @@ import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.database.realm.schema.openRealmWith
 import de.gematik.ti.erp.app.database.realm.utils.queryFirst
-import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.SettingsEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.migrations.appSchemas
 import de.gematik.ti.erp.app.secureRandomInstance
 import io.realm.kotlin.exceptions.RealmException

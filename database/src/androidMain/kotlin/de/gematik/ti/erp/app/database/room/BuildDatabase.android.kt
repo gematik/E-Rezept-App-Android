@@ -22,27 +22,22 @@
 
 package de.gematik.ti.erp.app.database.room
 
-import de.gematik.ti.erp.app.database.room.v2.settings.SettingsRoomEntity
-import de.gematik.ti.erp.app.database.settings.appContext
-import kotlinx.coroutines.runBlocking
+import android.content.Context
 
 /**
  * Android actual implementation that builds the Room database using the
  * platform builder and the shared getRoomDatabase() helper.
- * Additionally, it seeds the Settings table with an example row
- * the first time the DB is created/used, if none exists yet.
  */
 actual fun buildAppDatabase(): AppDatabase {
     val builder = getDatabaseBuilder(appContext)
     val db = getRoomDatabase(builder)
 
-    // Seed default settings if missing
-    runBlocking {
-        val existing = db.settingsDao().get()
-        if (existing == null) {
-            db.settingsDao().upsert(SettingsRoomEntity.example())
-        }
-    }
-
     return db
+}
+
+lateinit var appContext: Context
+    private set
+
+fun initDatabaseContext(context: Context) {
+    appContext = context.applicationContext
 }

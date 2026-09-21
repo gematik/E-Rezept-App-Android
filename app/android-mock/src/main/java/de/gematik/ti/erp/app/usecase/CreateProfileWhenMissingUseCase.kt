@@ -22,48 +22,33 @@
 
 package de.gematik.ti.erp.app.usecase
 
+import de.gematik.ti.erp.app.appauthentication.model.AppAuthenticationMethodErpModel
+import de.gematik.ti.erp.app.appauthentication.model.AppAuthenticationPasswordErpModel
+import de.gematik.ti.erp.app.appauthentication.repository.AppAuthenticationRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
-import de.gematik.ti.erp.app.settings.model.SettingsData
+import de.gematik.ti.erp.app.settings.model.AppVersionErpModel
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import kotlinx.coroutines.flow.first
-import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
 
 class CreateProfileWhenMissingUseCase(
     private val profileRepository: ProfileRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val authenticationRepository: AppAuthenticationRepository
 ) {
     suspend operator fun invoke() {
         if (profileRepository.profiles().first().isEmpty()) {
-            settingsRepository.saveOnboardingData(
-                authentication = SettingsData.Authentication(
-                    deviceSecurity = false,
-                    password = SettingsData.Authentication.Password("password"),
-                    failedAuthenticationAttempts = 0,
-                    authenticationTimeOutSystemUptime = null
-                ),
-                profileName = "Test",
-                now = fixedInstant()
+            settingsRepository.saveOnboardingShownIn(
+                appVersion = AppVersionErpModel(
+                    name = "mock",
+                    code = 0
+                )
+            )
+            profileRepository.createNewProfile("Test")
+            authenticationRepository.initialiseAppAuthenticationWithChosenMethod(
+                method = AppAuthenticationMethodErpModel.Password(
+                    password = AppAuthenticationPasswordErpModel.fromPassword("password")
+                )
             )
         }
-    }
-
-    @Suppress("MagicNumber")
-    private fun fixedInstant(): Instant {
-        // Define the date and time, October 03, 2023, 00:00:00
-        val year = 2023
-        val month = 10
-        val day = 3
-        val hour = 0 // Midnight
-        val minute = 0
-        val second = 0
-
-        // Create a LocalDateTime
-        val localDateTime = LocalDateTime(year, month, day, hour, minute, second)
-
-        // Convert LocalDateTime to Instant assuming UTC timezone
-        return localDateTime.toInstant(TimeZone.UTC)
     }
 }

@@ -22,19 +22,19 @@
 
 package de.gematik.ti.erp.app.pharmacy.usecase
 
-import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_SYNCED_TASK_DATA_01
-import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_SYNCED_TASK_DATA_02
 import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_ACTIVE_PROFILE
 import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_SCANNED_TASK_DATA_REDEEMABLE_01
 import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_SCANNED_TASK_DATA_REDEEMABLE_02
 import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_SCANNED_TASK_DATA_REDEEMED_01
 import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_SHIPPING_CONTACT
+import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_SYNCED_TASK_DATA_NON_REDEEMABLE_01
+import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_SYNCED_TASK_DATA_NON_REDEEMABLE_02
 import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_SYNCED_TASK_DATA_REDEEMABLE_01
 import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_SYNCED_TASK_DATA_REDEEMABLE_02
 import de.gematik.ti.erp.app.pharmacy.mocks.MOCK_SYNCED_TASK_DATA_REDEEMABLE_SELF_PAYER_03
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OrderState
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.pharmacy.model.OrderStateErpModel
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import io.mockk.coEvery
@@ -52,7 +52,7 @@ class GetOrderStateUseCaseTest {
     private val dispatcher = StandardTestDispatcher()
 
     private val profileRepository: ProfileRepository = mockk()
-    private val prescriptionRepository: PrescriptionRepository = mockk()
+    private val taskOperationsRepository: TaskOperationsRepository = mockk()
     private val shippingContactRepository: ShippingContactRepository = mockk()
 
     @InjectMockKs
@@ -62,7 +62,7 @@ class GetOrderStateUseCaseTest {
     fun setup() {
         useCase = GetOrderStateUseCase(
             profileRepository,
-            prescriptionRepository,
+            taskOperationsRepository,
             shippingContactRepository,
             dispatcher
         )
@@ -70,18 +70,18 @@ class GetOrderStateUseCaseTest {
     }
 
     @Test
-    fun `invoke should return OrderState with 5 orders (3 synced, 2 scanned, 1 SelfPayer) and shippingContact`() {
+    fun `invoke should return OrderStateErpModel with 5 orders (3 synced, 2 scanned, 1 SelfPayer) and shippingContact`() {
         coEvery { shippingContactRepository.shippingContact() } returns flowOf(MOCK_SHIPPING_CONTACT)
-        coEvery { prescriptionRepository.syncedTasks(any()) } returns flowOf(
+        coEvery { taskOperationsRepository.loadSyncedTaskListByProfileId(any()) } returns flowOf(
             listOf(
                 MOCK_SYNCED_TASK_DATA_REDEEMABLE_01,
                 MOCK_SYNCED_TASK_DATA_REDEEMABLE_02,
                 MOCK_SYNCED_TASK_DATA_REDEEMABLE_SELF_PAYER_03,
-                MOCK_SYNCED_TASK_DATA_01,
-                MOCK_SYNCED_TASK_DATA_02
+                MOCK_SYNCED_TASK_DATA_NON_REDEEMABLE_01,
+                MOCK_SYNCED_TASK_DATA_NON_REDEEMABLE_02
             )
         )
-        coEvery { prescriptionRepository.scannedTasks(any()) } returns flowOf(
+        coEvery { taskOperationsRepository.loadScannedTaskListByProfileId(any()) } returns flowOf(
             listOf(
                 MOCK_SCANNED_TASK_DATA_REDEEMABLE_01,
                 MOCK_SCANNED_TASK_DATA_REDEEMABLE_02,
@@ -97,19 +97,19 @@ class GetOrderStateUseCaseTest {
     }
 
     @Test
-    fun `invoke should return OrderState with empty Orders and shippingContact`() {
+    fun `invoke should return OrderStateErpModel with empty Orders and shippingContact`() {
         coEvery { shippingContactRepository.shippingContact() } returns flowOf(null)
-        coEvery { prescriptionRepository.syncedTasks(any()) } returns flowOf(
+        coEvery { taskOperationsRepository.loadSyncedTaskListByProfileId(any()) } returns flowOf(
             listOf()
         )
-        coEvery { prescriptionRepository.scannedTasks(any()) } returns flowOf(
+        coEvery { taskOperationsRepository.loadScannedTaskListByProfileId(any()) } returns flowOf(
             listOf()
         )
         runTest(dispatcher) {
             val orderState = useCase().first()
 
             assertEquals(
-                OrderState(
+                OrderStateErpModel(
                     prescriptionsInOrder = emptyList(),
                     selfPayerPrescriptionIds = emptyList(),
                     contact = ShippingInfoErpModel.EmptyShippingInfoErpModel

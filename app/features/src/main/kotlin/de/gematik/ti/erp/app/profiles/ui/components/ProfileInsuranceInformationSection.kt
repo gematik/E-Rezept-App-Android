@@ -41,35 +41,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.listitem.GemListItemDefaults
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonLarge
 import de.gematik.ti.erp.app.utils.compose.PrimaryOutlinedButton
 
 @Composable
 fun ProfileInsuranceInformationSection(
-    selectedProfile: ProfilesUseCaseData.Profile,
+    selectedProfile: ProfileErpModel,
     isKVNRCopied: Boolean,
     onClickLogIn: () -> Unit,
     onClickLogOut: () -> Unit,
     onClickChangeInsuranceType: () -> Unit,
     onClickCopy: (ClipData) -> Unit
 ) {
-    val ssoTokenScope = selectedProfile.ssoTokenScope
-    val insuranceInformation = selectedProfile.insurance
+    val userAuthenticationErpModel = selectedProfile.userAuthentication
+    val insuranceData = selectedProfile.insuranceData
     val lastAuthenticated = selectedProfile.lastAuthenticated
     val cardAccessNumber =
-        if (ssoTokenScope is IdpData.TokenWithHealthCardScope) {
-            ssoTokenScope.cardAccessNumber
-        } else {
-            null
+        when (userAuthenticationErpModel) {
+            is UserAuthenticationErpModel.HealthCard -> userAuthenticationErpModel.cardAccessNumber
+            is UserAuthenticationErpModel.HealthCardWithSavedCredentials -> userAuthenticationErpModel.cardAccessNumber
+            else -> null
         }
 
     Column(verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)) {
@@ -84,11 +85,11 @@ fun ProfileInsuranceInformationSection(
         )
         if (lastAuthenticated != null) {
             ProfileWasAuthenticatedBeforeSection(
-                insuranceInformation,
+                insuranceData,
                 selectedProfile,
                 isKVNRCopied,
                 cardAccessNumber,
-                ssoTokenScope,
+                userAuthenticationErpModel,
                 onClickChangeInsuranceType,
                 onClickCopy
             )
@@ -115,7 +116,7 @@ fun ProfileInsuranceInformationSection(
             }
         } else {
             ProfileWasNeverAuthenticatedSection(
-                insuranceInformation = insuranceInformation,
+                insuranceData = insuranceData,
                 onClickChangeInsuranceType = onClickChangeInsuranceType,
                 onClickLogIn = onClickLogIn
             )
@@ -125,11 +126,11 @@ fun ProfileInsuranceInformationSection(
 
 @Composable
 private fun ProfileWasAuthenticatedBeforeSection(
-    insuranceInformation: ProfileInsuranceInformation,
-    selectedProfile: ProfilesUseCaseData.Profile,
+    insuranceData: ProfileInsuranceDataErpModel,
+    selectedProfile: ProfileErpModel,
     isKVNRCopied: Boolean,
     cardAccessNumber: String?,
-    ssoTokenScope: IdpData.SingleSignOnTokenScope?,
+    userAuthenticationErpModel: UserAuthenticationErpModel?,
     onClickChangeInsuranceType: () -> Unit,
     onClickCopy: (ClipData) -> Unit
 ) {
@@ -144,17 +145,17 @@ private fun ProfileWasAuthenticatedBeforeSection(
             },
             headlineContent = {
                 Text(
-                    insuranceInformation.insurantName,
+                    insuranceData.insurantName ?: "",
                     style = AppTheme.typography.body1
                 )
             }
         )
         InsuranceNameListItem(
-            insuranceInformation = insuranceInformation,
+            insuranceData = insuranceData,
             onClickChangeInsuranceType = onClickChangeInsuranceType
         )
         val kvnrString = stringResource(R.string.insurance_information_insurance_identifier)
-        val clipData = ClipData.newPlainText(kvnrString, insuranceInformation.insuranceIdentifier)
+        val clipData = ClipData.newPlainText(kvnrString, insuranceData.insuranceIdentifier)
         ListItem(
             colors = GemListItemDefaults.gemListItemColors(),
             overlineContent = {
@@ -165,7 +166,7 @@ private fun ProfileWasAuthenticatedBeforeSection(
             },
             headlineContent = {
                 Text(
-                    insuranceInformation.insuranceIdentifier,
+                    insuranceData.insuranceIdentifier ?: "",
                     style = AppTheme.typography.body1
                 )
             },
@@ -218,11 +219,11 @@ private fun ProfileWasAuthenticatedBeforeSection(
             headlineContent = {
                 Text(
                     when {
-                        ssoTokenScope is IdpData.DefaultToken -> stringResource(
+                        userAuthenticationErpModel is UserAuthenticationErpModel.HealthCard -> stringResource(
                             R.string.profile_insurance_information_connected_health_card
                         )
-                        ssoTokenScope is IdpData.ExternalAuthenticationToken -> ssoTokenScope.authenticatorName
-                        ssoTokenScope is IdpData.AlternateAuthenticationToken || ssoTokenScope is IdpData.AlternateAuthenticationWithoutToken ->
+                        userAuthenticationErpModel is UserAuthenticationErpModel.External -> userAuthenticationErpModel.externalAuthenticatorName
+                        userAuthenticationErpModel is UserAuthenticationErpModel.HealthCardWithSavedCredentials ->
                             stringResource(
                                 R.string.profile_insurance_information_connected_biometrics
                             )
@@ -238,13 +239,13 @@ private fun ProfileWasAuthenticatedBeforeSection(
 
 @Composable
 private fun ProfileWasNeverAuthenticatedSection(
-    insuranceInformation: ProfileInsuranceInformation,
+    insuranceData: ProfileInsuranceDataErpModel,
     onClickChangeInsuranceType: () -> Unit,
     onClickLogIn: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)) {
         InsuranceNameListItem(
-            insuranceInformation = insuranceInformation,
+            insuranceData = insuranceData,
             onClickChangeInsuranceType = onClickChangeInsuranceType
         )
         PrimaryButtonLarge(
@@ -259,7 +260,7 @@ private fun ProfileWasNeverAuthenticatedSection(
 
 @Composable
 private fun InsuranceNameListItem(
-    insuranceInformation: ProfileInsuranceInformation,
+    insuranceData: ProfileInsuranceDataErpModel,
     onClickChangeInsuranceType: () -> Unit
 ) {
     ListItem(
@@ -272,15 +273,14 @@ private fun InsuranceNameListItem(
         },
         headlineContent = {
             Text(
-                when {
-                    insuranceInformation.insuranceName.isNotBlank() -> insuranceInformation.insuranceName
-                    insuranceInformation.insuranceType == ProfilesUseCaseData.InsuranceType.GKV -> stringResource(
+                when (insuranceData.insuranceType) {
+                    InsuranceType.GKV -> stringResource(
                         R.string.profile_change_insurance_type_drawer_public_insurance_button
                     )
-                    insuranceInformation.insuranceType == ProfilesUseCaseData.InsuranceType.PKV -> stringResource(
+                    InsuranceType.PKV -> stringResource(
                         R.string.profile_change_insurance_type_drawer_private_insurance_button
                     )
-                    insuranceInformation.insuranceType == ProfilesUseCaseData.InsuranceType.BUND -> stringResource(
+                    InsuranceType.BUND -> stringResource(
                         R.string.profile_change_insurance_type_drawer_bund_insurance_button
                     )
                     else -> stringResource(R.string.profile_change_insurance_type_drawer_no_insurance_selected_button)

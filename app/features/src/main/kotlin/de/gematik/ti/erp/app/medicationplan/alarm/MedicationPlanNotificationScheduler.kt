@@ -27,48 +27,49 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
-import kotlinx.serialization.json.Json
 
 class MedicationPlanNotificationScheduler(
     private val context: Context
 ) {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    fun scheduleMedicationSchedule(medicationSchedule: MedicationSchedule) {
+    fun scheduleMedicationSchedule(medicationScheduleErpModel: MedicationScheduleErpModel) {
         val localDateNow = Clock.System.todayIn(TimeZone.currentSystemDefault())
-        if (medicationSchedule.shouldBeScheduled(localDateNow)) {
-            scheduleNotification(medicationSchedule)
+        if (medicationScheduleErpModel.shouldBeScheduled(localDateNow)) {
+            scheduleNotification(medicationScheduleErpModel)
         } else {
-            cancelNotification(medicationSchedule.taskId)
+            cancelNotification(medicationScheduleErpModel.taskId)
         }
     }
 
-    private fun scheduleNotification(medicationSchedule: MedicationSchedule) {
-        val nextNotificationTime = medicationSchedule.calculateNextNotificationTime()
+    private fun scheduleNotification(medicationScheduleErpModel: MedicationScheduleErpModel) {
+        val nextNotificationTime = medicationScheduleErpModel.calculateNextNotificationTime()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (alarmManager.canScheduleExactAlarms()) {
                 alarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
                     nextNotificationTime,
-                    createSchedulingPendingIntent(medicationSchedule)
+                    createSchedulingPendingIntent(medicationScheduleErpModel)
                 )
             } else {
                 alarmManager.setAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
                     nextNotificationTime,
-                    createSchedulingPendingIntent(medicationSchedule)
+                    createSchedulingPendingIntent(medicationScheduleErpModel)
                 )
             }
         } else {
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 nextNotificationTime,
-                createSchedulingPendingIntent(medicationSchedule)
+                createSchedulingPendingIntent(medicationScheduleErpModel)
             )
         }
     }
@@ -79,13 +80,13 @@ class MedicationPlanNotificationScheduler(
         )
     }
 
-    private fun createSchedulingPendingIntent(medicationSchedule: MedicationSchedule): PendingIntent {
+    private fun createSchedulingPendingIntent(medicationScheduleErpModel: MedicationScheduleErpModel): PendingIntent {
         val intent = Intent(context, MedicationPlanNotificationReceiver::class.java)
-        val medicationScheduleJson = Json.encodeToString(medicationSchedule)
+        val medicationScheduleJson = Json.encodeToString(medicationScheduleErpModel)
         intent.putExtra("medicationScheduleJson", medicationScheduleJson)
         return PendingIntent.getBroadcast(
             context,
-            medicationSchedule.taskId.hashCode(),
+            medicationScheduleErpModel.taskId.hashCode(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

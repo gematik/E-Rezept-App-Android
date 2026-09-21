@@ -24,10 +24,6 @@
 
 package de.gematik.ti.erp.app.settings.model
 
-import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.secureRandomInstance
-import java.security.MessageDigest
-
 object SettingsData {
     data class General(
         val latestAppVersion: AppVersion,
@@ -57,60 +53,5 @@ object SettingsData {
     ) {
         fun isAnySet(): Boolean =
             deliveryService || onlineService || openNow
-    }
-
-    @Requirement(
-        "O.Auth_7#2",
-        sourceSpecification = "BSI-eRp-ePA",
-        rationale = "App authentication is done on a domain-specific basis."
-    )
-    data class Authentication(
-        val password: Password?,
-        val deviceSecurity: Boolean,
-        val failedAuthenticationAttempts: Int,
-        val authenticationTimeOutSystemUptime: Long?
-    ) {
-        val passwordIsSet: Boolean = password != null
-        val methodIsDeviceSecurity: Boolean = deviceSecurity && !passwordIsSet
-        val methodIsPassword: Boolean = passwordIsSet && !deviceSecurity
-        val methodIsUnspecified: Boolean = !deviceSecurity && !passwordIsSet
-        val bothMethodsAvailable: Boolean = deviceSecurity && passwordIsSet
-        val showFailedAuthenticationAttemptsError: Boolean = failedAuthenticationAttempts >= 2
-
-        class Password {
-            val hash: ByteArray
-            val salt: ByteArray
-
-            @Requirement(
-                "O.Pass_5#1",
-                sourceSpecification = "BSI-eRp-ePA",
-                rationale = "Implementation of hashed password with salt as strong secure random value"
-            )
-            constructor(password: String) {
-                salt = ByteArray(32).apply { secureRandomInstance().nextBytes(this) }
-                hash = hashWithSalt(password, salt)
-            }
-
-            constructor(hash: ByteArray, salt: ByteArray) {
-                this.hash = hash
-                this.salt = salt
-            }
-
-            fun isValid(password: String): Boolean {
-                val hash = hashWithSalt(password, salt)
-                return hash.contentEquals(this.hash)
-            }
-
-            @Requirement(
-                "O.Pass_5#2",
-                sourceSpecification = "BSI-eRp-ePA",
-                rationale = "one-way hash function that take arbitrary-sized data and " +
-                    "output a fixed-length hash value."
-            )
-            private fun hashWithSalt(password: String, salt: ByteArray): ByteArray {
-                val combined = password.toByteArray() + salt
-                return MessageDigest.getInstance("SHA-256").digest(combined)
-            }
-        }
     }
 }

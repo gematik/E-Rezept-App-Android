@@ -36,6 +36,25 @@ data class InvoiceMessageUiModel(
 ) : MessageUiModel {
     companion object {
         @Composable
+        fun OrderUseCaseData.TaskDetailedBundle.toInvoiceMessage(isFirstMessage: Boolean): InvoiceMessageUiModel {
+            val formatter = rememberErpTimeFormatter()
+
+            val date = remember(invoiceInfo.invoiceSentOn) {
+                invoiceInfo.invoiceSentOn?.let { formatter.date(it) } ?: "n/a"
+            }
+            val time = remember(invoiceInfo.invoiceSentOn) {
+                invoiceInfo.invoiceSentOn?.let { formatter.time(it) } ?: "n/a"
+            }
+            return InvoiceMessageUiModel(
+                name = prescription?.name ?: invoiceInfo.medicationName,
+                date = date,
+                time = time,
+                taskId = prescription?.taskId,
+                isFirstMessage = isFirstMessage
+            )
+        }
+
+        @Composable
         fun OrderUseCaseData.OrderDetail.toInvoiceMessage(isFirstMessage: Boolean): InvoiceMessageUiModel {
             val formatter = rememberErpTimeFormatter()
 
@@ -46,7 +65,7 @@ data class InvoiceMessageUiModel(
                 taskDetailedBundles.firstOrNull()?.invoiceInfo?.invoiceSentOn?.let { formatter.time(it) } ?: "n/a"
             }
             return InvoiceMessageUiModel(
-                name = taskDetailedBundles.firstOrNull()?.prescription?.name,
+                name = taskDetailedBundles.firstOrNull()?.prescription?.name ?: taskDetailedBundles.firstOrNull()?.invoiceInfo?.medicationName,
                 date = date,
                 time = time,
                 taskId = taskDetailedBundles.firstOrNull()?.prescription?.taskId,

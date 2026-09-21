@@ -53,7 +53,11 @@ object SchemaVersion {
         SchemaMigration(62, "Added EuAccessCodeEntityV1"),
         SchemaMigration(63, "Added EuEventLogEntityV1 and change type messages to events in EuOrderEntityV1"),
         SchemaMigration(64, "Added isUnread flag to and change type messages to events in EuTaskEventLogEntityV1"),
-        SchemaMigration(65, "Migrate settings fields from SettingsEntityV1 to DataStore")
+        SchemaMigration(65, "Migrate settings fields from SettingsEntityV1 to DataStore"),
+        SchemaMigration(66, "Added theme to SettingsEntityV1"),
+        SchemaMigration(67, "Add TeratogenicPrescriptionEntityV1 to MedicationRequestEntityV1"),
+        SchemaMigration(68, "Add eu country code to medication dispense"),
+        SchemaMigration(69, "Added pharmacyName to CommunicationEntityV1")
     )
-    val ACTUAL = 65L
+    val ACTUAL = 69L
 }

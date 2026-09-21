@@ -31,22 +31,28 @@ import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
 import de.gematik.ti.erp.app.prescription.ui.model.ConsentClickAction
 import de.gematik.ti.erp.app.prescription.ui.model.MultiProfileTopAppBarClickAction
 import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionsScreenContentClickAction
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.datetime.Instant
+
+// Fixed reference time used for all previews to avoid daily screenshot drift.
+// All prescription "days remaining" calculations will be relative to this date.
+val PREVIEW_FIXED_NOW: Instant = Instant.parse("2025-01-01T00:00:00Z")
 
 data class PrescriptionScreenPreviewData(
     val name: String,
     val multiProfileAppBarWrapper: MultiProfileAppBarWrapper,
-    val profileData: UiState<ProfilesUseCaseData.Profile>,
-    val activePrescription: UiState<List<Prescription>>,
+    val profileData: UiState<ProfileErpModel>,
+    val activePrescription: UiState<List<TaskErpModel>>,
     val isArchivedEmpty: Boolean,
     val isOnlyDigas: Boolean,
     val hasRedeemableTasks: Boolean,
     val consentState: ConsentState = ConsentState.ValidState.NotGranted,
     val isTopBarElevated: Boolean = false,
     val fabPadding: ApplicationInnerPadding = ApplicationInnerPadding(layoutDirection = LayoutDirection.Ltr),
+    val now: Instant = PREVIEW_FIXED_NOW,
     val prescriptionsClickAction: PrescriptionsScreenContentClickAction = PrescriptionsScreenContentClickAction(
         onClickLogin = {},
         onClickAvatar = {},
@@ -156,23 +162,27 @@ class PrescriptionScreenPreviewParameterProvider : PreviewParameterProvider<Pres
                 isTopBarElevated = true,
                 isOnlyDigas = false
             ),
-            /* Todo: Date conflicts causing below test data to fail. After refactoring the component, this test data should be enabled.
             PrescriptionScreenPreviewData(
                 name = "with-ready-prescriptions-user-logged-in",
-                multiProfileAppBarFlowWrapper = MultiProfileAppBarFlowWrapper(
-                    activeProfile = MutableStateFlow(MOCK_MODEL_PROFILE_LOGGED_IN),
+                multiProfileAppBarWrapper = MultiProfileAppBarWrapper(
                     existingProfiles = MutableStateFlow(listOf(MOCK_MODEL_PROFILE_LOGGED_IN)),
-                    isProfileRefreshing = MutableStateFlow(false)
+                    activeProfile = MutableStateFlow(MOCK_MODEL_PROFILE_LOGGED_IN),
+                    profileLifecycleState = ProfileLifecycleState(
+                        isProfileRefreshing = MutableStateFlow(false),
+                        networkStatus = MutableStateFlow(true),
+                        isRegistered = MutableStateFlow(true),
+                        isTokenValid = MutableStateFlow(true)
+                    )
                 ),
                 profileData = UiState.Data(MOCK_MODEL_PROFILE_LOGGED_IN),
                 activePrescription = UiState.Data(
                     listOf(MOCK_PRESCRIPTION_READY)
                 ),
                 isArchivedEmpty = false,
-                hasRedeemableTasks = true
+                hasRedeemableTasks = true,
+                isTopBarElevated = true,
+                isOnlyDigas = false
             ),
-            ),
-             */
             PrescriptionScreenPreviewData(
                 name = "with-prescriptions-user-invalid",
                 multiProfileAppBarWrapper = MultiProfileAppBarWrapper(

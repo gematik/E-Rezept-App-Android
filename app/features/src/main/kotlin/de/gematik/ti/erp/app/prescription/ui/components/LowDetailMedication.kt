@@ -39,13 +39,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.prescription.ui.SentStatusChip
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.ScannedPrescription
 import de.gematik.ti.erp.app.semantics.semanticsMergedButton
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import kotlinx.datetime.TimeZone
@@ -57,7 +57,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun LowDetailMedication(
     modifier: Modifier = Modifier,
-    prescription: ScannedPrescription,
+    prescription: TaskErpModel.Scanned,
     onClick: () -> Unit
 ) {
     val dateFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
@@ -88,9 +88,9 @@ fun LowDetailMedication(
     Card(
         modifier = modifier
             .semanticsMergedButton(),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, color = AppTheme.colors.neutral300),
-        elevation = 0.dp,
+        shape = RoundedCornerShape(SizeDefaults.double),
+        border = BorderStroke(SizeDefaults.eighth, color = AppTheme.colors.neutral300),
+        elevation = SizeDefaults.zero,
         backgroundColor = AppTheme.colors.neutral050,
         onClick = onClick
     ) {
@@ -101,7 +101,7 @@ fun LowDetailMedication(
                     .weight(1f)
             ) {
                 Text(
-                    prescription.name,
+                    prescription.name ?: "",
                     style = AppTheme.typography.subtitle1
                 )
                 SpacerTiny()
@@ -112,9 +112,7 @@ fun LowDetailMedication(
                 SpacerSmall()
 
                 Row {
-                    if (prescription.communications.isNotEmpty()) {
-                        SentStatusChip()
-                    }
+                    if (prescription.communications.isNotEmpty()) { SentStatusChip() }
                 }
             }
 
@@ -124,7 +122,7 @@ fun LowDetailMedication(
                 tint = AppTheme.colors.neutral700,
                 modifier =
                 Modifier
-                    .size(24.dp)
+                    .size(SizeDefaults.triple)
                     .align(Alignment.CenterVertically)
             )
         }

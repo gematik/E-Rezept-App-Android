@@ -23,6 +23,8 @@
 package de.gematik.ti.erp.app.debugsettings.logger.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.debug.model.DbMigrationFunctionalState
+import de.gematik.ti.erp.app.debug.model.DbMigrationLogEntry
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirContactInformationErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyAddressErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModel
@@ -33,8 +35,6 @@ import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType.Pickup
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType.Shipment
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningTimeErpModel
-import de.gematik.ti.erp.app.logger.DbMigrationFunctionalState.ChecksVersionsForSameModel
-import de.gematik.ti.erp.app.logger.DbMigrationLogEntry
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Instant
@@ -157,7 +157,7 @@ class DbMigrationLoggerScreenPreviewParameterProvider : PreviewParameterProvider
                     DbMigrationLogEntry(
                         id = "2",
                         timestamp = Instant.DISTANT_PAST.toString(),
-                        functionalState = ChecksVersionsForSameModel,
+                        functionalState = DbMigrationFunctionalState.ChecksVersionsForSameModel,
                         operation = "Settings",
                         realmData = "1",
                         roomData = ""

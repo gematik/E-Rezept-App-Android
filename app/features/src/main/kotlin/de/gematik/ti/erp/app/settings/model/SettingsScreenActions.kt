@@ -60,7 +60,8 @@ data class ContactClickActions(
     val onClickPoll: () -> Unit,
     val onClickDigaPoll: () -> Unit,
     val onClickMail: () -> Unit,
-    val onClickCall: () -> Unit
+    val onClickCall: () -> Unit,
+    val onClickReportAccessibilityIssue: () -> Unit
 )
 
 data class PersonalSettingsClickActions(

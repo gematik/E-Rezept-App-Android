@@ -37,8 +37,10 @@ import de.gematik.ti.erp.app.diga.repository.DigaRepository
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
+import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_DIGA_TASK
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SCANNED_TASK
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK
+import de.gematik.ti.erp.app.mocks.prescription.api.API_ARCHIVE_DIGA_TASK
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ARCHIVE_SCANNED_TASK
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ARCHIVE_SYNCED_TASK
 import de.gematik.ti.erp.app.mocks.prescription.model.MODEL_SCANNED_PRESCRIPTION_ACTIVE
@@ -49,8 +51,8 @@ import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_WITH_SSO_TOKEN_PROFILE
 import de.gematik.ti.erp.app.mocks.settings.api.SETTINGS_DATA_GENERAL
 import de.gematik.ti.erp.app.prescription.repository.DownloadResourcesStateRepository
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
-import de.gematik.ti.erp.app.prescription.repository.TaskRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskSyncRepository
 import de.gematik.ti.erp.app.prescription.usecase.ArchiveExpiredDigasUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetActivePrescriptionsUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetArchivedDigasUseCase
@@ -63,21 +65,17 @@ import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.SwitchActiveProfileUseCase
 import de.gematik.ti.erp.app.redeem.usecase.HasRedeemableTasksUseCase
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
-import de.gematik.ti.erp.app.settings.usecase.GetCanStartToolTipsUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetShowWelcomeDrawerUseCase
-import de.gematik.ti.erp.app.settings.usecase.SaveToolTipsShownUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isErrorState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isLoadingState
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.coJustRun
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
-import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -85,6 +83,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -93,7 +92,6 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.datetime.Instant
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -104,12 +102,12 @@ class PrescriptionListControllerTest : TestWatcher() {
 
     private val profileRepository: ProfileRepository = mockk()
     private val idpRepository: IdpRepository = mockk()
-    private val taskRepository: TaskRepository = mockk()
+    private val taskRepository: TaskSyncRepository = mockk()
     private val digaRepository: DigaRepository = mockk()
     private val communicationRepository: CommunicationRepository = mockk()
     private val invoicesRepository: InvoiceRepository = mockk()
     private val downloadResourcesStateRepository: DownloadResourcesStateRepository = mockk()
-    private val prescriptionRepository: PrescriptionRepository = mockk()
+    private val taskOperationsRepository: TaskOperationsRepository = mockk()
     private val settingsRepository: SettingsRepository = mockk()
     private val consentRepository: ConsentRepository = mockk()
     private val dispatcher = StandardTestDispatcher()
@@ -126,8 +124,6 @@ class PrescriptionListControllerTest : TestWatcher() {
     private lateinit var archiveExpiredDigasUseCase: ArchiveExpiredDigasUseCase
     private lateinit var getConsentUseCase: GetConsentUseCase
     private lateinit var getShowWelcomeDrawerUseCase: GetShowWelcomeDrawerUseCase
-    private lateinit var getCanStartToolTipsUseCase: GetCanStartToolTipsUseCase
-    private lateinit var saveToolTipsShownUseCase: SaveToolTipsShownUseCase
     private lateinit var showGrantConsentDrawerUseCase: ShowGrantConsentDrawerUseCase
     private lateinit var chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase
     private lateinit var getProfileByIdUseCase: GetProfileByIdUseCase
@@ -146,34 +142,26 @@ class PrescriptionListControllerTest : TestWatcher() {
         val snapshotState = MutableSharedFlow<DownloadResourcesState>(replay = 1).asSharedFlow()
         val detailState = MutableStateFlow(NotStarted).asStateFlow()
 
-        every { settingsRepository.general } returns flowOf(SETTINGS_DATA_GENERAL)
-        every { settingsRepository.getLastRefreshedTime() } returns flowOf(Instant.parse("2023-01-01T00:00:00Z"))
+        every { settingsRepository.loadSettings() } returns flowOf(SETTINGS_DATA_GENERAL)
         every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
         every { downloadResourcesStateRepository.snapshotState() } returns snapshotState
         every { downloadResourcesStateRepository.detailState() } returns detailState
         every { networkStatusTracker.networkStatus } returns flowOf(true)
+        every { taskOperationsRepository.loadDigaTaskListByProfileId(any()) } returns flowOf(emptyList())
 
         getActiveProfileUseCase = GetActiveProfileUseCase(
             repository = profileRepository,
             dispatcher = dispatcher
         )
         getActivePrescriptionsUseCase = GetActivePrescriptionsUseCase(
-            repository = prescriptionRepository,
+            repository = taskOperationsRepository,
             dispatcher = dispatcher
         )
         getArchivedPrescriptionsUseCase = GetArchivedPrescriptionsUseCase(
-            repository = prescriptionRepository,
+            repository = taskOperationsRepository,
             dispatcher = dispatcher
         )
         getShowWelcomeDrawerUseCase = GetShowWelcomeDrawerUseCase(
-            settingsRepository = settingsRepository,
-            dispatcher = dispatcher
-        )
-        getCanStartToolTipsUseCase = GetCanStartToolTipsUseCase(
-            settingsRepository = settingsRepository,
-            dispatcher = dispatcher
-        )
-        saveToolTipsShownUseCase = SaveToolTipsShownUseCase(
             settingsRepository = settingsRepository,
             dispatcher = dispatcher
         )
@@ -205,19 +193,18 @@ class PrescriptionListControllerTest : TestWatcher() {
             invoicesRepository = invoicesRepository,
             stateRepository = downloadResourcesStateRepository,
             networkStatusTracker = networkStatusTracker,
-            settingsRepository = settingsRepository,
             dispatcher = dispatcher
         )
         snapshotStateUseCase = GetDownloadResourcesSnapshotStateUseCase(
             downloadResourcesStateRepository = downloadResourcesStateRepository
         )
         hasRedeemableTasksUseCase = HasRedeemableTasksUseCase(
-            prescriptionRepository = prescriptionRepository,
+            taskOperationsRepository = taskOperationsRepository,
             dispatchers = dispatcher
         )
 
         hasRedeemableTasksUseCase = HasRedeemableTasksUseCase(
-            prescriptionRepository = prescriptionRepository,
+            taskOperationsRepository = taskOperationsRepository,
             dispatchers = dispatcher
         )
 
@@ -243,7 +230,6 @@ class PrescriptionListControllerTest : TestWatcher() {
             archivedPrescriptionsUseCase = getArchivedPrescriptionsUseCase,
             getShowWelcomeDrawerUseCase = getShowWelcomeDrawerUseCase,
             showGrantConsentDrawerUseCase = showGrantConsentDrawerUseCase,
-            saveToolTipsShownUseCase = saveToolTipsShownUseCase,
             switchActiveProfileUseCase = switchActiveProfileUseCase,
             hasRedeemableTasksUseCase = hasRedeemableTasksUseCase,
             tracker = tracker,
@@ -263,12 +249,14 @@ class PrescriptionListControllerTest : TestWatcher() {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `profile is empty and screen in error state`() {
-        every { profileRepository.activeProfile() } throws Exception("Error")
+        every { profileRepository.activeProfile() } returns flow { throw Exception("Error") }
 
         testScope.runTest {
             advanceUntilIdle()
-            val profile = controllerUnderTest.activeProfile.first()
-            assert(profile.isErrorState)
+            controllerUnderTest.activeProfile.test {
+                val state = awaitItem()
+                assertEquals(true, state.isErrorState)
+            }
         }
     }
 
@@ -288,8 +276,9 @@ class PrescriptionListControllerTest : TestWatcher() {
     @Test
     fun `profile is loaded and screen in content state with no prescriptions`() {
         every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
-        every { prescriptionRepository.scannedTasks(any()) } returns flowOf(emptyList())
-        every { prescriptionRepository.syncedTasks(any()) } returns flowOf(emptyList())
+        every { taskOperationsRepository.loadScannedTaskListByProfileId(any()) } returns flowOf(emptyList())
+        every { taskOperationsRepository.loadSyncedTaskListByProfileId(any()) } returns flowOf(emptyList())
+        every { taskOperationsRepository.loadDigaTaskListByProfileId(any()) } returns flowOf(emptyList())
 
         testScope.runTest {
             advanceUntilIdle()
@@ -314,13 +303,13 @@ class PrescriptionListControllerTest : TestWatcher() {
     @Test
     fun `event is sent that one new prescriptions is loaded`() {
         every { profileRepository.activeProfile() } returns flowOf(API_MOCK_WITH_SSO_TOKEN_PROFILE)
-        every { prescriptionRepository.scannedTasks(any()) } returns flowOf(listOf(API_ACTIVE_SCANNED_TASK))
-        every { prescriptionRepository.syncedTasks(any()) } returns flowOf(emptyList())
+        every { taskOperationsRepository.loadScannedTaskListByProfileId(any()) } returns flowOf(listOf(API_ACTIVE_SCANNED_TASK))
+        every { taskOperationsRepository.loadSyncedTaskListByProfileId(any()) } returns flowOf(emptyList())
         val controller = spyk(controllerUnderTest)
         testScope.runTest {
             advanceUntilIdle()
             // one new prescription is loaded from the backend which makes it available for the user
-            every { prescriptionRepository.syncedTasks(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK))
+            every { taskOperationsRepository.loadSyncedTaskListByProfileId(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK))
             controller.refreshDownload()
             advanceTimeBy(1000)
         }
@@ -330,8 +319,8 @@ class PrescriptionListControllerTest : TestWatcher() {
     @Test
     fun `loaded with only active scanned prescriptions`() {
         every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
-        every { prescriptionRepository.scannedTasks(any()) } returns flowOf(listOf(API_ACTIVE_SCANNED_TASK))
-        every { prescriptionRepository.syncedTasks(any()) } returns flowOf(emptyList())
+        every { taskOperationsRepository.loadScannedTaskListByProfileId(any()) } returns flowOf(listOf(API_ACTIVE_SCANNED_TASK))
+        every { taskOperationsRepository.loadSyncedTaskListByProfileId(any()) } returns flowOf(emptyList())
 
         testScope.runTest {
             advanceUntilIdle()
@@ -352,8 +341,8 @@ class PrescriptionListControllerTest : TestWatcher() {
     @Test
     fun `loaded with only active synced prescriptions`() {
         every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
-        every { prescriptionRepository.scannedTasks(any()) } returns flowOf(emptyList())
-        every { prescriptionRepository.syncedTasks(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK))
+        every { taskOperationsRepository.loadScannedTaskListByProfileId(any()) } returns flowOf(emptyList())
+        every { taskOperationsRepository.loadSyncedTaskListByProfileId(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK))
 
         testScope.runTest {
             advanceUntilIdle()
@@ -374,8 +363,8 @@ class PrescriptionListControllerTest : TestWatcher() {
     @Test
     fun `loaded with only archived scanned prescriptions`() {
         every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
-        every { prescriptionRepository.scannedTasks(any()) } returns flowOf(listOf(API_ARCHIVE_SCANNED_TASK))
-        every { prescriptionRepository.syncedTasks(any()) } returns flowOf(emptyList())
+        every { taskOperationsRepository.loadScannedTaskListByProfileId(any()) } returns flowOf(listOf(API_ARCHIVE_SCANNED_TASK))
+        every { taskOperationsRepository.loadSyncedTaskListByProfileId(any()) } returns flowOf(emptyList())
 
         testScope.runTest {
             advanceUntilIdle()
@@ -396,8 +385,8 @@ class PrescriptionListControllerTest : TestWatcher() {
     @Test
     fun `loaded with only archived synced prescriptions`() {
         every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
-        every { prescriptionRepository.scannedTasks(any()) } returns flowOf(emptyList())
-        every { prescriptionRepository.syncedTasks(any()) } returns flowOf(listOf(API_ARCHIVE_SYNCED_TASK))
+        every { taskOperationsRepository.loadScannedTaskListByProfileId(any()) } returns flowOf(emptyList())
+        every { taskOperationsRepository.loadSyncedTaskListByProfileId(any()) } returns flowOf(listOf(API_ARCHIVE_SYNCED_TASK))
 
         testScope.runTest {
             advanceUntilIdle()
@@ -418,8 +407,8 @@ class PrescriptionListControllerTest : TestWatcher() {
     @Test
     fun `loaded with only synced prescriptions`() {
         every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
-        every { prescriptionRepository.scannedTasks(any()) } returns flowOf(emptyList())
-        every { prescriptionRepository.syncedTasks(any()) } returns flowOf(
+        every { taskOperationsRepository.loadScannedTaskListByProfileId(any()) } returns flowOf(emptyList())
+        every { taskOperationsRepository.loadSyncedTaskListByProfileId(any()) } returns flowOf(
             listOf(API_ACTIVE_SYNCED_TASK, API_ARCHIVE_SYNCED_TASK)
         )
 
@@ -442,10 +431,10 @@ class PrescriptionListControllerTest : TestWatcher() {
     @Test
     fun `loaded with only scanned prescriptions`() {
         every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
-        every { prescriptionRepository.scannedTasks(any()) } returns flowOf(
+        every { taskOperationsRepository.loadScannedTaskListByProfileId(any()) } returns flowOf(
             listOf(API_ACTIVE_SCANNED_TASK, API_ARCHIVE_SCANNED_TASK)
         )
-        every { prescriptionRepository.syncedTasks(any()) } returns flowOf(emptyList())
+        every { taskOperationsRepository.loadSyncedTaskListByProfileId(any()) } returns flowOf(emptyList())
 
         testScope.runTest {
             advanceUntilIdle()
@@ -466,10 +455,10 @@ class PrescriptionListControllerTest : TestWatcher() {
     @Test
     fun `loaded with synced and scanned prescriptions`() {
         every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
-        every { prescriptionRepository.scannedTasks(any()) } returns flowOf(
+        every { taskOperationsRepository.loadScannedTaskListByProfileId(any()) } returns flowOf(
             listOf(API_ACTIVE_SCANNED_TASK, API_ARCHIVE_SCANNED_TASK)
         )
-        every { prescriptionRepository.syncedTasks(any()) } returns flowOf(
+        every { taskOperationsRepository.loadSyncedTaskListByProfileId(any()) } returns flowOf(
             listOf(API_ACTIVE_SYNCED_TASK, API_ARCHIVE_SYNCED_TASK)
         )
 
@@ -490,68 +479,9 @@ class PrescriptionListControllerTest : TestWatcher() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `get the state to check if the welcome drawer needs to be shown`() {
-        coEvery { prescriptionRepository.scannedTasks(any()) } returns flowOf(emptyList())
-        coEvery { prescriptionRepository.syncedTasks(any()) } returns flowOf(emptyList())
-        testScope.runTest {
-            advanceUntilIdle()
-            controllerUnderTest.shouldShowWelcomeDrawer.test {
-                val emittedState = awaitItem()
-                awaitComplete()
-                assertEquals(true, emittedState)
-            }
-        }
-        verify(atMost = 1) { getShowWelcomeDrawerUseCase() }
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
-    fun `get the state to check if the welcome drawer is already shown`() {
-        every { settingsRepository.general } returns flowOf(SETTINGS_DATA_GENERAL.copy(welcomeDrawerShown = true))
-        coEvery { prescriptionRepository.scannedTasks(any()) } returns flowOf(emptyList())
-        coEvery { prescriptionRepository.syncedTasks(any()) } returns flowOf(emptyList())
-
-        val showWelcomeDrawerUseCase = GetShowWelcomeDrawerUseCase(settingsRepository, dispatcher)
-
-        val controller = PrescriptionListController(
-            getProfileByIdUseCase = getProfileByIdUseCase,
-            getProfilesUseCase = getProfilesUseCase,
-            chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
-            snapshotStateUseCase = snapshotStateUseCase,
-            biometricAuthenticator = biometricAuthenticator,
-            getActiveProfileUseCase = getActiveProfileUseCase,
-            downloadAllResourcesUseCase = downloadAllResourcesUseCase,
-            activePrescriptionsUseCase = getActivePrescriptionsUseCase,
-            archivedPrescriptionsUseCase = getArchivedPrescriptionsUseCase,
-            getShowWelcomeDrawerUseCase = showWelcomeDrawerUseCase,
-            showGrantConsentDrawerUseCase = showGrantConsentDrawerUseCase,
-            saveToolTipsShownUseCase = saveToolTipsShownUseCase,
-            switchActiveProfileUseCase = switchActiveProfileUseCase,
-            hasRedeemableTasksUseCase = hasRedeemableTasksUseCase,
-            tracker = tracker,
-            networkStatusTracker = networkStatusTracker,
-            getArchivedDigasUseCase = getArchivedDigasUseCase,
-            archiveExpiredDigasUseCase = archiveExpiredDigasUseCase,
-            getConsentUseCase = getConsentUseCase
-        )
-
-        testScope.runTest {
-            advanceUntilIdle()
-            controller.shouldShowWelcomeDrawer.test {
-                val emittedState = awaitItem()
-                awaitComplete()
-                assertEquals(false, emittedState)
-            }
-        }
-        // one call is from setup, the other one is from the test
-        verify(atMost = 2) { getShowWelcomeDrawerUseCase() }
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
     fun `test tracking`() {
-        every { prescriptionRepository.scannedTasks(any()) } returns flowOf(listOf(API_ACTIVE_SCANNED_TASK, API_ARCHIVE_SCANNED_TASK))
-        every { prescriptionRepository.syncedTasks(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK, API_ARCHIVE_SYNCED_TASK))
+        every { taskOperationsRepository.loadScannedTaskListByProfileId(any()) } returns flowOf(listOf(API_ACTIVE_SCANNED_TASK, API_ARCHIVE_SCANNED_TASK))
+        every { taskOperationsRepository.loadSyncedTaskListByProfileId(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK, API_ARCHIVE_SYNCED_TASK))
         coEvery { tracker.trackMetric(any()) } returns Unit
         testScope.runTest {
             advanceUntilIdle()
@@ -564,9 +494,9 @@ class PrescriptionListControllerTest : TestWatcher() {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `check if archive is not empty`() {
-        every { prescriptionRepository.scannedTasks(any()) } returns flowOf(listOf(API_ACTIVE_SCANNED_TASK, API_ARCHIVE_SCANNED_TASK))
-        every { prescriptionRepository.syncedTasks(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK, API_ARCHIVE_SYNCED_TASK))
-        every { digaRepository.loadArchiveDigasByProfileId(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK, API_ARCHIVE_SYNCED_TASK))
+        every { taskOperationsRepository.loadScannedTaskListByProfileId(any()) } returns flowOf(listOf(API_ACTIVE_SCANNED_TASK, API_ARCHIVE_SCANNED_TASK))
+        every { taskOperationsRepository.loadSyncedTaskListByProfileId(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK, API_ARCHIVE_SYNCED_TASK))
+        every { digaRepository.loadArchiveDigasByProfileId(any()) } returns flowOf(listOf(API_ACTIVE_DIGA_TASK, API_ARCHIVE_DIGA_TASK))
         testScope.runTest {
             advanceUntilIdle()
             controllerUnderTest.isArchiveEmpty.test {
@@ -580,8 +510,8 @@ class PrescriptionListControllerTest : TestWatcher() {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `check if archive is empty as the initial state`() {
-        every { prescriptionRepository.scannedTasks(any()) } returns flowOf(listOf(API_ACTIVE_SCANNED_TASK))
-        every { prescriptionRepository.syncedTasks(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK))
+        every { taskOperationsRepository.loadScannedTaskListByProfileId(any()) } returns flowOf(listOf(API_ACTIVE_SCANNED_TASK))
+        every { taskOperationsRepository.loadSyncedTaskListByProfileId(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK))
         testScope.runTest {
             advanceUntilIdle()
             controllerUnderTest.isArchiveEmpty.test {
@@ -589,41 +519,5 @@ class PrescriptionListControllerTest : TestWatcher() {
                 assertEquals(true, emittedState)
             }
         }
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
-    fun `save the state of the tooltips once the user has accepted it`() {
-        coJustRun { settingsRepository.saveMainScreenTooltipShown() }
-        coEvery { prescriptionRepository.scannedTasks(any()) } returns flowOf(emptyList())
-        coEvery { prescriptionRepository.syncedTasks(any()) } returns flowOf(emptyList())
-
-        val saveToolTipsShownUseCase = spyk(SaveToolTipsShownUseCase(settingsRepository, dispatcher))
-        val controllerUnderTest = PrescriptionListController(
-            getProfileByIdUseCase = getProfileByIdUseCase,
-            getProfilesUseCase = getProfilesUseCase,
-            chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
-            snapshotStateUseCase = snapshotStateUseCase,
-            biometricAuthenticator = biometricAuthenticator,
-            getActiveProfileUseCase = getActiveProfileUseCase,
-            downloadAllResourcesUseCase = downloadAllResourcesUseCase,
-            activePrescriptionsUseCase = getActivePrescriptionsUseCase,
-            archivedPrescriptionsUseCase = getArchivedPrescriptionsUseCase,
-            getShowWelcomeDrawerUseCase = getShowWelcomeDrawerUseCase,
-            showGrantConsentDrawerUseCase = showGrantConsentDrawerUseCase,
-            saveToolTipsShownUseCase = saveToolTipsShownUseCase,
-            switchActiveProfileUseCase = switchActiveProfileUseCase,
-            hasRedeemableTasksUseCase = hasRedeemableTasksUseCase,
-            tracker = tracker,
-            networkStatusTracker = networkStatusTracker,
-            getArchivedDigasUseCase = getArchivedDigasUseCase,
-            archiveExpiredDigasUseCase = archiveExpiredDigasUseCase,
-            getConsentUseCase = getConsentUseCase
-        )
-        testScope.runTest {
-            advanceUntilIdle()
-            controllerUnderTest.saveToolTipsShown()
-        }
-        coVerify(exactly = 1) { saveToolTipsShownUseCase.invoke() }
     }
 }

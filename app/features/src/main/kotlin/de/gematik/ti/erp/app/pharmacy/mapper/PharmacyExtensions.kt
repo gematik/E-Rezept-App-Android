@@ -24,7 +24,8 @@ package de.gematik.ti.erp.app.pharmacy.mapper
 
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyOrderServiceState
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceState
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
 
 /**
  * Calculates the visibility and availability state for each pharmacy service (pickup, delivery, online).
@@ -34,10 +35,12 @@ import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
  * - whether each service should be visible in the UI
  * - whether it should be interactable (enabled)
  *
- * @receiver [Pharmacy] The pharmacy for which the service states are to be calculated.
+ * @receiver [PharmacyDetailsErpModel] The pharmacy for which the service states are to be calculated.
  * @return A [PharmacyOrderServiceState] object containing the visibility and enabled state for each service.
  */
-internal fun Pharmacy.calculateServiceState(): PharmacyOrderServiceState {
+internal fun PharmacyDetailsErpModel.calculateServiceState(
+    prescriptions: List<PrescriptionInOrderErpModel> = emptyList()
+): PharmacyOrderServiceState {
     return PharmacyOrderServiceState(
         pickup = PharmacyServiceState(
             visible = isPickupService,
@@ -49,7 +52,7 @@ internal fun Pharmacy.calculateServiceState(): PharmacyOrderServiceState {
         ),
         online = PharmacyServiceState(
             visible = isOnlineService,
-            enabled = isOnlineService
+            enabled = isOnlineService && !prescriptions.any { it.isTeratogenicPrescription }
         )
     )
 }

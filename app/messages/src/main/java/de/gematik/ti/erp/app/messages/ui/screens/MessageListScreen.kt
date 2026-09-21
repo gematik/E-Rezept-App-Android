@@ -36,7 +36,7 @@ import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
 import de.gematik.ti.erp.app.messages.presentation.rememberMessageListController
-import de.gematik.ti.erp.app.messages.ui.components.Orders
+import de.gematik.ti.erp.app.messages.ui.components.MessageListScreenContent
 import de.gematik.ti.erp.app.messages.ui.preview.MessageListParameterProvider
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.preview.LightDarkPreview
@@ -61,21 +61,32 @@ class MessageListScreen(
             }
         }
 
-        MessageListScreenContent(
+        MessageListScreenScaffold(
             messagesList = messagesList,
             listState = listState,
             onClickRetry = messagesController::retryFetchMessagesList,
-            onClickOrder = { orderId, isLocalMessage ->
+            onClickInternalMessage = {
                 navController.navigate(
-                    MessagesRoutes.MessageDetailScreen.path(orderId, isLocalMessage)
+                    MessagesRoutes.InternalMessageDetailScreen.path()
                 )
             },
-            onClickEuOrder = { threadOrderId, threadStart, threadEnd ->
+            onClickOrder = { orderId ->
+                navController.navigate(
+                    MessagesRoutes.OrderMessageDetailScreen.path(orderId)
+                )
+            },
+            onClickUnknownOrder = { taskId ->
+                navController.navigate(
+                    MessagesRoutes.UnknownOrderMessageDetailScreen.path(taskId)
+                )
+            },
+            onClickEuOrder = { threadOrderId, threadStart, threadEnd, pharmacyName ->
                 navController.navigate(
                     MessagesRoutes.EuRedeemMessageDetailsScreen.path(
                         orderId = threadOrderId,
                         threadStart = threadStart,
-                        threadEnd = threadEnd
+                        threadEnd = threadEnd,
+                        pharmacyName = pharmacyName
                     )
                 )
             }
@@ -84,21 +95,25 @@ class MessageListScreen(
 }
 
 @Composable
-private fun MessageListScreenContent(
+private fun MessageListScreenScaffold(
     messagesList: UiState<List<InAppMessage>>,
     listState: LazyListState,
-    onClickOrder: (String, Boolean) -> Unit,
-    onClickEuOrder: (threadOrderId: String?, threadStart: Instant?, threadEnd: Instant?) -> Unit,
+    onClickOrder: (String) -> Unit,
+    onClickUnknownOrder: (String) -> Unit,
+    onClickInternalMessage: () -> Unit,
+    onClickEuOrder: (threadOrderId: String?, threadStart: Instant?, threadEnd: Instant?, pharmacyName: String?) -> Unit,
     onClickRetry: () -> Unit
 ) {
     AnimatedElevationScaffold(
         topBarTitle = stringResource(R.string.messages_title),
         listState = listState
     ) {
-        Orders(
+        MessageListScreenContent(
             listState = listState,
             ordersData = messagesList,
+            onClickInternalMessage = onClickInternalMessage,
             onClickOrder = onClickOrder,
+            onClickUnknownOrder = onClickUnknownOrder,
             onClickEuOrder = onClickEuOrder,
             onClickRetry = onClickRetry
         )
@@ -107,17 +122,19 @@ private fun MessageListScreenContent(
 
 @LightDarkPreview
 @Composable
-fun MessageScreenContentPreview(
+fun MessageScreenScaffoldPreview(
     @PreviewParameter(MessageListParameterProvider::class)
     ordersData: UiState<List<InAppMessage>>
 ) {
     PreviewTheme {
-        MessageListScreenContent(
+        MessageListScreenScaffold(
             messagesList = ordersData,
             listState = rememberLazyListState(),
-            onClickOrder = { _, _ -> },
-            onClickEuOrder = { _, _, _ -> },
-            onClickRetry = {}
+            onClickOrder = { _ -> },
+            onClickInternalMessage = { },
+            onClickEuOrder = { _, _, _, _ -> },
+            onClickRetry = {},
+            onClickUnknownOrder = { _ -> }
         )
     }
 }

@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <base-config cleartextTrafficPermitted="false"/>
-    <!-- The default configuration for apps targeting Android 7.0 (API level 24) to Android 8.1 (API level 27) is as follows: -->
-    <!-- <base-config cleartextTrafficPermitted="true">
-                <trust-anchors>
-                    <certificates src="system" />
-                </trust-anchors>
-            </base-config> -->
-    <!-- Adding base-config cleartextTrafficPermitted="false" for apps targeting Android 8.1 (API level 27) and lower. -->
+    <base-config cleartextTrafficPermitted="false">
+        <certificate-transparency enabled="true" />
+    </base-config>
 </network-security-config>

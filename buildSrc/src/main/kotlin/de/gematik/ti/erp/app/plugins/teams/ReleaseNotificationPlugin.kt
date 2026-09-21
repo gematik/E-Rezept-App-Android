@@ -28,7 +28,7 @@ import de.gematik.ti.erp.app.ErpPlugin
 import de.gematik.ti.erp.app.utils.TaskNames
 import de.gematik.ti.erp.app.utils.detectPropertyOrNull
 import de.gematik.ti.erp.app.utils.detectPropertyOrThrow
-import de.gematik.ti.erp.app.utils.loadCiOverridesProperties
+import de.gematik.ti.erp.app.utils.resolveFromEnvOrCiOverrides
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -38,7 +38,6 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.put
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import java.net.HttpURLConnection
@@ -50,8 +49,8 @@ import java.time.format.DateTimeFormatter
 /**
  * Gradle plugin that registers the [TaskNames.sendReleaseNotification] task.
  *
- * Credentials ([TEAMS_RELEASE_WEBHOOK_URL], [GITLAB_PROJECT_API_URL], [GITLAB_PRIVATE_TOKEN])
- * are read from `ci-overrides.properties` at the project root.
+ * Credentials (`TEAMS_RELEASE_WEBHOOK_URL`, `GITLAB_PROJECT_API_URL`, `GITLAB_PRIVATE_TOKEN`)
+ * are resolved from environment variables first, then `ci/local/ci-overrides.properties`.
  *
  * On SUCCESS the task:
  *  1. Derives the milestone version from the supplied version name (e.g. "1.37.1" -> "1.37.0").
@@ -75,14 +74,24 @@ class ReleaseNotificationPlugin : ErpPlugin {
     override fun apply(project: Project) {
         project.tasks.register(TaskNames.sendReleaseNotification) {
             doLast {
-                val ciProps = project.loadCiOverridesProperties()
-
-                val webhookUrl = ciProps.getProperty("TEAMS_RELEASE_WEBHOOK_URL")
-                    ?: throw GradleException("TEAMS_RELEASE_WEBHOOK_URL not found in ci-overrides.properties")
-                val gitlabApiUrl = ciProps.getProperty("GITLAB_PROJECT_API_URL")
-                    ?: throw GradleException("GITLAB_PROJECT_API_URL not found in ci-overrides.properties")
-                val gitlabToken = ciProps.getProperty("GITLAB_PRIVATE_TOKEN")
-                    ?: throw GradleException("GITLAB_PRIVATE_TOKEN not found in ci-overrides.properties")
+                val webhookUrl = project.resolveFromEnvOrCiOverrides(
+                    "TEAMS_RELEASE_WEBHOOK_URL"
+                ) ?: throw GradleException(
+                    "Release webhook URL not found. Set TEAMS_RELEASE_WEBHOOK_URL env var " +
+                        "or TEAMS_RELEASE_WEBHOOK_URL in ci/local/ci-overrides.properties"
+                )
+                val gitlabApiUrl = project.resolveFromEnvOrCiOverrides(
+                    "GITLAB_PROJECT_API_URL"
+                ) ?: throw GradleException(
+                    "GitLab API URL not found. Set GITLAB_PROJECT_API_URL env var " +
+                        "or GITLAB_PROJECT_API_URL in ci/local/ci-overrides.properties"
+                )
+                val gitlabToken = project.resolveFromEnvOrCiOverrides(
+                    "GITLAB_PRIVATE_TOKEN"
+                ) ?: throw GradleException(
+                    "GitLab token not found. Set GITLAB_PRIVATE_TOKEN env var " +
+                        "or GITLAB_PRIVATE_TOKEN in ci/local/ci-overrides.properties"
+                )
 
                 val versionName = project.detectPropertyOrThrow("versionName")
                 val buildStatus = project.detectPropertyOrThrow("status")
@@ -101,6 +110,7 @@ class ReleaseNotificationPlugin : ErpPlugin {
                             null
                         }
                     }
+
                     else -> null
                 }
 
@@ -246,6 +256,7 @@ internal fun resolveGitLabMRs(apiUrl: String, token: String, version: String): R
             resolvedVersion = version,
             originalVersionMissing = false
         )
+
         is GitLabFetchResult.MilestoneNotFound -> {
             val next = nextMinorVersion(version)
             println("GitLab: '$version' not found, trying fallback '$next'")
@@ -255,12 +266,14 @@ internal fun resolveGitLabMRs(apiUrl: String, token: String, version: String): R
                     resolvedVersion = next,
                     originalVersionMissing = true
                 )
+
                 is GitLabFetchResult.MilestoneNotFound -> ResolvedGitLabInfo(
                     mergeRequests = emptyList(),
                     resolvedVersion = next,
                     originalVersionMissing = true,
                     fallbackAlsoMissing = true
                 )
+
                 is GitLabFetchResult.FetchError -> ResolvedGitLabInfo(
                     mergeRequests = emptyList(),
                     resolvedVersion = version,
@@ -269,6 +282,7 @@ internal fun resolveGitLabMRs(apiUrl: String, token: String, version: String): R
                 )
             }
         }
+
         is GitLabFetchResult.FetchError -> {
             println("Warning: GitLab fetch error -- ${primary.message}")
             ResolvedGitLabInfo(mergeRequests = emptyList(), resolvedVersion = version, originalVersionMissing = false)
@@ -322,6 +336,7 @@ private fun categorise(labels: List<String>): MRCategory {
                 it == "enhancement::jenkins" ||
                 it == "enchancement::jenkins" // preserve historical typo
         } -> MRCategory.ENHANCEMENT
+
         else -> MRCategory.FEATURE
     }
 }

@@ -53,21 +53,25 @@ import androidx.compose.ui.unit.sp
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 
 @Composable
 fun EuAvatar(
-    profile: ProfilesUseCaseData.Profile,
+    profile: ProfileErpModel,
     size: Dp,
     emptyIcon: ImageVector = Icons.Rounded.PersonOutline,
     modifier: Modifier = Modifier
 ) {
-    val profileColors = getProfileColor(profile.color)
+    val profileColors = getProfileColor(profile.profileImageData.color)
 
     Surface(
         modifier = modifier.size(size),
@@ -78,10 +82,10 @@ fun EuAvatar(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            when (profile.avatar) {
-                ProfilesData.Avatar.PersonalizedImage -> {
-                    if (profile.image != null) {
-                        profile.image?.let {
+            when (profile.profileImageData.avatar) {
+                Avatar.PersonalizedImage -> {
+                    if (profile.profileImageData.image != null) {
+                        profile.profileImageData.image?.let {
                             PersonalizedImage(
                                 imageData = it,
                                 backgroundColor = profileColors.backgroundColor
@@ -96,7 +100,7 @@ fun EuAvatar(
                     }
                 }
                 else -> {
-                    val imageResource = getAvatarImageResource(profile.avatar)
+                    val imageResource = getAvatarImageResource(profile.profileImageData.avatar)
                     if (imageResource != 0) {
                         Image(
                             painter = painterResource(id = imageResource),
@@ -143,21 +147,21 @@ private fun PersonalizedImage(
 }
 
 @Composable
-private fun getProfileColor(colorName: ProfilesData.ProfileColorNames): ProfileColor {
+private fun getProfileColor(colorName: ProfileColorNames): ProfileColor {
     return when (colorName) {
-        ProfilesData.ProfileColorNames.SPRING_GRAY -> ProfileColor(
+        ProfileColorNames.SPRING_GRAY -> ProfileColor(
             backgroundColor = AppTheme.colors.neutral200
         )
-        ProfilesData.ProfileColorNames.SUN_DEW -> ProfileColor(
+        ProfileColorNames.SUN_DEW -> ProfileColor(
             backgroundColor = AppTheme.colors.yellow200
         )
-        ProfilesData.ProfileColorNames.PINK -> ProfileColor(
+        ProfileColorNames.PINK -> ProfileColor(
             backgroundColor = AppTheme.colors.red200
         )
-        ProfilesData.ProfileColorNames.TREE -> ProfileColor(
+        ProfileColorNames.TREE -> ProfileColor(
             backgroundColor = AppTheme.colors.green200
         )
-        ProfilesData.ProfileColorNames.BLUE_MOON -> ProfileColor(
+        ProfileColorNames.BLUE_MOON -> ProfileColor(
             backgroundColor = AppTheme.colors.primary200
         )
     }
@@ -167,21 +171,21 @@ private data class ProfileColor(
     val backgroundColor: Color
 )
 
-private fun getAvatarImageResource(avatar: ProfilesData.Avatar): Int {
+private fun getAvatarImageResource(avatar: Avatar): Int {
     return when (avatar) {
-        ProfilesData.Avatar.FemaleDoctor -> R.drawable.femal_doctor_portrait
-        ProfilesData.Avatar.WomanWithHeadScarf -> R.drawable.woman_with_head_scarf_portrait
-        ProfilesData.Avatar.Grandfather -> R.drawable.grand_father_portrait
-        ProfilesData.Avatar.BoyWithHealthCard -> R.drawable.boy_with_health_card_portrait
-        ProfilesData.Avatar.OldManOfColor -> R.drawable.old_man_of_color_portrait
-        ProfilesData.Avatar.WomanWithPhone -> R.drawable.woman_with_phone_portrait
-        ProfilesData.Avatar.Grandmother -> R.drawable.grand_mother_portrait
-        ProfilesData.Avatar.ManWithPhone -> R.drawable.man_with_phone_portrait
-        ProfilesData.Avatar.WheelchairUser -> R.drawable.wheel_chair_user_portrait
-        ProfilesData.Avatar.Baby -> R.drawable.baby_portrait
-        ProfilesData.Avatar.MaleDoctorWithPhone -> R.drawable.doctor_with_phone_portrait
-        ProfilesData.Avatar.FemaleDoctorWithPhone -> R.drawable.femal_doctor_with_phone_portrait
-        ProfilesData.Avatar.FemaleDeveloper -> R.drawable.femal_developer_portrait
+        Avatar.FemaleDoctor -> R.drawable.femal_doctor_portrait
+        Avatar.WomanWithHeadScarf -> R.drawable.woman_with_head_scarf_portrait
+        Avatar.Grandfather -> R.drawable.grand_father_portrait
+        Avatar.BoyWithHealthCard -> R.drawable.boy_with_health_card_portrait
+        Avatar.OldManOfColor -> R.drawable.old_man_of_color_portrait
+        Avatar.WomanWithPhone -> R.drawable.woman_with_phone_portrait
+        Avatar.Grandmother -> R.drawable.grand_mother_portrait
+        Avatar.ManWithPhone -> R.drawable.man_with_phone_portrait
+        Avatar.WheelchairUser -> R.drawable.wheel_chair_user_portrait
+        Avatar.Baby -> R.drawable.baby_portrait
+        Avatar.MaleDoctorWithPhone -> R.drawable.doctor_with_phone_portrait
+        Avatar.FemaleDoctorWithPhone -> R.drawable.femal_doctor_with_phone_portrait
+        Avatar.FemaleDeveloper -> R.drawable.femal_developer_portrait
         else -> 0
     }
 }
@@ -205,8 +209,8 @@ private fun AvatarColorsPreview() {
             ) {
                 EuAvatar(
                     profile = createPreviewProfile(
-                        avatar = ProfilesData.Avatar.BoyWithHealthCard,
-                        color = ProfilesData.ProfileColorNames.SUN_DEW
+                        avatar = Avatar.BoyWithHealthCard,
+                        color = ProfileColorNames.SUN_DEW
                     ),
                     size = SizeDefaults.fivefold
                 )
@@ -221,20 +225,30 @@ private fun AvatarColorsPreview() {
 }
 
 private fun createPreviewProfile(
-    avatar: ProfilesData.Avatar,
-    color: ProfilesData.ProfileColorNames
-): ProfilesUseCaseData.Profile {
-    return ProfilesUseCaseData.Profile(
+    avatar: Avatar,
+    color: ProfileColorNames
+): ProfileErpModel {
+    return ProfileErpModel(
         id = "preview-id",
         name = "Preview User",
-        insurance = ProfileInsuranceInformation(
-            insuranceType = ProfilesUseCaseData.InsuranceType.GKV
+        profileImageData = ProfileImageDataErpModel(
+            avatar = avatar,
+            color = color,
+            image = null
         ),
-        isActive = true,
-        color = color,
-        avatar = avatar,
-        image = null,
+        insuranceData = ProfileInsuranceDataErpModel(
+            insuranceIdentifier = "123456789",
+            insuranceType = InsuranceType.GKV,
+            insuranceName = "Example Insurance",
+            insurantName = "Example Insurant",
+            organizationIdentifier = null
+        ),
+        active = true,
         lastAuthenticated = null,
-        ssoTokenScope = null
+        userAuthentication = UserAuthenticationErpModel.NotInitialized,
+        isNewlyCreated = false,
+        isConsentDrawerShown = true,
+        lastAuditEventSynced = null,
+        lastTaskSynced = null
     )
 }

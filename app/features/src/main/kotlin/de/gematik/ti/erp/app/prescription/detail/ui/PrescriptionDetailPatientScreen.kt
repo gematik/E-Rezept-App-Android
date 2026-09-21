@@ -54,9 +54,10 @@ import de.gematik.ti.erp.app.insuranceState
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.statusMapping
+import de.gematik.ti.erp.app.task.model.InsuranceErpModel
+import de.gematik.ti.erp.app.task.model.PatientErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
@@ -100,9 +101,9 @@ class PrescriptionDetailPatientScreen(
                 )
             },
             onContent = { (_, prescription) ->
-                val syncedPrescription = prescription as? PrescriptionData.Synced
+                val syncedPrescription = prescription as? TaskErpModel.Synced
                 val patient = syncedPrescription?.patient
-                val insurance = syncedPrescription?.insurance
+                val insurance = syncedPrescription?.insuranceInformation
                 val listState = rememberLazyListState()
                 AnimatedElevationScaffold(
                     modifier = Modifier.testTag(TestTag.Prescriptions.Details.Patient.Screen),
@@ -129,8 +130,8 @@ class PrescriptionDetailPatientScreen(
 private fun PrescriptionDetailPatientScreenContent(
     listState: LazyListState,
     innerPadding: PaddingValues,
-    patient: SyncedTaskData.Patient?,
-    insurance: SyncedTaskData.InsuranceInformation?
+    patient: PatientErpModel?,
+    insurance: InsuranceErpModel?
 ) {
     val noValueText = stringResource(R.string.pres_details_no_value)
     LazyColumn(
@@ -169,7 +170,7 @@ private fun PrescriptionDetailPatientScreenContent(
                 modifier = Modifier.testTag(TestTag.Prescriptions.Details.Patient.BirthDate),
                 text =
                 remember(LocalConfiguration.current, patient) {
-                    patient?.birthdate?.let {
+                    patient?.dateOfBirth?.let {
                         temporalText(it, TimeZone.currentSystemDefault())
                     } ?: noValueText
                 },

@@ -22,208 +22,72 @@
 
 package de.gematik.ti.erp.app.repository
 
-import de.gematik.ti.erp.app.database.realm.utils.writeToRealm
-import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
-import de.gematik.ti.erp.app.settings.datasource.SettingsDataSource
-import de.gematik.ti.erp.app.settings.model.SettingsData
+import de.gematik.ti.erp.app.settings.model.AppVersionErpModel
+import de.gematik.ti.erp.app.settings.model.SettingsErpModel
+import de.gematik.ti.erp.app.settings.model.ThemeMode
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
-import io.realm.kotlin.Realm
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.withContext
-import kotlinx.datetime.Instant
 
-class MockSettingsRepository(
-    private val settingsDataSource: SettingsDataSource,
-    // keep realm till the profile mock is implemented
-    private val realm: Realm,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
-) : SettingsRepository(
-    dispatchers = dispatcher,
-    realm = realm
-) {
-    override val general: Flow<SettingsData.General>
-        get() = settingsDataSource.generalData
+class MockSettingsRepository : SettingsRepository {
 
-    override suspend fun acceptUpdatedDataTerms(now: Instant) {
-        // no-op
-    }
-
-    override suspend fun saveOnboardingData(
-        authentication: SettingsData.Authentication,
-        profileName: String,
-        now: Instant
-    ) {
-        withContext(dispatcher) {
-            if (authentication.methodIsPassword) {
-                settingsDataSource.authentication.value = authentication
-            }
-        }
-        withContext(dispatcher) {
-            realm.writeToRealm<SettingsEntityV1, Unit> { profile ->
-                copyToRealm(
-                    ProfileEntityV1().apply {
-                        this.name = profileName
-                        this.active = true
-                    }
-                )
-            }
-        }
-    }
-
-    override suspend fun enableDeviceSecurity() {
-        // no-op since we only support password authentication for mock
-    }
-
-    override suspend fun disableDeviceSecurity() {
-        // no-op since we only support password authentication for mock
-    }
-
-    override suspend fun setPassword(password: SettingsData.Authentication.Password) {
-        settingsDataSource.authentication.value = SettingsData.Authentication(
-            password = password,
-            deviceSecurity = false,
-            failedAuthenticationAttempts = 0,
-            authenticationTimeOutSystemUptime = null
+    private val settingsFlow = MutableStateFlow(
+        SettingsErpModel(
+            latestAppVersion = AppVersionErpModel(name = "mock", code = 0),
+            onboardingShownIn = AppVersionErpModel(name = "mock", code = 0),
+            theme = ThemeMode.SYSTEM,
+            welcomeDrawerShown = true,
+            zoomEnabled = false,
+            userHasAcceptedInsecureDevice = false,
+            userHasAcceptedIntegrityNotOk = false,
+            trackingAllowed = false,
+            screenShotsAllowed = false
         )
+    )
+
+    override fun loadSettings(): Flow<SettingsErpModel> = settingsFlow
+
+    override fun isAnalyticsAllowed(): Flow<Boolean> =
+        settingsFlow.map { it.trackingAllowed }
+
+    override suspend fun saveLatestAppVersion(appVersion: AppVersionErpModel) {
+        settingsFlow.value = settingsFlow.value.copy(latestAppVersion = appVersion)
     }
 
-    override suspend fun resetPassword() {
-        // no-op since we only support password authentication for mock
+    override suspend fun saveOnboardingShownIn(appVersion: AppVersionErpModel) {
+        settingsFlow.value = settingsFlow.value.copy(onboardingShownIn = appVersion)
     }
 
-    override val authentication: Flow<SettingsData.Authentication>
-        get() = settingsDataSource.authentication
+    override suspend fun saveTheme(theme: ThemeMode) {
+        settingsFlow.value = settingsFlow.value.copy(theme = theme)
+    }
 
-    override suspend fun saveZoomPreference(enabled: Boolean) {
-        settingsDataSource.generalData.update {
-            it.copy(
-                zoomEnabled = enabled
-            )
-        }
+    override suspend fun saveZoomEnabled(enabled: Boolean) {
+        settingsFlow.value = settingsFlow.value.copy(zoomEnabled = enabled)
     }
 
     override suspend fun acceptInsecureDevice() {
-        settingsDataSource.generalData.update {
-            it.copy(
-                userHasAcceptedInsecureDevice = true
-            )
-        }
-    }
-
-    override suspend fun incrementNumberOfAuthenticationFailures() {
-        settingsDataSource.authentication.update {
-            it.copy(
-                failedAuthenticationAttempts = it.failedAuthenticationAttempts + 1
-            )
-        }
-    }
-
-    override suspend fun resetNumberOfAuthenticationFailures() {
-        settingsDataSource.authentication.update {
-            it.copy(
-                failedAuthenticationAttempts = 0
-            )
-        }
-    }
-
-    override suspend fun setAuthenticationTimeOutSystemUptime(systemUptime: Long) {
-        settingsDataSource.authentication.update {
-            it.copy(
-                authenticationTimeOutSystemUptime = systemUptime
-            )
-        }
-    }
-
-    override suspend fun resetAuthenticationTimeOutSystemUptime() {
-        settingsDataSource.authentication.update {
-            it.copy(
-                authenticationTimeOutSystemUptime = null
-            )
-        }
+        settingsFlow.value = settingsFlow.value.copy(userHasAcceptedInsecureDevice = true)
     }
 
     override suspend fun saveWelcomeDrawerShown() {
-        settingsDataSource.generalData.update {
-            it.copy(
-                welcomeDrawerShown = true
-            )
-        }
-    }
-
-    override suspend fun saveMainScreenTooltipShown() {
-        settingsDataSource.generalData.update {
-            it.copy(
-                mainScreenTooltipsShown = true
-            )
-        }
-    }
-
-    override suspend fun acceptMlKit() {
-        settingsDataSource.generalData.update {
-            it.copy(
-                mlKitAccepted = true
-            )
-        }
+        settingsFlow.value = settingsFlow.value.copy(welcomeDrawerShown = true)
     }
 
     override suspend fun saveAllowScreenshots(allow: Boolean) {
-        settingsDataSource.generalData.update {
-            it.copy(
-                screenShotsAllowed = allow
-            )
-        }
+        settingsFlow.value = settingsFlow.value.copy(screenShotsAllowed = allow)
     }
 
     override suspend fun saveAllowTracking(allow: Boolean) {
-        settingsDataSource.generalData.update {
-            it.copy(
-                trackingAllowed = allow
-            )
-        }
+        settingsFlow.value = settingsFlow.value.copy(trackingAllowed = allow)
     }
 
     override suspend fun acceptIntegrityNotOk() {
-        settingsDataSource.generalData.update {
-            it.copy(
-                userHasAcceptedIntegrityNotOk = true
-            )
-        }
+        settingsFlow.value = settingsFlow.value.copy(userHasAcceptedIntegrityNotOk = true)
     }
 
     override suspend fun resetOnboardingShownIn() {
-        // no-op
-    }
-
-    override suspend fun updateRefreshTime() {
-        // no-op
-    }
-
-    override fun getLastRefreshedTime(): Flow<Instant> {
-        return flowOf(Instant.parse("3024-08-01T10:00:00Z"))
-    }
-
-    override suspend fun savePharmacySearch(search: SettingsData.PharmacySearch) {
-        settingsDataSource.pharmacySearch.update {
-            it.copy(
-                name = search.name,
-                locationEnabled = search.locationEnabled,
-                deliveryService = search.deliveryService,
-                onlineService = search.onlineService,
-                openNow = search.openNow
-            )
-        }
-    }
-
-    override val pharmacySearch: Flow<SettingsData.PharmacySearch>
-        get() = settingsDataSource.pharmacySearch
-
-    override fun isAnalyticsAllowed(): Flow<Boolean> {
-        return settingsDataSource.generalData.map { it.trackingAllowed }
+        settingsFlow.value = settingsFlow.value.copy(onboardingShownIn = null)
     }
 }

@@ -73,6 +73,13 @@ enum class LanguageCode(val code: String, val resource: Int) {
 
         fun fromCode(code: String) = entries.firstOrNull { it.code == code }
 
+        fun fromLocale(locale: Locale): LanguageCode? {
+            return when (locale.language) {
+                "he" -> IW
+                else -> fromCode(locale.language)
+            }
+        }
+
         fun getLocaleForTTS(code: String): Locale {
             // First check if it's a supported UI language
             fromCode(code)?.let { return it.toLocale() }

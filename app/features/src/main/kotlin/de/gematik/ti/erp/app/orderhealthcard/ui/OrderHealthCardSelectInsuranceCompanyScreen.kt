@@ -43,6 +43,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.Composable
@@ -261,7 +262,7 @@ private fun HealthInsuranceCompanySelectable(
             style = AppTheme.typography.body1,
             modifier = Modifier.weight(1f)
         )
-        Icon(Icons.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
+        Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral700)
     }
 }
 

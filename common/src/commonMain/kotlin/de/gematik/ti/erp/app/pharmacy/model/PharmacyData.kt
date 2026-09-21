@@ -22,17 +22,17 @@
 
 package de.gematik.ti.erp.app.pharmacy.model
 
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.datetime.Instant
 
-fun SyncedTaskData.SyncedTask.shippingContact() =
+fun TaskErpModel.Synced.Prescription.shippingContact() =
     ShippingInfoErpModel(
-        name = this.patient.name ?: "",
-        street = this.patient.address?.line1 ?: "",
-        addressDetail = this.patient.address?.line2 ?: "",
-        zip = this.patient.address?.postalCode ?: "",
-        city = this.patient.address?.city ?: "",
+        name = this.patient?.name ?: "",
+        street = this.patient?.address?.line1 ?: "",
+        addressDetail = this.patient?.address?.line2 ?: "",
+        zip = this.patient?.address?.postalCode ?: "",
+        city = this.patient?.address?.city ?: "",
         phone = "",
         mail = "",
         deliveryInfo = ""

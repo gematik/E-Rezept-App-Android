@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
-import de.gematik.ti.erp.app.database.api.PharmacySearchAccessTokenLocalDataSource
+import de.gematik.ti.erp.app.database.api.pharmacy.PharmacySearchAccessTokenLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.api.model.SearchAccessTokenResponse
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.PharmacySearchAccessTokenRemoteDataSource
 import kotlinx.datetime.Instant

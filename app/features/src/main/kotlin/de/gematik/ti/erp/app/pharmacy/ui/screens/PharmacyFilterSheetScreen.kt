@@ -66,7 +66,7 @@ import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyFilterServiceSection
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyOnSiteFeatureOption
 import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyFilterSheetScreenPreviewData
 import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyFilterSheetScreenPreviewParameterProvider
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.SearchFilterErpModel
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -199,7 +199,7 @@ class PharmacyFilterSheetScreen(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PharmacyFilterSheetScreenContent(
-    filter: PharmacyUseCaseData.Filter,
+    filter: SearchFilterErpModel,
     isNearbyFilter: Boolean,
     navWithStartButton: Boolean,
     isLoading: Boolean,
@@ -224,6 +224,7 @@ private fun PharmacyFilterSheetScreenContent(
     ) {
         Text(
             stringResource(R.string.search_pharmacies_filter_header),
+            modifier = Modifier.semanticsHeading(),
             color = AppTheme.colors.neutral900,
             style = AppTheme.typography.h5
         )

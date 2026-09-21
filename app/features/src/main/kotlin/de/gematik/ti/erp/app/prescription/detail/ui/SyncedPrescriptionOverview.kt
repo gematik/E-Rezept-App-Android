@@ -27,7 +27,9 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,6 +37,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
@@ -54,25 +57,33 @@ import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.digas.ui.component.Label
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
 import de.gematik.ti.erp.app.medicationplan.ui.components.MedicationPlanLineItem
 import de.gematik.ti.erp.app.pkv.presentation.model.InvoiceCardUiState
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
-import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailBottomSheetNavigationData
+import de.gematik.ti.erp.app.prescription.mapper.toSyncedTask
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.prescription.model.PrescriptionDetailBottomSheetNavigationData
 import de.gematik.ti.erp.app.prescription.ui.DirectAssignmentChip
 import de.gematik.ti.erp.app.prescription.ui.FailureDetailsStatusChip
 import de.gematik.ti.erp.app.prescription.ui.SelfPayPrescriptionDetailsChip
 import de.gematik.ti.erp.app.prescription.ui.SubstitutionNotAllowedChip
+import de.gematik.ti.erp.app.prescription.ui.TeratogenicPrescriptionChip
 import de.gematik.ti.erp.app.prescription.ui.components.PrescriptionStateInfo
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.task.model.AccidentType
+import de.gematik.ti.erp.app.task.model.AdditionalFeeErpModel
+import de.gematik.ti.erp.app.task.model.InsuranceErpModelCoverageType
+import de.gematik.ti.erp.app.task.model.RedeemStateErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStateErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerShortMedium
+import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.HealthPortalLink
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonTiny
@@ -86,9 +97,9 @@ import kotlinx.datetime.Instant
 fun SyncedPrescriptionOverview(
     listState: LazyListState,
     invoiceCardState: InvoiceCardUiState,
-    medicationSchedule: MedicationSchedule?,
-    activeProfile: ProfilesUseCaseData.Profile,
-    prescription: PrescriptionData.Synced,
+    medicationScheduleErpModel: MedicationScheduleErpModel?,
+    activeProfile: ProfileErpModel,
+    prescription: TaskErpModel.Synced.Prescription,
     now: Instant = Clock.System.now(),
     isDemoMode: Boolean,
     onClickMedication: (PrescriptionData.Medication) -> Unit,
@@ -105,7 +116,11 @@ fun SyncedPrescriptionOverview(
     val noValueText = stringResource(R.string.pres_details_no_value)
     val isAccident =
         remember(prescription) {
-            prescription.medicationRequest.accidentType != SyncedTaskData.AccidentType.None
+            prescription.medicationRequest?.accidentType != AccidentType.None
+        }
+    val isTeratogenicPrescription =
+        remember(prescription) {
+            prescription.medicationRequest?.isTeratogenic()
         }
 
     LazyColumn(
@@ -118,53 +133,20 @@ fun SyncedPrescriptionOverview(
     ) {
         item { PrescriptionName(prescription.name) }
 
-        if (prescription.isIncomplete) {
-            item {
-                SpacerShortMedium()
-                FailureDetailsStatusChip {
-                    onShowInfoBottomSheet.failureBottomSheet()
-                }
-            }
-        }
-
-        if (prescription.insurance.coverageType == SyncedTaskData.CoverageType.SEL) {
-            item {
-                SpacerShortMedium()
-                SelfPayPrescriptionDetailsChip {
-                    onShowInfoBottomSheet.selPayerPrescriptionBottomSheet()
-                }
-            }
-        }
-
-        if (prescription.isDirectAssignment) {
-            item {
-                SpacerShortMedium()
-                DirectAssignmentChip {
-                    onShowInfoBottomSheet.directAssignmentBottomSheet()
-                }
-                SpacerMedium()
-                DirectAssignmentInfo(prescription.isDispensed)
-            }
-        }
-
-        if (!prescription.isSubstitutionAllowed) {
-            item {
-                SpacerShortMedium()
-                SubstitutionNotAllowedChip {
-                    onShowInfoBottomSheet.substitutionNotAllowedBottomSheet()
-                }
-            }
-        }
+        prescriptionDetailChipsSection(
+            prescription = prescription,
+            onShowInfoBottomSheet = onShowInfoBottomSheet
+        )
 
         item {
             SpacerShortMedium()
             SyncedPrescriptionStateInfo(
-                prescriptionState = prescription.state,
+                prescriptionState = prescription.state(),
                 prescription = prescription,
                 now = now,
                 onClick = when {
-                    prescription.state is SyncedTaskData.SyncedTask.Ready ||
-                        prescription.state is SyncedTaskData.SyncedTask.LaterRedeemable
+                    prescription.state() is TaskStateErpModel.Ready ||
+                        prescription.state() is TaskStateErpModel.LaterRedeemable
                     -> {
                         {
                             onShowHowLongValidBottomSheet()
@@ -187,11 +169,12 @@ fun SyncedPrescriptionOverview(
                 )
             }
         }
-        if (prescription.state is SyncedTaskData.SyncedTask.Ready &&
-            !prescription.isDirectAssignment &&
-            prescription.redeemState == SyncedTaskData.SyncedTask.RedeemState.RedeemableAndValid
+        if (prescription.state() is TaskStateErpModel.Ready &&
+            !prescription.isDirectAssignment() &&
+            prescription.redeemState() == RedeemStateErpModel.RedeemableAndValid
         ) {
             item {
+                SpacerLarge()
                 RedeemFromDetailSection(
                     onClickRedeemLocal = onClickRedeemLocal,
                     onClickRedeemOnline = onClickRedeemOnline
@@ -202,32 +185,26 @@ fun SyncedPrescriptionOverview(
 
         if (!isDemoMode) {
             item {
-                MedicationPlanLineItem(medicationSchedule, onClickMedicationPlan)
+                MedicationPlanLineItem(medicationScheduleErpModel, onClickMedicationPlan)
             }
         }
 
         item {
-            val text = additionalFeeText(prescription.medicationRequest.additionalFee) ?: noValueText
+            val text = prescription.medicationRequest?.additionalFee?.let { additionalFeeText(it) } ?: noValueText
             Label(
                 text = text,
                 label = stringResource(R.string.pres_details_additional_fee),
                 onClick = {
-                    when (prescription.medicationRequest.additionalFee) {
-                        SyncedTaskData.AdditionalFee.NotExempt -> {
-                            onShowInfoBottomSheet.additionalFeeNotExemptBottomSheet()
-                        }
-
-                        SyncedTaskData.AdditionalFee.Exempt -> {
-                            onShowInfoBottomSheet.additionalFeeExemptBottomSheet()
-                        }
-
+                    when (prescription.medicationRequest?.additionalFee) {
+                        AdditionalFeeErpModel.NotExempt -> onShowInfoBottomSheet.additionalFeeNotExemptBottomSheet()
+                        AdditionalFeeErpModel.Exempt -> onShowInfoBottomSheet.additionalFeeExemptBottomSheet()
                         else -> {}
                     }
                 }
             )
         }
 
-        prescription.medicationRequest.emergencyFee?.let { emergencyFee ->
+        prescription.medicationRequest?.emergencyFee?.let { emergencyFee ->
             item {
                 Label(
                     text =
@@ -250,8 +227,9 @@ fun SyncedPrescriptionOverview(
             Label(
                 modifier = Modifier.testTag(TestTag.Prescriptions.Details.SubstitutionButton),
                 text =
+                // prescription.isSubstitutionAllowed
                 stringResource(
-                    if (prescription.isSubstitutionAllowed) {
+                    if (prescription.medicationRequest?.substitutionAllowed == true) {
                         R.string.prescription_details_substitution_allowed
                     } else {
                         R.string.prescription_details_substitution_not_allowed
@@ -259,7 +237,7 @@ fun SyncedPrescriptionOverview(
                 ),
                 label = stringResource(R.string.prescription_details_aut_idem_label),
                 onClick = {
-                    if (prescription.isSubstitutionAllowed) {
+                    if (prescription.medicationRequest?.substitutionAllowed == true) {
                         onShowInfoBottomSheet.substitutionAllowedBottomSheet()
                     } else {
                         onShowInfoBottomSheet.substitutionNotAllowedBottomSheet()
@@ -280,7 +258,7 @@ fun SyncedPrescriptionOverview(
         item {
             Label(
                 modifier = Modifier.testTag(TestTag.Prescriptions.Details.PatientButton),
-                text = prescription.patient.name ?: noValueText,
+                text = prescription.patient?.name ?: noValueText,
                 label = stringResource(R.string.pres_detail_patient_header),
                 onClick = {
                     onNavigateToRoute(
@@ -293,7 +271,7 @@ fun SyncedPrescriptionOverview(
         item {
             Label(
                 modifier = Modifier.testTag(TestTag.Prescriptions.Details.PrescriberButton),
-                text = prescription.practitioner.name ?: noValueText,
+                text = prescription.practitioner?.name ?: noValueText,
                 label = stringResource(R.string.pres_detail_practitioner_header),
                 onClick = {
                     onNavigateToRoute(
@@ -306,7 +284,7 @@ fun SyncedPrescriptionOverview(
         item {
             Label(
                 modifier = Modifier.testTag(TestTag.Prescriptions.Details.OrganizationButton),
-                text = prescription.organization.name ?: noValueText,
+                text = prescription.organization?.name ?: noValueText,
                 label = stringResource(R.string.pres_detail_organization_header),
                 onClick = {
                     onNavigateToRoute(
@@ -314,6 +292,21 @@ fun SyncedPrescriptionOverview(
                     )
                 }
             )
+        }
+
+        if (isTeratogenicPrescription == true) {
+            item {
+                Label(
+                    text = stringResource(R.string.pres_detail_teratogenic_prescription_title),
+                    onClick = {
+                        onNavigateToRoute(
+                            PrescriptionDetailRoutes.PrescriptionDetailTeratogenicPrescriptionScreen.path(
+                                prescription.taskId
+                            )
+                        )
+                    }
+                )
+            }
         }
 
         if (isAccident) {
@@ -355,9 +348,9 @@ fun SyncedPrescriptionOverview(
 
     if (prescription.isIncomplete) {
         FailureBanner(
-            Modifier
-                .fillMaxWidth(),
-            prescription
+            modifier = Modifier.fillMaxWidth(),
+            pvsIdentifier = prescription.pvsIdentifier,
+            failureToReport = prescription.failureToReport
         )
     }
 }
@@ -391,8 +384,8 @@ fun PrescriptionName(name: String?) {
 @Composable
 private fun SyncedPrescriptionStateInfo(
     modifier: Modifier = Modifier,
-    prescriptionState: SyncedTaskData.SyncedTask.TaskState,
-    prescription: PrescriptionData.Synced,
+    prescriptionState: TaskStateErpModel,
+    prescription: TaskErpModel.Synced.Prescription,
     now: Instant,
     onClick: (() -> Unit)? = null
 ) {
@@ -404,7 +397,7 @@ private fun SyncedPrescriptionStateInfo(
         } else {
             Modifier
         }
-    if (!prescription.isDirectAssignment) {
+    if (!prescription.isDirectAssignment()) {
         Column(
             modifier = modifier
                 .then(clickableModifier)
@@ -432,21 +425,18 @@ private fun SyncedPrescriptionStateInfo(
 }
 
 @Composable
-private fun additionalFeeText(additionalFee: SyncedTaskData.AdditionalFee): String? =
+private fun additionalFeeText(additionalFee: AdditionalFeeErpModel): String? =
     when (additionalFee) {
-        SyncedTaskData.AdditionalFee.Exempt ->
-            stringResource(R.string.pres_detail_no)
-
-        SyncedTaskData.AdditionalFee.NotExempt ->
-            stringResource(R.string.pres_detail_yes)
-
+        AdditionalFeeErpModel.Exempt -> stringResource(R.string.pres_detail_no)
+        AdditionalFeeErpModel.NotExempt -> stringResource(R.string.pres_detail_yes)
         else -> null
     }
 
 @Composable
 private fun FailureBanner(
     modifier: Modifier,
-    prescription: PrescriptionData.Synced
+    pvsIdentifier: String,
+    failureToReport: String
 ) {
     val mailAddress = stringResource(R.string.settings_contact_mail_address)
     val subject = stringResource(R.string.settings_feedback_mail_subject)
@@ -469,9 +459,9 @@ private fun FailureBanner(
             onClick = {
                 val body =
                     """
-                    PVS ID: ${prescription.task.pvsIdentifier}
+                    PVS ID: $pvsIdentifier
                     
-                    ${prescription.failureToReport}
+                    $failureToReport
                     """.trimIndent()
 
                 context.handleIntent(
@@ -494,19 +484,67 @@ private fun FailureBanner(
 }
 
 private fun onClickMedication(
-    prescription: PrescriptionData.Synced,
+    prescription: TaskErpModel.Synced.Prescription,
     onClickMedication: (PrescriptionData.Medication) -> Unit,
     onNavigateToRoute: (String) -> Unit
 ): () -> Unit =
     {
-        if (!prescription.isDispensed) {
-            onClickMedication(PrescriptionData.Medication.Request(prescription.medicationRequest))
+        if (prescription.medicationDispenses.isEmpty()) {
+            onClickMedication(PrescriptionData.Medication.Request(prescription.toSyncedTask().medicationRequest))
         } else {
             onNavigateToRoute(
                 PrescriptionDetailRoutes.PrescriptionDetailMedicationOverviewScreen.path(prescription.taskId)
             )
         }
     }
+
+private fun LazyListScope.prescriptionDetailChipsSection(
+    prescription: TaskErpModel.Synced.Prescription,
+    onShowInfoBottomSheet: PrescriptionDetailBottomSheetNavigationData
+) {
+    val hasChips = prescription.isIncomplete ||
+        prescription.insuranceInformation?.coverageType == InsuranceErpModelCoverageType.SEL ||
+        prescription.isDirectAssignment() ||
+        prescription.medicationRequest?.substitutionAllowed != true ||
+        prescription.medicationRequest?.isTeratogenic() == true
+
+    if (hasChips) {
+        item {
+            SpacerShortMedium()
+            FlowRow(
+                horizontalArrangement = Arrangement.Center
+            ) {
+                if (prescription.isIncomplete) {
+                    FailureDetailsStatusChip {
+                        onShowInfoBottomSheet.failureBottomSheet()
+                    }
+                }
+                if (prescription.insuranceInformation?.coverageType == InsuranceErpModelCoverageType.SEL) {
+                    SelfPayPrescriptionDetailsChip {
+                        onShowInfoBottomSheet.selPayerPrescriptionBottomSheet()
+                    }
+                }
+                if (prescription.isDirectAssignment()) {
+                    DirectAssignmentChip {
+                        onShowInfoBottomSheet.directAssignmentBottomSheet()
+                    }
+                    SpacerSmall()
+                    DirectAssignmentInfo(prescription.medicationDispenses.isNotEmpty())
+                }
+                if (prescription.medicationRequest?.substitutionAllowed != true) {
+                    SubstitutionNotAllowedChip {
+                        onShowInfoBottomSheet.substitutionNotAllowedBottomSheet()
+                    }
+                }
+                if (prescription.medicationRequest?.isTeratogenic() == true) {
+                    TeratogenicPrescriptionChip {
+                        onShowInfoBottomSheet.teratogenicPrescriptionBottomSheet()
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Composable
 private fun InvoiceCardSection(

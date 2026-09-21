@@ -31,7 +31,6 @@ import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SCANNED_PRESCRIPTIO
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SYNCED_PRESCRIPTION_SCHEDULE_INACTIVE
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_PERSONALIZED
-import de.gematik.ti.erp.app.profiles.usecase.mapper.toModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 
 data class MedicationPlanScheduleListScreenPreview(
@@ -56,7 +55,7 @@ class MedicationPlanScheduleListScreenPreviewParameter : PreviewParameterProvide
                 state = UiState.Data(
                     listOf(
                         ProfileWithSchedules(
-                            PROFILE1.toModel(),
+                            PROFILE1,
                             medicationSchedules = listOf(
                                 SCANNED_PRESCRIPTION_SCHEDULE_INACTIVE,
                                 SYNCED_PRESCRIPTION_SCHEDULE_INACTIVE
@@ -70,7 +69,7 @@ class MedicationPlanScheduleListScreenPreviewParameter : PreviewParameterProvide
                 state = UiState.Data(
                     listOf(
                         ProfileWithSchedules(
-                            PROFILE1.toModel(),
+                            PROFILE1,
                             medicationSchedules = listOf(
                                 SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS
                             )
@@ -83,13 +82,13 @@ class MedicationPlanScheduleListScreenPreviewParameter : PreviewParameterProvide
                 state = UiState.Data(
                     listOf(
                         ProfileWithSchedules(
-                            PROFILE1.toModel(),
+                            PROFILE1,
                             medicationSchedules = listOf(
                                 SCANNED_PRESCRIPTION_SCHEDULE_ACTIVE_ENDLESS
                             )
                         ),
                         ProfileWithSchedules(
-                            PROFILE2.toModel(),
+                            PROFILE2,
                             medicationSchedules = listOf(
                                 @Suppress("MagicNumber")
                                 SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS,

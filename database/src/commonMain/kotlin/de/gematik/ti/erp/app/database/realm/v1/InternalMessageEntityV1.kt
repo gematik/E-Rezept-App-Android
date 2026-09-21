@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.database.realm.v1
 
 import de.gematik.ti.erp.app.database.realm.utils.enumName
-import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationProfileV1
+import de.gematik.ti.erp.app.communication.model.CommunicationProfileV1
 import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.types.RealmList

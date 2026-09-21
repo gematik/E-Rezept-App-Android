@@ -28,52 +28,65 @@ import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
 import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
-import de.gematik.ti.erp.app.pkv.ui.preview.PkvMockData.medicationPzn
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
+import de.gematik.ti.erp.app.task.model.Identifier
+import de.gematik.ti.erp.app.task.model.MedicationCategory
+import de.gematik.ti.erp.app.task.model.MedicationDispenseErpModel
+import de.gematik.ti.erp.app.task.model.MedicationErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.Instant
 
 class PrescriptionDetailMedicationOverviewPreviewParameter :
-    PreviewParameterProvider<UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>> {
+    PreviewParameterProvider<UiState<Pair<ProfileErpModel, TaskErpModel>>> {
     override val values = sequenceOf(
         UiState.Empty(),
         UiState.Loading(),
         UiState.Data(createPreviewPair(PrescriptionPreviewData.withDispenses()))
     )
 
-    private fun createPreviewPair(previewData: PrescriptionPreviewData): Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription> =
-        ProfilesUseCaseData.Profile(
+    private fun createPreviewPair(previewData: PrescriptionPreviewData): Pair<ProfileErpModel, TaskErpModel> =
+        ProfileErpModel(
             id = "1",
             name = "Max Mustermann",
-            insurance = ProfileInsuranceInformation(
-                insuranceType = ProfilesUseCaseData.InsuranceType.GKV
+            insuranceData = ProfileInsuranceDataErpModel(
+                insurantName = "Max Mustermann",
+                insuranceIdentifier = "1234567890",
+                insuranceName = "Muster AG",
+                insuranceType = InsuranceType.GKV,
+                organizationIdentifier = null
             ),
-            isActive = true,
-            color = ProfilesData.ProfileColorNames.SPRING_GRAY,
+            active = true,
+            profileImageData = ProfileImageDataErpModel(
+                color = ProfileColorNames.SPRING_GRAY,
+                avatar = Avatar.Baby,
+                image = null
+            ),
             lastAuthenticated = null,
-            ssoTokenScope = null,
-            avatar = ProfilesData.Avatar.PersonalizedImage,
-            image = null
-        ) to PrescriptionData.Synced(task = previewData.syncedPrescription)
+            lastTaskSynced = null,
+            lastAuditEventSynced = null,
+            isConsentDrawerShown = true,
+            isNewlyCreated = false,
+            userAuthentication = UserAuthenticationErpModel.NotInitialized
+        ) to previewData.syncedPrescription
 }
 
 @Suppress("MagicNumber")
 private data class PrescriptionPreviewData(
-    val medication: SyncedTaskData.Medication,
-    val syncedPrescription: SyncedTaskData.SyncedTask,
+    val syncedPrescription: TaskErpModel.Synced.Prescription,
     val taskId: String
 ) {
     companion object {
         fun defaultPreview(): PrescriptionPreviewData {
-            val mockMedication = medicationPzn
             val mockSyncedTask = SYNCED_TASK
 
             return PrescriptionPreviewData(
-                medication = mockMedication,
                 syncedPrescription = mockSyncedTask,
                 taskId = "mockTaskId"
             )
@@ -81,21 +94,21 @@ private data class PrescriptionPreviewData(
 
         fun withDispenses(): PrescriptionPreviewData {
             val default = defaultPreview()
-            val dispense = SyncedTaskData.MedicationDispense(
+            val dispense = MedicationDispenseErpModel(
                 dispenseId = "1",
                 patientIdentifier = "1234",
-                medication = SyncedTaskData.Medication(
-                    category = SyncedTaskData.MedicationCategory.AMVV,
+                medication = MedicationErpModel(
+                    category = MedicationCategory.AMVV,
                     medicationProfile = FhirTaskKbvMedicationProfileErpModel(
                         type = ErpMedicationProfileType.PZN,
                         version = ErpMedicationProfileVersion.V_110
                     ),
-                    vaccine = false,
+                    isVaccine = false,
                     text = "Dispensed Medication",
                     form = "Capsule",
                     lotNumber = "654321",
                     expirationDate = null,
-                    identifier = SyncedTaskData.Identifier(pzn = "333333", atc = "444444"),
+                    identifier = Identifier(pzn = "333333", atc = "444444"),
                     normSizeCode = "N1",
                     amount = null,
                     manufacturingInstructions = null,
@@ -116,7 +129,8 @@ private data class PrescriptionPreviewData(
                     status = "completed",
                     modifiedDate = Instant.parse(input = "2024-08-01T10:00:00Z").asFhirTemporal()
                 ),
-                whenHandedOver = null
+                whenHandedOver = null,
+                euCountryCode = "DE"
             )
             return default.copy(
                 syncedPrescription = default.syncedPrescription.copy(

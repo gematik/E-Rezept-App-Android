@@ -41,6 +41,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import java.util.Locale
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
@@ -51,18 +52,22 @@ class GetAllEuCountriesUseCaseTest {
     private val repository: EuRepository = mockk()
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
+    private lateinit var originalLocale: Locale
 
     private lateinit var useCaseUnderTest: GetAllEuCountriesUseCase
 
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
+        originalLocale = Locale.getDefault()
+        Locale.setDefault(Locale.ENGLISH)
         useCaseUnderTest = GetAllEuCountriesUseCase(repository, dispatcher)
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+        Locale.setDefault(originalLocale)
         clearMocks(repository)
     }
 
@@ -130,6 +135,41 @@ class GetAllEuCountriesUseCaseTest {
         val result = useCaseUnderTest.filterCountries(countries, "xyz")
 
         assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun `returns German localized names when app locale is German`() {
+        Locale.setDefault(Locale.GERMAN)
+        testScope.runTest {
+            coEvery { repository.fetchAvailableCountries() } returns Result.success(
+                FhirCountryErpModelCollection(
+                    listOf(
+                        createMockFhirCountryModel("Germany", "DE"),
+                        createMockFhirCountryModel("France", "FR")
+                    )
+                )
+            )
+
+            val result = useCaseUnderTest.invoke()
+
+            assertEquals("Deutschland", result[0].name)
+            assertEquals("Frankreich", result[1].name)
+        }
+    }
+
+    @Test
+    fun `falls back to API name when country code cannot be resolved`() {
+        testScope.runTest {
+            coEvery { repository.fetchAvailableCountries() } returns Result.success(
+                FhirCountryErpModelCollection(
+                    listOf(createMockFhirCountryModel("SomeName", "XX"))
+                )
+            )
+
+            val result = useCaseUnderTest.invoke()
+
+            assertEquals("SomeName", result[0].name)
+        }
     }
 
     private fun createMockFhirCountryModel(name: String?, code: String?): FhirCountryErpModel {

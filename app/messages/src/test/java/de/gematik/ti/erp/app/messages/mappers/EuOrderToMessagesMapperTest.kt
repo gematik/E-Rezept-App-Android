@@ -25,10 +25,11 @@ package de.gematik.ti.erp.app.messages.mappers
 import android.content.Context
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.ErpTimeFormatter
-import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCodeErpModel
 import de.gematik.ti.erp.app.eurezept.model.EuEventType
-import de.gematik.ti.erp.app.eurezept.model.EuOrder
-import de.gematik.ti.erp.app.eurezept.model.EuTaskEvent
+import de.gematik.ti.erp.app.eurezept.model.EuOrderErpModel
+import de.gematik.ti.erp.app.eurezept.model.EuTaskEventErpModel
+import de.gematik.ti.erp.app.messages.mapper.EuOrderToMessagesMapper
 import de.gematik.ti.erp.app.messages.ui.model.EuOrderMessageUiModel
 import io.mockk.every
 import io.mockk.mockk
@@ -57,7 +58,7 @@ class EuOrderToMessagesMapperTest {
         taskId: String,
         type: EuEventType,
         time: Instant
-    ) = EuTaskEvent(
+    ) = EuTaskEventErpModel(
         id = id,
         taskId = taskId,
         type = type,
@@ -69,7 +70,7 @@ class EuOrderToMessagesMapperTest {
         code: String,
         country: String,
         validSeconds: Long = 60
-    ) = EuAccessCode(
+    ) = EuAccessCodeErpModel(
         accessCode = code,
         countryCode = country,
         validUntil = Clock.System.now().plus(validSeconds.seconds),
@@ -80,11 +81,11 @@ class EuOrderToMessagesMapperTest {
     private fun order(
         id: String,
         country: String = "BE",
-        code: EuAccessCode,
-        events: List<EuTaskEvent>,
+        code: EuAccessCodeErpModel,
+        events: List<EuTaskEventErpModel>,
         tasks: List<String>,
         ts: Instant
-    ) = EuOrder(
+    ) = EuOrderErpModel(
         orderId = id,
         countryCode = country,
         createdAt = ts,

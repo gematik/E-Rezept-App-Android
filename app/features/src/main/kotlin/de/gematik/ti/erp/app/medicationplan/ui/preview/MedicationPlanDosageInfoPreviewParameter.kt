@@ -25,11 +25,11 @@
 package de.gematik.ti.erp.app.medicationplan.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
+import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstructionErpModel
 
 data class MedicationPlanDosageInfoPreview(
     val name: String,
-    val dosageInstruction: MedicationPlanDosageInstruction
+    val dosageInstruction: MedicationPlanDosageInstructionErpModel
 )
 
 class MedicationPlanDosageInfoPreviewParameter : PreviewParameterProvider<MedicationPlanDosageInfoPreview> {
@@ -59,27 +59,27 @@ class MedicationPlanDosageInfoPreviewParameter : PreviewParameterProvider<Medica
         )
 }
 
-private val PREVIEW_FREETEXT_DOSAGE_INSTRUCTION = MedicationPlanDosageInstruction.FreeText(
+private val PREVIEW_FREETEXT_DOSAGE_INSTRUCTION = MedicationPlanDosageInstructionErpModel.FreeText(
     text = "Take 1 tablet every 8 hours"
 )
 
-private val PREVIEW_EMPTY_DOSAGE_INSTRUCTION = MedicationPlanDosageInstruction.Empty
+private val PREVIEW_EMPTY_DOSAGE_INSTRUCTION = MedicationPlanDosageInstructionErpModel.Empty
 
-private val PREVIEW_EXTERNAL_DOSAGE_INSTRUCTION = MedicationPlanDosageInstruction.External
+private val PREVIEW_EXTERNAL_DOSAGE_INSTRUCTION = MedicationPlanDosageInstructionErpModel.External
 
-private val PREVIEW_STRUCTURED_DOSAGE_INSTRUCTION_ONE_IN_MORNING = MedicationPlanDosageInstruction.Structured(
+private val PREVIEW_STRUCTURED_DOSAGE_INSTRUCTION_ONE_IN_MORNING = MedicationPlanDosageInstructionErpModel.Structured(
     text = "1-0-0",
     interpretation = mapOf(
-        MedicationPlanDosageInstruction.DayTime.MORNING to "1"
+        MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1"
     )
 )
 
-private val PREVIEW_STRUCTURED_DOSAGE_INSTRUCTION_TWO_IN_ALL_DAY_TIMES = MedicationPlanDosageInstruction.Structured(
+private val PREVIEW_STRUCTURED_DOSAGE_INSTRUCTION_TWO_IN_ALL_DAY_TIMES = MedicationPlanDosageInstructionErpModel.Structured(
     text = "2-2-2-2",
     interpretation = mapOf(
-        MedicationPlanDosageInstruction.DayTime.MORNING to "2",
-        MedicationPlanDosageInstruction.DayTime.NOON to "2",
-        MedicationPlanDosageInstruction.DayTime.EVENING to "2",
-        MedicationPlanDosageInstruction.DayTime.NIGHT to "2"
+        MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "2",
+        MedicationPlanDosageInstructionErpModel.DayTime.NOON to "2",
+        MedicationPlanDosageInstructionErpModel.DayTime.EVENING to "2",
+        MedicationPlanDosageInstructionErpModel.DayTime.NIGHT to "2"
     )
 )

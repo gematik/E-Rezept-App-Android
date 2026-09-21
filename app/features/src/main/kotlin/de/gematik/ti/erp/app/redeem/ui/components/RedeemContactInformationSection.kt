@@ -38,7 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
 import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.redeem.model.RedeemContactValidationState
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
@@ -49,7 +49,7 @@ import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 @Composable
 internal fun RedeemContactInformationSection(
     contact: ShippingInfoErpModel,
-    selectedOrderOption: PharmacyScreenData.OrderOption?,
+    selectedOrderOption: OrderOptionErpModel?,
     state: RedeemContactValidationState? = RedeemContactValidationState.NoError
 ) {
     val isError = state?.isValid() == false || contact.isEmpty()
@@ -99,13 +99,13 @@ internal fun RedeemContactMissingSection(isError: Boolean) {
 private fun ContactDetails(
     modifier: Modifier = Modifier,
     contact: ShippingInfoErpModel,
-    selectedOrderOption: PharmacyScreenData.OrderOption?,
+    selectedOrderOption: OrderOptionErpModel?,
     isError: Boolean = false
 ) {
     val textColor = if (isError) AppTheme.colors.red700 else AppTheme.colors.neutral900
     val title = when (selectedOrderOption) {
         null -> ""
-        PharmacyScreenData.OrderOption.Pickup -> stringResource(R.string.pharmacy_order_contact_ordertype_pickup_subtitle)
+        OrderOptionErpModel.Pickup -> stringResource(R.string.pharmacy_order_contact_ordertype_pickup_subtitle)
         else -> stringResource(R.string.pharmacy_order_contact_ordertype_others_subtitle)
     }
 
@@ -174,7 +174,7 @@ private fun ContactDetails(
 private fun ShippingInformationSectionWithErrorPreview() {
     PreviewTheme {
         RedeemContactInformationSection(
-            selectedOrderOption = PharmacyScreenData.OrderOption.Pickup,
+            selectedOrderOption = OrderOptionErpModel.Pickup,
             state = RedeemContactValidationState.MissingPhone,
             contact = ShippingInfoErpModel(
                 name = "Ubelix Ewiglangername",
@@ -195,7 +195,7 @@ private fun ShippingInformationSectionWithErrorPreview() {
 private fun ShippingInformationSectionPreview() {
     PreviewTheme {
         RedeemContactInformationSection(
-            selectedOrderOption = PharmacyScreenData.OrderOption.Delivery,
+            selectedOrderOption = OrderOptionErpModel.Delivery,
             state = RedeemContactValidationState.NoError,
             contact = ShippingInfoErpModel(
                 name = "Ubelix Ewiglangername",

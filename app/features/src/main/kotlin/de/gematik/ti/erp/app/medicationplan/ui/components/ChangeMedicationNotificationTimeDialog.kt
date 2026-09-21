@@ -23,16 +23,16 @@
 package de.gematik.ti.erp.app.medicationplan.ui.components
 
 import androidx.compose.runtime.Composable
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationErpModel
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 import kotlinx.datetime.LocalTime
 
 @Composable
 internal fun ChangeMedicationNotificationTimeDialog(
-    event: ComposableEvent<MedicationScheduleNotification>,
+    event: ComposableEvent<MedicationScheduleNotificationErpModel>,
     dialogScaffold: DialogScaffold,
-    onConfirmChosenTime: (notification: MedicationScheduleNotification, time: LocalTime) -> Unit
+    onConfirmChosenTime: (notification: MedicationScheduleNotificationErpModel, time: LocalTime) -> Unit
 ) {
     event.listen { notification ->
         dialogScaffold.show { dialog ->

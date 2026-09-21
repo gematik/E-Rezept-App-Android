@@ -22,13 +22,12 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
-import de.gematik.ti.erp.app.database.api.PharmacyLocalDataSource
-import de.gematik.ti.erp.app.database.api.PharmacySearchAccessTokenLocalDataSource
+import de.gematik.ti.erp.app.database.api.pharmacy.PharmacyLocalDataSource
+import de.gematik.ti.erp.app.database.api.pharmacy.PharmacySearchAccessTokenLocalDataSource
 import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyParsers
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.FHIRVZD
-import de.gematik.ti.erp.app.messages.repository.PharmacyCacheLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacyRemoteSelectorLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.DefaultPharmacyRemoteDataSource
@@ -56,7 +55,6 @@ class DefaultPharmacyRepositoryTest {
     private val remoteSelector = mockk<PharmacyRemoteSelectorLocalDataSource>()
     private val defaultPharmacyRemoteDataSource = mockk<DefaultPharmacyRemoteDataSource>()
     private val searchAccessTokenLocalDataSource = mockk<PharmacySearchAccessTokenLocalDataSource>(relaxed = true)
-    private val cachedPharmacyLocalDataSource = mockk<PharmacyCacheLocalDataSource>(relaxed = true)
     private val parser = mockk<PharmacyParsers>()
     private val filter = PharmacyFilter()
     private val pharmacyLocalDataSource = mockk<PharmacyLocalDataSource>()
@@ -67,14 +65,11 @@ class DefaultPharmacyRepositoryTest {
     fun setUp() {
         every { remoteSelector.getPharmacyVzdService() } returns FHIRVZD
         every { parser.bundleParser.extract(any()) } returns expectedCollection
-        coEvery { cachedPharmacyLocalDataSource.savePharmacy(any(), any()) } returns Unit
-        every { cachedPharmacyLocalDataSource.loadPharmacies() } returns flowOf(emptyList())
         remoteDataSource = defaultPharmacyRemoteDataSource
 
         repository = DefaultPharmacyRepository(
             pharmacyRemoteDataSource = defaultPharmacyRemoteDataSource,
             pharmacySearchAccessTokenLocalDataSource = searchAccessTokenLocalDataSource,
-            cachedPharmacyLocalDataSource = cachedPharmacyLocalDataSource,
             parsers = parser,
             redeemLocalDataSource = mockk(),
             pharmacyLocalDataSource = pharmacyLocalDataSource

@@ -23,12 +23,12 @@
 package de.gematik.ti.erp.app.medicationplan.usecase
 
 import de.gematik.ti.erp.app.medicationplan.alarm.MedicationPlanNotificationScheduler
-import de.gematik.ti.erp.app.medicationplan.medicationSchedule1
-import de.gematik.ti.erp.app.medicationplan.medicationSchedule2
+import de.gematik.ti.erp.app.medicationplan.medicationScheduleErpModel1
+import de.gematik.ti.erp.app.medicationplan.medicationScheduleErpModel2
 import de.gematik.ti.erp.app.medicationplan.profile1
 import de.gematik.ti.erp.app.medicationplan.profile2
 import de.gematik.ti.erp.app.medicationplan.repository.DefaultMedicationPlanRepository
-import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanLocalDataSource
+import de.gematik.ti.erp.app.database.realm.v1.medicationplan.MedicationPlanLocalDataSourceV1
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -44,7 +44,7 @@ import kotlin.test.Test
 
 class GetActiveProfileWithSchedulesUseCaseTest {
     private val dispatcher = StandardTestDispatcher()
-    private val medicationPlanLocalDataSource: MedicationPlanLocalDataSource = mockk()
+    private val medicationPlanLocalDataSource: MedicationPlanLocalDataSourceV1 = mockk()
     private val profileRepository: ProfileRepository = mockk()
     private lateinit var defaultMedicationPlanRepository: DefaultMedicationPlanRepository
     private lateinit var useCase: GetActiveProfileWithSchedulesUseCase
@@ -68,7 +68,7 @@ class GetActiveProfileWithSchedulesUseCaseTest {
         val now = LocalDateTime.parse("2024-01-01T12:00:00")
         coEvery { profileRepository.profiles() } returns flowOf(listOf(profile1, profile2))
         coEvery { medicationPlanLocalDataSource.getAllMedicationSchedules() } returns
-            flowOf(listOf(medicationSchedule1, medicationSchedule2))
+            flowOf(listOf(medicationScheduleErpModel1, medicationScheduleErpModel2))
 
         runTest(dispatcher) {
             val result = useCase.invoke(now).first()

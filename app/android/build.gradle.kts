@@ -5,9 +5,11 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.base.android.app)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.firebase.convention)
     alias(libs.plugins.module.names)
     alias(libs.plugins.dependency.overrides)
 }
+
 
 // these two need to be in uppercase since it is declared that way in gradle.properties
 @Suppress("VariableNaming", "PropertyName")
@@ -30,8 +32,16 @@ android {
         testApplicationId = namesPlugin.moduleName("test.test")
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
         testOptions.execution = "ANDROID_TEST_ORCHESTRATOR"
-        // Check if MAPS_API_KEY is defined, otherwise provide a default value
-        val mapsApiKey = project.findProperty("MAPS_API_KEY") ?: "DEFAULT_PLACEHOLDER_KEY"
+
+        // Load MAPS_API_KEY from local.properties
+        val localPropertiesFile = rootProject.file("local.properties")
+        val mapsApiKey = if (localPropertiesFile.exists()) {
+            val localProps = Properties()
+            localProps.load(localPropertiesFile.inputStream())
+            localProps.getProperty("MAPS_API_KEY", "DEFAULT_PLACEHOLDER_KEY")
+        } else {
+            "DEFAULT_PLACEHOLDER_KEY"
+        }
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
@@ -192,12 +202,15 @@ dependencies {
     implementation(project(namesPlugin.uiComponents))
     implementation(project(namesPlugin.multiplatform))
     implementation(project(namesPlugin.database))
+    implementation(project(namesPlugin.pushNotifications))
     androidTestImplementation(project(namesPlugin.testActions))
     androidTestImplementation(project(namesPlugin.testTags))
     testImplementation(project(namesPlugin.multiplatform))
     testImplementation(project(namesPlugin.fhirParser))
     testImplementation(project(namesPlugin.mocks))
     androidTestImplementation(project(namesPlugin.fhirParser))
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
     implementation(libs.play.app.update)
 
     // E2E Testing

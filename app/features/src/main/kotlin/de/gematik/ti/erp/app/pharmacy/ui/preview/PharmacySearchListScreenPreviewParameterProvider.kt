@@ -24,21 +24,22 @@ package de.gematik.ti.erp.app.pharmacy.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.paging.PagingData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.SearchFilterErpModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 data class PharmacySearchListScreenPreviewData(
-    val filter: PharmacyUseCaseData.Filter,
+    val filter: SearchFilterErpModel,
     val searchTerm: String,
     val isLoading: Boolean,
-    val pagingData: Flow<PagingData<PharmacyUseCaseData.Pharmacy>>
+    val pagingData: Flow<PagingData<PharmacyDetailsErpModel>>
 )
 
 class PharmacySearchListScreenPreviewParameterProvider : PreviewParameterProvider<PharmacySearchListScreenPreviewData> {
     override val values = sequenceOf(
         PharmacySearchListScreenPreviewData(
-            filter = PharmacyUseCaseData.Filter(
+            filter = SearchFilterErpModel(
                 openNow = true,
                 deliveryService = true,
                 nearBy = true
@@ -54,13 +55,13 @@ class PharmacySearchListScreenPreviewParameterProvider : PreviewParameterProvide
             )
         ),
         PharmacySearchListScreenPreviewData(
-            filter = PharmacyUseCaseData.Filter(),
+            filter = SearchFilterErpModel(),
             searchTerm = "Loading",
             isLoading = true,
             pagingData = flowOf(PagingData.empty())
         ),
         PharmacySearchListScreenPreviewData(
-            filter = PharmacyUseCaseData.Filter(
+            filter = SearchFilterErpModel(
                 onlineService = true
             ),
             searchTerm = "",

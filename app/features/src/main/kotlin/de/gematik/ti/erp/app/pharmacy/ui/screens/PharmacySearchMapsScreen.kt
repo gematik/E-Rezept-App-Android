@@ -79,8 +79,10 @@ import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacySettings
 import de.gematik.ti.erp.app.pharmacy.ui.components.PositionState
 import de.gematik.ti.erp.app.pharmacy.ui.components.pharmacyMapsOverlay
 import de.gematik.ti.erp.app.pharmacy.ui.model.SelectedPharmacyUi
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.pharmacy.model.LocationModeErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyMapsSearchDataErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.LocationPermissionDeniedDialog
 import de.gematik.ti.erp.app.utils.compose.LocationServicesNotAvailableDialog
@@ -260,14 +262,14 @@ private fun PharmacySearchMapsScreenContent(
     mapHolder: PharmacyMap,
     positionState: PositionState,
     pharmacyProperties: PharmacyProperties,
-    pharmacies: List<PharmacyUseCaseData.Pharmacy>,
+    pharmacies: List<PharmacyDetailsErpModel>,
     selectedPharmacy: SelectedPharmacyUi?,
     showSearchButton: Boolean,
     isLoading: Boolean,
     isMapLocationEnabled: Boolean,
     cameraRadius: Double,
     mapZoomState: Float,
-    coordinates: Coordinates?,
+    coordinates: PositionErpModel?,
     onClickPharmacy: (SelectedPharmacyUi) -> Unit,
     onSearch: (Boolean) -> Unit,
     onClickFilter: () -> Unit,
@@ -338,7 +340,7 @@ private fun PharmacySearchMapsScreenContent(
 private fun SelectedPharmacy(
     cameraRadius: Double,
     mapZoomState: Float,
-    coordinates: Coordinates?,
+    coordinates: PositionErpModel?,
     pharmacy: SelectedPharmacyUi,
     onClickMarker: (SelectedPharmacyUi) -> Unit
 ) {
@@ -369,8 +371,8 @@ private fun SelectedPharmacy(
 private fun MarkedPharmacies(
     cameraRadius: Double,
     mapZoomState: Float,
-    coordinates: Coordinates?,
-    pharmacyMapsResult: List<PharmacyUseCaseData.Pharmacy>,
+    coordinates: PositionErpModel?,
+    pharmacyMapsResult: List<PharmacyDetailsErpModel>,
     onClickMarker: (SelectedPharmacyUi) -> Unit
 ) {
     val markerIcon = remember { BitmapDescriptorFactory.fromResource(R.drawable.maps_marker) }
@@ -395,10 +397,10 @@ private fun MarkedPharmacies(
 
 @Composable
 private fun CameraAnimation(
-    coordinates: Coordinates,
+    coordinates: PositionErpModel,
     cameraPositionState: CameraPositionState,
-    searchState: PharmacyUseCaseData.MapsSearchData,
-    pharmacies: List<PharmacyUseCaseData.Pharmacy>,
+    searchState: PharmacyMapsSearchDataErpModel,
+    pharmacies: List<PharmacyDetailsErpModel>,
     onShowSearchButton: () -> Unit
 ) {
     val context = LocalContext.current
@@ -411,7 +413,7 @@ private fun CameraAnimation(
     LaunchedEffect(isMoving) {
         cameraPositionState.projection?.let { projection ->
             val latLng =
-                (searchState.locationMode as? PharmacyUseCaseData.LocationMode.Enabled)?.toLatLng()
+                (searchState.locationMode as? LocationModeErpModel.Enabled)?.toLatLng()
                     ?: lastMarkerCenter
             val distanceBetween = SphericalUtil.computeDistanceBetween(cameraPositionState.position.target, latLng)
             val locationLatLng = projection.fromScreenLocation(Point(0, 0))
@@ -426,7 +428,7 @@ private fun CameraAnimation(
         try {
             if (context.isLocationPermissionAndServiceEnabled()) {
                 val latitudeAndLongitude =
-                    (searchState.locationMode as? PharmacyUseCaseData.LocationMode.Enabled)
+                    (searchState.locationMode as? LocationModeErpModel.Enabled)
                         ?.toLatLng()
                         ?: lastMarkerCenter
                 cameraPositionState.animate(

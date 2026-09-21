@@ -22,37 +22,29 @@
 
 package de.gematik.ti.erp.app.prescription.usecase
 
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 
 class GetPrescriptionByTaskIdUseCase(
-    private val repository: PrescriptionRepository,
+    private val repository: TaskOperationsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    // TODO für DigaDitail
-    operator fun invoke(taskId: String): Flow<PrescriptionData.Prescription> {
-        val synced =
-            repository
-                .loadSyncedTaskByTaskId(taskId)
-                .mapNotNull { it }
-                .map(PrescriptionData::Synced)
-                .flowOn(dispatcher)
+    operator fun invoke(taskId: String): Flow<TaskErpModel> {
+        val synced = repository.loadSyncedTaskByTaskId(taskId)
+            .mapNotNull { it }
 
-        val scanned =
-            repository
-                .loadScannedTaskByTaskId(taskId)
-                .mapNotNull { it }
-                .map(PrescriptionData::Scanned)
-                .flowOn(dispatcher)
+        val scanned = repository.loadScannedTaskByTaskId(taskId)
+            .mapNotNull { it }
 
-        // We functionally know that
-        return merge(synced, scanned).flowOn(dispatcher)
+        val diga = repository.loadDigaTaskByTaskId(taskId)
+            .mapNotNull { it }
+
+        return merge(synced, scanned, diga).flowOn(dispatcher)
     }
 }

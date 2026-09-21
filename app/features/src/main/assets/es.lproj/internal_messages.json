@@ -70,5 +70,11 @@
         "text": "**🏥 Detalles mejorados de la farmacia** \nLas farmacias ahora pueden agregar servicios como vacunas y características en el sitio como acceso sin barreras. Las farmacias se pueden filtrar según esta nueva información. \n \n **✨ Búsqueda de farmacias mejorada** \nLas farmacias usadas recientemente y las farmacias favoritas ahora están separadas más claramente. Los filtros se han mejorado. \n \n **✅ ID de salud para otras personas aseguradas** \nLas personas aseguradas que no están cubiertas por un seguro de salud público o privado ahora también pueden iniciar sesión usando su ID de salud. \n \n **🛡️ Seguimiento eliminado** \nHemos eliminado la herramienta de seguimiento utilizada en la aplicación. Ya no se recopilan datos de uso de la aplicación. \n \n **♿ Accesibilidad mejorada** \nLos filtros ahora tienen mayor contraste y el estado del filtro ahora es más fácil de ver.",
         "timestamp": "2026-03-30T08:00:00.000Z",
         "version": "1.38"
+    },
+    {
+        "id": "14",
+        "text": "**✅ Recetas de testosterona disponibles**\nAhora se pueden recibir y visualizar correctamente las recetas electrónicas (T-Prescriptions). Las recetas electrónicas se utilizan para ciertos medicamentos con requisitos de seguridad especiales.\n\n**⚙️ Ajustes optimizados**\nSe han revisado y aclarado los ajustes del perfil.\n\n**♿ Mayor accesibilidad**\nAhora se pueden reportar las barreras directamente desde la configuración. Los botones, menús, listas y encabezados se han optimizado para su uso con TalkBack. Se ha mejorado el contraste y las animaciones ahora se reproducen solo una vez. El campo de nombre ahora tiene una etiqueta visible permanentemente. También se admiten tamaños de fuente más grandes en las vistas web de la aplicación.",
+        "timestamp": "2026-08-18T08:00:00.000Z",
+        "version": "1.39"
     }
 ]

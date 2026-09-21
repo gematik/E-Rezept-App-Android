@@ -29,38 +29,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import de.gematik.ti.erp.app.analytics.model.TrackedEvent
 import de.gematik.ti.erp.app.analytics.tracker.Tracker
-import de.gematik.ti.erp.app.animated.AnimationTime
 import de.gematik.ti.erp.app.base.Controller
-import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.messages.domain.usecase.GetInternalMessagesUseCase
-import de.gematik.ti.erp.app.messages.domain.usecase.GetLatestEuOrderMessageAsInAppMessageUseCase
-import de.gematik.ti.erp.app.messages.domain.usecase.GetMessagesUseCase
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.domain.usecase.GetCombinedMessagesAsInAppMessageUseCase
 import de.gematik.ti.erp.app.messages.model.InAppMessage
-import de.gematik.ti.erp.app.messages.model.LastMessage
-import de.gematik.ti.erp.app.messages.model.LastMessageDetails
-import de.gematik.ti.erp.app.timestate.getTimeState
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
 import org.kodein.di.compose.rememberInstance
 
 @Suppress("StaticFieldLeak")
 @Stable
 class MessageListController(
-    private val getMessagesUseCase: GetMessagesUseCase,
-    private val getInternalMessagesUseCase: GetInternalMessagesUseCase,
-    private val getLatestEuOrderMessageAsInAppMessageUseCase: GetLatestEuOrderMessageAsInAppMessageUseCase,
+    private val getCombinedMessagesAsInAppMessageUseCase: GetCombinedMessagesAsInAppMessageUseCase,
     private val tracker: Tracker,
     private val context: Context
 ) : Controller() {
@@ -77,7 +62,6 @@ class MessageListController(
     fun retryFetchMessagesList() {
         controllerScope.launch {
             _messagesList.value = UiState.Loading()
-            delay(AnimationTime.SHORT_DELAY)
             fetchMessagesList()
         }
     }
@@ -87,25 +71,7 @@ class MessageListController(
             _messagesList.value = UiState.Loading()
 
             try {
-                combine(
-                    flow { emit(getMessagesUseCase.invoke().map { it.toInAppMessage() }) },
-                    getInternalMessagesUseCase.invoke(selectedAppLanguage),
-                    getLatestEuOrderMessageAsInAppMessageUseCase.invoke()
-                ) { externalMessages, internalMessages, euMessage ->
-
-                    val internalMapped = listOf(
-                        internalMessages.firstOrNull()?.copy(
-                            isUnread = internalMessages.any { it.isUnread }
-                        )
-                    )
-
-                    buildList {
-                        addAll(externalMessages)
-                        addAll(internalMapped.filterNotNull())
-                        addAll(euMessage)
-                    }.sortedByDescending { it.timeState.timestamp }
-                }.collect { combinedList ->
-
+                getCombinedMessagesAsInAppMessageUseCase(selectedAppLanguage).collect { combinedList ->
                     _messagesList.value =
                         if (combinedList.isEmpty()) UiState.Empty()
                         else UiState.Data(combinedList)
@@ -115,58 +81,6 @@ class MessageListController(
                 _messagesList.value = UiState.Error(e)
             }
         }
-    }
-
-    private fun OrderUseCaseData.Order.toInAppMessage(): InAppMessage =
-        InAppMessage(
-            id = orderId,
-            from = pharmacy.name,
-            timeState = getTimeState(sentOn),
-            text = getMessageText(
-                latestCommunicationMessage,
-                pharmacy.name,
-                invoiceInfo,
-                sentOn
-            ),
-            prescriptionsCount = prescriptions.size,
-            tag = "",
-            isUnread = hasUnreadMessages,
-            lastMessage = latestCommunicationMessage,
-            messageProfile = latestCommunicationMessage?.profile,
-            version = ""
-        )
-
-    private fun getMessageText(
-        latestCommunicationMessage: LastMessage?,
-        pharmacy: String,
-        invoiceInfo: OrderUseCaseData.InvoiceInfo,
-        sentOn: Instant
-    ): String = when {
-        invoiceInfo.hasInvoice && invoiceInfo.invoiceSentOn == sentOn ->
-            context.getString(R.string.cost_receipt_is_ready)
-
-        latestCommunicationMessage?.profile == CommunicationProfile.ErxCommunicationReply ->
-            getReplyMessageText(latestCommunicationMessage.lastMessageDetails)
-
-        latestCommunicationMessage?.profile == CommunicationProfile.ErxCommunicationDispReq ->
-            context.getString(
-                R.string.orders_prescription_sent_to,
-                latestCommunicationMessage.lastMessageDetails.content ?: pharmacy
-            )
-
-        else -> context.getString(R.string.order_message_empty)
-    }
-
-    private fun getReplyMessageText(lastMessageDetails: LastMessageDetails): String = when {
-        (lastMessageDetails.pickUpCodeDMC != null || lastMessageDetails.pickUpCodeHR != null) ->
-            lastMessageDetails.content?.takeIf { it.isNotEmpty() }
-                ?: context.getString(R.string.order_pickup_general_message)
-
-        lastMessageDetails.link != null ->
-            lastMessageDetails.content ?: context.getString(R.string.order_message_link)
-
-        else ->
-            lastMessageDetails.content ?: context.getString(R.string.order_message_empty)
     }
 
     fun trackMessageCount() {
@@ -181,16 +95,12 @@ class MessageListController(
 
 @Composable
 fun rememberMessageListController(): MessageListController {
-    val getMessagesUseCase by rememberInstance<GetMessagesUseCase>()
-    val getInternalMessagesUseCase by rememberInstance<GetInternalMessagesUseCase>()
-    val getLatestEuOrderMessageAsInAppMessageUseCase by rememberInstance<GetLatestEuOrderMessageAsInAppMessageUseCase>()
+    val getCombinedMessagesAsInAppMessageUseCase by rememberInstance<GetCombinedMessagesAsInAppMessageUseCase>()
     val tracker by rememberInstance<Tracker>()
     val context = LocalContext.current
     return remember {
         MessageListController(
-            getMessagesUseCase = getMessagesUseCase,
-            getInternalMessagesUseCase = getInternalMessagesUseCase,
-            getLatestEuOrderMessageAsInAppMessageUseCase = getLatestEuOrderMessageAsInAppMessageUseCase,
+            getCombinedMessagesAsInAppMessageUseCase = getCombinedMessagesAsInAppMessageUseCase,
             tracker = tracker,
             context = context
         )

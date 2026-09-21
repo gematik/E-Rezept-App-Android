@@ -35,16 +35,21 @@ import de.gematik.ti.erp.app.fhir.prescription.model.RequestIntent
 import de.gematik.ti.erp.app.fhir.support.FhirAccidentInformationErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirTaskAccidentType
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
-import de.gematik.ti.erp.app.prescription.model.Quantity
-import de.gematik.ti.erp.app.prescription.model.Ratio
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationDispense
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationRequest
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Organization
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Patient
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Practitioner
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.task.model.AddressErpModel
+import de.gematik.ti.erp.app.task.model.InsuranceErpModel
+import de.gematik.ti.erp.app.task.model.InsuranceErpModelCoverageType
+import de.gematik.ti.erp.app.task.model.MedicationCategory
+import de.gematik.ti.erp.app.task.model.MedicationDispenseErpModel
+import de.gematik.ti.erp.app.task.model.MedicationErpModel
+import de.gematik.ti.erp.app.task.model.MedicationRequestErpModel
+import de.gematik.ti.erp.app.task.model.OrganizationErpModel
+import de.gematik.ti.erp.app.task.model.PatientErpModel
+import de.gematik.ti.erp.app.task.model.PractitionerErpModel
+import de.gematik.ti.erp.app.task.model.QuantityErpModel
+import de.gematik.ti.erp.app.task.model.RatioErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import java.util.UUID
@@ -88,22 +93,24 @@ object MockPrescriptionInfo {
 
     internal const val MOCK_IDENTIFIER = "1234567890"
 
-    internal val PRACTITIONER = Practitioner(
+    internal val PRACTITIONER = PractitionerErpModel(
         name = NAMES,
         qualification = MEDICATION_SPECIALITIES,
-        practitionerIdentifier = MOCK_IDENTIFIER
+        practitionerIdentifier = MOCK_IDENTIFIER,
+        dentistIdentifier = null,
+        telematikId = null
     )
 
-    private val ADDRESS = SyncedTaskData.Address(
+    private val ADDRESS = AddressErpModel(
         line1 = STREET_NAMES,
         line2 = FLOORS,
         postalCode = POSTAL_CODES,
         city = CITY_NAMES
     )
 
-    private fun organization(): Organization {
+    private fun organization(): OrganizationErpModel {
         val item = MEDICAL_PRACTICES
-        return Organization(
+        return OrganizationErpModel(
             name = item.first,
             address = ADDRESS,
             uniqueIdentifier = MOCK_IDENTIFIER,
@@ -114,29 +121,29 @@ object MockPrescriptionInfo {
 
     internal val ORGANIZATION = organization()
 
-    internal val PATIENT = Patient(
+    internal val PATIENT = PatientErpModel(
         name = "$FIRST_NAMES Mustermann",
         address = ADDRESS,
-        birthdate = null,
+        dateOfBirth = null,
         insuranceIdentifier = MOCK_IDENTIFIER
     )
 
-    private val RATIO = Ratio(
-        numerator = Quantity(
+    private val RATIO = RatioErpModel(
+        numerator = QuantityErpModel(
             value = "1",
             unit = "oz"
         ),
         denominator = null
     )
 
-    private val MEDICATION = SyncedTaskData.Medication(
-        category = SyncedTaskData.MedicationCategory.entries[0],
-        vaccine = true,
+    private val MEDICATION = MedicationErpModel(
+        category = MedicationCategory.ARZNEI_UND_VERBAND_MITTEL,
+        isVaccine = true,
         text = SYNCED_MEDICATION_NAMES,
         form = codeToFormMapping,
         lotNumber = MOCK_IDENTIFIER,
         expirationDate = FhirTemporal.Instant(EXPIRY_DATE),
-        identifier = SyncedTaskData.Identifier(
+        identifier = de.gematik.ti.erp.app.task.model.Identifier(
             pzn = MOCK_IDENTIFIER
         ),
         normSizeCode = normSizeMappings,
@@ -148,7 +155,7 @@ object MockPrescriptionInfo {
         medicationProfile = null
     )
 
-    internal val MEDICATION_DISPENSE = MedicationDispense(
+    internal val MEDICATION_DISPENSE = MedicationDispenseErpModel(
         dispenseId = UUID.randomUUID().toString(),
         patientIdentifier = PATIENT.insuranceIdentifier ?: "",
         medication = MEDICATION,
@@ -156,22 +163,24 @@ object MockPrescriptionInfo {
         dosageInstruction = DOSAGE,
         performer = PERFORMERS,
         whenHandedOver = null,
-        deviceRequest = null
+        deviceRequest = null,
+        pharmacyName = "Muster-Apotheke",
+        euCountryCode = "ML"
     )
 
-    internal var MEDICATION_REQUEST = MedicationRequest(
+    internal var MEDICATION_REQUEST = MedicationRequestErpModel(
         medication = MEDICATION,
         dateOfAccident = null,
         location = CITY_NAMES,
         emergencyFee = true,
         dosageInstruction = DOSAGE,
-        multiplePrescriptionInfo = SyncedTaskData.MultiplePrescriptionInfo(),
+        multiplePrescriptionInfo = de.gematik.ti.erp.app.task.model.MultiplePrescriptionInfo(),
         note = DOCTORS_NOTES,
         substitutionAllowed = true
     )
 
     internal object MockScannedPrescription {
-        internal val mockScannedTask01 = ScannedTaskData.ScannedTask(
+        internal val mockScannedTask01 = TaskErpModel.Scanned(
             profileId = mockProfile01.id,
             taskId = "160.000.006.394.157.15",
             index = 0,
@@ -179,9 +188,10 @@ object MockPrescriptionInfo {
             accessCode = "8cc887c16681517e2db71078f367d4446c156bde743e15c2440722ec0835f406",
             scannedOn = fixedTime,
             redeemedOn = null,
-            communications = emptyList()
+            isEuRedeemable = false
         )
-        internal val mockScannedTask02 = ScannedTaskData.ScannedTask(
+
+        internal val mockScannedTask02 = TaskErpModel.Scanned(
             profileId = mockProfile01.id,
             taskId = "160.000.006.386.866.63",
             index = 1,
@@ -189,7 +199,7 @@ object MockPrescriptionInfo {
             accessCode = "c0967e56ccbcb55ef0851ac9ad3a03dcfbb5ba1934d8d1338290167e348c876f",
             scannedOn = fixedTime,
             redeemedOn = null,
-            communications = emptyList()
+            isEuRedeemable = false
         )
     }
 
@@ -213,10 +223,11 @@ object MockPrescriptionInfo {
     internal object MockSyncedPrescription {
         internal fun syncedTask(
             profileIdentifier: ProfileIdentifier,
-            status: SyncedTaskData.TaskStatus = SyncedTaskData.TaskStatus.Ready,
+            status: TaskStatusEnum = TaskStatusEnum.Ready,
             index: Int
-        ) = SyncedTaskData.SyncedTask(
+        ) = TaskErpModel.Synced.Prescription(
             profileId = profileIdentifier,
+            name = SYNCED_MEDICATION_NAMES,
             taskId = "$SYNCED_TASK_PRESET.$index",
             isIncomplete = false,
             pvsIdentifier = MOCK_IDENTIFIER,
@@ -225,10 +236,10 @@ object MockPrescriptionInfo {
             organization = ORGANIZATION,
             practitioner = PRACTITIONER,
             patient = PATIENT,
-            insuranceInformation = SyncedTaskData.InsuranceInformation(
+            insuranceInformation = InsuranceErpModel(
                 name = null,
                 status = null,
-                coverageType = SyncedTaskData.CoverageType.GKV
+                coverageType = InsuranceErpModelCoverageType.GKV
             ),
             expiresOn = EXPIRY_DATE,
             acceptUntil = SHORT_EXPIRY_DATE,
@@ -238,10 +249,8 @@ object MockPrescriptionInfo {
                 substitutionAllowed = BOOLEAN[index]
             ), // Making sure the substitutionAllowed is different for each task
             medicationDispenses = listOf(MEDICATION_DISPENSE),
-            communications = emptyList(),
             lastMedicationDispense = null,
             failureToReport = "",
-            deviceRequest = DEMO_DIGA,
             isEuRedeemable = false,
             isEuRedeemableByPatientAuthorization = false
         )

@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.messages.ui.model
 
 import androidx.compose.runtime.Composable
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.messages.mappers.getSentOnTime
+import de.gematik.ti.erp.app.messages.mapper.getSentOnTime
 
 data class InAppMessageUiModel(
     val chipText: String?,

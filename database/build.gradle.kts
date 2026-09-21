@@ -1,3 +1,7 @@
+@file:Suppress("UnusedPrivateProperty")
+
+import de.gematik.ti.erp.app.tasks.generateRoomSchemaMigrationsFile
+
 plugins {
     alias(libs.plugins.base.kmp.library)
     alias(libs.plugins.compose.compiler)
@@ -21,9 +25,9 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(project(":erp-model"))
                 implementation(project(":utils"))
                 implementation(libs.kotlin.stdlib)
-                implementation(libs.multiplatform.settings)
                 implementation(libs.androidx.datastore.preferences)
                 implementation(compose.runtime)
                 implementation(libs.room.runtime)
@@ -49,6 +53,17 @@ kotlin {
         }
 
         androidUnitTest {
+            dependencies {
+                implementation(libs.robolectric)
+                implementation(libs.androidx.test.junit)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.test.mockk.android)
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.test.runner)
+                implementation(libs.androidx.test.rules)
+                implementation(libs.kotlin.test)
+                implementation(libs.robolectric)
+            }
         }
     }
 }
@@ -57,3 +72,6 @@ dependencies {
     add("kspAndroid", libs.room.compiler)
     add("kspDesktop", libs.room.compiler)
 }
+
+// add Room db schema migration task
+tasks.generateRoomSchemaMigrationsFile()

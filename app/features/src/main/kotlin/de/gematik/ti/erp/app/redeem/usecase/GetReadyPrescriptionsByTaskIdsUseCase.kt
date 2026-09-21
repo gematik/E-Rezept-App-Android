@@ -22,10 +22,10 @@
 
 package de.gematik.ti.erp.app.redeem.usecase
 
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.redeem.model.PrescriptionReadinessResult
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStateErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 
 class GetReadyPrescriptionsByTaskIdsUseCase(
-    private val repository: PrescriptionRepository,
+    private val repository: TaskOperationsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     operator fun invoke(taskIds: List<String>): Flow<PrescriptionReadinessResult> =
@@ -42,19 +42,21 @@ class GetReadyPrescriptionsByTaskIdsUseCase(
             repository.loadScannedTasksByTaskIds(taskIds)
         ) { syncedTasks, scannedTasks ->
 
-            val readySyncedTasks: List<PrescriptionData.Prescription> = syncedTasks.mapNotNull { task ->
-                PrescriptionData.Synced(task).takeIf { it.state is SyncedTask.Ready }
+            val readySyncedTasks: List<TaskErpModel.Synced.Prescription> /*List<PrescriptionData.Prescription>*/ = syncedTasks.mapNotNull { task ->
+                // PrescriptionData.Synced(task).takeIf { it.state is SyncedTask.Ready }
+                task.takeIf { it.state() is TaskStateErpModel.Ready }
             }
 
-            val notReadySyncedTasks: List<PrescriptionData.Prescription> = syncedTasks.mapNotNull { task ->
-                PrescriptionData.Synced(task).takeIf { it.state !is SyncedTask.Ready }
+            val notReadySyncedTasks: List<TaskErpModel.Synced.Prescription> /*List<PrescriptionData.Prescription>*/ = syncedTasks.mapNotNull { task ->
+                // PrescriptionData.Synced(task).takeIf { it.state !is SyncedTask.Ready }
+                task.takeIf { it.state() !is TaskStateErpModel.Ready }
             }
 
             // NOTE: State cannot be checked for scanned prescriptions, so they are always included in the result
 
             return@combine PrescriptionReadinessResult(
                 // including the scanned tasks in the result if they are present
-                readyPrescriptions = readySyncedTasks.toList() + scannedTasks.map { PrescriptionData.Scanned(it) },
+                readyPrescriptions = readySyncedTasks.toList() + scannedTasks/*.map { PrescriptionData.Scanned(it) }*/,
                 notReadyPrescriptions = notReadySyncedTasks
             )
         }

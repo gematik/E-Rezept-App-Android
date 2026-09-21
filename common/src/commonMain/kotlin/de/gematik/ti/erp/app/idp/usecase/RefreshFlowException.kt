@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.idp.usecase
 
-import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import java.io.IOException
 
 /**
@@ -33,11 +33,11 @@ class RefreshFlowException : IOException {
      * Is true if the sso token is not valid anymore and the user is required to authenticate again.
      */
     val isUserAction: Boolean
-    val ssoToken: IdpData.SingleSignOnTokenScope?
+    val ssoToken: UserAuthenticationErpModel?
 
     constructor(
         userActionRequired: Boolean,
-        ssoToken: IdpData.SingleSignOnTokenScope?,
+        ssoToken: UserAuthenticationErpModel?,
         cause: Throwable
     ) : super(cause) {
         this.isUserAction = userActionRequired
@@ -46,7 +46,7 @@ class RefreshFlowException : IOException {
 
     constructor(
         userActionRequired: Boolean,
-        ssoToken: IdpData.SingleSignOnTokenScope?,
+        ssoToken: UserAuthenticationErpModel?,
         message: String
     ) : super(message) {
         this.isUserAction = userActionRequired

@@ -27,26 +27,27 @@ import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyAddressErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
 import de.gematik.ti.erp.app.mocks.order.model.PHARMACY_ID
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyOpeningHoursErpModel
 import de.gematik.ti.erp.app.mocks.order.model.PHARMACY_NAME
 import de.gematik.ti.erp.app.mocks.order.model.TELEMATIK_ID
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyContact
+import de.gematik.ti.erp.app.pharmacy.model.ContactInformationErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel
 
-val PHARMACY_DATA = Pharmacy(
+val PHARMACY_DATA = PharmacyDetailsErpModel(
     id = PHARMACY_ID,
     name = PHARMACY_NAME,
     address = "",
     coordinates = null,
     distance = null,
-    contact = PharmacyContact("", "", ""),
+    contact = ContactInformationErpModel("", "", ""),
     provides = listOf(
-        PharmacyUseCaseData.PharmacyService.LocalPharmacyService(
+        PharmacyServiceErpModel.LocalPharmacyServiceErpModel(
             name = PHARMACY_NAME,
-            openingHours = PharmacyUseCaseData.OpeningHours(emptyMap())
+            openingHours = PharmacyOpeningHoursErpModel(emptyMap())
         )
     ),
-    openingHours = PharmacyUseCaseData.OpeningHours(emptyMap()),
+    openingHours = PharmacyOpeningHoursErpModel(emptyMap()),
     telematikId = TELEMATIK_ID
 )
 

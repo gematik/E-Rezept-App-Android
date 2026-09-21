@@ -22,9 +22,7 @@
 
 package de.gematik.ti.erp.app.intent
 
-import kotlinx.coroutines.channels.Channel
-
 data class GidResultIntent(
     val uriData: String,
-    val resultChannel: Channel<String>
+    val onSuccess: suspend (String) -> Unit
 )

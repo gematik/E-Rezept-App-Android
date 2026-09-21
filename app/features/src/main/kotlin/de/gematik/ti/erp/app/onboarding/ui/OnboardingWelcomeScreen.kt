@@ -89,8 +89,9 @@ class OnboardingWelcomeScreen(
 
         if (BuildConfigExtension.isInternalDebug) {
             SkipOnBoardingButton {
-                graphController.createProfileOnSkipOnboarding()
-                navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                graphController.createProfileOnSkipOnboarding {
+                    navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                }
             }
         }
     }
@@ -112,6 +113,7 @@ internal fun OnboardingWelcomeScreenContent(
 
 @Composable
 fun FlaggedGematikLogo() {
+    val logoDescription = stringResource(R.string.gematik_logo)
     Row(
         modifier = Modifier
             .padding(top = PaddingDefaults.Medium),
@@ -124,14 +126,14 @@ fun FlaggedGematikLogo() {
         )
         Icon(
             painter = painterResource(R.drawable.ic_onboarding_logo_gematik),
-            contentDescription = null,
+            contentDescription = logoDescription,
             tint = AppTheme.colors.primary900
         )
     }
 }
 
 @Composable
-private fun ErezeptLogo(
+fun ErezeptLogo(
     modifier: Modifier = Modifier
 ) {
     Image(
@@ -194,7 +196,7 @@ private fun WelcomeMessage(
 
 @Suppress("MagicNumber")
 @Composable
-private fun OnboardingImages(modifier: Modifier) {
+fun OnboardingImages(modifier: Modifier) {
     BoxWithConstraints(modifier = modifier) {
         val picsScale = FixedScale(1f) // used to call calculateContentScale(this.maxWidth, maxHeight)
 

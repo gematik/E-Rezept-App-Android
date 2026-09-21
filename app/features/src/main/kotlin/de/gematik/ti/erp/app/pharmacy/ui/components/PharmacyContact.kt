@@ -50,8 +50,8 @@ import de.gematik.ti.erp.app.pharmacy.ui.preview.mockDetailedInfoText
 import de.gematik.ti.erp.app.pharmacy.ui.preview.mockOpeningHours
 import de.gematik.ti.erp.app.pharmacy.ui.preview.mockSpecialClosingTimes
 import de.gematik.ti.erp.app.pharmacy.ui.preview.mockSpecialOpeningTimes
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningTime
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyOpeningHoursErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyOpeningTimeErpModel
 import de.gematik.ti.erp.app.preview.LightDarkLongPreview
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -73,7 +73,7 @@ private val serviceTitleByCode = PharmacyFilterServiceOption.entries.associate {
 
 @Composable
 internal fun PharmacyContact(
-    openingHours: OpeningHours?,
+    openingHours: PharmacyOpeningHoursErpModel?,
     specialOpeningTimes: List<SpecialOpeningTimeMetadata>,
     specialClosingTimes: List<NotAvailablePeriodMetadata>,
     phone: String,
@@ -247,7 +247,7 @@ private fun DataInfoSection(
 
 @Composable
 private fun PharmacyOpeningHoursOverview(
-    openingHours: OpeningHours,
+    openingHours: PharmacyOpeningHoursErpModel,
     currentDateTime: LocalDateTime
 ) {
     val todayRelevantDay = currentDateTime.dayOfWeek
@@ -290,7 +290,7 @@ private fun PharmacyOpeningHoursOverview(
 @Composable
 private fun PharmacyDayOpeningHoursDisplay(
     day: DayOfWeek,
-    hours: List<OpeningTime>,
+    hours: List<PharmacyOpeningTimeErpModel>,
     isOpenToday: Boolean,
     currentDateTime: LocalDateTime,
     todayRelevantDay: DayOfWeek,

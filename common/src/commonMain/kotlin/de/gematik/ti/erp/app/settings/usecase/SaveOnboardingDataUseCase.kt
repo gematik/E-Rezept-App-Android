@@ -22,17 +22,23 @@
 
 package de.gematik.ti.erp.app.settings.usecase
 
-import de.gematik.ti.erp.app.settings.model.SettingsData
+import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.appauthentication.model.AppAuthenticationMethodErpModel
+import de.gematik.ti.erp.app.appauthentication.repository.AppAuthenticationRepository
+import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
+import de.gematik.ti.erp.app.settings.model.AppVersionErpModel
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
-import kotlinx.datetime.Clock
 
 class SaveOnboardingDataUseCase(
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val profileRepository: ProfileRepository,
+    private val appAuthenticationRepository: AppAuthenticationRepository
 ) {
-    suspend operator fun invoke(authentication: SettingsData.Authentication, profileName: String) =
-        settingsRepository.saveOnboardingData(
-            authentication = authentication,
-            profileName = profileName,
-            now = Clock.System.now()
+    suspend operator fun invoke(authenticationMethod: AppAuthenticationMethodErpModel, profileName: String) {
+        settingsRepository.saveOnboardingShownIn(AppVersionErpModel(BuildKonfig.VERSION_NAME, BuildKonfig.VERSION_CODE))
+        profileRepository.createNewProfile(profileName = profileName)
+        appAuthenticationRepository.initialiseAppAuthenticationWithChosenMethod(
+            authenticationMethod
         )
+    }
 }

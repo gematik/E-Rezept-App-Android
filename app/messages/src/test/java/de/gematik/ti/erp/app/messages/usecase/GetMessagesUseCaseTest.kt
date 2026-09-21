@@ -22,31 +22,18 @@
 
 package de.gematik.ti.erp.app.messages.usecase
 
-import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
-import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData.Order
-import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData.Pharmacy
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessagesUseCase
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile
-import de.gematik.ti.erp.app.messages.model.LastMessage
-import de.gematik.ti.erp.app.messages.model.LastMessageDetails
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import de.gematik.ti.erp.app.mocks.order.model.CACHED_PHARMACY
 import de.gematik.ti.erp.app.mocks.order.model.COMMUNICATION_DATA
 import de.gematik.ti.erp.app.mocks.order.model.communicationDataReply
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SCANNED_TASK
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask.Ready
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.TaskStateSerializationType
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.PrescriptionChipInformation
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.ScannedPrescription
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import io.mockk.clearMocks
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -55,7 +42,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.Instant
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -76,8 +62,6 @@ class GetMessagesUseCaseTest {
         coEvery {
             profileRepository.profiles()
         } returns flowOf(listOf(API_MOCK_PROFILE))
-        // loads one pharmacy which was used for redeeming a prescription
-        coEvery { communicationRepository.loadPharmacies() } returns flowOf(listOf(CACHED_PHARMACY.copy(telematikId = "telematik-id-1")))
 
         // has two orders with one task each
         coEvery { communicationRepository.hasUnreadDispenseMessage(listOf("task-id-1"), "order-id-1") } returns flowOf(true)
@@ -98,28 +82,24 @@ class GetMessagesUseCaseTest {
 
         coEvery { invoiceRepository.invoiceByTaskId(any()) } returns flowOf(null)
 
-        coEvery { pharmacyRepository.savePharmacyToCache(any()) } returns Unit
-        every { pharmacyRepository.loadCachedPharmacies() } returns flowOf(emptyList())
-
         // the first order has one communication, the second order has one communication
         coEvery { communicationRepository.loadDispReqCommunicationsByProfileId(any()) } returns flowOf(
             listOf(
                 COMMUNICATION_DATA.copy(
                     communicationId = "communication-id-1",
                     taskId = "task-id-1",
-                    orderId = "order-id-1",
-                    taskIds = listOf("task-id-1")
+                    orderId = "order-id-1"
                 ),
                 COMMUNICATION_DATA.copy(
                     communicationId = "communication-id-2",
                     taskId = "task-id-2",
-                    orderId = "order-id-2",
-                    taskIds = listOf("task-id-2")
+                    orderId = "order-id-2"
                 )
             )
         )
         // no replied messages
-        coEvery { communicationRepository.loadRepliedCommunications(any(), any()) } returns flowOf(emptyList())
+        coEvery { communicationRepository.loadRepliedCommunications(any<List<String>>(), any<String>()) } returns flowOf(emptyList())
+        coEvery { communicationRepository.loadRepliedCommunicationsByProfileId(any()) } returns flowOf(emptyList())
 
         // every order returns a communication specific to the order and task
         coEvery { communicationRepository.loadDispReqCommunications("order-id-1") } returns flowOf(
@@ -127,8 +107,7 @@ class GetMessagesUseCaseTest {
                 COMMUNICATION_DATA.copy(
                     communicationId = "communication-id-1",
                     taskId = "task-id-1",
-                    orderId = "order-id-1",
-                    taskIds = listOf("task-id-1")
+                    orderId = "order-id-1"
                 )
             )
         )
@@ -137,14 +116,11 @@ class GetMessagesUseCaseTest {
                 COMMUNICATION_DATA.copy(
                     communicationId = "communication-id-2",
                     taskId = "task-id-2",
-                    orderId = "order-id-2",
-                    taskIds = listOf("task-id-2")
+                    orderId = "order-id-2"
                 )
             )
         )
         coEvery { invoiceRepository.hasUnreadInvoiceMessages(any()) } returns flowOf(false)
-        coEvery { pharmacyRepository.savePharmacyToCache(any()) } returns Unit
-        every { pharmacyRepository.loadCachedPharmacies() } returns flowOf(emptyList())
 
         usecaseUnderTest = GetMessagesUseCase(
             communicationRepository,
@@ -167,7 +143,19 @@ class GetMessagesUseCaseTest {
         testScope.runTest {
             val result = usecaseUnderTest.invoke()
             assert(result.isNotEmpty())
-            assertEquals(ORDERS_WITH_ONLY_REQUEST_COMMUNICATIONS, result)
+            val expected = listOf(
+                COMMUNICATION_DATA.copy(
+                    communicationId = "communication-id-1",
+                    taskId = "task-id-1",
+                    orderId = "order-id-1"
+                ),
+                COMMUNICATION_DATA.copy(
+                    communicationId = "communication-id-2",
+                    taskId = "task-id-2",
+                    orderId = "order-id-2"
+                )
+            ).sortedByDescending { it.timeStamp }.distinctBy { it.orderId }
+            assertEquals(expected, result)
         }
     }
 
@@ -200,151 +188,19 @@ class GetMessagesUseCaseTest {
         testScope.runTest {
             val result = usecaseUnderTest.invoke()
             assert(result.isNotEmpty())
-            assertEquals(ordersWithRequestAndReply, result)
+            val expected = listOf(
+                COMMUNICATION_DATA.copy(
+                    communicationId = "communication-id-1",
+                    taskId = "task-id-1",
+                    orderId = "order-id-1"
+                ),
+                COMMUNICATION_DATA.copy(
+                    communicationId = "communication-id-2",
+                    taskId = "task-id-2",
+                    orderId = "order-id-2"
+                )
+            ).sortedByDescending { it.timeStamp }.distinctBy { it.orderId }
+            assertEquals(expected, result)
         }
     }
-
-    companion object {
-        private val ORDERS_WITH_ONLY_REQUEST_COMMUNICATIONS = listOf(
-            Order(
-                orderId = "order-id-1",
-                sentOn = Instant.parse("2024-01-01T10:00:00Z"),
-                prescriptions = listOf(
-                    SyncedPrescription(
-                        taskId = "task-id-1",
-                        name = "Medication",
-                        redeemedOn = null,
-                        expiresOn = Instant.parse("3024-01-01T10:00:00Z"),
-                        state = Ready(
-                            type = TaskStateSerializationType.Ready,
-                            expiresOn = Instant.parse("3024-01-01T10:00:00Z"),
-                            acceptUntil = Instant.parse("3024-01-01T10:00:00Z")
-                        ),
-                        isIncomplete = false,
-                        organization = "Dr. Max Mustermann",
-                        authoredOn = Instant.parse("2024-01-01T10:00:00Z"),
-                        acceptUntil = Instant.parse("3024-01-01T10:00:00Z"),
-                        isDirectAssignment = false,
-                        isNew = false,
-                        deviceRequestState = DigaStatus.Ready,
-                        lastModified = Instant.parse("2024-01-01T10:00:00Z"),
-                        prescriptionChipInformation = PrescriptionChipInformation(
-                            isSelfPayPrescription = false,
-                            isPartOfMultiplePrescription = false,
-                            numerator = null,
-                            denominator = null,
-                            start = null
-                        )
-                    )
-                ),
-                pharmacy = Pharmacy(id = "recipient", name = ""),
-                hasUnreadMessages = true,
-                latestCommunicationMessage = LastMessage(
-                    lastMessageDetails = LastMessageDetails(
-                        content = "",
-                        pickUpCodeDMC = null,
-                        pickUpCodeHR = null,
-                        link = null
-                    ),
-                    profile = CommunicationProfile.ErxCommunicationDispReq
-                )
-            ),
-            Order(
-                orderId = "order-id-2",
-                sentOn = Instant.parse("2024-01-01T10:00:00Z"),
-                prescriptions = listOf(
-                    ScannedPrescription(
-                        taskId = "task-id-2",
-                        name = "Scanned Task",
-                        redeemedOn = null,
-                        scannedOn = Instant.parse("2024-01-01T10:00:00Z"),
-                        index = 0,
-                        communications = emptyList()
-                    )
-                ),
-                pharmacy = Pharmacy(id = "recipient", name = ""),
-                hasUnreadMessages = false,
-                latestCommunicationMessage = LastMessage(
-                    lastMessageDetails = LastMessageDetails(
-                        content = "",
-                        pickUpCodeDMC = null,
-                        pickUpCodeHR = null,
-                        link = null
-                    ),
-                    profile = CommunicationProfile.ErxCommunicationDispReq
-                )
-            )
-        )
-    }
-
-    private val ordersWithRequestAndReply = listOf(
-        Order(
-            orderId = "order-id-1",
-            prescriptions = listOf(
-                SyncedPrescription(
-                    taskId = "task-id-1",
-                    name = "Medication",
-                    redeemedOn = null,
-                    expiresOn = Instant.parse("3024-01-01T10:00:00Z"),
-                    state = Ready(
-                        type = TaskStateSerializationType.Ready,
-                        expiresOn = Instant.parse("3024-01-01T10:00:00Z"),
-                        acceptUntil = Instant.parse("3024-01-01T10:00:00Z")
-                    ),
-                    isIncomplete = false,
-                    organization = "Dr. Max Mustermann",
-                    authoredOn = Instant.parse("2024-01-01T10:00:00Z"),
-                    acceptUntil = Instant.parse("3024-01-01T10:00:00Z"),
-                    isDirectAssignment = false,
-                    deviceRequestState = DigaStatus.Ready,
-                    isNew = false,
-                    lastModified = Instant.parse("2024-01-01T10:00:00Z"),
-                    prescriptionChipInformation = PrescriptionChipInformation(
-                        isSelfPayPrescription = false,
-                        isPartOfMultiplePrescription = false,
-                        numerator = null,
-                        denominator = null,
-                        start = null
-                    )
-                )
-            ),
-            sentOn = Instant.parse("3023-12-31T10:00:00Z"),
-            pharmacy = Pharmacy(id = "recipient", name = ""),
-            hasUnreadMessages = true,
-            latestCommunicationMessage = LastMessage(
-                lastMessageDetails = LastMessageDetails(
-                    content = null,
-                    pickUpCodeDMC = null,
-                    pickUpCodeHR = null,
-                    link = null
-                ),
-                profile = CommunicationProfile.ErxCommunicationReply
-            )
-        ),
-        Order(
-            orderId = "order-id-2",
-            prescriptions = listOf(
-                ScannedPrescription(
-                    taskId = "task-id-2",
-                    name = "Scanned Task",
-                    redeemedOn = null,
-                    scannedOn = Instant.parse("2024-01-01T10:00:00Z"),
-                    index = 0,
-                    communications = emptyList()
-                )
-            ),
-            sentOn = Instant.parse("3023-12-31T10:00:00Z"),
-            pharmacy = Pharmacy(id = "recipient", name = ""),
-            hasUnreadMessages = true,
-            latestCommunicationMessage = LastMessage(
-                lastMessageDetails = LastMessageDetails(
-                    content = null,
-                    pickUpCodeDMC = null,
-                    pickUpCodeHR = null,
-                    link = null
-                ),
-                profile = CommunicationProfile.ErxCommunicationReply
-            )
-        )
-    )
 }

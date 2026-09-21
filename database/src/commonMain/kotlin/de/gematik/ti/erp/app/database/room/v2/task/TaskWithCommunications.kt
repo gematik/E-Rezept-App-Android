@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.database.room.v2.task
 import androidx.room.Embedded
 import androidx.room.Relation
 import de.gematik.ti.erp.app.database.room.v2.task.communication.ErpCommunicationEntity
+import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskEntity
 
 // Convenience relation holder: one Task -> many Communications
 // Uses FK on CommunicationRoomEntity.taskId -> TaskRoomEntity.taskId

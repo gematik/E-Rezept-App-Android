@@ -29,17 +29,17 @@ import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEPrescriptionParsers
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEntryParser
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskMedicalDataParser
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskMetadataParser
-import de.gematik.ti.erp.app.prescription.repository.DefaultTaskRepository
-import de.gematik.ti.erp.app.prescription.repository.LegacyTaskLocalDataSource
-import de.gematik.ti.erp.app.prescription.repository.TaskRemoteDataSource
-import de.gematik.ti.erp.app.prescription.repository.TaskRepository
+import de.gematik.ti.erp.app.prescription.remote.PrescriptionRemoteDataSource
+import de.gematik.ti.erp.app.prescription.remote.TaskRemoteDataSource
+import de.gematik.ti.erp.app.prescription.repository.DefaultTaskSyncRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskSyncRepository
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
 val taskModule = DI.Module("taskModule") {
     bindProvider { TaskRemoteDataSource(instance()) }
-    bindProvider { LegacyTaskLocalDataSource(instance()) }
+    bindProvider { PrescriptionRemoteDataSource(instance()) }
     bindProvider { TaskEntryParser() }
     bindProvider { TaskBundleSeparationParser() }
     bindProvider { TaskMetadataParser() }
@@ -58,9 +58,8 @@ val taskModule = DI.Module("taskModule") {
 }
 
 val taskRepositoryModule = DI.Module("taskRepositoryModule", allowSilentOverride = true) {
-    bindProvider<TaskRepository> {
-        DefaultTaskRepository(
-            instance(),
+    bindProvider<TaskSyncRepository> {
+        DefaultTaskSyncRepository(
             instance(),
             instance(),
             instance(),

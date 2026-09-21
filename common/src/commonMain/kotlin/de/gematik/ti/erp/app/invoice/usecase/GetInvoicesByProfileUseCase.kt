@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.invoice.usecase
 
 import de.gematik.ti.erp.app.fhir.temporal.Year
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +38,7 @@ class GetInvoicesByProfileUseCase(
     private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(profileId: String): Flow<Map<Year, List<InvoiceData.PKVInvoiceRecord>>> =
+    operator fun invoke(profileId: String): Flow<Map<Year, List<PKVInvoiceErpModel>>> =
         invoiceRepository.invoices(profileId)
             .map { invoices ->
                 invoices

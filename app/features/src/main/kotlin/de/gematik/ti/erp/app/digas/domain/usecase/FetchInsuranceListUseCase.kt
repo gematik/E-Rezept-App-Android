@@ -26,8 +26,10 @@ import de.gematik.ti.erp.app.digas.ui.model.InsuranceUiModel
 import de.gematik.ti.erp.app.digas.util.InsuranceDrawableUtil.getDrawableResourceId
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toModel
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.SearchData.Companion.toPharmacyFilter
+import de.gematik.ti.erp.app.pharmacy.model.LocationModeErpModel
+import de.gematik.ti.erp.app.pharmacy.model.SearchFilterErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacySearchDataErpModel
+import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toPharmacyFilter
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -37,10 +39,10 @@ class FetchInsuranceListUseCase(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend operator fun invoke(term: String = ""): List<InsuranceUiModel> {
-        val defaultSearchData = PharmacyUseCaseData.SearchData(
+        val defaultSearchData = PharmacySearchDataErpModel(
             name = term,
-            filter = PharmacyUseCaseData.Filter(),
-            locationMode = PharmacyUseCaseData.LocationMode.Disabled
+            filter = SearchFilterErpModel(),
+            locationMode = LocationModeErpModel.Disabled
         )
         return withContext(dispatcher) {
             val sortedResult = repository.searchInsurances(defaultSearchData.toPharmacyFilter()).map {

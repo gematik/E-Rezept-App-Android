@@ -37,11 +37,11 @@ class FeatureEntitySerializer(
 ) : Serializer<FeatureEntitySchema> {
     override val defaultValue: FeatureEntitySchema
         get() = FeatureEntitySchema(
-            classes = emptySet()
+            classes = FEATURE_ENTITIES
         )
 
     override suspend fun readFrom(input: InputStream): FeatureEntitySchema {
-        try {
+        return try {
             val encryptedBytes = withContext(Dispatchers.IO) {
                 input.use {
                     it.readBytes()
@@ -50,10 +50,10 @@ class FeatureEntitySerializer(
             val encryptedBytesBase64Decoded = Base64.getDecoder().decode(encryptedBytes)
             val decodedBytes = cryptography.decrypt(encryptedBytesBase64Decoded)
             val decodedString = decodedBytes.decodeToString()
-            return SafeJson.value.decodeFromString(decodedString)
+            SafeJson.value.decodeFromString(decodedString)
         } catch (e: Exception) {
             Napier.e { "Failed to read FeatureEntity: $e" }
-            return defaultValue
+            defaultValue
         }
     }
 

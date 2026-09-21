@@ -22,8 +22,9 @@
 
 package de.gematik.ti.erp.app.eurezept.domain.usecase
 
-import de.gematik.ti.erp.app.eurezept.mapper.countryCodeToFlag
 import de.gematik.ti.erp.app.eurezept.domain.model.Country
+import de.gematik.ti.erp.app.eurezept.mapper.countryCodeToFlag
+import de.gematik.ti.erp.app.eurezept.mapper.countryCodeToName
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.fhir.FhirCountryErpModelCollection
 import io.github.aakira.napier.Napier
@@ -42,7 +43,7 @@ class GetAllEuCountriesUseCase(
                 countryList?.countries?.map { country ->
                     val code = country.code.orEmpty()
                     Country(
-                        name = country.name ?: "",
+                        name = countryCodeToName(code, fallback = country.name ?: ""),
                         code = code,
                         flagEmoji = countryCodeToFlag(code)
                     )

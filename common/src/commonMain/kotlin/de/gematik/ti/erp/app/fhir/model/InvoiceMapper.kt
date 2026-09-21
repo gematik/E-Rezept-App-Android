@@ -36,7 +36,7 @@ import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.parser.or
 import de.gematik.ti.erp.app.fhir.parser.stringValue
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
-import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import de.gematik.ti.erp.app.fhir.temporal.toFormattedDateTime
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import kotlinx.datetime.Instant
@@ -299,7 +299,7 @@ fun <Dispense> extractPkvDispense(
     processDispense: PkvDispenseFn<Dispense>
 ): Dispense {
     return processDispense(
-        dispense.containedString("whenHandedOver").toFhirTemporal()
+        dispense.containedString("whenHandedOver").asFhirTemporal()
     )
 }
 
@@ -482,7 +482,7 @@ fun joinZytostaticaProductionSteps(
         additionalInformation.add("Bestandteile (Nettopreise):")
         medicalDispenseData.forEachIndexed { index, data ->
             val whenPrepared =
-                data.containedString("whenPrepared").toFhirTemporal().toInstant().toFormattedDateTime()
+                data.containedString("whenPrepared").asFhirTemporal().toInstant().toFormattedDateTime()
             val reference = data.findAll("extension").filterWith(
                 "url",
                 stringValue(

@@ -54,12 +54,13 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.appauthentication.model.AppAuthenticationMethodErpModel
+import de.gematik.ti.erp.app.appauthentication.model.AppAuthenticationPasswordErpModel
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
 import de.gematik.ti.erp.app.onboarding.presentation.OnboardingGraphController
 import de.gematik.ti.erp.app.semantics.semanticsHeading
-import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.ui.preview.SetAppPasswordParameter
 import de.gematik.ti.erp.app.settings.ui.preview.SetAppPasswordParameterProvider
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -103,15 +104,13 @@ class OnboardingPasswordAuthenticationScreen(
             onChoosePassword = {
                 if (!isCreatingProfile) {
                     graphController.onChooseAuthentication(
-                        authentication = SettingsData.Authentication(
-                            deviceSecurity = false,
-                            failedAuthenticationAttempts = 0,
-                            password = SettingsData.Authentication.Password(passwordFieldsState.password),
-                            authenticationTimeOutSystemUptime = null
+                        method = AppAuthenticationMethodErpModel.Password(
+                            AppAuthenticationPasswordErpModel.fromPassword(passwordFieldsState.password)
                         )
                     )
-                    graphController.createProfile()
-                    navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                    graphController.createProfile {
+                        navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                    }
                 }
             },
             onCancel = {
@@ -119,8 +118,9 @@ class OnboardingPasswordAuthenticationScreen(
             },
             onSkip = {
                 if (!isCreatingProfile) {
-                    graphController.createProfileOnSkipOnboarding()
-                    navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                    graphController.createProfileOnSkipOnboarding {
+                        navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                    }
                 }
             }
         )

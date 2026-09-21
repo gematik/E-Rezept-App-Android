@@ -70,5 +70,11 @@
         "text": "**🏥 Verbeterde apotheekgegevens** \nkunnen nu diensten toevoegen zoals vaccinaties en voorzieningen ter plaatse \n zoals rolstoeltoegankelijkheid. Apotheken kunnen worden gefilterd op basis van deze nieuwe informatie. \n \n**✨ Verbeterde apotheekzoekfunctie** \nRecent gebruikte en favoriete apotheken worden nu duidelijker van elkaar gescheiden. De filters zijn verbeterd. \n \n**✅ Gezondheids-ID voor andere verzekerden** \ndie niet gedekt zijn door een wettelijke of particuliere zorgverzekering kunnen nu ook inloggen met hun gezondheids \n ID. \n \n**🛡️Tracking** \nWe hebben de trackingtool die in de app werd gebruikt verwijderd. Er worden geen gebruiksgegevens \n de app meer verzameld. \n \n**♿ Verbeterde toegankelijkheid** \nDe filters hebben nu hoger contrast en de filterstatus is nu beter zichtbaar.",
         "timestamp": "2026-03-30T08:00:00.000Z",
         "version": "1.38"
+    },
+    {
+        "id": "14",
+        "text": "**✅ T-recepten beschikbaar**\nT-recepten kunnen nu correct worden ontvangen en weergegeven. T-recepten worden gebruikt voor bepaalde geneesmiddelen met speciale veiligheidseisen.\n\n**⚙️ Instellingen opgeschoond**\nDe profielinstellingen zijn herzien en duidelijker gemaakt.\n\n**♿ Betere toegankelijkheid**\nBelemmeringen kunnen nu rechtstreeks vanuit de instellingen worden gemeld. Knoppen, menu's, lijsten en koppen zijn geoptimaliseerd voor gebruik met TalkBack. Het contrast is verbeterd en animaties worden nu slechts één keer afgespeeld. Het naamveld heeft nu een permanent zichtbaar label. Grotere lettergroottes worden nu ook ondersteund in de webweergaven van de app.",
+        "timestamp": "2026-08-18T08:00:00.000Z",
+        "version": "1.39"
     }
 ]

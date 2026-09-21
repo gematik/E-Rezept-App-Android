@@ -23,20 +23,17 @@
 package de.gematik.ti.erp.app.messages.domain.usecase
 
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import de.gematik.ti.erp.app.profiles.usecase.mapper.toModel
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.mapNotNull
 
 class GetProfileByOrderIdUseCase(
     private val communicationRepository: CommunicationRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(orderId: String): Flow<ProfilesUseCaseData.Profile> =
+    operator fun invoke(orderId: String): Flow<ProfileErpModel> =
         communicationRepository.profileByOrderId(orderId)
-            .mapNotNull { it.toModel() }
             .flowOn(dispatcher)
 }

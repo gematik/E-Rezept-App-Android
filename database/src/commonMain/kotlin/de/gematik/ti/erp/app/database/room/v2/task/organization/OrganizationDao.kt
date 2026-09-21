@@ -31,7 +31,7 @@ interface OrganizationDao {
     @Upsert
     suspend fun upsertAll(items: List<ErpOrganizationEntity>)
 
-    @Query("SELECT * FROM organizations WHERE organizationId = :taskId LIMIT 1")
+    @Query("SELECT * FROM organizations WHERE taskId = :taskId LIMIT 1")
     suspend fun getByTaskId(taskId: String): ErpOrganizationEntity?
 
     @Query("DELETE FROM organizations")

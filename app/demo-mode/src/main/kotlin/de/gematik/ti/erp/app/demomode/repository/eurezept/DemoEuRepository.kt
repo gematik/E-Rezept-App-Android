@@ -25,18 +25,18 @@ package de.gematik.ti.erp.app.demomode.repository.eurezept
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
 import de.gematik.ti.erp.app.demomode.datasource.INDEX_OUT_OF_BOUNDS
 import de.gematik.ti.erp.app.demomode.extensions.demo
-import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCodeErpModel
 import de.gematik.ti.erp.app.eurezept.model.EuEventType
-import de.gematik.ti.erp.app.eurezept.model.EuOrder
-import de.gematik.ti.erp.app.eurezept.model.EuTaskEvent
+import de.gematik.ti.erp.app.eurezept.model.EuOrderErpModel
+import de.gematik.ti.erp.app.eurezept.model.EuTaskEventErpModel
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.fhir.FhirCountryErpModel
 import de.gematik.ti.erp.app.fhir.FhirCountryErpModelCollection
 import de.gematik.ti.erp.app.fhir.FhirErpModel
 import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeRequestConstants.FhirEuRedeemAccessCodeRequestMeta
 import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirTaskEuPatchInputModelConstants
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -68,13 +68,13 @@ class DemoEuRepository(
         return Result.success(fhirModel)
     }
 
-    override fun observeEuOrder(orderId: String): Flow<EuOrder?> = dataSource.euOrders.mapNotNull {
+    override fun observeEuOrder(orderId: String): Flow<EuOrderErpModel?> = dataSource.euOrders.mapNotNull {
         val order = it.firstOrNull { order -> order.orderId == orderId }
         Napier.demo { "observed EuOrder ${order?.euAccessCode?.accessCode}" }
         order
     }
 
-    override fun observeAllEuOrders(): Flow<List<EuOrder>> = dataSource.euOrders
+    override fun observeAllEuOrders(): Flow<List<EuOrderErpModel>> = dataSource.euOrders
 
     override suspend fun toggleIsEuRedeemableByPatientAuthorization(
         taskId: String,
@@ -89,7 +89,7 @@ class DemoEuRepository(
 
             val updated = currentOrders.map { order ->
                 if (order.profileId == profileId && taskId in order.relatedTaskIds) {
-                    val newEvent = EuTaskEvent(
+                    val newEvent = EuTaskEventErpModel(
                         id = UUID.randomUUID().toString(),
                         type = eventType,
                         taskId = taskId,
@@ -108,15 +108,21 @@ class DemoEuRepository(
                 val index = syncedList.indexOfFirst { it.taskId == taskId }
                 val updatedList = syncedList
                 if (index != INDEX_OUT_OF_BOUNDS) {
-                    val updatedItem = syncedList[index].copy(
-                        isEuRedeemableByPatientAuthorization = isEuRedeemableByPatientAuthorization,
-                        lastModified = Clock.System.now()
-                    )
+                    val updatedItem = when (val task = syncedList[index]) {
+                        is TaskErpModel.Synced.Prescription -> task.copy(
+                            isEuRedeemableByPatientAuthorization = isEuRedeemableByPatientAuthorization,
+                            lastModified = Clock.System.now()
+                        )
+                        is TaskErpModel.Synced.Diga -> task.copy(
+                            isEuRedeemableByPatientAuthorization = isEuRedeemableByPatientAuthorization,
+                            lastModified = Clock.System.now()
+                        )
+                    }
                     updatedList[index] = updatedItem
                 }
                 updatedList
             }
-            dataSource.syncedTasks.value = emptyList<SyncedTaskData.SyncedTask>().toMutableList()
+            dataSource.syncedTasks.value = emptyList<TaskErpModel.Synced>().toMutableList()
             delay(1) // this delay is required for the ui to react to this change, otherwise we dont get it reactive
             dataSource.syncedTasks.value = data
             Result.success(Unit)
@@ -127,11 +133,11 @@ class DemoEuRepository(
         metadata: FhirEuRedeemAccessCodeRequestMeta,
         countryCode: String,
         relatedTaskIds: List<String>
-    ): Result<EuAccessCode> {
+    ): Result<EuAccessCodeErpModel> {
         val now = Clock.System.now()
 
         // Create the new access code
-        val code = EuAccessCode(
+        val code = EuAccessCodeErpModel(
             countryCode = countryCode,
             accessCode = dataSource.generateCode(),
             createdAt = now,
@@ -157,7 +163,7 @@ class DemoEuRepository(
                 // Add regeneration events for all new tasks
                 relatedTaskIds.forEach { taskId ->
                     add(
-                        EuTaskEvent(
+                        EuTaskEventErpModel(
                             id = UUID.randomUUID().toString(),
                             taskId = taskId,
                             createdAt = now,
@@ -189,7 +195,7 @@ class DemoEuRepository(
         } else {
             // --- CREATE NEW ORDER ---
 
-            val newOrder = EuOrder(
+            val newOrder = EuOrderErpModel(
                 countryCode = countryCode,
                 orderId = UUID.randomUUID().toString(),
                 createdAt = now,
@@ -197,7 +203,7 @@ class DemoEuRepository(
                 relatedTaskIds = relatedTaskIds,
                 euAccessCode = code,
                 events = relatedTaskIds.map { taskId ->
-                    EuTaskEvent(
+                    EuTaskEventErpModel(
                         id = UUID.randomUUID().toString(),
                         taskId = taskId,
                         createdAt = now,
@@ -216,7 +222,7 @@ class DemoEuRepository(
         return Result.success(code)
     }
 
-    override suspend fun getLatestValidEuAccessCodeByProfileIdAndCountry(profileId: ProfileIdentifier, countryCode: String): Flow<EuAccessCode?> =
+    override suspend fun getLatestValidEuAccessCodeByProfileIdAndCountry(profileId: ProfileIdentifier, countryCode: String): Flow<EuAccessCodeErpModel?> =
         dataSource.euAccessCodes.mapNotNull {
             it.firstOrNull { it.profileIdentifier == profileId && it.countryCode == countryCode && it.validUntil > Clock.System.now() }
         }
@@ -262,7 +268,7 @@ class DemoEuRepository(
         dataSource.euOrders.value = updatedOrders.toMutableList()
     }
 
-    override fun getEuAccessCode(accessCode: String): Flow<EuAccessCode?> = dataSource.euAccessCodes.mapNotNull {
+    override fun getEuAccessCode(accessCode: String): Flow<EuAccessCodeErpModel?> = dataSource.euAccessCodes.mapNotNull {
         it.firstOrNull { it.accessCode == accessCode }
     }
 }

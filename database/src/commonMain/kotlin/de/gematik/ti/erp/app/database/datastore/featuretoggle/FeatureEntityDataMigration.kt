@@ -24,6 +24,14 @@ package de.gematik.ti.erp.app.database.datastore.featuretoggle
 
 import androidx.datastore.core.DataMigration
 
+private val FEATURE_ENTITIES_FOR_EXISTING_INSTALLS = FEATURE_ENTITIES.map { feature ->
+    if (feature.name == ROOM_DB.name) {
+        feature.copy(isActive = false)
+    } else {
+        feature
+    }
+}.toSet()
+
 class FeatureToggleDataMigration() : DataMigration<FeatureEntitySchema> {
     override suspend fun shouldMigrate(currentData: FeatureEntitySchema): Boolean {
         val isUpToDate = isDataStoreSynced(currentData.classes)
@@ -54,7 +62,7 @@ class FeatureToggleDataMigration() : DataMigration<FeatureEntitySchema> {
     }
 
     private fun isDeprecatedDataStored(currentData: Set<FeatureEntity>): Boolean {
-        val featureNames = FEATURE_ENTITIES.map { it.name }
+        val featureNames = FEATURE_ENTITIES_FOR_EXISTING_INSTALLS.map { it.name }
         return currentData.any {
             it.name !in featureNames
         }
@@ -62,13 +70,13 @@ class FeatureToggleDataMigration() : DataMigration<FeatureEntitySchema> {
 
     private fun isAnyFeatureMissing(currentData: Set<FeatureEntity>): Boolean {
         val featureNames = currentData.map { it.name }
-        return FEATURE_ENTITIES.any {
+        return FEATURE_ENTITIES_FOR_EXISTING_INSTALLS.any {
             it.name !in featureNames
         }
     }
 
     private fun syncDataStore(currentData: Set<FeatureEntity>): Set<FeatureEntity> {
-        return FEATURE_ENTITIES.map { feature ->
+        return FEATURE_ENTITIES_FOR_EXISTING_INSTALLS.map { feature ->
             currentData.find { feature.name == it.name } ?: feature
         }.sortedBy { it.name }.toSet()
     }

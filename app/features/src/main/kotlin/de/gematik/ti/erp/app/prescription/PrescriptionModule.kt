@@ -23,12 +23,9 @@
 package de.gematik.ti.erp.app.prescription
 
 import de.gematik.ti.erp.app.base.usecase.DownloadAllResourcesUseCase
-import de.gematik.ti.erp.app.base.usecase.GetLastSuccessfulRefreshedTimeUseCase
-import de.gematik.ti.erp.app.prescription.repository.DefaultPrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.DefaultTaskOperationsRepository
 import de.gematik.ti.erp.app.prescription.repository.DownloadResourcesStateRepository
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionLocalDataSource
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRemoteDataSource
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeProcessor
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeScanner
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeValidator
@@ -44,6 +41,7 @@ import de.gematik.ti.erp.app.prescription.usecase.GetTaskIdsUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.RedeemScannedTaskUseCase
 import de.gematik.ti.erp.app.prescription.usecase.UpdateScannedTaskNameUseCase
+import de.gematik.ti.erp.app.profiles.usecase.GetLastSuccessfulRefreshedTimeUseCase
 import de.gematik.ti.erp.app.redeem.usecase.GetReadyPrescriptionsByTaskIdsUseCase
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
@@ -55,8 +53,6 @@ val prescriptionModule =
         bindProvider { TwoDCodeProcessor() }
         bindProvider { TwoDCodeScanner() }
         bindProvider { TwoDCodeValidator() }
-        bindProvider { PrescriptionLocalDataSource(instance()) }
-        bindProvider { PrescriptionRemoteDataSource(instance()) }
         bindProvider { PrescriptionUseCase(instance(), instance(), instance()) }
         bindProvider { GetLastSuccessfulRefreshedTimeUseCase(instance()) }
         bindProvider {
@@ -65,14 +61,13 @@ val prescriptionModule =
                 communicationRepository = instance(),
                 invoicesRepository = instance(),
                 profileRepository = instance(),
-                settingsRepository = instance(),
                 stateRepository = instance(),
                 networkStatusTracker = instance()
             )
         }
         bindProvider { GetActivePrescriptionsUseCase(instance()) }
         bindProvider { GetArchivedPrescriptionsUseCase(instance()) }
-        bindProvider { DeletePrescriptionUseCase(instance(), instance(), instance()) }
+        bindProvider { DeletePrescriptionUseCase(instance(), instance(), instance(), instance()) }
         bindProvider { UpdateScannedTaskNameUseCase(instance()) }
         bindProvider { RedeemScannedTaskUseCase(instance()) }
         bindProvider { GetPrescriptionByTaskIdUseCase(instance()) }
@@ -84,8 +79,8 @@ val prescriptionModule =
         bindSingleton { ArchiveExpiredDigasUseCase(instance()) }
     }
 
-val prescriptionRepositoryModule =
-    DI.Module("prescriptionRepositoryModule", allowSilentOverride = true) {
-        bindProvider<PrescriptionRepository> { DefaultPrescriptionRepository(instance(), instance(), instance()) }
+val taskOperationsRepositoryModule =
+    DI.Module("taskOperationsRepositoryModule", allowSilentOverride = true) {
+        bindProvider<TaskOperationsRepository> { DefaultTaskOperationsRepository(instance(), instance()) }
         bindSingleton { DownloadResourcesStateRepository() }
     }

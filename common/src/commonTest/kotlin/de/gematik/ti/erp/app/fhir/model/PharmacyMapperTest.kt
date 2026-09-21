@@ -31,8 +31,12 @@ import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType.Pickup
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType.Shipment
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningTimeErpModel
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningTime
+import de.gematik.ti.erp.app.pharmacy.model.ContactInformationErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyOpeningHoursErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyOpeningTimeErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalTime
 import kotlinx.serialization.json.Json
@@ -57,9 +61,9 @@ class PharmacyMapperTest {
         private val openingTimeBErpModel = OpeningTimeErpModel(LocalTime.parse("14:00:00"), LocalTime.parse("18:00:00"))
         private val openingTimeCErpModel = OpeningTimeErpModel(LocalTime.parse("08:00:00"), LocalTime.parse("20:00:00"))
 
-        private val openingTimeAUseCaseModel = OpeningTime(LocalTime.parse("08:00:00"), LocalTime.parse("12:00:00"))
-        private val openingTimeBUseCaseModel = OpeningTime(LocalTime.parse("14:00:00"), LocalTime.parse("18:00:00"))
-        private val openingTimeCUseCaseModel = OpeningTime(LocalTime.parse("08:00:00"), LocalTime.parse("20:00:00"))
+        private val openingTimeAUseCaseModel = PharmacyOpeningTimeErpModel(LocalTime.parse("08:00:00"), LocalTime.parse("12:00:00"))
+        private val openingTimeBUseCaseModel = PharmacyOpeningTimeErpModel(LocalTime.parse("14:00:00"), LocalTime.parse("18:00:00"))
+        private val openingTimeCUseCaseModel = PharmacyOpeningTimeErpModel(LocalTime.parse("08:00:00"), LocalTime.parse("20:00:00"))
 
         val pharmacyErpModel = FhirPharmacyErpModel(
             id = "4b74c2b2-2275-4153-a94d-3ddc6bfb1362",
@@ -101,21 +105,21 @@ class PharmacyMapperTest {
             )
         )
 
-        val pharmacyUseCaseData = PharmacyUseCaseData.Pharmacy(
+        val pharmacyUseCaseData = PharmacyDetailsErpModel(
             id = "4b74c2b2-2275-4153-a94d-3ddc6bfb1362",
             name = "Heide-Apotheke",
             address = "27578 Bremerhaven",
-            coordinates = PharmacyUseCaseData.Coordinates(latitude = 8.597412, longitude = 53.590027),
+            coordinates = PositionErpModel(latitude = 8.597412, longitude = 53.590027),
             distance = null, // No distance provided
-            contact = PharmacyUseCaseData.PharmacyContact(
+            contact = ContactInformationErpModel(
                 phone = "0471/87029",
                 mail = "info@heide-apotheke-bremerhaven.de",
                 url = "http://www.heide-apotheke-bremerhaven.de"
             ),
             provides = listOf(
-                PharmacyUseCaseData.PharmacyService.LocalPharmacyService(
+                PharmacyServiceErpModel.LocalPharmacyServiceErpModel(
                     name = "Heide-Apotheke",
-                    openingHours = PharmacyUseCaseData.OpeningHours(
+                    openingHours = PharmacyOpeningHoursErpModel(
                         openingTime = mapOf(
                             DayOfWeek.MONDAY to listOf(openingTimeAUseCaseModel, openingTimeBUseCaseModel),
                             DayOfWeek.TUESDAY to listOf(openingTimeAUseCaseModel, openingTimeBUseCaseModel),
@@ -126,9 +130,9 @@ class PharmacyMapperTest {
                         )
                     )
                 ),
-                PharmacyUseCaseData.PharmacyService.DeliveryPharmacyService(
+                PharmacyServiceErpModel.DeliveryPharmacyServiceErpModel(
                     name = "Heide-Apotheke",
-                    openingHours = PharmacyUseCaseData.OpeningHours(
+                    openingHours = PharmacyOpeningHoursErpModel(
                         openingTime = mapOf(
                             DayOfWeek.MONDAY to listOf(openingTimeCUseCaseModel),
                             DayOfWeek.TUESDAY to listOf(openingTimeCUseCaseModel),
@@ -138,10 +142,10 @@ class PharmacyMapperTest {
                         )
                     )
                 ),
-                PharmacyUseCaseData.PharmacyService.PickUpPharmacyService(name = "Heide-Apotheke"),
-                PharmacyUseCaseData.PharmacyService.OnlinePharmacyService(name = "Heide-Apotheke")
+                PharmacyServiceErpModel.PickUpPharmacyServiceErpModel(name = "Heide-Apotheke"),
+                PharmacyServiceErpModel.OnlinePharmacyServiceErpModel(name = "Heide-Apotheke")
             ),
-            openingHours = PharmacyUseCaseData.OpeningHours(
+            openingHours = PharmacyOpeningHoursErpModel(
                 openingTime = mapOf(
                     DayOfWeek.MONDAY to listOf(openingTimeAUseCaseModel, openingTimeBUseCaseModel),
                     DayOfWeek.TUESDAY to listOf(openingTimeAUseCaseModel, openingTimeBUseCaseModel),

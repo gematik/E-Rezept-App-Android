@@ -23,7 +23,6 @@
 package de.gematik.ti.erp.app.consent.usecase
 
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -34,8 +33,7 @@ class ShowGrantConsentDrawerUseCase(
 ) {
     operator fun invoke(isConsentNotGranted: Boolean): Flow<Boolean> =
         profilesRepository.activeProfile().map { profile ->
-            val isPkv = profile.insuranceType == ProfilesData.InsuranceType.PKV
             val notShownYet = !consentRepository.isConsentDrawerShown(profile.id)
-            isPkv && notShownYet && isConsentNotGranted
+            profile.isPkv() && notShownYet && isConsentNotGranted
         }
 }

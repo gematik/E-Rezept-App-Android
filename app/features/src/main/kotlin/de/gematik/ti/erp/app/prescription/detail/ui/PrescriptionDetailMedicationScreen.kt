@@ -60,6 +60,7 @@ import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
 import de.gematik.ti.erp.app.datetime.temporalText
 import de.gematik.ti.erp.app.digas.ui.component.Label
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.medicationCategory
 import de.gematik.ti.erp.app.navigation.Screen
@@ -67,15 +68,18 @@ import de.gematik.ti.erp.app.navigation.fromNavigationString
 import de.gematik.ti.erp.app.navigation.toNavigationString
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
+import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionMedicationUiModel
 import de.gematik.ti.erp.app.prescription.detail.ui.preview.PrescriptionDetailPreviewData
 import de.gematik.ti.erp.app.prescription.detail.ui.preview.PrescriptionDetailPreviewParameterProvider
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.model.Ratio
+import de.gematik.ti.erp.app.prescription.mapper.toMedicationDispense
+import de.gematik.ti.erp.app.prescription.mapper.toMedicationRequest
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.codeToFormMapping
 import de.gematik.ti.erp.app.prescription.repository.normSizeMapping
 import de.gematik.ti.erp.app.substitutionAllowed
 import de.gematik.ti.erp.app.supplyForm
+import de.gematik.ti.erp.app.task.model.Ratio
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LightDarkLongPreview
@@ -84,11 +88,9 @@ import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
-import de.gematik.ti.erp.app.utils.letNotNullOnCondition
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 
-// @TODO: Implement UIStateMachine
 class PrescriptionDetailMedicationScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry
@@ -110,9 +112,9 @@ class PrescriptionDetailMedicationScreen(
                 )
             }
 
-        val prescriptionDataMedication =
+        val prescriptionMedication =
             remember(selectedMedication) {
-                fromNavigationString<PrescriptionData.Medication>(selectedMedication)
+                fromNavigationString<PrescriptionMedicationUiModel>(selectedMedication)
             }
         val prescriptionDetailsController = rememberPrescriptionDetailController(taskId)
 
@@ -140,7 +142,7 @@ class PrescriptionDetailMedicationScreen(
                 )
             },
             onContent = { (_, prescription) ->
-                val syncedPrescription = prescription as? PrescriptionData.Synced
+                val syncedPrescription = prescription as? TaskErpModel.Synced.Prescription
                 val scaffoldState = rememberScaffoldState()
                 val listState = rememberLazyListState()
                 AnimatedElevationScaffold(
@@ -159,7 +161,7 @@ class PrescriptionDetailMedicationScreen(
                         listState,
                         innerPadding,
                         navController,
-                        prescriptionDataMedication,
+                        prescriptionMedication,
                         syncedPrescription
                     )
                 }
@@ -173,14 +175,16 @@ private fun PrescriptionDetailMedicationScreenContent(
     listState: LazyListState,
     innerPadding: PaddingValues,
     navController: NavController,
-    prescriptionDataMedication: PrescriptionData.Medication?,
-    syncedPrescription: PrescriptionData.Synced?
+    prescriptionMedication: PrescriptionMedicationUiModel?,
+    syncedPrescription: TaskErpModel.Synced.Prescription?
 ) {
     val medication =
-        when (prescriptionDataMedication) {
-            is PrescriptionData.Medication.Dispense -> prescriptionDataMedication.medicationDispense.medication
-            is PrescriptionData.Medication.Request -> prescriptionDataMedication.medicationRequest.medication
-            null -> null
+        remember(prescriptionMedication) {
+            when (prescriptionMedication) {
+                is PrescriptionMedicationUiModel.Dispense -> prescriptionMedication.dispense.toMedicationDispense().medication
+                is PrescriptionMedicationUiModel.Request -> prescriptionMedication.medicationRequest.toMedicationRequest().medication
+                null -> null
+            }
         }
     LazyColumn(
         state = listState,
@@ -209,12 +213,12 @@ private fun PrescriptionDetailMedicationScreenContent(
 
         syncedPrescription?.authoredOn?.let { prescriptionInformation(it) }
 
-        when (prescriptionDataMedication) {
-            is PrescriptionData.Medication.Dispense ->
-                medicationDispense(prescriptionDataMedication.medicationDispense)
+        when (prescriptionMedication) {
+            is PrescriptionMedicationUiModel.Dispense ->
+                medicationDispense(prescriptionMedication.dispense.toMedicationDispense())
 
-            is PrescriptionData.Medication.Request ->
-                medicationRequest(prescriptionDataMedication.medicationRequest)
+            is PrescriptionMedicationUiModel.Request ->
+                medicationRequest(prescriptionMedication.medicationRequest.toMedicationRequest())
 
             null -> {}
         }
@@ -272,24 +276,16 @@ private fun LazyListScope.medicationInformation(
     item {
         Label(
             modifier = Modifier.testTag(TestTag.Prescriptions.Details.Medication.Name),
-            text = medication.name(),
+            text = medication.name().ifBlank { stringResource(R.string.medication_plan_default_notification_title) },
             label = stringResource(R.string.medication_trade_name)
         )
     }
-    letNotNullOnCondition(
-        first = medication.amount,
-        condition = {
-            medication.amount
-                ?.numerator
-                ?.value
-                ?.isNotNullOrEmpty() == true
-        },
-        transform = {
-            item {
-                AmountLabel(it)
-            }
+    val amount = medication.amount
+    if (amount?.numerator?.value?.isNotNullOrEmpty() == true) {
+        item {
+            AmountLabel(amount)
         }
-    )
+    }
     medication.packaging?.let {
         item {
             PackagingLabel(it)
@@ -301,17 +297,27 @@ private fun LazyListScope.medicationInformation(
         }
     }
     item {
-        medication.identifier.pzn?.let {
-            IdentifierLabel(identifier = it, label = stringResource(id = R.string.pres_detail_medication_label_pzn))
-        }
-        medication.identifier.ask?.let {
-            IdentifierLabel(identifier = it, label = stringResource(R.string.mediction_detiail_ask))
-        }
-        medication.identifier.atc?.let {
-            IdentifierLabel(identifier = it, label = stringResource(R.string.mediction_detiail_atc))
-        }
-        medication.identifier.snomed?.let {
-            IdentifierLabel(identifier = it, label = stringResource(R.string.mediction_detiail_snomed))
+        when (medication.medicationProfile?.type) {
+            ErpMedicationProfileType.Ingredient -> {
+                medication.ingredients.first().number?.let {
+                    IdentifierLabel(identifier = it, label = stringResource(R.string.mediction_detiail_ask))
+                }
+            }
+
+            else -> {
+                medication.identifier.pzn?.let {
+                    IdentifierLabel(identifier = it, label = stringResource(id = R.string.pres_detail_medication_label_pzn))
+                }
+                medication.identifier.ask?.let {
+                    IdentifierLabel(identifier = it, label = stringResource(R.string.mediction_detiail_ask))
+                }
+                medication.identifier.atc?.let {
+                    IdentifierLabel(identifier = it, label = stringResource(R.string.mediction_detiail_atc))
+                }
+                medication.identifier.snomed?.let {
+                    IdentifierLabel(identifier = it, label = stringResource(R.string.mediction_detiail_snomed))
+                }
+            }
         }
     }
     medication.form?.let {
@@ -389,20 +395,17 @@ fun FormLabel(form: String) {
 
 @Composable
 private fun DosageInstructionLabel(dosageInstruction: String?) {
-    dosageInstruction?.let { instruction ->
-        val text =
-            if (instruction.lowercase() == "dj") {
-                stringResource(R.string.pres_detail_medication_dj)
-            } else {
-                instruction
-            }
-
-        Label(
-            modifier = Modifier.testTag(TestTag.Prescriptions.Details.Medication.DosageInstruction),
-            text = text,
-            label = stringResource(R.string.pres_detail_medication_label_dosage_instruction)
-        )
+    val instruction = dosageInstruction?.takeIf { it.isNotBlank() } ?: return
+    val text = if (instruction.lowercase() == "dj") {
+        stringResource(R.string.pres_detail_medication_dj)
+    } else {
+        instruction
     }
+    Label(
+        modifier = Modifier.testTag(TestTag.Prescriptions.Details.Medication.DosageInstruction),
+        text = text,
+        label = stringResource(R.string.pres_detail_medication_label_dosage_instruction)
+    )
 }
 
 @Composable
@@ -586,7 +589,7 @@ fun PrescriptionDetailMedicationScreenPreview(
             listState = rememberLazyListState(),
             innerPadding = PaddingValues(0.dp),
             navController = rememberNavController(),
-            prescriptionDataMedication = previewData.prescriptionDataMedication,
+            prescriptionMedication = previewData.prescriptionMedication,
             syncedPrescription = previewData.syncedPrescription
         )
     }

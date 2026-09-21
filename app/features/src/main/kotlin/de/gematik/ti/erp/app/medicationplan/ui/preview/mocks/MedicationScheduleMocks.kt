@@ -23,8 +23,8 @@
 package de.gematik.ti.erp.app.medicationplan.ui.preview.mocks
 
 import de.gematik.ti.erp.app.fhir.temporal.toLocalDate
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDuration
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleInterval
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDurationErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleIntervalErpModel
 import de.gematik.ti.erp.app.medicationplan.model.toMedicationSchedule
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import kotlinx.datetime.DatePeriod
@@ -47,7 +47,7 @@ val SYNCED_PRESCRIPTION_SCHEDULE_INACTIVE = PrescriptionData.Synced(SYNCED_TASK)
 
 val SYNCED_PRESCRIPTION_SCHEDULE_ACTIVE_EVERY_TWO_DAYS = SYNCED_PRESCRIPTION_SCHEDULE_INACTIVE.copy(
     isActive = true,
-    interval = MedicationScheduleInterval.EveryTwoDays
+    interval = MedicationScheduleIntervalErpModel.EveryTwoDays
 )
 
 val SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_INACTIVE = PrescriptionData.Synced(
@@ -58,10 +58,10 @@ val SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS = SYNCED_PRESCRIPTION
 
 val SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_PERSONALIZED = SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_INACTIVE.copy(
     isActive = true,
-    interval = MedicationScheduleInterval.Personalized(
+    interval = MedicationScheduleIntervalErpModel.Personalized(
         selectedDays = setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
     ),
-    duration = MedicationScheduleDuration.Personalized(
+    duration = MedicationScheduleDurationErpModel.Personalized(
         startDate = medicationPlanPreviewCurrentTime.toLocalDate(),
         endDate = medicationPlanPreviewCurrentTime.toLocalDate().plus(period = DatePeriod(days = 14))
     )

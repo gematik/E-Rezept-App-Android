@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.map
 class GetScreenShotsAllowedUseCase(
     private val settingsRepository: SettingsRepository
 ) {
-    operator fun invoke(): Flow<Boolean> = settingsRepository.general.map {
+    operator fun invoke(): Flow<Boolean> = settingsRepository.loadSettings().map {
         it.screenShotsAllowed
     }
 }

@@ -28,7 +28,6 @@ import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInternalMessagesUseCa
 import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.mocks.order.model.securityWarningMessage
 import de.gematik.ti.erp.app.mocks.order.model.welcomeMessage
-import de.gematik.ti.erp.app.timestate.getTimeState
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -96,7 +95,7 @@ class UpdateInternalMessagesUseCaseTest {
         every { buildConfigInformation.versionName() } returns versionWithRC
         every { internalMessagesRepository.getLastUpdatedVersion() } returns flowOf(lastUpdatedVersion)
         every { localMessageRepository.getChangeLogsAsInternalMessage() } returns listOf(welcomeMessage)
-        every { localMessageRepository.createWelcomeMessage(lastUpdatedVersion, getTimeState(Instant.DISTANT_PAST)) } returns welcomeMessage
+        every { localMessageRepository.createWelcomeMessage(lastUpdatedVersion, Instant.DISTANT_PAST) } returns welcomeMessage
         coEvery { internalMessagesRepository.saveInternalMessage(any()) } just runs
         every { localMessageRepository.shouldShowSecurityWarningMessage() } returns false
 
@@ -128,7 +127,7 @@ class UpdateInternalMessagesUseCaseTest {
         every { buildConfigInformation.versionName() } returns versionWithRC
         every { internalMessagesRepository.getLastUpdatedVersion() } returns flowOf(lastUpdatedVersion)
         every { localMessageRepository.getChangeLogsAsInternalMessage() } returns listOf(welcomeMessage)
-        every { localMessageRepository.createWelcomeMessage(lastUpdatedVersion, getTimeState(Instant.DISTANT_PAST)) } returns welcomeMessage
+        every { localMessageRepository.createWelcomeMessage(lastUpdatedVersion, Instant.DISTANT_PAST) } returns welcomeMessage
         every { localMessageRepository.createSecurityWarningMessage(any(), any()) } returns securityWarningMessage
         coEvery { internalMessagesRepository.saveInternalMessage(any()) } just runs
         every { localMessageRepository.shouldShowSecurityWarningMessage() } returns true
@@ -147,7 +146,7 @@ class UpdateInternalMessagesUseCaseTest {
         every { buildConfigInformation.versionName() } returns versionWithRC
         every { internalMessagesRepository.getLastUpdatedVersion() } returns flowOf(lastUpdatedVersion)
         every { localMessageRepository.getChangeLogsAsInternalMessage() } returns emptyList()
-        every { localMessageRepository.createWelcomeMessage(lastUpdatedVersion, getTimeState(Instant.DISTANT_PAST)) } returns welcomeMessage
+        every { localMessageRepository.createWelcomeMessage(lastUpdatedVersion, Instant.DISTANT_PAST) } returns welcomeMessage
         every { localMessageRepository.createSecurityWarningMessage(any(), any()) } returns securityWarningMessage
         coEvery { internalMessagesRepository.saveInternalMessage(any()) } just runs
         every { localMessageRepository.shouldShowSecurityWarningMessage() } returns true

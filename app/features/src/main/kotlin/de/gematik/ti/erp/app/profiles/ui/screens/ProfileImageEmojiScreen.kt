@@ -88,14 +88,13 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
 import de.gematik.ti.erp.app.profiles.model.PictureDataType
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
 import de.gematik.ti.erp.app.profiles.presentation.rememberProfileImagePersonalizedImageScreenController
 import de.gematik.ti.erp.app.profiles.ui.components.CircularBitmapImage
 import de.gematik.ti.erp.app.profiles.ui.components.ProfileBackgroundColorComponent
 import de.gematik.ti.erp.app.profiles.ui.components.color
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
@@ -117,6 +116,7 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 import androidx.core.graphics.createBitmap
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 
 private const val TEXT_SIZE = 64f
 private const val DIAMETER_X = 2f
@@ -167,13 +167,14 @@ fun ProfileImageEmojiComponent(
 
     val controller = rememberProfileImagePersonalizedImageScreenController(profileId)
 
-    val profile by controller.profile.collectAsStateWithLifecycle()
+    val profileState by controller.profile.collectAsStateWithLifecycle()
+    val profile = profileState.data
     val isSamsungDevice = controller.isSamsungDevice()
 
     val keyboardState by keyboardAsState()
 
     // these two change the background color of the profile image
-    var colorName = profile?.color
+    var colorName by remember(profile?.profileImageData?.color) { mutableStateOf(profile?.profileImageData?.color) }
     val backgroundColor = colorName?.color()?.backgroundColor ?: Color.White
 
     val shouldAnimateImage by remember(keyboardState, pictureDataType) {
@@ -284,7 +285,7 @@ private fun ProfileImageEmojiScreenContent(
     focusRequester: FocusRequester,
     focusContentEvent: ComposableEvent<Unit>,
     pictureDataType: PictureDataType,
-    profile: ProfilesUseCaseData.Profile?,
+    profile: ProfileErpModel?,
     shouldAnimateImage: Boolean,
     isEnabled: Boolean,
     imageUri: Uri,
@@ -293,7 +294,7 @@ private fun ProfileImageEmojiScreenContent(
     scrollState: ScrollState,
     onTextContentReceived: (String) -> Unit,
     onImageContentReceived: (Uri) -> Unit,
-    onColorPicked: (ProfilesData.ProfileColorNames) -> Unit,
+    onColorPicked: (ProfileColorNames) -> Unit,
     onBack: () -> Unit,
     onSelect: () -> Unit,
     onEmpty: () -> Unit
@@ -369,8 +370,8 @@ private fun ProfileImageEmojiScreenContent(
                             modifier = Modifier
                                 .size(SizeDefaults.twelvefold)
                                 .clip(CircleShape)
-                                .circularBorder(profile?.color?.color()?.borderColor ?: Color.Gray)
-                                .background(profile?.color?.color()?.backgroundColor ?: Color.White)
+                                .circularBorder(profile?.profileImageData?.color?.color()?.borderColor ?: Color.Gray)
+                                .background(profile?.profileImageData?.color?.color()?.backgroundColor ?: Color.White)
                                 .clickable { focusContentEvent.trigger() },
                             image = bitmap
                         )
@@ -382,8 +383,8 @@ private fun ProfileImageEmojiScreenContent(
                         modifier = Modifier
                             .size(SizeDefaults.twelvefold)
                             .clip(CircleShape)
-                            .circularBorder(profile?.color?.color()?.borderColor ?: Color.Gray)
-                            .background(profile?.color?.color()?.backgroundColor ?: Color.White)
+                            .circularBorder(profile?.profileImageData?.color?.color()?.borderColor ?: Color.Gray)
+                            .background(profile?.profileImageData?.color?.color()?.backgroundColor ?: Color.White)
                             .clickable { focusContentEvent.trigger() },
                         contentScale = ContentScale.Fit
                     )
@@ -431,7 +432,7 @@ private fun ProfileImageEmojiScreenContent(
             profile?.let { editableProfile ->
                 CenterColumn {
                     ProfileBackgroundColorComponent(
-                        color = editableProfile.color,
+                        color = editableProfile.profileImageData.color,
                         onColorPicked = onColorPicked
                     )
                 }

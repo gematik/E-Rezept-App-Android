@@ -22,31 +22,30 @@
 
 package de.gematik.ti.erp.app.pharmacy.mapper
 
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
+import de.gematik.ti.erp.app.task.model.InsuranceErpModelCoverageType
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 
-fun ScannedTaskData.ScannedTask.toOrder() =
-    PharmacyUseCaseData.PrescriptionInOrder(
-        taskId = taskId,
-        accessCode = accessCode,
-        isSelfPayerPrescription = false,
-        isScanned = true,
-        title = name,
-        index = index,
-        timestamp = scannedOn,
-        substitutionsAllowed = false
-    )
+fun TaskErpModel.Scanned.toPrescriptionInOrder(): PrescriptionInOrderErpModel = PrescriptionInOrderErpModel(
+    taskId = taskId,
+    accessCode = accessCode,
+    isSelfPayerPrescription = false,
+    isScanned = true,
+    title = name,
+    index = index,
+    timestamp = scannedOn,
+    substitutionsAllowed = false,
+    isTeratogenicPrescription = false
+)
 
-fun SyncedTaskData.SyncedTask.toOrder() =
-    PharmacyUseCaseData.PrescriptionInOrder(
-        taskId = taskId,
-        accessCode = accessCode,
-        isSelfPayerPrescription = insuranceInformation
-            .coverageType == SyncedTaskData.CoverageType.SEL,
-        title = medicationName(),
-        index = null,
-        timestamp = authoredOn,
-        substitutionsAllowed = false,
-        isScanned = false
-    )
+fun TaskErpModel.Synced.Prescription.toPrescriptionInOrder(): PrescriptionInOrderErpModel = PrescriptionInOrderErpModel(
+    taskId = taskId,
+    accessCode = accessCode,
+    isSelfPayerPrescription = insuranceInformation?.coverageType == InsuranceErpModelCoverageType.SEL,
+    title = medicationName(),
+    index = null,
+    timestamp = authoredOn,
+    substitutionsAllowed = medicationRequest?.substitutionAllowed == true,
+    isScanned = false,
+    isTeratogenicPrescription = medicationRequest?.isTeratogenic() == true
+)

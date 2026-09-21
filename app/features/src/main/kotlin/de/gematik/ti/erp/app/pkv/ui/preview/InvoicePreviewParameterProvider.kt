@@ -23,22 +23,20 @@
 package de.gematik.ti.erp.app.pkv.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
-import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
-import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.fhir.temporal.Year
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.invoice.model.ChargeableItemDescriptionErpModel
+import de.gematik.ti.erp.app.invoice.model.ChargeableItemErpModel
+import de.gematik.ti.erp.app.invoice.model.InvoiceErpModel
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
+import de.gematik.ti.erp.app.invoice.model.PriceComponentErpModel
 import de.gematik.ti.erp.app.pkv.model.InvoiceState
-import de.gematik.ti.erp.app.pkv.ui.preview.PkvMockData.invoiceRecord
-import de.gematik.ti.erp.app.pkv.ui.preview.PkvMockData.medicationPzn
-import de.gematik.ti.erp.app.pkv.ui.preview.PkvMockData.medicationRequest
-import de.gematik.ti.erp.app.prescription.model.Quantity
-import de.gematik.ti.erp.app.prescription.model.Ratio
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationRequest
+import de.gematik.ti.erp.app.task.model.MedicationErpModel
+import de.gematik.ti.erp.app.task.model.MedicationRequestErpModel
+import de.gematik.ti.erp.app.task.model.OrganizationErpModel
+import de.gematik.ti.erp.app.task.model.PatientErpModel
+import de.gematik.ti.erp.app.task.model.PractitionerErpModel
 import kotlinx.datetime.Instant
-import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal.Instant as FhirInstant
 
 data class InvoiceDetailScreenPreviewData(
     val isFromPrescriptionDetails: Boolean,
@@ -46,7 +44,7 @@ data class InvoiceDetailScreenPreviewData(
 )
 
 data class InvoiceListScreenPreviewData(
-    val invoices: Map<Year, List<InvoiceData.PKVInvoiceRecord>>,
+    val invoices: Map<Year, List<PKVInvoiceErpModel>>,
     val isSsoTokenValid: Boolean,
     val isConsentGranted: Boolean
 )
@@ -54,28 +52,28 @@ data class InvoiceListScreenPreviewData(
 private val invoiceListData = InvoiceListScreenPreviewData(
     invoices = mapOf(
         Year(2023) to listOf(
-            invoiceRecord.copy(
+            PkvMockData.erpModel.copy(
                 timestamp = Instant.parse("2023-10-23T12:34:56Z"),
-                medicationRequest = medicationRequest.copy(
-                    medication = medicationPzn.copy(
+                medicationRequest = PkvMockData.medicationRequest.copy(
+                    medication = PkvMockData.medication.copy(
                         text = "Medikament 1"
                     )
                 )
             )
         ),
         Year(2022) to listOf(
-            invoiceRecord.copy(
+            PkvMockData.erpModel.copy(
                 timestamp = Instant.parse("2024-11-23T12:34:56Z"),
-                medicationRequest = medicationRequest.copy(
-                    medication = medicationPzn.copy(
+                medicationRequest = PkvMockData.medicationRequest.copy(
+                    medication = PkvMockData.medication.copy(
                         text = "Medikament 2"
                     )
                 )
             ),
-            invoiceRecord.copy(
+            PkvMockData.erpModel.copy(
                 timestamp = Instant.parse("2024-10-23T12:34:56Z"),
-                medicationRequest = medicationRequest.copy(
-                    medication = medicationPzn.copy(
+                medicationRequest = PkvMockData.medicationRequest.copy(
+                    medication = PkvMockData.medication.copy(
                         text = "Medikament 3"
                     )
                 )
@@ -86,8 +84,8 @@ private val invoiceListData = InvoiceListScreenPreviewData(
     isConsentGranted = true
 )
 
-class InvoiceExpandedDetailsScreenPreviewParameterProvider : PreviewParameterProvider<InvoiceData.PKVInvoiceRecord?> {
-    override val values: Sequence<InvoiceData.PKVInvoiceRecord?>
+class InvoiceExpandedDetailsScreenPreviewParameterProvider : PreviewParameterProvider<PKVInvoiceErpModel?> {
+    override val values: Sequence<PKVInvoiceErpModel?>
         get() = sequenceOf(invoiceListData.invoices.values.first().first())
 }
 
@@ -116,99 +114,51 @@ class InvoiceDetailScreenPreviewParameterProvider : PreviewParameterProvider<Inv
         InvoiceDetailScreenPreviewData(
             isFromPrescriptionDetails = true,
             invoiceState = InvoiceState.InvoiceLoaded(
-                record = invoiceRecord
+                record = PkvMockData.erpModel
             )
         )
     )
 }
 
 object PkvMockData {
-    val chargeItem = InvoiceData.ChargeableItem(
-        description = InvoiceData.ChargeableItem.Description.PZN("pzn"),
+    val timestamp = Instant.parse("1988-10-23T12:34:56Z")
+    val handoverTimestamp = Instant.parse(("2021-11-25T15:20:00Z"))
+
+    val chargeableItem = ChargeableItemErpModel(
+        description = ChargeableItemDescriptionErpModel.PZN("pzn"),
         text = "text",
         factor = 2.0,
-        price = InvoiceData.PriceComponent(
-            value = 1.0,
-            tax = 1.0
-        )
+        price = PriceComponentErpModel(value = 1.0, tax = 1.0)
     )
-    val invoice = InvoiceData.Invoice(
+
+    val invoice = InvoiceErpModel(
         totalAdditionalFee = 1.0,
         totalBruttoAmount = 489.73,
         currency = "currency",
         additionalInformation = listOf("additionalInformation"),
-        chargeableItems = listOf(chargeItem),
-        additionalDispenseItems = listOf(chargeItem)
+        chargeableItems = listOf(chargeableItem),
+        additionalDispenseItems = listOf(chargeableItem)
     )
-    val timestamp = Instant.parse("1988-10-23T12:34:56Z")
-    val handoverTimestamp = Instant.parse(("2021-11-25T15:20:00Z"))
-    val address = SyncedTaskData.Address(
-        line1 = "line1",
-        line2 = "line2",
-        postalCode = "postalCode",
-        city = "city"
+
+    val medication = MedicationErpModel(
+        text = "Präparat"
     )
-    val medicationPzn = SyncedTaskData.Medication(
-        category = SyncedTaskData.MedicationCategory.entries[0],
-        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
-            type = ErpMedicationProfileType.PZN,
-            version = ErpMedicationProfileVersion.V_110
-        ),
-        vaccine = true,
-        text = "Präparat",
-        form = "AEO",
-        lotNumber = "lotNumber",
-        expirationDate = FhirTemporal.Instant(timestamp),
-        identifier = SyncedTaskData.Identifier("FJHE98383JGK"),
-        normSizeCode = "FRE4347",
-        amount = Ratio(
-            numerator = Quantity(
-                value = "2",
-                unit = "oz"
-            ),
-            denominator = null
-        ),
-        ingredientMedications = emptyList(),
-        ingredients = emptyList(),
-        manufacturingInstructions = null,
-        packaging = null
-    )
-    val medicationRequest = MedicationRequest(
-        medication = medicationPzn,
-        dateOfAccident = null,
-        location = "location",
-        emergencyFee = true,
-        dosageInstruction = "dosageInstruction",
-        multiplePrescriptionInfo = SyncedTaskData.MultiplePrescriptionInfo(),
-        note = "note",
+
+    val medicationRequest = MedicationRequestErpModel(
+        medication = medication,
+        authoredOn = FhirTemporal.Instant(timestamp),
         substitutionAllowed = true
     )
-    val invoiceRecord = InvoiceData.PKVInvoiceRecord(
+
+    val erpModel = PKVInvoiceErpModel(
         profileId = "profileId",
         taskId = "taskId",
         accessCode = "accessCode",
         timestamp = timestamp,
-        pharmacyOrganization = SyncedTaskData.Organization(
-            name = "Medikamenten Apotheke",
-            address = address,
-            uniqueIdentifier = "uniqueIdentifier"
-        ),
-        practitionerOrganization = SyncedTaskData.Organization(
-            name = "practitionerOrganization",
-            address = address,
-            uniqueIdentifier = "uniqueIdentifier"
-        ),
-        practitioner = SyncedTaskData.Practitioner(
-            name = "Max Mustermann",
-            qualification = "qualification",
-            practitionerIdentifier = "practitionerIdentifier"
-        ),
-        patient = SyncedTaskData.Patient(
-            name = "name",
-            address = address,
-            insuranceIdentifier = "insuranceIdentifier",
-            birthdate = FhirInstant(value = timestamp)
-        ),
+        pharmacyOrganization = OrganizationErpModel(name = "Medikamenten Apotheke"),
+        practitionerOrganization = OrganizationErpModel(name = "practitionerOrganization"),
+        practitioner = PractitionerErpModel(name = "Max Mustermann"),
+        patient = PatientErpModel(name = "name"),
         medicationRequest = medicationRequest,
         whenHandedOver = FhirTemporal.Instant(value = handoverTimestamp),
         invoice = invoice,

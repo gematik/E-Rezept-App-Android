@@ -23,6 +23,6 @@
 package de.gematik.ti.erp.app.database.room.v2.task.medication
 
 data class ErpQuantityEmbeddable(
-    val value: String,
-    val unit: String
+    val value: String?,
+    val unit: String?
 )

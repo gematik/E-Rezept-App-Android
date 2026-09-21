@@ -25,7 +25,6 @@ package de.gematik.ti.erp.app.medicationplan.usecase
 import de.gematik.ti.erp.app.medicationplan.model.ProfileWithSchedules
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
-import de.gematik.ti.erp.app.profiles.usecase.mapper.toModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -45,7 +44,7 @@ class GetAllProfileWithSchedulesUseCase(
             .map { (profileId, schedulesForProfile) ->
                 val profile = profiles.first { it.id == profileId }
                 ProfileWithSchedules(
-                    profile.toModel(),
+                    profile,
                     schedulesForProfile
                 )
             }

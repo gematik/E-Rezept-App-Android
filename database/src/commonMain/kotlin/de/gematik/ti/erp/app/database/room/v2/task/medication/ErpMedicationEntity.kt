@@ -22,35 +22,47 @@
 
 package de.gematik.ti.erp.app.database.room.v2.task.medication
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskEntity
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 
 @Entity(
     tableName = "medication",
     foreignKeys = [
-        ForeignKey( // ingredient
-            entity = ErpIngredientEntity::class,
-            parentColumns = ["ingredientId"],
-            childColumns = ["ingredientId"],
-            onUpdate = ForeignKey.Companion.CASCADE,
-            onDelete = ForeignKey.Companion.SET_NULL
-        ),
-        ForeignKey( // ratio
+        ForeignKey( // TODO not parent
             entity = ErpRatioEntity::class,
             parentColumns = ["ratioId"],
             childColumns = ["ratioId"],
-            onUpdate = ForeignKey.Companion.CASCADE,
-            onDelete = ForeignKey.Companion.SET_NULL
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.SET_NULL
+        ),
+        ForeignKey(
+            entity = ErpTaskEntity::class,
+            parentColumns = ["taskId"],
+            childColumns = ["taskId"],
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index("ratioId"),
+        Index("parentDispenseId"),
+        Index("taskId")
     ]
 )
+@TypeConverters(ErpMedicationProfileConverters::class)
 data class ErpMedicationEntity(
     @PrimaryKey
     val medicationId: String,
 
-    val ingredientId: String,
-    val ratioId: String,
+    val taskId: String? = null,
+    val ratioId: String? = null,
+    val parentDispenseId: String? = null,
     /** Free-text display for the medication */
     val text: String,
 
@@ -58,7 +70,7 @@ data class ErpMedicationEntity(
     val medicationCategory: String,
 
     /** Dosage form (aka "dosageForm" on iOS) */
-    val form: String,
+    val form: String?,
 
     /** Whether this is a vaccine (aka "isVaccine" on iOS) */
     val vaccine: Boolean,
@@ -68,6 +80,15 @@ data class ErpMedicationEntity(
 
     /** Packaging description */
     val packaging: String,
+
+    @Embedded(prefix = "amount_")
+    val amount: ErpRatioEmbeddable?,
+
+    @Embedded(prefix = "identifier_")
+    val identifier: ErpIdentifierEmbeddable?,
+
+    @Embedded(prefix = "medication_profile_")
+    val medicationProfile: FhirTaskKbvMedicationProfileErpModel? = null,
 
     /** Norm size code */
     val normSizeCode: String,

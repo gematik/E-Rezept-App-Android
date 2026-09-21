@@ -23,11 +23,10 @@
 package de.gematik.ti.erp.app.pharmacy.usecase
 
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyMapsSearchDataErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
 import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toModel
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.MapsSearchData.Companion.toPharmacyFilter
-import de.gematik.ti.erp.app.settings.model.SettingsData
-import de.gematik.ti.erp.app.settings.repository.SettingsRepository
+import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toPharmacyFilter
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -35,26 +34,15 @@ import kotlinx.coroutines.withContext
 
 class PharmacyMapsUseCase(
     private val repository: PharmacyRepository,
-    private val settingsRepository: SettingsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     @Suppress("MagicNumber")
     suspend operator fun invoke(
-        searchData: PharmacyUseCaseData.MapsSearchData,
+        searchData: PharmacyMapsSearchDataErpModel,
         forcedRadius: Double? = null
-    ): List<PharmacyUseCaseData.Pharmacy> =
+    ): List<PharmacyDetailsErpModel> =
         withContext(dispatcher) {
             try {
-                settingsRepository.savePharmacySearch(
-                    SettingsData.PharmacySearch(
-                        name = searchData.name,
-                        locationEnabled = searchData.locationMode !is PharmacyUseCaseData.LocationMode.Disabled,
-                        deliveryService = searchData.filter.deliveryService,
-                        onlineService = searchData.filter.onlineService,
-                        openNow = searchData.filter.openNow
-                    )
-                )
-
                 val initialResult = repository.searchPharmacies(
                     filter = searchData.toPharmacyFilter(forcedRadius)
                 ).getOrThrow()

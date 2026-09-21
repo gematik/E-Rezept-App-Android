@@ -25,12 +25,12 @@ package de.gematik.ti.erp.app.redeem.mapper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
 
 @Composable
-fun PharmacyScreenData.OrderOption.getText() =
+fun OrderOptionErpModel.getText() =
     when (this) {
-        PharmacyScreenData.OrderOption.Pickup -> stringResource(R.string.pharmacy_order_opt_collect_two_lines)
-        PharmacyScreenData.OrderOption.Delivery -> stringResource(R.string.pharmacy_order_opt_delivery_two_lines)
-        PharmacyScreenData.OrderOption.Online -> stringResource(R.string.pharmacy_order_opt_mail_two_lines)
+        OrderOptionErpModel.Pickup -> stringResource(R.string.pharmacy_order_opt_collect_two_lines)
+        OrderOptionErpModel.Delivery -> stringResource(R.string.pharmacy_order_opt_delivery_two_lines)
+        OrderOptionErpModel.Online -> stringResource(R.string.pharmacy_order_opt_mail_two_lines)
     }

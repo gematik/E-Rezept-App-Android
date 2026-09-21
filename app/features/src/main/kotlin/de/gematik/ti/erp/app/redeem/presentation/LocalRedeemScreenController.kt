@@ -33,8 +33,7 @@ import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.EU_REDEEM
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
@@ -46,11 +45,11 @@ import de.gematik.ti.erp.app.redeem.usecase.HasEuRedeemablePrescriptionsUseCase
 import de.gematik.ti.erp.app.redeem.usecase.RedeemScannedTasksUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.uistate.UiState
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -76,67 +75,46 @@ class LocalRedeemScreenController(
     private val redeemScannedTasksUseCase: RedeemScannedTasksUseCase,
     private val hasEuRedeemablePrescriptionsUseCase: HasEuRedeemablePrescriptionsUseCase,
     isFeatureToggleEnabledUseCase: IsFeatureToggleEnabledUseCase,
-    private val _prescriptionOrders: MutableStateFlow<List<PharmacyUseCaseData.PrescriptionInOrder>> =
-        MutableStateFlow(emptyList()),
-    private val _selectedTab: MutableStateFlow<LocalRedeemTab> = MutableStateFlow(LocalRedeemTab.MultiCode),
-    private val _dmCodes: MutableStateFlow<UiState<List<DMCode>>> = MutableStateFlow(UiState.Loading())
+    private val _selectedTab: MutableStateFlow<LocalRedeemTab> = MutableStateFlow(LocalRedeemTab.MultiCode)
 ) : ChooseAuthenticationController(
     getProfileByIdUseCase = getProfileByIdUseCase,
     getProfilesUseCase = getProfilesUseCase,
     chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
     networkStatusTracker = networkStatusTracker,
     biometricAuthenticator = biometricAuthenticator,
-    getActiveProfileUseCase = getActiveProfileUseCase,
-    onActiveProfileSuccess = { profile, coroutineScope ->
-        coroutineScope.launch {
-            runCatching {
-                getRedeemableTasksForDmCodesUseCase(profile.id)
-            }.fold(
-                onSuccess = { flowList ->
-                    val list = flowList.first()
-                    if (list.isEmpty()) {
-                        _dmCodes.value = UiState.Empty()
-                        Napier.e { "no redeemable prescriptions found" }
-                    } else {
-                        if (taskId.isNotEmpty()) {
-                            _prescriptionOrders.value = list.filter { it.taskId == taskId }
-                        } else {
-                            _prescriptionOrders.value = list
-                        }
-                    }
-                },
-                onFailure = {
-                    Napier.e { "active prescriptions not found $it" }
-                }
-            )
-            runCatching {
-                getDMCodesForLocalRedeemUseCase.invoke(_prescriptionOrders, _selectedTab)
-            }.fold(
-                onSuccess = {
-                    val list = it.first()
-                    if (list.isEmpty()) {
-                        _dmCodes.value = UiState.Empty()
-                    } else {
-                        _dmCodes.value = UiState.Data(list)
-                    }
-                },
-                onFailure = {
-                    _dmCodes.value = UiState.Error(it)
-                }
-            )
-        }
-    },
-    onActiveProfileFailure = { throwable, scope ->
-        scope.launch {
-            Napier.e { "active profile not found $throwable" }
-        }
-    }
+    getActiveProfileUseCase = getActiveProfileUseCase
 ) {
     val selectedTab: StateFlow<LocalRedeemTab> = _selectedTab
-    val dmCodes: StateFlow<UiState<List<DMCode>>> = _dmCodes
-    val prescriptionOrders: StateFlow<List<PharmacyUseCaseData.PrescriptionInOrder>> = _prescriptionOrders
-    private val _activeProfileId: MutableStateFlow<ProfileIdentifier> = MutableStateFlow("")
-    val activeProfileId: StateFlow<ProfileIdentifier> = _activeProfileId
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val prescriptionOrders: StateFlow<List<PrescriptionInOrderErpModel>> by lazy {
+        activeProfile
+            .map { it.data?.id }
+            .distinctUntilChanged()
+            .flatMapLatest { profileId ->
+                profileId?.let {
+                    getRedeemableTasksForDmCodesUseCase(profileId)
+                } ?: flowOf(emptyList())
+            }
+            .map { list ->
+                if (taskId.isNotEmpty()) {
+                    list.filter { it.taskId == taskId }
+                } else {
+                    list
+                }
+            }
+            .stateIn(controllerScope, SharingStarted.WhileSubscribed(), emptyList())
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val dmCodes: StateFlow<UiState<List<DMCode>>> by lazy {
+        getDMCodesForLocalRedeemUseCase(prescriptionOrders, _selectedTab)
+            .map { list ->
+                if (list.isEmpty()) UiState.Empty() else UiState.Data(list)
+            }
+            .catch { emit(UiState.Error(it)) }
+            .stateIn(controllerScope, SharingStarted.WhileSubscribed(), UiState.Loading())
+    }
 
     val euRedeemFeatureFlag: StateFlow<Boolean> =
         isFeatureToggleEnabledUseCase(EU_REDEEM)
@@ -184,74 +162,7 @@ class LocalRedeemScreenController(
     fun redeemPrescriptions() {
         controllerScope.launch {
             redeemScannedTasksUseCase(
-                prescriptionOrders.first().map { it.taskId }
-            )
-        }
-    }
-
-    fun refreshDmCodes() {
-        _dmCodes.value = UiState.Loading()
-        getActiveProfile()
-        getRedeemableTasks()
-        getDmCodes()
-    }
-
-    private fun getActiveProfile() {
-        controllerScope.launch {
-            runCatching {
-                getActiveProfileUseCase().first()
-            }.fold(
-                onSuccess = {
-                    _activeProfileId.value = it.id
-                },
-                onFailure = {
-                    _dmCodes.value = UiState.Error(it)
-                }
-            )
-        }
-    }
-
-    private fun getRedeemableTasks() {
-        controllerScope.launch {
-            runCatching {
-                getRedeemableTasksForDmCodesUseCase(activeProfileId.value)
-            }.fold(
-                onSuccess = { flowList ->
-                    val list = flowList.first()
-                    if (list.isEmpty()) {
-                        _dmCodes.value = UiState.Empty()
-                        Napier.e { "no redeemable prescriptions found" }
-                    } else {
-                        if (taskId.isNotEmpty()) {
-                            _prescriptionOrders.value = list.filter { it.taskId == taskId }
-                        } else {
-                            _prescriptionOrders.value = list
-                        }
-                    }
-                },
-                onFailure = {
-                    Napier.e { "active prescriptions not found $it" }
-                }
-            )
-        }
-    }
-
-    fun getDmCodes() {
-        controllerScope.launch {
-            runCatching {
-                getDMCodesForLocalRedeemUseCase.invoke(_prescriptionOrders, _selectedTab)
-            }.fold(
-                onSuccess = {
-                    val list = it.first()
-                    if (list.isEmpty()) {
-                        _dmCodes.value = UiState.Empty()
-                    } else {
-                        _dmCodes.value = UiState.Data(list)
-                    }
-                },
-                onFailure = {
-                    _dmCodes.value = UiState.Error(it)
-                }
+                prescriptionOrders.value.map { it.taskId }
             )
         }
     }

@@ -32,14 +32,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
+import de.gematik.ti.erp.app.prescription.mapper.redeemedOrExpiredOn
 import de.gematik.ti.erp.app.prescription.ui.screen.PrescriptionsArchiveEmptyScreenContent
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.ScannedPrescription
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.uistate.UiState
+import io.github.aakira.napier.Napier
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
@@ -47,7 +47,7 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun PrescriptionSection(
-    prescriptions: UiState<List<Prescription>>,
+    prescriptions: UiState<List<TaskErpModel>>,
     onOpenPrescriptionDetailScreen: (String, Boolean) -> Unit
 ) {
     UiStateMachine(
@@ -98,7 +98,7 @@ fun PrescriptionSection(
                 }
 
                 when (prescription) {
-                    is ScannedPrescription ->
+                    is TaskErpModel.Scanned ->
                         LowDetailMedication(
                             modifier = CardPaddingModifier,
                             prescription,
@@ -107,16 +107,18 @@ fun PrescriptionSection(
                             }
                         )
 
-                    is SyncedPrescription ->
-                        if (!prescription.isDiga) {
-                            FullDetailMedication(
-                                prescription,
-                                modifier = CardPaddingModifier,
-                                onClick = {
-                                    onOpenPrescriptionDetailScreen(prescription.taskId, prescription.isDiga)
-                                }
-                            )
-                        }
+                    is TaskErpModel.Synced.Prescription ->
+                        FullDetailMedication(
+                            prescription,
+                            modifier = CardPaddingModifier,
+                            onClick = {
+                                onOpenPrescriptionDetailScreen(prescription.taskId, false)
+                            }
+                        )
+
+                    else -> {
+                        Napier.e { "Wrong flow, this type ${prescription::class.java} should not come here." }
+                    }
                 }
             }
         }

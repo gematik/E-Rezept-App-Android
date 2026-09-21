@@ -127,7 +127,7 @@ class ProfileEuConsentScreen(
                         controller.onDeclineConsent()
                     }
                 },
-                onRetry = { controller.retryLoadingConsent() }
+                onRetry = {}
             )
         }
 
@@ -183,8 +183,7 @@ private fun EuConsentScaffold(
                         .padding(paddingValues),
                     titleText = stringResource(R.string.eu_consent_error_title),
                     bodyText = error.message ?: stringResource(R.string.eu_consent_error_generic),
-                    tryAgainText = stringResource(R.string.eu_consent_retry_button),
-                    onClickRetry = actions.onRetry
+                    tryAgainText = stringResource(R.string.eu_consent_retry_button)
                 )
             },
             onContent = {

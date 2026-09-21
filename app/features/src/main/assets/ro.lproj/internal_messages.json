@@ -70,5 +70,11 @@
         "text": "**🏥 Detalii îmbunătățite despre farmacie** \nFarmaciile pot adăuga acum servicii precum vaccinări și funcții la fața locului, cum ar fi accesul fără bariere. Farmaciile pot fi filtrate pe baza acestor informații noi. \n \n **✨ Căutare îmbunătățită a farmaciilor** \nFarmaciile utilizate recent și farmaciile preferate sunt acum mai clar separate. Filtrele au fost îmbunătățite. \n \n **✅ ID de sănătate pentru alte persoane asigurate** \nPersoanele asigurate care nu sunt acoperite de asigurare medicală statutară sau privată se pot conecta acum și folosind ID-ul lor de sănătate. \n \n **🛡️ Urmărirea a fost eliminată** \nAm eliminat instrumentul de urmărire utilizat în aplicație. Nu se mai colectează date de utilizare a aplicației. \n \n **♿ Accesibilitate îmbunătățită** \nFiltrele au acum un contrast mai mare, iar starea filtrului este acum mai ușor de văzut.",
         "timestamp": "2026-03-30T08:00:00.000Z",
         "version": "1.38"
+    },
+    {
+        "id": "14",
+        "text": "**✅ Rețete T disponibile**\nRețetele T pot fi acum recepționate și afișate corect. Rețetele T sunt utilizate pentru anumite medicamente cu cerințe speciale de siguranță.\n\n**⚙️ Setările au fost curățate**\nSetările profilului au fost revizuite și făcute mai clare.\n\n**♿ Mai multă accesibilitate**\nBarierele pot fi acum raportate direct din setări. Butoanele, meniurile, listele și titlurile au fost optimizate pentru utilizarea cu TalkBack. Contrastul a fost îmbunătățit, iar animațiile sunt acum redate o singură dată. Câmpul de nume are acum o etichetă vizibilă permanent. Dimensiuni mai mari ale fontului sunt acum acceptate și în vizualizările web ale aplicației.",
+        "timestamp": "2026-08-18T08:00:00.000Z",
+        "version": "1.39"
     }
 ]

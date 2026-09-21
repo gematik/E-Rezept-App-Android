@@ -25,8 +25,11 @@ package de.gematik.ti.erp.app.repository.profiles
 import de.gematik.ti.erp.app.datasource.INDEX_OUT_OF_BOUNDS
 import de.gematik.ti.erp.app.datasource.MockDataSource
 import de.gematik.ti.erp.app.datasource.data.MockProfileInfo.create
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.repository.profiles.MockProfilesRepository.ImageActions.Add
 import de.gematik.ti.erp.app.repository.profiles.MockProfilesRepository.ImageActions.NoAction
@@ -46,8 +49,8 @@ class MockProfilesRepository(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ProfileRepository {
 
-    private fun mockProfiles(): MutableStateFlow<MutableList<ProfilesData.Profile>> = dataSource.profiles
-    override fun profiles(): Flow<List<ProfilesData.Profile>> = mockProfiles()
+    private fun mockProfiles(): MutableStateFlow<MutableList<ProfileErpModel>> = dataSource.profiles
+    override fun profiles(): Flow<List<ProfileErpModel>> = mockProfiles()
 
     override fun activeProfile() = mockProfiles().mapNotNull {
         it.find { profile -> profile.active }
@@ -113,7 +116,7 @@ class MockProfilesRepository(
         }
     }
 
-    override suspend fun updateProfileColor(profileId: ProfileIdentifier, color: ProfilesData.ProfileColorNames) {
+    override suspend fun updateProfileColor(profileId: ProfileIdentifier, color: ProfileColorNames) {
         withContext(dispatcher) {
             dataSource.profiles.value = dataSource.profiles
                 .updateAndGet { profileList ->
@@ -132,7 +135,15 @@ class MockProfilesRepository(
         }
     }
 
-    override suspend fun saveAvatarFigure(profileId: ProfileIdentifier, avatar: ProfilesData.Avatar) {
+    override suspend fun updateLastTaskSynced(profileId: ProfileIdentifier, lastTaskSynced: Instant) {
+        withContext(dispatcher) {
+            dataSource.profiles.value = dataSource.profiles
+                .updateAndGet { it.replace(profileId = profileId, lastTaskSynced = lastTaskSynced) }
+                .updateUUIDForChangeVisibility()
+        }
+    }
+
+    override suspend fun saveAvatarFigure(profileId: ProfileIdentifier, avatar: Avatar) {
         withContext(dispatcher) {
             dataSource.profiles.value = dataSource.profiles
                 .updateAndGet { it.replace(profileId = profileId, avatar = avatar) }
@@ -156,22 +167,21 @@ class MockProfilesRepository(
         }
     }
 
-    override suspend fun switchProfileToPKV(profileId: ProfileIdentifier): Boolean {
-        //  Not implemented for mocks
-        return false
+    override suspend fun switchProfileToPKV(profileId: ProfileIdentifier) {
+        // no-op
     }
 
-    override suspend fun switchProfileToGKV(profileId: ProfileIdentifier): Boolean {
-        return true
+    override suspend fun switchProfileToGKV(profileId: ProfileIdentifier) {
+        // no-op
     }
 
-    override suspend fun switchProfileToBUND(profileId: ProfileIdentifier): Boolean {
-        return false
+    override suspend fun switchProfileToBUND(profileId: ProfileIdentifier) {
+        // no-op
     }
 
     override suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean = false
 
-    override fun getProfileById(profileId: ProfileIdentifier): Flow<ProfilesData.Profile> = mockProfiles()
+    override fun getProfileById(profileId: ProfileIdentifier): Flow<ProfileErpModel> = mockProfiles()
         .mapNotNull {
             it.find { profile -> profile.id == profileId }
         }
@@ -188,44 +198,52 @@ class MockProfilesRepository(
         // no-op
     }
 
-    private fun MutableList<ProfilesData.Profile>.index(profileId: ProfileIdentifier) =
+    private fun MutableList<ProfileErpModel>.index(profileId: ProfileIdentifier) =
         indexOfFirst { profile -> profile.id == profileId }
             .takeIf { it != INDEX_OUT_OF_BOUNDS }
 
-    private fun MutableList<ProfilesData.Profile>.replace(
+    private fun MutableList<ProfileErpModel>.replace(
         profileId: ProfileIdentifier,
         activate: Boolean? = null,
         name: String? = null,
-        color: ProfilesData.ProfileColorNames? = null,
+        color: ProfileColorNames? = null,
         lastAuthenticated: Instant? = null,
-        avatar: ProfilesData.Avatar? = null,
+        lastTaskSynced: Instant? = null,
+        avatar: Avatar? = null,
         profileImage: ByteArray? = null,
         imageAction: ImageActions = NoAction
-    ): MutableList<ProfilesData.Profile> =
+    ): MutableList<ProfileErpModel> =
         index(profileId)?.let { index ->
             val existingProfile = this[index]
             this[index] = this[index].copy(
                 active = activate ?: existingProfile.active,
                 name = name ?: existingProfile.name,
-                color = color ?: existingProfile.color,
-                lastAuthenticated = lastAuthenticated,
-                avatar = avatar ?: existingProfile.avatar,
-                image = when (imageAction) {
-                    Add -> profileImage
-                    Remove -> null
-                    NoAction -> existingProfile.image
-                }
+                profileImageData = ProfileImageDataErpModel(
+                    color = color ?: existingProfile.profileImageData.color,
+                    avatar = avatar ?: existingProfile.profileImageData.avatar,
+                    image = when (imageAction) {
+                        Add -> profileImage
+                        Remove -> null
+                        NoAction -> existingProfile.profileImageData.image
+                    }
+                ),
+                lastTaskSynced = lastTaskSynced ?: existingProfile.lastTaskSynced,
+                lastAuthenticated = lastAuthenticated ?: existingProfile.lastAuthenticated
             )
             this
         } ?: this
 
-    private fun List<ProfilesData.Profile>.deactivateAllProfiles() =
-        mapNotNull {
+    private fun List<ProfileErpModel>.deactivateAllProfiles() =
+        map {
             it.copy(active = false)
         }.toMutableList()
 
-    private fun MutableList<ProfilesData.Profile>.updateUUIDForChangeVisibility() =
+    private fun MutableList<ProfileErpModel>.updateUUIDForChangeVisibility() =
         map { it.copy() }.toMutableList()
+
+    override suspend fun wasProfileEverAuthenticated(profileId: ProfileIdentifier): Boolean {
+        return true
+    }
 
     enum class ImageActions {
         Add, Remove, NoAction

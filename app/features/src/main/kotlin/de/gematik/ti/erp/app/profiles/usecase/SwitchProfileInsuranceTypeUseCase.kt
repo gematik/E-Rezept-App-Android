@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.profiles.usecase
 
+import de.gematik.ti.erp.app.profile.model.InsuranceType
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -35,13 +35,13 @@ class SwitchProfileInsuranceTypeUseCase(
 ) {
     suspend operator fun invoke(
         id: ProfileIdentifier,
-        insuranceType: ProfilesData.InsuranceType
-    ): Boolean = withContext(dispatcher) {
+        insuranceType: InsuranceType
+    ) = withContext(dispatcher) {
         return@withContext when (insuranceType) {
-            ProfilesData.InsuranceType.GKV -> repository.switchProfileToGKV(id)
-            ProfilesData.InsuranceType.PKV -> repository.switchProfileToPKV(id)
-            ProfilesData.InsuranceType.BUND -> repository.switchProfileToBUND(id)
-            ProfilesData.InsuranceType.None -> true
+            InsuranceType.GKV -> repository.switchProfileToGKV(id)
+            InsuranceType.PKV -> repository.switchProfileToPKV(id)
+            InsuranceType.BUND -> repository.switchProfileToBUND(id)
+            InsuranceType.NONE -> true
         }
     }
 }

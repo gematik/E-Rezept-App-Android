@@ -26,10 +26,10 @@ import de.gematik.ti.erp.app.eurezept.domain.model.EuPrescription
 import de.gematik.ti.erp.app.eurezept.domain.model.EuPrescriptionType
 import de.gematik.ti.erp.app.eurezept.domain.model.PrescriptionFilter
 import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
+import de.gematik.ti.erp.app.task.model.MedicationCategory
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -41,8 +41,9 @@ import kotlinx.coroutines.flow.map
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class GetEuPrescriptionsUseCase(
-    private val prescriptionRepository: PrescriptionRepository,
+    private val taskOperationsRepository: TaskOperationsRepository,
     private val profileRepository: ProfileRepository,
+    private val unknownMedicationName: String,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
@@ -56,11 +57,11 @@ class GetEuPrescriptionsUseCase(
 
     private fun getAllActivePrescriptions(profileId: String): Flow<List<EuPrescription>> =
         combine(
-            prescriptionRepository.syncedTasks(profileId),
-            prescriptionRepository.scannedTasks(profileId)
+            taskOperationsRepository.loadSyncedTaskListByProfileId(profileId),
+            taskOperationsRepository.loadScannedTaskListByProfileId(profileId)
         ) { syncedTasks, scannedTasks ->
             val syncedEuPrescriptions = syncedTasks.filter { it.isReady() }.map { it.toEuPrescription() }
-            val scannedEuPrescriptions = scannedTasks.filter { it.isRedeemable() }.map { it.toEuPrescription() }
+            val scannedEuPrescriptions = scannedTasks.filter { it.isReady() }.map { it.toEuPrescription() }
             val allPrescriptions = syncedEuPrescriptions + scannedEuPrescriptions
 
             allPrescriptions.sortedWith(
@@ -77,16 +78,16 @@ class GetEuPrescriptionsUseCase(
             }
         }
 
-    private fun SyncedTaskData.SyncedTask.toEuPrescription(): EuPrescription {
+    private fun TaskErpModel.Synced.Prescription.toEuPrescription(): EuPrescription {
         return EuPrescription(
             profileIdentifier = this.profileId,
             id = this.taskId,
-            name = this.medicationName() ?: this.deviceRequest?.appName ?: "Unknown Medication",
+            name = this.medicationName() ?: unknownMedicationName,
             type = when {
                 this.isEuRedeemable -> EuPrescriptionType.EuRedeemable
-                this.medicationRequest.medication?.medicationProfile?.type == ErpMedicationProfileType.FreeText -> EuPrescriptionType.FreeText
-                this.medicationRequest.medication?.medicationProfile?.type == ErpMedicationProfileType.Ingredient -> EuPrescriptionType.Ingredient
-                this.medicationRequest.medication?.category == SyncedTaskData.MedicationCategory.BTM -> EuPrescriptionType.BTM
+                this.medicationRequest?.medication?.medicationProfile?.type == ErpMedicationProfileType.FreeText -> EuPrescriptionType.FreeText
+                this.medicationRequest?.medication?.medicationProfile?.type == ErpMedicationProfileType.Ingredient -> EuPrescriptionType.Ingredient
+                this.medicationRequest?.medication?.category == MedicationCategory.BTM -> EuPrescriptionType.BTM
                 else -> EuPrescriptionType.Unknown
             },
             isMarkedAsEuRedeemableByPatientAuthorization = isEuRedeemableByPatientAuthorization,
@@ -94,11 +95,11 @@ class GetEuPrescriptionsUseCase(
         )
     }
 
-    private fun ScannedTaskData.ScannedTask.toEuPrescription(): EuPrescription {
+    private fun TaskErpModel.Scanned.toEuPrescription(): EuPrescription {
         return EuPrescription(
             profileIdentifier = this.profileId,
             id = this.taskId,
-            name = this.name,
+            name = this.medicationName() ?: unknownMedicationName,
             isMarkedAsEuRedeemableByPatientAuthorization = false,
             type = EuPrescriptionType.Scanned,
             expiryDate = null

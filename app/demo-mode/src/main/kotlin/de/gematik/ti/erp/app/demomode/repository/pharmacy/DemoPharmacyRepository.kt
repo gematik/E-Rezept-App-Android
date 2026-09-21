@@ -28,11 +28,9 @@ import de.gematik.ti.erp.app.fhir.FhirInsuranceProvider
 import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
-import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.redeem.repository.datasource.RedeemLocalDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -54,7 +52,9 @@ class DemoPharmacyRepository(
         return flowOf(emptyList())
     }
 
-    override suspend fun markPharmacyAsOftenUsed(pharmacy: PharmacyUseCaseData.Pharmacy) {
+    override suspend fun findLocalPharmacyByTelematikId(telematikId: String): PharmacyErpModel? = null
+
+    override suspend fun markPharmacyAsOftenUsed(pharmacy: PharmacyErpModel) {
         // do nothing
     }
 
@@ -62,11 +62,11 @@ class DemoPharmacyRepository(
         // do nothing
     }
 
-    override suspend fun markPharmacyAsFavourite(pharmacy: PharmacyUseCaseData.Pharmacy) {
+    override suspend fun markPharmacyAsFavourite(pharmacy: PharmacyErpModel) {
         // do nothing
     }
 
-    override suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyUseCaseData.Pharmacy) {
+    override suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyErpModel) {
         // do nothing
     }
 
@@ -90,19 +90,11 @@ class DemoPharmacyRepository(
             } ?: Result.failure(Exception("Not found"))
     }
 
-    override fun isPharmacyInFavorites(pharmacy: PharmacyUseCaseData.Pharmacy): Flow<Boolean> {
+    override fun isPharmacyInFavorites(pharmacy: PharmacyErpModel): Flow<Boolean> {
         return flowOf(false)
     }
 
     override suspend fun markAsRedeemed(taskId: String) {
         redeemLocalDataSource.markAsRedeemed(taskId)
-    }
-
-    override fun loadCachedPharmacies(): Flow<List<CachedPharmacy>> {
-        return flowOf(emptyList())
-    }
-
-    override suspend fun savePharmacyToCache(cachedPharmacy: CachedPharmacy) {
-        // do nothing
     }
 }

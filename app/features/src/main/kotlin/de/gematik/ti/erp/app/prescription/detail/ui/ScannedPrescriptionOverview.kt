@@ -46,10 +46,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.digas.ui.component.Label
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
 import de.gematik.ti.erp.app.medicationplan.ui.components.MedicationPlanLineItem
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.ui.SentStatusChip
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerShortMedium
@@ -63,8 +62,8 @@ import de.gematik.ti.erp.app.utils.compose.dateWithIntroductionString
 @Composable
 fun ScannedPrescriptionOverview(
     listState: LazyListState,
-    prescription: PrescriptionData.Scanned,
-    medicationSchedule: MedicationSchedule?,
+    medicationScheduleErpModel: MedicationScheduleErpModel?,
+    prescription: TaskErpModel.Scanned,
     isDemoMode: Boolean,
     onSwitchRedeemed: (redeemed: Boolean) -> Unit,
     onChangePrescriptionName: (String) -> Unit,
@@ -88,7 +87,7 @@ fun ScannedPrescriptionOverview(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 EditableHeaderTextField(
-                    text = prescription.name,
+                    text = prescription.name ?: "",
                     onSaveText = { onChangePrescriptionName(it) }
                 )
 
@@ -105,14 +104,15 @@ fun ScannedPrescriptionOverview(
                     Text(date, style = AppTheme.typography.body2l)
                     Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = AppTheme.colors.primary700)
                 }
-                if (prescription.task.communications.isNotEmpty()) {
+                // TODO: Adding communications will fill this
+                /*if (prescription.communications.isNotEmpty()) {
                     SpacerShortMedium()
                     SentStatusChip()
-                }
+                }*/
             }
         }
 
-        if (!prescription.isRedeemed) {
+        if (prescription.isRedeemable()) { // changed from isRedeemed
             item {
                 RedeemFromDetailSection(
                     onClickRedeemLocal = onClickRedeemLocal,
@@ -130,7 +130,7 @@ fun ScannedPrescriptionOverview(
                 SpacerXLarge()
                 RedeemedButton(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    redeemed = prescription.isRedeemed,
+                    redeemed = !prescription.isRedeemable(),
                     onSwitchRedeemed = onSwitchRedeemed
                 )
                 SpacerXXLarge()
@@ -138,7 +138,7 @@ fun ScannedPrescriptionOverview(
         }
         if (!isDemoMode) {
             item {
-                MedicationPlanLineItem(medicationSchedule, onClickMedicationPlan)
+                MedicationPlanLineItem(medicationScheduleErpModel, onClickMedicationPlan)
             }
         }
 

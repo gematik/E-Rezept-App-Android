@@ -27,15 +27,24 @@ import de.gematik.ti.erp.app.data.medicationRequestJson_vers_1_1_0
 import de.gematik.ti.erp.app.data.medicationRequestJson_vers_1_1_0_with_accident
 import de.gematik.ti.erp.app.data.medicationRequestJson_vers_1_2
 import de.gematik.ti.erp.app.data.medicationRequestJson_vers_1_3
+import de.gematik.ti.erp.app.data.medicationRequestJson_vers_1_4_with_teratogenic
+import de.gematik.ti.erp.app.data.medicationRequestJson_vers_1_4_teratogenic_off_label_true
+import de.gematik.ti.erp.app.data.medicationRequestJson_vers_1_4_teratogenic_gebaerfaehige_frau_true
+import de.gematik.ti.erp.app.data.medicationRequestJson_vers_1_4_teratogenic_sicherheitsmassnahmen_true
+import de.gematik.ti.erp.app.data.medicationRequestJson_vers_1_4_teratogenic_informationsmaterialien_true
+import de.gematik.ti.erp.app.data.medicationRequestJson_vers_1_4_teratogenic_sachkenntnis_true
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestErpTestData.erpMedicationRequestModel12
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestErpTestData.erpMedicationRequestModelV102
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestErpTestData.erpMedicationRequestModelV110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestErpTestData.erpMedicationRequestModelV13
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestErpTestData.erpMedicationRequestModelV14WithTeratogenic
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestErpTestData.erpMedicationRequestWithAccidentInfoModelV110
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTeratogenicPrescriptionErpModel
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestTestData.fhirMedicationRequestModel12
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestTestData.fhirMedicationRequestModelV102
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestTestData.fhirMedicationRequestModelV110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestTestData.fhirMedicationRequestModelV13
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestTestData.fhirMedicationRequestModelV14WithTeratogenic
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirMedicationRequestTestData.fhirMedicationRequestWithAccidentModelV110
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequest.Companion.getMedicationRequest
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequest.Companion.toErpModel
@@ -88,5 +97,84 @@ class TaskEPrescriptionMedicalDataParserMedicationRequestTest {
         val erpModel = fhirModel?.toErpModel()
         assertEquals(fhirMedicationRequestModelV13, fhirModel)
         assertEquals(erpMedicationRequestModelV13, erpModel)
+    }
+
+    @Test
+    fun `test parser for medication request 1_4 with teratogenic`() {
+        val bundle = Json.parseToJsonElement(medicationRequestJson_vers_1_4_with_teratogenic)
+        val fhirModel = bundle.getMedicationRequest()
+        val erpModel = fhirModel?.toErpModel()
+        assertEquals(fhirMedicationRequestModelV14WithTeratogenic, fhirModel)
+        assertEquals(erpMedicationRequestModelV14WithTeratogenic, erpModel)
+    }
+
+    @Test
+    fun `test teratogenic extension parses offLabel correctly`() {
+        val bundle = Json.parseToJsonElement(medicationRequestJson_vers_1_4_teratogenic_off_label_true)
+        val erpModel = bundle.getMedicationRequest()?.toErpModel()
+        val expected = FhirTeratogenicPrescriptionErpModel(
+            offLabel = true,
+            gebaerfaehigeFrau = false,
+            einhaltungSicherheitsmassnahmen = false,
+            aushaendigungInformationsmaterialien = false,
+            erklaerungSachkenntnis = false
+        )
+        assertEquals(expected, erpModel?.teratogenicPrescription)
+    }
+
+    @Test
+    fun `test teratogenic extension parses gebaerfaehigeFrau correctly`() {
+        val bundle = Json.parseToJsonElement(medicationRequestJson_vers_1_4_teratogenic_gebaerfaehige_frau_true)
+        val erpModel = bundle.getMedicationRequest()?.toErpModel()
+        val expected = FhirTeratogenicPrescriptionErpModel(
+            offLabel = false,
+            gebaerfaehigeFrau = true,
+            einhaltungSicherheitsmassnahmen = false,
+            aushaendigungInformationsmaterialien = false,
+            erklaerungSachkenntnis = false
+        )
+        assertEquals(expected, erpModel?.teratogenicPrescription)
+    }
+
+    @Test
+    fun `test teratogenic extension parses einhaltungSicherheitsmassnahmen correctly`() {
+        val bundle = Json.parseToJsonElement(medicationRequestJson_vers_1_4_teratogenic_sicherheitsmassnahmen_true)
+        val erpModel = bundle.getMedicationRequest()?.toErpModel()
+        val expected = FhirTeratogenicPrescriptionErpModel(
+            offLabel = false,
+            gebaerfaehigeFrau = false,
+            einhaltungSicherheitsmassnahmen = true,
+            aushaendigungInformationsmaterialien = false,
+            erklaerungSachkenntnis = false
+        )
+        assertEquals(expected, erpModel?.teratogenicPrescription)
+    }
+
+    @Test
+    fun `test teratogenic extension parses aushaendigungInformationsmaterialien correctly`() {
+        val bundle = Json.parseToJsonElement(medicationRequestJson_vers_1_4_teratogenic_informationsmaterialien_true)
+        val erpModel = bundle.getMedicationRequest()?.toErpModel()
+        val expected = FhirTeratogenicPrescriptionErpModel(
+            offLabel = false,
+            gebaerfaehigeFrau = false,
+            einhaltungSicherheitsmassnahmen = false,
+            aushaendigungInformationsmaterialien = true,
+            erklaerungSachkenntnis = false
+        )
+        assertEquals(expected, erpModel?.teratogenicPrescription)
+    }
+
+    @Test
+    fun `test teratogenic extension parses erklaerungSachkenntnis correctly`() {
+        val bundle = Json.parseToJsonElement(medicationRequestJson_vers_1_4_teratogenic_sachkenntnis_true)
+        val erpModel = bundle.getMedicationRequest()?.toErpModel()
+        val expected = FhirTeratogenicPrescriptionErpModel(
+            offLabel = false,
+            gebaerfaehigeFrau = false,
+            einhaltungSicherheitsmassnahmen = false,
+            aushaendigungInformationsmaterialien = false,
+            erklaerungSachkenntnis = true
+        )
+        assertEquals(expected, erpModel?.teratogenicPrescription)
     }
 }

@@ -34,10 +34,10 @@ import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
 import de.gematik.ti.erp.app.eurezept.ui.model.EuConsentNavigationEvent
 import de.gematik.ti.erp.app.eurezept.ui.model.EuConsentViewState
 import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isErrorState
@@ -102,7 +102,7 @@ internal class EuConsentScreenController(
         }
     }
 
-    private fun loadConsentData(profile: ProfilesUseCaseData.Profile) {
+    private fun loadConsentData(profile: ProfileErpModel) {
         _consentViewState.update { UiState.Loading() }
         controllerScope.launch {
             getEuPrescriptionConsentUseCase(profile.id, ConsentCategory.EUCONSENT.code).first().fold(
@@ -122,7 +122,7 @@ internal class EuConsentScreenController(
     fun retryLoadingConsent() = controllerScope.launch {
         activeProfile.value.data?.let { profile ->
             loadConsentData(profile)
-        } ?: refreshActiveProfile()
+        }
     }
 
     fun onConsentAccepted() {

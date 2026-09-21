@@ -61,6 +61,7 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -838,7 +839,8 @@ private fun InternalErezeptAlertDialog(
                 title?.let { nonNullTitle ->
                     ErezeptText.Title(
                         text = nonNullTitle,
-                        textAlignment = titleAlignment
+                        textAlignment = titleAlignment,
+                        modifier = Modifier.semanticsHeading()
                     )
                     SpacerMedium()
                 }

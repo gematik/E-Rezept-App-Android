@@ -22,11 +22,15 @@
 
 package de.gematik.ti.erp.app.prescription.model
 
-import de.gematik.ti.erp.app.messages.model.Communication
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.datetime.Instant
 
 object ScannedTaskData {
+    @Deprecated(
+        message = "Use TaskErpModel.Scanned instead",
+        level = DeprecationLevel.WARNING
+    )
     data class ScannedTask(
         override val profileId: ProfileIdentifier,
         override val taskId: String,
@@ -35,7 +39,7 @@ object ScannedTaskData {
         val accessCode: String,
         val scannedOn: Instant,
         val redeemedOn: Instant?,
-        val communications: List<Communication> = emptyList()
+        val communications: List<CommunicationErpModel> = emptyList()
     ) : TaskData {
         fun isRedeemable() = redeemedOn == null
     }

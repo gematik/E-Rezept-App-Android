@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.fhir.parser
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.fhir.temporal.Year
 import de.gematik.ti.erp.app.fhir.temporal.YearMonth
-import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import de.gematik.ti.erp.app.navigation.fromNavigationString
 import de.gematik.ti.erp.app.navigation.toNavigationString
 import kotlinx.datetime.Instant
@@ -83,30 +83,30 @@ class TemporalConverterTest {
 
     @Test
     fun `convert dates to string`() {
-        assertEquals("2022-01-13T15:44:15.816Z", "2022-01-13T15:44:15.816+00:00".toFhirTemporal().formattedString())
-        assertEquals("2022-01-13T15:44:15.816Z", "2022-01-13T15:44:15.816Z".toFhirTemporal().formattedString())
-        assertEquals("2022-01-13T15:44:00Z", "2022-01-13T15:44:00+00:00".toFhirTemporal().formattedString())
-        assertEquals("2015-02-07T11:28:17Z", "2015-02-07T13:28:17+02:00".toFhirTemporal().formattedString())
-        assertEquals("2015-02-07T15:28:17Z", "2015-02-07T13:28:17-02:00".toFhirTemporal().formattedString())
+        assertEquals("2022-01-13T15:44:15.816Z", "2022-01-13T15:44:15.816+00:00".asFhirTemporal().formattedString())
+        assertEquals("2022-01-13T15:44:15.816Z", "2022-01-13T15:44:15.816Z".asFhirTemporal().formattedString())
+        assertEquals("2022-01-13T15:44:00Z", "2022-01-13T15:44:00+00:00".asFhirTemporal().formattedString())
+        assertEquals("2015-02-07T11:28:17Z", "2015-02-07T13:28:17+02:00".asFhirTemporal().formattedString())
+        assertEquals("2015-02-07T15:28:17Z", "2015-02-07T13:28:17-02:00".asFhirTemporal().formattedString())
 
-        assertEquals("2015-02-07T11:28:17", "2015-02-07T11:28:17".toFhirTemporal().formattedString())
-        assertEquals("2015-02-07T11:28", "2015-02-07T11:28:00".toFhirTemporal().formattedString())
-        assertEquals("2015-02-07T11:28:00.123", "2015-02-07T11:28:00.123".toFhirTemporal().formattedString())
+        assertEquals("2015-02-07T11:28:17", "2015-02-07T11:28:17".asFhirTemporal().formattedString())
+        assertEquals("2015-02-07T11:28", "2015-02-07T11:28:00".asFhirTemporal().formattedString())
+        assertEquals("2015-02-07T11:28:00.123", "2015-02-07T11:28:00.123".asFhirTemporal().formattedString())
 
-        assertEquals("2015-02-03", "2015-02-03".toFhirTemporal().formattedString())
-        assertEquals("2015-02", "2015-02".toFhirTemporal().formattedString())
-        assertEquals("2015", "2015".toFhirTemporal().formattedString())
+        assertEquals("2015-02-03", "2015-02-03".asFhirTemporal().formattedString())
+        assertEquals("2015-02", "2015-02".asFhirTemporal().formattedString())
+        assertEquals("2015", "2015".asFhirTemporal().formattedString())
 
-        assertEquals("13:28:05", "13:28:05".toFhirTemporal().formattedString())
-        assertEquals("13:00", "13:00:00".toFhirTemporal().formattedString())
-        assertEquals("13:28", "13:28:00".toFhirTemporal().formattedString())
+        assertEquals("13:28:05", "13:28:05".asFhirTemporal().formattedString())
+        assertEquals("13:00", "13:00:00".asFhirTemporal().formattedString())
+        assertEquals("13:28", "13:28:00".asFhirTemporal().formattedString())
 
         assertEquals(
             Instant.parse("2022-01-13T15:44:15.816+00:00"),
-            ("2022-01-13T15:44:15.816Z".toFhirTemporal() as FhirTemporal.Instant).value
+            ("2022-01-13T15:44:15.816Z".asFhirTemporal() as FhirTemporal.Instant).value
         )
-        assertEquals("07.02.2015", "2015-02-07T11:28:17".toFhirTemporal().toFormattedDate())
-        assertEquals("03.02.2015", "2015-02-03".toFhirTemporal().toFormattedDate())
+        assertEquals("07.02.2015", "2015-02-07T11:28:17".asFhirTemporal().toFormattedDate())
+        assertEquals("03.02.2015", "2015-02-03".asFhirTemporal().toFormattedDate())
     }
 
     private fun FhirTemporal.getActualValue(): FhirTemporal {

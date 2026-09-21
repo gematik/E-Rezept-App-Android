@@ -67,10 +67,10 @@ import de.gematik.ti.erp.app.prescription.model.PrescriptionScreenData.AvatarDim
 import de.gematik.ti.erp.app.prescription.model.PrescriptionScreenData.AvatarDimensions.Small
 import de.gematik.ti.erp.app.prescription.ui.preview.AvatarPreview
 import de.gematik.ti.erp.app.prescription.ui.preview.AvatarPreviewParameterProvider
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profiles.ui.components.ChooseAvatar
 import de.gematik.ti.erp.app.profiles.ui.components.color
 import de.gematik.ti.erp.app.profiles.ui.components.profileColor
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -85,7 +85,7 @@ import de.gematik.ti.erp.app.utils.uistate.UiState
 
 @Composable
 fun ProfileConnectionSection(
-    activeProfile: UiState<ProfilesUseCaseData.Profile>,
+    activeProfile: UiState<ProfileErpModel>,
     profileIconState: ProfileIconState,
     isRegistered: Boolean,
     onClickAvatar: () -> Unit,
@@ -128,7 +128,7 @@ fun ProfileConnectionSection(
 @Composable
 fun MainScreenAvatar(
     modifier: Modifier = Modifier,
-    activeProfile: ProfilesUseCaseData.Profile,
+    activeProfile: ProfileErpModel,
     profileIconState: ProfileIconState,
     isRegistered: Boolean,
     avatarDimension: AvatarDimensions = Default(),
@@ -191,12 +191,12 @@ fun MainScreenAvatar(
 
 @Composable
 fun AvatarScreen(
-    profile: ProfilesUseCaseData.Profile,
+    profile: ProfileErpModel,
     profileIconState: ProfileIconState,
     avatarDimension: PrescriptionScreenData.AvatarDimension,
     onClickAvatar: () -> Unit
 ) {
-    val selectedColor = profileColor(profileColorNames = profile.color)
+    val selectedColor = profileColor(profileColorNames = profile.profileImageData.color)
     val description = stringResource(id = R.string.edit_profile_picture)
     val noInternet = stringResource(R.string.no_login_state_no_internet)
     val notLoggedIn = stringResource(R.string.not_logged_in)
@@ -227,9 +227,9 @@ fun AvatarScreen(
                 ChooseAvatar(
                     modifier = Modifier.size(avatarDimension.chooseSize),
                     emptyIcon = Icons.Rounded.AddAPhoto,
-                    image = profile.image,
-                    profileColor = profile.color.color(),
-                    avatar = profile.avatar
+                    image = profile.profileImageData.image,
+                    profileColor = profile.profileImageData.color.color(),
+                    avatar = profile.profileImageData.avatar
                 )
             }
         }

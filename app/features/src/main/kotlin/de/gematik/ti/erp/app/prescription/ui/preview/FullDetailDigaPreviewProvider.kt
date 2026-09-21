@@ -24,15 +24,14 @@ package de.gematik.ti.erp.app.prescription.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.diga.model.DigaStatus
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import kotlinx.datetime.Instant
 
 data class FullDetailDigaPreviewData(
     val name: String,
     val now: Instant,
-    val prescription: SyncedPrescription
+    val prescription: TaskErpModel.Synced.Diga
 )
 
 data class FullDetailDigaPreviewDates(
@@ -47,32 +46,31 @@ fun digaSyncedPrescriptionPreviewData(
     name: String,
     previewDates: FullDetailDigaPreviewDates = FullDetailDigaPreviewDates(),
     status: DigaStatus = DigaStatus.Ready,
-    taskStatus: SyncedTaskData.SyncedTask.TaskState = SyncedTaskData.SyncedTask.Ready(
-        expiresOn = previewDates.expiresOn,
-        acceptUntil = previewDates.acceptUntil
-    )
+    taskStatus: TaskStatusEnum = TaskStatusEnum.Ready
 ) = FullDetailDigaPreviewData(
     name = name,
     now = previewDates.now,
-    prescription = SyncedPrescription(
+    prescription = TaskErpModel.Synced.Diga(
+        profileId = "profile-id-1",
         taskId = "1",
         name = "Power Puff",
-        state = taskStatus,
-        isDirectAssignment = false,
-        isIncomplete = false,
+        accessCode = "access-code-1",
+        isEuRedeemable = false,
+        isEuRedeemableByPatientAuthorization = false,
+        lastModified = Instant.fromEpochSeconds(123456),
+        organization = null,
+        practitioner = null,
+        patient = null,
+        insuranceInformation = null,
+        expiresOn = previewDates.expiresOn,
         acceptUntil = previewDates.acceptUntil,
         authoredOn = previewDates.authoredOn,
-        expiresOn = previewDates.expiresOn,
-        redeemedOn = null,
-        organization = "Organization",
-        isDiga = true,
-        deviceRequestState = status,
-        lastModified = Instant.fromEpochSeconds(123456),
-        prescriptionChipInformation = Prescription.PrescriptionChipInformation(
-            isPartOfMultiplePrescription = false,
-            numerator = "1",
-            denominator = "2"
-        )
+        status = taskStatus,
+        isIncomplete = false,
+        pvsIdentifier = "",
+        failureToReport = "",
+        currentTime = previewDates.now,
+        deviceRequest = null
     )
 )
 
@@ -92,10 +90,7 @@ class FullDetailDigaPreviewProvider : PreviewParameterProvider<FullDetailDigaPre
             digaSyncedPrescriptionPreviewData(
                 name = "Completed",
                 status = DigaStatus.CompletedSuccessfully,
-                taskStatus = SyncedTaskData.SyncedTask.Other(
-                    state = SyncedTaskData.TaskStatus.Completed,
-                    lastModified = Instant.parse("2025-12-06T14:49:46Z")
-                ),
+                taskStatus = TaskStatusEnum.Completed,
                 previewDates = FullDetailDigaPreviewDates(
                     now = Instant.parse("2025-12-06T14:49:46Z")
                 )
@@ -103,10 +98,7 @@ class FullDetailDigaPreviewProvider : PreviewParameterProvider<FullDetailDigaPre
             digaSyncedPrescriptionPreviewData(
                 name = "Completed Wrong",
                 status = DigaStatus.CompletedWithRejection(Instant.parse("2024-08-01T10:00:00Z")),
-                taskStatus = SyncedTaskData.SyncedTask.Other(
-                    state = SyncedTaskData.TaskStatus.Completed,
-                    lastModified = Instant.parse("2025-12-06T14:49:46Z")
-                ),
+                taskStatus = TaskStatusEnum.Completed,
                 previewDates = FullDetailDigaPreviewDates(
                     now = Instant.parse("2025-12-06T14:49:46Z")
                 )
@@ -114,10 +106,7 @@ class FullDetailDigaPreviewProvider : PreviewParameterProvider<FullDetailDigaPre
             digaSyncedPrescriptionPreviewData(
                 name = "Ready for Archive",
                 status = DigaStatus.ReadyForSelfArchiveDiga,
-                taskStatus = SyncedTaskData.SyncedTask.Other(
-                    state = SyncedTaskData.TaskStatus.Completed,
-                    lastModified = Instant.parse("2026-12-06T14:49:46Z")
-                ),
+                taskStatus = TaskStatusEnum.Completed,
                 previewDates = FullDetailDigaPreviewDates(
                     now = Instant.parse("2022-12-06T14:49:46Z"),
                     acceptUntil = Instant.parse("2022-12-07T14:49:46Z"),

@@ -22,10 +22,9 @@
 
 package de.gematik.ti.erp.app.messages.usecase
 
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.messages.mappers.toMessage
-import de.gematik.ti.erp.app.messages.model.Communication
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.mapper.toMessage
 import kotlinx.datetime.Instant
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -34,13 +33,13 @@ class MessageUseCaseTest {
 
     @Test
     fun `communication to message - normal`() {
-        val communication = Communication(
+        val communication = CommunicationErpModel(
             taskId = "",
             orderId = "",
             communicationId = "CID123456",
-            profile = CommunicationProfile.ErxCommunicationReply,
-            sentOn = Instant.fromEpochSeconds(123456),
-            sender = "ABC123456",
+            profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply,
+            timeStamp = Instant.fromEpochSeconds(123456),
+            senderTelematikId = "ABC123456",
             recipient = "ABC654321",
             payload = """
             {
@@ -50,7 +49,8 @@ class MessageUseCaseTest {
                 "url": "https://example.org" 
             }
             """.trimIndent(),
-            consumed = false
+            consumed = false,
+            profileId = ""
         )
         val expected = OrderUseCaseData.Message(
             communicationId = "CID123456",
@@ -64,21 +64,22 @@ class MessageUseCaseTest {
             taskIds = emptyList(),
             isTaskIdCountMatching = false
         )
-        assertEquals(expected, communication.toMessage())
+        assertEquals(expected, communication.toMessage(emptyList(), false))
     }
 
     @Test
     fun `communication to message - payload partially empty`() {
-        val communication = Communication(
+        val communication = CommunicationErpModel(
             taskId = "",
             orderId = "",
             communicationId = "CID123456",
-            profile = CommunicationProfile.ErxCommunicationReply,
-            sentOn = Instant.fromEpochSeconds(123456),
-            sender = "ABC123456",
+            profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply,
+            timeStamp = Instant.fromEpochSeconds(123456),
+            senderTelematikId = "ABC123456",
             recipient = "ABC654321",
             payload = """{ "version": 1, "supplyOptionsType": "shipment", "url": "    ", "pickUpCodeHR": "" }""",
-            consumed = false
+            consumed = false,
+            profileId = ""
         )
         val expected = OrderUseCaseData.Message(
             communicationId = "CID123456",
@@ -93,21 +94,22 @@ class MessageUseCaseTest {
             isTaskIdCountMatching = false
 
         )
-        assertEquals(expected, communication.toMessage())
+        assertEquals(expected, communication.toMessage(emptyList(), false))
     }
 
     @Test
     fun `communication to message - payload broken`() {
-        val communication = Communication(
+        val communication = CommunicationErpModel(
             taskId = "",
             orderId = "",
             communicationId = "CID123456",
-            profile = CommunicationProfile.ErxCommunicationReply,
-            sentOn = Instant.fromEpochSeconds(123456),
-            sender = "ABC123456",
+            profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply,
+            timeStamp = Instant.fromEpochSeconds(123456),
+            senderTelematikId = "ABC123456",
             recipient = "ABC654321",
             payload = """{   - """,
-            consumed = false
+            consumed = false,
+            profileId = ""
         )
         val expected = OrderUseCaseData.Message(
             communicationId = "CID123456",
@@ -121,21 +123,22 @@ class MessageUseCaseTest {
             taskIds = emptyList(),
             isTaskIdCountMatching = false
         )
-        assertEquals(expected, communication.toMessage())
+        assertEquals(expected, communication.toMessage(emptyList(), false))
     }
 
     @Test
     fun `communication to message - invalid url`() {
-        val communication = Communication(
+        val communication = CommunicationErpModel(
             taskId = "",
             orderId = "",
             communicationId = "CID123456",
-            profile = CommunicationProfile.ErxCommunicationReply,
-            sentOn = Instant.fromEpochSeconds(123456),
-            sender = "ABC123456",
+            profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply,
+            timeStamp = Instant.fromEpochSeconds(123456),
+            senderTelematikId = "ABC123456",
             recipient = "ABC654321",
             payload = """{ "version": 1, "supplyOptionsType": "shipment", "url": "ftp://example.org" }""",
-            consumed = false
+            consumed = false,
+            profileId = ""
         )
         val expected = OrderUseCaseData.Message(
             communicationId = "CID123456",
@@ -149,6 +152,6 @@ class MessageUseCaseTest {
             taskIds = emptyList(),
             isTaskIdCountMatching = false
         )
-        assertEquals(expected, communication.toMessage())
+        assertEquals(expected, communication.toMessage(emptyList(), false))
     }
 }

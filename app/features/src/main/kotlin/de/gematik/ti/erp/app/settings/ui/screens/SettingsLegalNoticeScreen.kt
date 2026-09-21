@@ -27,15 +27,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Feedback
@@ -225,24 +225,22 @@ private fun ContactOptionsSection() {
 @Composable
 fun PhoneContact(context: Context, phoneInfo: String, phoneContact: String, icon: ImageVector) {
     val color = AppTheme.colors.primary700
-    val annotatedPhoneText =
-        provideLinkForString(phoneInfo, phoneContact, "phone", linkColor = color)
-
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Small),
-        modifier = Modifier.padding(top = PaddingDefaults.Medium)
+    TextButton(
+        onClick = {
+            context.handleIntent(providePhoneIntent(phoneContact))
+        },
+        modifier = Modifier
+            .fillMaxWidth()
     ) {
         Icon(icon, null, tint = color)
-        ClickableText(
-            text = annotatedPhoneText,
-            onClick = {
-                annotatedPhoneText
-                    .getStringAnnotations("phone", it, it)
-                    .firstOrNull()?.let {
-                        context.handleIntent(providePhoneIntent(phoneContact))
-                    }
-            }
+        SpacerSmall()
+        Text(
+            text = phoneInfo,
+            color = color,
+            textDecoration = TextDecoration.Underline,
+            style = AppTheme.typography.body1
         )
+        Spacer(Modifier.weight(1f))
     }
 }
 
@@ -254,29 +252,28 @@ fun EmailContact(
     emailIcon: ImageVector
 ) {
     val color = AppTheme.colors.primary700
-    val annotatedEmail =
-        provideLinkForString(emailText, annotation = emailAddress, "email", linkColor = color)
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Small),
-        modifier = Modifier.padding(top = PaddingDefaults.Medium)
+    val noEmailClientText = stringResource(R.string.contact_email_no_client)
+    TextButton(
+        onClick = {
+            val intent = provideEmailIntent(emailAddress)
+            if (canHandleIntent(intent, context.packageManager)) {
+                context.startActivity(intent)
+            } else {
+                context.shortToast(noEmailClientText)
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
     ) {
         Icon(emailIcon, null, tint = color)
-        val noEmailClientText = stringResource(R.string.contact_email_no_client)
-        ClickableText(
-            text = annotatedEmail,
-            onClick = {
-                annotatedEmail
-                    .getStringAnnotations("email", it, it)
-                    .firstOrNull()?.let { _ ->
-                        val intent = provideEmailIntent(emailAddress)
-                        if (canHandleIntent(intent, context.packageManager)) {
-                            context.startActivity(intent)
-                        } else {
-                            context.shortToast(noEmailClientText)
-                        }
-                    }
-            }
+        SpacerSmall()
+        Text(
+            text = emailText,
+            color = color,
+            textDecoration = TextDecoration.Underline,
+            style = AppTheme.typography.body1
         )
+        Spacer(Modifier.weight(1f))
     }
 }
 
@@ -284,24 +281,22 @@ fun EmailContact(
 fun LinkToWeb(linkInfo: String, link: String, icon: ImageVector) {
     val color = AppTheme.colors.primary700
     val uriHandler = LocalUriHandler.current
-    val annotatedLink =
-        provideLinkForString(linkInfo, annotation = link, tag = "URL", linkColor = color)
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Small),
-        modifier = Modifier.padding(top = PaddingDefaults.Medium)
+    TextButton(
+        onClick = {
+            uriHandler.openUriWhenValid(link)
+        },
+        modifier = Modifier
+            .fillMaxWidth()
     ) {
         Icon(icon, null, tint = color)
-
-        ClickableText(
-            text = annotatedLink,
-            onClick = {
-                annotatedLink
-                    .getStringAnnotations("URL", it, it)
-                    .firstOrNull()?.let { stringAnnotation ->
-                        uriHandler.openUriWhenValid(stringAnnotation.item)
-                    }
-            }
+        SpacerSmall()
+        Text(
+            text = linkInfo,
+            color = color,
+            textDecoration = TextDecoration.Underline,
+            style = AppTheme.typography.body1
         )
+        Spacer(Modifier.weight(1f))
     }
 }
 

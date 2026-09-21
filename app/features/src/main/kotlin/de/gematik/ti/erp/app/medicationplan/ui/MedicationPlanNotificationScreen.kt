@@ -71,8 +71,8 @@ import de.gematik.ti.erp.app.datetime.ErpTimeFormatter
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.fhir.temporal.toLocalDate
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationErpModel
 import de.gematik.ti.erp.app.medicationplan.model.ProfileWithSchedules
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
 import de.gematik.ti.erp.app.medicationplan.presentation.rememberMedicationPlanNotificationScreenController
@@ -80,7 +80,7 @@ import de.gematik.ti.erp.app.medicationplan.ui.preview.MedicationSuccessScreenPr
 import de.gematik.ti.erp.app.medicationplan.ui.preview.MedicationSuccessScreenPreviewParameter
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -254,8 +254,8 @@ fun MedicationNotificationSuccessScreenContent(
 
 @Composable
 private fun ProfilesWithSchedulesComponent(
-    profile: ProfilesUseCaseData.Profile,
-    profileSchedules: List<MedicationSchedule>
+    profile: ProfileErpModel,
+    profileSchedules: List<MedicationScheduleErpModel>
 ) {
     Column(
         modifier = Modifier
@@ -267,7 +267,7 @@ private fun ProfilesWithSchedulesComponent(
         )
         profileSchedules.forEach { schedule ->
             NotificationsSection(
-                medicationSchedule = schedule
+                medicationScheduleErpModel = schedule
             )
         }
     }
@@ -275,17 +275,17 @@ private fun ProfilesWithSchedulesComponent(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun NotificationsSection(medicationSchedule: MedicationSchedule) {
+private fun NotificationsSection(medicationScheduleErpModel: MedicationScheduleErpModel) {
     val formatter = rememberErpTimeFormatter()
     Column(
         modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
         verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
     ) {
         Text(
-            text = medicationSchedule.message.title,
+            text = medicationScheduleErpModel.message.title,
             style = AppTheme.typography.subtitle1
         )
-        medicationSchedule.notifications.forEach { notification ->
+        medicationScheduleErpModel.notifications.forEach { notification ->
             val (image, description) = getDayTimeImageAndDescription(notification)
             ListItem(
                 modifier = Modifier
@@ -318,7 +318,7 @@ private fun NotificationsSection(medicationSchedule: MedicationSchedule) {
                     Text(
                         text = getNotificationTimeDescription(
                             notification = notification,
-                            schedule = medicationSchedule,
+                            schedule = medicationScheduleErpModel,
                             formatter = formatter
                         ),
                         style = AppTheme.typography.body2,
@@ -334,7 +334,7 @@ private fun NotificationsSection(medicationSchedule: MedicationSchedule) {
 
 @Suppress("MagicNumber")
 fun getDayTimeImageAndDescription(
-    notification: MedicationScheduleNotification
+    notification: MedicationScheduleNotificationErpModel
 ): Pair<Int, Int> {
     val hour = notification.time.hour
 
@@ -349,8 +349,8 @@ fun getDayTimeImageAndDescription(
 
 @Composable
 private fun getNotificationTimeDescription(
-    notification: MedicationScheduleNotification,
-    schedule: MedicationSchedule,
+    notification: MedicationScheduleNotificationErpModel,
+    schedule: MedicationScheduleErpModel,
     now: Instant = Clock.System.now(),
     formatter: ErpTimeFormatter
 ): String {

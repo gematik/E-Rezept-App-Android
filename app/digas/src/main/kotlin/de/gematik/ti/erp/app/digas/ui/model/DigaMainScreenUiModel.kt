@@ -24,13 +24,12 @@ package de.gematik.ti.erp.app.digas.ui.model
 
 import androidx.compose.runtime.Composable
 import de.gematik.ti.erp.app.datetime.timeStateParser
+import de.gematik.ti.erp.app.diga.model.AdditionalDeviceStatus
 import de.gematik.ti.erp.app.diga.model.DigaStatus
-import de.gematik.ti.erp.app.digas.data.model.AdditionalDeviceStatus
 import de.gematik.ti.erp.app.timestate.TimeState
 import de.gematik.ti.erp.app.timestate.getTimeState
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlin.ranges.step
 
 data class DigaMainScreenUiModel(
     val name: String? = null,

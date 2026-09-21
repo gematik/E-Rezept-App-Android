@@ -173,7 +173,7 @@ fun LabeledSwitch(
 ) {
     val iconColorTint = if (enabled) AppTheme.colors.primary700 else AppTheme.colors.primary300
     val textColor = if (enabled) AppTheme.colors.neutral900 else AppTheme.colors.neutral700
-    val descriptionColor = if (enabled) AppTheme.colors.neutral700 else AppTheme.colors.neutral400
+    val descriptionColor = if (enabled) AppTheme.colors.neutral700 else AppTheme.colors.neutral700
     ListItem(
         colors = GemListItemDefaults.gemListItemColors(
             leadingIconColor = iconColorTint,
@@ -296,7 +296,7 @@ fun LabelButton(
             )
         },
         trailingContent = {
-            Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
+            Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral700)
         },
         leadingContent = {
             Image(icon, null)

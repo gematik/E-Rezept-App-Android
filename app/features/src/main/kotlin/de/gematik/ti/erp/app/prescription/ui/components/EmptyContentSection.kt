@@ -41,9 +41,8 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.mainscreen.model.ProfileIconState
 import de.gematik.ti.erp.app.prescription.ui.MainScreenAvatar
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile.Companion.ProfileConnectionState
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile.Companion.connectionState
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel.Companion.connectionState
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -56,7 +55,7 @@ import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.uistate.UiState
 
 fun LazyListScope.emptyContentSection(
-    activeProfile: UiState<ProfilesUseCaseData.Profile>,
+    activeProfile: UiState<ProfileErpModel>,
     profileIconState: ProfileIconState,
     onClickRefresh: () -> Unit,
     onClickConnect: () -> Unit,
@@ -74,7 +73,7 @@ fun LazyListScope.emptyContentSection(
             )
         }
     }
-    if (activeProfile.data?.connectionState() != ProfileConnectionState.LoggedIn) {
+    if (activeProfile.data?.connectionState() != ProfileErpModel.Companion.ProfileConnectionState.LoggedIn) {
         item {
             SpacerMedium()
             PrimaryButton(onClickConnect, modifier = Modifier.testTag(TestTag.Main.LoginButton)) {

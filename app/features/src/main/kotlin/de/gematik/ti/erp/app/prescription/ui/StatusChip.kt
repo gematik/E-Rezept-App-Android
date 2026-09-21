@@ -369,6 +369,21 @@ fun SelfPayPrescriptionDetailsChip(
         onClick = onClick
     )
 
+@Composable
+fun TeratogenicPrescriptionChip(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) =
+    GemAssistChip(
+        modifier = modifier,
+        text = stringResource(R.string.pres_details_exp_teratogenic),
+        trailingIcon = { Icon(Icons.Outlined.Info, null) },
+        labelColor = AppTheme.colors.primary900,
+        containerColor = AppTheme.colors.primary100,
+        iconColor = AppTheme.colors.primary500,
+        onClick = onClick
+    )
+
 // Diga
 @Composable
 internal fun DigaStatusChip(
@@ -504,6 +519,7 @@ fun StatusChipsPreviewExtended() {
             SubstitutionNotAllowedChip { }
             FailureDetailsStatusChip { }
             SelfPayPrescriptionDetailsChip { }
+            TeratogenicPrescriptionChip() {}
         }
     }
 }

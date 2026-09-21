@@ -26,11 +26,10 @@ import android.app.Application
 import android.os.StrictMode
 import coil.ImageLoader
 import coil.ImageLoaderFactory
-import com.appmattus.certificatetransparency.installCertificateTransparencyProvider
 import com.google.mlkit.common.MlKit
 import de.gematik.ti.erp.app.core.AppScopedCache
 import de.gematik.ti.erp.app.core.GlobalCacheProvider
-import de.gematik.ti.erp.app.database.settings.initSharedPrefsSettings
+import de.gematik.ti.erp.app.database.room.initDatabaseContext
 import de.gematik.ti.erp.app.di.ApplicationModule
 import de.gematik.ti.erp.app.di.delayedLeakCanary
 import de.gematik.ti.erp.app.medicationplan.alarm.MedicationPlanRescheduleAllSchedulesManager
@@ -40,8 +39,7 @@ import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 open class ErezeptApp : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
-        initSharedPrefsSettings(this)
-        installCertificateTransparencyProvider()
+        initDatabaseContext(this)
         GlobalCacheProvider.cache = AppScopedCache()
         applicationModule = ApplicationModule(this)
         debugChecks()

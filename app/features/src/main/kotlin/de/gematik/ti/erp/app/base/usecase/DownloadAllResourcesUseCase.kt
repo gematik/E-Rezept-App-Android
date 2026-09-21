@@ -27,10 +27,9 @@ import de.gematik.ti.erp.app.base.model.DownloadResourcesState
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.prescription.repository.DownloadResourcesStateRepository
-import de.gematik.ti.erp.app.prescription.repository.TaskRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskSyncRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
-import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
@@ -42,6 +41,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -51,12 +51,11 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class DownloadAllResourcesUseCase(
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val taskRepository: TaskRepository,
+    private val taskRepository: TaskSyncRepository,
     private val communicationRepository: CommunicationRepository,
     private val invoicesRepository: InvoiceRepository,
     private val profileRepository: ProfileRepository,
     private val stateRepository: DownloadResourcesStateRepository,
-    private val settingsRepository: SettingsRepository,
     private val networkStatusTracker: NetworkStatusTracker
 ) {
     // 1) A SupervisorJob + IO dispatcher that lives as long as this UseCase lives.
@@ -71,7 +70,7 @@ class DownloadAllResourcesUseCase(
     )
 
     private val requests = Channel<Request>(
-        capacity = Channel.CONFLATED,
+        capacity = Channel.UNLIMITED,
         onUndeliveredElement = { droppedRequest ->
             // rollback any “started” state for that profile
             stateRepository.closeSnapshotState()
@@ -143,7 +142,7 @@ class DownloadAllResourcesUseCase(
             newCount
         }
             .onSuccess { count ->
-                settingsRepository.updateRefreshTime() //  Change this to profile based if needed
+                profileRepository.updateLastTaskSynced(profileId, Clock.System.now())
                 reply.complete(count)
             }
             .onFailure { error ->

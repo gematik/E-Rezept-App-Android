@@ -51,6 +51,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.appauthentication.model.AppAuthenticationMethodErpModel
 import de.gematik.ti.erp.app.authentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.authentication.presentation.enrollBiometricsIntent
 import de.gematik.ti.erp.app.authentication.presentation.enrollDeviceSecurityIntent
@@ -67,7 +68,6 @@ import de.gematik.ti.erp.app.onboarding.ui.components.OnboardingDeviceSecurityDi
 import de.gematik.ti.erp.app.onboarding.ui.preview.AuthScenarioPreviewData
 import de.gematik.ti.erp.app.onboarding.ui.preview.AuthScenarioPreviewParameterProvider
 import de.gematik.ti.erp.app.semantics.semanticsHeading
-import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
@@ -105,15 +105,11 @@ class OnboardingSelectAppLoginScreen(
                 onSuccess = {
                     if (!isCreatingProfile) {
                         graphController.onChooseAuthentication(
-                            authentication = SettingsData.Authentication(
-                                deviceSecurity = true,
-                                failedAuthenticationAttempts = 0,
-                                password = null,
-                                authenticationTimeOutSystemUptime = null
-                            )
+                            method = AppAuthenticationMethodErpModel.DeviceSecurity
                         )
-                        graphController.createProfile()
-                        navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                        graphController.createProfile {
+                            navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                        }
                     }
                 }
             )
@@ -161,8 +157,9 @@ class OnboardingSelectAppLoginScreen(
                 }
             },
             onSkip = {
-                graphController.createProfileOnSkipOnboarding()
-                navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                graphController.createProfileOnSkipOnboarding {
+                    navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                }
             }
         )
 

@@ -43,7 +43,6 @@ import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -133,7 +132,7 @@ enum class FhirCommunicationResourceType {
         fun toDispenseErpModel(): DispenseCommunicationPayloadContentErpModel {
             val parsedContent = contentString?.let {
                 try {
-                    Json.decodeFromString<DispensePayloadContent>(it)
+                    SafeJson.value.decodeFromString<DispensePayloadContent>(it)
                 } catch (e: Exception) {
                     Napier.e("Error parsing dispense payload JSON: ${e.message}")
                     null

@@ -23,12 +23,12 @@
 package de.gematik.ti.erp.app.pharmacy.usecase
 
 import de.gematik.ti.erp.app.pharmacy.repository.PreviewMapCoordinatesRepository
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 
 class SetPreviewMapCoordinatesUseCase(
     private val repository: PreviewMapCoordinatesRepository
 ) {
-    operator fun invoke(coordinates: Coordinates?) {
+    operator fun invoke(coordinates: PositionErpModel?) {
         repository.setPreviewCoordinates(coordinates)
     }
 }

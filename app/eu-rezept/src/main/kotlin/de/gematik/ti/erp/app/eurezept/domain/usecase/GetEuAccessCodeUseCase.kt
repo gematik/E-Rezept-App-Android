@@ -21,7 +21,7 @@
  */
 package de.gematik.ti.erp.app.eurezept.domain.usecase
 
-import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCodeErpModel
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -32,5 +32,5 @@ class GetEuAccessCodeUseCase(
     private val euRepository: EuRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(accessCode: String): Flow<EuAccessCode?> = euRepository.getEuAccessCode(accessCode).flowOn(dispatcher)
+    operator fun invoke(accessCode: String): Flow<EuAccessCodeErpModel?> = euRepository.getEuAccessCode(accessCode).flowOn(dispatcher)
 }

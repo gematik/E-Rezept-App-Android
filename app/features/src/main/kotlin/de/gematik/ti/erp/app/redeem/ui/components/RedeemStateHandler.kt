@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.redeem.ui.components
 
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
 import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.ErrorOnRedeemablePrescriptionDialogParameters
 import de.gematik.ti.erp.app.redeem.model.RedeemPrescriptionDialogMessageState
@@ -96,10 +96,10 @@ object RedeemStateHandler {
         any { it !is BaseRedeemState.Error }
 }
 
-fun (PharmacyScreenData.OrderOption?).selectVideoSource() = when (this) {
-    PharmacyScreenData.OrderOption.Pickup -> R.raw.animation_local
-    PharmacyScreenData.OrderOption.Delivery -> R.raw.animation_courier
-    PharmacyScreenData.OrderOption.Online -> R.raw.animation_mail
+fun (OrderOptionErpModel?).selectVideoSource() = when (this) {
+    OrderOptionErpModel.Pickup -> R.raw.animation_local
+    OrderOptionErpModel.Delivery -> R.raw.animation_courier
+    OrderOptionErpModel.Online -> R.raw.animation_mail
     else -> {
         // show default animation until the order option is not null
         R.raw.animation_local

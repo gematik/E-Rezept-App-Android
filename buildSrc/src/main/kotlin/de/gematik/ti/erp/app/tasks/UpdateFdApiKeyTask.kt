@@ -53,7 +53,7 @@ import java.util.Date
 import java.util.Locale
 
 /**
- *Task to update the API keys in the ci-overrides.properties file:
+ *Task to update the API keys in the ci/local/apikeys.properties file:
  * * [./gradlew updateFdApiKeys -Ptoken=token] (get the token from someone in the team)
  */
 internal fun TaskContainer.updateFdApiKeysTask(project: Project) {
@@ -78,8 +78,8 @@ internal fun TaskContainer.updateFdApiKeysTask(project: Project) {
                 val puKey = getAndroidHuaweiVersion(puCsvData, majorVersion)
                 val tuKey = getAndroidHuaweiVersion(tuCsvData, majorVersion)
 
-                val ciOverridesPropertiesFile = project.file("ci-overrides.properties")
-                properties.load(ciOverridesPropertiesFile.reader())
+                val apiKeys = project.file("ci/local/apikeys.properties")
+                properties.load(apiKeys.reader())
 
                 if (ruKey.isNotEmpty()) {
                     properties.setProperty(ERP_API_KEY_GOOGLE_RU.name, ruKey.android)
@@ -106,7 +106,7 @@ internal fun TaskContainer.updateFdApiKeysTask(project: Project) {
                     println("erp api keys updated.")
                 }
 
-                val writer = BufferedWriter(FileWriter(ciOverridesPropertiesFile))
+                val writer = BufferedWriter(FileWriter(apiKeys))
                 val time = getCurrentTimeFormatted()
                 properties.storeNoEscape(writer, "Last changed on $time")
                 writer.close()

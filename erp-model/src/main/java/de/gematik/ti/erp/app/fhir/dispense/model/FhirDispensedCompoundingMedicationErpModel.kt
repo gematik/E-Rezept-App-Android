@@ -39,7 +39,10 @@ data class FhirDispensedCompoundingMedicationErpModel(
     override val expirationDate: FhirTemporal?,
     // compounding specific
     val contextualData: CompoundingContextualData
-) : DispensedMedicationErpModel()
+) : DispensedMedicationErpModel() {
+    override val identifier: FhirMedicationIdentifierErpModel?
+        get() = contextualData.identifier
+}
 
 @Serializable
 data class CompoundingContextualData(

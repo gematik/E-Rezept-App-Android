@@ -56,7 +56,7 @@ import de.gematik.ti.erp.app.button.GemIconButtonDefaults
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.eurezept.domain.model.CountrySpecificLabels
 import de.gematik.ti.erp.app.eurezept.domain.model.EuRedemptionDetails
-import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCodeErpModel
 import de.gematik.ti.erp.app.eurezept.ui.model.RedemptionCodeActions
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
@@ -132,7 +132,7 @@ private fun RedemptionCardWithToggleCardPreview() {
         ) {
             TogglableRedemptionCodeCard(
                 redemptionData = EuRedemptionDetails(
-                    euAccessCode = EuAccessCode(
+                    euAccessCode = EuAccessCodeErpModel(
                         countryCode = "IT",
                         accessCode = "123456",
                         validUntil = Instant.DISTANT_FUTURE,
@@ -167,7 +167,7 @@ private fun RedemptionQRCardWithToggleCardPreview() {
         ) {
             TogglableRedemptionCodeCard(
                 redemptionData = EuRedemptionDetails(
-                    euAccessCode = EuAccessCode(
+                    euAccessCode = EuAccessCodeErpModel(
                         countryCode = "IT",
                         accessCode = "123456",
                         validUntil = Instant.DISTANT_FUTURE,

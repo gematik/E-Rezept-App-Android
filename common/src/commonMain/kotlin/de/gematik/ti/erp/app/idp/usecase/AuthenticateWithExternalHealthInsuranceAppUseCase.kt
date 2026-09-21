@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.idp.usecase
 
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.idp.IdpConfigurationErpModel
 import de.gematik.ti.erp.app.idp.api.EXT_AUTH_REDIRECT_URI
 import de.gematik.ti.erp.app.idp.api.models.IdpNonce
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
@@ -30,7 +31,6 @@ import de.gematik.ti.erp.app.idp.api.models.IdpTokenResult
 import de.gematik.ti.erp.app.idp.api.models.UniversalLinkToken.Companion.requireUniversalLinkToken
 import de.gematik.ti.erp.app.idp.extension.extractNullableQueryParameter
 import de.gematik.ti.erp.app.idp.extension.extractRequiredQueryParameter
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.model.error.DecryptAccessTokenError
 import de.gematik.ti.erp.app.idp.model.error.SingleSignOnTokenError
 import de.gematik.ti.erp.app.idp.model.error.UniversalLinkError
@@ -38,6 +38,8 @@ import de.gematik.ti.erp.app.idp.repository.AccessToken
 import de.gematik.ti.erp.app.idp.repository.IdpPairingRepository
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
+import de.gematik.ti.erp.app.userauthentication.model.SingleSignOnTokenErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.utils.letNotNull
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
@@ -190,7 +192,7 @@ class AuthenticateWithExternalHealthInsuranceAppUseCase(
     /**
      * @throws IllegalArgumentException
      */
-    private fun IdpData.IdpConfiguration.requiredAuthorizationEndPoint() = requireNotNull(federationAuthorizationEndpoint) {
+    private fun IdpConfigurationErpModel.requiredAuthorizationEndPoint() = requireNotNull(federationAuthorizationEndpoint) {
         "authorizationEndPoint null, Gid not available"
     }
 
@@ -244,12 +246,12 @@ class AuthenticateWithExternalHealthInsuranceAppUseCase(
             authenticationName,
             redirectSsoToken
         ) { id, name, sso ->
-            idpRepository.saveSingleSignOnToken(
+            idpRepository.saveUserAuthentication(
                 profileId,
-                IdpData.ExternalAuthenticationToken(
-                    token = IdpData.SingleSignOnToken(sso),
-                    authenticatorId = id,
-                    authenticatorName = name
+                UserAuthenticationErpModel.External(
+                    singleSignOnTokenErpModel = SingleSignOnTokenErpModel(sso),
+                    externalAuthenticatorId = id,
+                    externalAuthenticatorName = name
                 )
             )
         } ?: {
@@ -265,7 +267,7 @@ class AuthenticateWithExternalHealthInsuranceAppUseCase(
         redirectSsoToken?.let { sso ->
             pairingRepository.saveSingleSignOnToken(
                 profileId,
-                IdpData.SingleSignOnToken(sso)
+                SingleSignOnTokenErpModel(sso)
             )
         } ?: {
             Napier.i { "sso token not obtained so not saving" }

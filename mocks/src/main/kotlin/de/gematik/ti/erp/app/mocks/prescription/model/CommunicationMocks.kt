@@ -22,24 +22,24 @@
 
 package de.gematik.ti.erp.app.mocks.prescription.model
 
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.messages.model.Communication
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
 import kotlinx.datetime.Instant
 
 const val MOCK_COMMUNICATION_ID_01 = "CID-123-001"
 
-val COMMUNICATION_DATA = Communication(
+val COMMUNICATION_DATA = CommunicationErpModel(
     taskId = "taskId1",
     orderId = "",
     communicationId = "communicationId1",
-    profile = CommunicationProfile.ErxCommunicationReply,
-    sentOn = DATE_2024_01_01,
-    sender = "ABC123456",
+    profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply,
+    timeStamp = DATE_2024_01_01,
+    senderTelematikId = "ABC123456",
     recipient = "ABC654321",
     payload = "payload1",
-    consumed = false
+    consumed = false,
+    profileId = null
 )
 
 val MOCK_MESSAGE_01 = OrderUseCaseData.Message(

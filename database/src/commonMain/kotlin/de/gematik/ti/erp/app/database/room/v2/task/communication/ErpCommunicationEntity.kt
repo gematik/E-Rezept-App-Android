@@ -23,31 +23,58 @@
 package de.gematik.ti.erp.app.database.room.v2.task.communication
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
+import de.gematik.ti.erp.app.communication.model.CommunicationProfileV1
+import de.gematik.ti.erp.app.database.room.v2.profile.ProfileEntity
+import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskEntity
+import de.gematik.ti.erp.app.database.room.v2.task.util.CommunicationProfileConverter
 import de.gematik.ti.erp.app.database.room.v2.task.util.InstantConverter
 import kotlinx.datetime.Instant
 
 @Entity(
     tableName = "communications",
+    foreignKeys = [
+        ForeignKey(
+            entity = ErpTaskEntity::class,
+            parentColumns = ["taskId"],
+            childColumns = ["taskId"],
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = ProfileEntity::class,
+            parentColumns = ["identifier"], // TODO: (Ümüt) Namings should be same
+            childColumns = ["profileId"],
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
     indices = [
         Index("orderId"),
         Index("taskId"),
         Index("profile"),
         Index("insuranceId"),
+        Index("profileId"),
         Index("communicationId")
     ]
 )
-@TypeConverters(InstantConverter::class)
+@TypeConverters(InstantConverter::class, CommunicationProfileConverter::class)
 data class ErpCommunicationEntity(
     @PrimaryKey val communicationId: String,
     val orderId: String,
     val taskId: String,
+    val profileId: String,
     val telematikId: String,
+    val kvnr: String,
     val consumed: Boolean,
     val payload: String,
-    val profile: String,
+    val profile: CommunicationProfileV1,
+    var recipient: String = "",
+    // TODO DB Insurance is the wrong name here, should be insurant or profileId
     val insuranceId: String? = null,
-    val timeStamp: Instant
+    val timeStamp: Instant,
+    val pharmacyName: String? = null
 )

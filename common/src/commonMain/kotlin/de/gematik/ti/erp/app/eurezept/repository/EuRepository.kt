@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.eurezept.repository
 
-import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
-import de.gematik.ti.erp.app.eurezept.model.EuOrder
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCodeErpModel
+import de.gematik.ti.erp.app.eurezept.model.EuOrderErpModel
 import de.gematik.ti.erp.app.fhir.FhirErpModel
 import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeRequestConstants.FhirEuRedeemAccessCodeRequestMeta
 import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirTaskEuPatchInputModelConstants.FhirTaskEuPatchMeta
@@ -32,8 +32,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface EuRepository {
     suspend fun fetchAvailableCountries(): Result<FhirErpModel?>
-    fun observeEuOrder(orderId: String): Flow<EuOrder?>
-    fun observeAllEuOrders(): Flow<List<EuOrder>>
+    fun observeEuOrder(orderId: String): Flow<EuOrderErpModel?>
+    fun observeAllEuOrders(): Flow<List<EuOrderErpModel>>
     suspend fun toggleIsEuRedeemableByPatientAuthorization(
         taskId: String,
         profileId: ProfileIdentifier,
@@ -46,12 +46,12 @@ interface EuRepository {
         metadata: FhirEuRedeemAccessCodeRequestMeta,
         countryCode: String,
         relatedTaskIds: List<String>
-    ): Result<EuAccessCode>
+    ): Result<EuAccessCodeErpModel>
 
     suspend fun getLatestValidEuAccessCodeByProfileIdAndCountry(
         profileId: ProfileIdentifier,
         countryCode: String
-    ): Flow<EuAccessCode?>
+    ): Flow<EuAccessCodeErpModel?>
 
     suspend fun deleteEuRedeemAccessCode(
         profileId: ProfileIdentifier,
@@ -61,5 +61,5 @@ interface EuRepository {
     )
 
     suspend fun markEventsAsRead(eventIds: List<String>)
-    fun getEuAccessCode(accessCode: String): Flow<EuAccessCode?>
+    fun getEuAccessCode(accessCode: String): Flow<EuAccessCodeErpModel?>
 }

@@ -33,4 +33,5 @@ object DebugScreenNavigation {
     object DebugDbMigrationLoggerScreen : Routes("DbMigrationLoggerScreen")
     object PharmacyVzdSelectionScreen : Routes("PharmacyVzdSelectionScreen")
     object DebugDatabaseEncryption : Routes("DebugDatabaseEncryption")
+    object DebugPushNotifications : Routes("DebugPushNotifications")
 }

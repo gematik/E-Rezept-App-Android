@@ -24,16 +24,17 @@ package de.gematik.ti.erp.app.messages.domain.usecase
 
 import app.cash.turbine.test
 import de.gematik.ti.erp.app.eurezept.model.EuEventType
-import de.gematik.ti.erp.app.eurezept.model.EuOrder
-import de.gematik.ti.erp.app.eurezept.model.EuTaskEvent
+import de.gematik.ti.erp.app.eurezept.model.EuOrderErpModel
+import de.gematik.ti.erp.app.eurezept.model.EuTaskEventErpModel
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
-import de.gematik.ti.erp.app.messages.mappers.EuOrderToMessagesMapper
+import de.gematik.ti.erp.app.messages.mapper.EuOrderToMessagesMapper
 import de.gematik.ti.erp.app.messages.ui.model.EuOrderMessageUiModel
 import de.gematik.ti.erp.app.mocks.order.model.MOCK_SYNCED_TASK_DATA_01_NEW
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -48,12 +49,13 @@ import org.junit.After
 import org.junit.Before
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class GetEuOrderMessagesUseCaseTest {
 
     private val euRepository = mockk<EuRepository>()
-    private val prescriptionRepository = mockk<PrescriptionRepository>(relaxed = true)
+    private val taskOperationsRepository = mockk<TaskOperationsRepository>(relaxed = true)
     private val mapper = mockk<EuOrderToMessagesMapper>()
     private val testDispatcher = StandardTestDispatcher()
     private val testScope = TestScope(testDispatcher)
@@ -61,7 +63,7 @@ class GetEuOrderMessagesUseCaseTest {
 
     private val useCase = GetEuOrderMessagesUseCase(
         euRepository = euRepository,
-        prescriptionRepository = prescriptionRepository,
+        taskOperationsRepository = taskOperationsRepository,
         mapper = mapper,
         dispatcher = testDispatcher
     )
@@ -71,7 +73,7 @@ class GetEuOrderMessagesUseCaseTest {
         taskId: String,
         type: EuEventType,
         time: Instant
-    ) = EuTaskEvent(
+    ) = EuTaskEventErpModel(
         id = id,
         type = type,
         taskId = taskId,
@@ -80,8 +82,8 @@ class GetEuOrderMessagesUseCaseTest {
     )
 
     private fun order(
-        events: List<EuTaskEvent>
-    ) = EuOrder(
+        events: List<EuTaskEventErpModel>
+    ) = EuOrderErpModel(
         orderId = orderId,
         countryCode = "BE",
         createdAt = Instant.parse("2025-11-25T15:00:00Z"),
@@ -96,7 +98,7 @@ class GetEuOrderMessagesUseCaseTest {
     fun setup() {
         MockKAnnotations.init(this)
         Dispatchers.setMain(testDispatcher)
-        every { prescriptionRepository.getTask(any()) } returns MOCK_SYNCED_TASK_DATA_01_NEW
+        every { taskOperationsRepository.loadTaskByTaskId(any()) } returns flowOf(MOCK_SYNCED_TASK_DATA_01_NEW)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -131,12 +133,13 @@ class GetEuOrderMessagesUseCaseTest {
         every { euRepository.observeEuOrder(orderId) } returns flowOf(euOrder)
 
         val expectedMessages = listOf(mockk<EuOrderMessageUiModel>())
-        val capturedEvents = mutableListOf<List<EuTaskEvent>>()
+        val capturedEvents = mutableListOf<List<EuTaskEventErpModel>>()
 
         every {
             mapper.map(
                 order = any(),
                 threadEvents = capture(capturedEvents),
+                taskIdToPharmacyName = any(),
                 mappedTaskIdsToNames = any()
             )
         } returns expectedMessages
@@ -172,4 +175,72 @@ class GetEuOrderMessagesUseCaseTest {
             awaitComplete()
         }
     }
+
+    @Test
+    fun `invoke returns empty list when thread window has no matching events`() = testScope.runTest {
+        val threadStart = Instant.parse("2025-11-25T15:00:00Z")
+        val threadEnd = Instant.parse("2025-11-25T15:10:00Z")
+
+        // All events fall outside the specified window
+        val outsideEvent = event(
+            id = "E-OUT",
+            taskId = "T1",
+            type = EuEventType.TASK_REDEEMED,
+            time = Instant.parse("2025-11-25T16:00:00Z")
+        )
+
+        every { euRepository.observeEuOrder(orderId) } returns flowOf(order(listOf(outsideEvent)))
+
+        useCase(
+            orderId = orderId,
+            threadStart = threadStart,
+            threadEnd = threadEnd
+        ).test {
+            assertEquals(emptyList(), awaitItem())
+            awaitComplete()
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // taskIdToPharmacyName is always emptyMap() in this use case.
+    // Pharmacy name resolution is intentionally NOT done here — it is the
+    // responsibility of GetLatestEuOrderMessageAsInAppMessageUseCase.
+    // These tests verify that emptyMap() is always forwarded to the mapper,
+    // regardless of the event types or task contents in the thread.
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `taskIdToPharmacyName is empty for non-TASK_REDEEMED events`() =
+        testScope.runTest {
+            val threadStart = Instant.parse("2025-11-25T15:00:00Z")
+            val threadEnd = Instant.parse("2025-11-25T15:05:00Z")
+
+            val addedEvent = event(
+                id = "E-ADDED",
+                taskId = "TASK-ADDED",
+                type = EuEventType.TASK_ADDED,
+                time = Instant.parse("2025-11-25T15:01:00Z")
+            )
+
+            every { euRepository.observeEuOrder(orderId) } returns flowOf(order(listOf(addedEvent)))
+
+            val capturedPharmacyMap = slot<Map<String, String>>()
+            every {
+                mapper.map(
+                    order = any(),
+                    threadEvents = any(),
+                    taskIdToPharmacyName = capture(capturedPharmacyMap),
+                    mappedTaskIdsToNames = any()
+                )
+            } returns listOf(mockk())
+
+            advanceUntilIdle()
+
+            useCase(orderId = orderId, threadStart = threadStart, threadEnd = threadEnd).test {
+                awaitItem()
+                awaitComplete()
+            }
+
+            assertTrue(capturedPharmacyMap.captured.isEmpty())
+        }
 }

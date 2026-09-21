@@ -22,14 +22,14 @@
 
 package de.gematik.ti.erp.app.prescription.model
 
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispenseDeviceRequestErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvDeviceRequestErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.fhir.temporal.toLocalDate
 import de.gematik.ti.erp.app.fhir.temporal.toStartOfDayInUTC
-import de.gematik.ti.erp.app.messages.model.Communication
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.task.model.Ratio
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -53,6 +53,8 @@ const val DIRECT_ASSIGNMENT_INDICATOR = "169" // direct assignment taskID starts
 const val DIRECT_ASSIGNMENT_INDICATOR_PKV = "209" // pkv direct assignment taskID starts with 209
 
 object SyncedTaskData {
+
+    @Deprecated(message = "Use TaskStatusEnum instead", replaceWith = ReplaceWith("TaskStatusEnum"), level = DeprecationLevel.WARNING)
     enum class TaskStatus {
         Ready, InProgress, Completed, Other, Draft, Requested, Received, Accepted, Rejected, Canceled, OnHold, Failed
     }
@@ -77,6 +79,7 @@ object SyncedTaskData {
         GPV, // Gesetzliche Pflegeversicherung
         PPV, // Private Pflegeversicherung
         BEI, // Beihilfe
+        UK, // Unfallkasse
         UNKNOWN
         ;
 
@@ -91,6 +94,10 @@ object SyncedTaskData {
         }
     }
 
+    @Deprecated(
+        message = "Use TaskErpModel.Synced <Prescription or Diga> instead",
+        level = DeprecationLevel.WARNING
+    )
     data class SyncedTask(
         override val profileId: String,
         override val taskId: String,
@@ -114,7 +121,7 @@ object SyncedTaskData {
         val medicationDispenses: List<MedicationDispense> = emptyList(),
         val lastMedicationDispense: Instant?,
         val deviceRequest: FhirTaskKbvDeviceRequestErpModel? = null,
-        val communications: List<Communication> = emptyList()
+        val communications: List<CommunicationErpModel> = emptyList()
     ) : TaskData {
         @Serializable(with = TaskStateSyncedTaskDataSerializer::class)
         sealed interface TaskState {
@@ -224,14 +231,14 @@ object SyncedTaskData {
                     Expired(expiredOn = expiresOn)
 
                 status == TaskStatus.Ready && communications.any {
-                    it.profile == CommunicationProfile.ErxCommunicationDispReq
+                    it.profile == CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq
                 } && redeemState(now, delta) == RedeemState.RedeemableAfterDelta -> {
                     val comm = this.communications
-                        .filter { it.profile == CommunicationProfile.ErxCommunicationDispReq }
-                        .maxBy { it.sentOn }
+                        .filter { it.profile == CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq }
+                        .maxBy { it.timeStamp ?: Instant.DISTANT_PAST }
 
                     Pending(
-                        sentOn = comm.sentOn,
+                        sentOn = comm.timeStamp ?: Instant.DISTANT_PAST,
                         toTelematikId = comm.recipient
                     )
                 }
@@ -279,8 +286,8 @@ object SyncedTaskData {
             val ready = status == TaskStatus.Ready
             val inProgress = status == TaskStatus.InProgress
             val latestDispenseReqCommunication = communications
-                .filter { it.profile == CommunicationProfile.ErxCommunicationDispReq }
-                .maxOfOrNull { it.sentOn }
+                .filter { it.profile == CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq }
+                .maxOfOrNull { it.timeStamp ?: Instant.DISTANT_PAST }
 
             val isDeltaLocked = latestDispenseReqCommunication?.let { lastModified < it && (it + delta) > now } ?: false
             val valid = accessCode.isNotEmpty()
@@ -453,7 +460,19 @@ object SyncedTaskData {
         val quantity: Int = 0,
         val note: String?,
         val bvg: Boolean? = null,
-        val additionalFee: AdditionalFee = AdditionalFee.valueOf(null)
+        val additionalFee: AdditionalFee = AdditionalFee.valueOf(null),
+        val teratogenicPrescription: TeratogenicPrescriptionErpModel? = null
+    ) {
+        fun isTeratogenic(): Boolean = teratogenicPrescription != null
+    }
+
+    @Serializable
+    data class TeratogenicPrescriptionErpModel(
+        val offLabel: Boolean,
+        val gebaerfaehigeFrau: Boolean,
+        val einhaltungSicherheitsmassnahmen: Boolean,
+        val aushaendigungInformationsmaterialien: Boolean,
+        val erklaerungSachkenntnis: Boolean
     )
 
     @Serializable
@@ -481,7 +500,10 @@ object SyncedTaskData {
         val deviceRequest: FhirDispenseDeviceRequestErpModel?,
         val wasSubstituted: Boolean,
         val dosageInstruction: String?,
+        /** Telematik-ID of the dispensing pharmacy. */
         val performer: String,
+        /** Human-readable name of the dispensing pharmacy, if available (EU dispenses only). */
+        val pharmacyName: String? = null,
         val whenHandedOver: FhirTemporal?
     )
 
@@ -530,7 +552,7 @@ object SyncedTaskData {
         val ingredients: List<Ingredient>
     ) {
         fun name() = text.ifEmpty {
-            joinIngredientNames(ingredients)
+            joinIngredientNames(ingredients).ifBlank { text }
         }
     }
 

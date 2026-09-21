@@ -32,6 +32,7 @@ import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConsta
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.MedicationCategory.Version110
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.MedicationCategory.Version14
 import de.gematik.ti.erp.app.fhir.constant.dispense.FhirMedicationDispenseConstants.RENDERED_DOSAGE
+import de.gematik.ti.erp.app.fhir.constant.euprescription.FhirEuExtensions
 import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispenseDeviceRequestErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.FhirMedicationDispenseErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseEuV10Model
@@ -118,6 +119,7 @@ internal fun FhirMedicationDispenseEuV10Model.toErpModel(
         performer = organization?.telematikId.orEmpty(),
         pharmacyName = organization?.name,
         pharmacyAddress = organization?.addresses?.firstOrNull()?.toErpModel(),
+        euCountryCode = organization?.extensions?.findExtensionByUrl(FhirEuExtensions.COUNTRY_EXTENSION_URL)?.valueCoding?.code,
         handedOver = whenHandedOver?.asFhirTemporal(),
         dispensedMedication = medication?.toTypedErpModel()?.let(::listOf).orEmpty(),
         dispensedDeviceRequest = when {

@@ -51,7 +51,7 @@ fun DataRowLabelShimmer() {
                 modifier = Modifier.weight(0.25f),
                 imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 contentDescription = null,
-                tint = AppTheme.colors.neutral400
+                tint = AppTheme.colors.neutral700
             )
         }
         TinyTextShimmer()

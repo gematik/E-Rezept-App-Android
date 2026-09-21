@@ -26,13 +26,10 @@ import de.gematik.ti.erp.app.fhir.FhirInsuranceProvider
 import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.model.extractPharmacyServices
 import de.gematik.ti.erp.app.fhir.model.json
-import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.FavouritePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.OftenUsedPharmacyLocalDataSource
+
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.redeem.repository.datasource.RedeemLocalDataSource
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
@@ -40,8 +37,6 @@ import kotlinx.coroutines.flow.flowOf
 
 @Suppress("LargeClass")
 class MockPharmacyRepository(
-    private val favouriteLocalDataSource: FavouritePharmacyLocalDataSource,
-    private val oftenUsedLocalDataSource: OftenUsedPharmacyLocalDataSource,
     private val redeemLocalDataSource: RedeemLocalDataSource
 ) : PharmacyRepository {
     override suspend fun searchInsurances(filter: PharmacyFilter): Result<FhirPharmacyErpModelCollection> {
@@ -56,16 +51,23 @@ class MockPharmacyRepository(
         return flowOf(emptyList())
     }
 
-    override suspend fun markPharmacyAsOftenUsed(pharmacy: PharmacyUseCaseData.Pharmacy) = oftenUsedLocalDataSource.markPharmacyAsOftenUsed(pharmacy)
+    override suspend fun findLocalPharmacyByTelematikId(telematikId: String): PharmacyErpModel? = null
+
+    override suspend fun markPharmacyAsOftenUsed(pharmacy: PharmacyErpModel) {
+        // no-op in mock
+    }
 
     override suspend fun deleteOverviewPharmacy(overviewPharmacy: PharmacyErpModel) {
         // no-op
     }
 
-    override suspend fun markPharmacyAsFavourite(pharmacy: PharmacyUseCaseData.Pharmacy) = favouriteLocalDataSource.markPharmacyAsFavourite(pharmacy)
+    override suspend fun markPharmacyAsFavourite(pharmacy: PharmacyErpModel) {
+        // no-op in mock
+    }
 
-    override suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyUseCaseData.Pharmacy) =
-        favouriteLocalDataSource.deleteFavoritePharmacy(favoritePharmacy)
+    override suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyErpModel) {
+        // no-op in mock
+    }
 
     override suspend fun searchInsuranceProviderByInstitutionIdentifier(iknr: String): Result<FhirInsuranceProvider?> {
         return Result.success(FhirInsuranceProvider("", ""))
@@ -75,19 +77,11 @@ class MockPharmacyRepository(
         return Result.success(extractedPharmacies)
     }
 
-    override fun isPharmacyInFavorites(pharmacy: PharmacyUseCaseData.Pharmacy): Flow<Boolean> {
+    override fun isPharmacyInFavorites(pharmacy: PharmacyErpModel): Flow<Boolean> {
         return flowOf(true)
     }
 
     override suspend fun markAsRedeemed(taskId: String) = redeemLocalDataSource.markAsRedeemed(taskId)
-
-    override fun loadCachedPharmacies(): Flow<List<CachedPharmacy>> {
-        return flowOf(emptyList())
-    }
-
-    override suspend fun savePharmacyToCache(cachedPharmacy: CachedPharmacy) {
-        // do nothing
-    }
 
     private val jsonStringMocked = """{
   "id": "49b6b9fd-eec7-41f3-b624-cc99d46fb828",

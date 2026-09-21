@@ -22,13 +22,13 @@
 
 package de.gematik.ti.erp.app.medicationplan.usecase
 
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 
 class SetOrCreateActiveMedicationScheduleUseCase(
     private val medicationPlanRepository: MedicationPlanRepository
 ) {
-    suspend operator fun invoke(medicationSchedule: MedicationSchedule) {
-        medicationPlanRepository.setOrCreateActiveMedicationSchedule(medicationSchedule = medicationSchedule)
+    suspend operator fun invoke(medicationScheduleErpModel: MedicationScheduleErpModel) {
+        medicationPlanRepository.setOrCreateActiveMedicationSchedule(medicationScheduleErpModel = medicationScheduleErpModel)
     }
 }

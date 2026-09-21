@@ -32,8 +32,9 @@ import de.gematik.ti.erp.app.demomode.model.toProfiles
 import de.gematik.ti.erp.app.demomode.repository.profiles.DemoProfilesRepository.ImageActions.Add
 import de.gematik.ti.erp.app.demomode.repository.profiles.DemoProfilesRepository.ImageActions.NoAction
 import de.gematik.ti.erp.app.demomode.repository.profiles.DemoProfilesRepository.ImageActions.Remove
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +46,7 @@ import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import java.util.UUID
+import de.gematik.ti.erp.app.profile.model.Avatar as ErpAvatar
 
 class DemoProfilesRepository(
     private val dataSource: DemoModeDataSource,
@@ -52,7 +54,7 @@ class DemoProfilesRepository(
 ) : ProfileRepository {
 
     private fun demoModeProfiles(): MutableStateFlow<MutableList<DemoModeProfile>> = dataSource.profiles
-    override fun profiles(): Flow<List<ProfilesData.Profile>> = demoModeProfiles()
+    override fun profiles(): Flow<List<ProfileErpModel>> = demoModeProfiles()
         .mapNotNull(MutableList<DemoModeProfile>::toProfiles)
 
     override fun activeProfile() = demoModeProfiles().mapNotNull {
@@ -125,7 +127,7 @@ class DemoProfilesRepository(
         }
     }
 
-    override suspend fun updateProfileColor(profileId: ProfileIdentifier, color: ProfilesData.ProfileColorNames) {
+    override suspend fun updateProfileColor(profileId: ProfileIdentifier, color: ProfileColorNames) {
         withContext(dispatcher) {
             dataSource.profiles.value = dataSource.profiles
                 .updateAndGet { profileList ->
@@ -144,7 +146,15 @@ class DemoProfilesRepository(
         }
     }
 
-    override suspend fun saveAvatarFigure(profileId: ProfileIdentifier, avatar: ProfilesData.Avatar) {
+    override suspend fun updateLastTaskSynced(profileId: ProfileIdentifier, lastTaskSynced: Instant) {
+        withContext(dispatcher) {
+            dataSource.profiles.value = dataSource.profiles
+                .updateAndGet { it.replace(profileId = profileId, lastTaskSynced = lastTaskSynced) }
+                .updateUUIDForChangeVisibility()
+        }
+    }
+
+    override suspend fun saveAvatarFigure(profileId: ProfileIdentifier, avatar: ErpAvatar) {
         withContext(dispatcher) {
             dataSource.profiles.value = dataSource.profiles
                 .updateAndGet { it.replace(profileId = profileId, avatar = avatar) }
@@ -168,22 +178,21 @@ class DemoProfilesRepository(
         }
     }
 
-    override suspend fun switchProfileToPKV(profileId: ProfileIdentifier): Boolean {
-        // cannot switch to PKV in demo mode
-        return false
+    override suspend fun switchProfileToPKV(profileId: ProfileIdentifier) {
+        // no-op
     }
 
-    override suspend fun switchProfileToGKV(profileId: ProfileIdentifier): Boolean {
-        return true
+    override suspend fun switchProfileToGKV(profileId: ProfileIdentifier) {
+        // no-op
     }
 
-    override suspend fun switchProfileToBUND(profileId: ProfileIdentifier): Boolean {
-        return false
+    override suspend fun switchProfileToBUND(profileId: ProfileIdentifier) {
+        // no-op
     }
 
     override suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean = false
 
-    override fun getProfileById(profileId: ProfileIdentifier): Flow<ProfilesData.Profile> =
+    override fun getProfileById(profileId: ProfileIdentifier): Flow<ProfileErpModel> =
         demoModeProfiles().mapNotNull {
             it.find { profile ->
                 profile.id == profileId
@@ -202,6 +211,10 @@ class DemoProfilesRepository(
         // no-op
     }
 
+    override suspend fun wasProfileEverAuthenticated(profileId: ProfileIdentifier): Boolean {
+        return true
+    }
+
     private fun MutableList<DemoModeProfile>.index(profileId: ProfileIdentifier) =
         indexOfFirst { profile -> profile.id == profileId }
             .takeIf { it != INDEX_OUT_OF_BOUNDS }
@@ -210,9 +223,10 @@ class DemoProfilesRepository(
         profileId: ProfileIdentifier,
         activate: Boolean? = null,
         name: String? = null,
-        color: ProfilesData.ProfileColorNames? = null,
+        color: ProfileColorNames? = null,
         lastAuthenticated: Instant? = null,
-        avatar: ProfilesData.Avatar? = null,
+        lastTaskSynced: Instant? = null,
+        avatar: ErpAvatar? = null,
         profileImage: ByteArray? = null,
         imageAction: ImageActions = NoAction,
         insurantName: String? = null,
@@ -226,7 +240,8 @@ class DemoProfilesRepository(
                 active = activate ?: existingProfile.active,
                 name = name ?: existingProfile.name,
                 color = color ?: existingProfile.color,
-                lastAuthenticated = lastAuthenticated,
+                lastAuthenticated = lastAuthenticated ?: existingProfile.lastAuthenticated,
+                lastTaskSynced = lastTaskSynced ?: existingProfile.lastTaskSynced,
                 insurantName = insurantName ?: existingProfile.insurantName,
                 insuranceIdentifier = insuranceIdentifier ?: existingProfile.insuranceIdentifier,
                 insuranceName = insuranceName ?: existingProfile.insuranceName,

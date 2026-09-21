@@ -30,7 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
 import de.gematik.ti.erp.app.profiles.ui.screens.ColorPicker
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -43,8 +43,8 @@ import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 
 @Composable
 fun ColumnScope.ProfileBackgroundColorComponent(
-    color: ProfilesData.ProfileColorNames,
-    onColorPicked: (ProfilesData.ProfileColorNames) -> Unit
+    color: ProfileColorNames,
+    onColorPicked: (ProfileColorNames) -> Unit
 ) {
     SpacerXXLarge()
     SpacerMedium()
@@ -70,7 +70,7 @@ fun ProfileBackgroundColorComponentPreview() {
     PreviewAppTheme {
         Column {
             ProfileBackgroundColorComponent(
-                color = ProfilesData.ProfileColorNames.BLUE_MOON,
+                color = ProfileColorNames.BLUE_MOON,
                 onColorPicked = {}
             )
         }

@@ -22,14 +22,10 @@
 
 package de.gematik.ti.erp.app.messages.mapper
 
-import de.gematik.ti.erp.app.database.realm.utils.toInstant
-import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
-import de.gematik.ti.erp.app.database.realm.v1.InternalMessageEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationProfileV1
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.communication.model.InternalMessageErpModel
 import de.gematik.ti.erp.app.messages.model.ChangeLogMessage
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import de.gematik.ti.erp.app.messages.model.InAppMessage
-import de.gematik.ti.erp.app.messages.model.InternalMessage
 import de.gematik.ti.erp.app.timestate.getTimeState
 import kotlinx.datetime.Instant
 
@@ -38,57 +34,26 @@ fun ChangeLogMessage.toInternalMessage(
     changeLogTag: String,
     changeLogTimeStamp: Instant,
     language: String
-): InternalMessage {
-    return InternalMessage(
+): InternalMessageErpModel {
+    return InternalMessageErpModel(
         id = this@toInternalMessage.id,
         version = this@toInternalMessage.version,
-        time = getTimeState(changeLogTimeStamp),
+        time = changeLogTimeStamp,
         sender = changeLogSender,
         tag = changeLogTag,
         text = this@toInternalMessage.text ?: "",
         isUnread = true,
-        messageProfile = CommunicationProfile.InApp,
+        messageProfile = CommunicationErpModel.CommunicationProfile.InApp,
         languageCode = language
     )
 }
 
-fun InternalMessage.toInternalMessageEntity(): InternalMessageEntityV1 {
-    return InternalMessageEntityV1().apply {
-        id = this@toInternalMessageEntity.id
-        version = this@toInternalMessageEntity.version
-        time = this@toInternalMessageEntity.time.timestamp.toRealmInstant()
-        sender = this@toInternalMessageEntity.sender
-        tag = this@toInternalMessageEntity.tag
-        text = this@toInternalMessageEntity.text ?: ""
-        isUnread = this@toInternalMessageEntity.isUnread
-        languageCode = this@toInternalMessageEntity.languageCode
-    }
-}
-
-fun InternalMessageEntityV1.toInternalMessage(): InternalMessage {
-    return InternalMessage(
-        id = id,
-        sender = sender,
-        text = text,
-        time = getTimeState(time.toInstant()),
-        tag = tag,
-        isUnread = isUnread,
-        messageProfile = if (this.messageProfile == CommunicationProfileV1.InApp) {
-            CommunicationProfile.InApp
-        } else {
-            error("should not happen")
-        },
-        version = version,
-        languageCode = languageCode
-    )
-}
-
-fun InternalMessage.toInAppMessage(): InAppMessage {
+fun InternalMessageErpModel.toInAppMessage(): InAppMessage {
     return InAppMessage(
         id = id,
         from = sender,
         text = text,
-        timeState = time,
+        timeState = getTimeState(time),
         prescriptionsCount = 0,
         tag = tag,
         isUnread = isUnread,

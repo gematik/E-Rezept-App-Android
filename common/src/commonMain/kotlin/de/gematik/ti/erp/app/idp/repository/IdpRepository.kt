@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.idp.repository
 
+import de.gematik.ti.erp.app.idp.IdpConfigurationErpModel
 import de.gematik.ti.erp.app.idp.api.models.Challenge
 import de.gematik.ti.erp.app.idp.api.models.IdpNonce
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
@@ -32,17 +33,17 @@ import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
 import de.gematik.ti.erp.app.idp.api.models.RemoteFederationIdp
 import de.gematik.ti.erp.app.idp.api.models.TokenResponse
 import de.gematik.ti.erp.app.idp.api.models.UniversalLinkToken
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import kotlinx.coroutines.flow.Flow
 import java.net.URI
 import java.security.PublicKey
 
 interface IdpRepository {
     fun decryptedAccessToken(profileId: ProfileIdentifier): Flow<AccessToken?>
-    fun authenticationData(profileId: ProfileIdentifier): Flow<IdpData.AuthenticationData>
+    fun getUserAuthentication(profileId: ProfileIdentifier): Flow<UserAuthenticationErpModel>
     fun saveDecryptedAccessToken(profileId: ProfileIdentifier, accessToken: AccessToken)
-    suspend fun saveSingleSignOnToken(profileId: ProfileIdentifier, token: IdpData.SingleSignOnTokenScope)
+    suspend fun saveUserAuthentication(profileId: ProfileIdentifier, authentication: UserAuthenticationErpModel)
     suspend fun fetchChallenge(
         url: String,
         codeChallenge: String,
@@ -52,7 +53,7 @@ interface IdpRepository {
         redirectUri: String
     ): Result<Challenge>
 
-    suspend fun loadUncheckedIdpConfiguration(): IdpData.IdpConfiguration
+    suspend fun loadUncheckedIdpConfiguration(): IdpConfigurationErpModel
     suspend fun postSignedChallenge(url: String, signedChallenge: String): Result<String>
     suspend fun postUnsignedChallengeWithSso(url: String, ssoToken: String, unsignedChallenge: String): Result<String>
     suspend fun postToken(url: String, keyVerifier: String, code: String, redirectUri: String): Result<TokenResponse>

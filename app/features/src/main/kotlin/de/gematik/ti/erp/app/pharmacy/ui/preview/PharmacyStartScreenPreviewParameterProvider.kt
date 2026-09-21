@@ -25,13 +25,13 @@ package de.gematik.ti.erp.app.pharmacy.ui.preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyAddressErpModel
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyErpModel
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 import kotlinx.datetime.Instant
 
 data class PharmacyStartScreenPreviewData(
     val isModalFlow: Boolean,
     val favouritePharmacies: List<PharmacyErpModel>,
-    val previewCoordinates: PharmacyUseCaseData.Coordinates,
+    val previewCoordinates: PositionErpModel,
     val isGooglePlayServicesAvailable: Boolean
 )
 
@@ -57,13 +57,13 @@ class PharmacyStartScreenPreviewParameterProvider : PreviewParameterProvider<Pha
                     isFavorite = true
                 )
             ),
-            previewCoordinates = PharmacyUseCaseData.Coordinates(52.51947562977698, 13.404335795642881),
+            previewCoordinates = PositionErpModel(52.51947562977698, 13.404335795642881),
             isGooglePlayServicesAvailable = true
         ),
         PharmacyStartScreenPreviewData(
             isModalFlow = true,
             favouritePharmacies = emptyList(),
-            previewCoordinates = PharmacyUseCaseData.Coordinates(48.137154, 11.576124),
+            previewCoordinates = PositionErpModel(48.137154, 11.576124),
             isGooglePlayServicesAvailable = false
         )
     )
