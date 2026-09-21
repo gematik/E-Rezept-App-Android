@@ -43,6 +43,8 @@ import de.gematik.ti.erp.app.fhir.constant.prescription.medicationrequest.FhirMe
 import de.gematik.ti.erp.app.fhir.constant.prescription.medicationrequest.FhirMedicationRequestConstants.PRESCRIBER_ID_EXTENSION_URL_120
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirMultiplePrescriptionInfoErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.erp.findTeratogenicPrescription
+import de.gematik.ti.erp.app.fhir.prescription.model.erp.toTeratogenicPrescription
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequestExtension.findCoPaymentStatus
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequestExtension.findPrescriberId
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequestExtension.findPrescriptionIndicator
@@ -148,7 +150,8 @@ internal data class FhirMedicationRequest(
                 prescriberId = prescriberId
                     .takeIf {
                         metaVersion() in FhirMedicationRequestConstants.MedicationRequestVersion.all
-                    }
+                    },
+                teratogenicPrescription = extensions.findTeratogenicPrescription()?.extensions?.toTeratogenicPrescription()
             )
         }.onFailure { Napier.e("Error parsing FhirTaskKbvMedicationRequestErpModel: ${it.message}") }.getOrNull()
     }

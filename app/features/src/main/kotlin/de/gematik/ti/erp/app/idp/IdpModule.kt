@@ -27,7 +27,6 @@ import de.gematik.ti.erp.app.cardwall.usecase.RemoveAuthenticationUseCase
 import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.idp.repository.AccessTokenDataSource
 import de.gematik.ti.erp.app.idp.repository.DefaultIdpRepository
-import de.gematik.ti.erp.app.idp.repository.IdpLocalDataSource
 import de.gematik.ti.erp.app.idp.repository.IdpPairingRepository
 import de.gematik.ti.erp.app.idp.repository.IdpRemoteDataSource
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
@@ -51,7 +50,6 @@ const val NetworkSecurePreferencesTag = "NetworkSecurePreferences"
 private const val IdpLockTag = "IdpLockTag"
 
 val idpModule = DI.Module("idpModule") {
-    bindProvider { IdpLocalDataSource(instance()) }
     bindProvider { IdpPairingRepository(instance()) }
     bindProvider {
         val endpointHelper = instance<EndpointHelper>()
@@ -65,7 +63,7 @@ val idpModule = DI.Module("idpModule") {
         }
     }
     bindSingleton { AccessTokenDataSource() }
-    bindProvider<IdpRepository> { DefaultIdpRepository(instance(), instance(), instance()) }
+    bindProvider<IdpRepository> { DefaultIdpRepository(instance(), instance(), instance(), instance()) }
 }
 
 val idpUseCaseModule = DI.Module("idpUseCaseModule", allowSilentOverride = true) {

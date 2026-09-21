@@ -22,13 +22,13 @@
 
 package de.gematik.ti.erp.app.fhir.support
 
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskStatusErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
-import de.gematik.ti.erp.app.task.model.TaskStatus
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class FhirTaskEntryDataErpModel(
     val id: String,
-    val status: TaskStatus,
+    val status: FhirTaskStatusErpModel,
     val lastModified: FhirTemporal?
 )

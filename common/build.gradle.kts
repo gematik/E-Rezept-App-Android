@@ -135,7 +135,6 @@ kotlin {
                 implementation(compose.material)
                 implementation(compose.materialIconsExtended)
                 implementation(compose.ui)
-                implementation(libs.multiplatform.settings)
                 implementation(libs.androidx.datastore.preferences)
                 implementation(project(":utils"))
                 implementation(project(":fhir-parser"))
@@ -418,8 +417,6 @@ buildkonfig {
         create("android") {
             buildConfigField(STRING, "USER_AGENT", USER_AGENT)
             buildConfigField(STRING, "DATA_PROTECTION_LAST_UPDATED", DATA_PROTECTION_LAST_UPDATED)
-            // test tag config
-            buildConfigField(BOOLEAN, "DEBUG_VISUAL_TEST_TAGS", DEBUG_VISUAL_TEST_TAGS ?: "false")
             // test configs
             buildConfigField(BOOLEAN, "DEBUG_TEST_IDS_ENABLED", DEBUG_TEST_IDS_ENABLED)
             // VAU feature toggles for development

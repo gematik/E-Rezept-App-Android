@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.pkv.usecase
 
 import android.content.Context
 import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
 import de.gematik.ti.erp.app.invoice.model.PkvHtmlTemplate
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.pkv.FileProviderAuthority
@@ -37,7 +37,7 @@ class ShareInvoiceUseCase(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend operator fun invoke(
-        invoice: InvoiceData.PKVInvoiceRecord,
+        invoice: PKVInvoiceErpModel,
         context: Context,
         fileProviderAuthority: FileProviderAuthority
     ) {
@@ -48,7 +48,7 @@ class ShareInvoiceUseCase(
             repository.loadInvoiceAttachments(invoice.taskId)?.let { attachments ->
                 writePDFAttachments(file, attachments)
             }
-            val subject = invoice.medicationRequest.medication?.name() + "_" +
+            val subject = (invoice.medicationRequest?.medication?.text ?: "Invoice") + "_" +
                 invoice.timestamp.asFhirTemporal().formattedString()
             sharePDFFile(context, file, subject, fileProviderAuthority)
         }

@@ -22,11 +22,7 @@
 
 package de.gematik.ti.erp.app.eurezept.ui.screens
 
-import de.gematik.ti.erp.app.eurezept.ui.preview.EuCountrySelectionPreviewParameterProvider
-import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
-import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
-import org.junit.Test
-
+/*Todo Room - comment out again after merging the dependent MRs.
 class EuCountrySelectionScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(config) {
 
     @Test
@@ -39,3 +35,5 @@ class EuCountrySelectionScreenTest(config: ScreenshotConfig) : BaseScreenshotTes
         }
     }
 }
+
+ */

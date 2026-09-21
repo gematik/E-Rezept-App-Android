@@ -26,13 +26,5 @@ import androidx.room.Embedded
 
 data class ErpRatioEmbeddable(
     @Embedded(prefix = "num_") val numerator: ErpQuantityEmbeddable,
-    /*
-    val num_value:String,
-    val num_unit:String,
-     */
     @Embedded(prefix = "den_") val denominator: ErpQuantityEmbeddable
-    /*
-  val den__value:String,
-  val den__unit:String,
-   */
 )

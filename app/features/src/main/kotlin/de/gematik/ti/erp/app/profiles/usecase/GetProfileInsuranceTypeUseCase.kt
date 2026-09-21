@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.profiles.usecase
 
+import de.gematik.ti.erp.app.profile.model.InsuranceType
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -34,8 +34,8 @@ class GetProfileInsuranceTypeUseCase(
     private val repository: ProfileRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(id: ProfileIdentifier): ProfilesData.InsuranceType =
+    suspend operator fun invoke(id: ProfileIdentifier): InsuranceType =
         withContext(dispatcher) {
-            repository.getProfileById(profileId = id).first().insuranceType
+            repository.getProfileById(profileId = id).first().insuranceData.insuranceType
         }
 }

@@ -49,17 +49,3 @@ internal val SETTINGS_GENERAL_DATA = SettingsData.General(
     trackingAllowed = false,
     userHasAcceptedIntegrityNotOk = true
 )
-
-internal val SETTINGS_PASSWORD = SettingsData.Authentication(
-    password = SettingsData.Authentication.Password(password = "password"),
-    deviceSecurity = false,
-    failedAuthenticationAttempts = 0,
-    authenticationTimeOutSystemUptime = null
-)
-
-internal val SETTINGS_UNSPECIFIED = SettingsData.Authentication(
-    password = null,
-    deviceSecurity = false,
-    failedAuthenticationAttempts = 0,
-    authenticationTimeOutSystemUptime = null
-)

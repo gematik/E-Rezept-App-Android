@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.settings.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.settings.model.ThemeMode
 import de.gematik.ti.erp.app.settings.usecase.GetThemeModeUseCase
@@ -31,6 +32,7 @@ import de.gematik.ti.erp.app.settings.usecase.SaveThemeModeUseCase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
 /**
@@ -52,7 +54,9 @@ class SettingsThemeScreenController(
      * @param themeMode The new theme mode to apply
      */
     fun onThemeSelected(themeMode: ThemeMode) {
-        saveThemeModeUseCase(themeMode)
+        viewModelScope.launch {
+            saveThemeModeUseCase(themeMode)
+        }
     }
 }
 

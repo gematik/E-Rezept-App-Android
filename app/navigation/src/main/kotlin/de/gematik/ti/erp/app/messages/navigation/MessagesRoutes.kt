@@ -36,23 +36,32 @@ import kotlinx.datetime.Instant
 object MessagesRoutes : NavigationRoutes {
     override fun subGraphName() = "messages"
     const val MESSAGE_NAV_ORDER_ID = "MESSAGE_NAV_ORDER_ID"
+    const val MESSAGE_NAV_TASK_ID = "MESSAGE_NAV_TASK_ID"
     const val MESSAGE_NAV_ORDER_DETAIL = "MESSAGE_NAV_ORDER_DETAIL"
     const val MESSAGE_NAV_SELECTED_MESSAGE = "MESSAGE_NAV_SELECTED_MESSAGE"
-    const val MESSAGE_NAV_IS_LOCAL_MESSAGE = "MESSAGE_NAV_IS_LOCAL_MESSAGE"
     const val MESSAGE_NAV_THREAD_START = "MESSAGE_NAV_THREAD_START"
     const val MESSAGE_NAV_THREAD_END = "MESSAGE_NAV_THREAD_END"
+    const val MESSAGE_NAV_DETAIL_TITLE = "MESSAGE_NAV_DETAIL_TITLE"
 
     object MessageListScreen : Routes(NavigationRouteNames.MessageListScreen.name)
 
-    object MessageDetailScreen : Routes(
-        NavigationRouteNames.MessageDetailScreen.name,
-        navArgument(MESSAGE_NAV_ORDER_ID) { type = NavType.StringType },
-        navArgument(MESSAGE_NAV_IS_LOCAL_MESSAGE) { type = NavType.BoolType }
+    object OrderMessageDetailScreen : Routes(
+        NavigationRouteNames.OrderMessageDetailScreen.name,
+        navArgument(MESSAGE_NAV_ORDER_ID) { type = NavType.StringType }
     ) {
-        fun path(orderId: String, isLocalMessage: Boolean = false) =
+        fun path(orderId: String) =
             path(
-                MESSAGE_NAV_ORDER_ID to orderId,
-                MESSAGE_NAV_IS_LOCAL_MESSAGE to isLocalMessage
+                MESSAGE_NAV_ORDER_ID to orderId
+            )
+    }
+
+    object UnknownOrderMessageDetailScreen : Routes(
+        NavigationRouteNames.UnknownOrderMessageDetailScreen.name,
+        navArgument(MESSAGE_NAV_TASK_ID) { type = NavType.StringType }
+    ) {
+        fun path(taskId: String) =
+            path(
+                MESSAGE_NAV_TASK_ID to taskId
             )
     }
 
@@ -72,18 +81,25 @@ object MessagesRoutes : NavigationRoutes {
         NavigationRouteNames.EuRedeemMessageDetailsScreen.name,
         navArgument(MESSAGE_NAV_ORDER_ID) { type = NavType.StringType },
         navArgument(MESSAGE_NAV_THREAD_START) { type = NavType.LongType },
-        navArgument(MESSAGE_NAV_THREAD_END) { type = NavType.LongType }
+        navArgument(MESSAGE_NAV_THREAD_END) { type = NavType.LongType },
+        navArgument(MESSAGE_NAV_DETAIL_TITLE) { type = NavType.StringType }
     ) {
         fun path(
             orderId: String?,
             threadStart: Instant?,
-            threadEnd: Instant?
+            threadEnd: Instant?,
+            pharmacyName: String?
         ) = path(
             MESSAGE_NAV_ORDER_ID to orderId,
             MESSAGE_NAV_THREAD_START to threadStart?.toEpochMilliseconds(),
-            MESSAGE_NAV_THREAD_END to threadEnd?.toEpochMilliseconds()
+            MESSAGE_NAV_THREAD_END to threadEnd?.toEpochMilliseconds(),
+            MESSAGE_NAV_DETAIL_TITLE to pharmacyName
         )
     }
+
+    object InternalMessageDetailScreen : Routes(
+        NavigationRouteNames.InternalMessageDetailScreen.name
+    )
 }
 
 data class MessagesRoutesBackStackEntryArguments(
@@ -92,8 +108,8 @@ data class MessagesRoutesBackStackEntryArguments(
     val orderId
         get() = requireNotNull(navBackStackEntry.arguments?.getString(MessagesRoutes.MESSAGE_NAV_ORDER_ID))
 
-    val isLocalMessage
-        get() = (navBackStackEntry.arguments?.getBoolean(MessagesRoutes.MESSAGE_NAV_IS_LOCAL_MESSAGE)) ?: false
+    val taskId
+        get() = requireNotNull(navBackStackEntry.arguments?.getString(MessagesRoutes.MESSAGE_NAV_TASK_ID))
 
     val orderDetail
         get(): OrderUseCaseData.OrderDetail? =
@@ -116,4 +132,7 @@ data class MessagesRoutesBackStackEntryArguments(
 
     val threadEnd
         get() = requireNotNull(navBackStackEntry.arguments?.getLong(MessagesRoutes.MESSAGE_NAV_THREAD_END)?.let { Instant.fromEpochMilliseconds(it) })
+
+    val euPharmacyName
+        get() = navBackStackEntry.arguments?.getString(MessagesRoutes.MESSAGE_NAV_DETAIL_TITLE)
 }

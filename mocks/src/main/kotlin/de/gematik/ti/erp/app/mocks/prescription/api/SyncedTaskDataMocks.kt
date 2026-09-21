@@ -29,14 +29,31 @@ import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
 import de.gematik.ti.erp.app.mocks.DATE_3024_01_01
 import de.gematik.ti.erp.app.mocks.PROFILE_ID
-import de.gematik.ti.erp.app.prescription.model.Quantity
-import de.gematik.ti.erp.app.prescription.model.Ratio
+import de.gematik.ti.erp.app.task.model.Quantity
+import de.gematik.ti.erp.app.task.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Medication
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationRequest
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Organization
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Patient
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Practitioner
+import de.gematik.ti.erp.app.task.model.AccidentType
+import de.gematik.ti.erp.app.task.model.AdditionalFeeErpModel
+import de.gematik.ti.erp.app.task.model.AddressErpModel
+import de.gematik.ti.erp.app.task.model.Identifier
+import de.gematik.ti.erp.app.task.model.InsuranceErpModel
+import de.gematik.ti.erp.app.task.model.InsuranceErpModelCoverageType
+import de.gematik.ti.erp.app.task.model.MedicationCategory
+import de.gematik.ti.erp.app.task.model.MedicationErpModel
+import de.gematik.ti.erp.app.task.model.MedicationRequestErpModel
+import de.gematik.ti.erp.app.task.model.MultiplePrescriptionInfo
+import de.gematik.ti.erp.app.task.model.OrganizationErpModel
+import de.gematik.ti.erp.app.task.model.PatientErpModel
+import de.gematik.ti.erp.app.task.model.PractitionerErpModel
+import de.gematik.ti.erp.app.task.model.QuantityErpModel
+import de.gematik.ti.erp.app.task.model.RatioErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.days
 
@@ -149,74 +166,126 @@ internal val ORGANIZATION = Organization(
     mail = "mustermann@praxis.de"
 )
 
-val API_ACTIVE_SYNCED_TASK = SyncedTaskData.SyncedTask(
+val API_ACTIVE_SYNCED_TASK = TaskErpModel.Synced.Prescription(
     profileId = PROFILE_ID,
+    name = MEDICATION.name(),
     taskId = "active-synced-task-id-1",
     accessCode = "1234",
+    isEuRedeemable = false,
     lastModified = DATE_2024_01_01,
-    organization = ORGANIZATION,
-    practitioner = PRACTITIONER,
-    patient = PATIENT,
-    insuranceInformation = INSURANCE_INFO,
+    isEuRedeemableByPatientAuthorization = false,
+    organization = OrganizationErpModel(
+        name = ORGANIZATION.name,
+        address = AddressErpModel(line1 = ADDRESS.line1, line2 = ADDRESS.line2, postalCode = ADDRESS.postalCode, city = ADDRESS.city),
+        uniqueIdentifier = ORGANIZATION.uniqueIdentifier,
+        phone = ORGANIZATION.phone,
+        mail = ORGANIZATION.mail
+    ),
+    practitioner = PractitionerErpModel(
+        name = PRACTITIONER.name,
+        qualification = PRACTITIONER.qualification,
+        practitionerIdentifier = PRACTITIONER.practitionerIdentifier,
+        dentistIdentifier = null,
+        telematikId = null
+    ),
+    patient = PatientErpModel(
+        name = PATIENT.name,
+        address = AddressErpModel(line1 = ADDRESS.line1, line2 = ADDRESS.line2, postalCode = ADDRESS.postalCode, city = ADDRESS.city),
+        dateOfBirth = PATIENT.birthdate,
+        insuranceIdentifier = PATIENT.insuranceIdentifier
+    ),
+    insuranceInformation = InsuranceErpModel(
+        name = INSURANCE_INFO.name,
+        status = INSURANCE_INFO.status,
+        identifierNumber = INSURANCE_INFO.identifierNumber,
+        coverageType = InsuranceErpModelCoverageType.GKV
+    ),
     expiresOn = DATE_3024_01_01,
     acceptUntil = DATE_3024_01_01,
     authoredOn = DATE_2024_01_01,
-    status = SyncedTaskData.TaskStatus.Ready, // to be active prescription
+    status = TaskStatusEnum.Ready,
     isIncomplete = false,
     pvsIdentifier = "pvsIdentifier",
     failureToReport = "failureToReport",
-    medicationRequest = MEDICATION_REQUEST,
+    medicationRequest = MedicationRequestErpModel(
+        medication = MedicationErpModel(
+            category = MedicationCategory.ARZNEI_UND_VERBAND_MITTEL,
+            medicationProfile = FhirTaskKbvMedicationProfileErpModel(
+                type = ErpMedicationProfileType.PZN,
+                version = ErpMedicationProfileVersion.V_110
+            ),
+            isVaccine = true,
+            text = "Medication",
+            form = "AEO",
+            lotNumber = "123456",
+            expirationDate = FhirTemporal.Instant(Clock.System.now().plus(30.days)),
+            identifier = Identifier(pzn = "1234567890"),
+            normSizeCode = "KA",
+            amount = RatioErpModel(numerator = QuantityErpModel("1", "oz"), denominator = null),
+            manufacturingInstructions = null,
+            packaging = null,
+            ingredientMedications = emptyList(),
+            ingredients = emptyList()
+        ),
+        authoredOn = null,
+        dateOfAccident = null,
+        accidentType = AccidentType.None,
+        location = "Location",
+        emergencyFee = true,
+        substitutionAllowed = true,
+        dosageInstruction = "Dosage",
+        multiplePrescriptionInfo = MultiplePrescriptionInfo(),
+        quantity = 0,
+        note = "Note",
+        bvg = null,
+        additionalFee = AdditionalFeeErpModel.None
+    ),
     medicationDispenses = emptyList(),
-    lastMedicationDispense = null,
-    communications = emptyList(),
-    isEuRedeemable = false,
-    isEuRedeemableByPatientAuthorization = false
+    lastMedicationDispense = null
 )
 
-val API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE = SyncedTaskData.SyncedTask(
-    profileId = PROFILE_ID,
-    taskId = "active-synced-task-id-1",
-    accessCode = "1234",
-    lastModified = DATE_2024_01_01,
-    organization = ORGANIZATION,
-    practitioner = PRACTITIONER,
-    patient = PATIENT,
-    insuranceInformation = INSURANCE_INFO,
-    expiresOn = DATE_3024_01_01,
-    acceptUntil = DATE_3024_01_01,
-    authoredOn = DATE_2024_01_01,
-    status = SyncedTaskData.TaskStatus.Ready, // to be active prescription
-    isIncomplete = false,
-    pvsIdentifier = "pvsIdentifier",
-    failureToReport = "failureToReport",
-    medicationRequest = MEDICATION_REQUEST_DOSAGE_STRUCTURED_AMOUNT_10,
-    medicationDispenses = emptyList(),
-    lastMedicationDispense = null,
-    communications = emptyList(),
-    isEuRedeemable = false,
-    isEuRedeemableByPatientAuthorization = false
+val API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE = API_ACTIVE_SYNCED_TASK.copy(
+    medicationRequest = API_ACTIVE_SYNCED_TASK.medicationRequest?.copy(
+        medication = API_ACTIVE_SYNCED_TASK.medicationRequest!!.medication?.copy(
+            text = "Medication",
+            form = "TAB",
+            amount = RatioErpModel(numerator = QuantityErpModel("10", "TAB"), denominator = null)
+        ),
+        dosageInstruction = "1-0-1-0",
+        quantity = 1
+    )
 )
 
-val API_ARCHIVE_SYNCED_TASK = SyncedTaskData.SyncedTask(
-    profileId = PROFILE_ID,
+val API_ARCHIVE_SYNCED_TASK = API_ACTIVE_SYNCED_TASK.copy(
     taskId = "archive-synced-task-id-1",
-    accessCode = "1234",
-    lastModified = DATE_2024_01_01,
-    organization = ORGANIZATION,
-    practitioner = PRACTITIONER,
-    patient = PATIENT,
-    insuranceInformation = INSURANCE_INFO,
-    expiresOn = DATE_3024_01_01,
     acceptUntil = DATE_2024_01_01,
-    authoredOn = DATE_2024_01_01,
-    status = SyncedTaskData.TaskStatus.Completed,
-    isIncomplete = false,
-    pvsIdentifier = "pvsIdentifier",
-    failureToReport = "failureToReport",
-    medicationRequest = MEDICATION_REQUEST,
-    medicationDispenses = emptyList(),
-    lastMedicationDispense = null,
-    communications = emptyList(),
+    status = TaskStatusEnum.Completed
+    // redeemedOn = DATE_2024_01_01
+)
+
+val API_ACTIVE_DIGA_TASK = TaskErpModel.Synced.Diga(
+    profileId = PROFILE_ID,
+    name = "Diga Task",
+    taskId = "active-diga-task-id-1",
+    accessCode = "access-code-diga",
     isEuRedeemable = false,
-    isEuRedeemableByPatientAuthorization = false
+    lastModified = DATE_3024_01_01,
+    isEuRedeemableByPatientAuthorization = false,
+    organization = null,
+    practitioner = null,
+    patient = null,
+    insuranceInformation = null,
+    expiresOn = DATE_3024_01_01,
+    acceptUntil = DATE_3024_01_01,
+    authoredOn = DATE_3024_01_01,
+    status = TaskStatusEnum.Ready,
+    isIncomplete = false,
+    pvsIdentifier = "",
+    failureToReport = ""
+)
+
+val API_ARCHIVE_DIGA_TASK = API_ACTIVE_DIGA_TASK.copy(
+    taskId = "archive-diga-task-id-1",
+    acceptUntil = DATE_2024_01_01,
+    status = TaskStatusEnum.Completed
 )

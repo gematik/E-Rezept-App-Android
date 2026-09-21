@@ -25,8 +25,8 @@ package de.gematik.ti.erp.app.consent.usecase
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.fhir.consent.model.ConsentRequest.createConsentRequest
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.settings.repository.ConsentVersionRepository
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.debug.repository.ConsentVersionRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -37,20 +37,22 @@ class GrantConsentUseCase(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend operator fun invoke(
-        profile: ProfilesUseCaseData.Profile,
+        profile: ProfileErpModel,
         category: ConsentCategory
     ): Result<Unit> =
         withContext(dispatcher) {
             val erpChargeVersion = consentVersionRepository.getConsentVersion()
 
-            val consent = createConsentRequest(
-                patientId = profile.insurance.insuranceIdentifier,
-                category = category.code,
-                erpChargeVersion = erpChargeVersion
-            )
-            repository.grantConsent(
-                profileId = profile.id,
-                consent = consent
-            )
+            profile.insuranceData.insuranceIdentifier?.let { insuranceIdentifier ->
+                val consent = createConsentRequest(
+                    patientId = insuranceIdentifier,
+                    category = category.code,
+                    erpChargeVersion = erpChargeVersion
+                )
+                repository.grantConsent(
+                    profileId = profile.id,
+                    consent = consent
+                )
+            } ?: Result.failure(Exception("Insurance identifier is missing"))
         }
 }

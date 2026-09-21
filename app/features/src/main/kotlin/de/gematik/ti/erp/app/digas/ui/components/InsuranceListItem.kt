@@ -39,7 +39,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -48,7 +48,7 @@ import de.gematik.ti.erp.app.utils.SpacerMedium
 @Composable
 fun InsuranceListItem(
     insuranceUiModel: de.gematik.ti.erp.app.digas.ui.model.InsuranceUiModel,
-    onSelectInsurance: (PharmacyUseCaseData.Pharmacy) -> Unit
+    onSelectInsurance: (PharmacyDetailsErpModel) -> Unit
 ) {
     Row(
         modifier = Modifier

@@ -22,8 +22,7 @@
 
 package de.gematik.ti.erp.app.demomode.model
 
-import de.gematik.ti.erp.app.messages.model.Communication
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -38,25 +37,33 @@ data class DemoModeProfileLinkedCommunication(
     val taskId: String,
     val communicationId: String,
     val orderId: String,
-    val profile: CommunicationProfile,
+    val profile: CommunicationErpModel.CommunicationProfile,
     val sentOn: Instant,
     val sender: String,
     val recipient: String,
     val payload: String?,
-    val consumed: Boolean
+    val consumed: Boolean,
+    val pharmacyName: String? = null
 )
 
 fun DemoModeProfileLinkedCommunication.toSyncedTaskDataCommunication() =
-    Communication(
+    CommunicationErpModel(
         taskId = taskId,
         communicationId = communicationId,
         orderId = orderId,
-        profile = profile,
-        sentOn = sentOn,
-        sender = sender,
+        profile = when (profile) {
+            CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq -> CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq
+            CommunicationErpModel.CommunicationProfile.ErxCommunicationReply -> CommunicationErpModel.CommunicationProfile.ErxCommunicationReply
+            CommunicationErpModel.CommunicationProfile.InApp -> CommunicationErpModel.CommunicationProfile.InApp
+            CommunicationErpModel.CommunicationProfile.EuOrder -> CommunicationErpModel.CommunicationProfile.EuOrder
+        },
+        timeStamp = sentOn,
+        senderTelematikId = sender,
         recipient = recipient,
         payload = payload,
-        consumed = consumed
+        consumed = consumed,
+        profileId = profileId,
+        pharmacyName = pharmacyName
     )
 
 @Suppress("MagicNumber")
@@ -67,8 +74,8 @@ internal fun DemoModeSentCommunicationJson.toDemoModeProfileLinkedCommunication(
         taskId = basedOn.firstNotNullOfOrNull { it.taskId } ?: "",
         orderId = identifier.firstNotNullOfOrNull { it.value } ?: "",
         profile = when (meta.isRequest) {
-            true -> CommunicationProfile.ErxCommunicationDispReq
-            false -> CommunicationProfile.ErxCommunicationReply
+            true -> CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq
+            false -> CommunicationErpModel.CommunicationProfile.ErxCommunicationReply
         },
         sentOn = Clock.System.now().minus((1..20).random().minutes),
         sender = payload.firstNotNullOfOrNull { it.name } ?: "",
@@ -86,7 +93,7 @@ internal fun emptyDemoModeProfileLinkedCommunication(
         communicationId = UUID.randomUUID().toString(),
         taskId = "",
         orderId = "",
-        profile = CommunicationProfile.ErxCommunicationReply,
+        profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply,
         sentOn = Clock.System.now(),
         sender = "Unknown sender",
         recipient = "Unknown recipient",

@@ -47,7 +47,7 @@ import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberGetPrescriptionByTaskIdController
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -91,7 +91,7 @@ class HowLongDigaValidBottomSheetScreen(
                 )
             },
             onContent = { content ->
-                val prescription = content as PrescriptionData.Synced
+                val prescription = content as? TaskErpModel.Synced
                 Column(
                     Modifier
                         .padding(horizontal = PaddingDefaults.Medium)
@@ -105,15 +105,19 @@ class HowLongDigaValidBottomSheetScreen(
                         modifier = Modifier.testTag(TestTag.Prescriptions.Details.PrescriptionDetailBottomSheetTitle)
                     )
                     SpacerMedium()
+                    val multiplePrescriptionInfo = (prescription as? TaskErpModel.Synced.Prescription)
+                        ?.medicationRequest?.multiplePrescriptionInfo
                     val start =
-                        if (prescription.medicationRequest.multiplePrescriptionInfo.indicator) {
-                            prescription.medicationRequest.multiplePrescriptionInfo.start
-                                ?: prescription.authoredOn
+                        if (multiplePrescriptionInfo?.indicator == true) {
+                            multiplePrescriptionInfo.start
+                                ?: prescription?.authoredOn
                         } else {
-                            prescription.authoredOn
+                            prescription?.authoredOn
                         }
                     Column {
-                        DateRange(start = start, end = prescription.acceptUntil?.minus(1.days) ?: start)
+                        start?.let {
+                            DateRange(start = it, end = prescription?.acceptUntil?.minus(1.days) ?: it)
+                        }
                         SpacerSmall()
                         Text(
                             stringResource(R.string.diga_activation_code_request_period),

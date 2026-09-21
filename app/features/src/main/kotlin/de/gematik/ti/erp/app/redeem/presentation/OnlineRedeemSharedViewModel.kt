@@ -28,14 +28,14 @@ import androidx.compose.runtime.State
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
 import de.gematik.ti.erp.app.pharmacy.usecase.GetOrderStateUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.SaveShippingContactUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.ShippingContactState
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OrderState
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PrescriptionInOrder
+import de.gematik.ti.erp.app.pharmacy.model.OrderStateErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
 import de.gematik.ti.erp.app.profiles.presentation.GetActiveProfileController
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState
@@ -51,12 +51,14 @@ import de.gematik.ti.erp.app.viewmodel.rememberGraphScopedViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
@@ -78,40 +80,42 @@ abstract class OnlineRedeemSharedViewModel(
     @Deprecated("Use validateContactInformation")
     abstract fun validateAndGetShippingContactState(
         contact: ShippingInfoErpModel?,
-        selectedOrderOption: PharmacyScreenData.OrderOption?
+        selectedOrderOption: OrderOptionErpModel?
     ): ShippingContactState?
 
     abstract fun validateContactInformation(
         contact: ShippingInfoErpModel,
-        selectedOrderOption: PharmacyScreenData.OrderOption
+        selectedOrderOption: OrderOptionErpModel
     ): ContactValidationState
 
     abstract fun saveShippingContact(contact: ShippingInfoErpModel)
 
-    abstract fun onPrescriptionSelectionChanged(prescriptionInOrder: PrescriptionInOrder, select: Boolean)
+    abstract fun onPrescriptionSelectionChanged(prescriptionInOrder: PrescriptionInOrderErpModel, select: Boolean)
 
     abstract fun deselectInvalidPrescriptions(taskIds: List<String>)
 
     abstract fun updatePrescriptionSelectionFailureFlag()
 
-    abstract fun updateSelectedOrderOption(option: PharmacyScreenData.OrderOption?)
+    abstract fun updateSelectedOrderOption(option: OrderOptionErpModel?)
 
     abstract fun attemptRedeemValidation(
         contact: ShippingInfoErpModel,
-        selectedOrderOption: PharmacyScreenData.OrderOption?,
-        prescriptions: List<PrescriptionInOrder>,
-        pharmacy: PharmacyUseCaseData.Pharmacy?
+        selectedOrderOption: OrderOptionErpModel?,
+        prescriptions: List<PrescriptionInOrderErpModel>,
+        pharmacy: PharmacyDetailsErpModel?
     ): Boolean
 
-    abstract val selectedOrderState: State<OrderState>
+    abstract val selectedOrderState: State<OrderStateErpModel>
         @Composable get
 
-    abstract val redeemableOrderState: State<List<PrescriptionInOrder>>
+    abstract val redeemableOrderState: State<List<PrescriptionInOrderErpModel>>
         @Composable get
 
-    abstract val selectedOrderOption: StateFlow<PharmacyScreenData.OrderOption?>
+    abstract val selectedOrderOption: StateFlow<OrderOptionErpModel?>
 
     abstract val hasAttemptedRedeem: StateFlow<Boolean>
+
+    abstract val hasTeratogenicPrescriptionError: StateFlow<Boolean>
 }
 
 @Stable
@@ -124,7 +128,7 @@ class DefaultOnlineRedeemSharedViewModel(
 ) : OnlineRedeemSharedViewModel(getActiveProfileUseCase) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val orderState: Flow<OrderState> by lazy {
+    private val orderState: Flow<OrderStateErpModel> by lazy {
         refreshTrigger.flatMapLatest {
             getOrderStateUseCase()
                 .distinctUntilChanged()
@@ -154,7 +158,7 @@ class DefaultOnlineRedeemSharedViewModel(
     private val possiblePrescriptionsInOrders by lazy { orderState.map { it.prescriptionsInOrder } }
 
     // list of orders that are selected for redeeming
-    private val selectedOrderStateFlow: Flow<OrderState>
+    private val selectedOrderStateFlow: Flow<OrderStateErpModel>
         get() =
             combine(
                 deselectedTaskIdsFromOrder,
@@ -168,20 +172,20 @@ class DefaultOnlineRedeemSharedViewModel(
                 }
             }
 
-    private val _selectedOrderOption: MutableStateFlow<PharmacyScreenData.OrderOption?> = MutableStateFlow(null)
+    private val _selectedOrderOption: MutableStateFlow<OrderOptionErpModel?> = MutableStateFlow(null)
 
     // the flag to make sure the validity checks kick in only after the user has clicked on redeem button atleast once
     private val _hasAttemptedRedeem: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     // for a list of prescriptions other than the invalid ones all other prescriptions are kept
-    private fun OrderState.withMultiplePrescriptions(deselectedTaskIds: List<String>): OrderState {
+    private fun OrderStateErpModel.withMultiplePrescriptions(deselectedTaskIds: List<String>): OrderStateErpModel {
         val prescriptionsInOrder = prescriptionsInOrder.filterNot { it.taskId in deselectedTaskIds }
         val updatedState = copy(prescriptionsInOrder = prescriptionsInOrder)
         return updatedState
     }
 
     // for single prescriptions only the selected prescription will be kept if its a valid prescription
-    private fun OrderState.withSinglePrescription(selectedTaskIds: List<String>): OrderState {
+    private fun OrderStateErpModel.withSinglePrescription(selectedTaskIds: List<String>): OrderStateErpModel {
         val prescriptionsInOrder = prescriptionsInOrder.filter { it.taskId in selectedTaskIds }
         val updatedState = copy(prescriptionsInOrder = prescriptionsInOrder)
         return updatedState
@@ -200,7 +204,7 @@ class DefaultOnlineRedeemSharedViewModel(
         }
     }
 
-    override fun updateSelectedOrderOption(option: PharmacyScreenData.OrderOption?) {
+    override fun updateSelectedOrderOption(option: OrderOptionErpModel?) {
         _selectedOrderOption.value = option
     }
 
@@ -227,7 +231,7 @@ class DefaultOnlineRedeemSharedViewModel(
     }
 
     // on the Prescription selection, the user interaction changes the prescriptions that are in the order
-    override fun onPrescriptionSelectionChanged(prescriptionInOrder: PrescriptionInOrder, select: Boolean) {
+    override fun onPrescriptionSelectionChanged(prescriptionInOrder: PrescriptionInOrderErpModel, select: Boolean) {
         val taskId = prescriptionInOrder.taskId
         val state = prescriptionSelectionState.value
         when (state) {
@@ -255,13 +259,13 @@ class DefaultOnlineRedeemSharedViewModel(
 
     override fun validateContactInformation(
         contact: ShippingInfoErpModel,
-        selectedOrderOption: PharmacyScreenData.OrderOption
+        selectedOrderOption: OrderOptionErpModel
     ) = validateContactUseCase.invoke(contact = contact, selectedOrderOption = selectedOrderOption)
 
     @Deprecated("Use validateContactInformation")
     override fun validateAndGetShippingContactState(
         contact: ShippingInfoErpModel?,
-        selectedOrderOption: PharmacyScreenData.OrderOption?
+        selectedOrderOption: OrderOptionErpModel?
     ): ShippingContactState? = contact?.let { getShippingContactValidationUseCase(it, selectedOrderOption) }
 
     override fun saveShippingContact(contact: ShippingInfoErpModel) {
@@ -272,9 +276,9 @@ class DefaultOnlineRedeemSharedViewModel(
 
     override fun attemptRedeemValidation(
         contact: ShippingInfoErpModel,
-        selectedOrderOption: PharmacyScreenData.OrderOption?,
-        prescriptions: List<PrescriptionInOrder>,
-        pharmacy: PharmacyUseCaseData.Pharmacy?
+        selectedOrderOption: OrderOptionErpModel?,
+        prescriptions: List<PrescriptionInOrderErpModel>,
+        pharmacy: PharmacyDetailsErpModel?
     ): Boolean {
         _hasAttemptedRedeem.value = true
 
@@ -290,16 +294,27 @@ class DefaultOnlineRedeemSharedViewModel(
 
     override val selectedOrderState
         @Composable
-        get() = selectedOrderStateFlow.collectAsStateWithLifecycle(OrderState.Empty)
+        get() = selectedOrderStateFlow.collectAsStateWithLifecycle(OrderStateErpModel.Empty)
 
     // all orders that are available for redeeming
     override val redeemableOrderState
         @Composable
         get() = possiblePrescriptionsInOrders.collectAsStateWithLifecycle(emptyList())
 
-    override val selectedOrderOption: StateFlow<PharmacyScreenData.OrderOption?> = _selectedOrderOption.asStateFlow()
+    override val selectedOrderOption: StateFlow<OrderOptionErpModel?> = _selectedOrderOption.asStateFlow()
 
     override val hasAttemptedRedeem: StateFlow<Boolean> = _hasAttemptedRedeem.asStateFlow()
+
+    override val hasTeratogenicPrescriptionError: StateFlow<Boolean> = combine(
+        _selectedOrderOption,
+        selectedOrderStateFlow
+    ) { orderOption, orderState ->
+        orderOption == OrderOptionErpModel.Online && orderState.prescriptionsInOrder.any { it.isTeratogenicPrescription }
+    }.stateIn(
+        controllerScope,
+        SharingStarted.WhileSubscribed(5_000),
+        false
+    )
 }
 
 @Composable

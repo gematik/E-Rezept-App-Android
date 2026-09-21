@@ -25,6 +25,10 @@ package de.gematik.ti.erp.app.medicationplan.model
 import de.gematik.ti.erp.app.database.realm.v1.medicationplan.MedicationScheduleEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.medicationplan.MedicationScheduleNotificationDosageEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.medicationplan.MedicationScheduleNotificationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.medicationplan.toMedicationSchedule
+import de.gematik.ti.erp.app.database.realm.v1.medicationplan.toMedicationScheduleEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.medicationplan.toMedicationScheduleNotification
+import de.gematik.ti.erp.app.database.realm.v1.medicationplan.toMedicationScheduleNotificationDosage
 import de.gematik.ti.erp.app.db.entities.v1.medicationplan.MedicationScheduleDurationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.medicationplan.MedicationScheduleIntervalEntityV1
 import de.gematik.ti.erp.app.fhir.temporal.toLocalDate
@@ -32,9 +36,8 @@ import de.gematik.ti.erp.app.medicationplan.MEDICATION_REQUEST
 import de.gematik.ti.erp.app.medicationplan.MEDICATION_SCHEDULE
 import de.gematik.ti.erp.app.medicationplan.scannedTask
 import de.gematik.ti.erp.app.medicationplan.syncedTask
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.model.Quantity
-import de.gematik.ti.erp.app.prescription.model.Ratio
+import de.gematik.ti.erp.app.task.model.QuantityErpModel
+import de.gematik.ti.erp.app.task.model.RatioErpModel
 import io.realm.kotlin.ext.toRealmList
 import junit.framework.TestCase.assertNotNull
 import kotlinx.datetime.Instant
@@ -50,26 +53,26 @@ class MedicationPlanMapperTest {
     @Test
     fun `test null dosage instruction`() {
         val result = parseInstruction(null)
-        assertEquals(MedicationPlanDosageInstruction.Empty, result)
+        assertEquals(MedicationPlanDosageInstructionErpModel.Empty, result)
     }
 
     @Test
     fun `test empty dosage instruction`() {
         val result = parseInstruction("")
-        assertEquals(MedicationPlanDosageInstruction.Empty, result)
+        assertEquals(MedicationPlanDosageInstructionErpModel.Empty, result)
     }
 
     @Test
     fun `test empty dosage instruction an space`() {
         val result = parseInstruction(" ")
-        assertEquals(MedicationPlanDosageInstruction.Empty, result)
+        assertEquals(MedicationPlanDosageInstructionErpModel.Empty, result)
     }
 
     @Test
     fun `test free text dosage instruction`() {
         val result = parseInstruction("Take one pill in the morning")
         assertEquals(
-            MedicationPlanDosageInstruction.FreeText("Take one pill in the morning"),
+            MedicationPlanDosageInstructionErpModel.FreeText("Take one pill in the morning"),
             result
         )
     }
@@ -78,10 +81,10 @@ class MedicationPlanMapperTest {
     fun `test once in the morning 3 parts`() {
         val result = parseInstruction("1-0-0")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "1-0-0",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.MORNING to "1"
+                    MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1"
                 )
             ),
             result
@@ -92,11 +95,11 @@ class MedicationPlanMapperTest {
     fun `test 1 in the morning, 1 in the evening 3 parts`() {
         val result = parseInstruction("1-0-1")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "1-0-1",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.MORNING to "1",
-                    MedicationPlanDosageInstruction.DayTime.EVENING to "1"
+                    MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1",
+                    MedicationPlanDosageInstructionErpModel.DayTime.EVENING to "1"
                 )
             ),
             result
@@ -107,12 +110,12 @@ class MedicationPlanMapperTest {
     fun `test 1 in the morning, 1 2 on noon, 1 in  the evening 3 parts`() {
         val result = parseInstruction("1 - 2- 3")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "1 - 2- 3",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.MORNING to "1",
-                    MedicationPlanDosageInstruction.DayTime.NOON to "2",
-                    MedicationPlanDosageInstruction.DayTime.EVENING to "3"
+                    MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1",
+                    MedicationPlanDosageInstructionErpModel.DayTime.NOON to "2",
+                    MedicationPlanDosageInstructionErpModel.DayTime.EVENING to "3"
                 )
             ),
             result
@@ -123,12 +126,12 @@ class MedicationPlanMapperTest {
     fun `test 3 float & fraction types`() {
         val result = parseInstruction("1.5-1,5-1½")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "1.5-1,5-1½",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.MORNING to "1.5",
-                    MedicationPlanDosageInstruction.DayTime.NOON to "1,5",
-                    MedicationPlanDosageInstruction.DayTime.EVENING to "1½"
+                    MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1.5",
+                    MedicationPlanDosageInstructionErpModel.DayTime.NOON to "1,5",
+                    MedicationPlanDosageInstructionErpModel.DayTime.EVENING to "1½"
                 )
             ),
             result
@@ -139,12 +142,12 @@ class MedicationPlanMapperTest {
     fun `test fraction types with spaces`() {
         val result = parseInstruction("½ - 2 ½ - 3  ½")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "½ - 2 ½ - 3  ½",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.MORNING to "½",
-                    MedicationPlanDosageInstruction.DayTime.NOON to "2 ½",
-                    MedicationPlanDosageInstruction.DayTime.EVENING to "3  ½"
+                    MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "½",
+                    MedicationPlanDosageInstructionErpModel.DayTime.NOON to "2 ½",
+                    MedicationPlanDosageInstructionErpModel.DayTime.EVENING to "3  ½"
                 )
             ),
             result
@@ -155,11 +158,11 @@ class MedicationPlanMapperTest {
     fun `test 3 parts with empty middle part`() {
         val result = parseInstruction("1--1")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "1--1",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.MORNING to "1",
-                    MedicationPlanDosageInstruction.DayTime.EVENING to "1"
+                    MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1",
+                    MedicationPlanDosageInstructionErpModel.DayTime.EVENING to "1"
                 )
             ),
             result
@@ -170,10 +173,10 @@ class MedicationPlanMapperTest {
     fun `test 3 parts with empty middle part and 0 on first`() {
         val result = parseInstruction("0--1")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "0--1",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.EVENING to "1"
+                    MedicationPlanDosageInstructionErpModel.DayTime.EVENING to "1"
                 )
             ),
             result
@@ -184,10 +187,10 @@ class MedicationPlanMapperTest {
     fun `test 3 parts with 1 on middle part`() {
         val result = parseInstruction("-1-")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "-1-",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.NOON to "1"
+                    MedicationPlanDosageInstructionErpModel.DayTime.NOON to "1"
                 )
             ),
             result
@@ -198,10 +201,10 @@ class MedicationPlanMapperTest {
     fun `test 3 parts with angle brackets`() {
         val result = parseInstruction("<<1-0-0>>")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "<<1-0-0>>",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.MORNING to "1"
+                    MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1"
                 )
             ),
             result
@@ -212,10 +215,10 @@ class MedicationPlanMapperTest {
     fun `test 3 parts with angle brackets and spaces`() {
         val result = parseInstruction(" >> << 1-0-0 <<> > ")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = " >> << 1-0-0 <<> > ",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.MORNING to "1"
+                    MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1"
                 )
             ),
             result
@@ -226,10 +229,10 @@ class MedicationPlanMapperTest {
     fun `test 4 parts 1 Morning`() {
         val result = parseInstruction("1-0-0-0")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "1-0-0-0",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.MORNING to "1"
+                    MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1"
                 )
             ),
             result
@@ -240,11 +243,11 @@ class MedicationPlanMapperTest {
     fun `test 4 parts 1 Morning, 1 Evening`() {
         val result = parseInstruction("1-0-1-0")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "1-0-1-0",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.MORNING to "1",
-                    MedicationPlanDosageInstruction.DayTime.EVENING to "1"
+                    MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1",
+                    MedicationPlanDosageInstructionErpModel.DayTime.EVENING to "1"
                 )
             ),
             result
@@ -255,11 +258,11 @@ class MedicationPlanMapperTest {
     fun `test 4 parts 1 Noon, 1 Night`() {
         val result = parseInstruction("0-1-0-1")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "0-1-0-1",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.NOON to "1",
-                    MedicationPlanDosageInstruction.DayTime.NIGHT to "1"
+                    MedicationPlanDosageInstructionErpModel.DayTime.NOON to "1",
+                    MedicationPlanDosageInstructionErpModel.DayTime.NIGHT to "1"
                 )
             ),
             result
@@ -270,13 +273,13 @@ class MedicationPlanMapperTest {
     fun `test 4 parts with one float and spaces`() {
         val result = parseInstruction("1 - 2- 3-   4.0")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "1 - 2- 3-   4.0",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.MORNING to "1",
-                    MedicationPlanDosageInstruction.DayTime.NOON to "2",
-                    MedicationPlanDosageInstruction.DayTime.EVENING to "3",
-                    MedicationPlanDosageInstruction.DayTime.NIGHT to "4.0"
+                    MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1",
+                    MedicationPlanDosageInstructionErpModel.DayTime.NOON to "2",
+                    MedicationPlanDosageInstructionErpModel.DayTime.EVENING to "3",
+                    MedicationPlanDosageInstructionErpModel.DayTime.NIGHT to "4.0"
                 )
             ),
             result
@@ -287,13 +290,13 @@ class MedicationPlanMapperTest {
     fun `test 4 parts with float, spaces and fraction types`() {
         val result = parseInstruction("1.5  -  1,5  -  2 ½  -  ½")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "1.5  -  1,5  -  2 ½  -  ½",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.MORNING to "1.5",
-                    MedicationPlanDosageInstruction.DayTime.NOON to "1,5",
-                    MedicationPlanDosageInstruction.DayTime.EVENING to "2 ½",
-                    MedicationPlanDosageInstruction.DayTime.NIGHT to "½"
+                    MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1.5",
+                    MedicationPlanDosageInstructionErpModel.DayTime.NOON to "1,5",
+                    MedicationPlanDosageInstructionErpModel.DayTime.EVENING to "2 ½",
+                    MedicationPlanDosageInstructionErpModel.DayTime.NIGHT to "½"
                 )
             ),
             result
@@ -304,11 +307,11 @@ class MedicationPlanMapperTest {
     fun `test 4 parts 1 morning 1 night `() {
         val result = parseInstruction("1---1")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "1---1",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.MORNING to "1",
-                    MedicationPlanDosageInstruction.DayTime.NIGHT to "1"
+                    MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1",
+                    MedicationPlanDosageInstructionErpModel.DayTime.NIGHT to "1"
                 )
             ),
             result
@@ -319,11 +322,11 @@ class MedicationPlanMapperTest {
     fun `test 4 parts 1 morning 1 night 1 empty `() {
         val result = parseInstruction("1--0-1")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "1--0-1",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.MORNING to "1",
-                    MedicationPlanDosageInstruction.DayTime.NIGHT to "1"
+                    MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1",
+                    MedicationPlanDosageInstructionErpModel.DayTime.NIGHT to "1"
                 )
             ),
             result
@@ -334,10 +337,10 @@ class MedicationPlanMapperTest {
     fun `test 4 parts 2 noon `() {
         val result = parseInstruction("-2--0")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "-2--0",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.NOON to "2"
+                    MedicationPlanDosageInstructionErpModel.DayTime.NOON to "2"
                 )
             ),
             result
@@ -348,7 +351,7 @@ class MedicationPlanMapperTest {
     fun `test dj with angle brackets`() {
         val result = parseInstruction("< << DJ > >>")
         assertEquals(
-            MedicationPlanDosageInstruction.External,
+            MedicationPlanDosageInstructionErpModel.External,
             result
         )
     }
@@ -357,10 +360,10 @@ class MedicationPlanMapperTest {
     fun `test with text`() {
         val result = parseInstruction("1-0-x-0")
         assertEquals(
-            MedicationPlanDosageInstruction.Structured(
+            MedicationPlanDosageInstructionErpModel.Structured(
                 text = "1-0-x-0",
                 interpretation = mapOf(
-                    MedicationPlanDosageInstruction.DayTime.MORNING to "1"
+                    MedicationPlanDosageInstructionErpModel.DayTime.MORNING to "1"
                 )
             ),
             result
@@ -371,7 +374,7 @@ class MedicationPlanMapperTest {
     fun `test with all 0 should be empty`() {
         val result = parseInstruction("0-0-0")
         assertEquals(
-            MedicationPlanDosageInstruction.Empty,
+            MedicationPlanDosageInstructionErpModel.Empty,
             result
         )
     }
@@ -380,7 +383,7 @@ class MedicationPlanMapperTest {
     fun `test with words`() {
         val result = parseInstruction("2 mal Mörgens")
         assertEquals(
-            MedicationPlanDosageInstruction.FreeText(
+            MedicationPlanDosageInstructionErpModel.FreeText(
                 text = "2 mal Mörgens"
             ),
             result
@@ -391,7 +394,7 @@ class MedicationPlanMapperTest {
     fun `test dosage instruction with more than 4 parts should return Freetext`() {
         val result = parseInstruction("1-2-1-1-1-1-2-0")
         assertEquals(
-            MedicationPlanDosageInstruction.FreeText(
+            MedicationPlanDosageInstructionErpModel.FreeText(
                 text = "1-2-1-1-1-1-2-0"
             ),
             result
@@ -475,8 +478,7 @@ class MedicationPlanMapperTest {
 
     @Test
     fun `ScannedPrescription to MedicationSchedule`() {
-        val scannedPrescription = PrescriptionData.Scanned(scannedTask)
-        val schedule = scannedPrescription.toMedicationSchedule()
+        val schedule = scannedTask.toMedicationSchedule()
         assertEquals("Scanned Task", schedule.message.title)
         assertEquals("", schedule.message.body)
         assertEquals("active-scanned-task-id-1", schedule.taskId)
@@ -485,8 +487,7 @@ class MedicationPlanMapperTest {
 
     @Test
     fun `SyncedPrescription with freetext dosage instruction to MedicationSchedule`() {
-        val syncedPrescription = PrescriptionData.Synced(syncedTask)
-        val schedule = syncedPrescription.toMedicationSchedule()
+        val schedule = syncedTask.toMedicationSchedule()
         assertEquals("Medication", schedule.message.title)
         assertEquals("", schedule.message.body)
         assertEquals("active-synced-task-id-1", schedule.taskId)
@@ -495,14 +496,11 @@ class MedicationPlanMapperTest {
 
     @Test
     fun `SyncedPrescription with structured dosage instruction to MedicationSchedule`() {
-        val syncedPrescription = PrescriptionData.Synced(
-            syncedTask.copy(
-                medicationRequest = MEDICATION_REQUEST.copy(
-                    dosageInstruction = "1-0-1"
-                )
+        val schedule = syncedTask.copy(
+            medicationRequest = MEDICATION_REQUEST.copy(
+                dosageInstruction = "1-0-1"
             )
-        )
-        val schedule = syncedPrescription.toMedicationSchedule()
+        ).toMedicationSchedule()
         assertEquals("Medication", schedule.message.title)
         assertEquals("", schedule.message.body)
         assertEquals("active-synced-task-id-1", schedule.taskId)
@@ -511,9 +509,9 @@ class MedicationPlanMapperTest {
 
     @Test
     fun `multiply medicationAmount with float string`() {
-        val ratio = Ratio(
-            numerator = Quantity(value = "0.5", unit = "mg"),
-            denominator = Quantity(value = "1", unit = "")
+        val ratio = RatioErpModel(
+            numerator = QuantityErpModel(value = "0.5", unit = "mg"),
+            denominator = QuantityErpModel(value = "1", unit = "")
         )
         val result = multiplyMedicationAmount(ratio, 2)
         assertNotNull(result)
@@ -522,9 +520,9 @@ class MedicationPlanMapperTest {
 
     @Test
     fun `multiply medicationAmount with int string`() {
-        val ratio = Ratio(
-            numerator = Quantity(value = "10", unit = "mg"),
-            denominator = Quantity(value = "1", unit = "")
+        val ratio = RatioErpModel(
+            numerator = QuantityErpModel(value = "10", unit = "mg"),
+            denominator = QuantityErpModel(value = "1", unit = "")
         )
         val result = multiplyMedicationAmount(ratio, 2)
         assertNotNull(result)
@@ -533,9 +531,9 @@ class MedicationPlanMapperTest {
 
     @Test
     fun `multiply medicationAmount with comma string`() {
-        val ratio = Ratio(
-            numerator = Quantity(value = "0,7", unit = "mg"),
-            denominator = Quantity(value = "1", unit = "")
+        val ratio = RatioErpModel(
+            numerator = QuantityErpModel(value = "0,7", unit = "mg"),
+            denominator = QuantityErpModel(value = "1", unit = "")
         )
         val result = multiplyMedicationAmount(ratio, 2)
         assertEquals("1.4", result?.numerator?.value)
@@ -549,9 +547,9 @@ class MedicationPlanMapperTest {
 
     @Test
     fun `multiply medicationAmount with int Result`() {
-        val ratio = Ratio(
-            numerator = Quantity(value = "1.0", unit = "mg"),
-            denominator = Quantity(value = "1", unit = "")
+        val ratio = RatioErpModel(
+            numerator = QuantityErpModel(value = "1.0", unit = "mg"),
+            denominator = QuantityErpModel(value = "1", unit = "")
         )
         val result = multiplyMedicationAmount(ratio, 2)
         assertEquals("2", result?.numerator?.value)
@@ -561,9 +559,9 @@ class MedicationPlanMapperTest {
     fun `get calculated end date with empty dosage instructions`() {
         val start = Instant.parse("2024-01-31T08:00:00Z")
         val schedule = MEDICATION_SCHEDULE.copy(
-            amount = Ratio(
-                numerator = Quantity(value = "30", unit = "TAB"),
-                denominator = Quantity(value = "1", unit = "TAB")
+            amount = RatioErpModel(
+                numerator = QuantityErpModel(value = "30", unit = "TAB"),
+                denominator = QuantityErpModel(value = "1", unit = "TAB")
             ),
             notifications = emptyList()
         )
@@ -580,18 +578,18 @@ class MedicationPlanMapperTest {
         val notification2 = Instant.parse("2024-01-01T18:00:00Z")
         val expectedEndDate = start.plus(14.days)
         val schedule = MEDICATION_SCHEDULE.copy(
-            amount = Ratio(
-                numerator = Quantity(value = "30", unit = "TAB"),
-                denominator = Quantity(value = "1", unit = "TAB")
+            amount = RatioErpModel(
+                numerator = QuantityErpModel(value = "30", unit = "TAB"),
+                denominator = QuantityErpModel(value = "1", unit = "TAB")
             ),
             notifications = listOf(
-                MedicationScheduleNotification(
+                MedicationScheduleNotificationErpModel(
                     time = notification1.toLocalDateTime(TimeZone.currentSystemDefault()).time,
-                    dosage = MedicationScheduleNotificationDosage("TAB", ratio = "1")
+                    dosage = MedicationScheduleNotificationDosageErpModel("TAB", ratio = "1")
                 ),
-                MedicationScheduleNotification(
+                MedicationScheduleNotificationErpModel(
                     time = notification2.toLocalDateTime(TimeZone.currentSystemDefault()).time,
-                    dosage = MedicationScheduleNotificationDosage("TAB", ratio = "1")
+                    dosage = MedicationScheduleNotificationDosageErpModel("TAB", ratio = "1")
                 )
             )
         )
@@ -608,21 +606,21 @@ class MedicationPlanMapperTest {
         val notification2 = Instant.parse("2024-01-01T18:00:00Z")
         val expectedEndDate = start.plus(28.days)
         val schedule = MEDICATION_SCHEDULE.copy(
-            amount = Ratio(
-                numerator = Quantity(value = "30", unit = "TAB"),
-                denominator = Quantity(value = "1", unit = "TAB")
+            amount = RatioErpModel(
+                numerator = QuantityErpModel(value = "30", unit = "TAB"),
+                denominator = QuantityErpModel(value = "1", unit = "TAB")
             ),
             notifications = listOf(
-                MedicationScheduleNotification(
+                MedicationScheduleNotificationErpModel(
                     time = notification1.toLocalDateTime(TimeZone.currentSystemDefault()).time,
-                    dosage = MedicationScheduleNotificationDosage("TAB", ratio = "1")
+                    dosage = MedicationScheduleNotificationDosageErpModel("TAB", ratio = "1")
                 ),
-                MedicationScheduleNotification(
+                MedicationScheduleNotificationErpModel(
                     time = notification2.toLocalDateTime(TimeZone.currentSystemDefault()).time,
-                    dosage = MedicationScheduleNotificationDosage("TAB", ratio = "1")
+                    dosage = MedicationScheduleNotificationDosageErpModel("TAB", ratio = "1")
                 )
             ),
-            interval = de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleInterval.EveryTwoDays
+            interval = MedicationScheduleIntervalErpModel.EveryTwoDays
         )
         val endDate = schedule.calculateEndOfPack(
             currentDateTime = start.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -637,18 +635,18 @@ class MedicationPlanMapperTest {
         val notification2 = Instant.parse("2024-01-01T18:00:00Z")
         val expectedEndDate = start.plus(29.days)
         val schedule = MEDICATION_SCHEDULE.copy(
-            amount = Ratio(
-                numerator = Quantity(value = "30", unit = "TAB"),
-                denominator = Quantity(value = "1", unit = "TAB")
+            amount = RatioErpModel(
+                numerator = QuantityErpModel(value = "30", unit = "TAB"),
+                denominator = QuantityErpModel(value = "1", unit = "TAB")
             ),
             notifications = listOf(
-                MedicationScheduleNotification(
+                MedicationScheduleNotificationErpModel(
                     time = notification1.toLocalDateTime(TimeZone.currentSystemDefault()).time,
-                    dosage = MedicationScheduleNotificationDosage("TAB", ratio = "0.5")
+                    dosage = MedicationScheduleNotificationDosageErpModel("TAB", ratio = "0.5")
                 ),
-                MedicationScheduleNotification(
+                MedicationScheduleNotificationErpModel(
                     time = notification2.toLocalDateTime(TimeZone.currentSystemDefault()).time,
-                    dosage = MedicationScheduleNotificationDosage("TAB", ratio = "0.5")
+                    dosage = MedicationScheduleNotificationDosageErpModel("TAB", ratio = "0.5")
                 )
             )
         )
@@ -665,18 +663,18 @@ class MedicationPlanMapperTest {
         val notification2 = Instant.parse("2024-01-01T18:00:00Z")
         val expectedEndDate = start.plus(15.days)
         val schedule = MEDICATION_SCHEDULE.copy(
-            amount = Ratio(
-                numerator = Quantity(value = "30", unit = "TAB"),
-                denominator = Quantity(value = "1", unit = "TAB")
+            amount = RatioErpModel(
+                numerator = QuantityErpModel(value = "30", unit = "TAB"),
+                denominator = QuantityErpModel(value = "1", unit = "TAB")
             ),
             notifications = listOf(
-                MedicationScheduleNotification(
+                MedicationScheduleNotificationErpModel(
                     time = notification1.toLocalDateTime(TimeZone.currentSystemDefault()).time,
-                    dosage = MedicationScheduleNotificationDosage("TAB", ratio = "1")
+                    dosage = MedicationScheduleNotificationDosageErpModel("TAB", ratio = "1")
                 ),
-                MedicationScheduleNotification(
+                MedicationScheduleNotificationErpModel(
                     time = notification2.toLocalDateTime(TimeZone.currentSystemDefault()).time,
-                    dosage = MedicationScheduleNotificationDosage("TAB", ratio = "1")
+                    dosage = MedicationScheduleNotificationDosageErpModel("TAB", ratio = "1")
                 )
             )
         )
@@ -693,25 +691,25 @@ class MedicationPlanMapperTest {
         val notification2 = Instant.parse("2025-01-01T18:00:00Z")
         val expectedEndDate = Instant.parse("2025-04-14T00:00:00Z")
         val schedule = MEDICATION_SCHEDULE.copy(
-            duration = de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDuration.Personalized(
+            duration = MedicationScheduleDurationErpModel.Personalized(
                 startDate = start.toLocalDate(),
                 endDate = start.toLocalDate()
             ),
-            amount = Ratio(
-                numerator = Quantity(value = "30", unit = "TAB"),
-                denominator = Quantity(value = "1", unit = "TAB")
+            amount = RatioErpModel(
+                numerator = QuantityErpModel(value = "30", unit = "TAB"),
+                denominator = QuantityErpModel(value = "1", unit = "TAB")
             ),
             notifications = listOf(
-                MedicationScheduleNotification(
+                MedicationScheduleNotificationErpModel(
                     time = notification1.toLocalDateTime(TimeZone.currentSystemDefault()).time,
-                    dosage = MedicationScheduleNotificationDosage("TAB", ratio = "1")
+                    dosage = MedicationScheduleNotificationDosageErpModel("TAB", ratio = "1")
                 ),
-                MedicationScheduleNotification(
+                MedicationScheduleNotificationErpModel(
                     time = notification2.toLocalDateTime(TimeZone.currentSystemDefault()).time,
-                    dosage = MedicationScheduleNotificationDosage("TAB", ratio = "1")
+                    dosage = MedicationScheduleNotificationDosageErpModel("TAB", ratio = "1")
                 )
             ),
-            interval = de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleInterval.Personalized(selectedDays = setOf(DayOfWeek.MONDAY))
+            interval = MedicationScheduleIntervalErpModel.Personalized(selectedDays = setOf(DayOfWeek.MONDAY))
         )
         val endDate = schedule.calculateEndOfPack(
             currentDateTime = start.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -725,21 +723,21 @@ class MedicationPlanMapperTest {
         val notification1 = Instant.parse("2025-01-01T08:00:00Z")
         val expectedEndDate = Instant.parse("2025-04-15T00:00:00Z")
         val schedule = MEDICATION_SCHEDULE.copy(
-            duration = de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDuration.Personalized(
+            duration = MedicationScheduleDurationErpModel.Personalized(
                 startDate = start.toLocalDate(),
                 endDate = start.toLocalDate()
             ),
-            amount = Ratio(
-                numerator = Quantity(value = "30", unit = "TAB"),
-                denominator = Quantity(value = "1", unit = "TAB")
+            amount = RatioErpModel(
+                numerator = QuantityErpModel(value = "30", unit = "TAB"),
+                denominator = QuantityErpModel(value = "1", unit = "TAB")
             ),
             notifications = listOf(
-                MedicationScheduleNotification(
+                MedicationScheduleNotificationErpModel(
                     time = notification1.toLocalDateTime(TimeZone.currentSystemDefault()).time,
-                    dosage = MedicationScheduleNotificationDosage("TAB", ratio = "1")
+                    dosage = MedicationScheduleNotificationDosageErpModel("TAB", ratio = "1")
                 )
             ),
-            interval = de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleInterval.Personalized(
+            interval = MedicationScheduleIntervalErpModel.Personalized(
                 selectedDays = setOf(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY)
             )
         )

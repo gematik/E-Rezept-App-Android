@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.fhir.model
 import de.gematik.ti.erp.app.fhir.parser.filterWith
 import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.stringValue
-import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -77,7 +77,7 @@ class RessourceMapperEpaVersion_1_4_Test {
                 assertTrue(ingredientMedication.isEmpty())
 
                 assertEquals("1419556306", lotNumber)
-                assertEquals("2024-12-25T02:35:18+00:00".toFhirTemporal(), expirationDate)
+                assertEquals("2024-12-25T02:35:18+00:00".asFhirTemporal(), expirationDate)
 
                 ReturnType.Medication
             }

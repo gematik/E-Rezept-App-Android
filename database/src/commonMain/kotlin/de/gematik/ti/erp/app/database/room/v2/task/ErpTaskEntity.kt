@@ -28,9 +28,15 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.TaskStatusV1
+import de.gematik.ti.erp.app.database.room.v2.profile.ProfileEntity
+import de.gematik.ti.erp.app.database.room.v2.task.accident.ErpAccidentInfoEntity
 import de.gematik.ti.erp.app.database.room.v2.task.communication.ErpCommunicationEntity
+import de.gematik.ti.erp.app.database.room.v2.task.diga.ErpTaskMedicationDeviceRequestEntity
 import de.gematik.ti.erp.app.database.room.v2.task.medication.ErpMedicationEntity
+import de.gematik.ti.erp.app.database.room.v2.task.multipleprescription.ErpMultiplePrescriptionEntity
 import de.gematik.ti.erp.app.database.room.v2.task.organization.ErpOrganizationEntity
+import de.gematik.ti.erp.app.database.room.v2.task.patient.ErpPatientEntity
+import de.gematik.ti.erp.app.database.room.v2.task.practitioner.ErpPractitionerEntity
 import de.gematik.ti.erp.app.database.room.v2.task.util.InstantConverter
 import de.gematik.ti.erp.app.database.room.v2.task.util.TaskStatusConverter
 import kotlinx.datetime.Instant
@@ -43,21 +49,21 @@ import kotlinx.datetime.Instant
             parentColumns = ["organizationId"],
             childColumns = ["organizationId"],
             onUpdate = ForeignKey.CASCADE,
-            onDelete = ForeignKey.SET_NULL
+            onDelete = ForeignKey.CASCADE
         ),
         ForeignKey( // practitioner
             entity = ErpPractitionerEntity::class,
             parentColumns = ["practitionerId"],
             childColumns = ["practitionerId"],
             onUpdate = ForeignKey.CASCADE,
-            onDelete = ForeignKey.SET_NULL
+            onDelete = ForeignKey.CASCADE
         ),
         ForeignKey( // patient
             entity = ErpPatientEntity::class,
             parentColumns = ["patientId"],
             childColumns = ["patientId"],
             onUpdate = ForeignKey.CASCADE,
-            onDelete = ForeignKey.SET_NULL
+            onDelete = ForeignKey.CASCADE
         ),
 
         ForeignKey( // patient
@@ -65,14 +71,14 @@ import kotlinx.datetime.Instant
             parentColumns = ["multiplePrescriptionId"],
             childColumns = ["multiplePrescriptionId"],
             onUpdate = ForeignKey.CASCADE,
-            onDelete = ForeignKey.SET_NULL
+            onDelete = ForeignKey.CASCADE
         ),
         ForeignKey( // accident_info
             entity = ErpAccidentInfoEntity::class,
             parentColumns = ["accidentInfoId"],
             childColumns = ["accidentInfoId"],
             onUpdate = ForeignKey.CASCADE,
-            onDelete = ForeignKey.SET_NULL
+            onDelete = ForeignKey.CASCADE
         ),
 
         ForeignKey( // insurance information
@@ -80,22 +86,28 @@ import kotlinx.datetime.Instant
             parentColumns = ["deviceRequestId"],
             childColumns = ["deviceRequestId"],
             onUpdate = ForeignKey.CASCADE,
-            onDelete = ForeignKey.SET_NULL
+            onDelete = ForeignKey.CASCADE
         ),
         ForeignKey( // medication request
             entity = ErpMedicationEntity::class,
             parentColumns = ["medicationId"],
             childColumns = ["medicationId"],
             onUpdate = ForeignKey.CASCADE,
-            onDelete = ForeignKey.SET_NULL
+            onDelete = ForeignKey.CASCADE
         ),
-
-        ForeignKey( // parent profile (back reference)
+        ForeignKey( // parent profile
+            entity = ProfileEntity::class,
+            parentColumns = ["identifier"],
+            childColumns = ["parentProfileId"],
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey( // communication back reference
             entity = ErpCommunicationEntity::class,
             parentColumns = ["communicationId"],
             childColumns = ["communicationId"],
             onUpdate = ForeignKey.CASCADE,
-            onDelete = ForeignKey.SET_NULL
+            onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [

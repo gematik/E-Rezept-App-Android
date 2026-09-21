@@ -22,13 +22,11 @@
 
 package de.gematik.ti.erp.app.prescription.usecase
 
+import de.gematik.ti.erp.app.prescription.mapper.filterNonActiveDigaTasks
 import de.gematik.ti.erp.app.prescription.mapper.filterNonActiveTasks
-import de.gematik.ti.erp.app.prescription.mapper.toPrescription
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData.ScannedTask
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -43,34 +41,29 @@ import kotlinx.coroutines.flow.flowOn
  *
  */
 class GetArchivedPrescriptionsUseCase(
-    private val repository: PrescriptionRepository,
+    private val repository: TaskOperationsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(
-        id: ProfileIdentifier
-    ): Flow<List<Prescription>> =
+    operator fun invoke(id: ProfileIdentifier): Flow<List<TaskErpModel>> =
         combine(
-            repository.scannedTasks(id),
-            repository.syncedTasks(id)
-        ) { scannedTasks, syncedTasks ->
-            val scannedPrescriptions = scannedTasks
-                .filterNonActiveTasks()
-                .map(ScannedTask::toPrescription)
+            repository.loadScannedTaskListByProfileId(id),
+            repository.loadSyncedTaskListByProfileId(id),
+            repository.loadDigaTaskListByProfileId(id)
+        ) { scannedTasks, syncedTasks, digas ->
+            val scannedPrescriptions = scannedTasks.filterNonActiveTasks()
+            // .map(TaskErpModel.Scanned::toPrescription)
 
-            val archivedSyncedPrescriptions = syncedTasks
-                .filterNonDigaTasks()
-                .filterNonActiveTasks()
-                .map(SyncedTask::toPrescription)
+            val archivedSyncedPrescriptions = syncedTasks.filterNonActiveTasks()
+            // .map(TaskErpModel.Synced.Prescription::toPrescription)
 
-            (archivedSyncedPrescriptions + scannedPrescriptions).sortArchives()
+            val archivedDigas = digas.filterNonActiveDigaTasks()
+
+            (archivedSyncedPrescriptions + archivedDigas + scannedPrescriptions).sortArchives()
         }.flowOn(dispatcher)
 
     companion object {
 
-        private fun List<SyncedTask>.filterNonDigaTasks() =
-            filter { it.deviceRequest == null } // TODO: define as a Type
-
-        private fun List<Prescription>.sortArchives() =
-            sortedWith(compareByDescending<Prescription> { it.redeemedOn ?: it.expiresOn }.thenBy { it.name })
+        private fun List<TaskErpModel>.sortArchives() =
+            sortedWith(compareByDescending<TaskErpModel> { it.endedOn }.thenBy { it.name })
     }
 }

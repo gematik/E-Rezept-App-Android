@@ -23,7 +23,6 @@
 package de.gematik.ti.erp.app.di
 
 import android.content.Context
-import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.interceptor.UserAgentHeaderInterceptor
 import de.gematik.ti.erp.app.logger.HttpAppLogger
@@ -75,7 +74,6 @@ val clientBuilderModule = DI.Module("ClientBuilderModule") {
             )
             .connectionSpecs(getConnectionSpec())
             .addInterceptor(instance<UserAgentHeaderInterceptor>())
-            .addCertificateTransparencyInterceptor()
             .addInterceptor(instance<HttpLoggingInterceptor>())
             .addInterceptor(instance<HttpAppLogger>())
 
@@ -135,11 +133,3 @@ private fun getConnectionSpec(): List<ConnectionSpec> = ConnectionSpec
     .let {
         listOf(it)
     }
-
-// Certificate Transparency is a security measure that helps protect against mis-issued certificates.
-fun OkHttpClient.Builder.addCertificateTransparencyInterceptor() =
-    addNetworkInterceptor(
-        certificateTransparencyInterceptor {
-            failOnError = true
-        }
-    )

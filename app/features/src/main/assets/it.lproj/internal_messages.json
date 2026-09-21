@@ -70,5 +70,11 @@
         "text": "**🏥 Dettagli farmacia migliorati** \nLe farmacie possono ora aggiungere servizi come vaccinazioni e funzionalità in loco come l'accesso senza barriere. Le farmacie possono essere filtrate in base a queste nuove informazioni. \n \n **✨ Ricerca farmacia migliorata** \nLe farmacie utilizzate di recente e le farmacie preferite sono ora separate in modo più chiaro. I filtri sono stati migliorati. \n \n **✅ ID sanitario per altri assicurati** \nGli assicurati che non sono coperti da un'assicurazione sanitaria pubblica o privata possono ora accedere anche utilizzando il loro ID sanitario. \n \n **🛡️ Tracciamento rimosso** \nAbbiamo rimosso lo strumento di tracciamento utilizzato nell'app. Non vengono più raccolti dati sull'utilizzo dell'app. \n \n **♿ Accessibilità migliorata** \nI filtri ora hanno un contrasto maggiore e lo stato del filtro è ora più facile da vedere.",
         "timestamp": "2026-03-30T08:00:00.000Z",
         "version": "1.38"
+    },
+    {
+        "id": "14",
+        "text": "**✅ Ricette mediche disponibili**\nLe prescrizioni T possono ora essere ricevute e visualizzate correttamente. Le prescrizioni T vengono utilizzate per alcuni medicinali con particolari requisiti di sicurezza.\n\n**⚙️ Impostazioni ripulite**\nLe impostazioni del profilo sono state riviste e rese più chiare.\n\n**♿ Maggiore accessibilità**\nOra è possibile segnalare gli ostacoli direttamente dalle impostazioni. Pulsanti, menu, elenchi e intestazioni sono stati ottimizzati per l'utilizzo con TalkBack. Il contrasto è stato migliorato e le animazioni ora vengono riprodotte una sola volta. Il campo del nome ora ha un'etichetta sempre visibile. Anche le dimensioni dei caratteri più grandi sono ora supportate nelle visualizzazioni web dell'app.",
+        "timestamp": "2026-08-18T08:00:00.000Z",
+        "version": "1.39"
     }
 ]

@@ -29,8 +29,7 @@ import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.prescription.ui.screen.PrescriptionsArchiveEmptyScreenContent
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
@@ -38,7 +37,7 @@ import de.gematik.ti.erp.app.utils.uistate.UiState
 
 @Composable
 fun DigaSection(
-    prescriptions: UiState<List<Prescription>>,
+    prescriptions: UiState<List<TaskErpModel>>,
     onOpenPrescriptionDetailScreen: (String, Boolean) -> Unit
 ) {
     SpacerMedium()
@@ -63,12 +62,12 @@ fun DigaSection(
         Column {
             prescriptionList.forEach { prescription ->
                 when (prescription) {
-                    is SyncedPrescription ->
+                    is TaskErpModel.Synced.Diga ->
                         FullDetailDiga(
                             modifier = CardPaddingModifier,
                             prescription = prescription,
                             onClick = {
-                                onOpenPrescriptionDetailScreen(prescription.taskId, prescription.isDiga)
+                                onOpenPrescriptionDetailScreen(prescription.taskId, true)
                             }
                         )
 

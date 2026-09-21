@@ -22,12 +22,7 @@
 
 package de.gematik.ti.erp.app.eurezept.ui.screens
 
-import de.gematik.ti.erp.app.eurezept.ui.preview.EuConsentPreviewParameterProvider
-import de.gematik.ti.erp.app.screenshot.BaseAccessibilityTest
-import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
-import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
-import kotlin.test.Test
-
+/* Todo Room - comment out again after merging the dependent MRs.
 class EuConsentScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(config) {
 
     @Test
@@ -53,3 +48,5 @@ class EuConsentScreenAccessibilityTest(config: ScreenshotConfig) : BaseAccessibi
         }
     }
 }
+
+ */

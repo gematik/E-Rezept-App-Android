@@ -24,11 +24,11 @@ package de.gematik.ti.erp.app.messages.ui.model
 
 import androidx.compose.runtime.Composable
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.messages.mappers.ReplyMessageType
-import de.gematik.ti.erp.app.messages.mappers.getReplyMessageDescription
-import de.gematik.ti.erp.app.messages.mappers.getReplyMessageTitle
-import de.gematik.ti.erp.app.messages.mappers.getSentOnTime
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+import de.gematik.ti.erp.app.messages.mapper.ReplyMessageType
+import de.gematik.ti.erp.app.messages.mapper.getReplyMessageDescription
+import de.gematik.ti.erp.app.messages.mapper.getReplyMessageTitle
+import de.gematik.ti.erp.app.messages.mapper.getSentOnTime
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 
 data class ReplyMessageUiModel(
     val title: String?,
@@ -38,7 +38,7 @@ data class ReplyMessageUiModel(
     val isEnabled: Boolean,
     val isFirstMessage: Boolean,
     val isLastMessage: Boolean,
-    val prescriptionsLinked: List<Prescription?>
+    val prescriptionsLinked: List<TaskErpModel?>
 ) : MessageUiModel {
     companion object {
         @Composable

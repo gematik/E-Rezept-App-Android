@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.fhir.prescription.mocks
 
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirMultiplePrescriptionInfoErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTeratogenicPrescriptionErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirQuantityErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirRatioErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirTaskAccidentType
@@ -138,5 +139,33 @@ object FhirMedicationRequestErpTestData {
         ),
         isSer = false,
         prescriberId = null
+    )
+
+    val erpMedicationRequestModelV14WithTeratogenic = FhirTaskKbvMedicationRequestErpModel(
+        authoredOn = FhirTemporal.LocalDate(LocalDate.parse("2025-03-15")),
+        dateOfAccident = null,
+        location = null,
+        accidentType = FhirTaskAccidentType.None,
+        emergencyFee = false,
+        additionalFee = "0",
+        substitutionAllowed = false,
+        dosageInstruction = "1x tägl. 1 Kapsel",
+        note = null,
+        quantity = 1,
+        multiplePrescriptionInfo = FhirMultiplePrescriptionInfoErpModel(
+            indicator = false,
+            numbering = null,
+            start = null,
+            end = null
+        ),
+        isSer = false,
+        prescriberId = null,
+        teratogenicPrescription = FhirTeratogenicPrescriptionErpModel(
+            offLabel = true,
+            gebaerfaehigeFrau = true,
+            einhaltungSicherheitsmassnahmen = true,
+            aushaendigungInformationsmaterialien = true,
+            erklaerungSachkenntnis = true
+        )
     )
 }

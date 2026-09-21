@@ -22,26 +22,26 @@
 
 package de.gematik.ti.erp.app.medicationplan.repository
 
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDuration
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleInterval
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDurationErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleIntervalErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosageErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalTime
 
 interface MedicationPlanRepository {
-    fun getMedicationSchedule(taskId: String): Flow<MedicationSchedule?>
-    fun getAllMedicationSchedules(): Flow<List<MedicationSchedule>>
+    fun getMedicationSchedule(taskId: String): Flow<MedicationScheduleErpModel?>
+    fun getAllMedicationSchedules(): Flow<List<MedicationScheduleErpModel>>
     suspend fun deleteMedicationSchedule(taskId: String)
     suspend fun deleteAllMedicationSchedulesForProfile(profileIdentifier: ProfileIdentifier)
-    suspend fun setOrCreateActiveMedicationSchedule(medicationSchedule: MedicationSchedule)
+    suspend fun setOrCreateActiveMedicationSchedule(medicationScheduleErpModel: MedicationScheduleErpModel)
     suspend fun deactivateMedicationSchedule(taskId: String)
-    suspend fun setMedicationScheduleDuration(taskId: String, medicationScheduleDuration: MedicationScheduleDuration)
-    suspend fun setMedicationScheduleInterval(taskId: String, medicationScheduleInterval: MedicationScheduleInterval)
-    suspend fun setOrCreateMedicationScheduleNotification(taskId: String, medicationScheduleNotification: MedicationScheduleNotification)
+    suspend fun setMedicationScheduleDuration(taskId: String, medicationScheduleDurationErpModel: MedicationScheduleDurationErpModel)
+    suspend fun setMedicationScheduleInterval(taskId: String, medicationScheduleIntervalErpModel: MedicationScheduleIntervalErpModel)
+    suspend fun setOrCreateMedicationScheduleNotification(taskId: String, medicationScheduleNotificationErpModel: MedicationScheduleNotificationErpModel)
     suspend fun deleteMedicationScheduleNotification(medicationScheduleNotificationId: String)
-    suspend fun setMedicationScheduleNotificationDosage(medicationScheduleNotificationId: String, dosage: MedicationScheduleNotificationDosage)
+    suspend fun setMedicationScheduleNotificationDosage(medicationScheduleNotificationId: String, dosage: MedicationScheduleNotificationDosageErpModel)
     suspend fun setMedicationScheduleNotificationTime(medicationScheduleNotificationId: String, time: LocalTime)
 }

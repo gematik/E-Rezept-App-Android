@@ -25,9 +25,9 @@ package de.gematik.ti.erp.app.messages.ui.model
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.AnnotatedString
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.messages.mappers.getDispenseMessageTitle
-import de.gematik.ti.erp.app.messages.mappers.getInfoText
-import de.gematik.ti.erp.app.messages.mappers.getSentOnTime
+import de.gematik.ti.erp.app.messages.mapper.getDispenseMessageTitle
+import de.gematik.ti.erp.app.messages.mapper.getInfoText
+import de.gematik.ti.erp.app.messages.mapper.getSentOnTime
 
 data class DispenseMessageUiModel(
     val text: AnnotatedString,

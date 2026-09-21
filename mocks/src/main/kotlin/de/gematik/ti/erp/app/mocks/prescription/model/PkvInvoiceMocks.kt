@@ -23,48 +23,37 @@
 package de.gematik.ti.erp.app.mocks.prescription.model
 
 import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.invoice.model.InvoiceErpModel
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
 import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.mocks.PROFILE_ID
+import de.gematik.ti.erp.app.mocks.TASK_ID
+import de.gematik.ti.erp.app.task.model.OrganizationErpModel
 
-val PKV_INVOICE_DATA = InvoiceData.PKVInvoiceRecord(
-    profileId = "1234",
-    taskId = "01234",
+fun mockPKVInvoiceErpModel(
+    profileId: String = PROFILE_ID,
+    taskId: String = TASK_ID
+) = PKVInvoiceErpModel(
+    profileId = profileId,
+    taskId = taskId,
     accessCode = "98765",
     timestamp = DATE_2024_01_01,
-    invoice = InvoiceData.Invoice(
-        2.30,
-        6.80,
-        "EUR",
-        listOf(),
-        listOf()
+    invoice = InvoiceErpModel(
+        totalAdditionalFee = 2.30,
+        totalBruttoAmount = 6.80,
+        currency = "EUR",
+        chargeableItems = listOf(),
+        additionalDispenseItems = listOf()
     ),
-    pharmacyOrganization = SyncedTaskData.Organization(
-        "Pharmacy",
-        SyncedTaskData.Address("", "", "", ""),
-        null,
-        null,
-        null
+    pharmacyOrganization = OrganizationErpModel(
+        name = "Pharmacy"
     ),
-    practitionerOrganization = SyncedTaskData.Organization(
-        "Practitioner",
-        SyncedTaskData.Address("", "", "", ""),
-        null,
-        null,
-        null
+    practitionerOrganization = OrganizationErpModel(
+        name = "Practitioner"
     ),
-    practitioner = SyncedTaskData.Practitioner("Practitioner", "", ""),
-    patient = SyncedTaskData.Patient(
-        "Patient",
-        SyncedTaskData.Address("", "", "", ""),
-        null,
-        null
-    ),
-    medicationRequest = SyncedTaskData.MedicationRequest(
-        null, null, null, SyncedTaskData.AccidentType.None,
-        null, null, false, null,
-        SyncedTaskData.MultiplePrescriptionInfo(false), 1, null, null, SyncedTaskData.AdditionalFee.None
-    ),
+    practitioner = null,
+    patient = null,
+    medicationRequest = null,
     whenHandedOver = DATE_2024_01_01.asFhirTemporal(),
     consumed = false
 )

@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.database.realm.utils
 
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
-import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import org.bouncycastle.util.encoders.Base64
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KMutableProperty
@@ -76,7 +76,7 @@ fun byteArrayBase64Nullable(backingProperty: KMutableProperty<String?>) =
 fun temporalAccessorNullable(backingProperty: KMutableProperty<String?>) =
     object : ReadWriteProperty<Any?, FhirTemporal?> {
         override fun getValue(thisRef: Any?, property: KProperty<*>): FhirTemporal? =
-            backingProperty.getter.call()?.toFhirTemporal()
+            backingProperty.getter.call()?.asFhirTemporal()
 
         override fun setValue(thisRef: Any?, property: KProperty<*>, value: FhirTemporal?) {
             backingProperty.setter.call(value?.formattedString())

@@ -51,6 +51,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
@@ -59,10 +60,12 @@ import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
 import de.gematik.ti.erp.app.listitem.GemListItemDefaults
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes.PharmacyStartScreenModal
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PrescriptionInOrder
+import de.gematik.ti.erp.app.pharmacy.model.OrderStateErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
 import de.gematik.ti.erp.app.prescriptionId
 import de.gematik.ti.erp.app.prescriptionIds
+import de.gematik.ti.erp.app.redeem.navigation.RedeemRouteBackStackEntryArguments
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
 import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemSharedViewModel
 import de.gematik.ti.erp.app.redeem.ui.preview.PrescriptionSelectionPreview
@@ -85,6 +88,9 @@ class PrescriptionSelectionScreen(
 ) : Screen() {
     @Composable
     override fun Content() {
+        val navigationArguments = RedeemRouteBackStackEntryArguments(navBackStackEntry)
+        val pharmacy = navigationArguments.getPharmacy()
+        val hasTeratogenicError by sharedViewModel.hasTeratogenicPrescriptionError.collectAsStateWithLifecycle()
         val snackbar = LocalSnackbarScaffold.current
         val isOrderOverviewMode = navBackStackEntry.arguments?.getBoolean(RedeemRoutes.REDEEM_NAV_MODAL_BEHAVIOUR) == true
         val selectedOrderState by sharedViewModel.selectedOrderState
@@ -132,6 +138,8 @@ class PrescriptionSelectionScreen(
             isOrderOverviewMode = isOrderOverviewMode,
             orderState = orderState,
             selectedOrderState = selectedOrderState,
+            hasTeratogenicError = hasTeratogenicError,
+            pharmacy = pharmacy,
             onPrescriptionSelectionChanged = { prescription, selected -> sharedViewModel.onPrescriptionSelectionChanged(prescription, selected) }
         )
     }
@@ -144,9 +152,11 @@ fun PrescriptionSelectionScreenScaffold(
     onBack: () -> Unit,
     onNext: () -> Unit,
     isOrderOverviewMode: Boolean,
-    orderState: List<PrescriptionInOrder>,
-    selectedOrderState: PharmacyUseCaseData.OrderState,
-    onPrescriptionSelectionChanged: (prescriptionInOrder: PrescriptionInOrder, select: Boolean) -> Unit
+    hasTeratogenicError: Boolean,
+    pharmacy: PharmacyDetailsErpModel?,
+    orderState: List<PrescriptionInOrderErpModel>,
+    selectedOrderState: OrderStateErpModel,
+    onPrescriptionSelectionChanged: (prescriptionInOrder: PrescriptionInOrderErpModel, select: Boolean) -> Unit
 ) {
     AnimatedElevationScaffold(
         modifier = Modifier.testTag(TestTag.PharmacySearch.OrderPrescriptionSelection.Screen),
@@ -180,6 +190,8 @@ fun PrescriptionSelectionScreenScaffold(
                     PrescriptionItem(
                         modifier = Modifier,
                         prescription = prescriptionInOrder,
+                        hasTeratogenicError = hasTeratogenicError,
+                        pharmacy = pharmacy,
                         checked = prescriptionInOrder in selectedOrderState.prescriptionsInOrder,
                         onCheckedChange = { isChanged ->
                             onPrescriptionSelectionChanged(prescriptionInOrder, isChanged)
@@ -194,7 +206,9 @@ fun PrescriptionSelectionScreenScaffold(
 @Composable
 private fun PrescriptionItem(
     modifier: Modifier,
-    prescription: PrescriptionInOrder,
+    pharmacy: PharmacyDetailsErpModel?,
+    hasTeratogenicError: Boolean,
+    prescription: PrescriptionInOrderErpModel,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
@@ -222,10 +236,20 @@ private fun PrescriptionItem(
             )
         },
         supportingContent = {
-            Text(
-                prescriptionDateTime,
-                style = AppTheme.typography.body2l
-            )
+            Column {
+                Text(
+                    prescriptionDateTime,
+                    style = AppTheme.typography.body2l
+                )
+                if (prescription.isTeratogenicPrescription && pharmacy?.isOnlineService == true) {
+                    val color = if (hasTeratogenicError) AppTheme.colors.yellow800 else AppTheme.colors.primary700
+                    Text(
+                        stringResource(R.string.redeem_selection_teratogenic_prescription_hint),
+                        style = AppTheme.typography.body2,
+                        color = color
+                    )
+                }
+            }
         },
         trailingContent = {
             if (checked) {
@@ -238,7 +262,7 @@ private fun PrescriptionItem(
                 Icon(
                     Icons.Rounded.RadioButtonUnchecked,
                     null,
-                    tint = AppTheme.colors.neutral400
+                    tint = AppTheme.colors.neutral700
                 )
             }
         }
@@ -288,6 +312,8 @@ fun PrescriptionSelectionScreenPreview(
             onNext = {},
             selectedOrderState = previewData.selectedOrders,
             orderState = previewData.orders,
+            hasTeratogenicError = previewData.hasTeratogenicError,
+            pharmacy = previewData.pharmacy,
             isOrderOverviewMode = false,
             onPrescriptionSelectionChanged = { _, _ -> }
         )

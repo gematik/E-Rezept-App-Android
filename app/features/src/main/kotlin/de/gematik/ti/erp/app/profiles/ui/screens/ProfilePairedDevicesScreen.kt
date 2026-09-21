@@ -73,7 +73,7 @@ import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
 import de.gematik.ti.erp.app.profiles.presentation.rememberProfilePairedDevicesScreenController
 import de.gematik.ti.erp.app.profiles.ui.components.DeleteDeviceDialog
 import de.gematik.ti.erp.app.profiles.ui.preview.PairedDevicesPreviewParameterProvider
-import de.gematik.ti.erp.app.profiles.usecase.model.PairedDevice
+import de.gematik.ti.erp.app.profile.model.PairedDeviceErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -103,7 +103,7 @@ class ProfilePairedDevicesScreen(
         val profileId = remember { requireNotNull(navBackStackEntry.arguments?.getString(ProfileRoutes.PROFILE_NAV_PROFILE_ID)) }
         val intentHandler = LocalIntentHandler.current
 
-        val deleteDeviceEvent = ComposableEvent<PairedDevice>()
+        val deleteDeviceEvent = ComposableEvent<PairedDeviceErpModel>()
 
         val controller = rememberProfilePairedDevicesScreenController(profileId)
         val activeProfile by controller.activeProfile.collectAsStateWithLifecycle()
@@ -155,10 +155,10 @@ class ProfilePairedDevicesScreen(
 
 @Composable
 private fun ProfilePairedDevicesScreenScaffold(
-    state: UiState<List<PairedDevice>>,
+    state: UiState<List<PairedDeviceErpModel>>,
     listState: LazyListState,
     onBack: () -> Unit,
-    onDeleteDevice: (PairedDevice) -> Unit,
+    onDeleteDevice: (PairedDeviceErpModel) -> Unit,
     onAuthenticate: () -> Unit,
     onRefresh: () -> Unit
 ) {
@@ -205,8 +205,8 @@ private fun ProfilePairedDevicesScreenScaffold(
 private fun PairedDevicesSection(
     modifier: Modifier = Modifier,
     listState: LazyListState,
-    devices: List<PairedDevice>,
-    onDeleteDevice: (PairedDevice) -> Unit
+    devices: List<PairedDeviceErpModel>,
+    onDeleteDevice: (PairedDeviceErpModel) -> Unit
 ) {
     LazyColumn(
         state = listState,
@@ -314,10 +314,11 @@ internal fun EmptyScreen(
 
 @Composable
 private fun PairedDevice(
-    device: PairedDevice,
+    device: PairedDeviceErpModel,
     isOurDevice: Boolean,
     onDeleteDevice: () -> Unit
 ) {
+    val deleteDescription = stringResource(R.string.a11y_delete_device)
     Row(Modifier.padding(PaddingDefaults.Medium)) {
         Column(Modifier.weight(1f)) {
             Text(device.name, style = AppTheme.typography.body1)
@@ -333,7 +334,7 @@ private fun PairedDevice(
         }
         SpacerMedium()
         IconButton(onClick = onDeleteDevice) {
-            Icon(Icons.Rounded.Delete, null, tint = AppTheme.colors.neutral500)
+            Icon(Icons.Rounded.Delete, deleteDescription, tint = AppTheme.colors.neutral500)
         }
     }
 }
@@ -364,7 +365,7 @@ private fun ProfilePairedDevicesErrorState.errorParams(): Triple<String, String,
 @LightDarkPreview
 @Composable
 fun ProfilePairedDevicesScreenScaffoldPreview(
-    @PreviewParameter(PairedDevicesPreviewParameterProvider::class) state: UiState<List<PairedDevice>>
+    @PreviewParameter(PairedDevicesPreviewParameterProvider::class) state: UiState<List<PairedDeviceErpModel>>
 ) {
     PreviewAppTheme {
         ProfilePairedDevicesScreenScaffold(

@@ -48,7 +48,7 @@ import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberGetPrescriptionByTaskIdController
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -96,7 +96,7 @@ class HowLongValidBottomSheetScreen(
                 )
             },
             onContent = { content ->
-                val prescription = content as PrescriptionData.Synced
+                val prescription = content as TaskErpModel.Synced.Prescription
                 Column(
                     Modifier
                         .padding(horizontal = PaddingDefaults.Medium)
@@ -111,8 +111,8 @@ class HowLongValidBottomSheetScreen(
                     )
                     SpacerMedium()
                     val start =
-                        if (prescription.medicationRequest.multiplePrescriptionInfo.indicator) {
-                            prescription.medicationRequest.multiplePrescriptionInfo.start
+                        if (prescription.medicationRequest?.multiplePrescriptionInfo?.indicator == true) {
+                            prescription.medicationRequest?.multiplePrescriptionInfo?.start
                                 ?: prescription.authoredOn
                         } else {
                             prescription.authoredOn
@@ -131,7 +131,7 @@ class HowLongValidBottomSheetScreen(
                             stringResource(acceptInfoStringRes),
                             style = AppTheme.typography.body2l
                         )
-                        if (!prescription.medicationRequest.multiplePrescriptionInfo.indicator) {
+                        if (prescription.medicationRequest?.multiplePrescriptionInfo?.indicator == false) {
                             SpacerMedium()
                             DateRange(
                                 start =

@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.database.realm.v1.task.entity
 
 import de.gematik.ti.erp.app.database.realm.utils.Cascading
-import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.profile.ProfileEntityV1
 import io.realm.kotlin.Deleteable
 import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.types.RealmInstant

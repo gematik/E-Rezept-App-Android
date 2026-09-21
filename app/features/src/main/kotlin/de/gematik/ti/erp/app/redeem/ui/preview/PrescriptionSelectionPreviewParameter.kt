@@ -23,16 +23,22 @@
 package de.gematik.ti.erp.app.redeem.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OrderState
+import de.gematik.ti.erp.app.pharmacy.model.ContactInformationErpModel
+import de.gematik.ti.erp.app.pharmacy.model.OrderStateErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyOpeningHoursErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel.Companion.EmptyShippingInfoErpModel
 import kotlinx.datetime.Instant
 
 data class PrescriptionSelectionPreview(
     val name: String,
-    val orders: List<PharmacyUseCaseData.PrescriptionInOrder>,
-    val selectedOrders: OrderState,
-    val onCheckedChange: (PharmacyUseCaseData.PrescriptionInOrder, Boolean) -> Unit
+    val hasTeratogenicError: Boolean,
+    val pharmacy: PharmacyDetailsErpModel?,
+    val orders: List<PrescriptionInOrderErpModel>,
+    val selectedOrders: OrderStateErpModel,
+    val onCheckedChange: (PrescriptionInOrderErpModel, Boolean) -> Unit
 )
 
 class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<PrescriptionSelectionPreview> {
@@ -43,7 +49,7 @@ class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<Prescript
             PrescriptionSelectionPreview(
                 name = "NoPrescriptionsSelected",
                 orders = listOf(
-                    PharmacyUseCaseData.PrescriptionInOrder(
+                    PrescriptionInOrderErpModel(
                         taskId = "1",
                         accessCode = "ABC123",
                         title = "Prescription for Cold Medicine",
@@ -51,9 +57,10 @@ class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<Prescript
                         index = 1,
                         timestamp = time,
                         substitutionsAllowed = true,
-                        isScanned = false
+                        isScanned = false,
+                        isTeratogenicPrescription = true
                     ),
-                    PharmacyUseCaseData.PrescriptionInOrder(
+                    PrescriptionInOrderErpModel(
                         taskId = "2",
                         accessCode = "DEF456",
                         title = "Prescription for Pain Relief",
@@ -61,20 +68,37 @@ class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<Prescript
                         index = 2,
                         timestamp = time,
                         substitutionsAllowed = false,
-                        isScanned = true
+                        isScanned = true,
+                        isTeratogenicPrescription = false
                     )
                 ),
-                selectedOrders = OrderState(
+                selectedOrders = OrderStateErpModel(
                     prescriptionsInOrder = emptyList(),
                     selfPayerPrescriptionIds = emptyList(),
                     contact = EmptyShippingInfoErpModel
                 ),
-                onCheckedChange = { _, _ -> }
+                onCheckedChange = { _, _ -> },
+                hasTeratogenicError = true,
+                pharmacy = PharmacyDetailsErpModel(
+                    id = "pharmacy-1",
+                    name = "Muster Apotheke",
+                    address = "Musterstraße 1\n12345 Berlin",
+                    coordinates = null,
+                    distance = null,
+                    contact = ContactInformationErpModel(phone = "030123456", mail = "", url = ""),
+                    provides = listOf(
+                        PharmacyServiceErpModel.OnlinePharmacyServiceErpModel(
+                            name = "Muster Apotheke"
+                        )
+                    ),
+                    openingHours = PharmacyOpeningHoursErpModel(emptyMap()),
+                    telematikId = "1234567890"
+                )
             ),
             PrescriptionSelectionPreview(
                 name = "OnePrescriptionSelected",
                 orders = listOf(
-                    PharmacyUseCaseData.PrescriptionInOrder(
+                    PrescriptionInOrderErpModel(
                         taskId = "1",
                         accessCode = "ABC123",
                         title = "Prescription for Cold Medicine",
@@ -82,9 +106,10 @@ class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<Prescript
                         index = 1,
                         timestamp = time,
                         substitutionsAllowed = true,
-                        isScanned = false
+                        isScanned = false,
+                        isTeratogenicPrescription = true
                     ),
-                    PharmacyUseCaseData.PrescriptionInOrder(
+                    PrescriptionInOrderErpModel(
                         taskId = "2",
                         accessCode = "DEF456",
                         title = "Prescription for Pain Relief",
@@ -92,12 +117,13 @@ class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<Prescript
                         index = 2,
                         timestamp = time,
                         substitutionsAllowed = false,
-                        isScanned = true
+                        isScanned = true,
+                        isTeratogenicPrescription = false
                     )
                 ),
-                selectedOrders = OrderState(
+                selectedOrders = OrderStateErpModel(
                     prescriptionsInOrder = listOf(
-                        PharmacyUseCaseData.PrescriptionInOrder(
+                        PrescriptionInOrderErpModel(
                             taskId = "1",
                             accessCode = "ABC123",
                             title = "Prescription for Cold Medicine",
@@ -105,13 +131,30 @@ class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<Prescript
                             index = 1,
                             timestamp = time,
                             substitutionsAllowed = true,
-                            isScanned = false
+                            isScanned = false,
+                            isTeratogenicPrescription = false
                         )
                     ),
                     selfPayerPrescriptionIds = emptyList(),
                     contact = EmptyShippingInfoErpModel
                 ),
-                onCheckedChange = { _, _ -> }
+                onCheckedChange = { _, _ -> },
+                hasTeratogenicError = false,
+                pharmacy = PharmacyDetailsErpModel(
+                    id = "pharmacy-1",
+                    name = "Muster Apotheke",
+                    address = "Musterstraße 1\n12345 Berlin",
+                    coordinates = null,
+                    distance = null,
+                    contact = ContactInformationErpModel(phone = "030123456", mail = "", url = ""),
+                    provides = listOf(
+                        PharmacyServiceErpModel.OnlinePharmacyServiceErpModel(
+                            name = "Muster Apotheke"
+                        )
+                    ),
+                    openingHours = PharmacyOpeningHoursErpModel(emptyMap()),
+                    telematikId = "1234567890"
+                )
             )
         )
 }

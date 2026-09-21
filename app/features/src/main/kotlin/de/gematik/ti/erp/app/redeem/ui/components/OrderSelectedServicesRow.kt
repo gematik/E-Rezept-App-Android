@@ -31,10 +31,11 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import de.gematik.ti.erp.app.pharmacy.mapper.calculateServiceState
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyOrderOptionCard
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyOrderOptionCardType
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParameter
@@ -42,11 +43,14 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 
 @Composable
 internal fun OrderSelectedServicesRow(
-    selectedOption: PharmacyScreenData.OrderOption?,
-    pharmacy: Pharmacy?,
-    onServiceSelected: (PharmacyScreenData.OrderOption) -> Unit
+    selectedOption: OrderOptionErpModel?,
+    pharmacy: PharmacyDetailsErpModel?,
+    prescriptions: List<PrescriptionInOrderErpModel>,
+    onServiceSelected: (OrderOptionErpModel) -> Unit
 ) {
-    val serviceState = pharmacy?.calculateServiceState()
+    val serviceState = pharmacy?.calculateServiceState(
+        prescriptions = prescriptions
+    )
 
     Row(
         modifier = Modifier
@@ -57,40 +61,40 @@ internal fun OrderSelectedServicesRow(
         if (serviceState?.pickup?.visible == true) {
             PharmacyOrderOptionCard(
                 modifier = Modifier.fillMaxHeight(),
-                isSelected = selectedOption == PharmacyScreenData.OrderOption.Pickup,
+                isSelected = selectedOption == OrderOptionErpModel.Pickup,
                 isServiceEnabled = serviceState.pickup.enabled,
                 type = PharmacyOrderOptionCardType.Flat,
                 isError = false,
                 image = serviceState.pickupImage,
                 text = serviceState.pickupText
             ) {
-                onServiceSelected(PharmacyScreenData.OrderOption.Pickup)
+                onServiceSelected(OrderOptionErpModel.Pickup)
             }
         }
         if (serviceState?.delivery?.visible == true) {
             PharmacyOrderOptionCard(
                 modifier = Modifier.fillMaxHeight(),
-                isSelected = selectedOption == PharmacyScreenData.OrderOption.Delivery,
+                isSelected = selectedOption == OrderOptionErpModel.Delivery,
                 isServiceEnabled = serviceState.delivery.enabled,
                 type = PharmacyOrderOptionCardType.Flat,
                 isError = false,
                 image = serviceState.deliveryImage,
                 text = serviceState.deliveryText
             ) {
-                onServiceSelected(PharmacyScreenData.OrderOption.Delivery)
+                onServiceSelected(OrderOptionErpModel.Delivery)
             }
         }
         if (serviceState?.online?.visible == true) {
             PharmacyOrderOptionCard(
                 modifier = Modifier.fillMaxHeight(),
-                isSelected = selectedOption == PharmacyScreenData.OrderOption.Online,
+                isSelected = selectedOption == OrderOptionErpModel.Online,
                 isServiceEnabled = serviceState.online.enabled,
                 type = PharmacyOrderOptionCardType.Flat,
                 isError = false,
                 image = serviceState.onlineImage,
                 text = serviceState.onlineText
             ) {
-                onServiceSelected(PharmacyScreenData.OrderOption.Online)
+                onServiceSelected(OrderOptionErpModel.Online)
             }
         }
     }
@@ -101,7 +105,8 @@ internal fun OrderSelectedServicesRow(
 private fun OrderRowPreview() {
     PreviewTheme {
         OrderSelectedServicesRow(
-            selectedOption = PharmacyScreenData.OrderOption.Pickup,
+            selectedOption = OrderOptionErpModel.Pickup,
+            prescriptions = emptyList(),
             pharmacy = RedeemOverviewScreenPreviewParameter.pharmacyPreviewData
         ) {
         }

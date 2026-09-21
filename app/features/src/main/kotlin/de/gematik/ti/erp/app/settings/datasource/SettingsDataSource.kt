@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 interface SettingsDataSource {
 
     val appVersion: SettingsData.AppVersion
-    val authentication: MutableStateFlow<SettingsData.Authentication>
     val pharmacySearch: MutableStateFlow<SettingsData.PharmacySearch>
     val generalData: MutableStateFlow<SettingsData.General>
 }

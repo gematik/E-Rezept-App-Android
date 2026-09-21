@@ -28,9 +28,9 @@ import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.model.ProfileCombinedData
 import de.gematik.ti.erp.app.profiles.usecase.AddProfileUseCase
+import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
-import de.gematik.ti.erp.app.profiles.usecase.GetSelectedProfileUseCase
-import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileUseCase
+import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileNameUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,9 +40,9 @@ import org.kodein.di.compose.rememberInstance
 
 class ProfileEditNameController(
     private val profileId: ProfileIdentifier?,
-    private val getSelectedProfileUseCase: GetSelectedProfileUseCase,
+    private val getProfileByIdUseCase: GetProfileByIdUseCase,
     private val getProfilesUseCase: GetProfilesUseCase,
-    private val updateProfileUseCase: UpdateProfileUseCase,
+    private val updateProfileNameUseCase: UpdateProfileNameUseCase,
     private val addProfileUseCase: AddProfileUseCase
 ) : Controller() {
 
@@ -57,7 +57,7 @@ class ProfileEditNameController(
         runCatching {
             val profiles = getProfilesUseCase().firstOrNull()
             val selectedProfile = profileId?.let {
-                getSelectedProfileUseCase(profileId).firstOrNull()
+                getProfileByIdUseCase(profileId).firstOrNull()
             }
             selectedProfile to profiles
         }.fold(
@@ -78,10 +78,7 @@ class ProfileEditNameController(
     fun updateProfileName(name: String) {
         controllerScope.launch {
             _combinedProfile.value.data?.selectedProfile?.let {
-                updateProfileUseCase(
-                    modifier = UpdateProfileUseCase.Companion.ProfileModifier.Name(name),
-                    id = it.id
-                )
+                updateProfileNameUseCase(it.id, name)
             }
         }
     }
@@ -95,17 +92,17 @@ class ProfileEditNameController(
 
 @Composable
 fun rememberProfileEditNameController(profileId: ProfileIdentifier?): ProfileEditNameController {
-    val getSelectedProfileUseCase by rememberInstance<GetSelectedProfileUseCase>()
-    val updateProfileUseCase by rememberInstance<UpdateProfileUseCase>()
+    val getProfileByIdUseCase by rememberInstance<GetProfileByIdUseCase>()
+    val updateProfileNameUseCase by rememberInstance<UpdateProfileNameUseCase>()
     val getProfilesUseCase by rememberInstance<GetProfilesUseCase>()
     val addProfileUseCase by rememberInstance<AddProfileUseCase>()
 
     return remember(profileId) {
         ProfileEditNameController(
             profileId = profileId,
-            getSelectedProfileUseCase = getSelectedProfileUseCase,
+            getProfileByIdUseCase = getProfileByIdUseCase,
             getProfilesUseCase = getProfilesUseCase,
-            updateProfileUseCase = updateProfileUseCase,
+            updateProfileNameUseCase = updateProfileNameUseCase,
             addProfileUseCase = addProfileUseCase
         )
     }

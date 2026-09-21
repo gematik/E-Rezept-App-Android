@@ -42,9 +42,66 @@ internal fun Project.detectPropertyOrThrow(name: String): String {
     return property ?: throw GradleException("Missing argument $name")
 }
 
+/**
+ * CI-only keys that must NEVER be injected into BuildConfig.
+ * They are only used inside Gradle tasks (Nexus repo auth, GitLab API calls, Teams webhooks).
+ * On CI these come from Jenkins credentials passed as environment variables.
+ * Locally, developers can keep them in a gitignored ci-overrides.properties.
+ */
+private val CI_ONLY_KEYS = setOf(
+    "NEXUS_URL",
+    "NEXUS_USERNAME",
+    "NEXUS_PASSWORD",
+    "GITLAB_PRIVATE_TOKEN",
+    "GITLAB_PROJECT_API_URL",
+    "TEAMS_RELEASE_WEBHOOK_URL",
+    "TEAMS_NIGHTLY_WEBHOOK_URL",
+    "TEAMS_MR_WEBHOOK_URL"
+)
+
+/**
+ * Resolves one of the provided keys with priority: env var -> ci/local/ci-overrides.properties.
+ * This is intended for CI/task-only keys where multiple aliases may exist across Jenkins jobs.
+ */
+internal fun Project.resolveFromEnvOrCiOverrides(vararg keys: String): String? {
+    keys.forEach { key ->
+        val value = System.getenv(key)
+        if (!value.isNullOrBlank()) {
+            return value
+        }
+    }
+
+    keys.forEach { key ->
+        val value = project.detectPropertyOrNull(key)
+        if (!value.isNullOrBlank()) {
+            return value
+        }
+    }
+
+    val ciOverrides = Properties().apply {
+        val file = rootProject.file("ci/local/ci-overrides.properties")
+        if (file.exists()) {
+            file.reader().use { load(it) }
+        }
+    }
+
+    keys.forEach { key ->
+        val value = ciOverrides.getProperty(key)
+        if (!value.isNullOrBlank()) {
+            return value
+        }
+    }
+    return null
+}
+
+/**
+ * Loads ci-overrides.properties from the project root.
+ * This file must be listed in .gitignore and is only used as a local-dev fallback.
+ * On CI, all values are injected via Jenkins credentials (env vars / -P params).
+ */
 internal fun Project.loadCiOverridesProperties(): Properties {
     val props = Properties()
-    val file = rootProject.file("ci-overrides.properties")
+    val file = rootProject.file("ci/local/ci-overrides.properties")
     if (file.exists()) {
         file.reader().use { props.load(it) }
     }

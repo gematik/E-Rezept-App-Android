@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.redeem
 
-import de.gematik.ti.erp.app.database.settings.CommunicationVersionDataStore
+import de.gematik.ti.erp.app.database.api.debug.CommunicationVersionLocalDataSource
 import de.gematik.ti.erp.app.redeem.usecase.GetDMCodesForLocalRedeemUseCase
 import de.gematik.ti.erp.app.redeem.usecase.GetRedeemableTasksForDmCodesUseCase
 import de.gematik.ti.erp.app.redeem.usecase.HasEuRedeemablePrescriptionsUseCase
@@ -30,8 +30,8 @@ import de.gematik.ti.erp.app.redeem.usecase.HasRedeemableTasksUseCase
 import de.gematik.ti.erp.app.redeem.usecase.RedeemPrescriptionsOnLoggedInUseCase
 import de.gematik.ti.erp.app.redeem.usecase.RedeemScannedTasksUseCase
 import de.gematik.ti.erp.app.redeem.usecase.ValidateContactUseCase
-import de.gematik.ti.erp.app.settings.repository.CommunicationVersionRepository
-import de.gematik.ti.erp.app.settings.repository.DefaultCommunicationVersionRepository
+import de.gematik.ti.erp.app.debug.repository.CommunicationVersionRepository
+import de.gematik.ti.erp.app.debug.repository.DefaultCommunicationVersionRepository
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
@@ -45,13 +45,13 @@ val redeemModule = DI.Module("redeemModule") {
     bindProvider { GetRedeemableTasksForDmCodesUseCase(instance()) }
     bindProvider<CommunicationVersionRepository> {
         DefaultCommunicationVersionRepository(
-            dataStore = runCatching { instance<CommunicationVersionDataStore>() }.getOrNull(),
+            dataStore = runCatching { instance<CommunicationVersionLocalDataSource>() }.getOrNull(),
             isDebugMode = BuildConfigExtension.isDebug
         )
     }
     bindProvider {
         RedeemPrescriptionsOnLoggedInUseCase(
-            prescriptionRepository = instance(),
+            taskOperationsRepository = instance(),
             pharmacyRepository = instance(),
             communicationVersionRepository = instance()
         )

@@ -31,7 +31,7 @@ import de.gematik.ti.erp.app.navigation.Routes
 import de.gematik.ti.erp.app.navigation.fromNavigationString
 import de.gematik.ti.erp.app.navigation.toNavigationString
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes.EMPTY_TASK_ID
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
 
 object PharmacyRoutes : NavigationRoutes {
 
@@ -103,7 +103,7 @@ object PharmacyRoutes : NavigationRoutes {
         navArgument(PHARMACY_NAV_SELECTED_PHARMACY) { type = NavType.StringType },
         navArgument(PHARMACY_NAV_TASK_ID) { type = NavType.StringType }
     ) {
-        fun path(pharmacy: PharmacyUseCaseData.Pharmacy, taskId: String): String =
+        fun path(pharmacy: PharmacyDetailsErpModel, taskId: String): String =
             PharmacyDetailsFromPharmacyScreen.path(
                 PHARMACY_NAV_SELECTED_PHARMACY to pharmacy.toNavigationString(),
                 PHARMACY_NAV_TASK_ID to taskId
@@ -115,7 +115,7 @@ object PharmacyRoutes : NavigationRoutes {
         navArgument(PHARMACY_NAV_SELECTED_PHARMACY) { type = NavType.StringType },
         navArgument(PHARMACY_NAV_TASK_ID) { type = NavType.StringType }
     ) {
-        fun path(pharmacy: PharmacyUseCaseData.Pharmacy, taskId: String): String =
+        fun path(pharmacy: PharmacyDetailsErpModel, taskId: String): String =
             PharmacyDetailsFromMessageScreen.path(
                 PHARMACY_NAV_SELECTED_PHARMACY to pharmacy.toNavigationString(),
                 PHARMACY_NAV_TASK_ID to taskId
@@ -126,10 +126,10 @@ object PharmacyRoutes : NavigationRoutes {
 class PharmacyRouteBackStackEntryArguments(
     private val navBackStackEntry: NavBackStackEntry
 ) {
-    fun getPharmacy(): PharmacyUseCaseData.Pharmacy? =
+    fun getPharmacy(): PharmacyDetailsErpModel? =
         navBackStackEntry.arguments?.let { bundle ->
             bundle.getString(PharmacyRoutes.PHARMACY_NAV_SELECTED_PHARMACY)?.let {
-                fromNavigationString<PharmacyUseCaseData.Pharmacy>(it)
+                fromNavigationString<PharmacyDetailsErpModel>(it)
             }
         }
 

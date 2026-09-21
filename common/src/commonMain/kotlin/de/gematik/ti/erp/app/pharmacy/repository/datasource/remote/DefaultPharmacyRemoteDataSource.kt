@@ -50,6 +50,7 @@ class DefaultPharmacyRemoteDataSource(
                 if (!handleUnauthorizedException(onUnauthorizedException)) {
                     return Result.failure(UnauthorizedException("Error handling unauthorized exception", null))
                 }
+                // second try with new token
                 return safeApiCall(errorMessage) { call() }
             }
             result
@@ -81,13 +82,15 @@ class DefaultPharmacyRemoteDataSource(
         ) {
             // Use location-based search if LocationFilter is present, otherwise use regular search
             if (filter.locationFilter != null) {
-                // NOTE: The nearPharmacy custom query does not support the `characteristic` filter parameter.
-                // On-site feature filtering (e.g. barrierefrei) is applied client-side after results are returned.
+                // NOTE: The nearPharmacy query does not support `characteristic` or `specialty`.
+                // Service types, available services, and on-site features filters are converted to German keywords
+                // and passed through `text`.
+                // `openNow` and `recentlyUsed` are filtered client-side after the results are returned.
                 searchService.searchPharmacyWithLocation(
                     serviceFilter = filter.serviceFilter,
                     locationFilter = filter.locationFilter,
                     textFilter = filter.textFilter,
-                    characteristics = emptyList()
+                    onSiteFeatureCodes = filter.onSiteFeatureCodes
                 )
             } else {
                 val specialties = buildList {

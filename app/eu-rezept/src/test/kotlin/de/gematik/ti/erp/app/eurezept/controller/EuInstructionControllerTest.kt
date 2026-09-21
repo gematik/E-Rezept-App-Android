@@ -34,7 +34,6 @@ import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockCountryPhrases
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockSupportedCountries
 import de.gematik.ti.erp.app.eurezept.presentation.EuInstructionController
 import de.gematik.ti.erp.app.eurezept.ui.model.EuRedeemSelector.WAS_EU_REDEEM_INSTRUCTION_VIEWED
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.localization.CountryCode
 import de.gematik.ti.erp.app.localization.GetSupportedCountriesFromXmlUseCase
@@ -105,10 +104,8 @@ class EuInstructionControllerTest {
         coEvery { profileRepository.getProfileById(any()) } returns flowOf(mockProfileData)
         coEvery { profileRepository.updateLastAuthenticated(any(), any()) } returns Unit
 
-        val mockAuthData = IdpData.AuthenticationData(
-            singleSignOnTokenScope = MockEuTestData.mockValidSsoTokenScope
-        )
-        coEvery { idpRepository.authenticationData(any()) } returns flowOf(mockAuthData)
+        val mockAuthData = MockEuTestData.mockValidUserAuthentication
+        coEvery { idpRepository.getUserAuthentication(any()) } returns flowOf(mockAuthData)
 
         every { getSupportedCountriesFromXmlUseCase.invoke() } returns mockSupportedCountries
         every { getPrescriptionPhrasesUseCase.invoke(any()) } returns mockCountryPhrases

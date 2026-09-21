@@ -32,7 +32,7 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
-import de.gematik.ti.erp.app.base.usecase.GetLastSuccessfulRefreshedTimeUseCase
+import de.gematik.ti.erp.app.profiles.usecase.GetLastSuccessfulRefreshedTimeUseCase
 import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.digas.domain.usecase.FetchDigaByPznUseCase
 import de.gematik.ti.erp.app.digas.domain.usecase.GetDigaByTaskIdUseCase
@@ -46,10 +46,10 @@ import de.gematik.ti.erp.app.digas.ui.model.DigaMainScreenUiModel
 import de.gematik.ti.erp.app.digas.worker.FeedbackNavigationTriggerWorker
 import de.gematik.ti.erp.app.insurance.usecase.FetchInsuranceProviderUseCase
 import de.gematik.ti.erp.app.prescription.usecase.DeletePrescriptionUseCase
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profiles.presentation.GetActiveProfileController
 import de.gematik.ti.erp.app.profiles.ui.extension.extract
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
@@ -85,10 +85,10 @@ abstract class DigasGraphController(
     abstract val taskId: StateFlow<String?>
     abstract val deleteCompletedEvent: ComposableEvent<Unit>
     abstract val showDeleteBlockedDialogEvent: ComposableEvent<Unit>
-    abstract val needLoggedInTokenForDeletionEvent: ComposableEvent<ProfilesUseCaseData.Profile>
+    abstract val needLoggedInTokenForDeletionEvent: ComposableEvent<ProfileErpModel>
     abstract val isProfileRefreshing: StateFlow<Boolean>
     abstract val isInternetConnected: StateFlow<Boolean>
-    abstract val lastRefreshedOn: StateFlow<Instant>
+    abstract val lastRefreshedOn: StateFlow<Instant?>
     abstract val isDownloading: StateFlow<Boolean>
     abstract val insuranceName: StateFlow<String?>
     abstract val telematikId: String?
@@ -132,7 +132,7 @@ class DefaultDigasGraphController(
     override val isDownloading = _isDownloading.asStateFlow()
     override val isLoadingTask = _isLoadingTask.asStateFlow()
     override val isLoadingInsurance = _isLoadingInsurance.asStateFlow()
-    override val needLoggedInTokenForDeletionEvent = ComposableEvent<ProfilesUseCaseData.Profile>()
+    override val needLoggedInTokenForDeletionEvent = ComposableEvent<ProfileErpModel>()
 
     init {
         isProfileRefreshingEvent.listen(controllerScope) {
@@ -267,7 +267,6 @@ class DefaultDigasGraphController(
     }
 
     override fun refresh() {
-        refreshActiveProfile()
         refreshTrigger.value = Unit
     }
 

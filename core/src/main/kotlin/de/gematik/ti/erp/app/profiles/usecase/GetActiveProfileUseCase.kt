@@ -22,14 +22,12 @@
 
 package de.gematik.ti.erp.app.profiles.usecase
 
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
-import de.gematik.ti.erp.app.profiles.usecase.mapper.toModel
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.mapNotNull
 
 /**
  * Gets the current active profile from the [repository]
@@ -38,6 +36,6 @@ class GetActiveProfileUseCase(
     private val repository: ProfileRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(): Flow<ProfilesUseCaseData.Profile> =
-        repository.activeProfile().mapNotNull { it.toModel() }.flowOn(dispatcher)
+    operator fun invoke(): Flow<ProfileErpModel> =
+        repository.activeProfile().flowOn(dispatcher)
 }

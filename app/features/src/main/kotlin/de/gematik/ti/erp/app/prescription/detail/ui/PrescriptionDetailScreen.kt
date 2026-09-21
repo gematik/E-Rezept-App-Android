@@ -43,12 +43,11 @@ import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isConsentGranted
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.demomode.DemoModeObserver
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.eurezept.navigation.EuRoutes
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.toNavigationString
@@ -59,14 +58,18 @@ import de.gematik.ti.erp.app.pkv.presentation.model.InvoiceCardUiState
 import de.gematik.ti.erp.app.pkv.presentation.rememberInvoiceController
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
-import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailBottomSheetNavigationData
 import de.gematik.ti.erp.app.prescription.detail.ui.preview.PrescriptionDetailPreview
 import de.gematik.ti.erp.app.prescription.detail.ui.preview.PrescriptionDetailPreviewParameter
+import de.gematik.ti.erp.app.prescription.model.PrescriptionDetailBottomSheetNavigationData
 import de.gematik.ti.erp.app.prescription.share.presentation.rememberSharePrescriptionController
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
@@ -78,7 +81,6 @@ import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class PrescriptionDetailScreen(
@@ -102,14 +104,6 @@ class PrescriptionDetailScreen(
         val profilePrescriptionData by prescriptionDetailsController.profilePrescription.collectAsStateWithLifecycle()
         val onClickDeletePrescriptionEvent = ComposableEvent<Unit>()
         ChooseAuthenticationNavigationEventsListener(prescriptionDetailsController, navController, dialogScaffold = dialog)
-        val intentHandler = LocalIntentHandler.current
-        LaunchedEffect(Unit) {
-            intentHandler.gidSuccessfulIntent.collectLatest {
-                prescriptionDetailsController.deletePrescription(
-                    isAuthenticationSuccess = true
-                )
-            }
-        }
         val euRedeemFeatureFlag by prescriptionDetailsController.euRedeemFeatureFlag.collectAsStateWithLifecycle()
 
         UiStateMachine(
@@ -141,7 +135,7 @@ class PrescriptionDetailScreen(
 
                 val activeProfileIsPkvOrBund = profile.isPkvOrBund()
 
-                val invoice by produceState<InvoiceData.PKVInvoiceRecord?>(null) {
+                val invoice by produceState<PKVInvoiceErpModel?>(null) {
                     invoicesController.getInvoiceForTaskId(prescription.taskId).collect {
                         value = it
                     }
@@ -158,7 +152,7 @@ class PrescriptionDetailScreen(
                 rememberCoroutineScope()
 
                 val ssoTokenValid =
-                    remember(profile.ssoTokenScope) {
+                    remember(profile.userAuthentication) {
                         profile.isSSOTokenValid()
                     }
 
@@ -248,7 +242,7 @@ class PrescriptionDetailScreen(
 
                 val scaffoldState = rememberScaffoldState()
                 val listState = rememberLazyListState()
-                val medicationSchedule by prescriptionDetailsController.medicationSchedule.collectAsStateWithLifecycle()
+                val medicationSchedule by prescriptionDetailsController.medicationScheduleErpModel.collectAsStateWithLifecycle()
 
                 DeletePrescriptionDialog(
                     dialog = dialog,
@@ -261,7 +255,7 @@ class PrescriptionDetailScreen(
                 PrescriptionDetailScreenScaffold(
                     activeProfile = profile,
                     prescription = prescription,
-                    medicationSchedule = medicationSchedule,
+                    medicationScheduleErpModel = medicationSchedule,
                     invoiceCardState = invoiceState,
                     scaffoldState = scaffoldState,
                     listState = listState,
@@ -414,6 +408,14 @@ class PrescriptionDetailScreen(
                                     infoId = R.string.pres_details_exp_no_em_fee_info
                                 )
                             )
+                        },
+                        teratogenicPrescriptionBottomSheet = {
+                            navController.navigate(
+                                PrescriptionDetailRoutes.TeratogenicPrescriptionBottomSheetScreen.path(
+                                    titleId = R.string.pres_details_exp_teratogenic_bottomsheet_title,
+                                    infoId = R.string.pres_details_exp_teratogenic_bottomsheet_info
+                                )
+                            )
                         }
                     ),
                     onClickInvoice = {
@@ -484,27 +486,34 @@ fun PrescriptionDetailScreenPreview(
     val scaffoldState = rememberScaffoldState()
     PreviewAppTheme {
         PrescriptionDetailScreenScaffold(
-            activeProfile = ProfilesUseCaseData.Profile(
+            activeProfile = ProfileErpModel(
                 id = "1",
                 name = "Max Mustermann",
-                insurance = ProfileInsuranceInformation(
+                insuranceData = ProfileInsuranceDataErpModel(
                     insurantName = "Max Mustermann",
                     insuranceIdentifier = "1234567890",
                     insuranceName = "Muster AG",
-                    insuranceType = ProfilesUseCaseData.InsuranceType.GKV
+                    insuranceType = InsuranceType.GKV,
+                    organizationIdentifier = null
                 ),
-                isActive = true,
-                color = ProfilesData.ProfileColorNames.SUN_DEW,
-                avatar = ProfilesData.Avatar.Baby,
-                image = null,
+                active = true,
+                profileImageData = ProfileImageDataErpModel(
+                    color = ProfileColorNames.SUN_DEW,
+                    avatar = Avatar.Baby,
+                    image = null
+                ),
                 lastAuthenticated = null,
-                ssoTokenScope = null
+                lastTaskSynced = null,
+                lastAuditEventSynced = null,
+                isConsentDrawerShown = true,
+                isNewlyCreated = false,
+                userAuthentication = UserAuthenticationErpModel.NotInitialized
             ),
             scaffoldState = scaffoldState,
             listState = listState,
             isDemoMode = false,
             prescription = previewData.prescription,
-            medicationSchedule = null,
+            medicationScheduleErpModel = null,
             invoiceCardState = InvoiceCardUiState.NoInvoice,
             onShowInfoBottomSheet = PrescriptionDetailBottomSheetNavigationData(),
             euRedeemFeatureFlag = true,

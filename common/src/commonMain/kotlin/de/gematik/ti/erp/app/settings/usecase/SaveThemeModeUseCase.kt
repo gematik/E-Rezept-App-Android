@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.settings.usecase
 
-import de.gematik.ti.erp.app.database.settings.ThemePreferencesDataStore
 import de.gematik.ti.erp.app.settings.model.ThemeMode
+import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 
 /**
  * Use case for saving the user's theme mode preference.
@@ -39,9 +39,9 @@ import de.gematik.ti.erp.app.settings.model.ThemeMode
  * @param themePreferencesDataStore DataStore for theme preferences
  */
 class SaveThemeModeUseCase(
-    private val themePreferencesDataStore: ThemePreferencesDataStore
+    private val settingsRepository: SettingsRepository
 ) {
-    operator fun invoke(themeMode: ThemeMode) {
-        themePreferencesDataStore.saveThemeMode(themeMode)
+    suspend operator fun invoke(themeMode: ThemeMode) {
+        settingsRepository.saveTheme(themeMode)
     }
 }

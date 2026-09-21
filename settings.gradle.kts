@@ -30,25 +30,32 @@ pluginManagement {
     includeBuild("plugins/technical-requirements-plugin")
 }
 
-plugins {
+// Auto-downloads missing JDK for project, does not work on CI
+/* plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
-}
+} */
 
 dependencyResolutionManagement {
 
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 
-    // decide if obtaining dependencies from nexus
-    val properties = Properties()
-    try {
-        properties.load(File("ci-overrides.properties").inputStream())
-    } catch (e: Exception) {
-        println("Could not load ci-overrides.properties ${e.stackTraceToString()}")
+    // Resolve Nexus repo credentials as CI-only inputs.
+    val ciOverrides = Properties().apply {
+        val ciOverridesFile = File("ci/local/ci-overrides.properties")
+        if (ciOverridesFile.exists()) {
+            ciOverridesFile.inputStream().use { load(it) }
+        }
     }
 
-    val nexusUsername: String? = properties.getProperty("NEXUS_USERNAME")
-    val nexusPassword: String? = properties.getProperty("NEXUS_PASSWORD")
-    val nexusUrl: String? = properties.getProperty("NEXUS_URL")
+    fun resolveCiOnlyProperty(key: String): String? {
+        return System.getenv(key)
+            ?: (gradle.startParameter.projectProperties[key])
+            ?: ciOverrides.getProperty(key)
+    }
+
+    val nexusUsername: String? = resolveCiOnlyProperty("NEXUS_USERNAME")
+    val nexusPassword: String? = resolveCiOnlyProperty("NEXUS_PASSWORD")
+    val nexusUrl: String? = resolveCiOnlyProperty("NEXUS_URL")
     val obtainFromNexus =
         !nexusUrl.isNullOrEmpty() && !nexusUsername.isNullOrEmpty() && !nexusPassword.isNullOrEmpty()
 
@@ -88,6 +95,7 @@ include(":app:tracker")
 include(":app:demo-mode")
 include(":app:digas")
 include(":app:eu-rezept")
+include(":app:push-notifications")
 include(":app:navigation")
 include(":app:test-tags")
 include(":app:test-actions")

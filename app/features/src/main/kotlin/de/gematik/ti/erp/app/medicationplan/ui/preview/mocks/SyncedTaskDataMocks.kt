@@ -26,8 +26,8 @@ import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
 import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
-import de.gematik.ti.erp.app.prescription.model.Quantity
-import de.gematik.ti.erp.app.prescription.model.Ratio
+import de.gematik.ti.erp.app.task.model.Quantity
+import de.gematik.ti.erp.app.task.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Medication
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationRequest

@@ -25,6 +25,7 @@
 package de.gematik.ti.erp.app.webview
 
 import android.content.Intent
+import android.os.Build
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -43,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -113,6 +115,14 @@ private fun WebView(
     val typo = MaterialTheme.typography
     val isLightTheme = MaterialTheme.colors.isLight
 
+    val configuration = LocalConfiguration.current
+    val fontScale = configuration.fontScale
+    val fontWeightAdjustment = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        configuration.fontWeightAdjustment
+    } else {
+        0
+    }
+
     val webView = remember {
         WebView(context).apply {
             settings.javaScriptCanOpenWindowsAutomatically = false
@@ -122,17 +132,24 @@ private fun WebView(
         }
     }
 
+    // Apply system font scale so the WebView respects the user's preferred text size.
+    webView.settings.textZoom = (fontScale * 100).toInt()
+
     webView.webViewClient = remember(isLightTheme, appColors, typo) {
         createWebViewClient()
     }
 
-    LaunchedEffect(isLightTheme, appColors, url) {
+    LaunchedEffect(isLightTheme, appColors, url, fontWeightAdjustment) {
         webView.setBackgroundColor(appColors.neutral025.toArgb())
 
         // Read the HTML file and inject CSS
         val assetPath = url.removePrefix("file:///android_asset/")
         val htmlContent = context.assets.open(assetPath).bufferedReader().use { it.readText() }
-        val css = generateCss(appColors, typo)
+        val css = generateCss(
+            appColors = appColors,
+            typo = typo,
+            fontWeightAdjustment = fontWeightAdjustment
+        )
 
         // Replace the styles.css link with inline CSS (handle both self-closing and regular tags)
         val modifiedHtml = htmlContent
@@ -188,18 +205,25 @@ private fun Float.toIntColor() = (this * MaxColorIntValue).toInt()
 private fun Color.toCSS(): String =
     "rgba(${this.red.toIntColor()}, ${this.green.toIntColor()}, ${this.blue.toIntColor()}, ${this.alpha})"
 
-private fun typoColor(tag: String, style: TextStyle): String =
-    """
+private fun typoColor(tag: String, style: TextStyle, fontWeightAdjustment: Int = 0): String {
+    val baseWeight = style.fontWeight?.weight ?: FontWeight.Medium.weight
+    val adjustedWeight = (baseWeight + fontWeightAdjustment).coerceIn(100, 900)
+    return """
     |$tag {
     |    color: inherit;
     |    font-size: ${style.fontSize.toCSS()};
-    |    font-weight: ${style.fontWeight?.weight ?: FontWeight.Medium.weight};
+    |    font-weight: $adjustedWeight;
     |    line-height: ${style.lineHeight.toCSS()};
     |    letter-spacing: ${style.letterSpacing.toCSS()};
     |}
     """.trimMargin()
+}
 
-private fun generateCss(appColors: AppColors, typo: Typography): String {
+private fun generateCss(
+    appColors: AppColors,
+    typo: Typography,
+    fontWeightAdjustment: Int = 0
+): String {
     val primaryColor = appColors.neutral900.toCSS()
     val backgroundColor = appColors.neutral025.toCSS()
 
@@ -207,12 +231,12 @@ private fun generateCss(appColors: AppColors, typo: Typography): String {
 
     return """
         |${baseStyles(primaryColor, backgroundColor)}
-        |${headingStyles(primaryColor, typo)}
-        |${textStyles(primaryColor, typo)}
-        |${listStyles(primaryColor)}
+        |${headingStyles(primaryColor, typo, fontWeightAdjustment)}
+        |${textStyles(primaryColor, typo, fontWeightAdjustment)}
+        |${listStyles(primaryColor, fontWeightAdjustment)}
         |${tableStyles(appColors)}
         |${linkStyles(appColors)}
-        |${licenseStyles(primaryColor)}
+        |${licenseStyles(primaryColor, fontWeightAdjustment)}
     """.trimMargin()
 }
 
@@ -227,7 +251,7 @@ private fun baseStyles(primaryColor: String, backgroundColor: String) = """
     |}
 """.trimMargin()
 
-private fun headingStyles(primaryColor: String, typo: Typography) = """
+private fun headingStyles(primaryColor: String, typo: Typography, fontWeightAdjustment: Int) = """
     |h1, h2, h3, h4, h5, h6 {
     |    color: $primaryColor;
     |    font-weight: bold;
@@ -239,21 +263,23 @@ private fun headingStyles(primaryColor: String, typo: Typography) = """
     |    display: flex;
     |    align-items: center;
     |}
-    |${typoColor("h1", typo.h1)}
-    |${typoColor("h2", typo.h2)}
-    |${typoColor("h3", typo.h3)}
-    |${typoColor("h4", typo.h4)}
-    |${typoColor("h5", typo.h5)}
+    |${typoColor("h1", typo.h1, fontWeightAdjustment)}
+    |${typoColor("h2", typo.h2, fontWeightAdjustment)}
+    |${typoColor("h3", typo.h3, fontWeightAdjustment)}
+    |${typoColor("h4", typo.h4, fontWeightAdjustment)}
+    |${typoColor("h5", typo.h5, fontWeightAdjustment)}
 """.trimMargin()
 
-private fun textStyles(primaryColor: String, typo: Typography) = """
+private fun textStyles(primaryColor: String, typo: Typography, fontWeightAdjustment: Int) = """
     |p, li, th, td, caption, span, strong, em, small, label, dd, dt, blockquote, code, pre {
     |    color: $primaryColor;
     |}
-    |${typoColor("p", typo.body1)}
+    |${typoColor("p", typo.body1, fontWeightAdjustment)}
 """.trimMargin()
 
-private fun listStyles(primaryColor: String) = """
+private fun listStyles(primaryColor: String, fontWeightAdjustment: Int = 0): String {
+    val baseWeight = (400 + fontWeightAdjustment).coerceIn(100, 900)
+    return """
     |ul {
     |    padding-inline-start: 16px;
     |}
@@ -262,10 +288,12 @@ private fun listStyles(primaryColor: String) = """
     |    padding-bottom: 4px;
     |    font-family: ui-sans-serif;
     |    font-size: 17px;
+    |    font-weight: $baseWeight;
     |    line-height: 24px;
     |    letter-spacing: -0.408px;
     |}
-""".trimMargin()
+    """.trimMargin()
+}
 
 private fun tableStyles(appColors: AppColors) = """
     |table, th, td {
@@ -285,14 +313,18 @@ private fun linkStyles(appColors: AppColors) = """
     |}
 """.trimMargin()
 
-private fun licenseStyles(primaryColor: String) = """
+private fun licenseStyles(primaryColor: String, fontWeightAdjustment: Int = 0): String {
+    val baseWeight = (400 + fontWeightAdjustment).coerceIn(100, 900)
+    return """
     |section.license {
     |    color: $primaryColor;
     |    font-size: 17px;
+    |    font-weight: $baseWeight;
     |    line-height: 24px;
     |    font-style: italic;
     |}
-""".trimMargin()
+    """.trimMargin()
+}
 
 fun createWebViewClient() = object : WebViewClient() {
 

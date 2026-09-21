@@ -24,15 +24,14 @@ package de.gematik.ti.erp.app.messages.domain.usecase
 
 import android.content.Context
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.eurezept.model.EuOrder
-import de.gematik.ti.erp.app.eurezept.model.EuTaskEvent
+import de.gematik.ti.erp.app.eurezept.model.EuOrderErpModel
+import de.gematik.ti.erp.app.eurezept.model.EuTaskEventErpModel
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
-import de.gematik.ti.erp.app.messages.mappers.EuOrderToMessagesMapper
-import de.gematik.ti.erp.app.messages.mappers.toInAppMessage
+import de.gematik.ti.erp.app.messages.mapper.EuOrderToMessagesMapper
+import de.gematik.ti.erp.app.messages.mapper.toInAppMessage
 import de.gematik.ti.erp.app.messages.model.InAppMessage
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.messages.ui.model.EuOrderMessageUiModel
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.utils.plusDuration
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
@@ -48,7 +47,7 @@ import kotlin.time.Duration.Companion.days
 class GetLatestEuOrderMessageAsInAppMessageUseCase(
     private val context: Context,
     private val euRepository: EuRepository,
-    private val prescriptionRepository: PrescriptionRepository,
+    private val taskOperationsRepository: TaskOperationsRepository,
     private val mapper: EuOrderToMessagesMapper,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
@@ -67,7 +66,7 @@ class GetLatestEuOrderMessageAsInAppMessageUseCase(
                 val threads = orders
                     .flatMap { order ->
                         // 1 order → many threads
-                        val threads: List<List<EuTaskEvent>> = order.splitIntoThreads()
+                        val threads: List<List<EuTaskEventErpModel>> = order.splitIntoThreads()
 
                         val hasUnread = threads.any { thread ->
                             thread.any { event -> event.isUnread }
@@ -76,20 +75,27 @@ class GetLatestEuOrderMessageAsInAppMessageUseCase(
                         threads.mapNotNull { threadEvents ->
                             val threadStart = threadEvents.lastOrNull()?.createdAt
                             val threadEnd = threadStart?.plusDuration(MAX_GAP_IN_DAYS_BETWEEN_EVENTS_FOR_SAME_THREAD.days)
+                            // Build taskId → pharmacyName for TASK_REDEEMED events in this thread.
+                            // Shared logic lives in EuOrderPharmacyNameResolver to avoid duplication
+                            // with GetEuOrderMessagesUseCase.
+                            val taskIdToPharmacyName = threadEvents.resolvePharmacyNames(taskOperationsRepository)
+                            val taskIdToMedicationName = threadEvents.resolveMedicationNames(taskOperationsRepository)
+
                             val uiModels = mapper.map(
                                 order = order,
-                                threadEvents = threadEvents
+                                threadEvents = threadEvents,
+                                taskIdToPharmacyName = taskIdToPharmacyName
                             ) { taskIds ->
                                 taskIds.map { taskId ->
-                                    when (val task = prescriptionRepository.getTask(taskId)) {
-                                        is SyncedTaskData.SyncedTask -> task.medicationName() ?: taskId
-                                        is ScannedTaskData.ScannedTask -> task.name
-                                        else -> taskId
-                                    }
+                                    taskIdToMedicationName[taskId] ?: taskId
                                 }
                             }
                             val latest = uiModels.maxByOrNull { it.timestamp ?: Instant.DISTANT_PAST }
-                            val title = context.getString(R.string.eu_messages_list_latest_title)
+                            val title = when (latest) {
+                                is EuOrderMessageUiModel.TaskRedeemed -> latest.title
+                                else -> context.getString(R.string.eu_messages_list_latest_title)
+                            }
+
                             latest?.toInAppMessage(title, threadStart, threadEnd, hasUnread)
                         }
                     }
@@ -101,12 +107,12 @@ class GetLatestEuOrderMessageAsInAppMessageUseCase(
             }
             .flowOn(dispatcher)
 
-    private fun EuOrder.splitIntoThreads(): List<List<EuTaskEvent>> {
+    private fun EuOrderErpModel.splitIntoThreads(): List<List<EuTaskEventErpModel>> {
         if (events.isEmpty()) return emptyList()
 
         val sorted = events.sortedByDescending { it.createdAt }
 
-        return sorted.fold(mutableListOf<MutableList<EuTaskEvent>>()) { groups, event ->
+        return sorted.fold(mutableListOf<MutableList<EuTaskEventErpModel>>()) { groups, event ->
             val lastGroup = groups.lastOrNull()
 
             if (

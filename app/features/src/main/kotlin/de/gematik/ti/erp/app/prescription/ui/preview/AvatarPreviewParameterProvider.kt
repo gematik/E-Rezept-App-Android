@@ -24,12 +24,12 @@ package de.gematik.ti.erp.app.prescription.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.mainscreen.model.ProfileIconState
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 
 data class AvatarPreview(
     val description: String,
     val profileIconState: ProfileIconState,
-    val activeProfile: ProfilesUseCaseData.Profile,
+    val activeProfile: ProfileErpModel,
     val isRegistered: Boolean,
     val isTokenValid: Boolean
 )

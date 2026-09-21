@@ -60,9 +60,9 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.fhir.temporal.formattedString
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDuration
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleInterval
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDurationErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleIntervalErpModel
 import de.gematik.ti.erp.app.medicationplan.presentation.rememberMedicationPlanScheduleDurationAndIntervalScreenController
 import de.gematik.ti.erp.app.medicationplan.ui.components.PickPersonalizedDurationDateDialog
 import de.gematik.ti.erp.app.medicationplan.ui.components.PickPersonalizedDurationDateRangeDialog
@@ -99,7 +99,7 @@ class MedicationPlanScheduleDurationAndIntervalScreen(
 
         val controller = rememberMedicationPlanScheduleDurationAndIntervalScreenController(taskId)
 
-        val medicationScheduleUiState by controller.medicationSchedule.collectAsStateWithLifecycle()
+        val medicationScheduleUiState by controller.medicationScheduleErpModel.collectAsStateWithLifecycle()
         val listState = rememberLazyListState()
 
         val dialog = LocalDialog.current
@@ -136,7 +136,7 @@ class MedicationPlanScheduleDurationAndIntervalScreen(
             onBack()
         }
         MedicationPlanScheduleDurationAndIntervalScreenScaffold(
-            medicationScheduleUiState = medicationScheduleUiState,
+            medicationScheduleErpModelUiState = medicationScheduleUiState,
             listState = listState,
             onClickDurationOptionEndless = {
                 controller.setMedicationScheduleDurationToEndless()
@@ -171,7 +171,7 @@ class MedicationPlanScheduleDurationAndIntervalScreen(
 
 @Composable
 fun MedicationPlanScheduleDurationAndIntervalScreenScaffold(
-    medicationScheduleUiState: UiState<MedicationSchedule>,
+    medicationScheduleErpModelUiState: UiState<MedicationScheduleErpModel>,
     listState: LazyListState,
     previewEndOfPackDate: LocalDate? = null,
     onClickDurationOptionEndless: () -> Unit,
@@ -193,7 +193,7 @@ fun MedicationPlanScheduleDurationAndIntervalScreenScaffold(
         onBack = onBack
     ) { contentPadding ->
         UiStateMachine(
-            state = medicationScheduleUiState,
+            state = medicationScheduleErpModelUiState,
             onLoading = {
                 FullScreenLoadingIndicator()
             },
@@ -213,7 +213,7 @@ fun MedicationPlanScheduleDurationAndIntervalScreenScaffold(
             },
             onContent = { medicationSchedule ->
                 MedicationPlanScheduleDurationAndIntervalScreenContent(
-                    medicationSchedule = medicationSchedule,
+                    medicationScheduleErpModel = medicationSchedule,
                     contentPadding = contentPadding,
                     listState = listState,
                     previewEndOfPackDate = previewEndOfPackDate,
@@ -233,7 +233,7 @@ fun MedicationPlanScheduleDurationAndIntervalScreenScaffold(
 
 @Composable
 private fun MedicationPlanScheduleDurationAndIntervalScreenContent(
-    medicationSchedule: MedicationSchedule,
+    medicationScheduleErpModel: MedicationScheduleErpModel,
     contentPadding: PaddingValues,
     listState: LazyListState,
     previewEndOfPackDate: LocalDate? = null,
@@ -253,13 +253,13 @@ private fun MedicationPlanScheduleDurationAndIntervalScreenContent(
         state = listState
     ) {
         scheduleIntervalSection(
-            medicationScheduleInterval = medicationSchedule.interval,
+            medicationScheduleIntervalErpModel = medicationScheduleErpModel.interval,
             onClickIntervalOptionDaily = onClickIntervalOptionDaily,
             onClickIntervalOptionEveryTwoDays = onClickIntervalOptionEveryTwoDays,
             onClickIntervalOptionPersonalized = onClickIntervalOptionPersonalized
         )
         medicationScheduleDurationSection(
-            medicationSchedule = medicationSchedule,
+            medicationScheduleErpModel = medicationScheduleErpModel,
             previewEndOfPackDate = previewEndOfPackDate,
             onClickDurationOptionEndless = onClickDurationOptionEndless,
             onClickDurationOptionEndOfPack = onClickDurationOptionEndOfPack,
@@ -271,7 +271,7 @@ private fun MedicationPlanScheduleDurationAndIntervalScreenContent(
 }
 
 private fun LazyListScope.scheduleIntervalSection(
-    medicationScheduleInterval: MedicationScheduleInterval,
+    medicationScheduleIntervalErpModel: MedicationScheduleIntervalErpModel,
     onClickIntervalOptionDaily: () -> Unit,
     onClickIntervalOptionEveryTwoDays: () -> Unit,
     onClickIntervalOptionPersonalized: (day: DayOfWeek) -> Unit
@@ -291,12 +291,12 @@ private fun LazyListScope.scheduleIntervalSection(
                 Column(modifier = Modifier.padding(vertical = PaddingDefaults.Small)) {
                     ScheduleSelectionListItem(
                         text = stringResource(R.string.medication_plan_reminder_interval_daily),
-                        selected = medicationScheduleInterval is MedicationScheduleInterval.Daily,
+                        selected = medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.Daily,
                         onClick = { onClickIntervalOptionDaily() }
                     )
                     ScheduleSelectionListItem(
                         text = stringResource(R.string.medication_plan_reminder_interval_every_second_day),
-                        selected = medicationScheduleInterval is MedicationScheduleInterval.EveryTwoDays,
+                        selected = medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.EveryTwoDays,
                         onClick = { onClickIntervalOptionEveryTwoDays() }
                     )
                 }
@@ -311,57 +311,57 @@ private fun LazyListScope.scheduleIntervalSection(
                     ScheduleSelectionListItem(
                         text = stringResource(R.string.medication_plan_reminder_interval_monday),
                         selected = (
-                            medicationScheduleInterval is MedicationScheduleInterval.Personalized &&
-                                medicationScheduleInterval.selectedDays.contains(DayOfWeek.MONDAY)
-                            ) || medicationScheduleInterval is MedicationScheduleInterval.Daily,
+                            medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.Personalized &&
+                                medicationScheduleIntervalErpModel.selectedDays.contains(DayOfWeek.MONDAY)
+                            ) || medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.Daily,
                         onClick = { onClickIntervalOptionPersonalized(DayOfWeek.MONDAY) }
                     )
                     ScheduleSelectionListItem(
                         text = stringResource(R.string.medication_plan_reminder_interval_tuesday),
                         selected = (
-                            medicationScheduleInterval is MedicationScheduleInterval.Personalized &&
-                                medicationScheduleInterval.selectedDays.contains(DayOfWeek.TUESDAY)
-                            ) || medicationScheduleInterval is MedicationScheduleInterval.Daily,
+                            medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.Personalized &&
+                                medicationScheduleIntervalErpModel.selectedDays.contains(DayOfWeek.TUESDAY)
+                            ) || medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.Daily,
                         onClick = { onClickIntervalOptionPersonalized(DayOfWeek.TUESDAY) }
                     )
                     ScheduleSelectionListItem(
                         text = stringResource(R.string.medication_plan_reminder_interval_wednesday),
                         selected = (
-                            medicationScheduleInterval is MedicationScheduleInterval.Personalized &&
-                                medicationScheduleInterval.selectedDays.contains(DayOfWeek.WEDNESDAY)
-                            ) || medicationScheduleInterval is MedicationScheduleInterval.Daily,
+                            medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.Personalized &&
+                                medicationScheduleIntervalErpModel.selectedDays.contains(DayOfWeek.WEDNESDAY)
+                            ) || medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.Daily,
                         onClick = { onClickIntervalOptionPersonalized(DayOfWeek.WEDNESDAY) }
                     )
                     ScheduleSelectionListItem(
                         text = stringResource(R.string.medication_plan_reminder_interval_thursday),
                         selected = (
-                            medicationScheduleInterval is MedicationScheduleInterval.Personalized &&
-                                medicationScheduleInterval.selectedDays.contains(DayOfWeek.THURSDAY)
-                            ) || medicationScheduleInterval is MedicationScheduleInterval.Daily,
+                            medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.Personalized &&
+                                medicationScheduleIntervalErpModel.selectedDays.contains(DayOfWeek.THURSDAY)
+                            ) || medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.Daily,
                         onClick = { onClickIntervalOptionPersonalized(DayOfWeek.THURSDAY) }
                     )
                     ScheduleSelectionListItem(
                         text = stringResource(R.string.medication_plan_reminder_interval_friday),
                         selected = (
-                            medicationScheduleInterval is MedicationScheduleInterval.Personalized &&
-                                medicationScheduleInterval.selectedDays.contains(DayOfWeek.FRIDAY)
-                            ) || medicationScheduleInterval is MedicationScheduleInterval.Daily,
+                            medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.Personalized &&
+                                medicationScheduleIntervalErpModel.selectedDays.contains(DayOfWeek.FRIDAY)
+                            ) || medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.Daily,
                         onClick = { onClickIntervalOptionPersonalized(DayOfWeek.FRIDAY) }
                     )
                     ScheduleSelectionListItem(
                         text = stringResource(R.string.medication_plan_reminder_interval_saturday),
                         selected = (
-                            medicationScheduleInterval is MedicationScheduleInterval.Personalized &&
-                                medicationScheduleInterval.selectedDays.contains(DayOfWeek.SATURDAY)
-                            ) || medicationScheduleInterval is MedicationScheduleInterval.Daily,
+                            medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.Personalized &&
+                                medicationScheduleIntervalErpModel.selectedDays.contains(DayOfWeek.SATURDAY)
+                            ) || medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.Daily,
                         onClick = { onClickIntervalOptionPersonalized(DayOfWeek.SATURDAY) }
                     )
                     ScheduleSelectionListItem(
                         text = stringResource(R.string.medication_plan_reminder_interval_sunday),
                         selected = (
-                            medicationScheduleInterval is MedicationScheduleInterval.Personalized &&
-                                medicationScheduleInterval.selectedDays.contains(DayOfWeek.SUNDAY)
-                            ) || medicationScheduleInterval is MedicationScheduleInterval.Daily,
+                            medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.Personalized &&
+                                medicationScheduleIntervalErpModel.selectedDays.contains(DayOfWeek.SUNDAY)
+                            ) || medicationScheduleIntervalErpModel is MedicationScheduleIntervalErpModel.Daily,
                         onClick = { onClickIntervalOptionPersonalized(DayOfWeek.SUNDAY) }
                     )
                 }
@@ -372,7 +372,7 @@ private fun LazyListScope.scheduleIntervalSection(
 
 @OptIn(ExperimentalMaterialApi::class)
 private fun LazyListScope.medicationScheduleDurationSection(
-    medicationSchedule: MedicationSchedule,
+    medicationScheduleErpModel: MedicationScheduleErpModel,
     previewEndOfPackDate: LocalDate? = null,
     onClickDurationOptionEndless: () -> Unit,
     onClickDurationOptionEndOfPack: () -> Unit,
@@ -392,14 +392,14 @@ private fun LazyListScope.medicationScheduleDurationSection(
                 Column(modifier = Modifier.padding(vertical = PaddingDefaults.Small)) {
                     ScheduleSelectionListItem(
                         text = stringResource(R.string.schedule_date_range_unlimited),
-                        selected = medicationSchedule.duration is MedicationScheduleDuration.Endless,
+                        selected = medicationScheduleErpModel.duration is MedicationScheduleDurationErpModel.Endless,
                         onClick = { onClickDurationOptionEndless() }
                     )
-                    if (medicationSchedule.duration is MedicationScheduleDuration.Endless) {
+                    if (medicationScheduleErpModel.duration is MedicationScheduleDurationErpModel.Endless) {
                         Column(modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)) {
                             DateSelectionListItem(
                                 text = stringResource(R.string.schedule_date_range_start),
-                                date = medicationSchedule.duration.startDate,
+                                date = medicationScheduleErpModel.duration.startDate,
                                 onClick = {
                                     onClickChangeStartDate()
                                 }
@@ -408,7 +408,7 @@ private fun LazyListScope.medicationScheduleDurationSection(
                     }
                     ListItem(
                         modifier = Modifier.toggleable(
-                            value = medicationSchedule.duration is MedicationScheduleDuration.EndOfPack,
+                            value = medicationScheduleErpModel.duration is MedicationScheduleDurationErpModel.EndOfPack,
                             onValueChange = {
                                 onClickDurationOptionEndOfPack()
                             },
@@ -424,7 +424,7 @@ private fun LazyListScope.medicationScheduleDurationSection(
                         },
                         secondaryText = {
                             val endOfPackDate = previewEndOfPackDate
-                                ?: medicationSchedule.calculateEndOfPack()
+                                ?: medicationScheduleErpModel.calculateEndOfPack()
                             Text(
                                 endOfPackDate.formattedString(),
                                 style = AppTheme.typography.body2,
@@ -432,16 +432,16 @@ private fun LazyListScope.medicationScheduleDurationSection(
                             )
                         },
                         trailing = {
-                            if (medicationSchedule.duration is MedicationScheduleDuration.EndOfPack) {
+                            if (medicationScheduleErpModel.duration is MedicationScheduleDurationErpModel.EndOfPack) {
                                 Icon(Icons.Sharp.Check, null, tint = AppTheme.colors.primary700)
                             }
                         }
                     )
-                    if (medicationSchedule.duration is MedicationScheduleDuration.EndOfPack) {
+                    if (medicationScheduleErpModel.duration is MedicationScheduleDurationErpModel.EndOfPack) {
                         Column(modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)) {
                             DateSelectionListItem(
                                 text = stringResource(R.string.schedule_date_range_start),
-                                date = medicationSchedule.duration.startDate,
+                                date = medicationScheduleErpModel.duration.startDate,
                                 onClick = {
                                     onClickChangeStartDate()
                                 }
@@ -450,24 +450,24 @@ private fun LazyListScope.medicationScheduleDurationSection(
                     }
                     ScheduleSelectionListItem(
                         text = stringResource(R.string.schedule_date_range_individually),
-                        selected = medicationSchedule.duration is MedicationScheduleDuration.Personalized,
+                        selected = medicationScheduleErpModel.duration is MedicationScheduleDurationErpModel.Personalized,
                         onClick = { onClickDurationOptionPersonalized() }
                     )
-                    if (medicationSchedule.duration is MedicationScheduleDuration.Personalized) {
+                    if (medicationScheduleErpModel.duration is MedicationScheduleDurationErpModel.Personalized) {
                         Column(
                             modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
                             verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
                         ) {
                             DateSelectionListItem(
                                 text = stringResource(R.string.schedule_date_range_start),
-                                date = medicationSchedule.duration.startDate,
+                                date = medicationScheduleErpModel.duration.startDate,
                                 onClick = {
                                     onClickChangeStartDate()
                                 }
                             )
                             DateSelectionListItem(
                                 text = stringResource(R.string.schedule_date_range_end),
-                                date = medicationSchedule.duration.endDate,
+                                date = medicationScheduleErpModel.duration.endDate,
                                 onClick = {
                                     onClickChangeEndDate()
                                 }
@@ -559,7 +559,7 @@ fun MedicationPlanScheduleDurationAndIntervalScreenPreview(
 
         MedicationPlanScheduleDurationAndIntervalScreenScaffold(
             listState = listState,
-            medicationScheduleUiState = previewData.state,
+            medicationScheduleErpModelUiState = previewData.state,
             previewEndOfPackDate = previewData.previewEndOfPackDate,
             onClickDurationOptionEndless = {},
             onClickDurationOptionEndOfPack = {},

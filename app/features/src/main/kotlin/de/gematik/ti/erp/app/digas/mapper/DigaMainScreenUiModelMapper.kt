@@ -23,12 +23,13 @@
 package de.gematik.ti.erp.app.digas.mapper
 
 import de.gematik.ti.erp.app.diga.model.DigaStatus
+import de.gematik.ti.erp.app.diga.model.mapToDigaStatus
 import de.gematik.ti.erp.app.digas.ui.model.DigaMainScreenUiModel
 import de.gematik.ti.erp.app.digas.ui.model.DigaTimestamps
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.datetime.TimeZone
 
-internal fun SyncedTaskData.SyncedTask.toDigaMainScreenUiModel(): DigaMainScreenUiModel {
+internal fun TaskErpModel.Synced.Diga.toDigaMainScreenUiModel(): DigaMainScreenUiModel {
     val dispenseDeviceRequest = medicationDispenses.firstOrNull()?.deviceRequest
 
     val digaStatus = status.mapToDigaStatus(
@@ -49,10 +50,10 @@ internal fun SyncedTaskData.SyncedTask.toDigaMainScreenUiModel(): DigaMainScreen
             modifiedOn = medicationDispenses.firstOrNull()?.deviceRequest?.modifiedDate?.toInstant(TimeZone.UTC),
             expiresOn = expiresOn
         ),
-        prescribingPerson = practitioner.name,
+        prescribingPerson = practitioner?.name,
         deepLink = dispenseDeviceRequest?.deepLink,
-        institution = organization.name,
-        insuredPerson = patient.name,
+        institution = organization?.name,
+        insuredPerson = patient?.name,
         code = dispenseDeviceRequest?.redeemCode,
         declineNote = dispenseDeviceRequest?.note,
         status = digaStatus,

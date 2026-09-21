@@ -32,8 +32,10 @@ import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.pharmacy.presentation.FilterType.Companion.getUpdatedFilter
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.pharmacy.model.LocationModeErpModel
+import de.gematik.ti.erp.app.pharmacy.model.SearchFilterErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacySearchDataErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -47,8 +49,8 @@ import org.kodein.di.compose.rememberInstance
  * @param coordinates coordinates for the latitude and longitude
  */
 class PharmacySearchListController(
-    pharmacyFilter: PharmacyUseCaseData.Filter,
-    coordinates: Coordinates?,
+    pharmacyFilter: SearchFilterErpModel,
+    coordinates: PositionErpModel?,
     searchTerm: String,
     private val pharmacySearchUseCase: PharmacySearchUseCase,
     private val oftenUsedTelematikIds: Set<String> = emptySet()
@@ -56,15 +58,15 @@ class PharmacySearchListController(
 
     private val searchTerm = MutableStateFlow(searchTerm)
 
-    private val defaultSearch = PharmacyUseCaseData.SearchData(
+    private val defaultSearch = PharmacySearchDataErpModel(
         name = searchTerm,
         filter = pharmacyFilter,
         locationMode = if (pharmacyFilter.nearBy) {
             coordinates?.let {
-                PharmacyUseCaseData.LocationMode.Enabled(it)
-            } ?: PharmacyUseCaseData.LocationMode.Disabled
+                LocationModeErpModel.Enabled(it)
+            } ?: LocationModeErpModel.Disabled
         } else {
-            PharmacyUseCaseData.LocationMode.Disabled
+            LocationModeErpModel.Disabled
         }
     )
 
@@ -83,7 +85,7 @@ class PharmacySearchListController(
             if (filterType == FilterType.NEARBY && searchParams.value.filter.nearBy) {
                 searchParams.value.copy(
                     name = searchTerm.value,
-                    locationMode = PharmacyUseCaseData.LocationMode.Disabled,
+                    locationMode = LocationModeErpModel.Disabled,
                     filter = filterType.getUpdatedFilter(searchParams.value.filter)
                 )
             } else {
@@ -123,8 +125,8 @@ class PharmacySearchListController(
 
 @Composable
 fun rememberPharmacySearchListController(
-    filter: PharmacyUseCaseData.Filter = PharmacyUseCaseData.Filter(),
-    coordinates: Coordinates? = null,
+    filter: SearchFilterErpModel = SearchFilterErpModel(),
+    coordinates: PositionErpModel? = null,
     searchTerm: String = WILDCARD,
     oftenUsedTelematikIds: Set<String> = emptySet()
 ): PharmacySearchListController {

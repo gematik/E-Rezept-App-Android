@@ -23,38 +23,27 @@
 package de.gematik.ti.erp.app.settings
 
 import android.annotation.SuppressLint
-import android.os.Build
-import de.gematik.ti.erp.app.database.settings.Android8DeprecationOverrideDataStore
+import de.gematik.ti.erp.app.database.api.debug.Android13DeprecationLocalDataSource
 import de.gematik.ti.erp.app.localization.DefaultXmlResourceParserWrapper
 import de.gematik.ti.erp.app.localization.GetSupportedLanguagesFromXmlUseCase
 import de.gematik.ti.erp.app.localization.XmlResourceParserWrapper
-import de.gematik.ti.erp.app.settings.repository.Android8DeprecationOverrideRepository
+import de.gematik.ti.erp.app.debug.repository.Android13DeprecationRepository
 import de.gematik.ti.erp.app.settings.repository.CardWallRepository
-import de.gematik.ti.erp.app.settings.repository.DefaultAndroid8DeprecationOverrideRepository
+import de.gematik.ti.erp.app.debug.repository.DefaultAndroid13DeprecationRepository
 import de.gematik.ti.erp.app.settings.repository.DefaultSettingsRepository
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import de.gematik.ti.erp.app.settings.usecase.AllowScreenshotsUseCase
-import de.gematik.ti.erp.app.settings.usecase.DisableDeviceSecurityUseCase
-import de.gematik.ti.erp.app.settings.usecase.EnableDeviceSecurityUseCase
-import de.gematik.ti.erp.app.settings.usecase.GetAndroid8DeprecationOverrideUseCase
-import de.gematik.ti.erp.app.settings.usecase.GetAuthenticationUseCase
-import de.gematik.ti.erp.app.settings.usecase.GetCanStartToolTipsUseCase
-import de.gematik.ti.erp.app.settings.usecase.GetMLKitAcceptedUseCase
+import de.gematik.ti.erp.app.appsecurity.usecase.GetShouldShowAndroid13DeprecationWarningUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetOrganDonationRegisterHostsUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetScreenShotsAllowedUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetShowWelcomeDrawerUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetThemeModeUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetZoomStateUseCase
-import de.gematik.ti.erp.app.settings.usecase.PerformSettingsMigrationUseCase
 import de.gematik.ti.erp.app.settings.usecase.ResetOnboardingUseCase
-import de.gematik.ti.erp.app.settings.usecase.ResetPasswordUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveThemeModeUseCase
-import de.gematik.ti.erp.app.settings.usecase.SaveToolTipsShownUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveWelcomeDrawerShownUseCase
-import de.gematik.ti.erp.app.settings.usecase.SaveZoomPreferenceUseCase
-import de.gematik.ti.erp.app.settings.usecase.SetAndroid8DeprecationOverrideUseCase
-import de.gematik.ti.erp.app.settings.usecase.SetPasswordUseCase
-import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
+import de.gematik.ti.erp.app.settings.usecase.SaveZoomEnabledUseCase
+import de.gematik.ti.erp.app.appsecurity.usecase.SetShouldShowAndroid13DeprecationWarningUseCase
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
@@ -64,34 +53,22 @@ const val ApplicationPreferencesTag = "ApplicationPreferences"
 @SuppressLint("ObsoleteSdkInt")
 val settingsModule = DI.Module("settingsModule") {
     bindProvider { GetScreenShotsAllowedUseCase(instance()) }
-    // Android8 deprecation override repository + usecases (DEBUG only)
-    bindProvider<Android8DeprecationOverrideRepository> {
-        DefaultAndroid8DeprecationOverrideRepository(
-            dataStore = runCatching { instance<Android8DeprecationOverrideDataStore>() }.getOrNull(),
-            isDebugMode = BuildConfigExtension.isDebug,
-            isAndroid8OrBelow = Build.VERSION.SDK_INT <= Build.VERSION_CODES.O
+    bindProvider<Android13DeprecationRepository> {
+        DefaultAndroid13DeprecationRepository(
+            dataStore = instance<Android13DeprecationLocalDataSource>()
         )
     }
-    bindProvider { GetAndroid8DeprecationOverrideUseCase(instance()) }
-    bindProvider { SetAndroid8DeprecationOverrideUseCase(instance()) }
+    bindProvider { GetShouldShowAndroid13DeprecationWarningUseCase(instance()) }
+    bindProvider { SetShouldShowAndroid13DeprecationWarningUseCase(instance()) }
     bindProvider { AllowScreenshotsUseCase(instance()) }
-    bindProvider { GetMLKitAcceptedUseCase(instance()) }
-    bindProvider { GetCanStartToolTipsUseCase(instance()) }
-    bindProvider { SaveToolTipsShownUseCase(instance()) }
-    bindProvider { SetPasswordUseCase(instance()) }
     bindProvider { GetShowWelcomeDrawerUseCase(instance()) }
     bindProvider { SaveWelcomeDrawerShownUseCase(instance()) }
-    bindProvider { GetAuthenticationUseCase(instance()) }
     bindProvider { GetZoomStateUseCase(instance()) }
-    bindProvider { EnableDeviceSecurityUseCase(instance()) }
-    bindProvider { DisableDeviceSecurityUseCase(instance()) }
-    bindProvider { ResetPasswordUseCase(instance()) }
     bindProvider { ResetOnboardingUseCase(instance()) }
-    bindProvider { SaveZoomPreferenceUseCase(instance()) }
+    bindProvider { SaveZoomEnabledUseCase(instance()) }
     bindProvider { GetThemeModeUseCase(instance()) }
     bindProvider { SaveThemeModeUseCase(instance()) }
     bindProvider { GetOrganDonationRegisterHostsUseCase(instance()) }
-    bindProvider { PerformSettingsMigrationUseCase(instance()) }
 
     bindProvider {
         val context = instance<android.content.Context>()
@@ -109,6 +86,6 @@ val settingsModule = DI.Module("settingsModule") {
 val settingsRepositoryModule = DI.Module("settingsRepositoryModule") {
     bindProvider { CardWallRepository(prefs = instance(ApplicationPreferencesTag)) }
     bindProvider<SettingsRepository> {
-        DefaultSettingsRepository(realm = instance(), settingsLocalDataSource = instance())
+        DefaultSettingsRepository(settingsLocalDataSource = instance())
     }
 }

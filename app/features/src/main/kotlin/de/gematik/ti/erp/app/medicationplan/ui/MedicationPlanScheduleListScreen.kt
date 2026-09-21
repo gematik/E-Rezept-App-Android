@@ -55,7 +55,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
 import de.gematik.ti.erp.app.medicationplan.model.ProfileWithSchedules
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
 import de.gematik.ti.erp.app.medicationplan.presentation.rememberMedicationPlanScheduleListScreenController
@@ -63,7 +63,7 @@ import de.gematik.ti.erp.app.medicationplan.ui.components.ProfileHeader
 import de.gematik.ti.erp.app.medicationplan.ui.preview.MedicationPlanScheduleListScreenPreview
 import de.gematik.ti.erp.app.medicationplan.ui.preview.MedicationPlanScheduleListScreenPreviewParameter
 import de.gematik.ti.erp.app.navigation.Screen
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -191,8 +191,8 @@ private fun MedicationPlanScheduleListScreenContent(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun ProfileWithSchedulesComponent(
-    profile: ProfilesUseCaseData.Profile,
-    profileSchedules: List<MedicationSchedule>,
+    profileSchedules: List<MedicationScheduleErpModel>,
+    profile: ProfileErpModel,
     onOpenMedicationPlanOverview: () -> Unit,
     onClickSchedule: (String) -> Unit
 ) {
@@ -245,7 +245,7 @@ private fun MedicationPlanOverviewSection(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun SchedulesSection(
-    profileSchedules: List<MedicationSchedule>,
+    profileSchedules: List<MedicationScheduleErpModel>,
     onClickSchedule: (String) -> Unit
 ) {
     profileSchedules.forEach { schedule ->

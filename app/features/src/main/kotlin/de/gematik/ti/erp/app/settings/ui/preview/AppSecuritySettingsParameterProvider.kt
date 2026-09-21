@@ -23,14 +23,14 @@
 package de.gematik.ti.erp.app.settings.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.settings.model.SettingsData
-import de.gematik.ti.erp.app.userauthentication.ui.preview.AuthMethodBiometry
-import de.gematik.ti.erp.app.userauthentication.ui.preview.AuthMethodBoth
-import de.gematik.ti.erp.app.userauthentication.ui.preview.AuthMethodPassword
+import de.gematik.ti.erp.app.appauthentication.model.AppAuthenticationErpModel
+import de.gematik.ti.erp.app.appauthentication.ui.preview.AuthMethodBiometry
+import de.gematik.ti.erp.app.appauthentication.ui.preview.AuthMethodBoth
+import de.gematik.ti.erp.app.appauthentication.ui.preview.AuthMethodPassword
 
 data class AppSecuritySettingsParameter(
     val name: String,
-    val authentication: SettingsData.Authentication
+    val authentication: AppAuthenticationErpModel
 )
 
 class AppSecuritySettingsParameterProvider : PreviewParameterProvider<AppSecuritySettingsParameter> {

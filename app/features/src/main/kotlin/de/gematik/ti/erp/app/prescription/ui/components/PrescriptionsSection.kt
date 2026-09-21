@@ -43,8 +43,8 @@ import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.mainscreen.model.ProfileIconState
 import de.gematik.ti.erp.app.mainscreen.model.ProfileIconState.IsError.rememberProfileIconState
 import de.gematik.ti.erp.app.mainscreen.model.ProfileLifecycleState
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
@@ -55,8 +55,8 @@ internal fun PrescriptionsSection(
     modifier: Modifier = Modifier,
     listState: LazyListState,
     profileLifecycleState: ProfileLifecycleState,
-    activeProfile: UiState<ProfilesUseCaseData.Profile>,
-    activePrescriptions: UiState<List<Prescription>>,
+    activeProfile: UiState<ProfileErpModel>,
+    activePrescriptions: UiState<List<TaskErpModel>>,
     isArchiveEmpty: Boolean,
     onElevateTopBar: (Boolean) -> Unit,
     onClickPrescription: (String, Boolean, Boolean) -> Unit,

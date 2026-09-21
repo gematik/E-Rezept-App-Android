@@ -28,9 +28,12 @@ import androidx.activity.ComponentActivity
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.navigation.BottomSheetNavigator
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavHostController
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import org.kodein.di.DI
 
@@ -54,3 +57,20 @@ val LocalBottomSheetNavigatorSheetState =
 
 val LocalNavController =
     staticCompositionLocalOf<NavHostController> { error("No NavHostController provided!") }
+
+/**
+ * Provides the current reference time for composables that need to calculate
+ * relative date/time values (e.g. prescription expiry countdowns).
+ *
+ * In production this defaults to [Clock.System.now] at composition time.
+ * Override this in previews and screenshot tests with a fixed [Instant] to
+ * ensure deterministic, non-drifting snapshots.
+ *
+ * Usage in preview:
+ * ```
+ * CompositionLocalProvider(LocalNow provides PREVIEW_FIXED_NOW) {
+ *     MyComposable()
+ * }
+ * ```
+ */
+val LocalNow = compositionLocalOf<Instant> { Clock.System.now() }

@@ -22,20 +22,18 @@
 
 package de.gematik.ti.erp.app.profiles.usecase
 
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
-import de.gematik.ti.erp.app.profiles.usecase.mapper.toModel
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 
 class GetProfileByIdUseCase(
     private val repository: ProfileRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(id: ProfileIdentifier): Flow<ProfilesUseCaseData.Profile> =
-        repository.getProfileById(id).map { it.toModel() }.flowOn(dispatcher)
+    operator fun invoke(id: ProfileIdentifier): Flow<ProfileErpModel> =
+        repository.getProfileById(id).flowOn(dispatcher)
 }

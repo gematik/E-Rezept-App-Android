@@ -24,14 +24,15 @@ package de.gematik.ti.erp.app.prescription.detail.presentation
 
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SCANNED_TASK
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.prescription.usecase.GetPrescriptionByTaskIdUseCase
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isEmptyState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isErrorState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isLoadingState
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -52,7 +53,7 @@ import org.junit.rules.TestWatcher
 
 class GetPrescriptionByTaskDataIdControllerTest : TestWatcher() {
 
-    private val prescriptionRepository: PrescriptionRepository = mockk()
+    private val taskOperationsRepository: TaskOperationsRepository = mockk()
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
 
@@ -66,7 +67,7 @@ class GetPrescriptionByTaskDataIdControllerTest : TestWatcher() {
         MockKAnnotations.init(this)
 
         getPrescriptionByTaskIdUseCase = GetPrescriptionByTaskIdUseCase(
-            repository = prescriptionRepository,
+            repository = taskOperationsRepository,
             dispatcher = dispatcher
         )
 
@@ -85,8 +86,8 @@ class GetPrescriptionByTaskDataIdControllerTest : TestWatcher() {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `prescription is empty and screen in error state`() {
-        every { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
-        every { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+        every { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
+        every { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
 
         testScope.runTest {
             advanceUntilIdle()
@@ -97,8 +98,9 @@ class GetPrescriptionByTaskDataIdControllerTest : TestWatcher() {
 
     @Test
     fun `prescription is loading and screen in loading state`() {
-        every { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
-        every { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+        every { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
+        every { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+        coEvery { taskOperationsRepository.loadDigaTaskByTaskId(any()) } returns flowOf()
 
         testScope.runTest {
             val prescription = controllerUnderTest.prescription.first()
@@ -109,8 +111,8 @@ class GetPrescriptionByTaskDataIdControllerTest : TestWatcher() {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `prescription is empty and screen in  state`() {
-        every { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf()
-        every { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns flowOf()
+        every { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf()
+        every { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf()
 
         testScope.runTest {
             advanceUntilIdle()
@@ -122,28 +124,30 @@ class GetPrescriptionByTaskDataIdControllerTest : TestWatcher() {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `a synced prescription is loaded and screen is in data state with a synced prescription`() {
-        every { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SYNCED_TASK)
-        every { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns flowOf()
+        every { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SYNCED_TASK)
+        every { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf()
+        coEvery { taskOperationsRepository.loadDigaTaskByTaskId(any()) } returns flowOf()
 
         testScope.runTest {
             advanceUntilIdle()
             val prescription = controllerUnderTest.prescription.first()
             assert(prescription.isDataState)
-            assert(prescription.data is PrescriptionData.Synced)
+            assert(prescription.data is TaskErpModel.Synced.Prescription)
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `a scanned prescription is loaded and screen is in data state with a scanned prescription`() {
-        every { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf()
-        every { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SCANNED_TASK)
+        every { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf()
+        every { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SCANNED_TASK)
+        coEvery { taskOperationsRepository.loadDigaTaskByTaskId(any()) } returns flowOf()
 
         testScope.runTest {
             advanceUntilIdle()
             val prescription = controllerUnderTest.prescription.first()
             assert(prescription.isDataState)
-            assert(prescription.data is PrescriptionData.Scanned)
+            assert(prescription.data is TaskErpModel.Scanned)
         }
     }
 }

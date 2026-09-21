@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.profiles.usecase
 
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.usecase.model.PairedDevice
+import de.gematik.ti.erp.app.profile.model.PairedDeviceErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -45,13 +45,13 @@ class GetPairedDevicesUseCase(
     operator fun invoke(
         profileId: ProfileIdentifier,
         keyStoreAlias: String
-    ): Flow<List<PairedDevice>> =
+    ): Flow<List<PairedDeviceErpModel>> =
         flow {
             emit(
                 idpUseCase.getPairedDevices(profileId).getOrThrow()
                     .map { (pairingResponseEntry, pairingData) ->
                         val creationTime = Instant.fromEpochSeconds(pairingResponseEntry.creationTime)
-                        PairedDevice(
+                        PairedDeviceErpModel(
                             name = pairingResponseEntry.name,
                             alias = pairingData.keyAliasOfSecureElement,
                             connectedOn = creationTime
@@ -59,7 +59,7 @@ class GetPairedDevicesUseCase(
                                 .toJavaLocalDateTime().format(dateTimeFormatter),
                             isCurrentDevice = keyStoreAlias == pairingData.keyAliasOfSecureElement
                         )
-                    }.sortedByDescending(PairedDevice::connectedOn)
+                    }.sortedByDescending(PairedDeviceErpModel::connectedOn)
             )
         }.flowOn(dispatcher)
 

@@ -25,16 +25,16 @@ package de.gematik.ti.erp.app.pharmacy.ui.preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.fhir.pharmacy.model.PharmacyAvailableServiceErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.PharmacyOnSiteFeatureErpModel
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningTime
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyContact
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyOpeningHoursErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyOpeningTimeErpModel
+import de.gematik.ti.erp.app.pharmacy.model.ContactInformationErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel
 import kotlinx.datetime.LocalTime
 import java.time.DayOfWeek
 
-class PharmacyPreviewParameterProvider : PreviewParameterProvider<PharmacyUseCaseData.Pharmacy> {
+class PharmacyPreviewParameterProvider : PreviewParameterProvider<PharmacyDetailsErpModel> {
     override val values = sequenceOf(
         PharmacyPreviewData.ALL_PRESENT_DATA,
         PharmacyPreviewData.PICK_UP_ONLY_DATA,
@@ -44,7 +44,7 @@ class PharmacyPreviewParameterProvider : PreviewParameterProvider<PharmacyUseCas
     )
 }
 
-class PharmacySheetFromMessagesParameterProvider : PreviewParameterProvider<PharmacyUseCaseData.Pharmacy> {
+class PharmacySheetFromMessagesParameterProvider : PreviewParameterProvider<PharmacyDetailsErpModel> {
     override val values = sequenceOf(
         PharmacyPreviewData.PHONE_CONTACT_ONLY,
         PharmacyPreviewData.MAIL_CONTACT_ONLY,
@@ -56,10 +56,10 @@ class PharmacySheetFromMessagesParameterProvider : PreviewParameterProvider<Phar
 
 object PharmacyPreviewData {
 
-    private val openingHoursSample = OpeningHours(
+    private val openingHoursSample = PharmacyOpeningHoursErpModel(
         openingTime = mapOf(
             DayOfWeek.SATURDAY to listOf(
-                OpeningTime(
+                PharmacyOpeningTimeErpModel(
                     openingTime = LocalTime(8, 0, 0),
                     closingTime = LocalTime(23, 0, 0)
                 )
@@ -67,64 +67,64 @@ object PharmacyPreviewData {
         )
     )
 
-    val ALL_PRESENT_DATA = PharmacyUseCaseData.Pharmacy(
+    val ALL_PRESENT_DATA = PharmacyDetailsErpModel(
         id = "1",
         name = "Apotheke am Markt",
         address = "Marktstraße 1, 12345 Musterstadt",
-        coordinates = Coordinates(0.0, 0.0),
+        coordinates = PositionErpModel(0.0, 0.0),
         distance = 1.0,
         provides = listOf(
-            PharmacyService.OnlinePharmacyService(name = "Online"),
-            PharmacyService.PickUpPharmacyService(name = "PickUp"),
-            PharmacyService.LocalPharmacyService(
+            PharmacyServiceErpModel.OnlinePharmacyServiceErpModel(name = "Online"),
+            PharmacyServiceErpModel.PickUpPharmacyServiceErpModel(name = "PickUp"),
+            PharmacyServiceErpModel.LocalPharmacyServiceErpModel(
                 name = "Local",
                 openingHours = openingHoursSample
             ),
-            PharmacyService.DeliveryPharmacyService(
+            PharmacyServiceErpModel.DeliveryPharmacyServiceErpModel(
                 name = "Delivery",
                 openingHours = openingHoursSample
             )
         ),
-        openingHours = OpeningHours(
+        openingHours = PharmacyOpeningHoursErpModel(
             openingTime = mapOf(
                 DayOfWeek.SATURDAY to listOf(
-                    OpeningTime(
+                    PharmacyOpeningTimeErpModel(
                         openingTime = LocalTime(8, 0, 0),
                         closingTime = LocalTime(20, 0, 0)
                     )
                 ),
                 DayOfWeek.SUNDAY to listOf(
-                    OpeningTime(
+                    PharmacyOpeningTimeErpModel(
                         openingTime = LocalTime(11, 0, 0),
                         closingTime = LocalTime(15, 0, 0)
                     )
                 ),
                 DayOfWeek.MONDAY to listOf(
-                    OpeningTime(
+                    PharmacyOpeningTimeErpModel(
                         openingTime = LocalTime(8, 0, 0),
                         closingTime = LocalTime(23, 0, 0)
                     )
                 ),
                 DayOfWeek.TUESDAY to listOf(
-                    OpeningTime(
+                    PharmacyOpeningTimeErpModel(
                         openingTime = LocalTime(8, 0, 0),
                         closingTime = LocalTime(23, 0, 0)
                     )
                 ),
                 DayOfWeek.WEDNESDAY to listOf(
-                    OpeningTime(
+                    PharmacyOpeningTimeErpModel(
                         openingTime = LocalTime(8, 0, 0),
                         closingTime = LocalTime(23, 0, 0)
                     )
                 ),
                 DayOfWeek.THURSDAY to listOf(
-                    OpeningTime(
+                    PharmacyOpeningTimeErpModel(
                         openingTime = LocalTime(8, 0, 0),
                         closingTime = LocalTime(23, 0, 0)
                     )
                 ),
                 DayOfWeek.FRIDAY to listOf(
-                    OpeningTime(
+                    PharmacyOpeningTimeErpModel(
                         openingTime = LocalTime(8, 0, 0),
                         closingTime = LocalTime(23, 0, 0)
                     )
@@ -134,7 +134,7 @@ object PharmacyPreviewData {
         specialClosingTimes = mockSpecialClosingTimes,
         specialOpeningTimes = mockSpecialOpeningTimes,
         telematikId = "123456789",
-        contact = PharmacyContact(
+        contact = ContactInformationErpModel(
             phone = "0123456789",
             mail = "mpq@nrw.de",
             url = "www.apotheke-am-markt.de"
@@ -153,9 +153,9 @@ object PharmacyPreviewData {
 
     val PICK_UP_ONLY_DATA = ALL_PRESENT_DATA.copy(
         provides = listOf(
-            PharmacyService.PickUpPharmacyService(name = "PickUp")
+            PharmacyServiceErpModel.PickUpPharmacyServiceErpModel(name = "PickUp")
         ),
-        contact = PharmacyContact(
+        contact = ContactInformationErpModel(
             phone = "0123456789",
             mail = "",
             url = ""
@@ -164,13 +164,13 @@ object PharmacyPreviewData {
 
     val PICK_UP_AND_DELIVERY_DATA = ALL_PRESENT_DATA.copy(
         provides = listOf(
-            PharmacyService.PickUpPharmacyService(name = "PickUp"),
-            PharmacyService.DeliveryPharmacyService(
+            PharmacyServiceErpModel.PickUpPharmacyServiceErpModel(name = "PickUp"),
+            PharmacyServiceErpModel.DeliveryPharmacyServiceErpModel(
                 name = "Delivery",
                 openingHours = openingHoursSample
             )
         ),
-        contact = PharmacyContact(
+        contact = ContactInformationErpModel(
             phone = "0123456789",
             mail = "",
             url = ""
@@ -179,12 +179,12 @@ object PharmacyPreviewData {
 
     val DELIVERY_PICKUP_ONLY_DATA = ALL_PRESENT_DATA.copy(
         provides = listOf(
-            PharmacyService.DeliveryPharmacyService(
+            PharmacyServiceErpModel.DeliveryPharmacyServiceErpModel(
                 name = "Delivery",
                 openingHours = openingHoursSample
             )
         ),
-        contact = PharmacyContact(
+        contact = ContactInformationErpModel(
             phone = "0123456789",
             mail = "",
             url = ""
@@ -193,9 +193,9 @@ object PharmacyPreviewData {
 
     val ONLINE_ONLY_DATA = ALL_PRESENT_DATA.copy(
         provides = listOf(
-            PharmacyService.OnlinePharmacyService(name = "Online")
+            PharmacyServiceErpModel.OnlinePharmacyServiceErpModel(name = "Online")
         ),
-        contact = PharmacyContact(
+        contact = ContactInformationErpModel(
             phone = "0123456789",
             mail = "",
             url = ""
@@ -204,7 +204,7 @@ object PharmacyPreviewData {
 
     val PHONE_CONTACT_ONLY = ALL_PRESENT_DATA.copy(
         coordinates = null,
-        contact = PharmacyContact(
+        contact = ContactInformationErpModel(
             phone = "0123456789",
             mail = "",
             url = ""
@@ -213,7 +213,7 @@ object PharmacyPreviewData {
 
     val MAIL_CONTACT_ONLY = ALL_PRESENT_DATA.copy(
         coordinates = null,
-        contact = PharmacyContact(
+        contact = ContactInformationErpModel(
             phone = "",
             mail = "pharm@pharm.de",
             url = ""
@@ -221,7 +221,7 @@ object PharmacyPreviewData {
     )
 
     val LOCATION_CONTACT_ONLY = ALL_PRESENT_DATA.copy(
-        contact = PharmacyContact(
+        contact = ContactInformationErpModel(
             phone = "",
             mail = "",
             url = ""
@@ -229,7 +229,7 @@ object PharmacyPreviewData {
     )
 
     val LOCATION_PHONE_CONTACT = ALL_PRESENT_DATA.copy(
-        contact = PharmacyContact(
+        contact = ContactInformationErpModel(
             phone = "123",
             mail = "",
             url = ""
@@ -238,7 +238,7 @@ object PharmacyPreviewData {
 
     val ALL_CONTACT = ALL_PRESENT_DATA.copy(
         provides = listOf(
-            PharmacyService.LocalPharmacyService(
+            PharmacyServiceErpModel.LocalPharmacyServiceErpModel(
                 name = "Local",
                 openingHours = openingHoursSample
             )

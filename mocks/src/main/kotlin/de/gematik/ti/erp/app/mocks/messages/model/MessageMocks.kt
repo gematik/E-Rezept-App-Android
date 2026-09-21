@@ -22,15 +22,34 @@
 
 package de.gematik.ti.erp.app.mocks.messages.model
 
-import de.gematik.ti.erp.app.diga.model.DigaStatus
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.invoice.model.ChargeableItemDescriptionErpModel
+import de.gematik.ti.erp.app.invoice.model.ChargeableItemErpModel
+import de.gematik.ti.erp.app.invoice.model.InvoiceErpModel
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
+import de.gematik.ti.erp.app.invoice.model.PriceComponentErpModel
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.messages.model.Communication
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile
-import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.mocks.PROFILE_ID
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
+import io.mockk.mockk
+import de.gematik.ti.erp.app.task.model.AccidentType
+import de.gematik.ti.erp.app.task.model.AdditionalFeeErpModel
+import de.gematik.ti.erp.app.task.model.AddressErpModel
+import de.gematik.ti.erp.app.task.model.InsuranceErpModel
+import de.gematik.ti.erp.app.task.model.InsuranceErpModelCoverageType
+import de.gematik.ti.erp.app.task.model.MedicationRequestErpModel
+import de.gematik.ti.erp.app.task.model.MultiplePrescriptionInfo
+import de.gematik.ti.erp.app.task.model.OrganizationErpModel
+import de.gematik.ti.erp.app.task.model.PatientErpModel
+import de.gematik.ti.erp.app.task.model.PractitionerErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import kotlinx.datetime.Instant
 
 object MessageMocks {
@@ -47,9 +66,11 @@ object MessageMocks {
 
     const val MOCK_TRANSACTION_ID = "transactionMockId"
 
-    val MOCK_PHARMACY_O1 = CachedPharmacy(name = "Pharmacy1", telematikId = "123")
+    data class MockPharmacy(val name: String, val telematikId: String)
 
-    val MOCK_PHARMACY_O2 = CachedPharmacy(name = "Pharmacy2", telematikId = "456")
+    val MOCK_PHARMACY_O1 = MockPharmacy(name = "Pharmacy1", telematikId = "123")
+
+    val MOCK_PHARMACY_O2 = MockPharmacy(name = "Pharmacy2", telematikId = "456")
 
     const val MOCK_PRACTITIONER_NAME = "Dr. John Doe"
 
@@ -79,55 +100,54 @@ object MessageMocks {
             }
     """.trimIndent()
 
-    val MOCK_PRACTITIONER = SyncedTaskData.Practitioner(
+    val MOCK_PRACTITIONER = PractitionerErpModel(
         name = MOCK_PRACTITIONER_NAME,
         qualification = "",
         practitionerIdentifier = " "
     )
 
-    val MOCK_CHIP_INFO = Prescription.PrescriptionChipInformation(
-        isPartOfMultiplePrescription = false,
-        numerator = null,
-        denominator = null,
-        start = null
-    )
-
-    val MOCK_PRESCRIPTION_01 = Prescription.SyncedPrescription(
+    val MOCK_PRESCRIPTION_01 = TaskErpModel.Synced.Prescription(
+        profileId = "testProfileId",
+        name = null,
         taskId = MOCK_TASK_ID_01,
-        name = null,
-        redeemedOn = null,
+        accessCode = "testAccessCode",
+        isEuRedeemable = false,
+        lastModified = Instant.Companion.parse(MESSAGE_TIMESTAMP),
+        isEuRedeemableByPatientAuthorization = false,
+        organization = null,
+        practitioner = null,
+        patient = null,
+        insuranceInformation = null,
         expiresOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        state = SyncedTaskData.SyncedTask.Expired(
-            expiredOn = Instant.Companion.parse(MESSAGE_TIMESTAMP)
-        ),
-        isIncomplete = false,
-        organization = MOCK_PRACTITIONER_NAME,
-        authoredOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
         acceptUntil = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        isDirectAssignment = false,
-        prescriptionChipInformation = MOCK_CHIP_INFO,
-        isNew = false,
-        deviceRequestState = DigaStatus.Ready,
-        lastModified = Instant.Companion.parse(MESSAGE_TIMESTAMP)
+        authoredOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
+        status = TaskStatusEnum.Ready,
+        isIncomplete = false,
+        pvsIdentifier = "",
+        failureToReport = "",
+        medicationRequest = null
     )
 
-    val MOCK_PRESCRIPTION_02 = Prescription.SyncedPrescription(
-        taskId = MOCK_TASK_ID_02,
+    val MOCK_PRESCRIPTION_02 = TaskErpModel.Synced.Prescription(
+        profileId = "testProfileId",
         name = null,
-        redeemedOn = null,
+        taskId = MOCK_TASK_ID_02,
+        accessCode = "testAccessCode",
+        isEuRedeemable = false,
+        lastModified = Instant.Companion.parse(MESSAGE_TIMESTAMP),
+        isEuRedeemableByPatientAuthorization = false,
+        organization = null,
+        practitioner = null,
+        patient = null,
+        insuranceInformation = null,
         expiresOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        state = SyncedTaskData.SyncedTask.Expired(
-            expiredOn = Instant.Companion.parse(MESSAGE_TIMESTAMP)
-        ),
-        isIncomplete = false,
-        organization = MOCK_PRACTITIONER_NAME,
-        authoredOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
         acceptUntil = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        isDirectAssignment = false,
-        prescriptionChipInformation = MOCK_CHIP_INFO,
-        isNew = false,
-        deviceRequestState = DigaStatus.Ready,
-        lastModified = Instant.Companion.parse(MESSAGE_TIMESTAMP)
+        authoredOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
+        status = TaskStatusEnum.Ready,
+        isIncomplete = false,
+        pvsIdentifier = "",
+        failureToReport = "",
+        medicationRequest = null
     )
 
     val MOCK_TASK_DETAIL_BUNDLE_01 = OrderUseCaseData.TaskDetailedBundle(
@@ -146,14 +166,86 @@ object MessageMocks {
         )
     )
 
+    val MOCK_SYNCED_TASK_DATA_01 = TaskErpModel.Synced.Prescription(
+        profileId = "testProfileId",
+        name = null,
+        taskId = MOCK_TASK_ID_01,
+        accessCode = "testAccessCode",
+        isEuRedeemable = false,
+        lastModified = Instant.Companion.parse(MESSAGE_TIMESTAMP),
+        isEuRedeemableByPatientAuthorization = false,
+        organization = OrganizationErpModel(name = "TestOrganization"),
+        practitioner = PractitionerErpModel(
+            name = MOCK_PRACTITIONER_NAME,
+            qualification = "",
+            practitionerIdentifier = " ",
+            dentistIdentifier = null,
+            telematikId = null
+        ),
+        patient = PatientErpModel(name = "Jane", address = null, dateOfBirth = null, insuranceIdentifier = "ins123"),
+        insuranceInformation = InsuranceErpModel(name = "TestInsurance", status = "Active", coverageType = InsuranceErpModelCoverageType.GKV),
+        expiresOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
+        acceptUntil = Instant.Companion.parse(MESSAGE_TIMESTAMP),
+        authoredOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
+        status = TaskStatusEnum.Ready,
+        isIncomplete = false,
+        pvsIdentifier = "testPvsIdentifier",
+        failureToReport = "testFailureToReport",
+        medicationRequest = null,
+        medicationDispenses = emptyList(),
+        lastMedicationDispense = null
+    )
+
+    val MOCK_SYNCED_TASK_DATA_02 = TaskErpModel.Synced.Prescription(
+        profileId = "testProfileId",
+        name = null,
+        taskId = MOCK_TASK_ID_02,
+        accessCode = "testAccessCode",
+        isEuRedeemable = false,
+        lastModified = Instant.Companion.parse(MESSAGE_TIMESTAMP),
+        isEuRedeemableByPatientAuthorization = false,
+        organization = OrganizationErpModel(name = "TestOrganization"),
+        practitioner = PractitionerErpModel(
+            name = MOCK_PRACTITIONER_NAME,
+            qualification = "",
+            practitionerIdentifier = " ",
+            dentistIdentifier = null,
+            telematikId = null
+        ),
+        patient = PatientErpModel(name = "Jane", address = null, dateOfBirth = null, insuranceIdentifier = "ins123"),
+        insuranceInformation = InsuranceErpModel(name = "TestInsurance", status = "Active", coverageType = InsuranceErpModelCoverageType.GKV),
+        expiresOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
+        acceptUntil = Instant.Companion.parse(MESSAGE_TIMESTAMP),
+        authoredOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
+        status = TaskStatusEnum.Ready,
+        isIncomplete = false,
+        pvsIdentifier = "testPvsIdentifier",
+        failureToReport = "testFailureToReport",
+        medicationRequest = null,
+        medicationDispenses = emptyList(),
+        lastMedicationDispense = null
+    )
+
     val MOCK_ORDER_DETAIL = OrderUseCaseData.OrderDetail(
         orderId = MOCK_ORDER_ID,
         taskDetailedBundles = listOf(
-            MOCK_TASK_DETAIL_BUNDLE_01,
-            MOCK_TASK_DETAIL_BUNDLE_02
+            OrderUseCaseData.TaskDetailedBundle(
+                prescription = MOCK_SYNCED_TASK_DATA_01,
+                invoiceInfo = OrderUseCaseData.InvoiceInfo(
+                    hasInvoice = true,
+                    invoiceSentOn = Instant.Companion.parse(MESSAGE_TIMESTAMP)
+                )
+            ),
+            OrderUseCaseData.TaskDetailedBundle(
+                prescription = MOCK_SYNCED_TASK_DATA_02,
+                invoiceInfo = OrderUseCaseData.InvoiceInfo(
+                    hasInvoice = true,
+                    invoiceSentOn = Instant.Companion.parse(MESSAGE_TIMESTAMP)
+                )
+            )
         ),
         sentOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        pharmacy = OrderUseCaseData.Pharmacy(MOCK_PHARMACY_O1.name, ""),
+        pharmacy = OrderUseCaseData.Pharmacy(id = MOCK_PHARMACY_O1.telematikId, name = MOCK_PHARMACY_O1.name),
         hasUnreadMessages = false
     )
 
@@ -161,47 +253,56 @@ object MessageMocks {
         orderId = MOCK_ORDER_ID,
         prescriptions = listOf(null),
         sentOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        pharmacy = OrderUseCaseData.Pharmacy(MOCK_PHARMACY_O1.name, ""),
+        pharmacy = OrderUseCaseData.Pharmacy(MOCK_PHARMACY_O1.telematikId, MOCK_PHARMACY_O1.name),
         hasUnreadMessages = true,
         latestCommunicationMessage = null
     )
 
-    val MOCK_DISP_REQ_COMMUNICATION_01 = Communication(
+    val MOCK_DISP_REQ_COMMUNICATION_01 = CommunicationErpModel(
         taskId = MOCK_TASK_ID_01,
         communicationId = MOCK_COMMUNICATION_ID_01,
         orderId = MOCK_ORDER_ID,
-        profile = CommunicationProfile.ErxCommunicationDispReq,
-        sentOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        sender = "sender1",
-        recipient = MOCK_PHARMACY_O1.name,
+        profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq,
+        timeStamp = Instant.Companion.parse(MESSAGE_TIMESTAMP),
+        senderTelematikId = "sender1",
+        recipient = MOCK_PHARMACY_O1.telematikId,
+        pharmacyName = MOCK_PHARMACY_O1.name,
         payload = "payload1",
-        consumed = true
+        consumed = true,
+        profileId = ""
     )
     val MOCK_DISP_REPLY_COMMUNICATION_01 = MOCK_DISP_REQ_COMMUNICATION_01.copy(
-        profile = CommunicationProfile.ErxCommunicationReply,
+        profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply,
         consumed = false,
         payload = MOCK_PAYLOAD
     )
-    val MOCK_DISP_REQ_COMMUNICATION_02 = Communication(
+    val MOCK_DISP_REQ_COMMUNICATION_02 = CommunicationErpModel(
         taskId = MOCK_TASK_ID_02,
         communicationId = MOCK_COMMUNICATION_ID_02,
         orderId = MOCK_ORDER_ID,
-        profile = CommunicationProfile.ErxCommunicationDispReq,
-        sentOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        sender = "sender2",
-        recipient = MOCK_PHARMACY_O2.name,
+        profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq,
+        timeStamp = Instant.Companion.parse(MESSAGE_TIMESTAMP),
+        senderTelematikId = "sender2",
+        recipient = MOCK_PHARMACY_O2.telematikId,
+        pharmacyName = MOCK_PHARMACY_O2.name,
         payload = "payload2",
-        consumed = true
+        consumed = true,
+        profileId = ""
     )
     val MOCK_DISP_REPLY_COMMUNICATION_02 = MOCK_DISP_REQ_COMMUNICATION_02.copy(
-        profile = CommunicationProfile.ErxCommunicationReply,
+        profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply,
         consumed = false,
         payload = MOCK_PAYLOAD_02
     )
 
-    val MOCK_ORGANIZATION = SyncedTaskData.Organization(
+    val MOCK_DISP_REQ_COMMUNICATION_01_ERP = MOCK_DISP_REQ_COMMUNICATION_01
+    val MOCK_DISP_REQ_COMMUNICATION_02_ERP = MOCK_DISP_REQ_COMMUNICATION_02
+    val MOCK_DISP_REPLY_COMMUNICATION_01_ERP = MOCK_DISP_REPLY_COMMUNICATION_01
+    val MOCK_DISP_REPLY_COMMUNICATION_02_ERP = MOCK_DISP_REPLY_COMMUNICATION_02
+
+    val MOCK_ORGANIZATION = OrganizationErpModel(
         name = "TestOrganization",
-        address = SyncedTaskData.Address(
+        address = AddressErpModel(
             line1 = "123 Main Street",
             line2 = "Apt 4",
             postalCode = "12345",
@@ -212,38 +313,48 @@ object MessageMocks {
         mail = "info@testorg.com"
     )
 
-    val MOCK_PATIENT = SyncedTaskData.Patient(
+    val MOCK_PATIENT = PatientErpModel(
         name = "Jane",
-        address = SyncedTaskData.Address(
+        address = AddressErpModel(
             line1 = "",
             line2 = "",
             postalCode = "",
             city = ""
         ),
-        birthdate = null,
+        dateOfBirth = null,
         insuranceIdentifier = "ins123"
     )
 
-    val MOCK_MEDICATION_REQ = SyncedTaskData.MedicationRequest(
-        null, null, null, SyncedTaskData.AccidentType.None,
-        null, null, false, null,
-        SyncedTaskData.MultiplePrescriptionInfo(false), 1, null, null, SyncedTaskData.AdditionalFee.None
+    val MOCK_MEDICATION_REQ = MedicationRequestErpModel(
+        medication = null,
+        authoredOn = null,
+        dateOfAccident = null,
+        accidentType = AccidentType.None,
+        location = null,
+        emergencyFee = null,
+        substitutionAllowed = false,
+        dosageInstruction = null,
+        multiplePrescriptionInfo = MultiplePrescriptionInfo(false),
+        quantity = 1,
+        note = null,
+        bvg = null,
+        additionalFee = AdditionalFeeErpModel.None
     )
 
     fun mockChargeItem(
         itemDescription: String,
         itemFactor: Double,
         itemPrice: Double
-    ): InvoiceData.ChargeableItem {
-        return InvoiceData.ChargeableItem(
-            description = InvoiceData.ChargeableItem.Description.PZN("PZN123"),
+    ): ChargeableItemErpModel {
+        return ChargeableItemErpModel(
+            description = ChargeableItemDescriptionErpModel.PZN("PZN123"),
             text = itemDescription,
             factor = itemFactor,
-            price = InvoiceData.PriceComponent(value = itemPrice, tax = 0.0)
+            price = PriceComponentErpModel(value = itemPrice, tax = 0.0)
         )
     }
 
-    val MOCK_INVOICE = InvoiceData.Invoice(
+    val MOCK_INVOICE = InvoiceErpModel(
         totalAdditionalFee = 10.0,
         totalBruttoAmount = 120.0,
         currency = "EUR",
@@ -255,7 +366,7 @@ object MessageMocks {
         additionalInformation = listOf("AdditionalInfo1", "AdditionalInfo2")
     )
 
-    val MOCK_INVOICE_01 = InvoiceData.PKVInvoiceRecord(
+    val MOCK_INVOICE_01 = PKVInvoiceErpModel(
         profileId = "testProfileId",
         taskId = MOCK_TASK_ID_01,
         accessCode = "testAccessCode",
@@ -267,11 +378,10 @@ object MessageMocks {
         medicationRequest = MOCK_MEDICATION_REQ,
         whenHandedOver = null,
         invoice = MOCK_INVOICE,
-        dmcPayload = "testDmcPayload",
         consumed = false
     )
 
-    val MOCK_INVOICE_02 = InvoiceData.PKVInvoiceRecord(
+    val MOCK_INVOICE_02 = PKVInvoiceErpModel(
         profileId = "testProfileId",
         taskId = MOCK_TASK_ID_02,
         accessCode = "testAccessCode",
@@ -283,64 +393,7 @@ object MessageMocks {
         medicationRequest = MOCK_MEDICATION_REQ,
         whenHandedOver = null,
         invoice = MOCK_INVOICE,
-        dmcPayload = "testDmcPayload",
         consumed = false
-    )
-
-    val MOCK_SYNCED_TASK_DATA_01 = SyncedTaskData.SyncedTask(
-        profileId = "testProfileId",
-        taskId = MOCK_TASK_ID_01,
-        accessCode = "testAccessCode",
-        lastModified = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        organization = MOCK_ORGANIZATION,
-        practitioner = MOCK_PRACTITIONER,
-        patient = MOCK_PATIENT,
-        insuranceInformation = SyncedTaskData.InsuranceInformation(
-            name = "TestInsurance",
-            status = "Active",
-            coverageType = SyncedTaskData.CoverageType.GKV
-        ),
-        expiresOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        acceptUntil = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        authoredOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        status = SyncedTaskData.TaskStatus.Ready,
-        isIncomplete = false,
-        pvsIdentifier = "testPvsIdentifier",
-        failureToReport = "testFailureToReport",
-        medicationRequest = MOCK_MEDICATION_REQ,
-        lastMedicationDispense = null,
-        medicationDispenses = emptyList(),
-        communications = emptyList(),
-        isEuRedeemable = false,
-        isEuRedeemableByPatientAuthorization = false
-    )
-
-    val MOCK_SYNCED_TASK_DATA_02 = SyncedTaskData.SyncedTask(
-        profileId = "testProfileId",
-        taskId = MOCK_TASK_ID_02,
-        accessCode = "testAccessCode",
-        lastModified = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        organization = MOCK_ORGANIZATION,
-        practitioner = MOCK_PRACTITIONER,
-        patient = MOCK_PATIENT,
-        insuranceInformation = SyncedTaskData.InsuranceInformation(
-            name = "TestInsurance",
-            status = "Active",
-            coverageType = SyncedTaskData.CoverageType.GKV
-        ),
-        expiresOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        acceptUntil = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        authoredOn = Instant.Companion.parse(MESSAGE_TIMESTAMP),
-        status = SyncedTaskData.TaskStatus.Ready,
-        isIncomplete = false,
-        pvsIdentifier = "testPvsIdentifier",
-        failureToReport = "testFailureToReport",
-        medicationRequest = MOCK_MEDICATION_REQ,
-        lastMedicationDispense = null,
-        medicationDispenses = emptyList(),
-        communications = emptyList(),
-        isEuRedeemable = false,
-        isEuRedeemableByPatientAuthorization = false
     )
 
     val MOCK_MESSAGE_01 = OrderUseCaseData.Message(
@@ -365,18 +418,27 @@ object MessageMocks {
         prescriptions = listOf(MOCK_PRESCRIPTION_02)
     )
 
-    val MOCK_PROFILE = ProfilesData.Profile(
-        id = "1",
-        name = "Mustermann",
-        color = ProfilesData.ProfileColorNames.PINK,
-        avatar = ProfilesData.Avatar.FemaleDoctor,
-        insuranceIdentifier = "12345567890",
-        insuranceType = ProfilesData.InsuranceType.GKV,
-        insurantName = "Mustermann",
-        insuranceName = "GesundheitsVersichert AG",
-        singleSignOnTokenScope = null,
-        active = false,
-        isConsentDrawerShown = false,
-        lastAuthenticated = null
+    val MOCK_PROFILE = ProfileErpModel(
+        id = PROFILE_ID,
+        name = "Erna Mustermann",
+        active = true,
+        isNewlyCreated = false,
+        profileImageData = ProfileImageDataErpModel(
+            color = ProfileColorNames.PINK,
+            avatar = Avatar.Baby,
+            image = null
+        ),
+        insuranceData = ProfileInsuranceDataErpModel(
+            insurantName = "Erna Mustermann",
+            insuranceIdentifier = "AOK",
+            insuranceName = null,
+            insuranceType = InsuranceType.GKV,
+            organizationIdentifier = null
+        ),
+        isConsentDrawerShown = true,
+        lastAuthenticated = mockk(),
+        lastAuditEventSynced = null,
+        lastTaskSynced = mockk(),
+        userAuthentication = UserAuthenticationErpModel.NotInitialized
     )
 }

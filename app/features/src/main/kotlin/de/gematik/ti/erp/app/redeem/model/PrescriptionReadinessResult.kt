@@ -22,9 +22,9 @@
 
 package de.gematik.ti.erp.app.redeem.model
 
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 
 data class PrescriptionReadinessResult(
-    val readyPrescriptions: List<PrescriptionData.Prescription>,
-    val notReadyPrescriptions: List<PrescriptionData.Prescription>
+    val readyPrescriptions: List<TaskErpModel>,
+    val notReadyPrescriptions: List<TaskErpModel>
 )

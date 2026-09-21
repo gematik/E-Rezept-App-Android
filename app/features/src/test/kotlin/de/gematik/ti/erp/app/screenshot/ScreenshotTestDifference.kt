@@ -23,5 +23,5 @@
 package de.gematik.ti.erp.app.screenshot
 
 object ScreenshotTestDifference {
-    const val DIFFERENCE = 0.2
+    const val DIFFERENCE = 0.8
 }

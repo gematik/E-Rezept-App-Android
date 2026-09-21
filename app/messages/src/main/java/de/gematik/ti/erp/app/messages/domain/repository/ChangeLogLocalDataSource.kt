@@ -22,16 +22,14 @@
 
 package de.gematik.ti.erp.app.messages.domain.repository
 
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.communication.model.InternalMessageErpModel
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.messages.domain.model.InternalMessageResources
 import de.gematik.ti.erp.app.messages.domain.model.SECURITY_WARNING_MESSAGE_ID
 import de.gematik.ti.erp.app.messages.domain.model.WELCOME_MESSAGE_ID
 import de.gematik.ti.erp.app.messages.mapper.toInternalMessage
 import de.gematik.ti.erp.app.messages.model.ChangeLogMessage
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile
-import de.gematik.ti.erp.app.messages.model.InternalMessage
-import de.gematik.ti.erp.app.timestate.TimeState
-import de.gematik.ti.erp.app.timestate.getTimeState
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -42,7 +40,7 @@ private const val IN_APP_MESSAGE_FOLDER_NAME = "lproj"
 class ChangeLogLocalDataSource(
     private val messageResources: InternalMessageResources
 ) {
-    fun getChangeLogsAsInternalMessage(): List<InternalMessage> =
+    fun getChangeLogsAsInternalMessage(): List<InternalMessageErpModel> =
         try {
             val language = messageResources.language
             val filePath = "$language.$IN_APP_MESSAGE_FOLDER_NAME/$IN_APP_MESSAGE_FILE_NAME" // Construct path to file in assets
@@ -53,15 +51,15 @@ class ChangeLogLocalDataSource(
             }
         } catch (e: Exception) {
             Napier.e("Error reading internal messages: ${e.stackTraceToString()}")
-            emptyList<InternalMessage>()
+            emptyList<InternalMessageErpModel>()
         }
 
     fun createWelcomeMessage(
         currentVersion: String,
-        time: TimeState = getTimeState(Clock.System.now()),
+        time: Instant = Clock.System.now(),
         isUnread: Boolean = true
     ) =
-        InternalMessage(
+        InternalMessageErpModel(
             id = WELCOME_MESSAGE_ID,
             version = currentVersion,
             time = time,
@@ -69,7 +67,7 @@ class ChangeLogLocalDataSource(
             tag = messageResources.welcomeMessageTag,
             text = messageResources.welcomeMessage,
             isUnread = isUnread,
-            messageProfile = CommunicationProfile.InApp,
+            messageProfile = CommunicationErpModel.CommunicationProfile.InApp,
             languageCode = messageResources.language
         )
 
@@ -77,9 +75,9 @@ class ChangeLogLocalDataSource(
 
     fun createSecurityWarningMessage(
         currentVersion: String,
-        time: TimeState = getTimeState(Clock.System.now()),
+        time: Instant = Clock.System.now(),
         isUnread: Boolean = true
-    ) = InternalMessage(
+    ) = InternalMessageErpModel(
         id = SECURITY_WARNING_MESSAGE_ID,
         version = currentVersion,
         time = time,
@@ -87,11 +85,11 @@ class ChangeLogLocalDataSource(
         tag = messageResources.securityWarningTag,
         text = messageResources.securityWarningMessage,
         isUnread = isUnread,
-        messageProfile = CommunicationProfile.InApp,
+        messageProfile = CommunicationErpModel.CommunicationProfile.InApp,
         languageCode = messageResources.language
     )
 
-    fun getInternalMessageInCurrentLanguage(internalMessage: InternalMessage): InternalMessage? =
+    fun getInternalMessageInCurrentLanguage(internalMessage: InternalMessageErpModel): InternalMessageErpModel? =
         when (internalMessage.id) {
             WELCOME_MESSAGE_ID -> createWelcomeMessage(
                 internalMessage.version,
@@ -110,7 +108,7 @@ class ChangeLogLocalDataSource(
 private fun getChangeLogsFromAssets(
     filePath: String,
     messageResources: InternalMessageResources
-): List<InternalMessage> {
+): List<InternalMessageErpModel> {
     val jsonString = messageResources.assets.open(filePath).bufferedReader().use { it.readText() }
     val message: List<ChangeLogMessage> = SafeJson.value.decodeFromString<List<ChangeLogMessage>>(jsonString)
     return message.map {

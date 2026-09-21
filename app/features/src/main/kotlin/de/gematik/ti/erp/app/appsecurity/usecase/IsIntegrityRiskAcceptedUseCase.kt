@@ -36,7 +36,7 @@ class IsIntegrityRiskAcceptedUseCase(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     operator fun invoke(): Flow<Boolean> =
-        repository.general.map {
+        repository.loadSettings().map {
             it.userHasAcceptedIntegrityNotOk || session.isIntegrityAcceptedForSession()
         }.flowOn(dispatcher)
 }

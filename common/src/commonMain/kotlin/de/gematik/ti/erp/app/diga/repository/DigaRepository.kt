@@ -23,8 +23,8 @@
 package de.gematik.ti.erp.app.diga.repository
 
 import de.gematik.ti.erp.app.diga.model.DigaStatus
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 
@@ -36,11 +36,11 @@ interface DigaRepository {
 
     suspend fun updateDigaCommunicationSent(taskId: String, time: Instant)
 
-    fun loadDigaByTaskId(taskId: String): Flow<SyncedTaskData.SyncedTask?>
+    fun loadDigaByTaskId(taskId: String): Flow<TaskErpModel.Synced.Diga?>
 
     suspend fun updateArchiveStatus(taskId: String, lastModified: Instant, setArchiveStatus: Boolean)
 
-    suspend fun loadDigasByProfileId(profileId: ProfileIdentifier): Flow<List<SyncedTaskData.SyncedTask>>
+    suspend fun loadDigasByProfileId(profileId: ProfileIdentifier): Flow<List<TaskErpModel.Synced.Diga>>
 
-    fun loadArchiveDigasByProfileId(profileId: ProfileIdentifier): Flow<List<SyncedTaskData.SyncedTask>>
+    fun loadArchiveDigasByProfileId(profileId: ProfileIdentifier): Flow<List<TaskErpModel.Synced.Diga>>
 }

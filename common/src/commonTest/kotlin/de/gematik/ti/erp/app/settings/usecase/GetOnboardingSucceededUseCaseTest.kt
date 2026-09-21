@@ -22,7 +22,9 @@
 
 package de.gematik.ti.erp.app.settings.usecase
 
-import de.gematik.ti.erp.app.settings.model.SettingsData
+import de.gematik.ti.erp.app.settings.model.AppVersionErpModel
+import de.gematik.ti.erp.app.settings.model.SettingsErpModel
+import de.gematik.ti.erp.app.settings.model.ThemeMode
 import de.gematik.ti.erp.app.settings.repository.DefaultSettingsRepository
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -50,17 +52,16 @@ class GetOnboardingSucceededUseCaseTest {
 
     @Test
     fun `get onboarding succeeded should answer true`() = runTest {
-        coEvery { settingsRepository.general } coAnswers {
+        coEvery { settingsRepository.loadSettings() } coAnswers {
             flowOf(
-                SettingsData.General(
-                    latestAppVersion = SettingsData.AppVersion(0, ""),
-                    onboardingShownIn = SettingsData.AppVersion(0, ""),
+                SettingsErpModel(
+                    latestAppVersion = AppVersionErpModel("", 0),
+                    onboardingShownIn = AppVersionErpModel("", 0),
                     welcomeDrawerShown = true,
-                    mainScreenTooltipsShown = false,
+                    theme = ThemeMode.SYSTEM,
                     zoomEnabled = false,
                     userHasAcceptedInsecureDevice = false,
                     userHasAcceptedIntegrityNotOk = false,
-                    mlKitAccepted = true,
                     trackingAllowed = false,
                     screenShotsAllowed = false
                 )
@@ -71,17 +72,16 @@ class GetOnboardingSucceededUseCaseTest {
 
     @Test
     fun `get onboarding succeeded answer false`() = runTest {
-        coEvery { settingsRepository.general } coAnswers {
+        coEvery { settingsRepository.loadSettings() } coAnswers {
             flowOf(
-                SettingsData.General(
-                    latestAppVersion = SettingsData.AppVersion(0, ""),
+                SettingsErpModel(
+                    latestAppVersion = AppVersionErpModel("", 0),
                     onboardingShownIn = null,
                     welcomeDrawerShown = true,
-                    mainScreenTooltipsShown = false,
+                    theme = ThemeMode.SYSTEM,
                     zoomEnabled = false,
                     userHasAcceptedInsecureDevice = false,
                     userHasAcceptedIntegrityNotOk = false,
-                    mlKitAccepted = false,
                     trackingAllowed = false,
                     screenShotsAllowed = false
                 )

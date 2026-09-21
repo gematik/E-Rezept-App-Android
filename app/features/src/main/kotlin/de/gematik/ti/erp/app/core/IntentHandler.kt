@@ -39,7 +39,11 @@ import de.gematik.ti.erp.app.intent.GidResultIntent
 import de.gematik.ti.erp.app.intent.SharePrescriptionUrls.isSharePrescriptionAllowed
 import de.gematik.ti.erp.app.medicationplan.alarm.REMINDER_NOTIFICATION_INTENT_ACTION
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import java.net.URI
 
@@ -50,11 +54,11 @@ private fun String.isLikelyIosDeeplink(): Boolean =
 class IntentHandler(private val context: Context) {
     private val extAuthChannel = Channel<GidResultIntent>(Channel.CONFLATED)
     private val shareChannel = Channel<String>(Channel.CONFLATED)
-    private val gidSuccessfulChannel = Channel<String>(Channel.CONFLATED)
+    private val gidSuccessfulShared = MutableSharedFlow<String>(replay = 1, extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     val extAuthIntent = extAuthChannel.receiveAsFlow()
     val shareIntent = shareChannel.receiveAsFlow()
-    val gidSuccessfulIntent = gidSuccessfulChannel.receiveAsFlow()
+    val gidSuccessfulIntent: SharedFlow<String> = gidSuccessfulShared.asSharedFlow()
 
     @Requirement(
         "O.Source_1#7",
@@ -91,7 +95,7 @@ class IntentHandler(private val context: Context) {
             url.isExternalAuthAllowed() && URI(url).validateForUniversalLink() -> extAuthChannel.send(
                 GidResultIntent(
                     uriData = url,
-                    resultChannel = gidSuccessfulChannel
+                    onSuccess = { data -> gidSuccessfulShared.emit(data) }
                 )
             )
 
@@ -159,7 +163,7 @@ class IntentHandler(private val context: Context) {
     private fun clear() {
         extAuthChannel.tryReceive()
         shareChannel.tryReceive()
-        gidSuccessfulChannel.tryReceive()
+        // no-op for shared flow; we keep last success for late subscribers
     }
 }
 

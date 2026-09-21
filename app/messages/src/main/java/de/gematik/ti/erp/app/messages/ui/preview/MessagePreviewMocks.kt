@@ -22,176 +22,80 @@
 
 package de.gematik.ti.erp.app.messages.ui.preview
 
-import de.gematik.ti.erp.app.diga.model.DigaStatus
-import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType
-import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileVersion
-import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationProfileErpModel
-import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
-import de.gematik.ti.erp.app.prescription.model.Quantity
-import de.gematik.ti.erp.app.prescription.model.Ratio
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Medication
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
-import kotlinx.datetime.Clock
+import de.gematik.ti.erp.app.task.model.InsuranceErpModel
+import de.gematik.ti.erp.app.task.model.InsuranceErpModelCoverageType
+import de.gematik.ti.erp.app.task.model.OrganizationErpModel
+import de.gematik.ti.erp.app.task.model.PatientErpModel
+import de.gematik.ti.erp.app.task.model.PractitionerErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import kotlinx.datetime.Instant
-import kotlin.time.Duration.Companion.days
 
 object MessagePreviewMocks {
 
     internal const val MOCK_TASK_ID_01 = "123-001"
-    internal const val MOCK_TASK_ID_02 = "456-002"
     private const val MOCK_PRACTITIONER_NAME = "Dr. John Doe"
     private const val MESSAGE_TIMESTAMP = "2025-01-01T10:00:00Z"
 
-    private val MOCK_PRACTITIONER = SyncedTaskData.Practitioner(
+    private val MOCK_PRACTITIONER = PractitionerErpModel(
         name = MOCK_PRACTITIONER_NAME,
         qualification = "",
-        practitionerIdentifier = " "
+        practitionerIdentifier = " ",
+        dentistIdentifier = null,
+        telematikId = null
     )
 
-    private val MOCK_ORGANIZATION = SyncedTaskData.Organization(
+    private val MOCK_ORGANIZATION = OrganizationErpModel(
         name = "TestOrganization",
-        address = SyncedTaskData.Address(
-            line1 = "123 Main Street",
-            line2 = "Apt 4",
-            postalCode = "12345",
-            city = "City"
-        ),
-        uniqueIdentifier = "org123",
+        address = null,
         phone = "123-456-7890",
         mail = "info@testorg.com"
     )
 
-    private val MOCK_PATIENT = SyncedTaskData.Patient(
+    private val MOCK_PATIENT = PatientErpModel(
         name = "Jane",
-        address = SyncedTaskData.Address(
-            line1 = "",
-            line2 = "",
-            postalCode = "",
-            city = ""
-        ),
-        birthdate = null,
+        address = null,
+        dateOfBirth = null,
         insuranceIdentifier = "ins123"
     )
 
-    private val MEDICATION_10_TAB = Medication(
-        category = SyncedTaskData.MedicationCategory.entries[0],
-        medicationProfile = FhirTaskKbvMedicationProfileErpModel(
-            type = ErpMedicationProfileType.PZN,
-            version = ErpMedicationProfileVersion.V_110
-        ),
-        vaccine = true,
-        text = "Gematidolor 100mg",
-        form = "TAB",
-        lotNumber = "123456",
-        expirationDate = FhirTemporal.Instant(Clock.System.now().plus(30.days)),
-        identifier = SyncedTaskData.Identifier("1234567890"),
-        normSizeCode = "KA",
-        amount = Ratio(
-            numerator = Quantity(
-                value = "10",
-                unit = "TAB"
-            ),
-            denominator = null
-        ),
-        manufacturingInstructions = null,
-        packaging = null,
-        ingredients = emptyList(),
-        ingredientMedications = emptyList()
-    )
-
-    private val MOCK_MEDICATION_REQ = SyncedTaskData.MedicationRequest(
-        MEDICATION_10_TAB, null, null, SyncedTaskData.AccidentType.None,
-        null, null, false, null,
-        SyncedTaskData.MultiplePrescriptionInfo(false), 1, null, null, SyncedTaskData.AdditionalFee.None
-    )
-
-    private val MOCK_CHIP_INFO = Prescription.PrescriptionChipInformation(
-        isPartOfMultiplePrescription = false,
-        numerator = null,
-        denominator = null,
-        start = null
-    )
-
-    val MOCK_PRESCRIPTION_01 = Prescription.SyncedPrescription(
-        taskId = MOCK_TASK_ID_01,
-        name = "Rezept_01",
-        redeemedOn = null,
-        expiresOn = Instant.fromEpochSeconds(123456),
-        state = SyncedTaskData.SyncedTask.Expired(
-            expiredOn = Instant.fromEpochSeconds(123456)
-        ),
-        isIncomplete = false,
-        organization = MOCK_PRACTITIONER_NAME,
-        authoredOn = Instant.fromEpochSeconds(123456),
-        acceptUntil = Instant.fromEpochSeconds(123456),
-        isDirectAssignment = false,
-        prescriptionChipInformation = MOCK_CHIP_INFO,
-        deviceRequestState = DigaStatus.Ready,
-        lastModified = Instant.fromEpochSeconds(123456)
-    )
-
-    val MOCK_PRESCRIPTION_02 = Prescription.SyncedPrescription(
-        taskId = MOCK_TASK_ID_02,
-        name = "Rezept_02",
-        redeemedOn = null,
-        expiresOn = Instant.fromEpochSeconds(123456),
-        state = SyncedTaskData.SyncedTask.Expired(
-            expiredOn = Instant.fromEpochSeconds(123456)
-        ),
-        isIncomplete = false,
-        organization = MOCK_PRACTITIONER_NAME,
-        authoredOn = Instant.fromEpochSeconds(123456),
-        acceptUntil = Instant.fromEpochSeconds(123456),
-        isDirectAssignment = false,
-        prescriptionChipInformation = MOCK_CHIP_INFO,
-        deviceRequestState = DigaStatus.Ready,
-        lastModified = Instant.fromEpochSeconds(123456)
-    )
-
-    val MOCK_PRESCRIPTION_03 = Prescription.SyncedPrescription(
-        taskId = MOCK_TASK_ID_02,
-        name = "Rezept_03",
-        redeemedOn = null,
-        expiresOn = Instant.fromEpochSeconds(123456),
-        state = SyncedTaskData.SyncedTask.Expired(
-            expiredOn = Instant.fromEpochSeconds(123456)
-        ),
-        isIncomplete = false,
-        organization = MOCK_PRACTITIONER_NAME,
-        authoredOn = Instant.fromEpochSeconds(123456),
-        acceptUntil = Instant.fromEpochSeconds(123456),
-        isDirectAssignment = false,
-        prescriptionChipInformation = MOCK_CHIP_INFO,
-        deviceRequestState = DigaStatus.Ready,
-        lastModified = Instant.fromEpochSeconds(123456)
-    )
-
-    internal val MOCK_SYNCED_TASK_DATA_01 = SyncedTaskData.SyncedTask(
+    val MOCK_PRESCRIPTION_01 = TaskErpModel.Synced.Prescription(
         profileId = "testProfileId",
-        taskId = "1.0.1.2.3.4.5.6.7",
+        name = "Rezept_01",
+        taskId = MOCK_TASK_ID_01,
         accessCode = "testAccessCode",
-        lastModified = Instant.parse(MESSAGE_TIMESTAMP),
+        lastModified = Instant.fromEpochSeconds(123456),
         organization = MOCK_ORGANIZATION,
         practitioner = MOCK_PRACTITIONER,
         patient = MOCK_PATIENT,
-        insuranceInformation = SyncedTaskData.InsuranceInformation(
+        insuranceInformation = InsuranceErpModel(
             name = "TestInsurance",
             status = "Active",
-            coverageType = SyncedTaskData.CoverageType.GKV
+            coverageType = InsuranceErpModelCoverageType.GKV
         ),
-        expiresOn = Instant.parse(MESSAGE_TIMESTAMP),
-        acceptUntil = Instant.parse(MESSAGE_TIMESTAMP),
-        authoredOn = Instant.parse(MESSAGE_TIMESTAMP),
-        status = SyncedTaskData.TaskStatus.Ready,
+        expiresOn = Instant.fromEpochSeconds(123456),
+        acceptUntil = Instant.fromEpochSeconds(123456),
+        authoredOn = Instant.fromEpochSeconds(123456),
+        status = TaskStatusEnum.Ready,
         isIncomplete = false,
         pvsIdentifier = "testPvsIdentifier",
         failureToReport = "testFailureToReport",
-        medicationRequest = MOCK_MEDICATION_REQ,
+        medicationRequest = null,
         lastMedicationDispense = null,
         medicationDispenses = emptyList(),
-        communications = emptyList(),
         isEuRedeemable = true,
         isEuRedeemableByPatientAuthorization = true
     )
+
+    val MOCK_PRESCRIPTION_02 = MOCK_PRESCRIPTION_01.copy(
+        taskId = "456-002",
+        name = "Rezept_02"
+    )
+
+    val MOCK_PRESCRIPTION_03 = MOCK_PRESCRIPTION_01.copy(
+        taskId = "789-003",
+        name = "Rezept_03"
+    )
+
+    internal val MOCK_SYNCED_TASK_DATA_01 = MOCK_PRESCRIPTION_01
 }

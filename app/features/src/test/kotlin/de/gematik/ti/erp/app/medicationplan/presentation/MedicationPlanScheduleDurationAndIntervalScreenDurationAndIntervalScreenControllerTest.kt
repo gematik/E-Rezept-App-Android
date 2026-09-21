@@ -28,7 +28,7 @@ import de.gematik.ti.erp.app.medicationplan.usecase.GetMedicationScheduleByTaskI
 import de.gematik.ti.erp.app.medicationplan.usecase.CheckAndScheduleMedicationScheduleUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleDurationUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleIntervalUseCase
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.prescription.usecase.GetPrescriptionByTaskIdUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
@@ -50,7 +50,7 @@ class MedicationPlanScheduleDurationAndIntervalScreenDurationAndIntervalScreenCo
     private val now = Instant.parse("2024-01-01T12:00:00Z")
     private val profileRepository: ProfileRepository = mockk()
     private val medicationPlanRepository: MedicationPlanRepository = mockk()
-    private val prescriptionRepository: PrescriptionRepository = mockk()
+    private val taskOperationsRepository: TaskOperationsRepository = mockk()
     private val getPrescriptionByTaskIdUseCase: GetPrescriptionByTaskIdUseCase = mockk()
     private val medicationPlanNotificationScheduler: MedicationPlanNotificationScheduler = mockk()
     private val dispatcher = StandardTestDispatcher()
@@ -102,8 +102,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDurationAndIntervalScreenCo
     @Test
     fun `test change duration to personalized and then back to endless again`() {
         val prescription = PrescriptionData.Scanned(API_ACTIVE_SCANNED_TASK)
-        coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns flowOf(prescription.task)
-        coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
+        coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf(prescription.task)
+        coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
         coEvery { medicationPlanRepository.getMedicationSchedule(any()) } returns flowOf(null)
         coEvery { getPrescriptionByTaskIdUseCase(any()) } returns
             flowOf(prescription)
@@ -137,8 +137,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDurationAndIntervalScreenCo
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `test calculate individual date range for scanned prescription`() {
-        coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SCANNED_TASK)
-        coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
+        coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SCANNED_TASK)
+        coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
         val prescription = PrescriptionData.Scanned(API_ACTIVE_SCANNED_TASK)
         coEvery { medicationPlanRepository.getMedicationSchedule(any()) } returns flowOf(null)
         coEvery { getPrescriptionByTaskIdUseCase(any()) } returns
@@ -166,8 +166,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDurationAndIntervalScreenCo
     @Test
     fun `test calculate individual date range for synced pieceable prescription with structured dosage and amount`() {
         val prescription = PrescriptionData.Synced(API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE)
-        coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
-        coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns
+        coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+        coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns
             flowOf(prescription.task)
         coEvery { medicationPlanRepository.getMedicationSchedule(any()) } returns
             flowOf(prescription.toMedicationSchedule(now))
@@ -196,8 +196,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDurationAndIntervalScreenCo
     @Test
     fun `test set interval to every two days and then back to daily`() {
         val prescription = PrescriptionData.Synced(API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE)
-        coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
-        coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns
+        coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+        coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns
             flowOf(prescription.task)
         coEvery { medicationPlanRepository.getMedicationSchedule(any()) } returns
             flowOf(prescription.toMedicationSchedule(now))
@@ -226,8 +226,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDurationAndIntervalScreenCo
     @Test
     fun `test set interval to every monday and then select it again to remove monday`() {
         val prescription = PrescriptionData.Synced(API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE)
-        coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
-        coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns
+        coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+        coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns
             flowOf(prescription.task)
         coEvery { medicationPlanRepository.getMedicationSchedule(any()) } returns
             flowOf(prescription.toMedicationSchedule(now))

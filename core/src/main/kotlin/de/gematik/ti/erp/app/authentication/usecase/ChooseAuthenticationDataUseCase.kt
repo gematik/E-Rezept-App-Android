@@ -22,17 +22,11 @@
 
 package de.gematik.ti.erp.app.authentication.usecase
 
-import de.gematik.ti.erp.app.authentication.model.Biometric
-import de.gematik.ti.erp.app.authentication.model.External
-import de.gematik.ti.erp.app.authentication.model.HealthCard
-import de.gematik.ti.erp.app.authentication.model.InitialAuthenticationData
-import de.gematik.ti.erp.app.authentication.model.None
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel.Companion.validateRequirementForLastAuthUpdateRequired
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
-import de.gematik.ti.erp.app.profiles.usecase.mapper.toModel
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile.Companion.validateRequirementForLastAuthUpdateRequired
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -49,13 +43,12 @@ class ChooseAuthenticationDataUseCase(
 ) {
     suspend operator fun invoke(
         profileId: ProfileIdentifier
-    ): Flow<InitialAuthenticationData> =
+    ): Flow<UserAuthenticationErpModel> =
         withContext(dispatcher) {
-            idpRepository.authenticationData(profileId)
-                .mapNotNull { idpAuthenticationData ->
-                    val profile = profileRepository.getProfileById(profileId)
+            idpRepository.getUserAuthentication(profileId)
+                .mapNotNull { userAuthentication ->
+                    profileRepository.getProfileById(profileId)
                         .first()
-                        .toModel()
                         .validateRequirementForLastAuthUpdateRequired { id, lastAuthenticated ->
                             launch {
                                 profileRepository.updateLastAuthenticated(
@@ -64,31 +57,13 @@ class ChooseAuthenticationDataUseCase(
                                 )
                             }
                         }
-                    val ssoTokenScope = idpAuthenticationData.singleSignOnTokenScope
 
                     Napier.i(
                         tag = "Authentication State",
-                        message = "ssoTokenScope for choosing authentication ${ssoTokenScope?.token?.token}"
+                        message = "userAuthentication for choosing authentication ${userAuthentication.singleSignOnTokenErpModel?.token}"
                     )
 
-                    when (ssoTokenScope) {
-                        is IdpData.ExternalAuthenticationToken -> External(
-                            authenticatorId = ssoTokenScope.authenticatorId,
-                            authenticatorName = ssoTokenScope.authenticatorName,
-                            profile = profile
-                        )
-
-                        is IdpData.AlternateAuthenticationToken,
-                        is IdpData.AlternateAuthenticationWithoutToken
-                        -> Biometric(profile = profile)
-
-                        is IdpData.DefaultToken -> HealthCard(
-                            can = ssoTokenScope.cardAccessNumber,
-                            profile = profile
-                        )
-
-                        null -> None(profile = profile)
-                    }
+                    userAuthentication
                 }
         }
 }

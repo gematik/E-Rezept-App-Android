@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.messages.ui.model
 
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
@@ -32,9 +32,10 @@ data class MessageDetailBundle(
     val type: MessageType,
     val message: OrderUseCaseData.Message? = null,
     val orderDetail: OrderUseCaseData.OrderDetail? = null,
+    val taskBundle: OrderUseCaseData.TaskDetailedBundle? = null,
     val timestamp: Instant,
     val taskIds: List<String> = emptyList(),
-    val prescriptions: List<Prescription?> = emptyList()
+    val prescriptions: List<TaskErpModel?> = emptyList()
 )
 
 @Serializable

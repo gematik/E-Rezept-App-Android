@@ -24,17 +24,17 @@ package de.gematik.ti.erp.app.messages.domain.usecase
 
 import android.content.Context
 import app.cash.turbine.test
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.eurezept.model.EuEventType
-import de.gematik.ti.erp.app.eurezept.model.EuOrder
-import de.gematik.ti.erp.app.eurezept.model.EuTaskEvent
+import de.gematik.ti.erp.app.eurezept.model.EuOrderErpModel
+import de.gematik.ti.erp.app.eurezept.model.EuTaskEventErpModel
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
-import de.gematik.ti.erp.app.messages.mappers.EuOrderToMessagesMapper
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.mapper.EuOrderToMessagesMapper
 import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.messages.model.LastMessage
 import de.gematik.ti.erp.app.messages.model.LastMessageDetails
 import de.gematik.ti.erp.app.messages.ui.model.EuOrderMessageUiModel
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.timestate.TimeState
 import io.mockk.every
 import io.mockk.mockk
@@ -49,14 +49,14 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class GetLatestEuOrderMessageAsInAppMessageUseCaseTest {
     private val euRepository = mockk<EuRepository>()
-    private val prescriptionRepository = mockk<PrescriptionRepository>(relaxed = true)
+    private val taskOperationsRepository = mockk<TaskOperationsRepository>(relaxed = true)
     private val mapper = mockk<EuOrderToMessagesMapper>()
     private val dispatcher = StandardTestDispatcher()
     private val context = mockk<Context>(relaxed = true)
     private val testCoroutineScope = TestScope(dispatcher)
     private val useCase = GetLatestEuOrderMessageAsInAppMessageUseCase(
         euRepository = euRepository,
-        prescriptionRepository = prescriptionRepository,
+        taskOperationsRepository = taskOperationsRepository,
         mapper = mapper,
         context = context,
         dispatcher = dispatcher
@@ -64,7 +64,7 @@ class GetLatestEuOrderMessageAsInAppMessageUseCaseTest {
 
     private fun event(
         time: Instant
-    ) = EuTaskEvent(
+    ) = EuTaskEventErpModel(
         id = "EV_B",
         type = EuEventType.TASK_ADDED,
         taskId = "T1",
@@ -76,7 +76,7 @@ class GetLatestEuOrderMessageAsInAppMessageUseCaseTest {
         id: String,
         created: Instant,
         modified: Instant?
-    ) = EuOrder(
+    ) = EuOrderErpModel(
         orderId = id,
         countryCode = "BE",
         createdAt = created,
@@ -146,7 +146,7 @@ class GetLatestEuOrderMessageAsInAppMessageUseCaseTest {
             tag = "",
             isUnread = true,
             lastMessage = LastMessage(
-                profile = CommunicationProfile.EuOrder,
+                profile = CommunicationErpModel.CommunicationProfile.EuOrder,
                 lastMessageDetails = LastMessageDetails(
                     content = "last message",
                     pickUpCodeDMC = null,
@@ -154,7 +154,7 @@ class GetLatestEuOrderMessageAsInAppMessageUseCaseTest {
                     link = null
                 )
             ),
-            messageProfile = CommunicationProfile.EuOrder,
+            messageProfile = CommunicationErpModel.CommunicationProfile.EuOrder,
             version = "",
             threadOrderId = "",
             threadStart = Instant.parse("2025-11-26T14:27:13.808457Z"),

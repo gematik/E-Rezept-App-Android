@@ -33,7 +33,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.pharmacy.ui.model.MapContent
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 import de.gematik.ti.erp.app.utils.compose.canHandleIntent
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
 import io.github.aakira.napier.Napier
@@ -67,7 +67,7 @@ fun Context.openAppPlayStoreLink() {
     )
 }
 
-fun Context.gotoCoordinates(coordinates: Coordinates) {
+fun Context.gotoCoordinates(coordinates: PositionErpModel) {
     val (component, mapIntent) = mapsSelectionLauncher(coordinates)
     when {
         component != null -> startActivity(mapIntent)
@@ -83,7 +83,7 @@ fun Context.openEmailClient(emailAddress: String) {
 }
 
 // https://developer.android.com/guide/components/google-maps-intents
-fun Context.openGoogleMaps(coordinates: Coordinates, label: String? = null) {
+fun Context.openGoogleMaps(coordinates: PositionErpModel, label: String? = null) {
     val uri = if (label != null) {
         "geo:${coordinates.latitude},${coordinates.longitude}?q=${coordinates.latitude},${coordinates.longitude}($label)".toUri()
     } else {
@@ -104,7 +104,7 @@ fun Context.openGoogleMaps(coordinates: Coordinates, label: String? = null) {
     }
 }
 
-private fun Context.mapsSelectionLauncher(coordinates: Coordinates): MapContent {
+private fun Context.mapsSelectionLauncher(coordinates: PositionErpModel): MapContent {
     val uri = "https://www.google.com/maps/dir/?api=1&destination=${coordinates.latitude},${coordinates.longitude}".toUri()
     val mapIntent = Intent(Intent.ACTION_VIEW, uri)
     return MapContent(

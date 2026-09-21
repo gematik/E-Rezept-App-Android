@@ -23,71 +23,99 @@
 package de.gematik.ti.erp.app.profiles.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
 import de.gematik.ti.erp.app.prescription.ui.preview.OnlineRedeemPreferencesScreenPreviewData.PharmacyOrders
 import de.gematik.ti.erp.app.prescription.ui.preview.OnlineRedeemPreferencesScreenPreviewData.emptyPharmacyOrders
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
 import de.gematik.ti.erp.app.profiles.model.ProfileCombinedData
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.Clock
 
-class PrescriptionPreviewParameterProvider : PreviewParameterProvider<List<PharmacyUseCaseData.PrescriptionInOrder>> {
+class PrescriptionPreviewParameterProvider : PreviewParameterProvider<List<PrescriptionInOrderErpModel>> {
 
-    override val values: Sequence<List<PharmacyUseCaseData.PrescriptionInOrder>>
+    override val values: Sequence<List<PrescriptionInOrderErpModel>>
         get() = sequenceOf(
             PharmacyOrders,
             emptyPharmacyOrders
         )
 }
 
-val gkvProfile = ProfilesUseCaseData.Profile(
+val gkvProfile = ProfileErpModel(
     id = "1",
     name = "Max Mustermann",
-    color = ProfilesData.ProfileColorNames.PINK,
-    avatar = ProfilesData.Avatar.Baby,
+    profileImageData = ProfileImageDataErpModel(
+        color = ProfileColorNames.PINK,
+        avatar = Avatar.Baby,
+        image = null
+    ),
     lastAuthenticated = Clock.System.now(),
-    ssoTokenScope = null,
-    insurance = ProfileInsuranceInformation(
+    userAuthentication = UserAuthenticationErpModel.NotInitialized,
+    insuranceData = ProfileInsuranceDataErpModel(
         insurantName = "Max Mustermann",
         insuranceName = "TK",
         insuranceIdentifier = "123456789",
-        insuranceType = ProfilesUseCaseData.InsuranceType.GKV
+        insuranceType = InsuranceType.GKV,
+        organizationIdentifier = null
     ),
-    isActive = true
+    active = true,
+    isNewlyCreated = false,
+    isConsentDrawerShown = true,
+    lastTaskSynced = null,
+    lastAuditEventSynced = null
 )
 
-val emptyGkvProfile = ProfilesUseCaseData.Profile(
+val emptyGkvProfile = ProfileErpModel(
     id = "",
     name = "",
-    color = ProfilesData.ProfileColorNames.PINK,
-    avatar = ProfilesData.Avatar.Baby,
+    profileImageData = ProfileImageDataErpModel(
+        color = ProfileColorNames.PINK,
+        avatar = Avatar.Baby,
+        image = null
+    ),
     lastAuthenticated = null,
-    ssoTokenScope = null,
-    insurance = ProfileInsuranceInformation(
+    userAuthentication = UserAuthenticationErpModel.NotInitialized,
+    insuranceData = ProfileInsuranceDataErpModel(
         insurantName = "",
         insuranceName = "",
         insuranceIdentifier = "",
-        insuranceType = ProfilesUseCaseData.InsuranceType.NONE
+        insuranceType = InsuranceType.NONE,
+        organizationIdentifier = null
     ),
-    isActive = false
+    active = false,
+    isNewlyCreated = false,
+    isConsentDrawerShown = false,
+    lastAuditEventSynced = null,
+    lastTaskSynced = null
 )
 
-val neverAuthenticatedGkvProfile = ProfilesUseCaseData.Profile(
+val neverAuthenticatedGkvProfile = ProfileErpModel(
     id = "1",
     name = "Profile 1",
-    color = ProfilesData.ProfileColorNames.PINK,
-    avatar = ProfilesData.Avatar.Baby,
+    profileImageData = ProfileImageDataErpModel(
+        color = ProfileColorNames.PINK,
+        avatar = Avatar.Baby,
+        image = null
+    ),
     lastAuthenticated = null,
-    ssoTokenScope = null,
-    insurance = ProfileInsuranceInformation(
+    userAuthentication = UserAuthenticationErpModel.NotInitialized,
+    insuranceData = ProfileInsuranceDataErpModel(
         insurantName = "",
         insuranceName = "",
         insuranceIdentifier = "",
-        insuranceType = ProfilesUseCaseData.InsuranceType.NONE
+        insuranceType = InsuranceType.NONE,
+        organizationIdentifier = null
     ),
-    isActive = true
+    active = true,
+    isNewlyCreated = false,
+    isConsentDrawerShown = false,
+    lastAuditEventSynced = null,
+    lastTaskSynced = null
 )
 
 val gkvProfileState = UiState(
@@ -109,11 +137,12 @@ val neverAuthenticatedGkvProfileState = UiState(
 )
 
 val pkvProfile = gkvProfile.copy(
-    insurance = ProfileInsuranceInformation(
+    insuranceData = ProfileInsuranceDataErpModel(
         insurantName = "Max Mustermann",
         insuranceName = "TK",
         insuranceIdentifier = "123456789",
-        insuranceType = ProfilesUseCaseData.InsuranceType.PKV
+        insuranceType = InsuranceType.PKV,
+        organizationIdentifier = null
     )
 )
 
@@ -126,7 +155,9 @@ val pkvProfileState = UiState(
     )
 )
 
-val profileMissingImage = gkvProfile.copy(avatar = ProfilesData.Avatar.PersonalizedImage)
+val profileMissingImage = gkvProfile.copy(
+    profileImageData = gkvProfile.profileImageData.copy(avatar = Avatar.PersonalizedImage)
+)
 
 val profileMissingImageState = UiState(
     data = ProfileCombinedData(

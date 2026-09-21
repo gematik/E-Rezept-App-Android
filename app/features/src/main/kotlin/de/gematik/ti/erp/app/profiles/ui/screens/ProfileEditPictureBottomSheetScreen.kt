@@ -37,13 +37,17 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
 import de.gematik.ti.erp.app.profiles.presentation.rememberProfileEditPictureController
 import de.gematik.ti.erp.app.profiles.ui.components.ProfileBackgroundColorComponent
 import de.gematik.ti.erp.app.profiles.ui.components.ProfileImageSelectorDialog
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
@@ -129,11 +133,11 @@ class ProfileEditPictureBottomSheetScreen(
 
 @Composable
 private fun ProfileEditAvatarScreenContent(
-    profile: ProfilesUseCaseData.Profile,
+    profile: ProfileErpModel,
     clearPersonalizedImage: () -> Unit,
     onPickPersonalizedImage: () -> Unit,
-    onSelectAvatar: (ProfilesData.Avatar) -> Unit,
-    onSelectProfileColor: (ProfilesData.ProfileColorNames) -> Unit
+    onSelectAvatar: (Avatar) -> Unit,
+    onSelectProfileColor: (ProfileColorNames) -> Unit
 ) {
     var editableProfile by remember(profile.id) { mutableStateOf(profile) }
     Column(
@@ -142,8 +146,10 @@ private fun ProfileEditAvatarScreenContent(
         SpacerMedium()
         ProfileImage(editableProfile) {
             editableProfile = editableProfile.copy(
-                avatar = ProfilesData.Avatar.PersonalizedImage,
-                image = null
+                profileImageData = editableProfile.profileImageData.copy(
+                    avatar = Avatar.PersonalizedImage,
+                    image = null
+                )
             )
             clearPersonalizedImage()
         }
@@ -151,19 +157,23 @@ private fun ProfileEditAvatarScreenContent(
         SpacerXXLarge()
         AvatarPicker(
             profile = editableProfile,
-            currentAvatar = editableProfile.avatar,
+            currentAvatar = editableProfile.profileImageData.avatar,
             onPickPersonalizedImage = onPickPersonalizedImage,
             onSelectAvatar = {
-                editableProfile = editableProfile.copy(avatar = it)
+                editableProfile = editableProfile.copy(
+                    profileImageData = editableProfile.profileImageData.copy(avatar = it)
+                )
                 onSelectAvatar(it)
             }
         )
         SpacerSmall()
         CenterColumn {
             ProfileBackgroundColorComponent(
-                color = editableProfile.color,
+                color = editableProfile.profileImageData.color,
                 onColorPicked = {
-                    editableProfile = editableProfile.copy(color = it)
+                    editableProfile = editableProfile.copy(
+                        profileImageData = editableProfile.profileImageData.copy(color = it)
+                    )
                     onSelectProfileColor(it)
                 }
             )
@@ -177,18 +187,28 @@ private fun ProfileEditAvatarScreenContent(
 fun ProfileEditAvatarScreenContentPreview() {
     PreviewAppTheme {
         ProfileEditAvatarScreenContent(
-            profile = ProfilesUseCaseData.Profile(
+            profile = ProfileErpModel(
                 id = "1",
                 name = "Max Mustermann",
-                insurance = ProfileInsuranceInformation(
-                    insuranceType = ProfilesUseCaseData.InsuranceType.GKV
+                insuranceData = ProfileInsuranceDataErpModel(
+                    insurantName = null,
+                    insuranceName = null,
+                    insuranceIdentifier = null,
+                    insuranceType = InsuranceType.GKV,
+                    organizationIdentifier = null
                 ),
-                isActive = true,
-                color = ProfilesData.ProfileColorNames.SPRING_GRAY,
+                active = true,
+                isNewlyCreated = false,
+                profileImageData = ProfileImageDataErpModel(
+                    color = ProfileColorNames.SPRING_GRAY,
+                    avatar = Avatar.PersonalizedImage,
+                    image = null
+                ),
+                isConsentDrawerShown = false,
                 lastAuthenticated = null,
-                ssoTokenScope = null,
-                avatar = ProfilesData.Avatar.PersonalizedImage,
-                image = null
+                lastAuditEventSynced = null,
+                lastTaskSynced = null,
+                userAuthentication = UserAuthenticationErpModel.NotInitialized
             ),
             clearPersonalizedImage = {},
             onPickPersonalizedImage = {},

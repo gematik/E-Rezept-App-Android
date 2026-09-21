@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.database.room.v2.accesstoken
 
-import de.gematik.ti.erp.app.database.api.PharmacySearchAccessTokenLocalDataSource
+import de.gematik.ti.erp.app.database.api.pharmacy.PharmacySearchAccessTokenLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.model.SearchAccessTokenErpModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

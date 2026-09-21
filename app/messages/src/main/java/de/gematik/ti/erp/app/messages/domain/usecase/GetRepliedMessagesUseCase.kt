@@ -22,30 +22,19 @@
 
 package de.gematik.ti.erp.app.messages.domain.usecase
 
-import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.messages.mappers.toMessage
-import de.gematik.ti.erp.app.messages.model.Communication
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 
 class GetRepliedMessagesUseCase(
     private val communicationRepository: CommunicationRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    @OptIn(ExperimentalCoroutinesApi::class)
-    operator fun invoke(orderId: String, telematikId: String): Flow<List<OrderUseCaseData.Message>> =
-        communicationRepository.taskIdsByOrder(orderId).flatMapLatest { taskIds ->
-            communicationRepository.loadRepliedCommunications(taskIds = taskIds, telematikId = telematikId)
-                .map { communications ->
-                    Napier.d { "GetRepliedMessagesUseCase: communications: $communications" }
-                    communications.map(Communication::toMessage)
-                }
-        }.flowOn(dispatcher)
+    operator fun invoke(orderId: String, telematikId: String): Flow<List<CommunicationErpModel>> {
+        return communicationRepository.loadRepliedCommunications(orderId = orderId, telematikId = telematikId)
+            .flowOn(dispatcher)
+    }
 }

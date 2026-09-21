@@ -24,14 +24,14 @@ package de.gematik.ti.erp.app.messages.usecase
 
 import android.content.Context
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.invoice.model.InvoiceStatusErpModel
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.domain.usecase.GetLatestEuOrderMessageAsInAppMessageUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetUnreadMessagesCountUseCase
-import de.gematik.ti.erp.app.messages.mappers.EuOrderToMessagesMapper
+import de.gematik.ti.erp.app.messages.mapper.EuOrderToMessagesMapper
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import io.mockk.coEvery
 import io.mockk.every
@@ -56,7 +56,7 @@ class GetUnreadMessagesCountUseCaseTest {
     private val invoiceRepository: InvoiceRepository = mockk()
 
     val euRepository: EuRepository = mockk()
-    val prescriptionRepository: PrescriptionRepository = mockk()
+    val taskOperationsRepository: TaskOperationsRepository = mockk()
     val mapper: EuOrderToMessagesMapper = mockk()
 
     private val mockContext = mockk<Context>()
@@ -73,9 +73,9 @@ class GetUnreadMessagesCountUseCaseTest {
         coEvery { communicationRepository.unreadMessagesCount() } returns flowOf(COUNTER_NUMBER)
         coEvery {
             invoiceRepository.getInvoiceTaskIdAndConsumedStatus(any())
-        } returns flowOf(listOf(InvoiceData.InvoiceStatus(taskId = "taskId1", consumed = false)))
+        } returns flowOf(listOf(InvoiceStatusErpModel(taskId = "taskId1", consumed = false)))
         coEvery { communicationRepository.loadDispReqCommunicationsByProfileId(any()) } returns flowOf(emptyList())
-        coEvery { communicationRepository.loadRepliedCommunications(any(), any()) } returns flowOf(emptyList())
+        coEvery { communicationRepository.loadRepliedCommunications(any<List<String>>(), any<String>()) } returns flowOf(emptyList())
         coEvery { internalMessagesRepository.getUnreadInternalMessagesCount() } returns flowOf(0L)
         every { euRepository.observeEuOrder(any()) } returns flowOf(null)
         every { euRepository.observeAllEuOrders() } returns flowOf(emptyList())
@@ -84,7 +84,7 @@ class GetUnreadMessagesCountUseCaseTest {
         getLatestEuOrderMessageAsInAppMessageUseCase = GetLatestEuOrderMessageAsInAppMessageUseCase(
             mockContext,
             euRepository,
-            prescriptionRepository,
+            taskOperationsRepository,
             mapper
         )
 

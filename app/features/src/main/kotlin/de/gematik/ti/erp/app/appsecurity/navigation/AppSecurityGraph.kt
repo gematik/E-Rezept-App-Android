@@ -27,6 +27,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.appsecurity.navigation.AppSecurityRoutes.DeviceCheckLoadingScreen
+import de.gematik.ti.erp.app.appsecurity.ui.Android13DeprecationScreen
 import de.gematik.ti.erp.app.appsecurity.ui.DeviceCheckLoadingStartScreen
 import de.gematik.ti.erp.app.appsecurity.ui.InsecureDeviceScreen
 import de.gematik.ti.erp.app.appsecurity.ui.IntegrityWarningScreen
@@ -113,6 +114,15 @@ fun NavGraphBuilder.appSecurityGraph(
                 navController = navController,
                 navBackStackEntry = it,
                 onBack = onAppSecurityPassed
+            )
+        }
+        renderComposable(
+            route = AppSecurityRoutes.Android13DeprecationScreen.route,
+            arguments = AppSecurityRoutes.Android13DeprecationScreen.arguments
+        ) {
+            Android13DeprecationScreen(
+                navController = navController,
+                navBackStackEntry = it
             )
         }
     }

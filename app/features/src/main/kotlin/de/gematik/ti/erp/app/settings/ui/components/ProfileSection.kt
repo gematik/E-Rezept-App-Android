@@ -43,11 +43,15 @@ import androidx.compose.ui.semantics.Role
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.preview.LightDarkPreview
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.profiles.ui.components.Avatar
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -58,7 +62,7 @@ import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 
 @Composable
 fun ProfileSection(
-    profiles: List<ProfilesUseCaseData.Profile>,
+    profiles: List<ProfileErpModel>,
     onClickEditProfile: (ProfileIdentifier) -> Unit
 ) {
     Column {
@@ -87,7 +91,7 @@ fun ProfileSection(
 
 @Composable
 private fun ProfileCard(
-    profile: ProfilesUseCaseData.Profile,
+    profile: ProfileErpModel,
     onClickEdit: () -> Unit
 ) {
     val openProfileDescription = annotatedStringResource(R.string.open_profile_button, profile.name).toString()
@@ -108,7 +112,7 @@ private fun ProfileCard(
         Avatar(
             modifier = Modifier.size(SizeDefaults.sixfold),
             emptyIcon = Icons.Rounded.PersonOutline,
-            profile = profile,
+            imageData = profile.profileImageData,
             iconModifier = Modifier.size(SizeDefaults.doubleHalf)
         )
         SpacerMedium()
@@ -117,7 +121,7 @@ private fun ProfileCard(
             text = profile.name,
             style = AppTheme.typography.body1
         )
-        Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
+        Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral700)
     }
 }
 
@@ -125,16 +129,28 @@ private fun ProfileCard(
 @Composable
 fun ProfileSectionPreview() {
     val mockProfiles = listOf(
-        ProfilesUseCaseData.Profile(
+        ProfileErpModel(
             id = ProfileIdentifier(),
             name = "Max Mustermann",
-            insurance = ProfileInsuranceInformation(),
-            isActive = true,
-            color = ProfilesData.ProfileColorNames.BLUE_MOON,
-            avatar = ProfilesData.Avatar.PersonalizedImage,
-            image = null,
+            insuranceData = ProfileInsuranceDataErpModel(
+                insurantName = null,
+                insuranceName = null,
+                insuranceIdentifier = null,
+                insuranceType = InsuranceType.NONE,
+                organizationIdentifier = null
+            ),
+            active = true,
+            isNewlyCreated = false,
+            profileImageData = ProfileImageDataErpModel(
+                color = ProfileColorNames.BLUE_MOON,
+                avatar = Avatar.PersonalizedImage,
+                image = null
+            ),
+            isConsentDrawerShown = false,
             lastAuthenticated = null,
-            ssoTokenScope = null
+            lastAuditEventSynced = null,
+            lastTaskSynced = null,
+            userAuthentication = UserAuthenticationErpModel.NotInitialized
         )
     )
 

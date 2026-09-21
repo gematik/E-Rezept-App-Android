@@ -22,10 +22,10 @@
 
 package de.gematik.ti.erp.app.profiles.ui.extension
 
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 
-suspend fun StateFlow<UiState<Profile>>.extract(): Profile? = first { it.isDataState }.data
+suspend fun StateFlow<UiState<ProfileErpModel>>.extract(): ProfileErpModel? = first { it.isDataState }.data

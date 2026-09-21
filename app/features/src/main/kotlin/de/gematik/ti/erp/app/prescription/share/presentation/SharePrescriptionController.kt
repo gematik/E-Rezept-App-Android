@@ -38,12 +38,12 @@ import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.intent.SharePrescriptionUrls.GematikErp
 import de.gematik.ti.erp.app.intent.SharePrescriptionUrls.isSharePrescriptionAllowed
 import de.gematik.ti.erp.app.prescription.model.PrescriptionLink
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeValidator
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
+import de.gematik.ti.erp.app.appauthentication.observer.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbar
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
@@ -120,14 +120,15 @@ class SharePrescriptionController(
                             prescriptionUseCase.saveScannedTasks(
                                 profileId = profileId,
                                 tasks = listOf(
-                                    ScannedTaskData.ScannedTask(
+                                    TaskErpModel.Scanned(
                                         profileId = profileId,
                                         index = 0,
                                         name = prescriptionLink.name ?: "",
                                         taskId = prescriptionLink.taskId,
                                         accessCode = prescriptionLink.accessCode,
                                         scannedOn = Clock.System.now(),
-                                        redeemedOn = null
+                                        redeemedOn = null,
+                                        isEuRedeemable = false
                                     )
                                 ),
                                 medicationString = medicationString
@@ -208,7 +209,7 @@ fun rememberSharePrescriptionController(
 
 @Composable
 fun SharePrescriptionHandler(
-    activeProfile: ProfilesUseCaseData.Profile,
+    activeProfile: ProfileErpModel,
     authenticationModeAndMethod: Flow<AuthenticationModeAndMethod>
 ) {
     val controller = rememberSharePrescriptionController(activeProfile.id)

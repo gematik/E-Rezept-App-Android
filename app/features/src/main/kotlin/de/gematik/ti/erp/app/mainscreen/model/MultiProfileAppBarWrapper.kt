@@ -22,10 +22,13 @@
 
 package de.gematik.ti.erp.app.mainscreen.model
 
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import kotlinx.coroutines.flow.StateFlow
 
 data class ProfileLifecycleState(
@@ -37,21 +40,32 @@ data class ProfileLifecycleState(
 
 data class MultiProfileAppBarWrapper(
     val profileLifecycleState: ProfileLifecycleState,
-    val activeProfile: StateFlow<Profile>,
-    val existingProfiles: StateFlow<List<Profile>>
+    val activeProfile: StateFlow<ProfileErpModel>,
+    val existingProfiles: StateFlow<List<ProfileErpModel>>
 ) {
     companion object {
-        val DEFAULT_EMPTY_PROFILE = Profile(
+        val DEFAULT_EMPTY_PROFILE = ProfileErpModel(
             id = "",
             name = "",
-            insurance = ProfileInsuranceInformation(
-                insuranceType = ProfilesUseCaseData.InsuranceType.NONE
+            insuranceData = ProfileInsuranceDataErpModel(
+                insuranceType = InsuranceType.NONE,
+                insuranceName = null,
+                insuranceIdentifier = null,
+                insurantName = null,
+                organizationIdentifier = null
             ),
-            isActive = false,
-            color = ProfilesData.ProfileColorNames.SPRING_GRAY,
+            active = false,
+            profileImageData = ProfileImageDataErpModel(
+                image = null,
+                color = ProfileColorNames.SPRING_GRAY,
+                avatar = Avatar.PersonalizedImage
+            ),
+            userAuthentication = UserAuthenticationErpModel.NotInitialized,
             lastAuthenticated = null,
-            ssoTokenScope = null,
-            avatar = ProfilesData.Avatar.PersonalizedImage
+            lastTaskSynced = null,
+            lastAuditEventSynced = null,
+            isNewlyCreated = false,
+            isConsentDrawerShown = true
         )
     }
 }

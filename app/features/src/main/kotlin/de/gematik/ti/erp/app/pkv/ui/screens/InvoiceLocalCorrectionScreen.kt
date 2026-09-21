@@ -51,7 +51,7 @@ import androidx.navigation.NavController
 import com.google.zxing.common.BitMatrix
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pkv.navigation.PkvNavigationArguments
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
@@ -84,7 +84,7 @@ class InvoiceLocalCorrectionScreen(
         val invoiceController = pkvNavigationArguments.profileId?.let { rememberInvoiceController(it) }
         val listState = rememberLazyListState()
         val scaffoldState = rememberScaffoldState()
-        val invoice by produceState<InvoiceData.PKVInvoiceRecord?>(null) {
+        val invoice by produceState<PKVInvoiceErpModel?>(null) {
             pkvNavigationArguments.taskId?.let {
                 invoiceController?.getInvoiceForTaskId(it)?.collect {
                     value = it
@@ -116,7 +116,7 @@ fun InvoiceLocalCorrectionScreenScaffold(
     scaffoldState: ScaffoldState,
     onBack: () -> Unit,
     onActionClick: () -> Unit,
-    invoice: InvoiceData.PKVInvoiceRecord?,
+    invoice: PKVInvoiceErpModel?,
     matrix: BitMatrix?
 ) {
     AnimatedElevationScaffold(
@@ -145,7 +145,7 @@ fun InvoiceLocalCorrectionScreenScaffold(
 @Composable
 private fun InvoiceLocalCorrectionScreenContent(
     listState: LazyListState,
-    record: InvoiceData.PKVInvoiceRecord?,
+    record: PKVInvoiceErpModel?,
     matrix: BitMatrix?
 ) {
     LazyColumn(
@@ -180,7 +180,7 @@ private fun InvoiceLocalCorrectionScreenContent(
 }
 
 @Composable
-private fun InvoiceLocalCorrectionSection(invoice: InvoiceData.PKVInvoiceRecord?) {
+private fun InvoiceLocalCorrectionSection(invoice: PKVInvoiceErpModel?) {
     SpacerLarge()
     Text(
         modifier = Modifier.fillMaxWidth(),
@@ -200,7 +200,7 @@ private fun InvoiceLocalCorrectionSection(invoice: InvoiceData.PKVInvoiceRecord?
 @LightDarkPreview
 @Composable
 fun InvoiceLocalCorrectionContentPreview(
-    @PreviewParameter(InvoiceLocalCorrectionScreenPreviewParameterProvider::class) invoice: InvoiceData.PKVInvoiceRecord?
+    @PreviewParameter(InvoiceLocalCorrectionScreenPreviewParameterProvider::class) invoice: PKVInvoiceErpModel?
 ) {
     PreviewAppTheme {
         InvoiceLocalCorrectionScreenScaffold(

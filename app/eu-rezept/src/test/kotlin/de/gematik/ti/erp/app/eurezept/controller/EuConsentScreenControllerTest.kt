@@ -30,17 +30,17 @@ import de.gematik.ti.erp.app.consent.usecase.GetConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.GrantConsentUseCase
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.MOCK_PROFILE_ID
+import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockActiveConsent
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockInactiveConsent
+import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockValidProfileMock
 import de.gematik.ti.erp.app.eurezept.presentation.EuConsentScreenController
 import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
-import de.gematik.ti.erp.app.fhir.constant.consent.ConsentConstants
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
-import de.gematik.ti.erp.app.settings.repository.ConsentVersionRepository
+import de.gematik.ti.erp.app.debug.repository.ConsentVersionRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -69,57 +69,38 @@ class EuConsentScreenControllerTest {
     private val consentRepository: ConsentRepository = mockk()
     private val profileRepository: ProfileRepository = mockk()
     private val idpRepository: IdpRepository = mockk()
-    private val consentVersionRepository: ConsentVersionRepository = mockk()
+
+    private val consentVersionRepository: ConsentVersionRepository = mockk(relaxed = true)
 
     private val networkStatusTracker: NetworkStatusTracker = mockk(relaxed = true)
     private val biometricAuthenticator: BiometricAuthenticator = mockk(relaxed = true)
 
     private lateinit var getEuPrescriptionConsentUseCase: GetConsentUseCase
-    private val grantEuPrescriptionConsentUseCase: GrantConsentUseCase = mockk() // Mock instead of real
-    private lateinit var getProfilesUseCase: GetProfilesUseCase
-    private lateinit var getActiveProfileUseCase: GetActiveProfileUseCase
-    private lateinit var getProfileByIdUseCase: GetProfileByIdUseCase
+    private lateinit var grantEuPrescriptionConsentUseCase: GrantConsentUseCase
+    private var getProfilesUseCase: GetProfilesUseCase = mockk()
+    private var getActiveProfileUseCase: GetActiveProfileUseCase = mockk()
+    private var getProfileByIdUseCase: GetProfileByIdUseCase = mockk()
     private lateinit var chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase
-
     private lateinit var controller: EuConsentScreenController
 
-    private fun buildController() = EuConsentScreenController(
-        getEuPrescriptionConsentUseCase = getEuPrescriptionConsentUseCase,
-        grantEuPrescriptionConsentUseCase = grantEuPrescriptionConsentUseCase,
-        getProfilesUseCase = getProfilesUseCase,
-        getActiveProfileUseCase = getActiveProfileUseCase,
-        chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
-        networkStatusTracker = networkStatusTracker,
-        biometricAuthenticator = biometricAuthenticator,
-        getProfileByIdUseCase = getProfileByIdUseCase
-    )
+    private val mockProfile = mockValidProfileMock
 
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
 
-        val mockProfileData = MockEuTestData.profileData.copy(
-            id = MOCK_PROFILE_ID,
-            insuranceIdentifier = "X123456789" // Add insurance identifier for consent tests
-        )
-        coEvery { consentVersionRepository.getConsentVersion() } returns ConsentConstants.ErpCharge.DEFAULT
-        coEvery { profileRepository.profiles() } returns flowOf(listOf(mockProfileData))
-        coEvery { profileRepository.activeProfile() } returns flowOf(mockProfileData)
-        coEvery { profileRepository.getProfileById(any()) } returns flowOf(mockProfileData)
-        coEvery { profileRepository.updateLastAuthenticated(any(), any()) } returns Unit
-        coEvery { profileRepository.isSsoTokenValid(any()) } returns flowOf(true)
+        getEuPrescriptionConsentUseCase = GetConsentUseCase(consentRepository, dispatcher)
+        grantEuPrescriptionConsentUseCase = GrantConsentUseCase(consentRepository, consentVersionRepository, dispatcher)
+        chooseAuthenticationDataUseCase = ChooseAuthenticationDataUseCase(profileRepository, idpRepository, dispatcher)
 
+        val mockAuthData = MockEuTestData.mockValidUserAuthentication
+        coEvery { idpRepository.getUserAuthentication(any()) } returns flowOf(mockAuthData)
         getEuPrescriptionConsentUseCase = GetConsentUseCase(consentRepository, Dispatchers.Unconfined)
         // grantEuPrescriptionConsentUseCase is now mocked, no need to create real instance
-        getProfilesUseCase = GetProfilesUseCase(profileRepository, Dispatchers.Unconfined)
-        getActiveProfileUseCase = GetActiveProfileUseCase(profileRepository, Dispatchers.Unconfined)
-        getProfileByIdUseCase = GetProfileByIdUseCase(profileRepository, Dispatchers.Unconfined)
-        chooseAuthenticationDataUseCase = ChooseAuthenticationDataUseCase(profileRepository, idpRepository, Dispatchers.Unconfined)
-
-        val mockAuthData = IdpData.AuthenticationData(
-            singleSignOnTokenScope = mockk(relaxed = true)
-        )
-        coEvery { idpRepository.authenticationData(any()) } returns flowOf(mockAuthData)
+        coEvery { getProfilesUseCase.invoke() } returns flowOf(listOf(mockProfile))
+        coEvery { getActiveProfileUseCase.invoke() } returns flowOf(mockProfile)
+        coEvery { getProfileByIdUseCase.invoke(any()) } returns flowOf(mockProfile)
+        coEvery { profileRepository.updateLastAuthenticated(any(), any()) } returns Unit
 
         coEvery {
             consentRepository.getConsent(
@@ -134,6 +115,17 @@ class EuConsentScreenControllerTest {
                 consent = any()
             )
         } returns Result.success(Unit)
+
+        controller = EuConsentScreenController(
+            getEuPrescriptionConsentUseCase = getEuPrescriptionConsentUseCase,
+            grantEuPrescriptionConsentUseCase = grantEuPrescriptionConsentUseCase,
+            getProfilesUseCase = getProfilesUseCase,
+            getActiveProfileUseCase = getActiveProfileUseCase,
+            chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
+            networkStatusTracker = networkStatusTracker,
+            biometricAuthenticator = biometricAuthenticator,
+            getProfileByIdUseCase = getProfileByIdUseCase
+        )
     }
 
     @After
@@ -143,7 +135,6 @@ class EuConsentScreenControllerTest {
 
     @Test
     fun `load consent data successfully with inactive consent`() = testScope.runTest {
-        controller = buildController()
         advanceUntilIdle()
 
         val state = controller.consentViewState.value
@@ -171,7 +162,6 @@ class EuConsentScreenControllerTest {
         } returns Result.failure(testException)
 
         testScope.runTest {
-            controller = buildController()
             advanceUntilIdle()
 
             val state = controller.consentViewState.value
@@ -188,49 +178,53 @@ class EuConsentScreenControllerTest {
     }
 
     @Test
-    fun `onConsentAccepted grants consent successfully`() = testScope.runTest {
-        // Mock the use case to return success
+    fun `grant consent successfully`() {
         coEvery {
-            grantEuPrescriptionConsentUseCase.invoke(any(), any())
-        } returns Result.success(Unit)
+            consentRepository.getConsent(
+                profileId = MOCK_PROFILE_ID,
+                category = ConsentCategory.EUCONSENT.code
+            )
+        } returns Result.success(mockActiveConsent)
 
-        // Build controller and wait for initialization
-        controller = buildController()
-        advanceUntilIdle()
+        testScope.runTest {
+            advanceUntilIdle()
+            controller.onConsentAccepted()
+            advanceUntilIdle()
 
-        // Call onConsentAccepted
-        controller.onConsentAccepted()
-        advanceUntilIdle()
-
-        // Verify the use case was called
-        coVerify(exactly = 1) {
-            grantEuPrescriptionConsentUseCase.invoke(any(), ConsentCategory.EUCONSENT)
+            coVerify(exactly = 1) {
+                consentRepository.grantConsent(
+                    profileId = MOCK_PROFILE_ID,
+                    consent = any()
+                )
+            }
         }
     }
 
     @Test
-    fun `onConsentAccepted handles backend error`() = testScope.runTest {
-        // Mock the use case to return failure
-        val testException = RuntimeException("Backend error")
+    fun `grant consent fails with error`() {
+        val testException = RuntimeException("Failed to grant consent")
         coEvery {
-            grantEuPrescriptionConsentUseCase.invoke(any(), any())
+            consentRepository.grantConsent(
+                profileId = MOCK_PROFILE_ID,
+                consent = any()
+            )
         } returns Result.failure(testException)
 
-        // Build controller and wait for initialization
-        controller = buildController()
-        advanceUntilIdle()
+        testScope.runTest {
+            advanceUntilIdle()
+            controller.onConsentAccepted()
+            advanceUntilIdle()
 
-        // Call onConsentAccepted
-        controller.onConsentAccepted()
-        advanceUntilIdle()
+            val state = controller.consentViewState.value
 
-        // Verify error is propagated to state
-        val state = controller.consentViewState.value
-        assertEquals(testException, state.error)
+            assertEquals(testException, state.error)
 
-        // Verify the use case was called
-        coVerify(exactly = 1) {
-            grantEuPrescriptionConsentUseCase.invoke(any(), ConsentCategory.EUCONSENT)
+            coVerify(exactly = 1) {
+                consentRepository.grantConsent(
+                    profileId = MOCK_PROFILE_ID,
+                    consent = any()
+                )
+            }
         }
     }
 }

@@ -25,21 +25,21 @@
 package de.gematik.ti.erp.app.prescription.detail.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.ui.preview.MOCK_MODEL_PROFILE
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.Instant
 
+private val mockTime = Instant.parse("2020-12-02T14:48:36Z")
+
 data class PrescriptionDetailTechnicalInfoPreviewData(
     val name: String,
-    val state: UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>
+    val state: UiState<Pair<ProfileErpModel, TaskErpModel>>
 )
 
 class PrescriptionDetailTechnicalInfoPreviewParameter :
     PreviewParameterProvider<PrescriptionDetailTechnicalInfoPreviewData> {
-    val time = Instant.parse("2020-12-02T14:48:36Z")
 
     override val values = sequenceOf(emptyState, errorState, loadedState)
 
@@ -63,14 +63,13 @@ class PrescriptionDetailTechnicalInfoPreviewParameter :
     }
 }
 
-private val MOCK_SCANNED_PRESCRIPTION = PrescriptionData.Scanned(
-    task = ScannedTaskData.ScannedTask(
-        profileId = "mockProfileId",
-        taskId = "160.000.006.727.215.38",
-        redeemedOn = time,
-        accessCode = "4e72654d6105f73fb3346df5728d5460a610bac60649cc8ebef28224a2eccbc6",
-        scannedOn = time,
-        index = 1,
-        name = "Mock Medication"
-    )
+private val MOCK_SCANNED_PRESCRIPTION = TaskErpModel.Scanned(
+    profileId = "mockProfileId",
+    taskId = "160.000.006.727.215.38",
+    redeemedOn = mockTime,
+    accessCode = "4e72654d6105f73fb3346df5728d5460a610bac60649cc8ebef28224a2eccbc6",
+    scannedOn = mockTime,
+    index = 1,
+    name = "Mock Medication",
+    isEuRedeemable = false
 )

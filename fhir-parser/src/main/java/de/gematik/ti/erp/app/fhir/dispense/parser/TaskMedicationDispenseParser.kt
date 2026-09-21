@@ -109,7 +109,7 @@ class TaskMedicationDispenseParser : BundleParser {
      * @param extractor Function to extract and parse the resource.
      * @return List of extracted resources.
      */
-    private inline fun <reified T> List<FhirResourceEntry>.extractEuResources(
+    private inline fun <reified T> List<FhirResourceEntry>.extractResourcesByType(
         resourceType: FhirMediationDispenseResourceType,
         extractor: (JsonElement) -> T?
     ): List<T> {
@@ -157,10 +157,10 @@ class TaskMedicationDispenseParser : BundleParser {
      */
     private fun List<FhirResourceEntry>.fromEuV10MedicationDispenseToErpModel(): List<FhirMedicationDispenseErpModel> {
         // Extract all resources from bundle
-        val dispenses = extractEuResources(MedicationDispense) { it.extractEuMedicationDispense() }
-        val medications = extractEuResources(Medication) { it.extractDispensedMedication() }
-        val organizations = extractEuResources(FhirMediationDispenseResourceType.Organization) { it.getOrganization() }
-        val practitionerRoles = extractEuResources(FhirMediationDispenseResourceType.PractitionerRole) {
+        val dispenses = extractResourcesByType(MedicationDispense) { it.extractEuMedicationDispense() }
+        val medications = extractResourcesByType(Medication) { it.extractDispensedMedication() }
+        val organizations = extractResourcesByType(FhirMediationDispenseResourceType.Organization) { it.getOrganization() }
+        val practitionerRoles = extractResourcesByType(FhirMediationDispenseResourceType.PractitionerRole) {
             it.extractEuPractitionerRole()
         }
 

@@ -26,7 +26,7 @@ tasks.withType<KotlinCompile>().configureEach {
 dependencies {
     implementation("com.android.tools.build:gradle:8.10.1")
     implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
-    implementation("org.jsoup:jsoup:1.21.1")
+    implementation("org.jsoup:jsoup:1.23.1")
 }
 
 gradlePlugin {

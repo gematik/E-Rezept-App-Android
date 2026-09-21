@@ -55,7 +55,7 @@ internal fun TaskContainer.buildPlayStoreBundle() {
                 commandLine(
                     "bash",
                     "-c",
-                    buildScript(
+                    project.buildScript(
                         versionCode = versionCode,
                         versionName = versionName,
                         buildCondition = buildCondition
@@ -83,7 +83,7 @@ internal fun TaskContainer.buildPlayStoreApp() {
                 commandLine(
                     "bash",
                     "-c",
-                    buildScript(
+                    project.buildScript(
                         versionCode = versionCode,
                         versionName = if (gitHash.isNullOrEmpty()) versionName else "$versionName-$gitHash",
                         buildCondition = buildCondition
@@ -110,7 +110,7 @@ internal fun TaskContainer.buildAppGalleryBundle() {
                 commandLine(
                     "bash",
                     "-c",
-                    buildScript(
+                    project.buildScript(
                         versionCode = versionCode,
                         versionName = versionName,
                         buildCondition = buildCondition
@@ -137,7 +137,7 @@ internal fun TaskContainer.buildAppGalleryApp() {
                 commandLine(
                     "bash",
                     "-c",
-                    buildScript(
+                    project.buildScript(
                         versionCode = versionCode,
                         versionName = versionName,
                         buildCondition = buildCondition
@@ -165,7 +165,7 @@ internal fun TaskContainer.buildTuReleaseApp() {
                 commandLine(
                     "bash",
                     "-c",
-                    buildScript(
+                    project.buildScript(
                         versionCode = versionCode,
                         versionName = if (gitHash.isNullOrEmpty()) versionName else "$versionName-$gitHash",
                         buildCondition = buildCondition
@@ -193,7 +193,7 @@ internal fun TaskContainer.buildKonnyApp() {
                 commandLine(
                     "bash",
                     "-c",
-                    buildScript(
+                    project.buildScript(
                         versionCode = versionCode,
                         versionName = if (gitHash.isNullOrEmpty()) versionName else "$versionName-$gitHash",
                         buildCondition = buildCondition
@@ -221,7 +221,7 @@ internal fun TaskContainer.buildTuDebugApp() {
                 commandLine(
                     "bash",
                     "-c",
-                    buildScript(
+                    project.buildScript(
                         versionCode = versionCode,
                         versionName = if (gitHash.isNullOrEmpty()) versionName else "$versionName-$gitHash",
                         buildCondition = buildCondition
@@ -249,7 +249,7 @@ internal fun TaskContainer.buildMockApp() {
                 commandLine(
                     "bash",
                     "-c",
-                    buildScript(
+                    project.buildScript(
                         appIdentifier = GRADLE_MOCK_APP_IDENTIFIER,
                         versionCode = versionCode,
                         versionName = if (gitHash.isNullOrEmpty()) versionName else "$versionName-$gitHash",
@@ -301,15 +301,42 @@ private fun Task.runDependencyTasks() {
     dependsOn(TaskNames.updateGradleProperties)
 }
 
-private fun buildScript(
+private fun Project.buildScript(
     appIdentifier: String = GRADLE_APP_IDENTIFIER,
     versionCode: Int,
     versionName: String,
     buildCondition: BuildAppFlavoursPlugin.BuildCondition
-) =
-    "$appIdentifier${buildCondition.assembleTask} " +
+): String {
+    // Resolve CI-only secrets from env vars first, then -P params, then ci-overrides.properties.
+    // Keep CI-only keys isolated from app-runtime secret sources.
+    fun ciParam(envVar: String, propName: String = envVar): String {
+        val value = System.getenv(envVar)
+            ?: (findProperty(propName) as? String)
+            ?: run {
+                val props = java.util.Properties()
+                val f = rootProject.file("ci-overrides.properties").takeIf { it.exists() }
+                f?.reader()?.use { props.load(it) }
+                props.getProperty(propName)
+            }
+            ?: ""
+        return if (value.isNotEmpty()) "-P$propName=\"$value\"" else ""
+    }
+
+    val ciParams = listOf(
+        ciParam("NEXUS_URL"),
+        ciParam("NEXUS_CREDENTIALS_USR", "NEXUS_USERNAME"),
+        ciParam("NEXUS_CREDENTIALS_PSW", "NEXUS_PASSWORD"),
+        ciParam("CI_GITLAB_PRIVATE_TOKEN", "GITLAB_PRIVATE_TOKEN"),
+        ciParam("CI_GITLAB_PROJECT_API_URL", "GITLAB_PROJECT_API_URL"),
+        ciParam("CI_TEAMS_RELEASE_WEBHOOK", "TEAMS_RELEASE_WEBHOOK_URL"),
+        ciParam("CI_TEAMS_MR_WEBHOOK", "TEAMS_MR_WEBHOOK_URL")
+    ).filter { it.isNotEmpty() }.joinToString(" ")
+
+    return "$appIdentifier${buildCondition.assembleTask} " +
         "-PVERSION_CODE=$versionCode " +
         "-PVERSION_NAME=$versionName " +
-        "-Pbuildkonfig.flavor=${buildCondition.buildFlavour} --no-daemon"
+        "-Pbuildkonfig.flavor=${buildCondition.buildFlavour} " +
+        "$ciParams --no-daemon"
+}
 
 // ./gradlew bundleGooglePuExternalRelease -PVERSION_CODE=1 -PVERSION_NAME=1.0.0 -Pbuildkonfig.flavor=googlePuExternal

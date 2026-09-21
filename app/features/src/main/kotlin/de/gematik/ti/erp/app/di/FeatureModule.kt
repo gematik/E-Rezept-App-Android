@@ -32,6 +32,7 @@ import de.gematik.ti.erp.app.debugsettings.di.debugSettingsModule
 import de.gematik.ti.erp.app.digas.di.digaModule
 import de.gematik.ti.erp.app.digas.di.digaRepositoryModule
 import de.gematik.ti.erp.app.eurezept.di.euModule
+import de.gematik.ti.erp.app.pushnotifications.di.pushNotificationsModule
 import de.gematik.ti.erp.app.idp.idpModule
 import de.gematik.ti.erp.app.idp.idpUseCaseModule
 import de.gematik.ti.erp.app.logger.di.loggerModule
@@ -45,7 +46,7 @@ import de.gematik.ti.erp.app.pharmacy.di.pharmacyRepositoryModule
 import de.gematik.ti.erp.app.pkv.consentRepositoryModule
 import de.gematik.ti.erp.app.pkv.pkvModule
 import de.gematik.ti.erp.app.prescription.prescriptionModule
-import de.gematik.ti.erp.app.prescription.prescriptionRepositoryModule
+import de.gematik.ti.erp.app.prescription.taskOperationsRepositoryModule
 import de.gematik.ti.erp.app.prescription.taskModule
 import de.gematik.ti.erp.app.prescription.taskRepositoryModule
 import de.gematik.ti.erp.app.profiles.profileRepositoryModule
@@ -56,7 +57,7 @@ import de.gematik.ti.erp.app.redeem.redeemModule
 import de.gematik.ti.erp.app.settings.settingsModule
 import de.gematik.ti.erp.app.settings.settingsRepositoryModule
 import de.gematik.ti.erp.app.timeouts.di.timeoutsSharedPrefsModule
-import de.gematik.ti.erp.app.userauthentication.di.userAuthenticationModule
+import de.gematik.ti.erp.app.appauthentication.di.appAuthenticationModule
 import de.gematik.ti.erp.app.vau.vauModule
 import kotlinx.coroutines.Dispatchers
 import org.kodein.di.DI
@@ -67,7 +68,7 @@ import org.kodein.di.bindProvider
  */
 val featureModule = DI.Module("featureModule", allowSilentOverride = true) {
     importAll(
-        userAuthenticationModule,
+        appAuthenticationModule,
         applicationControllerModule,
         onboardingModule,
         dispatchersModule,
@@ -94,6 +95,7 @@ val featureModule = DI.Module("featureModule", allowSilentOverride = true) {
         pkvModule,
         digaModule,
         euModule,
+        pushNotificationsModule,
         // shared-prefs modules
         timeoutsSharedPrefsModule,
         // other modules
@@ -104,7 +106,7 @@ val featureModule = DI.Module("featureModule", allowSilentOverride = true) {
         // repositories
         settingsRepositoryModule,
         profileRepositoryModule,
-        prescriptionRepositoryModule,
+        taskOperationsRepositoryModule,
         consentRepositoryModule,
         auditEventsRepositoryModule,
         pharmacyRepositoryModule,

@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.pharmacy.presentation
 
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.SearchFilterErpModel
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -36,7 +36,7 @@ enum class FilterType {
     ;
 
     companion object {
-        fun FilterType.getUpdatedFilter(filter: PharmacyUseCaseData.Filter) =
+        fun FilterType.getUpdatedFilter(filter: SearchFilterErpModel) =
             when (this) {
                 NEARBY -> filter.copy(nearBy = !filter.nearBy)
                 OPEN_NOW -> filter.copy(openNow = !filter.openNow)

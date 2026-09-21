@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.messages.domain.usecase
 
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
-import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
@@ -91,7 +91,7 @@ class GetUnreadMessagesCountUseCase(
     }
 
     private fun filterUnreadTaskIds(
-        communicationFlow: List<Communication>,
+        communicationFlow: List<CommunicationErpModel>,
         taskIdConsumedMap: Map<String, Boolean>
     ): List<String> {
         return communicationFlow

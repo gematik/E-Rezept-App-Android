@@ -22,16 +22,16 @@
 
 package de.gematik.ti.erp.app.pharmacy.usecase
 
-import de.gematik.ti.erp.app.pharmacy.mapper.toOrder
+import de.gematik.ti.erp.app.pharmacy.mapper.toPrescriptionInOrder
 import de.gematik.ti.erp.app.pharmacy.model.shippingContact
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData.ScannedTask
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
+import de.gematik.ti.erp.app.pharmacy.model.OrderStateErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel.Companion.EmptyShippingInfoErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,20 +43,20 @@ import kotlinx.coroutines.flow.mapNotNull
 
 /**
  * Gets the activeProfile from the [profileRepository]. Then it gets redeemed (scanned and synced) tasks for this
- * profile from the [prescriptionRepository] and converts them into [PharmacyUseCaseData.PrescriptionInOrder].
+ * profile from the [prescriptionRepository] and converts them into [PrescriptionInOrderErpModel].
  *
  * Now it checks the [shippingContactRepository] for a shipping contact, if not present gets it from
  * the [prescriptionRepository] and saves it into the [shippingContactRepository].
- * Finally it returns a [PharmacyUseCaseData.OrderState] with the orders and shippingContact.
+ * Finally it returns a [OrderStateErpModel] with the orders and shippingContact.
  */
 class GetOrderStateUseCase(
     private val profileRepository: ProfileRepository,
-    private val prescriptionRepository: PrescriptionRepository,
+    private val taskOperationsRepository: TaskOperationsRepository,
     private val shippingContactRepository: ShippingContactRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
-    operator fun invoke(): Flow<PharmacyUseCaseData.OrderState> =
+    operator fun invoke(): Flow<OrderStateErpModel> =
         profileRepository.activeProfile().flatMapLatest { profile ->
             combine(
                 shippingContactRepository.shippingContact(),
@@ -64,15 +64,14 @@ class GetOrderStateUseCase(
                 getRedeemableScannedTasks(profile.id)
             ) { contact, syncedTasks, scannedTasks ->
                 val updatedContact = when {
-                    syncedTasks.isNotEmpty() && contact == null ->
-                        syncedTasks.first().shippingContact()
-
+                    syncedTasks.isNotEmpty() && contact == null -> syncedTasks.first().shippingContact()
                     else -> contact
                 }
-                val orders = syncedTasks.map { it.toOrder() } + scannedTasks.map { it.toOrder() }
+                val orders = syncedTasks.map(TaskErpModel.Synced.Prescription::toPrescriptionInOrder) +
+                    scannedTasks.map(TaskErpModel.Scanned::toPrescriptionInOrder)
                 val selfPayerPrescriptionIds = orders.filter { it.isSelfPayerPrescription }.map { it.taskId }
                 val shippingContact = updatedContact ?: EmptyShippingInfoErpModel
-                PharmacyUseCaseData.OrderState(
+                OrderStateErpModel(
                     prescriptionsInOrder = orders,
                     selfPayerPrescriptionIds = selfPayerPrescriptionIds,
                     contact = shippingContact
@@ -80,15 +79,15 @@ class GetOrderStateUseCase(
             }
         }.flowOn(dispatcher)
 
-    private fun getRedeemableSyncedTasks(id: ProfileIdentifier): Flow<List<SyncedTask>> =
-        prescriptionRepository.syncedTasks(id)
+    private fun getRedeemableSyncedTasks(id: ProfileIdentifier): Flow<List<TaskErpModel.Synced.Prescription>> =
+        taskOperationsRepository.loadSyncedTaskListByProfileId(id)
             .mapNotNull { tasks ->
-                tasks.filter { it.redeemState().isRedeemable() && it.deviceRequest == null } // TODO: define as a type
+                tasks.filter { it.redeemState().isRedeemable() }
                     .sortedByDescending { it.authoredOn }
             }.flowOn(dispatcher)
 
-    private fun getRedeemableScannedTasks(id: ProfileIdentifier): Flow<List<ScannedTask>> =
-        prescriptionRepository.scannedTasks(id)
+    private fun getRedeemableScannedTasks(id: ProfileIdentifier): Flow<List<TaskErpModel.Scanned>> =
+        taskOperationsRepository.loadScannedTaskListByProfileId(id)
             .mapNotNull { tasks ->
                 tasks.filter {
                     it.isRedeemable()

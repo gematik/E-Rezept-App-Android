@@ -22,10 +22,10 @@
 
 package de.gematik.ti.erp.app.medicationplan.usecase
 
-import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
+import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstructionErpModel
 import de.gematik.ti.erp.app.medicationplan.model.parseInstruction
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -35,28 +35,26 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 
 class GetDosageInstructionByTaskIdUseCase(
-    private val repository: PrescriptionRepository,
+    private val repository: TaskOperationsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(taskId: String): Flow<MedicationPlanDosageInstruction> {
+    operator fun invoke(taskId: String): Flow<MedicationPlanDosageInstructionErpModel> {
         val synced =
             repository
                 .loadSyncedTaskByTaskId(taskId)
                 .mapNotNull { it }
-                .map(PrescriptionData::Synced)
                 .flowOn(dispatcher)
 
         val scanned =
             repository
                 .loadScannedTaskByTaskId(taskId)
                 .mapNotNull { it }
-                .map(PrescriptionData::Scanned)
                 .flowOn(dispatcher)
 
         return merge(synced, scanned).map {
             when (it) {
-                is PrescriptionData.Synced -> parseInstruction(it.medicationRequest.dosageInstruction)
-                is PrescriptionData.Scanned -> MedicationPlanDosageInstruction.Empty
+                is TaskErpModel.Synced.Prescription -> parseInstruction(it.medicationRequest?.dosageInstruction)
+                else -> MedicationPlanDosageInstructionErpModel.Empty
             }
         }.flowOn(dispatcher)
     }

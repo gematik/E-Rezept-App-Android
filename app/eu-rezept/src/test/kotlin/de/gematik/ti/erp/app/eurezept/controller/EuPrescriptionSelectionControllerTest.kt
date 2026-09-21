@@ -27,27 +27,27 @@ import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseC
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetEuPrescriptionsUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.ToggleIsEuRedeemableByPatientAuthorizationUseCase
+import de.gematik.ti.erp.app.eurezept.model.MockEuTestData
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.MOCK_MEDICATION_NAME_1
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.MOCK_PROFILE_ID
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.MOCK_READY_EU_SYNCED_TASK
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.PRECRIPTION_ID_1
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.PRECRIPTION_ID_2
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockEuPrescriptions
-import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockValidSsoTokenScope
-import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.profileData
+import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockValidProfileMock
 import de.gematik.ti.erp.app.eurezept.presentation.EuPrescriptionSelectionController
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeRequestConstants.FhirEuRedeemAccessCodeRequestMeta
 import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeResponseConstants.FhirEuRedeemAccessCodeResponseMeta
 import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirTaskEuPatchInputModelConstants.FhirTaskEuPatchMeta
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
-import de.gematik.ti.erp.app.settings.repository.EuVersionRepository
+import de.gematik.ti.erp.app.debug.repository.EuVersionRepository
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isEmptyState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isErrorState
 import io.mockk.coEvery
@@ -75,7 +75,7 @@ class EuPrescriptionSelectionControllerTest {
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
 
-    private val prescriptionRepository: PrescriptionRepository = mockk()
+    private val taskOperationsRepository: TaskOperationsRepository = mockk()
     private val profileRepository: ProfileRepository = mockk()
     private val euRepository: EuRepository = mockk()
 
@@ -87,12 +87,14 @@ class EuPrescriptionSelectionControllerTest {
 
     private lateinit var getEuPrescriptionsUseCase: GetEuPrescriptionsUseCase
     private lateinit var toggleIsEuRedeemableByPatientAuthorizationUseCase: ToggleIsEuRedeemableByPatientAuthorizationUseCase
-    private lateinit var getProfileByIdUseCase: GetProfileByIdUseCase
-    private lateinit var getProfilesUseCase: GetProfilesUseCase
-    private lateinit var getActiveProfileUseCase: GetActiveProfileUseCase
+    private var getProfileByIdUseCase: GetProfileByIdUseCase = mockk()
+    private var getProfilesUseCase: GetProfilesUseCase = mockk()
+    private var getActiveProfileUseCase: GetActiveProfileUseCase = mockk()
     private lateinit var chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase
 
     private lateinit var controller: EuPrescriptionSelectionController
+
+    private val mockProfile = mockValidProfileMock
 
     @Before
     fun setup() {
@@ -105,8 +107,9 @@ class EuPrescriptionSelectionControllerTest {
         coEvery { euVersionRepository.getEuPatchMeta() } returns FhirTaskEuPatchMeta.V_1_0
 
         getEuPrescriptionsUseCase = GetEuPrescriptionsUseCase(
-            prescriptionRepository = prescriptionRepository,
+            taskOperationsRepository = taskOperationsRepository,
             profileRepository = profileRepository,
+            unknownMedicationName = "Unknown Medication",
             dispatcher = dispatcher
         )
 
@@ -116,20 +119,20 @@ class EuPrescriptionSelectionControllerTest {
             dispatcher = dispatcher
         )
 
-        getProfileByIdUseCase = GetProfileByIdUseCase(profileRepository, dispatcher)
-        getProfilesUseCase = GetProfilesUseCase(profileRepository, dispatcher)
-        getActiveProfileUseCase = GetActiveProfileUseCase(profileRepository, dispatcher)
         chooseAuthenticationDataUseCase = ChooseAuthenticationDataUseCase(profileRepository, idpRepository, dispatcher)
 
-        val mockProfileData = profileData.copy(id = MOCK_PROFILE_ID)
-        coEvery { profileRepository.activeProfile() } returns flowOf(mockProfileData)
-        coEvery { profileRepository.profiles() } returns flowOf(listOf(mockProfileData))
-        coEvery { profileRepository.getProfileById(any()) } returns flowOf(mockProfileData)
-        coEvery { profileRepository.updateLastAuthenticated(any(), any()) } returns Unit
-        coEvery { profileRepository.isSsoTokenValid(any()) } returns flowOf(true)
+        coEvery { getProfilesUseCase.invoke() } returns flowOf(listOf(mockProfile))
+        coEvery { getActiveProfileUseCase.invoke() } returns flowOf(mockProfile)
+        coEvery { getProfileByIdUseCase.invoke(any()) } returns flowOf(mockProfile)
 
-        coEvery { prescriptionRepository.syncedTasks(MOCK_PROFILE_ID) } returns flowOf(listOf(MOCK_READY_EU_SYNCED_TASK))
-        coEvery { prescriptionRepository.scannedTasks(MOCK_PROFILE_ID) } returns flowOf(emptyList())
+        val mockProfileErpModel = mockk<ProfileErpModel>(relaxed = true) {
+            every { id } returns MOCK_PROFILE_ID
+        }
+        coEvery { profileRepository.activeProfile() } returns flowOf(mockProfileErpModel)
+        coEvery { profileRepository.updateLastAuthenticated(any(), any()) } returns Unit
+
+        coEvery { taskOperationsRepository.loadSyncedTaskListByProfileId(MOCK_PROFILE_ID) } returns flowOf(listOf(MOCK_READY_EU_SYNCED_TASK))
+        coEvery { taskOperationsRepository.loadScannedTaskListByProfileId(MOCK_PROFILE_ID) } returns flowOf(emptyList())
 
         coEvery {
             euRepository.toggleIsEuRedeemableByPatientAuthorization(
@@ -149,10 +152,8 @@ class EuPrescriptionSelectionControllerTest {
             )
         } returns Result.success(Unit)
 
-        val mockAuthData = IdpData.AuthenticationData(
-            singleSignOnTokenScope = mockValidSsoTokenScope
-        )
-        coEvery { idpRepository.authenticationData(any()) } returns flowOf(mockAuthData)
+        val mockAuthData = MockEuTestData.mockValidUserAuthentication
+        coEvery { idpRepository.getUserAuthentication(any()) } returns flowOf(mockAuthData)
 
         controller = EuPrescriptionSelectionController(
             getEuPrescriptionsUseCase = getEuPrescriptionsUseCase,
@@ -182,14 +183,14 @@ class EuPrescriptionSelectionControllerTest {
         assertEquals(MOCK_READY_EU_SYNCED_TASK.taskId, euPrescription?.id)
         assertEquals(MOCK_MEDICATION_NAME_1, euPrescription?.name)
 
-        coVerify(exactly = 1) { prescriptionRepository.syncedTasks(MOCK_PROFILE_ID) }
-        coVerify(exactly = 1) { prescriptionRepository.scannedTasks(MOCK_PROFILE_ID) }
+        coVerify(exactly = 1) { taskOperationsRepository.loadSyncedTaskListByProfileId(MOCK_PROFILE_ID) }
+        coVerify(exactly = 1) { taskOperationsRepository.loadScannedTaskListByProfileId(MOCK_PROFILE_ID) }
     }
 
     @Test
     fun `show empty state when no prescriptions available`() {
-        coEvery { prescriptionRepository.syncedTasks(MOCK_PROFILE_ID) } returns flowOf(emptyList())
-        coEvery { prescriptionRepository.scannedTasks(MOCK_PROFILE_ID) } returns flowOf(emptyList())
+        coEvery { taskOperationsRepository.loadSyncedTaskListByProfileId(MOCK_PROFILE_ID) } returns flowOf(emptyList())
+        coEvery { taskOperationsRepository.loadScannedTaskListByProfileId(MOCK_PROFILE_ID) } returns flowOf(emptyList())
 
         testScope.runTest {
             advanceUntilIdle()
@@ -203,7 +204,7 @@ class EuPrescriptionSelectionControllerTest {
     @Test
     fun `show error state on exception when loading prescriptions`() {
         val testException = RuntimeException()
-        coEvery { prescriptionRepository.syncedTasks(MOCK_PROFILE_ID) } throws testException
+        coEvery { taskOperationsRepository.loadSyncedTaskListByProfileId(MOCK_PROFILE_ID) } throws testException
 
         testScope.runTest {
             advanceUntilIdle()

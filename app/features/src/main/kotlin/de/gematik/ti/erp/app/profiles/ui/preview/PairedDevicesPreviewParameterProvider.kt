@@ -26,11 +26,11 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.profiles.model.ProfilePairedDevicesErrorState.CannotLoadPairedDevicesError
 import de.gematik.ti.erp.app.profiles.model.ProfilePairedDevicesErrorState.NoInternetError
 import de.gematik.ti.erp.app.profiles.model.ProfilePairedDevicesErrorState.UserNotLoggedInWithBiometricsError
-import de.gematik.ti.erp.app.profiles.usecase.model.PairedDevice
+import de.gematik.ti.erp.app.profile.model.PairedDeviceErpModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 
-class PairedDevicesPreviewParameterProvider : PreviewParameterProvider<UiState<List<PairedDevice>>> {
-    override val values: Sequence<UiState<List<PairedDevice>>>
+class PairedDevicesPreviewParameterProvider : PreviewParameterProvider<UiState<List<PairedDeviceErpModel>>> {
+    override val values: Sequence<UiState<List<PairedDeviceErpModel>>>
         get() = sequenceOf(
             UiState.Loading(),
             UiState.Empty(),
@@ -43,31 +43,31 @@ class PairedDevicesPreviewParameterProvider : PreviewParameterProvider<UiState<L
 
 private val pairedDevices = UiState.Data(
     data = listOf(
-        PairedDevice(
+        PairedDeviceErpModel(
             name = "Tony StarksPhone",
             alias = "IronPhone",
             connectedOn = "2021-08-01",
             isCurrentDevice = true
         ),
-        PairedDevice(
+        PairedDeviceErpModel(
             name = "Thor OdinsonsTablet",
             alias = "HammerTab",
             connectedOn = "2021-07-15",
             isCurrentDevice = false
         ),
-        PairedDevice(
+        PairedDeviceErpModel(
             name = "Peter ParkersLaptop",
             alias = "SpideyWeb",
             connectedOn = "2021-09-10",
             isCurrentDevice = false
         ),
-        PairedDevice(
+        PairedDeviceErpModel(
             name = "Steve RogersWatch",
             alias = "CapTime",
             connectedOn = "2021-10-05",
             isCurrentDevice = true
         ),
-        PairedDevice(
+        PairedDeviceErpModel(
             name = "Bruce BannersSmartwatch",
             alias = "HulkSmashTime",
             connectedOn = "2021-11-20",

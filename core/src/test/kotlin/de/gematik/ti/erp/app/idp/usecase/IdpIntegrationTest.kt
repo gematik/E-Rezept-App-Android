@@ -25,16 +25,17 @@ package de.gematik.ti.erp.app.idp.usecase
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import de.gematik.ti.erp.app.BCProvider
 import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.database.api.IdpConfigurationLocalDataSource
+import de.gematik.ti.erp.app.database.api.UserAuthenticationLocalDataSource
 import de.gematik.ti.erp.app.di.JWSConverterFactory
 import de.gematik.ti.erp.app.idp.api.IdpService
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.AccessTokenDataSource
 import de.gematik.ti.erp.app.idp.repository.DefaultIdpRepository
-import de.gematik.ti.erp.app.idp.repository.IdpLocalDataSource
 import de.gematik.ti.erp.app.idp.repository.IdpPairingRepository
 import de.gematik.ti.erp.app.idp.repository.IdpRemoteDataSource
 import de.gematik.ti.erp.app.profiles.repository.DefaultProfilesRepository
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.vau.repository.VauRemoteDataSource
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
 import io.mockk.MockKAnnotations
@@ -80,7 +81,10 @@ class IdpIntegrationTest {
     private lateinit var truststoreUseCase: TruststoreUseCase
 
     @MockK(relaxed = true)
-    private lateinit var localDataSource: IdpLocalDataSource
+    private lateinit var userAuthenticationLocalDataSource: UserAuthenticationLocalDataSource
+
+    @MockK(relaxed = true)
+    private lateinit var idpConfigurationLocalDataSource: IdpConfigurationLocalDataSource
 
     @MockK
     private lateinit var cryptoProvider: IdpCryptoProvider
@@ -117,7 +121,7 @@ class IdpIntegrationTest {
 
         coEvery { truststoreUseCase.checkIdpCertificate(any(), any()) } coAnswers {}
         every { cryptoProvider.signatureInstance() } returns Signature.getInstance("SHA256withECDSA")
-        coEvery { localDataSource.loadIdpInfo() } returns null
+        coEvery { idpConfigurationLocalDataSource.getIdpConfiguration() } returns null
 
         val client = OkHttpClient.Builder()
             .addInterceptor(
@@ -139,14 +143,15 @@ class IdpIntegrationTest {
         idpRepository = spyk(
             DefaultIdpRepository(
                 remoteDataSource = IdpRemoteDataSource(idpService) { BuildKonfig.IDP_DEFAULT_SCOPE },
-                localDataSource = localDataSource,
+                userAuthenticationLocalDataSource = userAuthenticationLocalDataSource,
+                idpConfigurationLocalDataSource = idpConfigurationLocalDataSource,
                 accessTokenDataSource = accessTokenDataSource
             )
         )
 
         idpPairingRepository = spyk(
             IdpPairingRepository(
-                localDataSource = localDataSource
+                localDataSource = userAuthenticationLocalDataSource
             )
         )
 
@@ -197,7 +202,7 @@ class IdpIntegrationTest {
             sign = { sign(it) }
         )
 
-        coVerify(exactly = 1) { idpRepository.saveSingleSignOnToken(profileId, any()) }
+        coVerify(exactly = 1) { idpRepository.saveUserAuthentication(profileId, any()) }
         coVerify(exactly = 1) { idpRepository.saveDecryptedAccessToken(profileId, any()) }
 
         assertEquals(
@@ -218,13 +223,13 @@ class IdpIntegrationTest {
             sign = { sign(it) }
         )
 
-        coEvery { localDataSource.authenticationData(profileId) } answers {
+        coEvery { userAuthenticationLocalDataSource.getUserAuthenticationForProfile(profileId) } answers {
             flowOf(
-                IdpData.AuthenticationData(
-                    IdpData.DefaultToken(
-                        token = mockk(relaxed = true),
-                        cardAccessNumber = cardAccessNumber,
-                        healthCardCertificate = Base64.decode(healthCardCert)
+                UserAuthenticationErpModel.HealthCard(
+                    singleSignOnTokenErpModel = mockk(relaxed = true),
+                    cardAccessNumber = cardAccessNumber,
+                    healthCardCertificate = Base64.decode(
+                        healthCardCert
                     )
                 )
             )
@@ -266,13 +271,14 @@ class IdpIntegrationTest {
             signWithHealthCard = { sign(it) }
         )
 
-        coEvery { idpRepository.authenticationData(profileId) } answers {
+        coEvery { idpRepository.getUserAuthentication(profileId) } answers {
             flowOf(
-                IdpData.AuthenticationData(
-                    IdpData.AlternateAuthenticationWithoutToken(
-                        cardAccessNumber = cardAccessNumber,
-                        aliasOfSecureElementEntry = alias,
-                        healthCardCertificate = Base64.decode(healthCardCert)
+                UserAuthenticationErpModel.HealthCardWithSavedCredentials(
+                    singleSignOnTokenErpModel = null,
+                    cardAccessNumber = cardAccessNumber,
+                    aliasOfSecureElementEntry = alias,
+                    healthCardCertificate = Base64.decode(
+                        healthCardCert
                     )
                 )
             )
@@ -283,7 +289,7 @@ class IdpIntegrationTest {
             scope = IdpScope.Default
         )
 
-        coVerify(exactly = 2) { idpRepository.saveSingleSignOnToken(profileId, any()) }
+        coVerify(exactly = 2) { idpRepository.saveUserAuthentication(profileId, any()) }
         coVerify(exactly = 1) { idpRepository.saveDecryptedAccessToken(profileId, any()) }
 
         assertEquals(
@@ -300,13 +306,14 @@ class IdpIntegrationTest {
             scope = IdpScope.BiometricPairing
         )
 
-        coEvery { localDataSource.authenticationData(profileId) } answers {
+        coEvery { userAuthenticationLocalDataSource.getUserAuthenticationForProfile(profileId) } answers {
             flowOf(
-                IdpData.AuthenticationData(
-                    IdpData.AlternateAuthenticationWithoutToken(
-                        cardAccessNumber = cardAccessNumber,
-                        aliasOfSecureElementEntry = alias,
-                        healthCardCertificate = Base64.decode(healthCardCert)
+                UserAuthenticationErpModel.HealthCardWithSavedCredentials(
+                    singleSignOnTokenErpModel = null,
+                    cardAccessNumber = cardAccessNumber,
+                    aliasOfSecureElementEntry = alias,
+                    healthCardCertificate = Base64.decode(
+                        healthCardCert
                     )
                 )
             )

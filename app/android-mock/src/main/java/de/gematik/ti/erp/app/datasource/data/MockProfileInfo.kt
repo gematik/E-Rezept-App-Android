@@ -24,44 +24,58 @@
 
 package de.gematik.ti.erp.app.datasource.data
 
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import kotlinx.datetime.Instant
 
 object MockProfileInfo {
     private const val HEALTH_INSURANCE_COMPANIES = "GesundheitsVersichert AG"
-
     private const val INSURANCE_NUMBER = "10000000"
 
     internal val mockProfile01 = profile(
         profileName = "Erika Mustermann",
         isActive = true,
-        color = ProfilesData.ProfileColorNames.SUN_DEW,
-        insuranceType = ProfilesData.InsuranceType.PKV, // Note: Private insurance account
-        avatar = ProfilesData.Avatar.FemaleDoctor,
+        color = ProfileColorNames.SUN_DEW,
+        insuranceType = InsuranceType.PKV,
+        avatar = Avatar.FemaleDoctor,
         lastAuthenticated = null
     )
 
     private fun profile(
         profileName: String,
         isActive: Boolean = true,
-        color: ProfilesData.ProfileColorNames = ProfilesData.ProfileColorNames.SUN_DEW,
-        avatar: ProfilesData.Avatar = ProfilesData.Avatar.FemaleDoctor,
-        insuranceType: ProfilesData.InsuranceType = ProfilesData.InsuranceType.GKV,
+        color: ProfileColorNames = ProfileColorNames.SUN_DEW,
+        avatar: Avatar = Avatar.FemaleDoctor,
+        insuranceType: InsuranceType = InsuranceType.GKV,
         lastAuthenticated: Instant? = null
-    ): ProfilesData.Profile {
-        return ProfilesData.Profile(
+    ): ProfileErpModel {
+        return ProfileErpModel(
             id = "1",
             name = profileName,
-            color = color,
-            avatar = avatar,
-            insuranceIdentifier = INSURANCE_NUMBER,
-            insuranceType = insuranceType,
-            insurantName = profileName,
-            insuranceName = HEALTH_INSURANCE_COMPANIES,
-            singleSignOnTokenScope = null,
-            active = isActive,
+            profileImageData = ProfileImageDataErpModel(
+                color = color,
+                avatar = avatar,
+                image = null
+            ),
             isConsentDrawerShown = false,
-            lastAuthenticated = lastAuthenticated
+            insuranceData = ProfileInsuranceDataErpModel(
+                insurantName = profileName,
+                insuranceIdentifier = INSURANCE_NUMBER,
+                insuranceName = HEALTH_INSURANCE_COMPANIES,
+                insuranceType = insuranceType,
+                organizationIdentifier = null
+            ),
+            lastAuthenticated = lastAuthenticated,
+            lastAuditEventSynced = null,
+            lastTaskSynced = null,
+            active = isActive,
+            isNewlyCreated = false,
+            userAuthentication = UserAuthenticationErpModel.NotInitialized
         )
     }
 

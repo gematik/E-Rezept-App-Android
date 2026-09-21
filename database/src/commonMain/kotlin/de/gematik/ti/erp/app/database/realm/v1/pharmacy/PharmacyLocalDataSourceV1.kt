@@ -21,7 +21,7 @@
  */
 package de.gematik.ti.erp.app.database.realm.v1.pharmacy
 
-import de.gematik.ti.erp.app.database.api.PharmacyLocalDataSource
+import de.gematik.ti.erp.app.database.api.pharmacy.PharmacyLocalDataSource
 import de.gematik.ti.erp.app.database.realm.utils.queryFirst
 import de.gematik.ti.erp.app.database.realm.utils.toInstant
 import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
@@ -55,7 +55,7 @@ internal class PharmacyLocalDataSourceV1(private val realm: Realm) : PharmacyLoc
 
     override fun getPharmacy(telematikId: TelematikId): Flow<PharmacyErpModel?> {
         return loadPharmacies().map { models ->
-            models.firstOrNull { it.telematikId == telematikId.value }
+            models.firstOrNull { it.telematikId == telematikId }
         }
     }
 
@@ -77,21 +77,21 @@ internal class PharmacyLocalDataSourceV1(private val realm: Realm) : PharmacyLoc
 
     override suspend fun deletePharmacy(telematikId: TelematikId) {
         realm.tryWrite {
-            queryFirst<FavoritePharmacyEntityV1>("telematikId = $0", telematikId.value)?.let { delete(it) }
-            queryFirst<OftenUsedPharmacyEntityV1>("telematikId = $0", telematikId.value)?.let { delete(it) }
+            queryFirst<FavoritePharmacyEntityV1>("telematikId = $0", telematikId)?.let { delete(it) }
+            queryFirst<OftenUsedPharmacyEntityV1>("telematikId = $0", telematikId)?.let { delete(it) }
         }
     }
 
     override suspend fun deleteFavoritePharmacy(telematikId: TelematikId) {
         realm.tryWrite {
-            queryFirst<FavoritePharmacyEntityV1>("telematikId = $0", telematikId.value)?.let { delete(it) }
+            queryFirst<FavoritePharmacyEntityV1>("telematikId = $0", telematikId)?.let { delete(it) }
             // If it exists also as often used, keep that entry; nothing else to do
         }
     }
 
     override suspend fun deleteOftenUsedPharmacy(telematikId: TelematikId) {
         realm.tryWrite {
-            queryFirst<OftenUsedPharmacyEntityV1>("telematikId = $0", telematikId.value)?.let { delete(it) }
+            queryFirst<OftenUsedPharmacyEntityV1>("telematikId = $0", telematikId)?.let { delete(it) }
             // If it exists also as favorite, keep that entry; nothing else to do
         }
     }

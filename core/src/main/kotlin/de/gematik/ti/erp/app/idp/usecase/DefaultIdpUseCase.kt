@@ -33,14 +33,16 @@ import de.gematik.ti.erp.app.idp.api.models.IdpInitialData
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
 import de.gematik.ti.erp.app.idp.api.models.PairingData
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.AccessToken
 import de.gematik.ti.erp.app.idp.repository.IdpPairingRepository
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
+import de.gematik.ti.erp.app.userauthentication.model.SingleSignOnTokenErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Clock
@@ -80,8 +82,8 @@ class DefaultIdpUseCase(
                     refresh = refresh,
                     profileId = profileId,
                     scope = IdpScope.Default,
-                    singleSignOnTokenScope = {
-                        repository.authenticationData(profileId).first().singleSignOnTokenScope
+                    userAuthentication = {
+                        repository.getUserAuthentication(profileId).first()
                     },
                     decryptedAccessToken = { repository.decryptedAccessToken(profileId).first() },
                     invalidateDecryptedAccessToken = { repository.invalidateDecryptedAccessToken(profileId) },
@@ -102,7 +104,7 @@ class DefaultIdpUseCase(
                     refresh = refresh,
                     profileId = profileId,
                     scope = IdpScope.BiometricPairing,
-                    singleSignOnTokenScope = { pairingRepository.singleSignOnTokenScope(profileId).first() },
+                    userAuthentication = { pairingRepository.userAuthentication(profileId).first() },
                     decryptedAccessToken = { pairingRepository.decryptedAccessToken(profileId).first() },
                     invalidateDecryptedAccessToken = { pairingRepository.invalidateDecryptedAccessToken(profileId) },
                     invalidateSingleSignOnTokenRetainingScope = {
@@ -124,13 +126,13 @@ class DefaultIdpUseCase(
         refresh: Boolean = false,
         profileId: ProfileIdentifier,
         scope: IdpScope,
-        singleSignOnTokenScope: suspend () -> IdpData.SingleSignOnTokenScope?,
+        userAuthentication: suspend () -> UserAuthenticationErpModel?,
         decryptedAccessToken: suspend () -> AccessToken?,
         invalidateDecryptedAccessToken: suspend () -> Unit,
         invalidateSingleSignOnTokenRetainingScope: suspend () -> Unit,
         saveDecryptedAccessToken: suspend (decryptedAccessToken: String, expiresOn: Instant) -> Unit
     ): String {
-        val ssoTokenScope = singleSignOnTokenScope()
+        val userAuthenticationMethod = userAuthentication()
         val savedAccessToken = decryptedAccessToken()
         val accessToken = savedAccessToken?.accessToken
 
@@ -142,7 +144,7 @@ class DefaultIdpUseCase(
 
         Napier.d(tag = "IdpUseCase") {
             """Loading access token with:
-              |ssoTokenScope.present: ${ssoTokenScope != null}
+              |user-authentication.present: ${userAuthenticationMethod != null}
               |refresh: $refresh
               |profileId: $profileId
               |scope: $scope
@@ -152,24 +154,24 @@ class DefaultIdpUseCase(
             """.trimMargin()
         }
 
-        return if (ssoTokenScope != null) {
-            if (ssoTokenScope.token?.token == null) {
+        return if (userAuthenticationMethod != null) {
+            if (userAuthenticationMethod.singleSignOnTokenErpModel == null) {
                 invalidateDecryptedAccessToken()
                 throw RefreshFlowException(
                     true,
-                    ssoTokenScope,
+                    userAuthenticationMethod,
                     "SSO token not set for $profileId!"
                 )
             }
 
-            if (ssoTokenScope.token?.isValid() == false) {
-                Napier.e(tag = "IdpUseCase") { "expired SSO Token ${ssoTokenScope.token?.token}" }
+            if (userAuthenticationMethod.singleSignOnTokenErpModel?.isValid() == false) {
+                Napier.e(tag = "IdpUseCase") { "expired SSO Token ${userAuthenticationMethod.singleSignOnTokenErpModel?.token}" }
             }
 
             if (refresh || accessToken == null || isExpired) {
                 invalidateDecryptedAccessToken()
 
-                ssoTokenScope.token?.token?.let { actualToken ->
+                userAuthenticationMethod.singleSignOnTokenErpModel?.token?.let { actualToken ->
                     val initialData = try {
                         basicUseCase.initializeConfigurationAndKeys()
                     } catch (e: Exception) {
@@ -180,7 +182,7 @@ class DefaultIdpUseCase(
                             initialData,
                             scope = scope,
                             ssoToken = actualToken,
-                            redirectUri = if (ssoTokenScope is IdpData.ExternalAuthenticationToken) {
+                            redirectUri = if (userAuthenticationMethod is UserAuthenticationErpModel.External) {
                                 EXT_AUTH_REDIRECT_URI
                             } else {
                                 REDIRECT_URI
@@ -196,14 +198,14 @@ class DefaultIdpUseCase(
                                 400, 401, 403 -> {
                                     Napier.e(tag = "IdpUseCase") { "RefreshFlowException due to ApiCallException.code ${it.response.code()}" }
                                     invalidateSingleSignOnTokenRetainingScope()
-                                    throw RefreshFlowException(true, ssoTokenScope, e)
+                                    throw RefreshFlowException(true, userAuthenticationMethod, e)
                                 }
                             }
                         }
                         throw RefreshFlowException(false, null, e)
                     }
                 } ?: run {
-                    Napier.e(tag = "IdpUseCase", message = "ssoTokenScope.token?.token is null!")
+                    Napier.e(tag = "IdpUseCase", message = "userAuthentication.token?.token is null!")
                     invalidateDecryptedAccessToken()
                     throw RefreshFlowException(
                         false,
@@ -255,7 +257,7 @@ class DefaultIdpUseCase(
                             organizationIdentifier = basicData.organizationIdentifier,
                             insuranceName = basicData.idTokenInsuranceName
                         )
-                        repository.saveSingleSignOnToken(profileId, ssoToken)
+                        repository.saveUserAuthentication(profileId, ssoToken)
                         repository.saveDecryptedAccessToken(
                             profileId,
                             AccessToken(basicData.accessToken, basicData.expiresOn)
@@ -265,7 +267,7 @@ class DefaultIdpUseCase(
                     IdpScope.BiometricPairing -> {
                         pairingRepository.saveSingleSignOnToken(
                             profileId,
-                            IdpData.SingleSignOnToken(basicData.ssoToken)
+                            SingleSignOnTokenErpModel(basicData.ssoToken)
                         )
                     }
                 }
@@ -282,7 +284,7 @@ class DefaultIdpUseCase(
             initialData: IdpInitialData,
             healthCardCertificate: ByteArray,
             basicData: IdpAuthFlowResult,
-            ssoToken: IdpData.DefaultToken
+            userAuthentication: UserAuthenticationErpModel.HealthCard
         ) -> R
     ): R {
         val initialData = basicUseCase.initializeConfigurationAndKeys()
@@ -295,8 +297,8 @@ class DefaultIdpUseCase(
             healthCardCertificate = cert,
             sign = sign
         )
-        val ssoToken = IdpData.DefaultToken(
-            token = IdpData.SingleSignOnToken(basicData.ssoToken),
+        val userAuthentication = UserAuthenticationErpModel.HealthCard(
+            singleSignOnTokenErpModel = SingleSignOnTokenErpModel(basicData.ssoToken),
             healthCardCertificate = cert,
             cardAccessNumber = cardAccessNumber
         )
@@ -305,7 +307,7 @@ class DefaultIdpUseCase(
             initialData,
             cert,
             basicData,
-            ssoToken
+            userAuthentication
         )
     }
 
@@ -356,13 +358,15 @@ class DefaultIdpUseCase(
             insuranceName = basicData.idTokenInsuranceName
         )
         // set pairing scope
-        repository.saveSingleSignOnToken(
-            profileId,
-            IdpData.AlternateAuthenticationWithoutToken(
-                cardAccessNumber = cardAccessNumber,
-                aliasOfSecureElementEntry = aliasOfSecureElementEntry,
-                healthCardCertificate = healthCardCert
-            )
+        val erpModel = UserAuthenticationErpModel.HealthCardWithSavedCredentials(
+            singleSignOnTokenErpModel = null,
+            cardAccessNumber = cardAccessNumber,
+            aliasOfSecureElementEntry = aliasOfSecureElementEntry,
+            healthCardCertificate = healthCardCert
+        )
+        repository.saveUserAuthentication(
+            profileId = profileId,
+            authentication = erpModel
         )
     }
 
@@ -383,7 +387,7 @@ class DefaultIdpUseCase(
             alternateAuthenticationFlowWithSecureElement(
                 profileId = profileId,
                 scope = IdpScope.Default
-            ) { _, authTokenScope, authData ->
+            ) { _, userAuthentication, authData ->
                 when (scope) {
                     IdpScope.Default -> {
                         profilesRepository.saveInsuranceInformation(
@@ -393,25 +397,26 @@ class DefaultIdpUseCase(
                             organizationIdentifier = authData.organizationIdentifier,
                             insuranceName = authData.idTokenInsuranceName
                         )
-                        repository.saveSingleSignOnToken(
-                            profileId,
-                            IdpData.AlternateAuthenticationToken(
-                                IdpData.SingleSignOnToken(authData.ssoToken),
-                                cardAccessNumber = authTokenScope.cardAccessNumber,
-                                aliasOfSecureElementEntry = authTokenScope.aliasOfSecureElementEntry,
-                                healthCardCertificate = authTokenScope.healthCardCertificate.encoded
+                        val erpModel = SingleSignOnTokenErpModel(authData.ssoToken)
+                        repository.saveUserAuthentication(
+                            profileId = profileId,
+                            authentication = UserAuthenticationErpModel.HealthCardWithSavedCredentials(
+                                singleSignOnTokenErpModel = erpModel,
+                                cardAccessNumber = userAuthentication.cardAccessNumber,
+                                aliasOfSecureElementEntry = userAuthentication.aliasOfSecureElementEntry,
+                                healthCardCertificate = userAuthentication.healthCardCertificate
                             )
                         )
                         repository.saveDecryptedAccessToken(
-                            profileId,
-                            AccessToken(authData.accessToken, authData.expiresOn)
+                            profileId = profileId,
+                            accessToken = AccessToken(authData.accessToken, authData.expiresOn)
                         )
                     }
 
                     IdpScope.BiometricPairing -> {
                         pairingRepository.saveSingleSignOnToken(
-                            profileId,
-                            IdpData.SingleSignOnToken(authData.ssoToken)
+                            profileId = profileId,
+                            ssoToken = SingleSignOnTokenErpModel(authData.ssoToken)
                         )
                     }
                 }
@@ -424,17 +429,16 @@ class DefaultIdpUseCase(
         scope: IdpScope,
         finally: suspend (
             initialData: IdpInitialData,
-            authTokenScope: IdpData.TokenWithKeyStoreAliasScope,
+            userAuthenticationErpModel: UserAuthenticationErpModel.HealthCardWithSavedCredentials,
             authData: IdpAuthFlowResult
         ) -> R
     ): R {
-        val ssoTokenScope = requireNotNull(repository.authenticationData(profileId).first().singleSignOnTokenScope) // TODO: Throws IllegalStateException
+        val userAuthenticationErpModel = repository.getUserAuthentication(profileId).firstOrNull()
+        val userAuthentication = userAuthenticationErpModel as? UserAuthenticationErpModel.HealthCardWithSavedCredentials
+            ?: error("Expected HealthCardWithSavedCredentials, got: $userAuthenticationErpModel")
 
-        val authTokenScope =
-            requireNotNull(ssoTokenScope as? IdpData.TokenWithKeyStoreAliasScope) { "Wrong authentication scope!" } // TODO: Throws IllegalStateException
-
-        val healthCardCertificate = authTokenScope.healthCardCertificate
-        val aliasOfSecureElementEntry = authTokenScope.aliasOfSecureElementEntry
+        val healthCardCertificate = userAuthentication.healthCardCertificate
+        val aliasOfSecureElementEntry = userAuthentication.aliasOfSecureElementEntry
 
         @Requirement(
             "O.Cryp_7#1",
@@ -478,6 +482,7 @@ class DefaultIdpUseCase(
                 ).privateKey
             signatureObjectOfSecureElementEntry = cryptoProvider.signatureInstance()
         } catch (e: Exception) {
+            Napier.e(tag = "IdpUseCase", message = "error loading keystore entry or signature instance", throwable = e)
             // the system might have removed the key during biometric re-enrollment
             // therefore there's no choice but to delete everything
             repository.invalidate(profileId)
@@ -487,18 +492,23 @@ class DefaultIdpUseCase(
         val initialData = basicUseCase.initializeConfigurationAndKeys()
         val challengeData = basicUseCase.challengeFlow(initialData, scope = scope, redirectUri = REDIRECT_URI)
 
-        val authData = altAuthUseCase.authenticateWithSecureElement(
-            initialData = initialData,
-            challenge = challengeData.challenge,
-            healthCardCertificate = healthCardCertificate.encoded,
-            authenticationMethod = IdpAlternateAuthenticationUseCase.AuthenticationMethod.Strong,
-            aliasOfSecureElementEntry = aliasOfSecureElementEntry,
-            privateKeyOfSecureElementEntry = privateKeyOfSecureElementEntry,
-            signatureObjectOfSecureElementEntry = signatureObjectOfSecureElementEntry
-        )
+        val authData = try {
+            altAuthUseCase.authenticateWithSecureElement(
+                initialData = initialData,
+                challenge = challengeData.challenge,
+                healthCardCertificate = healthCardCertificate,
+                authenticationMethod = IdpAlternateAuthenticationUseCase.AuthenticationMethod.Strong,
+                aliasOfSecureElementEntry = aliasOfSecureElementEntry,
+                privateKeyOfSecureElementEntry = privateKeyOfSecureElementEntry,
+                signatureObjectOfSecureElementEntry = signatureObjectOfSecureElementEntry
+            )
+        } catch (e: Exception) {
+            Napier.e(tag = "IdpUseCase", message = "error during authenticateWithSecureElement", throwable = e)
+            throw e
+        }
         return finally(
             initialData,
-            authTokenScope,
+            userAuthentication,
             authData
         )
     }

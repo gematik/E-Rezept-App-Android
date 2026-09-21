@@ -59,7 +59,7 @@ import de.gematik.ti.erp.app.prescription.ui.components.PrescriptionSection
 import de.gematik.ti.erp.app.prescription.ui.model.ArchiveSegmentedControllerTap
 import de.gematik.ti.erp.app.prescription.ui.preview.PrescriptionsArchiveScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.prescription.ui.preview.PrescriptionsDigasArchiveScreenPreviewData
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
@@ -114,8 +114,8 @@ class PrescriptionsArchiveScreen(
 @Composable
 private fun PrescriptionsArchiveScreenScaffold(
     listState: LazyListState,
-    archivedPrescriptions: UiState<List<Prescription>>,
-    archivedDigas: UiState<List<Prescription>>,
+    archivedPrescriptions: UiState<List<TaskErpModel>>,
+    archivedDigas: UiState<List<TaskErpModel>>,
     selectedTab: ArchiveSegmentedControllerTap,
     onTabChange: (Int) -> Unit,
     onBack: () -> Unit,

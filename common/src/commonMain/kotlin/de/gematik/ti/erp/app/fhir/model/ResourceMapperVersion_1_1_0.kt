@@ -36,7 +36,7 @@ import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.parser.stringValue
 import de.gematik.ti.erp.app.fhir.temporal.asFhirLocalDate
-import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -328,7 +328,7 @@ fun <Patient, Address> extractPatientVersion110(
 ): Patient {
     val name = resource.extractHumanName()
 
-    val birthDate = resource.containedOrNull("birthDate")?.jsonPrimitive?.toFhirTemporal()
+    val birthDate = resource.containedOrNull("birthDate")?.jsonPrimitive?.asFhirTemporal()
 
     val kvnrSystem = resource.containedOrNull("identifier")?.containedOrNull("type")
         ?.findAll("coding")
@@ -401,7 +401,7 @@ fun <Medication, Ingredient, Ratio, Quantity> extractPZNMedicationVersion110(
 
     val lotNumber = resource.containedOrNull("batch")?.containedStringOrNull("lotNumber")
     val expirationDate = resource.containedOrNull("batch")
-        ?.containedOrNull("expirationDate")?.jsonPrimitive?.toFhirTemporal()
+        ?.containedOrNull("expirationDate")?.jsonPrimitive?.asFhirTemporal()
 
     return processMedication(
         text,
@@ -463,7 +463,7 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedicationCompoundingVersio
     val identifier = parseIdentifier(resource)
     val lotNumber = resource.containedOrNull("batch")?.containedStringOrNull("lotNumber")
     val expirationDate = resource.containedOrNull("batch")
-        ?.containedOrNull("expirationDate")?.jsonPrimitive?.toFhirTemporal()
+        ?.containedOrNull("expirationDate")?.jsonPrimitive?.asFhirTemporal()
 
     return processMedication(
         text,
@@ -519,7 +519,7 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedicationIngredientVersion
 
     val lotNumber = resource.containedOrNull("batch")?.containedStringOrNull("lotNumber")
     val expirationDate = resource.containedOrNull("batch")
-        ?.containedOrNull("expirationDate")?.jsonPrimitive?.toFhirTemporal()
+        ?.containedOrNull("expirationDate")?.jsonPrimitive?.asFhirTemporal()
 
     return processMedication(
         text,
@@ -558,7 +558,7 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedicationFreetextVersion11
 
     val lotNumber = resource.containedOrNull("batch")?.containedStringOrNull("lotNumber")
     val expirationDate = resource.containedOrNull("batch")
-        ?.containedOrNull("expirationDate")?.jsonPrimitive?.toFhirTemporal()
+        ?.containedOrNull("expirationDate")?.jsonPrimitive?.asFhirTemporal()
 
     return processMedication(
         text,

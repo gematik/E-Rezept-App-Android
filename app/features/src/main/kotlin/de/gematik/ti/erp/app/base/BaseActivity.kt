@@ -75,8 +75,8 @@ import de.gematik.ti.erp.app.medicationplan.MedicationPlanNotificationObserver
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInternalMessagesUseCase
 import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
 import de.gematik.ti.erp.app.timeouts.usecase.GetPauseMetricUseCase
-import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
-import de.gematik.ti.erp.app.userauthentication.observer.InactivityTimeoutObserver
+import de.gematik.ti.erp.app.appauthentication.observer.AuthenticationModeAndMethod
+import de.gematik.ti.erp.app.appauthentication.observer.InactivityTimeoutObserver
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 import de.gematik.ti.erp.app.utils.extensions.SnackbarScaffold
 import io.github.aakira.napier.Napier

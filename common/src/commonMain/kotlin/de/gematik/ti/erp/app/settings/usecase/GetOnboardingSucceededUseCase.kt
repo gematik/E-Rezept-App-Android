@@ -23,15 +23,16 @@
 package de.gematik.ti.erp.app.settings.usecase
 
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
-import io.realm.kotlin.internal.platform.runBlocking
+
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 
 class GetOnboardingSucceededUseCase(
     private val settingsRepository: SettingsRepository
 ) {
     operator fun invoke(): Boolean = runBlocking {
-        val isOnboardingShown = settingsRepository.general.map {
+        val isOnboardingShown = settingsRepository.loadSettings().map {
             it.onboardingShownIn != null
         }.first()
         isOnboardingShown

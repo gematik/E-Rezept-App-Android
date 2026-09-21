@@ -50,7 +50,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -78,7 +78,7 @@ interface PharmacyMap {
     )
 }
 
-data class PositionState(val position: Coordinates, val zoom: Float)
+data class PositionState(val position: PositionErpModel, val zoom: Float)
 
 data class PharmacyProperties(
     val isBuildingEnabled: Boolean = true,
@@ -253,7 +253,7 @@ class GooglePharmacyMap : PharmacyMap {
     }
 
     companion object {
-        fun Coordinates.toLatLng() = LatLng(latitude, longitude)
+        fun PositionErpModel.toLatLng() = LatLng(latitude, longitude)
 
         @Suppress("MagicNumber", "UnusedPrivateMember")
         private fun isTodayEaster(): Boolean {

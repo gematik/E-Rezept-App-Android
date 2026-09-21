@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.redeem.usecase
 
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
 import de.gematik.ti.erp.app.redeem.model.DMCode
 import de.gematik.ti.erp.app.redeem.ui.model.LocalRedeemTab
 import de.gematik.ti.erp.app.utils.createDMPayload
@@ -36,7 +36,7 @@ class GetDMCodesForLocalRedeemUseCase {
     }
 
     operator fun invoke(
-        prescriptionOrders: Flow<List<PharmacyUseCaseData.PrescriptionInOrder>>,
+        prescriptionOrders: Flow<List<PrescriptionInOrderErpModel>>,
         selectedTab: Flow<LocalRedeemTab>
     ): Flow<List<DMCode>> = combine(prescriptionOrders, selectedTab) { orders, selectedTab ->
 

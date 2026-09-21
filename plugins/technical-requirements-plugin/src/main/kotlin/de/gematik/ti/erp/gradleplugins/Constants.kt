@@ -35,10 +35,14 @@ internal const val extractRequirements = "extractRequirements"
 internal const val gutachterFolder = "gutachter"
 internal const val ANDROID_APP_PATH = "/app/android/src/main/java/de/gematik/ti/erp/app"
 internal const val APP_FEATURES_PATH = "/app/features"
+internal const val APP_PUSH_NOTIFICATIONS_MODULE_PATH = "/app/push-notifications/src/main/kotlin/de/gematik/ti/erp/app"
 internal const val SHARED_MODULE_PATH = "/common/src/commonMain/kotlin/de/gematik/ti/erp/app"
 internal const val SHARED_TEST_MODULE_PATH = "/common/src/commonTest/kotlin/de/gematik/ti/erp/app"
 internal const val SHARED_ANDROID_MODULE_PATH = "/common/src/androidMain/kotlin/de/gematik/ti/erp/app"
 internal const val FHIR_PARSER_MODULE_PATH = "/fhir-parser/src/main/java/de/gematik/ti/erp/app"
+internal const val DATABASE_MODULE_PATH = "/database/src/commonMain/kotlin/de/gematik/ti/erp/app"
+internal const val CORE_MODULE_PATH = "/core/src/main/kotlin/de/gematik/ti/erp/app"
+internal const val ERP_MODEL_MODULE_PATH = "/erp-model/src/main/java/de/gematik/ti/erp/app"
 internal const val CODE_LINE = "codeLines ="
 internal const val REQUIREMENTS_PATH = "requirements"
 internal const val BSI_REQUIREMENTS_FILE_NAME = "bsi-requirements.html"
@@ -50,6 +54,7 @@ val excludedSpecifications = setOf(
     "gemSpec_eRp_FdV",
     "BSI-eRp-ePA",
     "gemF_Tokenverschlüsselung",
+    "gemF_PushNotification",
     "gemSpec_IDP_Frontend",
     "gemSpec_Krypt",
     "unused",

@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.plugins.updateproperties
 import de.gematik.ti.erp.app.ErpPlugin
 import de.gematik.ti.erp.app.tasks.downloadChangeLogs
 import de.gematik.ti.erp.app.tasks.downloadLokaliseStrings
-import de.gematik.ti.erp.app.tasks.updateApoFzdApiKeyTask
+import de.gematik.ti.erp.app.tasks.downloadSecretsProperties
 import de.gematik.ti.erp.app.tasks.updateFdApiKeysTask
 import de.gematik.ti.erp.app.tasks.updateGradleProperties
 import de.gematik.ti.erp.app.tasks.uploadLokaliseStrings
@@ -39,14 +39,15 @@ class UpdatePropertiesPlugin : ErpPlugin {
             updateGradleProperties()
             // ERP Keys
             updateFdApiKeysTask(project)
-            // APO FZD Keys
-            updateApoFzdApiKeyTask(project)
             // Download Lokalise Strings
             downloadLokaliseStrings()
             // Upload Lokalise Strings
             uploadLokaliseStrings()
-            // download Change Logs
+            // Download Change Logs
             downloadChangeLogs()
+            // Download secrets.properties from GitLab shared-data repo
+            // Usage: ./gradlew downloadSecretsProperties -Ptoken=<gitlab-access-token>
+            downloadSecretsProperties(project)
         }
     }
 }

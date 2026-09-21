@@ -22,22 +22,15 @@
 
 package de.gematik.ti.erp.app.messages.repository
 
-import de.gematik.ti.erp.app.messages.mapper.toInternalMessage
-import de.gematik.ti.erp.app.messages.mapper.toInternalMessageEntity
-import de.gematik.ti.erp.app.messages.model.InternalMessage
+import de.gematik.ti.erp.app.communication.model.InternalMessageErpModel
+import de.gematik.ti.erp.app.database.api.InternalMessagesLocalDataSource
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 class DefaultInternalMessagesRepository(
     private val internalMessagesLocalDataSource: InternalMessagesLocalDataSource
 ) : InternalMessagesRepository {
-    override fun getInternalMessages(): Flow<List<InternalMessage>> =
+    override fun getInternalMessages(): Flow<List<InternalMessageErpModel>> =
         internalMessagesLocalDataSource.getInternalMessages()
-            .map {
-                it.map { internalMessageEntityV1 ->
-                    internalMessageEntityV1.toInternalMessage()
-                }
-            }
 
     override fun getUnreadInternalMessagesCount(): Flow<Long> =
         internalMessagesLocalDataSource.getUnreadInternalMessagesCount()
@@ -48,9 +41,9 @@ class DefaultInternalMessagesRepository(
     override suspend fun setInternalMessagesAsRead() =
         internalMessagesLocalDataSource.setInternalMessagesAsRead()
 
-    override suspend fun updateInternalMessage(internalMessage: InternalMessage) =
-        internalMessagesLocalDataSource.updateInternalMessage(updatedEntity = internalMessage.toInternalMessageEntity())
+    override suspend fun updateInternalMessage(internalMessage: InternalMessageErpModel) =
+        internalMessagesLocalDataSource.updateInternalMessage(updatedModel = internalMessage)
 
-    override suspend fun saveInternalMessage(internalMessage: InternalMessage) =
-        internalMessagesLocalDataSource.saveInternalMessage(internalMessageEntityV1 = internalMessage.toInternalMessageEntity())
+    override suspend fun saveInternalMessage(internalMessage: InternalMessageErpModel) =
+        internalMessagesLocalDataSource.saveInternalMessage(internalMessageErpModel = internalMessage)
 }

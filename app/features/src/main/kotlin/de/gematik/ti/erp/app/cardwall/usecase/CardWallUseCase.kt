@@ -23,10 +23,10 @@
 package de.gematik.ti.erp.app.cardwall.usecase
 
 import de.gematik.ti.erp.app.ErezeptApp.Companion.applicationModule
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.settings.repository.CardWallRepository
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.utils.extensions.hasNFCTerminal
 import de.gematik.ti.erp.app.utils.extensions.isNfcEnabled
 import de.gematik.ti.erp.app.utils.extensions.riskyOperation
@@ -54,6 +54,6 @@ open class CardWallUseCase(
         defaultValue = false
     ) ?: false
 
-    fun authenticationData(profileId: ProfileIdentifier): Flow<IdpData.AuthenticationData> =
-        idpRepository.authenticationData(profileId)
+    fun authenticationData(profileId: ProfileIdentifier): Flow<UserAuthenticationErpModel> =
+        idpRepository.getUserAuthentication(profileId)
 }

@@ -36,7 +36,6 @@ import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.ListItem
-import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
@@ -48,15 +47,15 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.material3.components.switchs.GemSwitch
-import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstructionErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 
 internal fun LazyListScope.activateScheduleAndDosageInstructionCard(
-    schedule: MedicationSchedule,
-    dosageInstruction: MedicationPlanDosageInstruction,
+    schedule: MedicationScheduleErpModel,
+    dosageInstruction: MedicationPlanDosageInstructionErpModel,
     isIgnoringBatteryOptimizations: Boolean,
     onIgnoreBatteryOptimizations: () -> Unit,
     onActivateSchedule: () -> Unit,
@@ -87,7 +86,7 @@ internal fun LazyListScope.activateScheduleAndDosageInstructionCard(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun ScheduleActivitySection(
-    schedule: MedicationSchedule,
+    schedule: MedicationScheduleErpModel,
     onActivateSchedule: () -> Unit,
     onDeactivateSchedule: () -> Unit
 ) {
@@ -157,7 +156,7 @@ fun IgnoreBatteryOptimizationSection(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DosageInfoSection(
-    dosageInstruction: MedicationPlanDosageInstruction,
+    dosageInstruction: MedicationPlanDosageInstructionErpModel,
     onClickDosageInfo: () -> Unit
 ) {
     ListItem(
@@ -178,10 +177,10 @@ fun DosageInfoSection(
             Text(
                 style = AppTheme.typography.body1,
                 text = when (dosageInstruction) {
-                    is MedicationPlanDosageInstruction.FreeText -> dosageInstruction.text
-                    is MedicationPlanDosageInstruction.Structured -> dosageInstruction.text
-                    is MedicationPlanDosageInstruction.Empty -> stringResource(R.string.dosage_instruction_empty)
-                    is MedicationPlanDosageInstruction.External -> stringResource(R.string.dosage_instruction_external)
+                    is MedicationPlanDosageInstructionErpModel.FreeText -> dosageInstruction.text
+                    is MedicationPlanDosageInstructionErpModel.Structured -> dosageInstruction.text
+                    is MedicationPlanDosageInstructionErpModel.Empty -> stringResource(R.string.dosage_instruction_empty)
+                    is MedicationPlanDosageInstructionErpModel.External -> stringResource(R.string.dosage_instruction_external)
                 }
             )
         },

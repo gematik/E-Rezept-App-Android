@@ -23,6 +23,13 @@
 package de.gematik.ti.erp.app.eurezept.mapper
 
 import io.github.aakira.napier.Napier
+import java.util.Locale
+
+fun countryCodeToName(countryCode: String, fallback: String = countryCode): String {
+    if (countryCode.isEmpty()) return fallback
+    val displayName = Locale("", countryCode).getDisplayCountry(Locale.getDefault())
+    return if (displayName.isNotEmpty() && !displayName.equals(countryCode, ignoreCase = true)) displayName else fallback
+}
 
 fun countryCodeToFlag(countryCode: String): String {
     try {

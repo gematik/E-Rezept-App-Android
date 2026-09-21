@@ -20,13 +20,22 @@
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
-@file:Suppress("unused")
-
 package de.gematik.ti.erp.app.database.realm.v1.task.datasource
 
-import de.gematik.ti.erp.app.database.api.TaskLocalDataSource
+import de.gematik.ti.erp.app.database.api.task.TaskLocalDataSource
+import de.gematik.ti.erp.app.database.api.task.TaskLocalDataSourceCommon
+import de.gematik.ti.erp.app.database.api.task.TaskLocalDataSourceDiga
+import de.gematik.ti.erp.app.database.api.task.TaskLocalDataSourceScanned
+import de.gematik.ti.erp.app.database.api.task.TaskLocalDataSourceSynced
 import io.realm.kotlin.Realm
 
-internal class TaskLocalDataSourceV1(private val realm: Realm) : TaskLocalDataSource {
-    // to follow
+internal class TaskLocalDataSourceV1(realm: Realm) :
+    TaskLocalDataSource,
+    TaskLocalDataSourceCommon by TaskLocalDataSourceV1Common(realm),
+    TaskLocalDataSourceScanned by TaskLocalDataSourceV1Scanned(realm),
+    TaskLocalDataSourceSynced by TaskLocalDataSourceV1Synced(realm),
+    TaskLocalDataSourceDiga by TaskLocalDataSourceV1Diga(realm) {
+    override suspend fun saveTask(task: de.gematik.ti.erp.app.task.model.TaskErpModel) {
+        // Not needed for V1 migration
+    }
 }

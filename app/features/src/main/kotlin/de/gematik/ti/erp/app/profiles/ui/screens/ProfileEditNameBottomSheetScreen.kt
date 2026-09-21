@@ -53,6 +53,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -65,12 +66,12 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
 import de.gematik.ti.erp.app.profiles.presentation.rememberProfileEditNameController
 import de.gematik.ti.erp.app.profiles.ui.preview.ProfileEditData
 import de.gematik.ti.erp.app.profiles.ui.preview.ProfilePreviewParameterProvider
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -136,7 +137,7 @@ class ProfileEditNameBottomSheetScreen(
 
 /**
  * @param profileToEdit is used to get the profile to edit
- * @param existingProfiles: List<ProfilesUseCaseData.Profile> is used to get the list of existing profiles
+ * @param existingProfiles: List<ProfileErpModel> is used to get the list of existing profiles
  * @param keyboardController: SoftwareKeyboardController is used to control the keyboard
  * @param addProfile: Boolean is used to differentiate between adding a new profile and editing an existing one
  * @param onCancel: () -> Unit is used to dismiss the bottomsheet
@@ -144,8 +145,8 @@ class ProfileEditNameBottomSheetScreen(
 @Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun ProfileEditNameBottomSheetScreenContent(
-    existingProfiles: List<ProfilesUseCaseData.Profile>,
-    profileToEdit: ProfilesUseCaseData.Profile?,
+    existingProfiles: List<ProfileErpModel>,
+    profileToEdit: ProfileErpModel?,
     keyboardController: SoftwareKeyboardController?,
     addProfile: Boolean = false,
     onUpdate: (ProfileIdentifier, String) -> Unit,
@@ -170,6 +171,7 @@ internal fun ProfileEditNameBottomSheetScreenContent(
     val canSave by remember(textValue, isSaving) {
         derivedStateOf { textValue.text.isNotEmpty() && !isSaving }
     }
+    val deleteEntryDescription = stringResource(R.string.a11y_profile_edit_name_delete_entry_description)
 
     val onSave = {
         if (canSave) {
@@ -194,64 +196,65 @@ internal fun ProfileEditNameBottomSheetScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SpacerLarge()
-
-        ErezeptOutlineText(
-            modifier = Modifier
-                .testTag(TestTag.Main.MainScreenBottomSheet.ProfileNameField)
-                .focusRequester(focusRequester),
-            shape = RoundedCornerShape(SizeDefaults.one),
-            value = textValue,
-            singleLine = true,
-            enabled = !isSaving,
-            onValueChange = { changedValue ->
-                if (!isSaving) {
-                    hasUserInteracted = true
-                    textValue = changedValue.copy(
-                        text = changedValue.text.sanitizeProfileName()
-                    )
-                }
-            },
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done,
-                capitalization = KeyboardCapitalization.Sentences
-            ),
-            keyboardActions = KeyboardActions {
-                if (canSave) onSave()
-            },
-            placeholder = { Text(stringResource(R.string.profile_edit_name_place_holder)) },
-            isError = showError,
-            trailingIcon = {
-                Crossfade(
-                    label = "",
-                    targetState = textValue.text.isNotEmpty() && !isSaving
-                ) { shouldShow ->
-                    if (shouldShow) {
-                        IconButton(
-                            onClick = {
-                                textValue = TextFieldValue(text = "", selection = TextRange(0))
-                                hasUserInteracted = true
+        Column(modifier = Modifier.semantics(mergeDescendants = true) {}) {
+            ErezeptOutlineText(
+                modifier = Modifier
+                    .testTag(TestTag.Main.MainScreenBottomSheet.ProfileNameField)
+                    .focusRequester(focusRequester),
+                shape = RoundedCornerShape(SizeDefaults.one),
+                value = textValue,
+                label = { Text(stringResource(R.string.profile_edit_name_label)) },
+                singleLine = true,
+                enabled = !isSaving,
+                onValueChange = { changedValue ->
+                    if (!isSaving) {
+                        hasUserInteracted = true
+                        textValue = changedValue.copy(
+                            text = changedValue.text.sanitizeProfileName()
+                        )
+                    }
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done,
+                    capitalization = KeyboardCapitalization.Sentences
+                ),
+                keyboardActions = KeyboardActions {
+                    if (canSave) onSave()
+                },
+                isError = showError,
+                trailingIcon = {
+                    Crossfade(
+                        label = "",
+                        targetState = textValue.text.isNotEmpty() && !isSaving
+                    ) { shouldShow ->
+                        if (shouldShow) {
+                            IconButton(
+                                onClick = {
+                                    textValue = TextFieldValue(text = "", selection = TextRange(0))
+                                    hasUserInteracted = true
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Close,
+                                    contentDescription = deleteEntryDescription
+                                )
                             }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Close,
-                                contentDescription = null
-                            )
                         }
                     }
                 }
-            }
-        )
-
-        AnimatedVisibility(showError) {
-            Text(
-                text = stringResource(R.string.edit_profile_empty_profile_name),
-                color = AppTheme.colors.red700,
-                style = AppTheme.typography.caption1,
-                modifier = Modifier.padding(
-                    top = PaddingDefaults.Medium,
-                    start = PaddingDefaults.Medium
-                )
             )
+
+            AnimatedVisibility(showError) {
+                Text(
+                    text = stringResource(R.string.edit_profile_empty_profile_name),
+                    color = AppTheme.colors.red700,
+                    style = AppTheme.typography.caption1,
+                    modifier = Modifier.padding(
+                        top = PaddingDefaults.Medium,
+                        start = PaddingDefaults.Medium
+                    )
+                )
+            }
         }
 
         SpacerLarge()

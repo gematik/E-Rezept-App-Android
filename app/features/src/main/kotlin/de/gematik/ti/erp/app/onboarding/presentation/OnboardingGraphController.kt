@@ -27,12 +27,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.appauthentication.model.AppAuthenticationMethodErpModel
+import de.gematik.ti.erp.app.appauthentication.model.AppAuthenticationPasswordErpModel
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.onboarding.model.OnboardingAuthScenario
 import de.gematik.ti.erp.app.onboarding.usecase.DetermineAuthScenarioUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
-import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.usecase.AllowScreenshotsUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveOnboardingDataUseCase
 import de.gematik.ti.erp.app.utils.letNotNull
@@ -61,14 +62,11 @@ class OnboardingGraphController(
     private val determineAuthScenarioUseCase: DetermineAuthScenarioUseCase,
     private val resources: Resources
 ) : Controller() {
-    private val skipOnboardingWithAuthenticationPassword = SettingsData.Authentication(
-        deviceSecurity = false,
-        failedAuthenticationAttempts = 0,
-        password = SettingsData.Authentication.Password("password"),
-        authenticationTimeOutSystemUptime = null
+    private val skipOnboardingWithAuthenticationPassword = AppAuthenticationMethodErpModel.Password(
+        AppAuthenticationPasswordErpModel.fromPassword("password")
     )
 
-    private val authentication = MutableStateFlow<SettingsData.Authentication?>(null)
+    private val authenticationMethod = MutableStateFlow<AppAuthenticationMethodErpModel?>(null)
 
     private val profileName = MutableStateFlow(resources.getString(R.string.onboarding_default_profile_name))
 
@@ -92,24 +90,25 @@ class OnboardingGraphController(
         _authScenario.value = determineAuthScenarioUseCase()
     }
 
-    fun onChooseAuthentication(authentication: SettingsData.Authentication) {
-        this.authentication.update { authentication }
+    fun onChooseAuthentication(method: AppAuthenticationMethodErpModel) {
+        this.authenticationMethod.update { method }
     }
 
-    fun createProfile() {
+    fun createProfile(onSuccess: () -> Unit = {}) {
         if (createProfileJob?.isActive == true) return
 
         _isCreatingProfile.value = true
         createProfileJob = controllerScope.launch {
             try {
                 letNotNull(
-                    authentication.value,
+                    authenticationMethod.value,
                     profileName.value
                 ) { auth, name ->
                     saveOnboardingDataUseCase(
-                        authentication = auth,
+                        authenticationMethod = auth,
                         profileName = name
                     )
+                    onSuccess()
                 }
             } finally {
                 _isCreatingProfile.value = false
@@ -129,14 +128,16 @@ class OnboardingGraphController(
         }
     }
 
-    fun createProfileOnSkipOnboarding() {
-        this.authentication.value = skipOnboardingWithAuthenticationPassword
+    fun createProfileOnSkipOnboarding(onSuccess: () -> Unit = {}) {
+        this.authenticationMethod.value = skipOnboardingWithAuthenticationPassword
         this.profileName.value = resources.getString(R.string.onboarding_default_profile_name)
         controllerScope.launch {
             val profileList = getProfilesUseCase.invoke().firstOrNull()
             // avoid creating new profiles when it is already existing
             if (profileList?.isEmpty() == true) {
-                createProfile()
+                createProfile(onSuccess)
+            } else {
+                onSuccess()
             }
         }
     }

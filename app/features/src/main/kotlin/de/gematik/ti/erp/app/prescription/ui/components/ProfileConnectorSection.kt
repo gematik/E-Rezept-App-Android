@@ -25,13 +25,13 @@ package de.gematik.ti.erp.app.prescription.ui.components
 import androidx.compose.foundation.lazy.LazyListScope
 import de.gematik.ti.erp.app.mainscreen.model.ProfileIconState
 import de.gematik.ti.erp.app.prescription.ui.ProfileConnectionSection
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerXLarge
 import de.gematik.ti.erp.app.utils.uistate.UiState
 
 fun LazyListScope.profileConnectorSection(
-    activeProfile: UiState<ProfilesUseCaseData.Profile>,
+    activeProfile: UiState<ProfileErpModel>,
     profileIconState: ProfileIconState,
     isRegistered: Boolean,
     onClickAvatar: () -> Unit,

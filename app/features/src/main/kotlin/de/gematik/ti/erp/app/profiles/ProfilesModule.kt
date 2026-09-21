@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.profiles
 import de.gematik.ti.erp.app.profiles.repository.DefaultProfilesRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.AddProfileUseCase
+import de.gematik.ti.erp.app.profiles.usecase.ClearPersonalizedProfileImageUseCase
 import de.gematik.ti.erp.app.profiles.usecase.DecryptAccessTokenUseCase
 import de.gematik.ti.erp.app.profiles.usecase.DeletePairedDevicesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.DeleteProfileUseCase
@@ -33,36 +34,39 @@ import de.gematik.ti.erp.app.profiles.usecase.GetPairedDevicesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileInsuranceTypeUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
-import de.gematik.ti.erp.app.profiles.usecase.GetSelectedProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.IsProfilePKVUseCase
 import de.gematik.ti.erp.app.profiles.usecase.LogoutProfileUseCase
-import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import de.gematik.ti.erp.app.profiles.usecase.SavePersonalizedProfileImageUseCase
 import de.gematik.ti.erp.app.profiles.usecase.SwitchActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.SwitchProfileInsuranceTypeUseCase
-import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileUseCase
+import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileAvatarUseCase
+import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileColorUseCase
+import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileNameUseCase
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
 val profilesModule = DI.Module("profilesModule") {
     bindProvider { AddProfileUseCase(instance()) }
-    bindProvider { DeleteProfileUseCase(instance(), instance(), instance()) }
+    bindProvider { DeleteProfileUseCase(instance(), instance(), instance(), instance()) }
     bindProvider { GetActiveProfileUseCase(instance()) }
     bindProvider { GetProfileByIdUseCase(instance()) }
     bindProvider { GetProfilesUseCase(instance()) }
     bindProvider { SwitchActiveProfileUseCase(instance()) }
-    bindProvider { UpdateProfileUseCase(instance()) }
+    bindProvider { UpdateProfileNameUseCase(instance()) }
+    bindProvider { UpdateProfileColorUseCase(instance()) }
+    bindProvider { UpdateProfileAvatarUseCase(instance()) }
+    bindProvider { SavePersonalizedProfileImageUseCase(instance()) }
+    bindProvider { ClearPersonalizedProfileImageUseCase(instance()) }
     bindProvider { DecryptAccessTokenUseCase(instance()) }
     bindProvider { LogoutProfileUseCase(instance()) }
     bindProvider { SwitchProfileInsuranceTypeUseCase(instance()) }
     bindProvider { IsProfilePKVUseCase(instance()) }
-    bindProvider { GetSelectedProfileUseCase(instance()) }
     bindProvider { GetPairedDevicesUseCase(instance()) }
     bindProvider { DeletePairedDevicesUseCase(instance()) }
-    bindProvider { ProfilesUseCase(instance()) }
     bindProvider { GetProfileInsuranceTypeUseCase(instance()) }
 }
 
 val profileRepositoryModule = DI.Module("profileRepositoryModule", allowSilentOverride = true) {
-    bindProvider<ProfileRepository> { DefaultProfilesRepository(instance()) }
+    bindProvider<ProfileRepository> { DefaultProfilesRepository(instance(), instance()) }
 }

@@ -175,8 +175,9 @@ dependencies {
 
 secrets {
     defaultPropertiesFileName = when {
-        project.rootProject.file("ci-overrides.properties").exists() -> "ci-overrides.properties"
+        project.rootProject.file("ci/local/secrets.properties").exists() -> "ci/local/secrets.properties"
         else -> "gradle.properties"
     }
+    ignoreList.add("MAPS_API_KEY")
 }
 

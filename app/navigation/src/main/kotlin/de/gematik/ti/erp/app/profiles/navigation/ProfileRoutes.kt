@@ -49,6 +49,13 @@ object ProfileRoutes : NavigationRoutes {
             )
     }
 
+    object ProfilePushNotificationSettingsScreen : Routes(
+        NavigationRouteNames.ProfilePushNotificationSettingsScreen.name,
+        navArgument(PROFILE_NAV_PROFILE_ID) { type = NavType.StringType }
+    ) {
+        fun path(profileId: String) = path(PROFILE_NAV_PROFILE_ID to profileId)
+    }
+
     object ProfileAuditEventsScreen : Routes(
         NavigationRouteNames.ProfileAuditEventsScreen.name,
         navArgument(PROFILE_NAV_PROFILE_ID) { type = NavType.StringType }

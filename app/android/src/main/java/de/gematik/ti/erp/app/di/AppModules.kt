@@ -32,12 +32,33 @@ import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.base.BaseConstants.applicationScope
 import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
+import de.gematik.ti.erp.app.database.api.SettingsLocalDataSource
+import de.gematik.ti.erp.app.database.api.debug.Android13DeprecationLocalDataSource
+import de.gematik.ti.erp.app.database.api.debug.CommunicationDigaVersionLocalDataSource
+import de.gematik.ti.erp.app.database.api.debug.CommunicationVersionLocalDataSource
+import de.gematik.ti.erp.app.database.api.debug.ConsentVersionLocalDataSource
+import de.gematik.ti.erp.app.database.api.debug.DbMigrationLogsLocalDataSource
+import de.gematik.ti.erp.app.database.api.debug.EuVersionLocalDataSource
+import de.gematik.ti.erp.app.database.api.debug.VirtualHealthCardLocalDataSource
+import de.gematik.ti.erp.app.database.datastore.debug.logger.dbMigrationLogsLocalDataSource
+import de.gematik.ti.erp.app.database.datastore.debug.versions.communication.communicationVersionLocalDataSource
+import de.gematik.ti.erp.app.database.datastore.debug.versions.communicationdiga.communicationDigaVersionLocalDataSource
+import de.gematik.ti.erp.app.database.datastore.debug.versions.consent.consentVersionLocalDataSource
+import de.gematik.ti.erp.app.database.datastore.debug.versions.deprecation.android13DeprecationLocalDataSource
+import de.gematik.ti.erp.app.database.datastore.debug.versions.eu.euVersionLocalDataSource
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.IsRoomEnabled
-import de.gematik.ti.erp.app.database.datastore.featuretoggle.ROOM_DB
+import de.gematik.ti.erp.app.database.datastore.featuretoggle.RoomFeatureToggle
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.featureToggleLocalDataSource
+import de.gematik.ti.erp.app.database.datastore.pushnotification.profilePushNotificationLocalDataSource
+import de.gematik.ti.erp.app.database.datastore.settings.SettingsLocalDataSourceV2
+import de.gematik.ti.erp.app.database.datastore.settings.settingsLocalDataSource
+import de.gematik.ti.erp.app.database.datastore.virtualhealthcard.virtualHealthCardLocalDataSource
+import de.gematik.ti.erp.app.database.di.ModuleTags
+import de.gematik.ti.erp.app.database.migration.DataMigrator
 import de.gematik.ti.erp.app.datastore.featuretoggle.DefaultFeatureToggleRepository
 import de.gematik.ti.erp.app.datastore.featuretoggle.FeatureToggleRepository
 import de.gematik.ti.erp.app.info.di.buildConfigInformationModule
+import de.gematik.ti.erp.app.migration.di.dataMigrationModule
 import de.gematik.ti.erp.app.navigation.triggers.DefaultNavigationTriggerDataStore
 import de.gematik.ti.erp.app.navigation.triggers.NavigationTriggerDataStore
 import de.gematik.ti.erp.app.pkv.fileProviderAuthorityModule
@@ -114,20 +135,46 @@ val appModules = DI.Module("appModules") {
     }
 
     bindSingleton { EndpointHelper(networkPrefs = instance(NetworkPreferencesTag)) }
-
+    // data store
+    // feature toggle
     bindSingleton<FeatureToggleRepository> { DefaultFeatureToggleRepository(instance()) }
-    bindProvider(tag = IsRoomEnabled) {
-        runBlocking {
-            instance<FeatureToggleRepository>().isFeatureEnabled(ROOM_DB).firstOrNull() ?: false
+    bindSingleton<RoomFeatureToggle>(tag = IsRoomEnabled) {
+        RoomFeatureToggle {
+            runBlocking {
+                val settingsLocalDataSource = instance<SettingsLocalDataSource>(tag = ModuleTags.SETTINGS_V2)
+                val isPorted = settingsLocalDataSource
+                    .isDataPortedToRoom()
+                    .firstOrNull() ?: false
+                when {
+                    isPorted -> true
+                    else -> {
+                        val migrationRequired = runCatching {
+                            instance<DataMigrator>().isMigrationRequired()
+                        }.getOrDefault(true)
+                        !migrationRequired
+                    }
+                }
+            }
         }
     }
     bindSingleton { featureToggleLocalDataSource(instance(), BuildConfigExtension.isInternalDebug) }
+    bindSingleton { profilePushNotificationLocalDataSource(instance()) }
     bindProvider { IsFeatureToggleEnabledUseCase(instance()) }
+    bindSingleton<SettingsLocalDataSourceV2> { settingsLocalDataSource(instance()) }
+
+    bindSingleton<Android13DeprecationLocalDataSource> { android13DeprecationLocalDataSource(instance()) }
+    // DEBUG ONLY
+    bindSingleton<ConsentVersionLocalDataSource> { consentVersionLocalDataSource(instance()) }
+    bindSingleton<CommunicationVersionLocalDataSource> { communicationVersionLocalDataSource(instance()) }
+    bindSingleton<CommunicationDigaVersionLocalDataSource> { communicationDigaVersionLocalDataSource(instance()) }
+    bindSingleton<EuVersionLocalDataSource> { euVersionLocalDataSource(instance()) }
+    bindSingleton<DbMigrationLogsLocalDataSource> { dbMigrationLogsLocalDataSource(instance()) }
+    bindSingleton<VirtualHealthCardLocalDataSource> { virtualHealthCardLocalDataSource(instance()) }
 
     bindSingleton<NavigationTriggerDataStore> { DefaultNavigationTriggerDataStore(instance()) }
-
     importAll(
         buildConfigInformationModule,
-        fileProviderAuthorityModule
+        fileProviderAuthorityModule,
+        dataMigrationModule
     )
 }

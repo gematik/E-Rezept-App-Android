@@ -25,15 +25,19 @@ package de.gematik.ti.erp.app.eurezept.ui.preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.eurezept.domain.model.EuPrescription
 import de.gematik.ti.erp.app.eurezept.domain.model.EuPrescriptionType
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import kotlinx.datetime.Instant
 
 data class EuPrescriptionSelectionPreviewData(
     val prescriptions: List<EuPrescription>,
     val selectedPrescriptionIds: Set<String>,
-    val profileData: ProfilesUseCaseData.Profile? = null
+    val profileData: ProfileErpModel? = null
 )
 
 class EuPrescriptionSelectionPreviewParameterProvider : PreviewParameterProvider<EuPrescriptionSelectionPreviewData> {
@@ -84,16 +88,28 @@ class EuPrescriptionSelectionPreviewParameterProvider : PreviewParameterProvider
         )
     )
 
-    val profile = ProfilesUseCaseData.Profile(
-        id = "1234567890",
-        name = "Ada Mustermann",
-        insurance = ProfileInsuranceInformation(),
-        isActive = false,
-        color = ProfilesData.ProfileColorNames.PINK,
+    val profile = ProfileErpModel(
+        id = "123456",
+        name = "Preview User",
+        profileImageData = ProfileImageDataErpModel(
+            avatar = Avatar.BoyWithHealthCard,
+            color = ProfileColorNames.SUN_DEW,
+            image = null
+        ),
+        insuranceData = ProfileInsuranceDataErpModel(
+            insuranceIdentifier = "123456789",
+            insuranceType = InsuranceType.NONE,
+            insuranceName = "Example Insurance",
+            insurantName = "Example Insurant",
+            organizationIdentifier = null
+        ),
+        active = true,
         lastAuthenticated = null,
-        ssoTokenScope = null,
-        image = null,
-        avatar = ProfilesData.Avatar.PersonalizedImage
+        userAuthentication = UserAuthenticationErpModel.NotInitialized,
+        isNewlyCreated = false,
+        isConsentDrawerShown = true,
+        lastAuditEventSynced = null,
+        lastTaskSynced = null
     )
 
     override val values: Sequence<EuPrescriptionSelectionPreviewData>

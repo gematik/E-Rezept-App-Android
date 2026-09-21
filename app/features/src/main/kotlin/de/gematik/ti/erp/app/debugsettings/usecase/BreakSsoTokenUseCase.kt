@@ -23,15 +23,15 @@
 package de.gematik.ti.erp.app.debugsettings.usecase
 
 import de.gematik.ti.erp.app.debugsettings.model.SsoTokenHeader
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.navigation.json
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
+import de.gematik.ti.erp.app.userauthentication.model.SingleSignOnTokenErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.datetime.Clock
-import kotlinx.serialization.encodeToString
 import org.jose4j.base64url.Base64Url
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -46,50 +46,41 @@ class BreakSsoTokenUseCase(
     ) {
         try {
             val profile = profileRepository.activeProfile().first()
-            idpRepository.authenticationData(profile.id).first().singleSignOnTokenScope?.let {
-                val newToken = when (it) {
-                    is IdpData.AlternateAuthenticationToken ->
-                        IdpData.AlternateAuthenticationToken(
-                            token = it.token?.breakToken(),
-                            cardAccessNumber = it.cardAccessNumber,
-                            aliasOfSecureElementEntry = it.aliasOfSecureElementEntry,
-                            healthCardCertificate = it.healthCardCertificate.encoded
-                        )
-
-                    is IdpData.DefaultToken ->
-                        IdpData.DefaultToken(
-                            token = it.token?.breakToken(),
-                            cardAccessNumber = it.cardAccessNumber,
-                            healthCardCertificate = it.healthCardCertificate.encoded
-                        )
-
-                    is IdpData.ExternalAuthenticationToken ->
-                        IdpData.ExternalAuthenticationToken(
-                            token = it.token?.breakToken(),
-                            authenticatorName = it.authenticatorName,
-                            authenticatorId = it.authenticatorId
-                        )
-
-                    else -> it
-                }
-                idpRepository.saveSingleSignOnToken(
-                    profileId = profile.id,
-                    token = newToken
-                )
-                idpRepository.decryptedAccessToken(profile.id).firstOrNull()?.let { accessToken ->
-                    val updatedAccessToken = accessToken.copy(
-                        accessToken = accessToken.accessToken,
-                        expiresOn = Clock.System.now().minus(12.hours)
-                    )
-                    idpRepository.saveDecryptedAccessToken(
+            idpRepository.getUserAuthentication(profile.id).first().let {
+                if (it.singleSignOnTokenErpModel == null) {
+                    onResult(Result.failure(IllegalStateException("No SSO token found")))
+                } else {
+                    val brokenToken = it.singleSignOnTokenErpModel?.breakToken()
+                    val userAuthentication = when (it) {
+                        is UserAuthenticationErpModel.External -> {
+                            it.copy(singleSignOnTokenErpModel = brokenToken)
+                        }
+                        is UserAuthenticationErpModel.HealthCard -> {
+                            it.copy(singleSignOnTokenErpModel = brokenToken)
+                        }
+                        is UserAuthenticationErpModel.HealthCardWithSavedCredentials -> {
+                            it.copy(singleSignOnTokenErpModel = brokenToken)
+                        }
+                        is UserAuthenticationErpModel.NotInitialized -> {
+                            UserAuthenticationErpModel.NotInitialized
+                        }
+                    }
+                    idpRepository.saveUserAuthentication(
                         profileId = profile.id,
-                        accessToken = updatedAccessToken
+                        authentication = userAuthentication
                     )
+                    idpRepository.decryptedAccessToken(profile.id).firstOrNull()?.let { accessToken ->
+                        idpRepository.saveDecryptedAccessToken(
+                            profileId = profile.id,
+                            accessToken = accessToken.copy(
+                                accessToken = accessToken.accessToken,
+                                expiresOn = Clock.System.now().minus(12.hours)
+                            )
+                        )
+                    }
+                    idpRepository.invalidateDecryptedAccessToken(profile.id)
+                    onResult(Result.success(Unit))
                 }
-                idpRepository.invalidateDecryptedAccessToken(profile.id)
-                onResult(Result.success(Unit))
-            } ?: {
-                onResult(Result.failure(IllegalStateException("No SSO token found")))
             }
         } catch (e: Exception) {
             Napier.e { "SSO Token error ${e.message}" }
@@ -99,7 +90,7 @@ class BreakSsoTokenUseCase(
 
     // The SSO token does not expire, the signature changes which makes it invalid
     @Suppress("MagicNumber")
-    private fun IdpData.SingleSignOnToken.breakToken(): IdpData.SingleSignOnToken {
+    private fun SingleSignOnTokenErpModel.breakToken(): SingleSignOnTokenErpModel {
         val (hours, rest) = token.split('.', limit = 2)
         val twelveHoursBefore = Instant.now().minus(12, ChronoUnit.HOURS).epochSecond
         val ssoTokenHeaderJsonString = Base64Url.decodeToUtf8String(hours)
@@ -107,6 +98,6 @@ class BreakSsoTokenUseCase(
         val updatedSsoTokenHeader = ssoTokenHeader.copy(exp = twelveHoursBefore)
         val updatedSsoTokenHeaderJsonString = json.encodeToString<SsoTokenHeader>(updatedSsoTokenHeader)
         val encodedHeader = Base64Url.encodeUtf8ByteRepresentation(updatedSsoTokenHeaderJsonString)
-        return IdpData.SingleSignOnToken("$encodedHeader.$rest")
+        return SingleSignOnTokenErpModel("$encodedHeader.$rest")
     }
 }

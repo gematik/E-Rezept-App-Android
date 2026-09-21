@@ -24,19 +24,20 @@ package de.gematik.ti.erp.app.profiles.repository
 
 import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.database.realm.v1.AddressEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.AuthenticationEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.AuthenticationPasswordEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.IdpAuthenticationDataEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.PasswordEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.PharmacySearchEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.userauthentication.IdpAuthenticationDataEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.PasswordEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.PharmacySearchEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.SettingsEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.appauthentication.AuthenticationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.appauthentication.AuthenticationPasswordEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.ShippingContactEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.ChargeableItemV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.PriceComponentV1
 import de.gematik.ti.erp.app.database.realm.v1.migrations.SchemaVersion
+import de.gematik.ti.erp.app.database.realm.v1.profile.ProfileEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.profile.ProfileLocalDataSourceV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.DeviceRequestDispenseEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.DeviceRequestEntityV1
@@ -54,8 +55,11 @@ import de.gematik.ti.erp.app.database.realm.v1.task.entity.QuantityEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.RatioEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.SyncedTaskEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.userauthentication.UserAuthenticationLocalDataSourceV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.TeratogenicPrescriptionEntityV1
 import de.gematik.ti.erp.app.db.TestDB
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import junit.framework.TestCase.assertFalse
@@ -121,7 +125,8 @@ class ProfilesRepositoryTest : TestDB() {
                     AuthenticationPasswordEntityV1::class,
                     IdentifierEntityV1::class,
                     DeviceRequestEntityV1::class,
-                    DeviceRequestDispenseEntityV1::class
+                    DeviceRequestDispenseEntityV1::class,
+                    TeratogenicPrescriptionEntityV1::class
                 )
             )
                 .schemaVersion(SchemaVersion.ACTUAL)
@@ -130,7 +135,8 @@ class ProfilesRepositoryTest : TestDB() {
         )
 
         repo = DefaultProfilesRepository(
-            realm = realm
+            profileLocalDataSource = ProfileLocalDataSourceV1(realm),
+            userAuthenticationLocalDataSource = UserAuthenticationLocalDataSourceV1(realm)
         )
     }
 
@@ -234,9 +240,9 @@ class ProfilesRepositoryTest : TestDB() {
             }
         }
         repo.profiles().first().also { profileList ->
-            assertEquals(defaultInsurantName, profileList[0].insurantName)
-            assertEquals(defaultInsuranceIdentifier, profileList[0].insuranceIdentifier)
-            assertEquals(defaultInsuranceName, profileList[0].insuranceName)
+            assertEquals(defaultInsurantName, profileList[0].insuranceData.insurantName)
+            assertEquals(defaultInsuranceIdentifier, profileList[0].insuranceData.insuranceIdentifier)
+            assertEquals(defaultInsuranceName, profileList[0].insuranceData.insuranceName)
         }
     }
 
@@ -324,7 +330,7 @@ class ProfilesRepositoryTest : TestDB() {
         repo.createNewProfile(defaultProfileName)
 
         realm.write {
-            val profileEntity = realm.query(ProfileEntityV1::class, "name == $0", defaultProfileName).first().find()
+            val profileEntity = query(ProfileEntityV1::class, "name == $0", defaultProfileName).first().find()
             profileEntity?.isNewlyCreated = false
         }
 
@@ -360,12 +366,12 @@ class ProfilesRepositoryTest : TestDB() {
     @Test
     fun `update profile color`() = runTest {
         repo.createNewProfile(defaultProfileName)
-        ProfilesData.ProfileColorNames.entries.forEach { colorName ->
+        ProfileColorNames.entries.forEach { colorName ->
             repo.profiles().first().also {
                 repo.updateProfileColor(it[0].id, colorName)
             }
             repo.profiles().first().also {
-                assertEquals(colorName, it[0].color)
+                assertEquals(colorName, it[0].profileImageData.color)
             }
         }
     }
@@ -386,12 +392,12 @@ class ProfilesRepositoryTest : TestDB() {
     @Test
     fun `save avatar figure`() = runTest {
         repo.createNewProfile(defaultProfileName)
-        ProfilesData.Avatar.entries.forEach { figure ->
+        Avatar.entries.forEach { figure ->
             repo.profiles().first().also {
                 repo.saveAvatarFigure(it[0].id, figure)
             }
             repo.profiles().first().also {
-                assertEquals(figure, it[0].avatar)
+                assertEquals(figure, it[0].profileImageData.avatar)
             }
         }
     }
@@ -401,11 +407,11 @@ class ProfilesRepositoryTest : TestDB() {
         val profileImage = byteArrayOf(0x01.toByte(), 0x02.toByte())
         repo.createNewProfile(defaultProfileName)
         repo.profiles().first().also {
-            assertEquals(null, it[0].image)
+            assertEquals(null, it[0].profileImageData.image)
             repo.savePersonalizedProfileImage(it[0].id, profileImage)
         }
         repo.profiles().first().also {
-            it[0].image?.let { bytes ->
+            it[0].profileImageData.image?.let { bytes ->
                 assertEquals(0x01.toByte(), bytes[0])
                 assertEquals(0x02.toByte(), bytes[1])
             }
@@ -423,7 +429,7 @@ class ProfilesRepositoryTest : TestDB() {
             repo.clearPersonalizedProfileImage(it[0].id)
         }
         repo.profiles().first().also {
-            assertEquals(null, it[0].image)
+            assertEquals(null, it[0].profileImageData.image)
         }
     }
 }

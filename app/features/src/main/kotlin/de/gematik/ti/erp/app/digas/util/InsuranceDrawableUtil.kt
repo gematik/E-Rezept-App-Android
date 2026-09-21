@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.digas.util
 
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
 
 object InsuranceDrawableUtil {
     fun getDrawableResourceForTelematikId(telematikId: String): Int {
@@ -36,7 +36,7 @@ object InsuranceDrawableUtil {
             R.drawable.ic_insurance_placeholder
         }
     }
-    fun PharmacyUseCaseData.Pharmacy.getDrawableResourceId(): Int {
+    fun PharmacyDetailsErpModel.getDrawableResourceId(): Int {
         return getDrawableResourceForTelematikId(this.telematikId)
     }
 }

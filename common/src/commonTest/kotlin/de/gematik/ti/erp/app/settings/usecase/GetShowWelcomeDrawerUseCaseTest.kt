@@ -22,7 +22,9 @@
 
 package de.gematik.ti.erp.app.settings.usecase
 
-import de.gematik.ti.erp.app.settings.model.SettingsData
+import de.gematik.ti.erp.app.settings.model.AppVersionErpModel
+import de.gematik.ti.erp.app.settings.model.SettingsErpModel
+import de.gematik.ti.erp.app.settings.model.ThemeMode
 import de.gematik.ti.erp.app.settings.repository.DefaultSettingsRepository
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -51,17 +53,16 @@ class GetShowWelcomeDrawerUseCaseTest {
 
     @Test
     fun `get show welcome drawer should answer true`() = runTest {
-        coEvery { settingsRepository.general } coAnswers {
+        coEvery { settingsRepository.loadSettings() } coAnswers {
             flowOf(
-                SettingsData.General(
-                    latestAppVersion = SettingsData.AppVersion(0, ""),
-                    onboardingShownIn = SettingsData.AppVersion(0, ""),
+                SettingsErpModel(
+                    latestAppVersion = AppVersionErpModel("", 0),
+                    onboardingShownIn = AppVersionErpModel("", 0),
                     welcomeDrawerShown = false,
-                    mainScreenTooltipsShown = false,
+                    theme = ThemeMode.SYSTEM,
                     zoomEnabled = false,
                     userHasAcceptedInsecureDevice = false,
                     userHasAcceptedIntegrityNotOk = false,
-                    mlKitAccepted = false,
                     trackingAllowed = false,
                     screenShotsAllowed = false
                 )
@@ -72,17 +73,16 @@ class GetShowWelcomeDrawerUseCaseTest {
 
     @Test
     fun `get show welcome drawer should answer false`() = runTest {
-        coEvery { settingsRepository.general } coAnswers {
+        coEvery { settingsRepository.loadSettings() } coAnswers {
             flowOf(
-                SettingsData.General(
-                    latestAppVersion = SettingsData.AppVersion(0, ""),
-                    onboardingShownIn = null,
+                SettingsErpModel(
+                    latestAppVersion = AppVersionErpModel("", 0),
+                    onboardingShownIn = AppVersionErpModel("", 0),
                     welcomeDrawerShown = true,
-                    mainScreenTooltipsShown = false,
+                    theme = ThemeMode.SYSTEM,
                     zoomEnabled = false,
                     userHasAcceptedInsecureDevice = false,
                     userHasAcceptedIntegrityNotOk = false,
-                    mlKitAccepted = false,
                     trackingAllowed = false,
                     screenShotsAllowed = false
                 )

@@ -26,7 +26,7 @@
 package de.gematik.ti.erp.app.idp.api.models
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.idp.IdpConfigurationErpModel
 import de.gematik.ti.erp.app.secureRandomInstance
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
@@ -126,7 +126,7 @@ data class IdpRefreshFlowResult(
 )
 
 data class IdpInitialData(
-    val config: IdpData.IdpConfiguration,
+    val config: IdpConfigurationErpModel,
     val pukSigKey: JWSPublicKey,
     val pukEncKey: JWSPublicKey,
     val state: IdpState,

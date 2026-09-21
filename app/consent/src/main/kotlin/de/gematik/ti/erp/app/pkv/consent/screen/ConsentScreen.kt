@@ -31,14 +31,14 @@ import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.pkv.consent.component.PkvConsentErrorDialog
 import de.gematik.ti.erp.app.pkv.consent.presentation.ConsentController
 import de.gematik.ti.erp.app.pkv.consent.presentation.rememberConsentController
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 
 @Suppress("LongParameterList")
 @Composable
 fun ConsentScreen(
-    profile: ProfilesUseCaseData.Profile,
+    profile: ProfileErpModel,
     consentController: ConsentController = rememberConsentController(),
     dialogScaffold: DialogScaffold = LocalDialog.current,
     onShowCardWall: () -> Unit = {},

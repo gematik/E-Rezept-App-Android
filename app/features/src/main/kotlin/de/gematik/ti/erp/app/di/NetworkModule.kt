@@ -51,6 +51,7 @@ import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 import retrofit2.Retrofit
+import java.util.concurrent.TimeUnit
 
 class AuditEventFilteredHttpLoggingInterceptor(
     private val loggingInterceptor: HttpLoggingInterceptor
@@ -192,8 +193,6 @@ val networkModule = DI.Module("Network Module") {
             addInterceptor(userAgentInterceptor)
             // 6) Add ERP-specific API key header
             addInterceptor(apiKeyInterceptor)
-            // 7) Enforce certificate transparency on all TLS connections
-            addCertificateTransparencyInterceptor()
             // 8) Log external/outer requests (prefix [outer request])
             addInterceptor(outerLoggingInterceptor)
             // Optional: enable full HTTP logging in internal debug builds
@@ -202,6 +201,12 @@ val networkModule = DI.Module("Network Module") {
                 clientBuilder.addInterceptor(endpointHelper.getHttpLoggingInterceptor(context))
             }
         }
+
+        // Increase timeouts for large KBV bundle downloads and VAU overhead
+        clientBuilder
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .callTimeout(90, TimeUnit.SECONDS)
 
         // Build Retrofit with this client and register the ERP service API interface
         Retrofit.Builder()

@@ -22,12 +22,10 @@
 
 package de.gematik.ti.erp.app.pharmacy.model
 
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-
 sealed interface SelectedFavouritePharmacyState {
     data object Idle : SelectedFavouritePharmacyState
     data object Loading : SelectedFavouritePharmacyState
     data class Error(val throwable: Throwable) : SelectedFavouritePharmacyState
     data object Missing : SelectedFavouritePharmacyState
-    data class Data(val pharmacy: PharmacyUseCaseData.Pharmacy) : SelectedFavouritePharmacyState
+    data class Data(val pharmacy: PharmacyDetailsErpModel) : SelectedFavouritePharmacyState
 }

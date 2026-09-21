@@ -51,8 +51,8 @@ import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
 import de.gematik.ti.erp.app.prescription.detail.ui.preview.PrescriptionDetailTechnicalInfoPreviewParameter
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
@@ -85,7 +85,7 @@ class PrescriptionDetailTechnicalInformationScreen(
 
 @Composable
 fun PrescriptionDetailTechnicalInformationContent(
-    profilePrescriptionData: UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>,
+    profilePrescriptionData: UiState<Pair<ProfileErpModel, TaskErpModel>>,
     onBack: () -> Unit
 ) {
     UiStateMachine(
@@ -171,7 +171,7 @@ private fun PrescriptionDetailTechnicalInformationScreen(
 @Composable
 fun PrescriptionDetailTechnicalInformationScreenPreview(
     @PreviewParameter(PrescriptionDetailTechnicalInfoPreviewParameter::class)
-    previewUiState: UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>
+    previewUiState: UiState<Pair<ProfileErpModel, TaskErpModel>>
 ) {
     PreviewAppTheme {
         PrescriptionDetailTechnicalInformationContent(

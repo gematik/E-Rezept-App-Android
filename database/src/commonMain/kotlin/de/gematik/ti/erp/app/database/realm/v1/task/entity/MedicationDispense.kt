@@ -39,6 +39,7 @@ class MedicationDispenseEntityV1 : RealmObject, Cascading {
     var dosageInstruction: String? = null
     var performer: String = "" // Telematik-ID
     var pharmacyName: String? = null
+    var euCountryCode: String? = null
     var address: AddressEntityV1? = null
     var _handedOverOn: String? = null
 

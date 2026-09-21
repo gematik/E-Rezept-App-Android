@@ -24,9 +24,9 @@ package de.gematik.ti.erp.app.mocks.prescription.api
 
 import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
 import de.gematik.ti.erp.app.mocks.PROFILE_ID
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 
-val API_ACTIVE_SCANNED_TASK = ScannedTaskData.ScannedTask(
+val API_ACTIVE_SCANNED_TASK = TaskErpModel.Scanned(
     profileId = PROFILE_ID,
     taskId = "active-scanned-task-id-1",
     index = 0,
@@ -34,10 +34,10 @@ val API_ACTIVE_SCANNED_TASK = ScannedTaskData.ScannedTask(
     accessCode = "1234",
     scannedOn = DATE_2024_01_01,
     redeemedOn = null,
-    communications = emptyList()
+    isEuRedeemable = false
 )
 
-val API_ARCHIVE_SCANNED_TASK = ScannedTaskData.ScannedTask(
+val API_ARCHIVE_SCANNED_TASK = TaskErpModel.Scanned(
     profileId = PROFILE_ID,
     taskId = "archive-scanned-task-id-1",
     index = 0,
@@ -45,5 +45,5 @@ val API_ARCHIVE_SCANNED_TASK = ScannedTaskData.ScannedTask(
     accessCode = "1234",
     scannedOn = DATE_2024_01_01,
     redeemedOn = DATE_2024_01_01,
-    communications = emptyList()
+    isEuRedeemable = false
 )

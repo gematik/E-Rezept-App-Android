@@ -1,0 +1,319 @@
+/*
+ * Copyright (Change Date see Readme), gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
+ * You may not use this work except in compliance with the Licence.
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
+ */
+
+package de.gematik.ti.erp.app.messages.ui.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
+import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.datetime.timeStateParser
+import de.gematik.ti.erp.app.error.ErrorScreenComponent
+import de.gematik.ti.erp.app.messages.model.InAppMessage
+import de.gematik.ti.erp.app.preview.LightDarkPreview
+import de.gematik.ti.erp.app.preview.PreviewTheme
+import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.utils.SpacerTiny
+import de.gematik.ti.erp.app.utils.SpacerXXXLarge
+import de.gematik.ti.erp.app.utils.compose.UiStateMachine
+import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
+import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
+import de.gematik.ti.erp.app.utils.extensions.sanitizeMarkdownText
+import de.gematik.ti.erp.app.utils.uistate.UiState
+import kotlinx.datetime.Instant
+
+@Composable
+internal fun MessageListScreenContent(
+    modifier: Modifier = Modifier,
+    listState: LazyListState,
+    ordersData: UiState<List<InAppMessage>>,
+    onClickOrder: (orderId: String) -> Unit,
+    onClickUnknownOrder: (taskId: String) -> Unit,
+    onClickInternalMessage: () -> Unit,
+    onClickEuOrder: (threadOrderId: String?, threadStart: Instant?, threadEnd: Instant?, pharmacyName: String?) -> Unit,
+    onClickRetry: () -> Unit
+) {
+    val emptyStateDescription = stringResource(R.string.a11y_messages_empty_state)
+    val loadingDescription = stringResource(R.string.a11y_messages_loading)
+    val errorStateDescription = stringResource(R.string.a11y_messages_error_state)
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        UiStateMachine(
+            state = ordersData,
+            onEmpty = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .semantics {
+                            contentDescription = emptyStateDescription
+                            liveRegion = LiveRegionMode.Polite
+                        }
+                ) {
+                    Center {
+                        NoOrders { onClickRetry() }
+                    }
+                }
+            },
+            onLoading = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .semantics {
+                            contentDescription = loadingDescription
+                            liveRegion = LiveRegionMode.Polite
+                        }
+                ) {
+                    Center {
+                        MessagesLoadingShimmer()
+                    }
+                }
+            },
+            onError = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .semantics {
+                            contentDescription = errorStateDescription
+                            liveRegion = LiveRegionMode.Assertive
+                        }
+                ) {
+                    ErrorScreenComponent(
+                        titleText = stringResource(R.string.generic_error_title),
+                        bodyText = stringResource(R.string.generic_error_info),
+                        tryAgainText = stringResource(R.string.cdw_fasttrack_try_again),
+                        onClickRetry = onClickRetry
+                    )
+                }
+            }
+        ) { orders ->
+            LazyColumn(
+                modifier = modifier.testTag(TestTag.Orders.Content),
+                state = listState
+            ) {
+                orders.forEachIndexed { index, order ->
+                    item(key = "${order.id}-$index") {
+                        val date = timeStateParser(timeState = order.timeState)
+                        OrderItem(
+                            pharmacy = order.from,
+                            date = date,
+                            hasUnreadMessages = order.isUnread,
+                            prescriptionsCount = order.prescriptionsCount,
+                            text = order.text?.sanitizeMarkdownText() ?: "",
+                            onClick = {
+                                when (order.messageProfile) {
+                                    CommunicationErpModel.CommunicationProfile.InApp -> onClickInternalMessage()
+                                    CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq,
+                                    CommunicationErpModel.CommunicationProfile.ErxCommunicationReply -> {
+                                        if (order.id.isEmpty()) {
+                                            onClickUnknownOrder(order.taskId ?: "")
+                                        } else {
+                                            onClickOrder(order.id)
+                                        }
+                                    }
+                                    CommunicationErpModel.CommunicationProfile.EuOrder -> onClickEuOrder(
+                                        order.threadOrderId,
+                                        order.threadStart,
+                                        order.threadEnd,
+                                        order.from
+                                    )
+                                    else -> {}
+                                }
+                            }
+                        )
+                        if (index < orders.size - 1) {
+                            Divider(
+                                Modifier.padding(start = PaddingDefaults.Medium)
+                            )
+                        }
+                    }
+                }
+                item {
+                    SpacerXXXLarge()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun OrderItem(
+    modifier: Modifier = Modifier,
+    pharmacy: String,
+    date: String,
+    text: String,
+    hasUnreadMessages: Boolean,
+    prescriptionsCount: Int,
+    onClick: () -> Unit
+) {
+    val openDescription = stringResource(R.string.a11y_open_message)
+    Row(
+        modifier = modifier
+            .semantics(mergeDescendants = true) {}
+            .clickable(
+                onClick = onClick,
+                role = Role.Button,
+                onClickLabel = openDescription
+            )
+            .padding(PaddingDefaults.Medium)
+            .fillMaxWidth()
+            .testTag(TestTag.Orders.OrderListItem),
+        horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Small),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                modifier = Modifier.clearAndSetSemantics {
+                    contentDescription = pharmacy.split(" ").take(5).joinToString(" ")
+                },
+                text = pharmacy,
+                style = AppTheme.typography.subtitle1,
+                color = AppTheme.colors.neutral900,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            SpacerTiny()
+            Text(
+                modifier = Modifier.clearAndSetSemantics {
+                    contentDescription = text.split(" ").take(5).joinToString(" ")
+                },
+                text = text,
+                style = AppTheme.typography.subtitle2l,
+                color = AppTheme.colors.neutral900,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            SpacerTiny()
+            Text(
+                text = date,
+                style = AppTheme.typography.body2l,
+                color = AppTheme.colors.neutral700
+            )
+        }
+        when {
+            hasUnreadMessages -> NewMessageLabel()
+            else -> if (prescriptionsCount != 0) {
+                PrescriptionCountLabel(prescriptionsCount)
+            }
+        }
+
+        Icon(
+            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+            contentDescription = null,
+            tint = AppTheme.colors.neutral700
+        )
+    }
+}
+
+@Composable
+private fun NewMessageLabel() {
+    Box(
+        Modifier
+            .clip(CircleShape)
+            .background(AppTheme.colors.primary100)
+            .padding(horizontal = PaddingDefaults.Small, vertical = SizeDefaults.threeSeventyFifth),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            stringResource(R.string.orders_label_new),
+            style = AppTheme.typography.caption2,
+            color = AppTheme.colors.primary900
+        )
+    }
+}
+
+@Composable
+private fun PrescriptionCountLabel(count: Int) {
+    Box(
+        Modifier
+            .clip(CircleShape)
+            .background(AppTheme.colors.neutral100)
+            .padding(horizontal = PaddingDefaults.Small, vertical = SizeDefaults.threeSeventyFifth),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            annotatedPluralsResource(
+                R.plurals.orders_plurals_label_nr_of_prescriptions,
+                count,
+                AnnotatedString(count.toString())
+            ),
+            style = AppTheme.typography.caption2,
+            color = AppTheme.colors.neutral700
+        )
+    }
+}
+
+@LightDarkPreview
+@Composable
+private fun OrderItemPreview() {
+    PreviewTheme {
+        Column() {
+            OrderItem(
+                pharmacy = "Pharmacy",
+                date = "12.03.2025",
+                text = "Text",
+                hasUnreadMessages = false,
+                prescriptionsCount = 3,
+                onClick = {}
+            )
+            OrderItem(
+                pharmacy = "Pharmacy",
+                date = "12.03.2025",
+                text = "Text",
+                hasUnreadMessages = true,
+                prescriptionsCount = 1,
+                onClick = {}
+            )
+        }
+    }
+}

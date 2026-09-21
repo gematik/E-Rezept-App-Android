@@ -27,9 +27,8 @@ import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.composable
 import de.gematik.ti.erp.app.analytics.navigation.trackingGraph
@@ -62,14 +61,14 @@ import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.prescription.navigation.prescriptionGraph
 import de.gematik.ti.erp.app.profiles.navigation.profileGraph
 import de.gematik.ti.erp.app.settings.navigation.settingsGraph
-import de.gematik.ti.erp.app.settings.usecase.GetAndroid8DeprecationOverrideUseCase
+import de.gematik.ti.erp.app.appsecurity.usecase.GetShouldShowAndroid13DeprecationWarningUseCase
 import de.gematik.ti.erp.app.shared.navigation.redeemAndPharmacySharedGraph
 import de.gematik.ti.erp.app.translation.navigation.translationGraph
 import de.gematik.ti.erp.app.troubleshooting.navigation.troubleShootingGraph
 import de.gematik.ti.erp.app.ui.DebugScreenWrapper
-import de.gematik.ti.erp.app.userauthentication.navigation.UserAuthenticationRoutes
-import de.gematik.ti.erp.app.userauthentication.navigation.userAuthenticationGraph
-import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
+import de.gematik.ti.erp.app.appauthentication.navigation.AppAuthenticationRoutes
+import de.gematik.ti.erp.app.appauthentication.navigation.appAuthenticationGraph
+import de.gematik.ti.erp.app.appauthentication.observer.AuthenticationModeAndMethod
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import org.kodein.di.compose.rememberInstance
@@ -104,26 +103,28 @@ fun NavigationGraph(
     val onboardingSucceeded = mainScreenController.onboardingSucceeded
     val showMedicationSuccess by currentActivity.pendingNavigationToMedicationNotificationScreen.collectAsStateWithLifecycle()
 
-    val getAndroid8DeprecationUseCase by rememberInstance<GetAndroid8DeprecationOverrideUseCase>()
-    val isAndroid8Deprecated = getAndroid8DeprecationUseCase()
-    val startDestinationScreen = calculateStartDestination(onboardingSucceeded, showMedicationSuccess, isAndroid8Deprecated)
+    val getAndroid13DeprecationUseCase by rememberInstance<GetShouldShowAndroid13DeprecationWarningUseCase>()
+    val showAndroid13DeprecationScreen by produceState(initialValue = false) {
+        getAndroid13DeprecationUseCase().collect { value = it }
+    }
+    val startDestinationScreen = calculateStartDestination(onboardingSucceeded, showMedicationSuccess, showAndroid13DeprecationScreen)
 
-    var android8ScreenShown by remember { mutableStateOf(false) }
-
-    LaunchedEffect(authRequired, isAuthenticated, showMedicationSuccess) {
+    LaunchedEffect(authRequired, isAuthenticated, showMedicationSuccess, showAndroid13DeprecationScreen) {
         when {
-            authRequired -> navHostController.navigate(UserAuthenticationRoutes.UserAuthenticationScreen.path())
-            isAuthenticated && !android8ScreenShown && isAndroid8Deprecated && onboardingSucceeded -> {
-                android8ScreenShown = true
+            authRequired -> {
+                navHostController.navigate(AppAuthenticationRoutes.AppAuthenticationScreen.path())
+            }
+            isAuthenticated && showAndroid13DeprecationScreen && onboardingSucceeded -> {
                 val nextRoute = if (showMedicationSuccess) {
                     MedicationPlanRoutes.MedicationPlanNotificationScreen.path()
                 } else {
                     PrescriptionRoutes.PrescriptionListScreen.path()
                 }
-                navHostController.navigate(AppSecurityRoutes.Android8DeprecationScreen.path(nextRoute = nextRoute))
+                navHostController.navigate(AppSecurityRoutes.Android13DeprecationScreen.path(nextRoute = nextRoute))
             }
-            isAuthenticated && showMedicationSuccess ->
+            isAuthenticated && showMedicationSuccess -> {
                 navHostController.navigate(MedicationPlanRoutes.MedicationPlanNotificationScreen.path())
+            }
         }
     }
 
@@ -170,7 +171,7 @@ fun NavigationGraph(
         digasGraph(
             navController = navHostController
         )
-        userAuthenticationGraph(navController = navHostController)
+        appAuthenticationGraph(navController = navHostController)
         translationGraph(navController = navHostController)
         composable(MainNavigationScreens.Debug.route) {
             DebugScreenWrapper(navHostController)
@@ -196,7 +197,7 @@ private fun ObserveDigaFeedbackNavigation(
     }
 }
 
-private fun calculateStartDestination(onboardingSucceeded: Boolean, showMedicationSuccess: Boolean, isAndroid8Deprecated: Boolean): String =
+private fun calculateStartDestination(onboardingSucceeded: Boolean, showMedicationSuccess: Boolean, showAndroid13DeprecationScreen: Boolean): String =
     when (onboardingSucceeded) {
         true -> if (showMedicationSuccess) {
             MedicationPlanRoutes.MedicationPlanNotificationScreen.path()
@@ -204,8 +205,8 @@ private fun calculateStartDestination(onboardingSucceeded: Boolean, showMedicati
             PrescriptionRoutes.PrescriptionListScreen.path()
         }
 
-        false -> if (isAndroid8Deprecated) {
-            AppSecurityRoutes.Android8DeprecationScreen.path(nextRoute = OnboardingRoutes.OnboardingWelcomeScreen.path())
+        false -> if (showAndroid13DeprecationScreen) {
+            AppSecurityRoutes.Android13DeprecationScreen.path(nextRoute = OnboardingRoutes.OnboardingWelcomeScreen.path())
         } else {
             OnboardingRoutes.OnboardingWelcomeScreen.path()
         }

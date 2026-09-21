@@ -1,0 +1,6 @@
+# Snyk ignore file (works like .gitignore for Snyk Code / SAST scans).
+# For SCA (snyk test --all-projects), use --exclude=plugins in the CLI command instead.
+
+# Local Gradle plugin module — build-time only, never distributed
+plugins/technical-requirements-plugin/
+

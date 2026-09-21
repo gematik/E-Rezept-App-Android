@@ -53,7 +53,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.input.TextFieldValue
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutsLocalDataSource.Companion.DurationEnum
 import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutsLocalDataSource.Companion.DurationEnum.HOURS
@@ -80,7 +85,7 @@ fun MetricChangeDialog(
     var expanded by remember { mutableStateOf(false) }
     var selectedDurationEnum by remember { mutableStateOf(DurationEnum.valueOf(duration.name)) }
     val items = listOf(SECONDS, MINUTES, HOURS)
-
+    val closeHint = stringResource(R.string.a11y_three_dot_menu_options_hint)
     LaunchedEffect(focusRequester) {
         focusRequester.requestFocus()
         awaitFrame()
@@ -127,13 +132,17 @@ fun MetricChangeDialog(
                     modifier = Modifier.weight(0.25f)
                 ) {
                     IconButton(
+                        modifier = Modifier.semantics {
+                            contentDescription = "$selectedDurationEnum"
+                            stateDescription = closeHint
+                        },
                         onClick = {
                             expanded = !expanded
                         }
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = "$selectedDurationEnum"
+                            contentDescription = null
                         )
                     }
                     DropdownMenu(

@@ -27,8 +27,9 @@ import de.gematik.ti.erp.app.demomode.datasource.INDEX_OUT_OF_BOUNDS
 import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -45,18 +46,21 @@ class DemoDigaRepository(
 ) : DigaRepository {
 
     /**
-     * Atomically finds the synced task with [taskId], applies [transform] to it,
+     * Atomically finds the Diga synced task with [taskId], applies [transform] to it,
      * and writes back the modified list on [dispatcher].
      */
     private suspend fun updateTask(
         taskId: String,
-        transform: SyncedTaskData.SyncedTask.() -> SyncedTaskData.SyncedTask
+        transform: TaskErpModel.Synced.Diga.() -> TaskErpModel.Synced.Diga
     ) {
         withContext(dispatcher) {
             dataSource.syncedTasks.value = dataSource.syncedTasks.updateAndGet { list ->
                 val idx = list.indexOfFirst { it.taskId == taskId }
                 if (idx != INDEX_OUT_OF_BOUNDS) {
-                    list[idx] = list[idx].transform()
+                    val task = list[idx]
+                    if (task is TaskErpModel.Synced.Diga) {
+                        list[idx] = task.transform()
+                    }
                 }
                 list
             }
@@ -84,9 +88,9 @@ class DemoDigaRepository(
         }
     }
 
-    override fun loadDigaByTaskId(taskId: String): Flow<SyncedTaskData.SyncedTask?> {
+    override fun loadDigaByTaskId(taskId: String): Flow<TaskErpModel.Synced.Diga?> {
         return dataSource.syncedTasks.map {
-            it.firstOrNull { diga -> diga.taskId == taskId }
+            it.filterIsInstance<TaskErpModel.Synced.Diga>().firstOrNull { diga -> diga.taskId == taskId }
         }.flowOn(dispatcher)
     }
 
@@ -94,21 +98,22 @@ class DemoDigaRepository(
         updateTask(taskId) {
             copy(
                 deviceRequest = deviceRequest?.copy(isArchived = setArchiveStatus),
-                status = if (setArchiveStatus) SyncedTaskData.TaskStatus.Completed else status,
+                status = if (setArchiveStatus) TaskStatusEnum.Completed else status,
                 lastModified = lastModified
             )
         }
     }
 
-    override suspend fun loadDigasByProfileId(profileId: ProfileIdentifier): Flow<List<SyncedTaskData.SyncedTask>> {
+    override suspend fun loadDigasByProfileId(profileId: ProfileIdentifier): Flow<List<TaskErpModel.Synced.Diga>> {
         return dataSource.syncedTasks.map {
-            it.filter { digas -> digas.profileId == profileId }
+            it.filterIsInstance<TaskErpModel.Synced.Diga>().filter { diga -> diga.profileId == profileId }
         }.flowOn(dispatcher)
     }
 
-    override fun loadArchiveDigasByProfileId(profileId: ProfileIdentifier): Flow<List<SyncedTaskData.SyncedTask>> {
+    override fun loadArchiveDigasByProfileId(profileId: ProfileIdentifier): Flow<List<TaskErpModel.Synced.Diga>> {
         return dataSource.syncedTasks.map {
-            it.filter { digas -> digas.profileId == profileId && digas.deviceRequest?.isArchived == true }
+            it.filterIsInstance<TaskErpModel.Synced.Diga>()
+                .filter { diga -> diga.profileId == profileId && diga.deviceRequest?.isArchived == true }
         }.flowOn(dispatcher)
     }
 }

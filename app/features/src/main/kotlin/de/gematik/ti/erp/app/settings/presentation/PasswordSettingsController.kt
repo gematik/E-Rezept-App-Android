@@ -28,7 +28,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.nulabinc.zxcvbn.Zxcvbn
-import de.gematik.ti.erp.app.settings.usecase.SetPasswordUseCase
+import de.gematik.ti.erp.app.appauthentication.usecase.SetPasswordUseCase
 import de.gematik.ti.erp.app.utils.compose.PasswordEvaluatorHolder
 import de.gematik.ti.erp.app.utils.compose.presentation.PasswordFieldsController
 import de.gematik.ti.erp.app.utils.compose.usecase.EvaluatePasswordUseCase

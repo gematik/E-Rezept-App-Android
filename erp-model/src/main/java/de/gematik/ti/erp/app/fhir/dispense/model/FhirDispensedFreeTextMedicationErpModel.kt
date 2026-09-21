@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.fhir.dispense.model
 
+import de.gematik.ti.erp.app.fhir.support.FhirMedicationIdentifierErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirRatioErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.serialization.Serializable
@@ -35,4 +36,6 @@ data class FhirDispensedFreeTextMedicationErpModel(
     override val isVaccine: Boolean?,
     override val lotNumber: String?,
     override val expirationDate: FhirTemporal?
-) : DispensedMedicationErpModel()
+) : DispensedMedicationErpModel() {
+    override val identifier: FhirMedicationIdentifierErpModel? = null
+}

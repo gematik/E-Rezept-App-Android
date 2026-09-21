@@ -35,8 +35,9 @@ import de.gematik.ti.erp.app.idp.usecase.RefreshFlowException
 import de.gematik.ti.erp.app.invoice.mapper.mapUnitToInvoiceError
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -51,9 +52,10 @@ import java.net.UnknownHostException
     rationale = "User can delete a locally and remotely stored prescription and all its linked resources."
 )
 class DeletePrescriptionUseCase(
-    private val prescriptionRepository: PrescriptionRepository,
+    private val taskOperationsRepository: TaskOperationsRepository,
     private val invoiceRepository: InvoiceRepository,
     private val medicationPlanRepository: MedicationPlanRepository,
+    private val profileRepository: ProfileRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     sealed interface DeletePrescriptionState : ErpServiceState {
@@ -88,20 +90,20 @@ class DeletePrescriptionUseCase(
         deleteLocallyOnly: Boolean
     ): Flow<ErpServiceState> =
         flowOf(
-            if (!prescriptionRepository.wasProfileEverAuthenticated(profileId) || deleteLocallyOnly) {
+            if (!profileRepository.wasProfileEverAuthenticated(profileId) || deleteLocallyOnly) {
                 // delete local saved tasks, if sso token is null
                 // (profile was never connected and has imported/scanned task)
-                prescriptionRepository.deleteLocalTaskById(taskId)
-                invoiceRepository.deleteLocalInvoiceById(taskId)
                 medicationPlanRepository.deleteMedicationSchedule(taskId)
+                invoiceRepository.deleteLocalInvoiceById(taskId)
+                taskOperationsRepository.deleteTaskByTaskIdOnlyInLocalDatabase(taskId)
                 DeletePrescriptionState.ValidState.Deleted
             } else {
-                prescriptionRepository
+                taskOperationsRepository
                     .deleteRemoteTaskById(profileId = profileId, taskId = taskId)
                     .fold(
                         onSuccess = {
                             medicationPlanRepository.deleteMedicationSchedule(taskId)
-                            prescriptionRepository.deleteLocalTaskById(taskId)
+                            taskOperationsRepository.deleteTaskByTaskIdOnlyInLocalDatabase(taskId)
                             invoiceRepository.deleteRemoteInvoiceById(taskId = taskId, profileId = profileId)
                                 .mapUnitToInvoiceError { invoiceRepository.deleteLocalInvoiceById(taskId) }
                             DeletePrescriptionState.ValidState.Deleted
@@ -114,7 +116,7 @@ class DeletePrescriptionUseCase(
                                         HttpURLConnection.HTTP_NOT_FOUND
                                         -> {
                                             medicationPlanRepository.deleteMedicationSchedule(taskId)
-                                            prescriptionRepository.deleteLocalTaskById(taskId)
+                                            taskOperationsRepository.deleteTaskByTaskIdOnlyInLocalDatabase(taskId)
                                             invoiceRepository.deleteLocalInvoiceById(taskId)
                                             DeletePrescriptionState.ValidState.Deleted
                                         }

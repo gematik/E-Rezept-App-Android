@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.settings.repository
 
-import de.gematik.ti.erp.app.database.settings.CommunicationDigaVersion
-import de.gematik.ti.erp.app.database.settings.CommunicationDigaVersionDataStore
+import de.gematik.ti.erp.app.database.api.debug.CommunicationDigaVersionLocalDataSource
+import de.gematik.ti.erp.app.debug.model.CommunicationDigaVersion
 import de.gematik.ti.erp.app.fhir.constant.communication.CommunicationDigaConstants
 import kotlinx.coroutines.flow.first
 
@@ -32,13 +32,12 @@ interface CommunicationDigaVersionRepository {
 }
 
 class DefaultCommunicationDigaVersionRepository(
-    private val dataStore: CommunicationDigaVersionDataStore?,
+    private val dataStore: CommunicationDigaVersionLocalDataSource?,
     private val isDebugMode: Boolean
 ) : CommunicationDigaVersionRepository {
     override suspend fun getCommunicationDigaVersion(): CommunicationDigaConstants.DigaDispenseRequestVersion {
         return if (isDebugMode && dataStore != null) {
             when (dataStore.communicationDigaVersion.first()) {
-                CommunicationDigaVersion.V_1_4 -> CommunicationDigaConstants.DigaDispenseRequestVersion.V_1_4
                 CommunicationDigaVersion.V_1_5 -> CommunicationDigaConstants.DigaDispenseRequestVersion.V_1_5
                 CommunicationDigaVersion.V_1_6 -> CommunicationDigaConstants.DigaDispenseRequestVersion.V_1_6
             }

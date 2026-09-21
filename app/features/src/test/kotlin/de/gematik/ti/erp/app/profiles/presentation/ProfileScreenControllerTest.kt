@@ -32,7 +32,7 @@ import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 import de.gematik.ti.erp.app.mocks.PROFILE_ID
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.AddProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.DeleteProfileUseCase
@@ -41,7 +41,7 @@ import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.LogoutProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.SwitchActiveProfileUseCase
-import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileUseCase
+import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileNameUseCase
 import de.gematik.ti.erp.app.redeem.usecase.HasEuRedeemablePrescriptionsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -67,7 +67,7 @@ class ProfileScreenControllerTest {
     private val medicationPlanRepository: MedicationPlanRepository = mockk()
     private val profileRepository: ProfileRepository = mockk()
     private val idpRepository: IdpRepository = mockk()
-    private val prescriptionRepository: PrescriptionRepository = mockk()
+    private val taskOperationsRepository: TaskOperationsRepository = mockk()
     private val consentRepository: ConsentRepository = mockk()
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
@@ -83,7 +83,7 @@ class ProfileScreenControllerTest {
     private lateinit var deleteProfileUseCase: DeleteProfileUseCase
     private lateinit var logoutProfileUseCase: LogoutProfileUseCase
     private lateinit var switchActiveProfileUseCase: SwitchActiveProfileUseCase
-    private lateinit var updateProfileUseCase: UpdateProfileUseCase
+    private lateinit var updateProfileNameUseCase: UpdateProfileNameUseCase
     private lateinit var getActiveProfileUseCase: GetActiveProfileUseCase
     private lateinit var chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase
     private lateinit var hasEuRedeemablePrescriptionsUseCase: HasEuRedeemablePrescriptionsUseCase
@@ -100,13 +100,13 @@ class ProfileScreenControllerTest {
         getProfileByIdUseCase = GetProfileByIdUseCase(profileRepository, dispatcher)
         getProfilesUseCase = GetProfilesUseCase(profileRepository, dispatcher)
         addProfileUseCase = spyk(AddProfileUseCase(profileRepository, dispatcher))
-        deleteProfileUseCase = spyk(DeleteProfileUseCase(profileRepository, idpRepository, medicationPlanRepository, dispatcher))
+        deleteProfileUseCase = spyk(DeleteProfileUseCase(profileRepository, idpRepository, medicationPlanRepository, taskOperationsRepository, dispatcher))
         logoutProfileUseCase = spyk(LogoutProfileUseCase(idpRepository, dispatcher))
         switchActiveProfileUseCase = spyk(SwitchActiveProfileUseCase(profileRepository, dispatcher))
-        updateProfileUseCase = spyk(UpdateProfileUseCase(profileRepository, dispatcher))
+        updateProfileNameUseCase = spyk(UpdateProfileNameUseCase(profileRepository, dispatcher))
         getActiveProfileUseCase = spyk(GetActiveProfileUseCase(profileRepository, dispatcher))
         chooseAuthenticationDataUseCase = spyk(ChooseAuthenticationDataUseCase(profileRepository, idpRepository, dispatcher))
-        hasEuRedeemablePrescriptionsUseCase = spyk(HasEuRedeemablePrescriptionsUseCase(prescriptionRepository, dispatcher))
+        hasEuRedeemablePrescriptionsUseCase = spyk(HasEuRedeemablePrescriptionsUseCase(taskOperationsRepository, dispatcher))
         getEuPrescriptionConsentUseCase = spyk(GetConsentUseCase(consentRepository, dispatcher))
 
         every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
@@ -122,7 +122,7 @@ class ProfileScreenControllerTest {
             deleteProfileUseCase = deleteProfileUseCase,
             logoutProfileUseCase = logoutProfileUseCase,
             switchActiveProfileUseCase = switchActiveProfileUseCase,
-            updateProfileUseCase = updateProfileUseCase,
+            updateProfileNameUseCase = updateProfileNameUseCase,
             getActiveProfileUseCase = getActiveProfileUseCase,
             chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
             biometricAuthenticator = biometricAuthenticator,
@@ -192,9 +192,9 @@ class ProfileScreenControllerTest {
             controllerUnderTest.updateProfileName("newName")
         }
         coVerify(exactly = 1) {
-            updateProfileUseCase.invoke(
-                modifier = UpdateProfileUseCase.Companion.ProfileModifier.Name("newName"),
-                id = profileId
+            updateProfileNameUseCase.invoke(
+                id = profileId,
+                name = "newName"
             )
         }
         coVerify(exactly = 1) { profileRepository.updateProfileName(profileId, "newName") }
@@ -203,6 +203,9 @@ class ProfileScreenControllerTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `Delete profile should invoke the deleteProfileUseCase, invalidate and remove the data in the repositories`() {
+        coEvery { taskOperationsRepository.deleteCommunicationsByProfileId(any()) } returns Unit
+        coEvery { taskOperationsRepository.deleteInvoicesByProfileId(any()) } returns Unit
+        coEvery { taskOperationsRepository.deleteTasksByProfileId(any()) } returns Unit
         coEvery { profileRepository.removeProfile(any(), any()) } returns Unit
         coEvery { medicationPlanRepository.deleteAllMedicationSchedulesForProfile(any()) } returns Unit
         coEvery { idpRepository.invalidateDecryptedAccessToken(any()) } returns Unit

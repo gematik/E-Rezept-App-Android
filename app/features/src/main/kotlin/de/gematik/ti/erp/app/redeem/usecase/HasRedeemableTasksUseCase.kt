@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.redeem.usecase
 
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -32,19 +32,17 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 
 class HasRedeemableTasksUseCase(
-    private val prescriptionRepository: PrescriptionRepository,
+    private val taskOperationsRepository: TaskOperationsRepository,
     private val dispatchers: CoroutineDispatcher = Dispatchers.IO
 ) {
     operator fun invoke(
         profileId: ProfileIdentifier
     ): Flow<Boolean> =
         combine(
-            prescriptionRepository.syncedTasks(profileId).map { tasks ->
-                tasks.filter {
-                    it.redeemState().isRedeemable() && it.deviceRequest == null // TODO: define as a Type
-                }
+            taskOperationsRepository.loadSyncedTaskListByProfileId(profileId).map { tasks ->
+                tasks.filter { it.redeemState().isRedeemable() }
             },
-            prescriptionRepository.scannedTasks(profileId).map { tasks ->
+            taskOperationsRepository.loadScannedTaskListByProfileId(profileId).map { tasks ->
                 tasks.filter {
                     it.isRedeemable()
                 }

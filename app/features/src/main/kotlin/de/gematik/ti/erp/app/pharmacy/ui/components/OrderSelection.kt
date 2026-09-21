@@ -31,8 +31,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.pharmacy.mapper.calculateServiceState
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 
 @Requirement(
@@ -42,8 +42,8 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 )
 @Composable
 internal fun OrderSelection(
-    pharmacy: Pharmacy,
-    onOrderClicked: (Pharmacy, PharmacyScreenData.OrderOption) -> Unit
+    pharmacy: PharmacyDetailsErpModel,
+    onOrderClicked: (PharmacyDetailsErpModel, OrderOptionErpModel) -> Unit
 ) {
     val pharmacyServiceState = pharmacy.calculateServiceState()
 
@@ -60,7 +60,7 @@ internal fun OrderSelection(
                 text = pharmacyServiceState.pickupText,
                 type = PharmacyOrderOptionCardType.Long,
                 showDisabledToast = true,
-                onClick = { onOrderClicked(pharmacy, PharmacyScreenData.OrderOption.Pickup) }
+                onClick = { onOrderClicked(pharmacy, OrderOptionErpModel.Pickup) }
             )
         }
 
@@ -71,7 +71,7 @@ internal fun OrderSelection(
                 text = pharmacyServiceState.deliveryText,
                 type = PharmacyOrderOptionCardType.Long,
                 showDisabledToast = true,
-                onClick = { onOrderClicked(pharmacy, PharmacyScreenData.OrderOption.Delivery) }
+                onClick = { onOrderClicked(pharmacy, OrderOptionErpModel.Delivery) }
             )
         }
 
@@ -82,7 +82,7 @@ internal fun OrderSelection(
                 text = pharmacyServiceState.onlineText,
                 type = PharmacyOrderOptionCardType.Long,
                 showDisabledToast = true,
-                onClick = { onOrderClicked(pharmacy, PharmacyScreenData.OrderOption.Online) }
+                onClick = { onOrderClicked(pharmacy, OrderOptionErpModel.Online) }
             )
         }
     }

@@ -23,14 +23,14 @@
 package de.gematik.ti.erp.app.medicationplan.ui.components
 
 import androidx.compose.runtime.Composable
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDuration
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDurationErpModel
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 import kotlinx.datetime.LocalDate
 
 @Composable
 fun PickPersonalizedDurationDateRangeDialog(
-    event: ComposableEvent<MedicationScheduleDuration>,
+    event: ComposableEvent<MedicationScheduleDurationErpModel>,
     dialogScaffold: DialogScaffold,
     onPickDateRange: (startDate: LocalDate?, endDate: LocalDate?) -> Unit
 ) {

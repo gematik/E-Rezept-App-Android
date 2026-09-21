@@ -41,7 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.digas.data.model.AdditionalDeviceStatus
+import de.gematik.ti.erp.app.diga.model.AdditionalDeviceStatus
 import de.gematik.ti.erp.app.digas.ui.model.DigaBfarmUiModel
 import de.gematik.ti.erp.app.digas.ui.model.DigaMainScreenUiModel
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
@@ -117,7 +117,9 @@ fun LazyListScope.detailSection(
                         exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top) + slideOutVertically()
                     ) {
                         Banner(
-                            modifier = Modifier.clickable { onNavigateToBafim() }.padding(horizontal = PaddingDefaults.Medium),
+                            modifier = Modifier
+                                .clickable { onNavigateToBafim() }
+                                .padding(horizontal = PaddingDefaults.Medium),
                             text = annotatedText.text,
                             contentColor = AppTheme.colors.yellow900,
                             containerColor = AppTheme.colors.yellow100,

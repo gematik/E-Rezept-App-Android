@@ -39,7 +39,11 @@ class LicenceRuleTest {
                 package a.b.c
                 
                 import d.e.f
-                """.trimIndent()
+                """.trimIndent(),
+                text = TODO(),
+                editorConfigOverride = TODO(),
+                userData = TODO(),
+                script = TODO()
             )
 
         val expected =
@@ -79,7 +83,11 @@ class LicenceRuleTest {
                 package a.b.c
                 
                 import d.e.f
-                """.trimIndent()
+                """.trimIndent(),
+                text = TODO(),
+                editorConfigOverride = TODO(),
+                userData = TODO(),
+                script = TODO()
             )
 
         assertEquals(emptyList(), lintErrors)
@@ -113,7 +121,11 @@ class LicenceRuleTest {
                 package a.b.c
                 
                 import d.e.f
-                """.trimIndent()
+                """.trimIndent(),
+                text = TODO(),
+                editorConfigOverride = TODO(),
+                userData = TODO(),
+                script = TODO()
             )
 
         val expected = listOf<LintError>(
@@ -143,7 +155,12 @@ class LicenceRuleTest {
                 package a.b.c
                 
                 import d.e.f
-                """.trimIndent()
+                """.trimIndent(),
+                text = TODO(),
+                editorConfigOverride = TODO(),
+                userData = TODO(),
+                cb = TODO(),
+                script = TODO()
             )
 
         val expected =

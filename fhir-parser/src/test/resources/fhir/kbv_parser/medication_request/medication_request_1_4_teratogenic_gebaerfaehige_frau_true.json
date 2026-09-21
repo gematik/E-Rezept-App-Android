@@ -1,0 +1,97 @@
+{
+  "resourceType": "MedicationRequest",
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "meta": {
+    "profile": [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.4"
+    ]
+  },
+  "extension": [
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_StatusCoPayment",
+      "valueCoding": {
+        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_StatusCoPayment",
+        "code": "0"
+      }
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee",
+      "valueBoolean": false
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_SER",
+      "valueBoolean": false
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription",
+      "extension": [
+        {
+          "url": "Kennzeichen",
+          "valueBoolean": false
+        }
+      ]
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Teratogenic",
+      "extension": [
+        {
+          "url": "Off-Label",
+          "valueBoolean": false
+        },
+        {
+          "url": "GebaerfaehigeFrau",
+          "valueBoolean": true
+        },
+        {
+          "url": "EinhaltungSicherheitsmassnahmen",
+          "valueBoolean": false
+        },
+        {
+          "url": "AushaendigungInformationsmaterialien",
+          "valueBoolean": false
+        },
+        {
+          "url": "ErklaerungSachkenntnis",
+          "valueBoolean": false
+        }
+      ]
+    }
+  ],
+  "status": "active",
+  "intent": "order",
+  "medicationReference": {
+    "reference": "Medication/f568397d-7ba2-46ac-904b-02caec933b42"
+  },
+  "subject": {
+    "reference": "Patient/512ab5bc-a7ab-4fd7-81cc-16a594f747a6"
+  },
+  "authoredOn": "2025-03-15",
+  "requester": {
+    "reference": "Practitioner/e33d2afd-44c8-462b-80e5-52dbe5ebf359"
+  },
+  "insurance": [
+    {
+      "reference": "Coverage/df0f2536-97b9-4bae-99cc-83ba2e8371e4"
+    }
+  ],
+  "dosageInstruction": [
+    {
+      "extension": [
+        {
+          "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag",
+          "valueBoolean": true
+        }
+      ],
+      "text": "1x tägl. 1 Kapsel"
+    }
+  ],
+  "dispenseRequest": {
+    "quantity": {
+      "value": 1,
+      "unit": "Packung"
+    }
+  },
+  "substitution": {
+    "allowedBoolean": false
+  }
+}

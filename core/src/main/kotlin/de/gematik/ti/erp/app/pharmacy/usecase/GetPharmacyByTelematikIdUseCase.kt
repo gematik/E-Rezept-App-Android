@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.pharmacy.usecase
 
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toModel
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -33,7 +33,7 @@ class GetPharmacyByTelematikIdUseCase(
     private val repository: PharmacyRepository,
     private val dispatchers: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(telematikId: String): Result<PharmacyUseCaseData.Pharmacy?> =
+    suspend operator fun invoke(telematikId: String): Result<PharmacyDetailsErpModel?> =
         withContext(dispatchers) {
             repository.searchPharmacyByTelematikId(telematikId)
                 .map { it.entries.toModel(type = it.type).firstOrNull() }

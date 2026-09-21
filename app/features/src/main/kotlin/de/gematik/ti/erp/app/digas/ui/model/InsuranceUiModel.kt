@@ -22,10 +22,10 @@
 
 package de.gematik.ti.erp.app.digas.ui.model
 
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
 
 data class InsuranceUiModel(
-    val pharmacy: PharmacyUseCaseData.Pharmacy,
+    val pharmacy: PharmacyDetailsErpModel,
     val drawableResourceId: Int
 ) {
     val id: String = pharmacy.id

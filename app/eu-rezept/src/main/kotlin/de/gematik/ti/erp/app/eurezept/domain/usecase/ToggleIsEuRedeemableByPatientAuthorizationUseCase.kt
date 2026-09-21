@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.eurezept.domain.usecase
 
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.settings.repository.EuVersionRepository
+import de.gematik.ti.erp.app.debug.repository.EuVersionRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

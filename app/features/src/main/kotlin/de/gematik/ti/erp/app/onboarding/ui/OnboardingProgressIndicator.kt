@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.onboarding.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -55,7 +56,7 @@ fun OnboardingProgressIndicator(
     totalSteps: Int = ONBOARDING_STEPS,
     modifier: Modifier = Modifier,
     activeColor: Color = AppTheme.colors.primary700,
-    inactiveColor: Color = AppTheme.colors.primary200,
+    inactiveColor: Color = AppTheme.colors.neutral000,
     size: Dp = SizeDefaults.oneHalf,
     spacing: Dp = SizeDefaults.fivefoldHalf
 ) {
@@ -88,6 +89,15 @@ fun OnboardingProgressIndicator(
                         color = if (isCurrentStep) activeColor else inactiveColor
                     )
                     .clearAndSetSemantics { }
+                    .then(
+                        if (!isCurrentStep) {
+                            Modifier.border(
+                                width = SizeDefaults.eighth,
+                                color = activeColor,
+                                shape = RoundedCornerShape(cornerRadius)
+                            )
+                        } else Modifier
+                    )
             )
         }
     }
@@ -101,7 +111,7 @@ fun OnboardingDataProtectionAndTermsOfUseOverviewScreenContentPreview2() {
             currentStep = 1,
             totalSteps = ONBOARDING_STEPS,
             modifier = Modifier.padding(PaddingDefaults.Medium),
-            activeColor = AppTheme.colors.primary600
+            activeColor = AppTheme.colors.primary700
 
         )
     }

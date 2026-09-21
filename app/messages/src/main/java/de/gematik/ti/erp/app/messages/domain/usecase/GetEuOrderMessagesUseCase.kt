@@ -23,11 +23,9 @@
 package de.gematik.ti.erp.app.messages.domain.usecase
 
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
-import de.gematik.ti.erp.app.messages.mappers.EuOrderToMessagesMapper
+import de.gematik.ti.erp.app.messages.mapper.EuOrderToMessagesMapper
 import de.gematik.ti.erp.app.messages.ui.model.EuOrderMessageUiModel
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -49,13 +47,13 @@ import kotlinx.datetime.Instant
  * - Handles errors gracefully by returning an empty flow
  *
  * @param euRepository Repository for accessing EU prescription order data
- * @param prescriptionRepository Repository for accessing prescription task data to retrieve medication names
+ * @param taskOperationsRepository Repository for accessing prescription task data to retrieve medication names
  * @param mapper Mapper to convert EU order events into UI models
  * @param dispatcher Coroutine dispatcher for background operations, defaults to IO dispatcher
  */
 class GetEuOrderMessagesUseCase(
     private val euRepository: EuRepository,
-    private val prescriptionRepository: PrescriptionRepository,
+    private val taskOperationsRepository: TaskOperationsRepository,
     private val mapper: EuOrderToMessagesMapper,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
@@ -98,17 +96,17 @@ class GetEuOrderMessagesUseCase(
 
                     Napier.d(tag = "eu-order", message = "Found $threadEvents events in the thread window")
 
-                    // Map only the requested thread’s events
+                    // Pre-fetch medication names for all task IDs in thread events
+                    val taskIdToMedicationName = threadEvents.resolveMedicationNames(taskOperationsRepository)
+                    val taskIdToPharmacyName = threadEvents.resolvePharmacyNames(taskOperationsRepository)
+
                     val orderMessages = mapper.map(
                         order = order,
-                        threadEvents = threadEvents
+                        threadEvents = threadEvents,
+                        taskIdToPharmacyName = taskIdToPharmacyName
                     ) { taskIds ->
                         taskIds.map { taskId ->
-                            when (val task = prescriptionRepository.getTask(taskId)) {
-                                is SyncedTaskData.SyncedTask -> task.medicationName() ?: taskId
-                                is ScannedTaskData.ScannedTask -> task.name
-                                else -> taskId
-                            }
+                            taskIdToMedicationName[taskId] ?: taskId
                         }
                     }
 

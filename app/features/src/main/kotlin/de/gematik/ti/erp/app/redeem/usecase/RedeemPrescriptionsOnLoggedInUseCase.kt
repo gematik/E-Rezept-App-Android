@@ -29,14 +29,16 @@ import de.gematik.ti.erp.app.fhir.communication.CommunicationDispenseRequest.cre
 import de.gematik.ti.erp.app.fhir.communication.model.CommunicationPayload
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants
 import de.gematik.ti.erp.app.pharmacy.mapper.toRedeemOption
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel.Companion.toPharmacyErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
-import de.gematik.ti.erp.app.settings.repository.CommunicationVersionRepository
+import de.gematik.ti.erp.app.debug.repository.CommunicationVersionRepository
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
@@ -60,7 +62,7 @@ import java.util.UUID
  * 6. Combine the results together in [RedeemedPrescriptionState.OrderCompleted] and return the flow
  */
 class RedeemPrescriptionsOnLoggedInUseCase(
-    private val prescriptionRepository: PrescriptionRepository,
+    private val taskOperationsRepository: TaskOperationsRepository,
     private val pharmacyRepository: PharmacyRepository,
     private val communicationVersionRepository: CommunicationVersionRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -86,11 +88,11 @@ class RedeemPrescriptionsOnLoggedInUseCase(
 
     operator fun invoke(
         profileId: ProfileIdentifier,
-        redeemOption: PharmacyScreenData.OrderOption,
+        redeemOption: OrderOptionErpModel,
         orderId: UUID,
-        prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionInOrder>,
+        prescriptionOrderInfos: List<PrescriptionInOrderErpModel>,
         contact: ShippingInfoErpModel,
-        pharmacy: PharmacyUseCaseData.Pharmacy,
+        pharmacy: PharmacyDetailsErpModel,
         onRedeemProcessStart: () -> Unit = {},
         onRedeemProcessEnd: () -> Unit = {}
     ): Flow<RedeemedPrescriptionState.OrderCompleted> =
@@ -124,10 +126,10 @@ class RedeemPrescriptionsOnLoggedInUseCase(
                             )
 
                             // save the pharmacy as often used when the prescription was redeemed successfully
-                            launch { pharmacyRepository.markPharmacyAsOftenUsed(pharmacy) }
+                            launch { pharmacyRepository.markPharmacyAsOftenUsed(pharmacy.toPharmacyErpModel()) }
 
                             // redeem the prescription
-                            prescriptionOrderInfo to prescriptionRepository.redeem(
+                            prescriptionOrderInfo to taskOperationsRepository.redeem(
                                 profileId = profileId,
                                 communication = communicationDispenseRequestJson,
                                 accessCode = prescriptionOrderInfo.accessCode

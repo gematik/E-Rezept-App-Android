@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.prescription.usecase
 
 import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
@@ -33,15 +33,14 @@ import kotlin.time.Duration.Companion.days
 class ArchiveExpiredDigasUseCase(
     private val repository: DigaRepository
 ) {
-    suspend operator fun invoke(prescriptions: List<Prescription>): List<Prescription> {
+    suspend operator fun invoke(prescriptions: List<TaskErpModel>): List<TaskErpModel> {
         val now = Clock.System.now()
         val threshold: Instant = now - 100.days
 
         return prescriptions.map { prescription ->
-            if (prescription is Prescription.SyncedPrescription &&
+            if (prescription is TaskErpModel.Synced.Diga &&
                 prescription.lastModified < threshold &&
-                prescription.deviceRequestState != DigaStatus.SelfArchiveDiga &&
-                prescription.isDiga
+                prescription.deviceRequestState != DigaStatus.SelfArchiveDiga
             ) {
                 repository.updateArchiveStatus(
                     taskId = prescription.taskId,

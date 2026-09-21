@@ -22,49 +22,8 @@
 
 package de.gematik.ti.erp.app.mocks.prescription.model
 
-import de.gematik.ti.erp.app.database.realm.v1.task.entity.TaskStatusV1
-import de.gematik.ti.erp.app.diga.model.DigaStatus
-import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
-import de.gematik.ti.erp.app.mocks.DATE_3024_01_01
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK
+import de.gematik.ti.erp.app.mocks.prescription.api.API_ARCHIVE_SYNCED_TASK
 
-val MODEL_SYNCED_PRESCRIPTION_ACTIVE = Prescription.SyncedPrescription(
-    taskId = "active-synced-task-id-1",
-    name = "Medication",
-    redeemedOn = null,
-    expiresOn = DATE_3024_01_01,
-    acceptUntil = DATE_3024_01_01,
-    authoredOn = DATE_2024_01_01,
-    state = SyncedTaskData.SyncedTask.Ready(
-        expiresOn = DATE_3024_01_01,
-        acceptUntil = DATE_3024_01_01
-    ),
-    isIncomplete = false,
-    organization = "Dr. Max Mustermann",
-    isDirectAssignment = false,
-    deviceRequestState = DigaStatus.Ready,
-    isNew = false,
-    lastModified = DATE_2024_01_01,
-    prescriptionChipInformation = Prescription.PrescriptionChipInformation()
-)
-
-val MODEL_SYNCED_PRESCRIPTION_ARCHIVE = Prescription.SyncedPrescription(
-    taskId = "archive-synced-task-id-1",
-    name = "Medication",
-    redeemedOn = DATE_2024_01_01,
-    expiresOn = DATE_3024_01_01,
-    acceptUntil = DATE_2024_01_01,
-    authoredOn = DATE_2024_01_01,
-    state = SyncedTaskData.SyncedTask.Other(
-        state = SyncedTaskData.TaskStatus.Completed,
-        lastModified = DATE_2024_01_01
-    ),
-    isIncomplete = false,
-    organization = "Dr. Max Mustermann",
-    isDirectAssignment = false,
-    deviceRequestState = DigaStatus.WrappedTaskStatus(taskStatus = TaskStatusV1.Completed.name),
-    isNew = false,
-    lastModified = DATE_2024_01_01,
-    prescriptionChipInformation = Prescription.PrescriptionChipInformation()
-)
+val MODEL_SYNCED_PRESCRIPTION_ACTIVE = API_ACTIVE_SYNCED_TASK
+val MODEL_SYNCED_PRESCRIPTION_ARCHIVE = API_ARCHIVE_SYNCED_TASK

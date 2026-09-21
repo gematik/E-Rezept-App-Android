@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.prescription.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.task.model.TaskStateErpModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
@@ -34,7 +34,7 @@ import kotlin.time.Duration.Companion.minutes
 
 data class PrescriptionStatePreview(
     val name: String, // a description for better understanding
-    val prescriptionState: SyncedTaskData.SyncedTask.TaskState,
+    val prescriptionState: TaskStateErpModel,
     val now: Instant
 )
 
@@ -61,7 +61,7 @@ val prescriptionStatePreviews: Sequence<PrescriptionStatePreview>
     get() = sequenceOf(
         PrescriptionStatePreview(
             name = "ready state with 0 days gone (valid for 27 days more than today)",
-            prescriptionState = SyncedTaskData.SyncedTask.Ready(
+            prescriptionState = TaskStateErpModel.Ready(
                 expiresOn = expiryDate,
                 acceptUntil = acceptUntil
             ),
@@ -69,7 +69,7 @@ val prescriptionStatePreviews: Sequence<PrescriptionStatePreview>
         ),
         PrescriptionStatePreview(
             name = "ready state with 24 days gone (valid for 3 days more than today)",
-            prescriptionState = SyncedTaskData.SyncedTask.Ready(
+            prescriptionState = TaskStateErpModel.Ready(
                 expiresOn = expiryDate,
                 acceptUntil = acceptUntil
             ),
@@ -77,7 +77,7 @@ val prescriptionStatePreviews: Sequence<PrescriptionStatePreview>
         ),
         PrescriptionStatePreview(
             name = "ready state with 25 days gone (valid for 2 days more than today)",
-            prescriptionState = SyncedTaskData.SyncedTask.Ready(
+            prescriptionState = TaskStateErpModel.Ready(
                 expiresOn = expiryDate,
                 acceptUntil = acceptUntil
             ),
@@ -85,7 +85,7 @@ val prescriptionStatePreviews: Sequence<PrescriptionStatePreview>
         ),
         PrescriptionStatePreview(
             name = "ready state with 26 days gone (valid for 1 day more than today)",
-            prescriptionState = SyncedTaskData.SyncedTask.Ready(
+            prescriptionState = TaskStateErpModel.Ready(
                 expiresOn = expiryDate,
                 acceptUntil = acceptUntil
             ),
@@ -93,7 +93,7 @@ val prescriptionStatePreviews: Sequence<PrescriptionStatePreview>
         ),
         PrescriptionStatePreview(
             name = "ready state with 27 days gone (only valid today)",
-            prescriptionState = SyncedTaskData.SyncedTask.Ready(
+            prescriptionState = TaskStateErpModel.Ready(
                 expiresOn = expiryDate,
                 acceptUntil = acceptUntil
             ),
@@ -101,7 +101,7 @@ val prescriptionStatePreviews: Sequence<PrescriptionStatePreview>
         ),
         PrescriptionStatePreview(
             name = "ready state with 28 days gone (61 days more than today as self payer)",
-            prescriptionState = SyncedTaskData.SyncedTask.Ready(
+            prescriptionState = TaskStateErpModel.Ready(
                 expiresOn = expiryDate,
                 acceptUntil = acceptUntil
             ),
@@ -109,7 +109,7 @@ val prescriptionStatePreviews: Sequence<PrescriptionStatePreview>
         ),
         PrescriptionStatePreview(
             name = "ready state with 85 days gone (valid for 3 days as self payer)",
-            prescriptionState = SyncedTaskData.SyncedTask.Ready(
+            prescriptionState = TaskStateErpModel.Ready(
                 expiresOn = expiryDate,
                 acceptUntil = acceptUntil
             ),
@@ -117,7 +117,7 @@ val prescriptionStatePreviews: Sequence<PrescriptionStatePreview>
         ),
         PrescriptionStatePreview(
             name = "ready state with 86 days gone (valid for 2 days as self payer)",
-            prescriptionState = SyncedTaskData.SyncedTask.Ready(
+            prescriptionState = TaskStateErpModel.Ready(
                 expiresOn = expiryDate,
                 acceptUntil = acceptUntil
             ),
@@ -125,7 +125,7 @@ val prescriptionStatePreviews: Sequence<PrescriptionStatePreview>
         ),
         PrescriptionStatePreview(
             name = "ready state with 88 days gone (valid until tomorrow as self payer)",
-            prescriptionState = SyncedTaskData.SyncedTask.Ready(
+            prescriptionState = TaskStateErpModel.Ready(
                 expiresOn = expiryDate,
                 acceptUntil = acceptUntil
             ),
@@ -133,7 +133,7 @@ val prescriptionStatePreviews: Sequence<PrescriptionStatePreview>
         ),
         PrescriptionStatePreview(
             name = "ready state with 88 days gone (only valid today as self payer)",
-            prescriptionState = SyncedTaskData.SyncedTask.Ready(
+            prescriptionState = TaskStateErpModel.Ready(
                 expiresOn = expiryDate,
                 acceptUntil = acceptUntil
             ),
@@ -141,21 +141,21 @@ val prescriptionStatePreviews: Sequence<PrescriptionStatePreview>
         ),
         PrescriptionStatePreview(
             name = "provided state after 5 minutes",
-            prescriptionState = SyncedTaskData.SyncedTask.Provided(
+            prescriptionState = TaskStateErpModel.Provided(
                 lastMedicationDispense = creationDate.plus(5.minutes)
             ),
             now = creationDate.plus(10.minutes)
         ),
         PrescriptionStatePreview(
             name = "provided state after 10 days",
-            prescriptionState = SyncedTaskData.SyncedTask.Provided(
+            prescriptionState = TaskStateErpModel.Provided(
                 lastMedicationDispense = creationDate.plus(10.days)
             ),
             now = creationDate.plus(20.days)
         ),
         PrescriptionStatePreview(
             name = "provided state after 2 hours",
-            prescriptionState = SyncedTaskData.SyncedTask.Provided(
+            prescriptionState = TaskStateErpModel.Provided(
                 lastMedicationDispense = creationDate.plus(1.hours)
             ),
             now = creationDate.plus(3.hours)
@@ -170,10 +170,12 @@ val prescriptionStatePreviewsNearDayEnd: Sequence<PrescriptionStatePreview>
     get() = sequenceOf(
         PrescriptionStatePreview(
             name = "Server: $serverDate, " +
-                "Actual: ${serverDate.toLocalDateTime(
+                "Actual: ${
+                serverDate.toLocalDateTime(
                     TimeZone.of("Europe/Berlin")
-                )}",
-            prescriptionState = SyncedTaskData.SyncedTask.Pending(
+                )
+                }",
+            prescriptionState = TaskStateErpModel.Pending(
                 sentOn = serverDate,
                 toTelematikId = ""
             ),
@@ -181,10 +183,12 @@ val prescriptionStatePreviewsNearDayEnd: Sequence<PrescriptionStatePreview>
         ),
         PrescriptionStatePreview(
             name = "Server: ${serverDate.plus(1.hours)}, " +
-                "Actual: ${serverDate.plus(1.hours).toLocalDateTime(
+                "Actual: ${
+                serverDate.plus(1.hours).toLocalDateTime(
                     TimeZone.of("Europe/Berlin")
-                )}",
-            prescriptionState = SyncedTaskData.SyncedTask.Pending(
+                )
+                }",
+            prescriptionState = TaskStateErpModel.Pending(
                 sentOn = serverDate.plus(1.hours),
                 toTelematikId = ""
             ),
@@ -192,10 +196,12 @@ val prescriptionStatePreviewsNearDayEnd: Sequence<PrescriptionStatePreview>
         ),
         PrescriptionStatePreview(
             name = "Server: ${serverDate.plus(2.hours)}, " +
-                "Actual: ${serverDate.plus(2.hours).toLocalDateTime(
+                "Actual: ${
+                serverDate.plus(2.hours).toLocalDateTime(
                     TimeZone.of("Europe/Berlin")
-                )}",
-            prescriptionState = SyncedTaskData.SyncedTask.Pending(
+                )
+                }",
+            prescriptionState = TaskStateErpModel.Pending(
                 sentOn = serverDate.plus(2.hours),
                 toTelematikId = ""
             ),
@@ -203,10 +209,12 @@ val prescriptionStatePreviewsNearDayEnd: Sequence<PrescriptionStatePreview>
         ),
         PrescriptionStatePreview(
             name = "Server: ${serverDate.plus(3.hours)}, " +
-                "Actual: ${serverDate.plus(3.hours).toLocalDateTime(
+                "Actual: ${
+                serverDate.plus(3.hours).toLocalDateTime(
                     TimeZone.of("Europe/Berlin")
-                )}",
-            prescriptionState = SyncedTaskData.SyncedTask.Pending(
+                )
+                }",
+            prescriptionState = TaskStateErpModel.Pending(
                 sentOn = serverDate.plus(3.hours),
                 toTelematikId = ""
             ),
@@ -214,86 +222,103 @@ val prescriptionStatePreviewsNearDayEnd: Sequence<PrescriptionStatePreview>
         ),
         PrescriptionStatePreview(
             name = "Server: $serverDate, " +
-                "Actual: ${serverDate.toLocalDateTime(
+                "Actual: ${
+                serverDate.toLocalDateTime(
                     TimeZone.of("Europe/Berlin")
-                )}",
-            prescriptionState = SyncedTaskData.SyncedTask.InProgress(
+                )
+                }",
+            prescriptionState = TaskStateErpModel.InProgress(
                 lastModified = serverDate
             ),
             now = serverDate.plus(1.hours)
         ),
         PrescriptionStatePreview(
             name = "Server: ${serverDate.plus(1.hours)}, " +
-                "Actual: ${serverDate.plus(1.hours).toLocalDateTime(
+                "Actual: ${
+                serverDate.plus(1.hours).toLocalDateTime(
                     TimeZone.of("Europe/Berlin")
-                )}",
-            prescriptionState = SyncedTaskData.SyncedTask.InProgress(
+                )
+                }",
+            prescriptionState = TaskStateErpModel.InProgress(
                 lastModified = serverDate.plus(1.hours)
             ),
             now = serverDate.plus(2.hours)
         ),
         PrescriptionStatePreview(
             name = "Server: ${serverDate.plus(2.hours)}, " +
-                "Actual: ${serverDate.plus(2.hours).toLocalDateTime(
+                "Actual: ${
+                serverDate.plus(2.hours).toLocalDateTime(
                     TimeZone.of("Europe/Berlin")
-                )}",
-            prescriptionState = SyncedTaskData.SyncedTask.InProgress(
+                )
+                }",
+            prescriptionState = TaskStateErpModel.InProgress(
                 lastModified = serverDate.plus(2.hours)
             ),
             now = serverDate.plus(3.hours)
         ),
         PrescriptionStatePreview(
             name = "Server: ${serverDate.plus(3.hours)}, " +
-                "Actual: ${serverDate.plus(3.hours).toLocalDateTime(
+                "Actual: ${
+                serverDate.plus(3.hours).toLocalDateTime(
                     TimeZone.of("Europe/Berlin")
-                )}",
-            prescriptionState = SyncedTaskData.SyncedTask.InProgress(
+                )
+                }",
+            prescriptionState = TaskStateErpModel.InProgress(
                 lastModified = serverDate.plus(3.hours)
             ),
             now = serverDate.plus(4.hours)
         ),
         PrescriptionStatePreview(
             name = "Server: $serverDate, " +
-                "Actual: ${serverDate.toLocalDateTime(
+                "Actual: ${
+                serverDate.toLocalDateTime(
                     TimeZone.of("Europe/Berlin")
-                )}",
-            prescriptionState = SyncedTaskData.SyncedTask.Provided(
+                )
+                }",
+            prescriptionState = TaskStateErpModel.Provided(
                 lastMedicationDispense = serverDate
             ),
             now = serverDate.plus(1.hours)
         ),
         PrescriptionStatePreview(
             name = "Server: ${serverDate.plus(1.hours)}, " +
-                "Actual: ${serverDate.plus(1.hours).toLocalDateTime(
+                "Actual: ${
+                serverDate.plus(1.hours).toLocalDateTime(
                     TimeZone.of("Europe/Berlin")
-                )}",
-            prescriptionState = SyncedTaskData.SyncedTask.Provided(
+                )
+                }",
+            prescriptionState = TaskStateErpModel.Provided(
                 lastMedicationDispense = serverDate.plus(1.hours)
             ),
             now = serverDate.plus(2.hours)
         ),
         PrescriptionStatePreview(
             name = "Server: ${serverDate.plus(2.hours)}, " +
-                "Actual: ${serverDate.plus(2.hours).toLocalDateTime(
+                "Actual: ${
+                serverDate.plus(2.hours).toLocalDateTime(
                     TimeZone.of("Europe/Berlin")
-                )}",
-            prescriptionState = SyncedTaskData.SyncedTask.Provided(
+                )
+                }",
+            prescriptionState = TaskStateErpModel.Provided(
                 lastMedicationDispense = serverDate.plus(2.hours)
             ),
             now = serverDate.plus(3.hours)
         ),
         PrescriptionStatePreview(
             name = "Server: ${serverDate.plus(3.hours)}, " +
-                "Actual: ${serverDate.plus(3.hours).toLocalDateTime(
+                "Actual: ${
+                serverDate.plus(3.hours).toLocalDateTime(
                     TimeZone.of("Europe/Berlin")
-                )}",
-            prescriptionState = SyncedTaskData.SyncedTask.Provided(
+                )
+                }",
+            prescriptionState = TaskStateErpModel.Provided(
                 lastMedicationDispense = serverDate.plus(3.hours)
             ),
             now = serverDate.plus(4.hours)
         )
         // toDo: add more states such as later redeemable for multiple prescriptions and so on
     )
+
 class PrescriptionStatePreviewParameterProvider : PreviewParameterProvider<PrescriptionStatePreview> {
     override val values = prescriptionStatePreviews
 }

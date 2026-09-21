@@ -33,7 +33,6 @@ import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseC
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.base.NetworkStatusTracker.Companion.isNetworkAvailable
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.usecase.RefreshFlowException.Companion.isUserActionNotRequired
 import de.gematik.ti.erp.app.idp.usecase.RefreshFlowException.Companion.isUserActionRequired
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
@@ -45,8 +44,9 @@ import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetPairedDevicesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
-import de.gematik.ti.erp.app.profiles.usecase.model.PairedDevice
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.PairedDeviceErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import io.github.aakira.napier.Napier
@@ -66,7 +66,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.launch
+import org.jose4j.base64url.Base64Url
 import org.kodein.di.compose.rememberInstance
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 private const val ASK_FOR_AUTH_REQUIRED_ATTEMPTS = 1L
 
@@ -80,7 +82,7 @@ class ProfilePairedDevicesScreenController(
     biometricAuthenticator: BiometricAuthenticator,
     private val getPairedDevicesUseCase: GetPairedDevicesUseCase,
     private val deletePairedDevicesUseCase: DeletePairedDevicesUseCase,
-    private val refreshTrigger: MutableSharedFlow<ProfilesUseCaseData.Profile> = MutableSharedFlow(),
+    private val refreshTrigger: MutableSharedFlow<ProfileErpModel> = MutableSharedFlow(),
     private val networkStatusTracker: NetworkStatusTracker
 ) : ChooseAuthenticationController(
     profileId = profileId,
@@ -102,19 +104,19 @@ class ProfilePairedDevicesScreenController(
     }
 
     private val isNotBiometricAuthentication = MutableStateFlow(false)
-    private val _pairedDevices: MutableStateFlow<UiState<List<PairedDevice>>> = MutableStateFlow(
+    private val _pairedDevices: MutableStateFlow<UiState<List<PairedDeviceErpModel>>> = MutableStateFlow(
         UiState.Loading()
     )
 
     val showAuthenticationErrorDialog = ComposableEvent<AuthenticationResult.Error>()
 
-    val pairedDevices: StateFlow<UiState<List<PairedDevice>>> = _pairedDevices.asStateFlow()
+    val pairedDevices: StateFlow<UiState<List<PairedDeviceErpModel>>> = _pairedDevices.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observePairedDevices() {
         controllerScope.launch {
             refreshTrigger
-                .onEach { UiState.Loading<List<PairedDevice>>() }
+                .onEach { UiState.Loading<List<PairedDeviceErpModel>>() }
                 .onBiometricAuthentication()
                 .flatMapLatest { biometricProfile ->
                     if (biometricProfile != null) {
@@ -132,11 +134,11 @@ class ProfilePairedDevicesScreenController(
                                             useBiometricPairingScope = true
                                         )
                                     }
-                                    UiState.Error<List<PairedDevice>>(CannotLoadPairedDevicesError)
+                                    UiState.Error<List<PairedDeviceErpModel>>(CannotLoadPairedDevicesError)
                                     true
                                 } else {
                                     Napier.e { "error loading paired devices ${throwable.message}" }
-                                    UiState.Error<List<PairedDevice>>(CannotLoadPairedDevicesError)
+                                    UiState.Error<List<PairedDeviceErpModel>>(CannotLoadPairedDevicesError)
                                     false
                                 }
                             }
@@ -150,8 +152,8 @@ class ProfilePairedDevicesScreenController(
                     Napier.e { "error on loading paired devices ${exception.stackTraceToString()}" }
                     if (exception.isUserActionNotRequired()) { // currently asking user for biometric authentication
                         _pairedDevices.value = when (exception) {
-                            is NoInternetException -> UiState.Error<List<PairedDevice>>(NoInternetError)
-                            else -> UiState.Error<List<PairedDevice>>(CannotLoadPairedDevicesError)
+                            is NoInternetException -> UiState.Error<List<PairedDeviceErpModel>>(NoInternetError)
+                            else -> UiState.Error<List<PairedDeviceErpModel>>(CannotLoadPairedDevicesError)
                         }
                     }
                 }.collectLatest {
@@ -167,7 +169,7 @@ class ProfilePairedDevicesScreenController(
         }
     }
 
-    fun deletePairedDevice(device: PairedDevice) {
+    fun deletePairedDevice(device: PairedDeviceErpModel) {
         controllerScope.launch {
             _pairedDevices.value = UiState.Loading()
             deletePairedDevicesUseCase.invoke(profileId, device)
@@ -178,7 +180,7 @@ class ProfilePairedDevicesScreenController(
     }
 
     // the errors thrown here are to be caught in the catch block
-    private fun checkNetworkBeforeBiometricError(): Flow<UiState<List<PairedDevice>>> =
+    private fun checkNetworkBeforeBiometricError(): Flow<UiState<List<PairedDeviceErpModel>>> =
         if (networkStatusTracker.isNetworkAvailable()) {
             isNotBiometricAuthentication.value = true
             flowOf(UiState.Error(UserNotLoggedInWithBiometricsError))
@@ -186,16 +188,16 @@ class ProfilePairedDevicesScreenController(
             flowOf(UiState.Error(NoInternetError))
         }
 
-    private fun Flow<ProfilesUseCaseData.Profile>.withUniqueToken(): Flow<IdpData.TokenWithKeyStoreAliasScope> =
-        map { profile -> profile.ssoTokenScope as? IdpData.TokenWithKeyStoreAliasScope }
+    private fun Flow<ProfileErpModel>.withUniqueToken(): Flow<UserAuthenticationErpModel.HealthCardWithSavedCredentials> =
+        map { profile -> profile.userAuthentication as? UserAuthenticationErpModel.HealthCardWithSavedCredentials }
             .filterNotNull().distinctUntilChanged()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private fun Flow<IdpData.TokenWithKeyStoreAliasScope>.loadPairedDevices(): Flow<List<PairedDevice>> =
-        flatMapLatest { token ->
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalEncodingApi::class)
+    private fun Flow<UserAuthenticationErpModel.HealthCardWithSavedCredentials>.loadPairedDevices(): Flow<List<PairedDeviceErpModel>> =
+        flatMapLatest { userAuthentication ->
             getPairedDevicesUseCase.invoke(
                 profileId = profileId,
-                keyStoreAlias = token.aliasOfSecureElementEntryBase64()
+                keyStoreAlias = Base64Url.encode(userAuthentication.aliasOfSecureElementEntry)
             )
         }
 }

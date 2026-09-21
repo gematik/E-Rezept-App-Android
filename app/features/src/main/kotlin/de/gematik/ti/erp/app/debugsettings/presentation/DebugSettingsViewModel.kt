@@ -34,21 +34,23 @@ import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.BCProvider
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.ErezeptApp
+import de.gematik.ti.erp.app.appsecurity.usecase.GetShouldShowAndroid13DeprecationWarningUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.ChangeAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
 import de.gematik.ti.erp.app.consent.usecase.RevokeConsentUseCase
+import de.gematik.ti.erp.app.database.api.ProfileLocalDataSource
+import de.gematik.ti.erp.app.database.api.debug.CommunicationDigaVersionLocalDataSource
+import de.gematik.ti.erp.app.database.api.debug.CommunicationVersionLocalDataSource
+import de.gematik.ti.erp.app.database.api.debug.ConsentVersionLocalDataSource
+import de.gematik.ti.erp.app.database.api.debug.EuVersionLocalDataSource
+import de.gematik.ti.erp.app.database.api.debug.VirtualHealthCardLocalDataSource
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.FeatureEntity
-import de.gematik.ti.erp.app.database.datastore.virtualhealthcard.VirtualHealthCardLocalDataSource
-import de.gematik.ti.erp.app.database.settings.CommunicationDigaVersion
-import de.gematik.ti.erp.app.database.settings.CommunicationDigaVersionDataStore
-import de.gematik.ti.erp.app.database.settings.CommunicationVersion
-import de.gematik.ti.erp.app.database.settings.CommunicationVersionDataStore
-import de.gematik.ti.erp.app.database.settings.ConsentVersion
-import de.gematik.ti.erp.app.database.settings.ConsentVersionDataStore
-import de.gematik.ti.erp.app.database.settings.EuVersion
-import de.gematik.ti.erp.app.database.settings.EuVersionDataStore
 import de.gematik.ti.erp.app.datastore.featuretoggle.FeatureToggleRepository
+import de.gematik.ti.erp.app.debug.model.CommunicationDigaVersion
+import de.gematik.ti.erp.app.debug.model.CommunicationVersion
+import de.gematik.ti.erp.app.debug.model.ConsentVersion
+import de.gematik.ti.erp.app.debug.model.EuVersion
 import de.gematik.ti.erp.app.debugsettings.data.DebugSettingsData
 import de.gematik.ti.erp.app.debugsettings.data.Environment
 import de.gematik.ti.erp.app.di.DebugSettings.getDebugSettingsDataForEnvironment
@@ -57,7 +59,6 @@ import de.gematik.ti.erp.app.digas.domain.usecase.GetIknrUseCase
 import de.gematik.ti.erp.app.digas.domain.usecase.UpdateIknrUseCase
 import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.AccessToken
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
@@ -67,10 +68,12 @@ import de.gematik.ti.erp.app.prescription.usecase.DeletePrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetTaskIdsUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
-import de.gematik.ti.erp.app.settings.usecase.GetAndroid8DeprecationOverrideUseCase
+import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
+import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.settings.usecase.ResetOnboardingUseCase
-import de.gematik.ti.erp.app.settings.usecase.SetAndroid8DeprecationOverrideUseCase
+import de.gematik.ti.erp.app.userauthentication.model.SingleSignOnTokenErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
+import de.gematik.ti.erp.app.appsecurity.usecase.SetShouldShowAndroid13DeprecationWarningUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
@@ -80,8 +83,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -110,7 +113,8 @@ class DebugSettingsViewModel(
     private val idpRepository: IdpRepository,
     private val saveInvoiceUseCase: SaveInvoiceUseCase,
     private val idpUseCase: IdpUseCase,
-    private val profilesUseCase: ProfilesUseCase,
+    private val getActiveProfileUseCase: GetActiveProfileUseCase,
+    private val getProfilesUseCase: GetProfilesUseCase,
     private val featureToggleRepository: FeatureToggleRepository,
     private val getAppUpdateManagerFlagUseCase: GetAppUpdateManagerFlagUseCase,
     private val changeAppUpdateManagerFlagUseCase: ChangeAppUpdateManagerFlagUseCase,
@@ -120,13 +124,14 @@ class DebugSettingsViewModel(
     private val getIknrUseCase: GetIknrUseCase,
     private val updateIknrUseCase: UpdateIknrUseCase,
     private val revokeEuConsentUseCase: RevokeConsentUseCase,
-    private val consentVersionDataStore: ConsentVersionDataStore,
-    private val communicationVersionDataStore: CommunicationVersionDataStore,
-    private val communicationDigaVersionDataStore: CommunicationDigaVersionDataStore,
-    private val euVersionDataStore: EuVersionDataStore,
-    private val getAndroid8DeprecationOverrideUseCase: GetAndroid8DeprecationOverrideUseCase,
-    private val setAndroid8DeprecationOverrideUseCase: SetAndroid8DeprecationOverrideUseCase,
+    private val consentVersionDataStore: ConsentVersionLocalDataSource,
+    private val communicationVersionDataStore: CommunicationVersionLocalDataSource,
+    private val communicationDigaVersionDataStore: CommunicationDigaVersionLocalDataSource,
+    private val euVersionDataStore: EuVersionLocalDataSource,
+    private val getShouldShowAndroid13DeprecationWarningUseCase: GetShouldShowAndroid13DeprecationWarningUseCase,
+    private val setShouldShowAndroid13DeprecationWarningUseCase: SetShouldShowAndroid13DeprecationWarningUseCase,
     private val resetOnboardingUseCase: ResetOnboardingUseCase,
+    private val roomProfileLocalDataSource: ProfileLocalDataSource,
     private val virtualHealthCardPrivateKeyDataStore: VirtualHealthCardLocalDataSource,
     private val dispatchers: DispatchProvider
 ) : ViewModel() {
@@ -166,33 +171,56 @@ class DebugSettingsViewModel(
         viewModelScope.launch {
             val value = getAppUpdateManagerFlagUseCase()
             _appUpdateManager.value = value
+        }
+
+        viewModelScope.launch {
             featureToggleRepository.getFeatures().collect {
                 _featureToggles.value = it
             }
-            getIknrUseCase().collectLatest {
-                _iknr.value = it
+        }
+
+        viewModelScope.launch {
+            // Load the saved IKNR once on init; do NOT keep collecting so that
+            // a user-typed but unsaved IKNR is never overwritten by a DB re-emission.
+            val savedIknr = getIknrUseCase().firstOrNull()
+            _iknr.value = savedIknr?.takeIf { it.isNotEmpty() } ?: aokBwIknr
+        }
+
+        viewModelScope.launch {
+            getShouldShowAndroid13DeprecationWarningUseCase().collect {
+                _android13DeprecationOverride.value = it
+            }
+        }
+
+        viewModelScope.launch {
+            consentVersionDataStore.consentVersion.collect {
+                _consentVersion.value = it
+            }
+        }
+
+        viewModelScope.launch {
+            communicationVersionDataStore.communicationVersion.collect {
+                _communicationVersion.value = it
+            }
+        }
+
+        viewModelScope.launch {
+            communicationDigaVersionDataStore.communicationDigaVersion.collect {
+                _communicationDigaVersion.value = it
+            }
+        }
+
+        viewModelScope.launch {
+            euVersionDataStore.euVersion.collect {
+                _euVersion.value = it
             }
         }
     }
 
     var debugSettingsData by mutableStateOf(createDebugSettingsData())
 
-    private val _android8DeprecationOverride = MutableStateFlow(getAndroid8DeprecationOverrideUseCase.invoke())
-    val android8DeprecationOverride: StateFlow<Boolean> = _android8DeprecationOverride.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            // populate app update manager flag and other async state
-            val value = getAppUpdateManagerFlagUseCase()
-            _appUpdateManager.value = value
-            featureToggleRepository.getFeatures().collect {
-                _featureToggles.value = it
-            }
-            getIknrUseCase().collectLatest {
-                _iknr.value = it
-            }
-        }
-    }
+    private val _android13DeprecationOverride = MutableStateFlow(false)
+    val shouldShowDeprecationWarning: StateFlow<Boolean> = _android13DeprecationOverride.asStateFlow()
 
     private fun createDebugSettingsData() = DebugSettingsData(
         eRezeptServiceURL = endpointHelper.eRezeptServiceUri,
@@ -215,16 +243,16 @@ class DebugSettingsViewModel(
     )
 
     suspend fun state() {
-        val profileId = profilesUseCase.activeProfileId().first()
+        val profileId = getActiveProfileUseCase().first().id
         val ssoTokenScope = cardWallUseCase.authenticationData(profileId)
-            .first().singleSignOnTokenScope as? IdpData.TokenWithHealthCardScope
-        val savedCert = virtualHealthCardPrivateKeyDataStore.getCert()
+            .first() as? UserAuthenticationErpModel.HealthCard
+        val savedCert = (virtualHealthCardPrivateKeyDataStore.cert.first())
             .ifEmpty {
                 ssoTokenScope?.healthCardCertificate?.let {
-                    java.util.Base64.getEncoder().encodeToString(it.encoded)
+                    java.util.Base64.getEncoder().encodeToString(it)
                 } ?: ""
             }
-        val savedPrivateKey = virtualHealthCardPrivateKeyDataStore.getPrivateKey()
+        val savedPrivateKey = virtualHealthCardPrivateKeyDataStore.privateKey.first()
         updateState(
             debugSettingsData.copy(
                 cardAccessNumberIsSet = ssoTokenScope?.cardAccessNumber?.isNotEmpty() ?: false,
@@ -240,9 +268,11 @@ class DebugSettingsViewModel(
         this.debugSettingsData = debugSettingsData
     }
 
-    fun setAndroid8DeprecationOverride(enabled: Boolean) {
-        setAndroid8DeprecationOverrideUseCase.invoke(enabled)
-        _android8DeprecationOverride.value = enabled
+    fun toggleShouldShowDeprecationWarning(enabled: Boolean) {
+        viewModelScope.launch {
+            setShouldShowAndroid13DeprecationWarningUseCase(enabled)
+        }
+        _android13DeprecationOverride.value = enabled
     }
 
     fun resetOnboarding() {
@@ -272,48 +302,41 @@ class DebugSettingsViewModel(
 
     suspend fun breakSSOToken() {
         withContext(dispatchers.io) {
-            val activeProfileId = profilesUseCase.activeProfileId().first()
-            idpRepository.authenticationData(activeProfileId).first().singleSignOnTokenScope?.let {
-                val newToken = when (it) {
-                    is IdpData.AlternateAuthenticationToken ->
-                        IdpData.AlternateAuthenticationToken(
-                            token = it.token?.breakToken(),
-                            cardAccessNumber = it.cardAccessNumber,
-                            aliasOfSecureElementEntry = it.aliasOfSecureElementEntry,
-                            healthCardCertificate = it.healthCardCertificate.encoded
-                        )
+            val activeProfileId = getActiveProfileUseCase().first().id
+            idpRepository.getUserAuthentication(activeProfileId).first().let {
+                val brokenToken = it.singleSignOnTokenErpModel?.breakToken()
+                val userAuthentication = when (it) {
+                    is UserAuthenticationErpModel.External -> {
+                        it.copy(singleSignOnTokenErpModel = brokenToken)
+                    }
 
-                    is IdpData.DefaultToken ->
-                        IdpData.DefaultToken(
-                            token = it.token?.breakToken(),
-                            cardAccessNumber = it.cardAccessNumber,
-                            healthCardCertificate = it.healthCardCertificate.encoded
-                        )
+                    is UserAuthenticationErpModel.HealthCard -> {
+                        it.copy(singleSignOnTokenErpModel = brokenToken)
+                    }
 
-                    is IdpData.ExternalAuthenticationToken ->
-                        IdpData.ExternalAuthenticationToken(
-                            token = it.token?.breakToken(),
-                            authenticatorName = it.authenticatorName,
-                            authenticatorId = it.authenticatorId
-                        )
+                    is UserAuthenticationErpModel.HealthCardWithSavedCredentials -> {
+                        it.copy(singleSignOnTokenErpModel = brokenToken)
+                    }
 
-                    else -> it
+                    is UserAuthenticationErpModel.NotInitialized -> {
+                        UserAuthenticationErpModel.NotInitialized
+                    }
                 }
-                idpRepository.saveSingleSignOnToken(
+                idpRepository.saveUserAuthentication(
                     profileId = activeProfileId,
-                    token = newToken
+                    authentication = userAuthentication
                 )
                 idpRepository.invalidateDecryptedAccessToken(activeProfileId)
             }
         }
     }
 
-    private fun IdpData.SingleSignOnToken.breakToken(): IdpData.SingleSignOnToken {
+    private fun SingleSignOnTokenErpModel.breakToken(): SingleSignOnTokenErpModel {
         val (_, rest) = this.token.split('.', limit = 2)
         val someHoursBeforeNow = Instant.now().minus(48, ChronoUnit.HOURS).epochSecond
         val headerWithExpiresOn =
             Base64Url.encodeUtf8ByteRepresentation("""{"exp":$someHoursBeforeNow}""")
-        return IdpData.SingleSignOnToken("$headerWithExpiresOn.$rest")
+        return SingleSignOnTokenErpModel("$headerWithExpiresOn.$rest")
     }
 
     suspend fun saveAndRestartApp() {
@@ -342,8 +365,8 @@ class DebugSettingsViewModel(
             debugSettingsData.fhirVzdPharmacySearchAccessTokenUrl,
             debugSettingsData.pharmacyServiceActive
         )
-        profilesUseCase.profiles.flowOn(Dispatchers.IO).first().forEach {
-            idpRepository.invalidate(it.id)
+        getProfilesUseCase().flowOn(Dispatchers.IO).first().forEach { profile ->
+            idpRepository.invalidate(profile.id)
         }
         vauRepository.invalidate()
         restart()
@@ -358,7 +381,7 @@ class DebugSettingsViewModel(
 
     fun refreshPrescriptions() {
         viewModelScope.launch {
-            prescriptionUseCase.downloadTasks(profilesUseCase.activeProfileId().first())
+            prescriptionUseCase.downloadTasks(getActiveProfileUseCase().first().id)
         }
     }
 
@@ -370,8 +393,8 @@ class DebugSettingsViewModel(
 
     fun onRevokeEuConsent() {
         viewModelScope.launch {
-            profilesUseCase.activeProfileId().first().let { profile ->
-                revokeEuConsentUseCase(profile, category = ConsentCategory.EUCONSENT)
+            getActiveProfileUseCase().first().let { profile ->
+                revokeEuConsentUseCase(profile.id, category = ConsentCategory.EUCONSENT).let { state -> }
             }
         }
     }
@@ -440,7 +463,7 @@ class DebugSettingsViewModel(
             val result = withContext(dispatchers.io) {
                 runCatching {
                     idpUseCase.authenticationFlowWithHealthCard(
-                        profileId = profilesUseCase.activeProfileId().first(),
+                        profileId = getActiveProfileUseCase().first().id,
                         cardAccessNumber = cardAccessNumber,
                         healthCardCertificate = { decodeBase64(certificateBase64) },
                         sign = signWithVirtualHealthCard(privateKeyBase64)
@@ -470,7 +493,7 @@ class DebugSettingsViewModel(
             _pairingLoading.value = true
             val result = withContext(dispatchers.io) {
                 runCatching {
-                    val profileId = profilesUseCase.activeProfileId().first()
+                    val profileId = getActiveProfileUseCase().first().id
                     idpUseCase.pairSecureElementWithHealthCard(
                         profileId = profileId,
                         cardAccessNumber = cardAccessNumber,
@@ -497,7 +520,7 @@ class DebugSettingsViewModel(
 
     fun saveInvoice(invoiceBundle: String) {
         viewModelScope.launch {
-            val profileId = profilesUseCase.activeProfileId().first()
+            val profileId = getActiveProfileUseCase().first().id
             val bundle = Json.parseToJsonElement(invoiceBundle)
             saveInvoiceUseCase.invoke(profileId, bundle)
         }
@@ -577,34 +600,50 @@ class DebugSettingsViewModel(
     }
 
     // Consent Version (DEBUG ONLY)
-    val consentVersion: StateFlow<ConsentVersion> =
-        consentVersionDataStore.consentVersion
+    private var _consentVersion = MutableStateFlow(ConsentVersion.V1_1)
+
+    val consentVersion: StateFlow<ConsentVersion> = _consentVersion.asStateFlow()
 
     fun setConsentVersion(version: ConsentVersion) {
-        consentVersionDataStore.saveConsentVersion(version)
+        _consentVersion.value = version
+        viewModelScope.launch {
+            consentVersionDataStore.saveConsentVersion(version)
+        }
     }
 
     // Communication Version (DEBUG ONLY)
-    val communicationVersion: StateFlow<CommunicationVersion> =
-        communicationVersionDataStore.communicationVersion
+    private var _communicationVersion = MutableStateFlow(CommunicationVersion.V_1_6)
+
+    val communicationVersion: StateFlow<CommunicationVersion> = _communicationVersion.asStateFlow()
 
     fun setCommunicationVersion(version: CommunicationVersion) {
-        communicationVersionDataStore.saveCommunicationVersion(version)
+        _communicationVersion.value = version
+        viewModelScope.launch {
+            communicationVersionDataStore.saveCommunicationVersion(version)
+        }
     }
 
     // Communication DiGA Version (DEBUG ONLY)
-    val communicationDigaVersion: StateFlow<CommunicationDigaVersion> =
-        communicationDigaVersionDataStore.communicationDigaVersion
+    private var _communicationDigaVersion = MutableStateFlow(CommunicationDigaVersion.V_1_5)
+
+    val communicationDigaVersion: StateFlow<CommunicationDigaVersion> = _communicationDigaVersion.asStateFlow()
 
     fun setCommunicationDigaVersion(version: CommunicationDigaVersion) {
-        communicationDigaVersionDataStore.saveCommunicationDigaVersion(version)
+        _communicationDigaVersion.value = version
+        viewModelScope.launch {
+            communicationDigaVersionDataStore.saveCommunicationDigaVersion(version)
+        }
     }
 
     // Eu Version (DEBUG ONLY)
-    val euVersion: StateFlow<EuVersion> =
-        euVersionDataStore.euVersion
+    private var _euVersion = MutableStateFlow(EuVersion.V_1_1)
+
+    val euVersion: StateFlow<EuVersion> = _euVersion.asStateFlow()
 
     fun setEuVersion(version: EuVersion) {
-        euVersionDataStore.saveEuVersion(version)
+        _euVersion.value = version
+        viewModelScope.launch {
+            euVersionDataStore.saveEuVersion(version)
+        }
     }
 }

@@ -23,8 +23,8 @@
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
 import de.gematik.ti.erp.app.fhir.FhirTaskMetaDataErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskStatusErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
-import de.gematik.ti.erp.app.task.model.TaskStatus
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 
@@ -36,7 +36,7 @@ object FhirTaskMetaDataErpTestData {
         expiresOn = FhirTemporal.LocalDate(LocalDate.parse("2022-06-02")),
         acceptUntil = FhirTemporal.LocalDate(LocalDate.parse("2022-04-02")),
         authoredOn = FhirTemporal.Instant(Instant.parse("2022-03-18T15:26:00Z")),
-        status = TaskStatus.Completed,
+        status = FhirTaskStatusErpModel.Completed,
         lastMedicationDispense = null
     )
 
@@ -47,7 +47,7 @@ object FhirTaskMetaDataErpTestData {
         expiresOn = FhirTemporal.LocalDate(LocalDate.parse("2020-06-02")),
         acceptUntil = FhirTemporal.LocalDate(LocalDate.parse("2020-04-01")),
         authoredOn = FhirTemporal.Instant(Instant.parse("2020-03-02T08:25:05Z")),
-        status = TaskStatus.InProgress,
+        status = FhirTaskStatusErpModel.InProgress,
         lastMedicationDispense = FhirTemporal.Instant(Instant.parse("2020-04-01T15:37:17Z"))
     )
 
@@ -59,7 +59,7 @@ object FhirTaskMetaDataErpTestData {
         acceptUntil = FhirTemporal.LocalDate(LocalDate.parse("2020-04-01")),
         authoredOn = FhirTemporal.Instant(Instant.parse("2024-07-28T08:00:00Z")),
         lastMedicationDispense = FhirTemporal.Instant(Instant.parse("2020-04-01T15:37:17Z")),
-        status = TaskStatus.InProgress,
+        status = FhirTaskStatusErpModel.InProgress,
         isEuRedeemableByProperties = true,
         isEuRedeemableByPatientAuthorization = false
     )
@@ -71,7 +71,7 @@ object FhirTaskMetaDataErpTestData {
         expiresOn = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
         acceptUntil = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
         authoredOn = FhirTemporal.Instant(Instant.parse("2026-04-01T15:29:00Z")),
-        status = TaskStatus.Ready,
+        status = FhirTaskStatusErpModel.Ready,
         lastMedicationDispense = null
     )
 
@@ -82,7 +82,7 @@ object FhirTaskMetaDataErpTestData {
         expiresOn = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
         acceptUntil = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
         authoredOn = FhirTemporal.Instant(Instant.parse("2026-04-01T15:29:00Z")),
-        status = TaskStatus.InProgress,
+        status = FhirTaskStatusErpModel.InProgress,
         lastMedicationDispense = FhirTemporal.Instant(Instant.parse("2026-04-01T16:44:00.434Z"))
     )
 
@@ -93,7 +93,7 @@ object FhirTaskMetaDataErpTestData {
         expiresOn = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
         acceptUntil = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
         authoredOn = FhirTemporal.Instant(Instant.parse("2026-04-01T15:29:00Z")),
-        status = TaskStatus.InProgress,
+        status = FhirTaskStatusErpModel.InProgress,
         lastMedicationDispense = null
     )
 
@@ -104,7 +104,7 @@ object FhirTaskMetaDataErpTestData {
         expiresOn = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
         acceptUntil = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
         authoredOn = FhirTemporal.Instant(Instant.parse("2026-04-01T15:29:00Z")),
-        status = TaskStatus.InProgress,
+        status = FhirTaskStatusErpModel.InProgress,
         lastMedicationDispense = FhirTemporal.Instant(Instant.parse("2026-04-01T16:44:00.434Z"))
     )
 
@@ -115,7 +115,7 @@ object FhirTaskMetaDataErpTestData {
         expiresOn = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
         acceptUntil = FhirTemporal.LocalDate(LocalDate.parse("2026-04-01")),
         authoredOn = FhirTemporal.Instant(Instant.parse("2026-04-01T15:29:00Z")),
-        status = TaskStatus.Completed,
+        status = FhirTaskStatusErpModel.Completed,
         lastMedicationDispense = null
     )
 }

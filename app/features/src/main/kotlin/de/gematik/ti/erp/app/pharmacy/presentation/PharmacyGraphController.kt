@@ -40,8 +40,8 @@ import de.gematik.ti.erp.app.pharmacy.usecase.GetOrderStateUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPharmaciesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPreviewMapCoordinatesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.SetPreviewMapCoordinatesUseCase
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.pharmacy.model.SearchFilterErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 import de.gematik.ti.erp.app.shared.usecase.GetLocationUseCase
 import de.gematik.ti.erp.app.shared.usecase.GetLocationUseCase.LocationResult
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
@@ -74,23 +74,23 @@ abstract class PharmacyGraphController : Controller() {
     abstract fun updateFilter(type: FilterType, clearLocation: Boolean = false)
     abstract fun onLocationPermissionResult(isLocationGranted: Boolean)
     abstract fun forceLocationFalse()
-    abstract fun forceLocationFalseWithSelectedCoordinates(selectedCoordinates: Coordinates)
+    abstract fun forceLocationFalseWithSelectedCoordinates(selectedCoordinates: PositionErpModel)
     abstract fun checkLocationServiceAndPermission(context: Context)
     abstract fun toggleShowServiceDescriptions()
     abstract fun toggleOnSiteFeature(option: PharmacyOnSiteFeatureOption)
     abstract fun toggleAvailableService(option: PharmacyFilterServiceOption)
 
     @Composable
-    abstract fun filter(): State<PharmacyUseCaseData.Filter>
+    abstract fun filter(): State<SearchFilterErpModel>
 
     @Composable
-    abstract fun coordinates(): State<Coordinates?>
+    abstract fun coordinates(): State<PositionErpModel?>
 
     @Composable
     abstract fun favouritePharmacies(): State<List<PharmacyErpModel>>
 
     @Composable
-    abstract fun previewCoordinates(): State<Coordinates>
+    abstract fun previewCoordinates(): State<PositionErpModel>
 
     @Composable
     abstract fun hasRedeemableOrders(): State<Boolean>
@@ -110,7 +110,7 @@ class DefaultPharmacyGraphController(
     private val getPreviewMapCoordinatesUseCase: GetPreviewMapCoordinatesUseCase
 ) : PharmacyGraphController() {
 
-    private val _coordinates = MutableStateFlow<Coordinates?>(null)
+    private val _coordinates = MutableStateFlow<PositionErpModel?>(null)
 
     private val _orderState by lazy { getOrderStateUseCase() }
 
@@ -119,7 +119,7 @@ class DefaultPharmacyGraphController(
         _orderState.map { it.prescriptionsInOrder.isNotEmpty() }.mapLatest { return@mapLatest it }
     }
 
-    private val _filter = MutableStateFlow(PharmacyUseCaseData.Filter())
+    private val _filter = MutableStateFlow(SearchFilterErpModel())
 
     private val _favouritePharmacies by lazy {
         getPharmaciesUseCase().stateIn(controllerScope, SharingStarted.Lazily, emptyList())
@@ -201,7 +201,7 @@ class DefaultPharmacyGraphController(
 
     override fun init(context: Context) {
         updateLocation(context)
-        _filter.value = PharmacyUseCaseData.Filter()
+        _filter.value = SearchFilterErpModel()
     }
 
     private fun updateLocation(context: Context) {
@@ -209,7 +209,7 @@ class DefaultPharmacyGraphController(
             if (context.isLocationPermissionAndServiceEnabled()) {
                 getLocationUseCase.invoke().collectLatest { result ->
                     if (result is LocationResult.Success) {
-                        val coordinatesResult = Coordinates(
+                        val coordinatesResult = PositionErpModel(
                             latitude = result.location.latitude,
                             longitude = result.location.longitude
                         )
@@ -241,7 +241,7 @@ class DefaultPharmacyGraphController(
         _coordinates.value = null
     }
 
-    override fun forceLocationFalseWithSelectedCoordinates(selectedCoordinates: Coordinates) {
+    override fun forceLocationFalseWithSelectedCoordinates(selectedCoordinates: PositionErpModel) {
         _filter.value = _filter.value.copy(nearBy = false)
         setPreviewMapCoordinatesUseCase.invoke(selectedCoordinates)
         _coordinates.value = selectedCoordinates
@@ -286,7 +286,7 @@ class DefaultPharmacyGraphController(
                             }
 
                             is LocationResult.Success -> {
-                                val coordinatesResult = Coordinates(
+                                val coordinatesResult = PositionErpModel(
                                     latitude = result.location.latitude,
                                     longitude = result.location.longitude
                                 )
@@ -303,13 +303,13 @@ class DefaultPharmacyGraphController(
     }
 
     override fun reset() {
-        _filter.value = PharmacyUseCaseData.Filter()
+        _filter.value = SearchFilterErpModel()
         _coordinates.value = null
     }
 
     @Composable
-    override fun filter(): State<PharmacyUseCaseData.Filter> {
-        return _filter.collectAsStateWithLifecycle(PharmacyUseCaseData.Filter())
+    override fun filter(): State<SearchFilterErpModel> {
+        return _filter.collectAsStateWithLifecycle(SearchFilterErpModel())
     }
 
     @Composable
@@ -319,7 +319,7 @@ class DefaultPharmacyGraphController(
     override fun favouritePharmacies() = _favouritePharmacies.collectAsStateWithLifecycle(emptyList())
 
     @Composable
-    override fun previewCoordinates(): State<Coordinates> {
+    override fun previewCoordinates(): State<PositionErpModel> {
         LocalContext.current.resetPreviewOnLocationNotAllowed()
         return getPreviewMapCoordinatesUseCase()
             .collectAsStateWithLifecycle(berlinCoordinates)

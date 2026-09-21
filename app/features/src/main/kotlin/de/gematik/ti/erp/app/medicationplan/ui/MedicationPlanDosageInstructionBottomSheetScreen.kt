@@ -54,7 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
+import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstructionErpModel
 import de.gematik.ti.erp.app.medicationplan.presentation.rememberMedicationPlanDosageInstructionBottomSheetController
 import de.gematik.ti.erp.app.medicationplan.ui.preview.MedicationPlanDosageInfoPreview
 import de.gematik.ti.erp.app.medicationplan.ui.preview.MedicationPlanDosageInfoPreviewParameter
@@ -106,34 +106,34 @@ class MedicationPlanDosageInstructionBottomSheetScreen(
 }
 
 @Composable
-private fun MedicationPlanDosageInstructionBottomSheetContent(dosageInstruction: MedicationPlanDosageInstruction) {
+private fun MedicationPlanDosageInstructionBottomSheetContent(dosageInstruction: MedicationPlanDosageInstructionErpModel) {
     when (dosageInstruction) {
-        is MedicationPlanDosageInstruction.External -> ExternalInfo()
-        MedicationPlanDosageInstruction.Empty -> EmptyInfo()
-        is MedicationPlanDosageInstruction.FreeText -> FreeTextInfo(dosageInstruction)
-        is MedicationPlanDosageInstruction.Structured -> StructuredInfo(dosageInstruction)
+        is MedicationPlanDosageInstructionErpModel.External -> ExternalInfo()
+        is MedicationPlanDosageInstructionErpModel.Empty -> EmptyInfo()
+        is MedicationPlanDosageInstructionErpModel.FreeText -> FreeTextInfo(dosageInstruction)
+        is MedicationPlanDosageInstructionErpModel.Structured -> StructuredInfo(dosageInstruction)
     }
 }
 
 @Composable
-private fun StructuredInfo(dosageInstruction: MedicationPlanDosageInstruction.Structured) {
+private fun StructuredInfo(dosageInstruction: MedicationPlanDosageInstructionErpModel.Structured) {
     InfoContent(
         dosageText = dosageInstruction.text,
         body = stringResource(R.string.structured_dosage_info_body)
     ) {
         dosageInstruction.interpretation.forEach { (dayTime, times) ->
             when (dayTime) {
-                MedicationPlanDosageInstruction.DayTime.MORNING -> Body2lText(stringResource(R.string.structured_dosage_morning, times))
-                MedicationPlanDosageInstruction.DayTime.NOON -> Body2lText(stringResource(R.string.structured_dosage_noon, times))
-                MedicationPlanDosageInstruction.DayTime.EVENING -> Body2lText(stringResource(R.string.structured_dosage_evening, times))
-                MedicationPlanDosageInstruction.DayTime.NIGHT -> Body2lText(stringResource(R.string.structured_dosage_night, times))
+                MedicationPlanDosageInstructionErpModel.DayTime.MORNING -> Body2lText(stringResource(R.string.structured_dosage_morning, times))
+                MedicationPlanDosageInstructionErpModel.DayTime.NOON -> Body2lText(stringResource(R.string.structured_dosage_noon, times))
+                MedicationPlanDosageInstructionErpModel.DayTime.EVENING -> Body2lText(stringResource(R.string.structured_dosage_evening, times))
+                MedicationPlanDosageInstructionErpModel.DayTime.NIGHT -> Body2lText(stringResource(R.string.structured_dosage_night, times))
             }
         }
     }
 }
 
 @Composable
-private fun FreeTextInfo(dosageInstruction: MedicationPlanDosageInstruction.FreeText) {
+private fun FreeTextInfo(dosageInstruction: MedicationPlanDosageInstructionErpModel.FreeText) {
     InfoContent(
         dosageText = dosageInstruction.text,
         body = stringResource(R.string.freetext_dosage_info_body)

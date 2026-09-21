@@ -30,15 +30,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import de.gematik.ti.erp.app.appauthentication.model.AppAuthenticationErpModel
+import de.gematik.ti.erp.app.appauthentication.model.AppAuthenticationFailureErpModel
+import de.gematik.ti.erp.app.appauthentication.model.AppAuthenticationMethodErpModel
 import de.gematik.ti.erp.app.authentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.settings.model.SettingsData
-import de.gematik.ti.erp.app.settings.usecase.DisableDeviceSecurityUseCase
-import de.gematik.ti.erp.app.settings.usecase.EnableDeviceSecurityUseCase
-import de.gematik.ti.erp.app.settings.usecase.GetAuthenticationUseCase
-import de.gematik.ti.erp.app.settings.usecase.ResetPasswordUseCase
+import de.gematik.ti.erp.app.appauthentication.usecase.DisableDeviceSecurityUseCase
+import de.gematik.ti.erp.app.appauthentication.usecase.EnableDeviceSecurityUseCase
+import de.gematik.ti.erp.app.appauthentication.usecase.GetAppAuthenticationUseCase
+import de.gematik.ti.erp.app.appauthentication.usecase.ResetPasswordUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -49,7 +51,7 @@ class AppSecuritySettingsController(
     private val enableDeviceSecurityUseCase: EnableDeviceSecurityUseCase,
     private val disableDeviceSecurityUseCase: DisableDeviceSecurityUseCase,
     private val resetPasswordUseCase: ResetPasswordUseCase,
-    private val getAuthenticationUseCase: GetAuthenticationUseCase,
+    private val getAuthenticationUseCase: GetAppAuthenticationUseCase,
     private val biometricPromptBuilder: BiometricPromptBuilder,
     private val promptInfo: BiometricPrompt.PromptInfo,
     private val keyguardManager: KeyguardManager
@@ -117,11 +119,9 @@ class AppSecuritySettingsController(
     }
 }
 
-val defaultAuthentication = SettingsData.Authentication(
-    password = null,
-    deviceSecurity = false,
-    failedAuthenticationAttempts = 0,
-    authenticationTimeOutSystemUptime = null
+val defaultAuthentication = AppAuthenticationErpModel(
+    authenticationMethod = AppAuthenticationMethodErpModel.NotInitialised,
+    authenticationFailure = AppAuthenticationFailureErpModel()
 )
 
 data class AppSecuritySettingsEvents(
@@ -134,7 +134,7 @@ fun rememberAppSecuritySettingsController(): AppSecuritySettingsController {
     val enableDeviceSecurityUseCase by rememberInstance<EnableDeviceSecurityUseCase>()
     val disableDeviceSecurityUseCase by rememberInstance<DisableDeviceSecurityUseCase>()
     val resetPasswordUseCase by rememberInstance<ResetPasswordUseCase>()
-    val getAuthenticationUseCase by rememberInstance<GetAuthenticationUseCase>()
+    val getAuthenticationUseCase by rememberInstance<GetAppAuthenticationUseCase>()
 
     val activity = LocalActivity.current
     val biometricPromptBuilder = remember { BiometricPromptBuilder(activity as AppCompatActivity) }

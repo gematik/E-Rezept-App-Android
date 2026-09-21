@@ -22,7 +22,7 @@
 package de.gematik.ti.erp.app.database.realm.v1.pharmacy
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.database.api.PharmacySearchAccessTokenLocalDataSource
+import de.gematik.ti.erp.app.database.api.pharmacy.PharmacySearchAccessTokenLocalDataSource
 import de.gematik.ti.erp.app.database.realm.utils.queryFirst
 import de.gematik.ti.erp.app.database.realm.utils.safeWrite
 import de.gematik.ti.erp.app.database.realm.utils.toInstant

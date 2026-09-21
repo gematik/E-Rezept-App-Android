@@ -22,23 +22,8 @@
 
 package de.gematik.ti.erp.app.mocks.prescription.model
 
-import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SCANNED_TASK
+import de.gematik.ti.erp.app.mocks.prescription.api.API_ARCHIVE_SCANNED_TASK
 
-val MODEL_SCANNED_PRESCRIPTION_ACTIVE = Prescription.ScannedPrescription(
-    taskId = "active-scanned-task-id-1",
-    name = "Scanned Task",
-    redeemedOn = null,
-    scannedOn = DATE_2024_01_01,
-    index = 0,
-    communications = emptyList()
-)
-
-val MODEL_SCANNED_PRESCRIPTION_ARCHIVED = Prescription.ScannedPrescription(
-    taskId = "archive-scanned-task-id-1",
-    name = "Scanned Task",
-    redeemedOn = DATE_2024_01_01,
-    scannedOn = DATE_2024_01_01,
-    index = 0,
-    communications = emptyList()
-)
+val MODEL_SCANNED_PRESCRIPTION_ACTIVE = API_ACTIVE_SCANNED_TASK
+val MODEL_SCANNED_PRESCRIPTION_ARCHIVED = API_ARCHIVE_SCANNED_TASK

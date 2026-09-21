@@ -61,7 +61,7 @@ import de.gematik.ti.erp.app.digas.ui.preview.InsuranceSearchListPreviewData
 import de.gematik.ti.erp.app.digas.ui.preview.InsuranceSearchListPreviewParameterProvider
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.navigation.Screen
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -96,7 +96,7 @@ class DigaInsuranceSearchListScreen(
 
         val onBack: () -> Unit = { navController.popBackStack() }
 
-        val onSelectInsuranceProvider: (PharmacyUseCaseData.Pharmacy) -> Unit = { insuranceProvider ->
+        val onSelectInsuranceProvider: (PharmacyDetailsErpModel) -> Unit = { insuranceProvider ->
             sharedViewModel.updateInsuranceInfo(insuranceProvider.telematikId, insuranceProvider.name)
             navController.popBackStack()
         }
@@ -126,7 +126,7 @@ private fun InsuranceSearchListScreenContent(
     focusManager: FocusManager,
     lazyListState: LazyListState,
     uiState: UiState<List<InsuranceUiModel>>,
-    onSelectInsuranceProvider: (PharmacyUseCaseData.Pharmacy) -> Unit,
+    onSelectInsuranceProvider: (PharmacyDetailsErpModel) -> Unit,
     onBack: () -> Unit
 ) {
     Scaffold(
@@ -166,7 +166,7 @@ private fun InsuranceSearchSection(
     lazyListState: LazyListState,
     errorScreenData: ErrorScreenData,
     uiState: UiState<List<InsuranceUiModel>>,
-    onSelectInsuranceProvider: (PharmacyUseCaseData.Pharmacy) -> Unit,
+    onSelectInsuranceProvider: (PharmacyDetailsErpModel) -> Unit,
     searchFieldValue: String,
     onSearchInputChange: (String) -> Unit,
     onRemoveSearchInput: () -> Unit,

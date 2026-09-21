@@ -22,9 +22,10 @@
 
 package de.gematik.ti.erp.app.settings.usecase
 
-import de.gematik.ti.erp.app.database.settings.ThemePreferencesDataStore
 import de.gematik.ti.erp.app.settings.model.ThemeMode
+import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /**
  * Use case for retrieving the current theme mode setting.
@@ -40,10 +41,9 @@ import kotlinx.coroutines.flow.Flow
  * }
  * ```
  *
- * @param themePreferencesDataStore DataStore for theme preferences
  */
 class GetThemeModeUseCase(
-    private val themePreferencesDataStore: ThemePreferencesDataStore
+    private val settingsRepository: SettingsRepository
 ) {
-    operator fun invoke(): Flow<ThemeMode> = themePreferencesDataStore.themeMode
+    operator fun invoke(): Flow<ThemeMode> = settingsRepository.loadSettings().map { it.theme }
 }

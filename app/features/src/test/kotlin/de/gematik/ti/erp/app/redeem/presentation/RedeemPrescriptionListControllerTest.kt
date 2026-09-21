@@ -29,16 +29,18 @@ import de.gematik.ti.erp.app.base.usecase.DownloadAllResourcesUseCase
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK
 import de.gematik.ti.erp.app.mocks.profile.model.MODEL_PROFILE
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
 import de.gematik.ti.erp.app.pharmacy.model.PrescriptionRedeemArguments
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
+import de.gematik.ti.erp.app.pharmacy.model.ContactInformationErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
 import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
 import de.gematik.ti.erp.app.redeem.usecase.GetReadyPrescriptionsByTaskIdsUseCase
 import de.gematik.ti.erp.app.redeem.usecase.RedeemPrescriptionsOnLoggedInUseCase
-import de.gematik.ti.erp.app.settings.repository.CommunicationVersionRepository
+import de.gematik.ti.erp.app.debug.repository.CommunicationVersionRepository
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -71,7 +73,7 @@ import kotlin.test.assertEquals
 
 class RedeemPrescriptionListControllerTest {
 
-    private val prescriptionRepository: PrescriptionRepository = mockk()
+    private val taskOperationsRepository: TaskOperationsRepository = mockk()
     private val pharmacyRepository: PharmacyRepository = mockk()
 
     private val communicationVersionRepository: CommunicationVersionRepository = mockk()
@@ -93,13 +95,13 @@ class RedeemPrescriptionListControllerTest {
 
         coEvery { pharmacyRepository.markPharmacyAsOftenUsed(any()) } returns Unit
         coEvery { downloadAllResourcesUseCase.invoke(any()) } returns Result.success(1)
-        coEvery { prescriptionRepository.loadSyncedTasksByTaskIds(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK))
-        coEvery { prescriptionRepository.loadScannedTasksByTaskIds(any()) } returns flowOf(emptyList())
+        coEvery { taskOperationsRepository.loadSyncedTasksByTaskIds(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK))
+        coEvery { taskOperationsRepository.loadScannedTasksByTaskIds(any()) } returns flowOf(emptyList())
         coEvery { communicationVersionRepository.getCommunicationVersion() } returns FhirCommunicationVersions.CommunicationVersion.V_1_5
 
         redeemPrescriptionsOnLoggedInUseCase =
-            spyk(RedeemPrescriptionsOnLoggedInUseCase(prescriptionRepository, pharmacyRepository, communicationVersionRepository, dispatcher))
-        getReadyPrescriptionsByTaskIdsUseCase = spyk(GetReadyPrescriptionsByTaskIdsUseCase(prescriptionRepository, dispatcher))
+            spyk(RedeemPrescriptionsOnLoggedInUseCase(taskOperationsRepository, pharmacyRepository, communicationVersionRepository, dispatcher))
+        getReadyPrescriptionsByTaskIdsUseCase = spyk(GetReadyPrescriptionsByTaskIdsUseCase(taskOperationsRepository, dispatcher))
         controllerUnderTest = RedeemPrescriptionsController(
             redeemPrescriptionsOnLoggedInUseCase,
             downloadAllResourcesUseCase,
@@ -117,7 +119,7 @@ class RedeemPrescriptionListControllerTest {
     @Test
     fun `success - logged-in redemption`() {
         coEvery {
-            prescriptionRepository.redeem(
+            taskOperationsRepository.redeem(
                 profileId = loggedInRedeemArguments.profile.id,
                 communication = any(),
                 accessCode = any()
@@ -163,7 +165,7 @@ class RedeemPrescriptionListControllerTest {
     @Test
     fun `failure - logged in redemption HTTP_BAD_REQUEST`() {
         coEvery {
-            prescriptionRepository.redeem(
+            taskOperationsRepository.redeem(
                 profileId = loggedInRedeemArguments.profile.id,
                 communication = any(),
                 accessCode = any()
@@ -198,7 +200,7 @@ class RedeemPrescriptionListControllerTest {
     @Test
     fun `failure - logged in redemption HTTP_UNAUTHORIZED`() {
         coEvery {
-            prescriptionRepository.redeem(
+            taskOperationsRepository.redeem(
                 profileId = loggedInRedeemArguments.profile.id,
                 communication = any(),
                 accessCode = any()
@@ -233,7 +235,7 @@ class RedeemPrescriptionListControllerTest {
     @Test
     fun `failure - logged in redemption HTTP_CLIENT_TIMEOUT`() {
         coEvery {
-            prescriptionRepository.redeem(
+            taskOperationsRepository.redeem(
                 profileId = loggedInRedeemArguments.profile.id,
                 communication = any(),
                 accessCode = any()
@@ -268,7 +270,7 @@ class RedeemPrescriptionListControllerTest {
     @Test
     fun `failure - logged in redemption HTTP_CONFLICT`() {
         coEvery {
-            prescriptionRepository.redeem(
+            taskOperationsRepository.redeem(
                 profileId = loggedInRedeemArguments.profile.id,
                 communication = any(),
                 accessCode = any()
@@ -303,7 +305,7 @@ class RedeemPrescriptionListControllerTest {
     @Test
     fun `failure - logged in redemption HTTP_GONE`() {
         coEvery {
-            prescriptionRepository.redeem(
+            taskOperationsRepository.redeem(
                 profileId = loggedInRedeemArguments.profile.id,
                 communication = any(),
                 accessCode = any()
@@ -338,7 +340,7 @@ class RedeemPrescriptionListControllerTest {
     @Test
     fun `failure - logged in redemption HTTP_INTERNAL_ERROR`() {
         coEvery {
-            prescriptionRepository.redeem(
+            taskOperationsRepository.redeem(
                 profileId = loggedInRedeemArguments.profile.id,
                 communication = any(),
                 accessCode = any()
@@ -376,7 +378,7 @@ class RedeemPrescriptionListControllerTest {
         private const val taskId = "active-synced-task-id-1"
         private const val pharmacyId = "pharmacy-id-1"
         private val prescriptionsForOrders = listOf(
-            PharmacyUseCaseData.PrescriptionInOrder(
+            PrescriptionInOrderErpModel(
                 taskId = taskId,
                 accessCode = "access-code-1",
                 title = "title-1",
@@ -384,16 +386,17 @@ class RedeemPrescriptionListControllerTest {
                 index = 1,
                 timestamp = Instant.parse("2024-08-01T10:00:00Z"),
                 substitutionsAllowed = false,
-                isScanned = false
+                isScanned = false,
+                isTeratogenicPrescription = false
             )
         )
-        private val pharmacy = PharmacyUseCaseData.Pharmacy(
+        private val pharmacy = PharmacyDetailsErpModel(
             id = pharmacyId,
             name = "pharmacy-name",
             address = "pharmacy-address",
             coordinates = null,
             distance = null,
-            contact = PharmacyUseCaseData.PharmacyContact(
+            contact = ContactInformationErpModel(
                 phone = "pharmacy-phone",
                 mail = "pharmacy-mail",
                 url = "pharmacy-url"
@@ -417,7 +420,7 @@ class RedeemPrescriptionListControllerTest {
             profile = MODEL_PROFILE,
             orderId = orderId,
             prescriptionOrderInfos = prescriptionsForOrders,
-            redeemOption = PharmacyScreenData.OrderOption.Pickup,
+            redeemOption = OrderOptionErpModel.Pickup,
             pharmacy = pharmacy,
             contact = contact
         )

@@ -23,22 +23,19 @@
 package de.gematik.ti.erp.app.authentication.presentation
 
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
-import de.gematik.ti.erp.app.authentication.model.Biometric
-import de.gematik.ti.erp.app.authentication.model.External
-import de.gematik.ti.erp.app.authentication.model.HealthCard
-import de.gematik.ti.erp.app.authentication.model.InitialAuthenticationData
-import de.gematik.ti.erp.app.authentication.model.None
 import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.cardwall.model.CardWallEventData
 import de.gematik.ti.erp.app.cardwall.model.GidNavigationData
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.presentation.GetProfileByIdController
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
@@ -70,9 +67,9 @@ abstract class ChooseAuthenticationController(
     private val networkStatusTracker: NetworkStatusTracker,
     private val biometricAuthenticator: BiometricAuthenticator,
     val chooseAuthenticationNavigationEvents: ChooseAuthenticationNavigationEvents = ChooseAuthenticationNavigationEvents(),
-    override val onSelectedProfileSuccess: ((ProfilesUseCaseData.Profile, CoroutineScope) -> Unit)? = null,
+    override val onSelectedProfileSuccess: ((ProfileErpModel, CoroutineScope) -> Unit)? = null,
     override val onSelectedProfileFailure: ((Throwable, CoroutineScope) -> Unit)? = null,
-    override val onActiveProfileSuccess: ((ProfilesUseCaseData.Profile, CoroutineScope) -> Unit)? = null,
+    override val onActiveProfileSuccess: ((ProfileErpModel, CoroutineScope) -> Unit)? = null,
     override val onActiveProfileFailure: ((Throwable, CoroutineScope) -> Unit)? = null
 ) : GetProfileByIdController(
     selectedProfileId = profileId,
@@ -87,26 +84,26 @@ abstract class ChooseAuthenticationController(
     protected val biometricAuthenticationSuccessEvent = ComposableEvent<AuthReason>()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    protected fun Flow<ProfilesUseCaseData.Profile>.onBiometricAuthentication(): Flow<ProfilesUseCaseData.Profile?> =
+    protected fun Flow<ProfileErpModel>.onBiometricAuthentication(): Flow<ProfileErpModel?> =
         flatMapLatest { profile ->
             chooseAuthenticationDataUseCase(profile.id)
                 .map { authenticationData ->
                     when (authenticationData) {
-                        is Biometric -> profile
+                        is UserAuthenticationErpModel.HealthCardWithSavedCredentials -> profile
                         else -> null
                     }
                 }
         }
 
     fun chooseAuthenticationMethod(
-        profile: ProfilesUseCaseData.Profile,
+        profile: ProfileErpModel,
         useBiometricPairingScope: Boolean = false,
         authenticationReason: AuthReason = AuthReason.SUBMIT
     ) {
         controllerScope.launch {
-            chooseAuthenticationDataUseCase(profile.id).first { authenticationData: InitialAuthenticationData ->
-                when (authenticationData) {
-                    is Biometric -> {
+            chooseAuthenticationDataUseCase(profile.id).first { userAuthenticationErpModel: UserAuthenticationErpModel ->
+                when (userAuthenticationErpModel) {
+                    is UserAuthenticationErpModel.HealthCardWithSavedCredentials -> {
                         Napier.i(tag = TAG, message = "trigger biometric authentication")
                         biometricAuthenticator.authenticate(
                             id = profile.id,
@@ -114,7 +111,6 @@ abstract class ChooseAuthenticationController(
                         ).collectLatest { result ->
                             when (result) {
                                 is AuthenticationResult.IdpCommunicationUpdate.IdpCommunicationSuccess -> {
-                                    refreshActiveProfile()
                                     biometricAuthenticationSuccessEvent.trigger(authenticationReason)
                                 }
 
@@ -146,39 +142,51 @@ abstract class ChooseAuthenticationController(
                         }
                     }
 
-                    is External -> when (profile.insurance.insuranceType) {
-                        ProfilesUseCaseData.InsuranceType.GKV -> chooseAuthenticationNavigationEvents.showCardWallIntroScreenWithGidEvent.trigger(
-                            GidNavigationData(profile.id, authenticationData.authenticatorId, authenticationData.authenticatorName)
+                    is UserAuthenticationErpModel.External -> when (profile.insuranceData.insuranceType) {
+                        InsuranceType.GKV -> chooseAuthenticationNavigationEvents.showCardWallIntroScreenWithGidEvent.trigger(
+                            GidNavigationData(
+                                profile.id,
+                                userAuthenticationErpModel.externalAuthenticatorId,
+                                userAuthenticationErpModel.externalAuthenticatorName
+                            )
                         )
 
-                        ProfilesUseCaseData.InsuranceType.PKV -> chooseAuthenticationNavigationEvents.showCardWallGidListScreenWithGidEvent.trigger(
-                            GidNavigationData(profile.id, authenticationData.authenticatorId, authenticationData.authenticatorName)
+                        InsuranceType.PKV -> chooseAuthenticationNavigationEvents.showCardWallGidListScreenWithGidEvent.trigger(
+                            GidNavigationData(
+                                profile.id,
+                                userAuthenticationErpModel.externalAuthenticatorId,
+                                userAuthenticationErpModel.externalAuthenticatorName
+                            )
                         )
 
-                        ProfilesUseCaseData.InsuranceType.BUND -> chooseAuthenticationNavigationEvents.showCardWallIntroScreenWithGidEvent.trigger(
-                            GidNavigationData(profile.id, authenticationData.authenticatorId, authenticationData.authenticatorName)
+                        InsuranceType.BUND -> chooseAuthenticationNavigationEvents.showCardWallIntroScreenWithGidEvent.trigger(
+                            GidNavigationData(
+                                profile.id,
+                                userAuthenticationErpModel.externalAuthenticatorId,
+                                userAuthenticationErpModel.externalAuthenticatorName
+                            )
                         )
 
-                        ProfilesUseCaseData.InsuranceType.NONE -> chooseAuthenticationNavigationEvents.showCardWallSelectInsuranceScreenEvent.trigger(
+                        InsuranceType.NONE -> chooseAuthenticationNavigationEvents.showCardWallSelectInsuranceScreenEvent.trigger(
                             profile.id
                         ) // can't be reached
                     }
 
-                    is HealthCard -> chooseAuthenticationNavigationEvents.showCardWallWithFilledCanEvent.trigger(
+                    is UserAuthenticationErpModel.HealthCard -> chooseAuthenticationNavigationEvents.showCardWallWithFilledCanEvent.trigger(
                         CardWallEventData(
                             profile.id,
-                            authenticationData.can
+                            userAuthenticationErpModel.cardAccessNumber
                         )
                     )
 
-                    is None -> when (profile.insurance.insuranceType) {
-                        ProfilesUseCaseData.InsuranceType.NONE -> chooseAuthenticationNavigationEvents.showCardWallSelectInsuranceScreenEvent.trigger(
+                    is UserAuthenticationErpModel.NotInitialized -> when (profile.insuranceData.insuranceType) {
+                        InsuranceType.NONE -> chooseAuthenticationNavigationEvents.showCardWallSelectInsuranceScreenEvent.trigger(
                             profile.id
                         )
 
-                        ProfilesUseCaseData.InsuranceType.GKV -> chooseAuthenticationNavigationEvents.showCardWallIntroScreenEvent.trigger(profile.id)
-                        ProfilesUseCaseData.InsuranceType.PKV -> chooseAuthenticationNavigationEvents.showCardWallGidListScreenEvent.trigger(profile.id)
-                        ProfilesUseCaseData.InsuranceType.BUND -> chooseAuthenticationNavigationEvents.showCardWallIntroScreenEvent.trigger(profile.id)
+                        InsuranceType.GKV -> chooseAuthenticationNavigationEvents.showCardWallIntroScreenEvent.trigger(profile.id)
+                        InsuranceType.PKV -> chooseAuthenticationNavigationEvents.showCardWallGidListScreenEvent.trigger(profile.id)
+                        InsuranceType.BUND -> chooseAuthenticationNavigationEvents.showCardWallCanScreenEvent.trigger(profile.id)
                     }
                 }
                 true
@@ -194,7 +202,6 @@ abstract class ChooseAuthenticationController(
             is AuthenticationResult.Error.ResetError -> {
                 Napier.i(tag = TAG) { "Removing authentication data from database" }
                 biometricAuthenticator.removeAuthentication(profileId)
-                refreshActiveProfile()
                 chooseAuthenticationNavigationEvents.biometricAuthenticationResetErrorEvent.trigger(error)
             }
 

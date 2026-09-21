@@ -26,11 +26,13 @@ import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.HTTP_UNAUTHORIZED
 import de.gematik.ti.erp.app.api.UnauthorizedException
 import de.gematik.ti.erp.app.pharmacy.api.FhirVzdService
+import de.gematik.ti.erp.app.pharmacy.usecase.model.LocationFilter
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.JsonElement
 import okhttp3.MediaType.Companion.toMediaType
@@ -40,6 +42,7 @@ import org.junit.Test
 import retrofit2.Response
 import java.io.IOException
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class PharmacyRemoteDataSourceTest {
@@ -139,5 +142,79 @@ class PharmacyRemoteDataSourceTest {
         assertTrue(listResult.exceptionOrNull() is ApiCallException)
         assertTrue(itemTokenCleared) // Ensure token clearance was triggered
         assertTrue(listTokenCleared) // Ensure token clearance was triggered
+    }
+
+    @Test
+    fun `searchPharmacies with location filter uses nearPharmacy search with on-site features as text`() = runTest {
+        val mockJsonElement = mockk<JsonElement>()
+        val mockResponse = mockk<Response<JsonElement>> {
+            every { isSuccessful } returns true
+            every { body() } returns mockJsonElement
+        }
+
+        val textSearchSlot = slot<String>()
+        coEvery {
+            fhirVzdSearchService.searchNearPharmacy(
+                textSearch = capture(textSearchSlot),
+                query = any(),
+                longitude = any(),
+                latitude = any(),
+                distance = any(),
+                characteristics = any(),
+                count = any()
+            )
+        } returns mockResponse
+
+        val filter = PharmacyFilter.create(
+            locationFilter = LocationFilter(latitude = 52.52, longitude = 13.405),
+            onSiteFeatureCodes = setOf("barrierefrei", "oepnv")
+        )
+
+        val result = defaultPharmacyRemoteDataSource.searchPharmacies(filter) {}
+
+        assertTrue(result.isSuccess)
+        val textSearch = textSearchSlot.captured
+        assertNotNull(textSearch)
+        assertTrue(textSearch.contains("Barrierefrei"), "Text should contain German keyword for barrierefrei")
+        assertTrue(textSearch.contains("ÖPNV"), "Text should contain German keyword for oepnv")
+    }
+
+    @Test
+    fun `searchPharmacies with location filter includes available service codes as German text`() = runTest {
+        val mockJsonElement = mockk<JsonElement>()
+        val mockResponse = mockk<Response<JsonElement>> {
+            every { isSuccessful } returns true
+            every { body() } returns mockJsonElement
+        }
+
+        val textSearchSlot = slot<String>()
+        coEvery {
+            fhirVzdSearchService.searchNearPharmacy(
+                textSearch = capture(textSearchSlot),
+                query = any(),
+                longitude = any(),
+                latitude = any(),
+                distance = any(),
+                characteristics = any(),
+                count = any()
+            )
+        } returns mockResponse
+
+        val filter = PharmacyFilter.create(
+            locationFilter = LocationFilter(latitude = 52.52, longitude = 13.405),
+            courier = true,
+            availableServiceCodes = setOf("50", "impfung"),
+            onSiteFeatureCodes = setOf("parkmoeglichkeit")
+        )
+
+        val result = defaultPharmacyRemoteDataSource.searchPharmacies(filter) {}
+
+        assertTrue(result.isSuccess)
+        val textSearch = textSearchSlot.captured
+        assertNotNull(textSearch)
+        assertTrue(textSearch.contains("Botendienst"), "Text should contain German keyword for courier")
+        assertTrue(textSearch.contains("Sterilherstellung"), "Text should contain German keyword for code 50")
+        assertTrue(textSearch.contains("Impfung"), "Text should contain German keyword for impfung")
+        assertTrue(textSearch.contains("Parkmöglichkeit"), "Text should contain German keyword for parkmoeglichkeit")
     }
 }

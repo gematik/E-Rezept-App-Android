@@ -62,8 +62,9 @@ class TermsOfUseScreen(
         )
         if (BuildConfigExtension.isInternalDebug) {
             SkipOnBoardingButton {
-                graphController.createProfileOnSkipOnboarding()
-                navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                graphController.createProfileOnSkipOnboarding {
+                    navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                }
             }
         }
     }

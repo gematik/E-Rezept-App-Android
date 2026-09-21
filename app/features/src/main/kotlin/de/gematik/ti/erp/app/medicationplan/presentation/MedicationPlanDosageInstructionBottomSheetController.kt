@@ -26,7 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.base.Controller
-import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
+import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstructionErpModel
 import de.gematik.ti.erp.app.medicationplan.usecase.GetDosageInstructionByTaskIdUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,10 +40,10 @@ open class MedicationPlanDosageInstructionBottomSheetController(
     private val getDosageInstructionByTaskIdUseCase: GetDosageInstructionByTaskIdUseCase,
     private val taskId: String
 ) : Controller() {
-    private val _dosageInstruction = MutableStateFlow<UiState<MedicationPlanDosageInstruction>>(
+    private val _dosageInstruction = MutableStateFlow<UiState<MedicationPlanDosageInstructionErpModel>>(
         UiState.Loading()
     )
-    val dosageInstruction: StateFlow<UiState<MedicationPlanDosageInstruction>> = _dosageInstruction
+    val dosageInstruction: StateFlow<UiState<MedicationPlanDosageInstructionErpModel>> = _dosageInstruction
 
     init {
         controllerScope.launch {

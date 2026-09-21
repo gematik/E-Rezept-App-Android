@@ -22,12 +22,13 @@
 
 package de.gematik.ti.erp.app.messages.model
 
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class LastMessage(
     val lastMessageDetails: LastMessageDetails,
-    val profile: CommunicationProfile
+    val profile: CommunicationErpModel.CommunicationProfile
 )
 
 @Serializable

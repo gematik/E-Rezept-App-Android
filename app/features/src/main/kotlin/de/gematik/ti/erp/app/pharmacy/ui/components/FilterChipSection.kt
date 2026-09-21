@@ -43,12 +43,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.pharmacy.presentation.FilterType
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.SearchFilterErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -60,13 +61,15 @@ import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 @Composable
 fun FilterChipSection(
     modifier: Modifier = Modifier,
-    filter: PharmacyUseCaseData.Filter,
+    filter: SearchFilterErpModel,
     rowState: LazyListState = rememberLazyListState(),
     onFilterToggle: (Boolean, FilterType) -> Unit,
     onRemoveOnSiteFeature: (PharmacyOnSiteFeatureOption) -> Unit = {},
     onRemoveAvailableService: (PharmacyFilterServiceOption) -> Unit = {},
     onClickFilter: () -> Unit
 ) {
+    val view = LocalView.current
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -115,70 +118,120 @@ fun FilterChipSection(
             ) {
                 if (filter.nearBy) {
                     item {
+                        val removeDescription = stringResource(
+                            R.string.search_pharmacies_filter_removed,
+                            stringResource(R.string.search_pharmacies_filter_nearby)
+                        )
                         ActiveFilterChip(
                             text = stringResource(R.string.search_pharmacies_filter_nearby),
                             modifier = Modifier.semantics { stateDescription = contentDescription }
-                        ) { onFilterToggle(false, FilterType.NEARBY) }
+                        ) {
+                            onFilterToggle(false, FilterType.NEARBY)
+                            view.announceForAccessibility(removeDescription)
+                        }
                     }
                 }
                 if (filter.openNow) {
                     item {
+                        val removeDescription = stringResource(
+                            R.string.search_pharmacies_filter_removed,
+                            stringResource(R.string.search_pharmacies_filter_open_now)
+                        )
                         ActiveFilterChip(
                             text = stringResource(R.string.search_pharmacies_filter_open_now),
                             modifier = Modifier.semantics { stateDescription = contentDescription }
-                        ) { onFilterToggle(false, FilterType.OPEN_NOW) }
+                        ) {
+                            onFilterToggle(false, FilterType.OPEN_NOW)
+                            view.announceForAccessibility(removeDescription)
+                        }
                     }
                 }
                 if (filter.deliveryService) {
                     item {
+                        val removeDescription = stringResource(
+                            R.string.search_pharmacies_filter_removed,
+                            stringResource(R.string.search_pharmacies_filter_delivery_service)
+                        )
                         ActiveFilterChip(
                             text = stringResource(R.string.search_pharmacies_filter_delivery_service),
                             modifier = Modifier.semantics { stateDescription = contentDescription }
-                        ) { onFilterToggle(false, FilterType.DELIVERY_SERVICE) }
+                        ) {
+                            onFilterToggle(false, FilterType.DELIVERY_SERVICE)
+                            view.announceForAccessibility(removeDescription)
+                        }
                     }
                 }
                 if (filter.onlineService) {
                     item {
+                        val removeDescription = stringResource(
+                            R.string.search_pharmacies_filter_removed,
+                            stringResource(R.string.search_pharmacies_filter_online_service)
+                        )
                         ActiveFilterChip(
                             text = stringResource(R.string.search_pharmacies_filter_online_service),
                             modifier = Modifier.semantics { stateDescription = contentDescription }
-                        ) { onFilterToggle(false, FilterType.ONLINE_SERVICE) }
+                        ) {
+                            onFilterToggle(false, FilterType.ONLINE_SERVICE)
+                            view.announceForAccessibility(removeDescription)
+                        }
                     }
                 }
                 if (filter.pickup) {
                     item {
+                        val removeDescription = stringResource(
+                            R.string.search_pharmacies_filter_removed,
+                            stringResource(R.string.search_pharmacies_filter_pickup)
+                        )
                         ActiveFilterChip(
                             text = stringResource(R.string.search_pharmacies_filter_pickup),
                             modifier = Modifier.semantics { stateDescription = contentDescription }
-                        ) { onFilterToggle(false, FilterType.PICKUP) }
+                        ) {
+                            onFilterToggle(false, FilterType.PICKUP)
+                            view.announceForAccessibility(removeDescription)
+                        }
                     }
                 }
                 if (filter.recentlyUsed) {
                     item {
+                        val removeDescription = stringResource(
+                            R.string.search_pharmacies_filter_removed,
+                            stringResource(R.string.search_pharmacies_filter_recently_used)
+                        )
                         ActiveFilterChip(
                             text = stringResource(R.string.search_pharmacies_filter_recently_used),
                             modifier = Modifier.semantics { stateDescription = contentDescription }
-                        ) { onFilterToggle(false, FilterType.RECENTLY_USED) }
+                        ) {
+                            onFilterToggle(false, FilterType.RECENTLY_USED)
+                            view.announceForAccessibility(removeDescription)
+                        }
                     }
                 }
                 filter.onSiteFeatures.forEach { code ->
                     val option = PharmacyOnSiteFeatureOption.entries.find { it.code == code }
                         ?: return@forEach
                     item {
+                        val removeDescription = stringResource(R.string.search_pharmacies_filter_removed, stringResource(option.label))
                         ActiveFilterChip(
                             text = stringResource(option.label),
                             modifier = Modifier.semantics { stateDescription = contentDescription }
-                        ) { onRemoveOnSiteFeature(option) }
+                        ) {
+                            onRemoveOnSiteFeature(option)
+                            view.announceForAccessibility(removeDescription)
+                        }
                     }
                 }
                 filter.availableServices.forEach { code ->
                     val option = PharmacyFilterServiceOption.entries.find { it.code == code }
                         ?: return@forEach
                     item {
+                        val removeDescription = stringResource(R.string.search_pharmacies_filter_removed, stringResource(option.title))
                         ActiveFilterChip(
                             text = stringResource(option.title),
                             modifier = Modifier.semantics { stateDescription = contentDescription }
-                        ) { onRemoveAvailableService(option) }
+                        ) {
+                            onRemoveAvailableService(option)
+                            view.announceForAccessibility(removeDescription)
+                        }
                     }
                 }
                 item { SpacerMedium() }
@@ -232,7 +285,7 @@ private fun ActiveFilterChip(
 fun FilterChipSectionPreview() {
     PreviewAppTheme {
         FilterChipSection(
-            filter = PharmacyUseCaseData.Filter(
+            filter = SearchFilterErpModel(
                 openNow = true,
                 pickup = true,
                 deliveryService = true,

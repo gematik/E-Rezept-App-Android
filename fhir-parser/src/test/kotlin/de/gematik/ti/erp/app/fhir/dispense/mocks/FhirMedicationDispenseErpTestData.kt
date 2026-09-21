@@ -808,6 +808,7 @@ val medicationDispenseErpModelCollectionEuV10Multiple = FhirMedicationDispenseEr
 val medicationDispenseErpModelCollectionEuV10SingleUrn = FhirMedicationDispenseErpModelCollection(
     dispensedMedications = listOf(
         FhirMedicationDispenseErpModel(
+            euCountryCode = "LI",
             dispenseId = "200.000.003.588.257.69",
             patientId = "X110583717",
             prescriptionId = "200.000.003.588.257.69",

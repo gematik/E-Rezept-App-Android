@@ -22,15 +22,17 @@
 
 package de.gematik.ti.erp.app.profiles.repository
 
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 
 interface ProfileRepository {
-    fun profiles(): Flow<List<ProfilesData.Profile>>
-    fun activeProfile(): Flow<ProfilesData.Profile>
-    fun getProfileById(profileId: ProfileIdentifier): Flow<ProfilesData.Profile>
+    fun profiles(): Flow<List<ProfileErpModel>>
+    fun activeProfile(): Flow<ProfileErpModel>
+    fun getProfileById(profileId: ProfileIdentifier): Flow<ProfileErpModel>
     suspend fun isSsoTokenValid(profileId: ProfileIdentifier): Flow<Boolean>
     suspend fun createNewProfile(profileName: String)
     suspend fun activateProfile(profileId: ProfileIdentifier)
@@ -43,15 +45,17 @@ interface ProfileRepository {
         insuranceName: String
     )
     suspend fun updateProfileName(profileId: ProfileIdentifier, profileName: String)
-    suspend fun updateProfileColor(profileId: ProfileIdentifier, color: ProfilesData.ProfileColorNames)
+    suspend fun updateProfileColor(profileId: ProfileIdentifier, color: ProfileColorNames)
     suspend fun updateLastAuthenticated(profileId: ProfileIdentifier, lastAuthenticated: Instant)
-    suspend fun saveAvatarFigure(profileId: ProfileIdentifier, avatar: ProfilesData.Avatar)
+    suspend fun updateLastTaskSynced(profileId: ProfileIdentifier, lastTaskSynced: Instant)
+    suspend fun saveAvatarFigure(profileId: ProfileIdentifier, avatar: Avatar)
     suspend fun savePersonalizedProfileImage(profileId: ProfileIdentifier, profileImage: ByteArray)
     suspend fun clearPersonalizedProfileImage(profileId: ProfileIdentifier)
-    suspend fun switchProfileToPKV(profileId: ProfileIdentifier): Boolean
-    suspend fun switchProfileToGKV(profileId: ProfileIdentifier): Boolean
-    suspend fun switchProfileToBUND(profileId: ProfileIdentifier): Boolean
+    suspend fun switchProfileToPKV(profileId: ProfileIdentifier)
+    suspend fun switchProfileToGKV(profileId: ProfileIdentifier)
+    suspend fun switchProfileToBUND(profileId: ProfileIdentifier)
     suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean
     suspend fun getOrganizationIdentifier(profileId: ProfileIdentifier): Flow<String>
     suspend fun updateOrganizationIdentifier(iknr: String)
+    suspend fun wasProfileEverAuthenticated(profileId: ProfileIdentifier): Boolean
 }

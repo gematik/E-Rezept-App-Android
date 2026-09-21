@@ -25,7 +25,7 @@ import de.gematik.ti.erp.app.database.api.ShippingInfoLocalDataSource
 import de.gematik.ti.erp.app.database.realm.utils.queryFirst
 import de.gematik.ti.erp.app.database.realm.utils.tryWrite
 import de.gematik.ti.erp.app.database.realm.v1.AddressEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.SettingsEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.ShippingContactEntityV1
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import io.realm.kotlin.Realm

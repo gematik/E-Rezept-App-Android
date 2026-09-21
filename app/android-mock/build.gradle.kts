@@ -2,6 +2,7 @@
 
 import de.gematik.ti.erp.app.plugins.dependencies.overrides
 import de.gematik.ti.erp.app.plugins.names.AppDependencyNamesPlugin
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.base.android.app)
@@ -24,8 +25,16 @@ android {
         versionName = VERSION_NAME
 
         testApplicationId = namesPlugin.moduleName("mock.test")
-        // Check if MAPS_API_KEY is defined, otherwise provide a default value
-        val mapsApiKey = project.findProperty("MAPS_API_KEY") ?: "DEFAULT_PLACEHOLDER_KEY"
+
+        // Load MAPS_API_KEY from local.properties
+        val localPropertiesFile = rootProject.file("local.properties")
+        val mapsApiKey = if (localPropertiesFile.exists()) {
+            val localProps = Properties()
+            localProps.load(localPropertiesFile.inputStream())
+            localProps.getProperty("MAPS_API_KEY", "DEFAULT_PLACEHOLDER_KEY")
+        } else {
+            "DEFAULT_PLACEHOLDER_KEY"
+        }
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
     androidResources {
@@ -62,6 +71,7 @@ dependencies {
     implementation(project(namesPlugin.fhirParser))
     implementation(project(namesPlugin.database))
     implementation(project(namesPlugin.eurezept))
+    implementation(project(namesPlugin.pushNotifications))
     implementation(libs.bundles.crypto)
     implementation(libs.bundles.accompanist)
     implementation(libs.bundles.database)

@@ -22,83 +22,62 @@
 
 package de.gematik.ti.erp.app.redeem.mocks
 
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.task.model.InsuranceErpModel
+import de.gematik.ti.erp.app.task.model.InsuranceErpModelCoverageType
+import de.gematik.ti.erp.app.task.model.OrganizationErpModel
+import de.gematik.ti.erp.app.task.model.PatientErpModel
+import de.gematik.ti.erp.app.task.model.PractitionerErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import kotlinx.datetime.Instant
 
-private const val MOCK_PRACTITIONER_NAME = "Dr. John Doe"
+private val MOCK_LAST_MODIFIED = Instant.fromEpochSeconds(123456)
+private val MOCK_FUTURE_INSTANT = Instant.parse("2099-01-01T00:00:00Z")
+private val MOCK_CURRENT_TIME = Instant.parse("2021-01-01T00:00:00Z")
 
-private val MOCK_ORGANIZATION = SyncedTaskData.Organization(
-    name = "TestOrganization",
-    address = SyncedTaskData.Address(
-        line1 = "123 Main Street",
-        line2 = "Apt 4",
-        postalCode = "12345",
-        city = "City"
-    ),
-    uniqueIdentifier = "org123",
-    phone = "123-456-7890",
-    mail = "info@testorg.com"
-)
-
-val MOCK_PRACTITIONER = SyncedTaskData.Practitioner(
-    name = MOCK_PRACTITIONER_NAME,
-    qualification = "",
-    practitionerIdentifier = " "
-)
-
-private val MOCK_PATIENT = SyncedTaskData.Patient(
-    name = "Jane",
-    address = SyncedTaskData.Address(
-        line1 = "",
-        line2 = "",
-        postalCode = "",
-        city = ""
-    ),
-    birthdate = null,
-    insuranceIdentifier = "ins123"
-)
-
-private val MOCK_MEDICATION_REQ = SyncedTaskData.MedicationRequest(
-    null, null, null, SyncedTaskData.AccidentType.None,
-    null, null, false, null,
-    SyncedTaskData.MultiplePrescriptionInfo(false), 1, null, null, SyncedTaskData.AdditionalFee.None
-)
-
-private val VALID_DIGA_COVERAGE = SyncedTaskData.InsuranceInformation(
-    name = "TestInsurance",
-    status = "Active",
-    identifierNumber = "identifier-for-insurance-provider",
-    coverageType = SyncedTaskData.CoverageType.GKV
-)
-
-internal val INVALID_DIGA_COVERAGE = SyncedTaskData.InsuranceInformation(
-    name = "TestInsurance",
-    status = "Active",
-    identifierNumber = null,
-    coverageType = SyncedTaskData.CoverageType.GKV
-)
-
-internal val MOCK_SYNCED_TASK_DATA_DIGA = SyncedTaskData.SyncedTask(
+internal val MOCK_SYNCED_TASK_DATA_DIGA = TaskErpModel.Synced.Prescription(
     profileId = "testProfileId",
+    name = null,
     taskId = "testId1",
     accessCode = "testAccessCode",
-    lastModified = Instant.fromEpochSeconds(123456),
-    organization = MOCK_ORGANIZATION,
-    practitioner = MOCK_PRACTITIONER,
-    patient = MOCK_PATIENT,
-    insuranceInformation = VALID_DIGA_COVERAGE,
-    expiresOn = Instant.fromEpochSeconds(123456),
-    acceptUntil = Instant.fromEpochSeconds(123456),
-    authoredOn = Instant.fromEpochSeconds(123456),
-    status = SyncedTaskData.TaskStatus.Ready,
+    isEuRedeemable = false,
+    isEuRedeemableByPatientAuthorization = false,
+    lastModified = MOCK_LAST_MODIFIED,
+    organization = OrganizationErpModel(
+        name = "TestOrganization",
+        address = null,
+        uniqueIdentifier = "org123",
+        phone = "123-456-7890",
+        mail = "info@testorg.com"
+    ),
+    practitioner = PractitionerErpModel(
+        name = "Dr. John Doe",
+        qualification = "",
+        practitionerIdentifier = " ",
+        dentistIdentifier = null,
+        telematikId = null
+    ),
+    patient = PatientErpModel(
+        name = "Jane",
+        address = null,
+        dateOfBirth = null,
+        insuranceIdentifier = "ins123"
+    ),
+    insuranceInformation = InsuranceErpModel(
+        name = "TestInsurance",
+        status = "Active",
+        identifierNumber = "identifier-for-insurance-provider",
+        coverageType = InsuranceErpModelCoverageType.GKV
+    ),
+    expiresOn = MOCK_FUTURE_INSTANT,
+    acceptUntil = MOCK_FUTURE_INSTANT,
+    authoredOn = MOCK_LAST_MODIFIED,
+    status = TaskStatusEnum.Ready,
     isIncomplete = false,
     pvsIdentifier = "testPvsIdentifier",
     failureToReport = "testFailureToReport",
-    medicationRequest = MOCK_MEDICATION_REQ,
-    lastMedicationDispense = null,
+    currentTime = MOCK_CURRENT_TIME,
+    medicationRequest = null,
     medicationDispenses = emptyList(),
-    deviceRequest = null,
-    communications = emptyList(),
-    isEuRedeemable = false,
-    isEuRedeemableByPatientAuthorization = false
+    lastMedicationDispense = null
 )

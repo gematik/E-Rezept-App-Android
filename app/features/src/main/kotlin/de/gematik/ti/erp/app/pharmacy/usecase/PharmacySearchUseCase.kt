@@ -30,10 +30,9 @@ import androidx.paging.PagingState
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toModel
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.SearchData.Companion.toPharmacyFilter
-import de.gematik.ti.erp.app.settings.model.SettingsData
-import de.gematik.ti.erp.app.settings.repository.SettingsRepository
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacySearchDataErpModel
+import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toPharmacyFilter
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +41,6 @@ import kotlinx.coroutines.flow.flowOn
 
 class PharmacySearchUseCase(
     private val repository: PharmacyRepository,
-    private val settingsRepository: SettingsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
@@ -52,24 +50,13 @@ class PharmacySearchUseCase(
      * PagingSource that handles pharmacy search with loading, success, and error states
      */
     inner class PharmacyPagingSource(
-        private val searchData: PharmacyUseCaseData.SearchData
-    ) : PagingSource<String, PharmacyUseCaseData.Pharmacy>() {
+        private val searchData: PharmacySearchDataErpModel
+    ) : PagingSource<String, PharmacyDetailsErpModel>() {
 
-        override fun getRefreshKey(state: PagingState<String, PharmacyUseCaseData.Pharmacy>): String? = null
+        override fun getRefreshKey(state: PagingState<String, PharmacyDetailsErpModel>): String? = null
 
-        override suspend fun load(params: LoadParams<String>): LoadResult<String, PharmacyUseCaseData.Pharmacy> {
+        override suspend fun load(params: LoadParams<String>): LoadResult<String, PharmacyDetailsErpModel> {
             return try {
-                // Save search parameters to settings (database operation)
-                settingsRepository.savePharmacySearch(
-                    SettingsData.PharmacySearch(
-                        name = searchData.name,
-                        locationEnabled = searchData.locationMode !is PharmacyUseCaseData.LocationMode.Disabled,
-                        deliveryService = searchData.filter.deliveryService,
-                        onlineService = searchData.filter.onlineService,
-                        openNow = searchData.filter.openNow
-                    )
-                )
-
                 // Convert search data to pharmacy filter
                 val filter = searchData.toPharmacyFilter()
                 val locationMode = searchData.locationMode
@@ -106,8 +93,8 @@ class PharmacySearchUseCase(
         rationale = "pharmacy search based on search term and filter criteria set by the user."
     )
     operator fun invoke(
-        searchData: PharmacyUseCaseData.SearchData
-    ): Flow<PagingData<PharmacyUseCaseData.Pharmacy>> {
+        searchData: PharmacySearchDataErpModel
+    ): Flow<PagingData<PharmacyDetailsErpModel>> {
         return Pager(
             config = PagingConfig(
                 pageSize = fakePagingCount,

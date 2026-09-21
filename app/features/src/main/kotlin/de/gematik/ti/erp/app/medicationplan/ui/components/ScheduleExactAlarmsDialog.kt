@@ -23,6 +23,8 @@
 package de.gematik.ti.erp.app.medicationplan.ui.components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
@@ -36,13 +38,15 @@ fun ScheduleExactAlarmsDialog(
     dialogScaffold: DialogScaffold,
     onToggleExactAlarms: () -> Unit
 ) {
+    val isExactAlarmAllowed by rememberUpdatedState(canScheduleExactAlarms)
+
     event.listen {
         dialogScaffold.show { dialog ->
             ErezeptAlertDialog(
                 title = stringResource(R.string.exact_alarms_dialog_title),
                 bodyText = stringResource(R.string.exact_alarms_dialog_info),
                 dismissText = stringResource(R.string.exact_alarms_dialog_dissmiss),
-                confirmText = if (!canScheduleExactAlarms) {
+                confirmText = if (!isExactAlarmAllowed) {
                     stringResource(R.string.exact_alarms_dialog_confirm)
                 } else {
                     stringResource(R.string.exact_alarms_dialog_deactivate)

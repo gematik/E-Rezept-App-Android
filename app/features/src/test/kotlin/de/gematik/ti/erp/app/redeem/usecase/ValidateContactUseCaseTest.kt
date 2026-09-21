@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.redeem.usecase
 
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import kotlin.test.Test
@@ -44,15 +44,15 @@ class ValidateContactUseCaseTest {
 
     @Test
     fun `valid contact with delivery should return Valid`() {
-        val result = useCase(validContact(), PharmacyScreenData.OrderOption.Delivery)
-        assertEquals(ContactValidationState.Valid(PharmacyScreenData.OrderOption.Delivery), result)
+        val result = useCase(validContact(), OrderOptionErpModel.Delivery)
+        assertEquals(ContactValidationState.Valid(OrderOptionErpModel.Delivery), result)
     }
 
     @Test
     fun `pickup order skips contact validation if address exists`() {
         val contact = validContact()
-        val result = useCase(contact, PharmacyScreenData.OrderOption.Pickup)
-        assertEquals(ContactValidationState.Valid(PharmacyScreenData.OrderOption.Pickup), result)
+        val result = useCase(contact, OrderOptionErpModel.Pickup)
+        assertEquals(ContactValidationState.Valid(OrderOptionErpModel.Pickup), result)
     }
 
     @Test
@@ -68,7 +68,7 @@ class ValidateContactUseCaseTest {
             deliveryInfo = "!"
         )
 
-        val result = useCase(contact, PharmacyScreenData.OrderOption.Delivery)
+        val result = useCase(contact, OrderOptionErpModel.Delivery)
 
         val expectedErrors = setOf(
             ContactValidationState.Error.EmptyName,
@@ -89,7 +89,7 @@ class ValidateContactUseCaseTest {
     fun `contact with only delivery information invalid returns only delivery info error`() {
         val contact = validContact().copy(deliveryInfo = "!@#")
 
-        val result = useCase(contact, PharmacyScreenData.OrderOption.Delivery)
+        val result = useCase(contact, OrderOptionErpModel.Delivery)
 
         val expectedErrors = setOf(ContactValidationState.Error.InvalidDeliveryInformation)
         assert(result is ContactValidationState.Invalid)

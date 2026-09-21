@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.redeem.usecase
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
 import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.HintRegex
 import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.MailRegex
 import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.PhoneRegex
@@ -52,9 +52,9 @@ import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 class ValidateContactUseCase {
     operator fun invoke(
         contact: ShippingInfoErpModel,
-        selectedOrderOption: PharmacyScreenData.OrderOption?
+        selectedOrderOption: OrderOptionErpModel?
     ): ContactValidationState {
-        if (selectedOrderOption == PharmacyScreenData.OrderOption.Pickup && !contact.address().isEmpty()) {
+        if (selectedOrderOption == OrderOptionErpModel.Pickup && !contact.address().isEmpty()) {
             return ContactValidationState.Valid(selectedOrderOption)
         }
 
@@ -73,7 +73,7 @@ class ValidateContactUseCase {
             validate(contact.city.isEmpty(), EmptyCity)
             validate(contact.city.isNotEmpty() && !contact.city.matches(TextRegex), InvalidCity)
 
-            if (selectedOrderOption != PharmacyScreenData.OrderOption.Pickup) {
+            if (selectedOrderOption != OrderOptionErpModel.Pickup) {
                 validate(contact.phone.isEmpty(), EmptyPhoneNumber)
                 validate(contact.phone.isNotEmpty() && !contact.phone.matches(PhoneRegex), InvalidPhoneNumber)
 

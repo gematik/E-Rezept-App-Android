@@ -23,13 +23,13 @@
 package de.gematik.ti.erp.app.database.room.v2.task.util
 
 import androidx.room.TypeConverter
-import de.gematik.ti.erp.app.database.realm.v1.task.entity.TaskStatusV1
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 
 class TaskStatusConverter {
     @TypeConverter
-    fun toStatus(value: String?): TaskStatusV1? =
-        value?.let { runCatching { TaskStatusV1.valueOf(it) }.getOrNull() } ?: TaskStatusV1.Other
+    fun toStatus(value: String?): TaskStatusEnum =
+        value?.let { runCatching { TaskStatusEnum.valueOf(it) }.getOrNull() } ?: TaskStatusEnum.Other
 
     @TypeConverter
-    fun fromStatus(value: TaskStatusV1?): String? = value?.name
+    fun fromStatus(value: TaskStatusEnum?): String? = value?.name
 }

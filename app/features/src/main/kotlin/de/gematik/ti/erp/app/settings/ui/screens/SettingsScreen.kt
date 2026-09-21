@@ -22,9 +22,12 @@
 
 package de.gematik.ti.erp.app.settings.ui.screens
 
+import android.accessibilityservice.AccessibilityServiceInfo
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import android.view.accessibility.AccessibilityManager
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -37,6 +40,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -62,8 +66,8 @@ import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.orderhealthcard.navigation.OrderHealthCardRoutes
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
 import de.gematik.ti.erp.app.settings.model.ContactClickActions
 import de.gematik.ti.erp.app.settings.model.DebugClickActions
 import de.gematik.ti.erp.app.settings.model.ExploreClickActions
@@ -146,12 +150,27 @@ class SettingsScreen(
         val surveyAddress = stringResource(R.string.settings_contact_survey_address)
         val digaSurveyAddress = stringResource(R.string.diga_settings_feedback_address)
         val accessibilityStatementAddress = stringResource(R.string.settings_accessibility_statement_address)
+        val configuration = LocalConfiguration.current
+        val talkbackEnabled = try {
+            val accessibilityManager: AccessibilityManager =
+                context.getSystemService(Context.ACCESSIBILITY_SERVICE) as? AccessibilityManager
+                    ?: throw IllegalStateException("AccessibilityManager not found")
+            val enabledServices = accessibilityManager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)
+            enabledServices.isNotEmpty()
+        } catch (e: Exception) {
+            false
+        }
+        val yes = stringResource(R.string.yes)
+        val no = stringResource(R.string.no)
+
         val body = buildFeedbackBodyWithDeviceInfo(
             darkMode = buildConfig.inDarkTheme(),
             versionName = buildConfig.versionName(),
             language = buildConfig.language(),
             phoneModel = buildConfig.model(),
-            nfcInfo = buildConfig.nfcInformation(context)
+            nfcInfo = buildConfig.nfcInformation(context),
+            fontScale = configuration.fontScale,
+            talkback = if (talkbackEnabled) yes else no
         )
 
         val settingsActions = SettingsActions(
@@ -218,6 +237,9 @@ class SettingsScreen(
                 },
                 onClickDigaPoll = {
                     context.handleIntent(provideWebIntent(digaSurveyAddress))
+                },
+                onClickReportAccessibilityIssue = {
+                    navController.navigate(SettingsRoutes.SettingsReportAccessibilityIssueScreen.path())
                 }
             ),
             legalClickActions = LegalClickActions(
@@ -274,7 +296,7 @@ private fun SettingsScreenScaffold(
     isDemoMode: Boolean,
     localActivity: ComponentActivity?,
     buildConfig: BuildConfigInformation,
-    profilesState: List<Profile>,
+    profilesState: List<ProfileErpModel>,
     zoomState: State<SettingStatesData.ZoomState>,
     screenShotsState: State<Boolean>,
     settingsActions: SettingsActions
@@ -305,7 +327,7 @@ private fun SettingsScreenScaffold(
 @Composable
 private fun SettingsScreenContent(
     contentPadding: PaddingValues,
-    profilesState: List<Profile>,
+    profilesState: List<ProfileErpModel>,
     listState: LazyListState,
     isDemoMode: Boolean,
     isDebug: Boolean = BuildConfigExtension.isInternalDebug,
@@ -413,7 +435,8 @@ fun SettingsScreenPreview(
                     onClickCall = {},
                     onClickMail = {},
                     onClickPoll = {},
-                    onClickDigaPoll = {}
+                    onClickDigaPoll = {},
+                    onClickReportAccessibilityIssue = {}
                 ),
                 legalClickActions = LegalClickActions(
                     onClickLegalNotice = {},

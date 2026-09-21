@@ -22,22 +22,19 @@
 
 package de.gematik.ti.erp.app.messages.domain.usecase
 
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.messages.mappers.toMessage
-import de.gematik.ti.erp.app.messages.model.Communication
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.mapper.communicationReplyToOrder
+import de.gematik.ti.erp.app.messages.mapper.dispenseRequestCommunicationToOrder
+import de.gematik.ti.erp.app.messages.mapper.generatePreviewMessage
+import de.gematik.ti.erp.app.messages.mapper.groupByPayloadForPreview
 import de.gematik.ti.erp.app.messages.model.LastMessage
-import de.gematik.ti.erp.app.messages.model.LastMessageDetails
-import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import de.gematik.ti.erp.app.messages.repository.firstOrNullCachedPharmacy
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -53,54 +50,67 @@ class GetMessagesUseCase(
     private val pharmacyRepository: PharmacyRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
+    companion object {
+        private const val DEFAULT_PHARMACY_NAME = "Unbekannte Apotheke"
+    }
+
     /**
      * Executes the use case to load a list of orders by processing profiles and communications.
      *
      * @return A list of [OrderUseCaseData.Order] objects, sorted by the latest sent date and distinct by order ID.
      */
-    suspend operator fun invoke(): List<OrderUseCaseData.Order> = withContext(dispatcher) {
+    suspend operator fun invoke(): List<CommunicationErpModel> = withContext(dispatcher) {
         // Fetch all profiles from the repository. `first()` ensures we get the initial value from the flow.
         val profiles = profileRepository.profiles().first()
-
-        // Load all cached pharmacies. `first()` ensures we retrieve the current list from the flow.
-        val pharmacies: List<CachedPharmacy> = communicationRepository.loadPharmacies().first()
-
-        // Process each profile to load and transform their communications into orders.
-        profiles.flatMap { profile ->
-            // Load all DispReq communications for the given profile ID and group them by unique task and order details.
-            communicationRepository.loadDispReqCommunicationsByProfileId(profile.id).first()
-                .groupBy { it.taskId to it.orderId to it.recipient to it.payload }
-                .map { (_, communications) ->
-                    // Find the latest communication based on the "sentOn" timestamp.
-                    communications.maxByOrNull { it.sentOn }?.let { latestCommunication ->
-                        // For the latest communication, fetch the latest replied communication's timestamp.
-                        val latestSentOnDate = communicationRepository
-                            .loadRepliedCommunications(
-                                taskIds = listOf(latestCommunication.taskId),
-                                telematikId = latestCommunication.recipient // since this is request message, recipient is pharmacy
-                            )
-                            .getLatestTimestamp(latestCommunication)
-                        mapCommunicationToOrder(
-                            communication = latestCommunication,
-                            pharmacies = pharmacies,
-                            latestMessageSentOnDate = latestSentOnDate ?: latestCommunication.sentOn
-                        )
-                    }
-                }
-                .filterNotNull() // Remove any null values from the mapped results.
+        val dispReqCommunications = profiles.flatMap { profile ->
+            communicationRepository
+                .loadDispReqCommunicationsByProfileId(profile.id)
+                .first()
         }
-            // Sort the orders by the "sentOn" timestamp in descending order (most recent first).
-            .sortedByDescending { it.sentOn }
-            // This step ensures we don't have duplicate orders in the final result.
-            .distinctBy { it.orderId } // we need to do this as the last step to ensure that we have orders with latest dates only
+
+        val repliedCommunications = profiles.flatMap { profile ->
+            communicationRepository
+                .loadRepliedCommunicationsByProfileId(profile.id)
+                .first()
+        }
+
+        val dispReqTaskIds = dispReqCommunications.map { it.taskId }.toSet()
+        val filteredRepliedCommunications = repliedCommunications.filter {
+            it.taskId !in dispReqTaskIds
+        }
+
+        val groupedReplies = filteredRepliedCommunications.groupBy {
+            listOf(it.taskId, it.recipient, it.payload)
+        }.values.map { group ->
+            group.maxByOrNull { it.timeStamp ?: Instant.DISTANT_PAST } ?: group.first()
+        }.sortedByDescending { it.timeStamp }
+            .distinctBy { it.taskId }
+
+        val groupedDispenses = dispReqCommunications
+            .groupBy {
+                listOf(it.taskId, it.orderId, it.recipient, it.payload)
+            }
+            .values
+            .map { group ->
+                group.maxByOrNull { it.timeStamp ?: Instant.DISTANT_PAST } ?: group.first()
+            }
+            .sortedByDescending { it.timeStamp }
+            .distinctBy { it.orderId }
+
+        (groupedDispenses + groupedReplies)
+            .sortedByDescending { it.timeStamp }
     }
 
-    private suspend fun mapCommunicationToOrder(
-        communication: Communication,
-        latestMessageSentOnDate: Instant,
-        pharmacies: List<CachedPharmacy>
+    internal suspend fun mapDispenseCommunicationToOrder(
+        communication: CommunicationErpModel,
+        latestMessageSentOnDate: Instant
     ): OrderUseCaseData.Order {
-        val pharmacyName = pharmacies.getPharmacyName(communication)
+        val pharmacyName = communication.pharmacyName?.takeIf { it.isNotBlank() } ?: resolvePharmacyName(
+            pharmacyRepository = pharmacyRepository,
+            communicationRepository = communicationRepository,
+            communicationId = communication.communicationId,
+            telematikId = communication.recipient
+        )
 
         val taskIds = communicationRepository.taskIdsByOrder(communication.orderId).first()
 
@@ -111,7 +121,15 @@ class GetMessagesUseCase(
             dispatcher = dispatcher
         ).first()
 
-        val invoiceInfo = processInvoicesForOrder(taskIds)
+        val latestInvoice = taskIds.mapNotNull { taskId ->
+            invoiceRepository.invoiceByTaskId(taskId).first()
+        }.maxByOrNull { it.timestamp }
+
+        val invoiceInfo = OrderUseCaseData.InvoiceInfo(
+            hasInvoice = latestInvoice != null,
+            invoiceSentOn = latestInvoice?.timestamp,
+            medicationName = latestInvoice?.medicationRequest?.medication?.name()
+        )
 
         return OrderUseCaseData.Order(
             orderId = communication.orderId,
@@ -121,12 +139,12 @@ class GetMessagesUseCase(
             } ?: latestMessageSentOnDate,
             pharmacy = OrderUseCaseData.Pharmacy(
                 id = communication.recipient, // getting Pharmacy ID (telematikId) from communication.recipient
-                name = pharmacyName
+                name = pharmacyName ?: ""
             ),
             hasUnreadMessages = hasUnreadMessages,
-            latestCommunicationMessage = getLatestCommunicationMessage(
+            latestCommunicationMessage = getLatestCommunicationMessageForDispenseCommunication(
                 orderId = communication.orderId,
-                pharmacyName = pharmacyName,
+                pharmacyName = pharmacyName ?: "",
                 telematikId = communication.recipient,
                 taskIds = taskIds
             ),
@@ -134,53 +152,7 @@ class GetMessagesUseCase(
         )
     }
 
-    private suspend fun processInvoicesForOrder(
-        taskIds: List<String>
-    ): OrderUseCaseData.InvoiceInfo {
-        val invoices = taskIds.mapNotNull { taskId ->
-            invoiceRepository.invoiceByTaskId(taskId).first()
-        }
-
-        val latestInvoice = invoices.maxByOrNull { it.timestamp }
-
-        return OrderUseCaseData.InvoiceInfo(
-            hasInvoice = invoices.isNotEmpty(),
-            invoiceSentOn = latestInvoice?.timestamp
-        )
-    }
-
-    private suspend fun List<CachedPharmacy>.getPharmacyName(communication: Communication): String {
-        return try {
-            // Try to find the pharmacy in the existing list
-            val pharmacy = this.find { it.telematikId == communication.recipient }
-
-            // If the pharmacy is found, return its name; otherwise, attempt to download and find it again
-            pharmacy?.name ?: run {
-                val downloadedPharmacy = pharmacyRepository
-                    .searchPharmacyByTelematikId(communication.recipient)
-                    .firstOrNullCachedPharmacy()
-
-                downloadedPharmacy?.let { pharmacyRepository.savePharmacyToCache(it) }
-
-                downloadedPharmacy?.name ?: ""
-            }
-        } catch (e: Throwable) {
-            Napier.e { "error on getting pharmacy name ${e.message}" }
-            // Return empty string if any exception occurs
-            ""
-        }
-    }
-
-    private suspend fun Flow<List<Communication>>.getLatestTimestamp(
-        requestCommunication: Communication
-    ): Instant? {
-        return firstOrNull()
-            ?.maxByOrNull { reply -> reply.sentOn }
-            ?.sentOn
-            ?.coerceAtLeast(requestCommunication.sentOn) // Ensure we always use the latest date
-    }
-
-    private suspend fun getLatestCommunicationMessage(
+    private suspend fun getLatestCommunicationMessageForDispenseCommunication(
         orderId: String,
         pharmacyName: String,
         telematikId: String,
@@ -191,40 +163,90 @@ class GetMessagesUseCase(
                 communicationRepository.loadRepliedCommunications(taskIds, telematikId),
                 communicationRepository.loadDispReqCommunications(orderId)
             ) { repliedCommunications, dispReqCommunications ->
-                repliedCommunications + dispReqCommunications
+                (repliedCommunications + dispReqCommunications)
+                    .groupByPayloadForPreview()
             }.mapNotNull { combinedCommunication ->
-                val lastMessage = combinedCommunication.maxByOrNull { it.sentOn }
-                lastMessage?.let {
-                    it.generatePreviewMessage(pharmacyName)?.let { lastMessage ->
+                val lastCommunication = combinedCommunication.maxByOrNull { it.timeStamp ?: Instant.DISTANT_PAST }
+                lastCommunication?.let { communication ->
+                    communication.generatePreviewMessage(pharmacyName)?.let { lastMessageDetails ->
                         LastMessage(
-                            lastMessageDetails = lastMessage,
-                            profile = it.profile
+                            lastMessageDetails = lastMessageDetails,
+                            profile = communication.profile
                         )
                     }
                 }
             }.firstOrNull()
         }
 
-    private fun Communication?.generatePreviewMessage(pharmacyName: String): LastMessageDetails? {
-        return when (this?.profile) {
-            CommunicationProfile.ErxCommunicationDispReq -> LastMessageDetails(
-                content = pharmacyName,
-                pickUpCodeDMC = null,
-                pickUpCodeHR = null,
-                link = null
-            )
+    internal suspend fun mapReplyCommunicationToOrder(
+        communication: CommunicationErpModel,
+        latestMessageSentOnDate: Instant
+    ): OrderUseCaseData.Order {
+        val resolvedName = communication.pharmacyName?.takeIf { it.isNotBlank() } ?: resolvePharmacyName(
+            pharmacyRepository = pharmacyRepository,
+            communicationRepository = communicationRepository,
+            communicationId = communication.communicationId,
+            telematikId = communication.senderTelematikId
+        )
+        val pharmacyName = resolvedName?.ifBlank { DEFAULT_PHARMACY_NAME } ?: DEFAULT_PHARMACY_NAME
 
-            CommunicationProfile.ErxCommunicationReply -> {
-                val messageData = toMessage()
-                LastMessageDetails(
-                    content = messageData.content,
-                    pickUpCodeDMC = messageData.pickUpCodeDMC,
-                    pickUpCodeHR = messageData.pickUpCodeHR,
-                    link = messageData.link
-                )
-            }
+        val taskIds = listOf(communication.taskId)
 
-            else -> null
-        }
+        val (prescriptions, hasUnreadMessages) = communication.communicationReplyToOrder(
+            taskIds = taskIds,
+            communicationRepository = communicationRepository,
+            invoiceRepository = invoiceRepository,
+            withMedicationNames = true,
+            dispatcher = dispatcher
+        ).first()
+
+        val latestInvoice = taskIds.mapNotNull { taskId ->
+            invoiceRepository.invoiceByTaskId(taskId).first()
+        }.maxByOrNull { it.timestamp }
+
+        val invoiceInfo = OrderUseCaseData.InvoiceInfo(
+            hasInvoice = latestInvoice != null,
+            invoiceSentOn = latestInvoice?.timestamp
+        )
+
+        return OrderUseCaseData.Order(
+            orderId = communication.orderId,
+            prescriptions = prescriptions,
+            sentOn = invoiceInfo.invoiceSentOn?.let {
+                maxOf(it, latestMessageSentOnDate)
+            } ?: latestMessageSentOnDate,
+            pharmacy = OrderUseCaseData.Pharmacy(
+                id = communication.senderTelematikId, // getting Pharmacy ID (telematikId) from communication.recipient
+                name = pharmacyName
+            ),
+            hasUnreadMessages = hasUnreadMessages,
+            latestCommunicationMessage = getLatestCommunicationMessageForReplies(
+                pharmacyName = pharmacyName,
+                telematikId = communication.senderTelematikId,
+                taskIds = taskIds
+            ),
+            invoiceInfo = invoiceInfo
+        )
     }
+
+    private suspend fun getLatestCommunicationMessageForReplies(
+        pharmacyName: String,
+        telematikId: String,
+        taskIds: List<String>
+    ): LastMessage? =
+        supervisorScope {
+            return@supervisorScope communicationRepository.loadRepliedCommunications(taskIds, telematikId).mapNotNull {
+                    list ->
+                val combinedCommunication = list.groupByPayloadForPreview()
+                val lastCommunication = combinedCommunication.maxByOrNull { it.timeStamp ?: Instant.DISTANT_PAST }
+                lastCommunication?.let { communication ->
+                    communication.generatePreviewMessage(pharmacyName)?.let { lastMessageDetails ->
+                        LastMessage(
+                            lastMessageDetails = lastMessageDetails,
+                            profile = communication.profile
+                        )
+                    }
+                }
+            }
+        }.firstOrNull()
 }

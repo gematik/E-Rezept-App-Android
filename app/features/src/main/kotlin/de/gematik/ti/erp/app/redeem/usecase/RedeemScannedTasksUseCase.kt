@@ -22,19 +22,19 @@
 
 package de.gematik.ti.erp.app.redeem.usecase
 
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class RedeemScannedTasksUseCase(
-    private val repository: PrescriptionRepository,
+    private val repository: TaskOperationsRepository,
     val dispatcher: CoroutineDispatcher = Dispatchers.IO
 
 ) {
     suspend operator fun invoke(taskIds: List<String>) {
         withContext(dispatcher) {
-            repository.redeemScannedTasks(taskIds)
+            repository.redeemScannedTaskListByTaskIdList(taskIds)
         }
     }
 }

@@ -22,9 +22,8 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskStatusErpModel
 import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
-import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
-import de.gematik.ti.erp.app.task.model.TaskStatus
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
@@ -48,7 +47,7 @@ class TaskDataMapperTest {
                 assertEquals(LocalDate.parse("2022-06-02").asFhirTemporal(), expiresOn)
                 assertEquals(LocalDate.parse("2022-04-02").asFhirTemporal(), acceptUntil)
                 assertEquals(Instant.parse("2022-03-18T15:26:00Z"), authoredOn.toInstant())
-                assertEquals(TaskStatus.Completed, status)
+                assertEquals(FhirTaskStatusErpModel.Completed, status)
                 assertEquals(null, lastMedicationDispense)
             }
         )
@@ -68,7 +67,7 @@ class TaskDataMapperTest {
                 assertEquals(LocalDate.parse("2020-06-02").asFhirTemporal(), expiresOn)
                 assertEquals(LocalDate.parse("2020-04-01").asFhirTemporal(), acceptUntil)
                 assertEquals(Instant.parse("2020-03-02T08:25:05+00:00"), authoredOn.toInstant())
-                assertEquals(TaskStatus.InProgress, status)
+                assertEquals(FhirTaskStatusErpModel.InProgress, status)
                 assertEquals(Instant.parse("2020-04-01T15:37:17Z"), lastMedicationDispense?.toInstant())
             }
         )
@@ -85,8 +84,8 @@ class TaskDataMapperTest {
         val lastModified = taskdata[0].lastModified
 
         assertEquals("160.000.033.491.280.78", taskId)
-        assertEquals(TaskStatus.Ready, status)
-        assertEquals("2022-03-18T15:27:00Z".toFhirTemporal(), lastModified)
+        assertEquals(FhirTaskStatusErpModel.Ready, status)
+        assertEquals("2022-03-18T15:27:00Z".asFhirTemporal(), lastModified)
     }
 
     @Test

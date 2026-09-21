@@ -27,10 +27,10 @@ import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -57,7 +57,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -68,6 +70,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.MainActivity
@@ -380,83 +383,67 @@ private fun LazyListScope.HealthCardLoginSection(
     onClickWithDisabledNfc: () -> Unit
 ) {
     item {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            if (isNfcAvailable) {
-                Text(
-                    text = stringResource(R.string.cdw_intro_auth_prior),
-                    modifier = Modifier
-                        .align(Alignment.Start)
-                        .offset(x = PaddingDefaults.Medium)
-                        .semanticsHeading(),
-                    style = AppTheme.typography.subtitle2,
-                    fontWeight = FontWeight.Bold,
-                    color = AppTheme.colors.primary700
-                )
-            }
-            Card(
-                modifier = Modifier
-                    .padding(bottom = PaddingDefaults.Medium)
-                    .fillMaxWidth()
-                    .semanticsMergeDescendants {
-                        if (isNfcAvailable) {
-                            role = Role.Button
-                        } else {
-                            disabled()
-                            hideFromAccessibility()
-                        }
-                    },
-                shape = RoundedCornerShape(SizeDefaults.double),
-                border = if (isNfcAvailable) BorderStroke(SizeDefaults.quarter, color = AppTheme.colors.primary700) else null,
-                elevation = SizeDefaults.zero,
-                backgroundColor = AppTheme.colors.neutral050,
-                enabled = isNfcAvailable,
-                onClick = {
-                    if (isNfcEnabled()) {
-                        onClickWithEnabledNfc()
+        Card(
+            modifier = Modifier
+                .padding(bottom = PaddingDefaults.Medium)
+                .fillMaxWidth()
+                .semanticsMergeDescendants {
+                    if (isNfcAvailable) {
+                        role = Role.Button
                     } else {
-                        onClickWithDisabledNfc()
+                        disabled()
+                        hideFromAccessibility()
                     }
+                },
+            shape = RoundedCornerShape(SizeDefaults.double),
+            border = if (isNfcAvailable) BorderStroke(SizeDefaults.quarter, color = AppTheme.colors.neutral700) else null,
+            elevation = SizeDefaults.zero,
+            backgroundColor = AppTheme.colors.neutral050,
+            enabled = isNfcAvailable,
+            onClick = {
+                if (isNfcEnabled()) {
+                    onClickWithEnabledNfc()
+                } else {
+                    onClickWithDisabledNfc()
                 }
+            }
+        ) {
+            Row(
+                modifier = Modifier.padding(PaddingDefaults.Medium)
             ) {
-                Row(
-                    modifier = Modifier.padding(PaddingDefaults.Medium)
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                    ) {
-                        Text(
-                            stringResource(R.string.cdw_intro_auth_health_card),
-                            style = AppTheme.typography.subtitle1l,
-                            color = when {
-                                isNfcAvailable -> AppTheme.colors.neutral900
-                                else -> AppTheme.colors.neutral400
-                            }
-                        )
-                        SpacerTiny()
-                        Text(
-                            when {
-                                isNfcAvailable -> stringResource(R.string.cdw_intro_auth_health_card_pin)
-                                else -> stringResource(R.string.cdw_health_card_no_nfc_device)
-                            },
-                            style = AppTheme.typography.body2l,
-                            color = when {
-                                isNfcAvailable -> AppTheme.colors.neutral700
-                                else -> AppTheme.colors.neutral400
-                            }
-                        )
-                    }
-                    Icon(
-                        modifier = Modifier
-                            .size(SizeDefaults.triple)
-                            .align(Alignment.CenterVertically),
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = if (isNfcAvailable) AppTheme.colors.primary700 else AppTheme.colors.neutral300
+                    Text(
+                        stringResource(R.string.cdw_intro_auth_health_card),
+                        style = AppTheme.typography.subtitle1l,
+                        color = when {
+                            isNfcAvailable -> AppTheme.colors.neutral900
+                            else -> AppTheme.colors.neutral700
+                        }
+                    )
+                    SpacerTiny()
+                    Text(
+                        when {
+                            isNfcAvailable -> stringResource(R.string.cdw_intro_auth_health_card_pin)
+                            else -> stringResource(R.string.cdw_health_card_no_nfc_device)
+                        },
+                        style = AppTheme.typography.body2l,
+                        color = when {
+                            isNfcAvailable -> AppTheme.colors.neutral700
+                            else -> AppTheme.colors.neutral700
+                        }
                     )
                 }
+                Icon(
+                    modifier = Modifier
+                        .size(SizeDefaults.triple)
+                        .align(Alignment.CenterVertically),
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = if (isNfcAvailable) AppTheme.colors.neutral700 else AppTheme.colors.neutral300
+                )
             }
         }
     }
@@ -471,58 +458,111 @@ private fun LazyListScope.GidLoginSection(
     onClick: () -> Unit
 ) {
     item {
-        Card(
-            modifier = Modifier
-                .padding(bottom = PaddingDefaults.Medium)
-                .fillMaxWidth()
-                .semanticsMergedButton(),
-            shape = RoundedCornerShape(SizeDefaults.double),
-            border = BorderStroke(SizeDefaults.eighth, color = AppTheme.colors.neutral300),
-            elevation = SizeDefaults.zero,
-            backgroundColor = AppTheme.colors.neutral050,
-            onClick = {
-                when {
-                    isDomainVerified -> onClick()
-                    else -> showVerifyDomainDialog()
-                }
-            }
-        ) {
-            Row(
-                modifier = Modifier
-                    .padding(PaddingDefaults.Medium),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        stringResource(R.string.cdw_intro_auth_gid),
-                        style = AppTheme.typography.subtitle1l,
-                        color = AppTheme.colors.neutral900
-                    )
-                    SpacerTiny()
-                    Text(
-                        text = if (insuranceName != null) {
-                            stringResource(R.string.cdw_intro_auth_gid_app_required, insuranceName)
-                        } else {
-                            stringResource(R.string.cdw_intro_auth_additional_app_required)
-                        },
-                        style = AppTheme.typography.body2l,
-                        color = AppTheme.colors.neutral700
-                    )
-                }
-                Icon(
-                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    null,
-                    tint = AppTheme.colors.neutral400,
+        CardWithFloatingLabel(
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(
+                    text = stringResource(R.string.cdw_intro_auth_prior),
                     modifier = Modifier
-                        .size(SizeDefaults.triple)
-                        .align(Alignment.CenterVertically)
+                        .background(AppTheme.colors.primary100, RoundedCornerShape(SizeDefaults.quarter))
+                        .padding(horizontal = PaddingDefaults.Tiny)
+                        .semanticsHeading(),
+                    style = AppTheme.typography.subtitle2,
+                    fontWeight = FontWeight.Bold,
+                    color = AppTheme.colors.primary700
                 )
+            },
+            card = { topContentInset ->
+                Card(
+                    modifier = Modifier
+                        .padding(bottom = PaddingDefaults.Medium)
+                        .fillMaxWidth()
+                        .semanticsMergedButton(),
+                    shape = RoundedCornerShape(SizeDefaults.double),
+                    border = BorderStroke(SizeDefaults.quarter, color = AppTheme.colors.primary700),
+                    elevation = SizeDefaults.zero,
+                    backgroundColor = AppTheme.colors.neutral050,
+                    onClick = {
+                        when {
+                            isDomainVerified -> onClick()
+                            else -> showVerifyDomainDialog()
+                        }
+                    }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(
+                                start = PaddingDefaults.Medium,
+                                end = PaddingDefaults.Medium,
+                                bottom = PaddingDefaults.Medium,
+                                top = maxOf(PaddingDefaults.Medium, topContentInset + PaddingDefaults.Tiny)
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                stringResource(R.string.cdw_intro_auth_gid),
+                                style = AppTheme.typography.subtitle1l,
+                                color = AppTheme.colors.neutral900
+                            )
+                            SpacerTiny()
+                            Text(
+                                text = if (insuranceName != null) {
+                                    stringResource(R.string.cdw_intro_auth_gid_app_required, insuranceName)
+                                } else {
+                                    stringResource(R.string.cdw_intro_auth_additional_app_required)
+                                },
+                                style = AppTheme.typography.body2l,
+                                color = AppTheme.colors.neutral700
+                            )
+                        }
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            null,
+                            tint = AppTheme.colors.primary700,
+                            modifier = Modifier
+                                .size(SizeDefaults.triple)
+                                .align(Alignment.CenterVertically)
+                        )
+                    }
+                }
             }
+        )
+    }
+}
+
+@Composable
+private fun CardWithFloatingLabel(
+    label: @Composable () -> Unit,
+    card: @Composable (topContentInset: Dp) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val density = LocalDensity.current
+    SubcomposeLayout(modifier = modifier) { constraints ->
+        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        val labelPlaceable = subcompose(GidFloatingLabelSlot.Label, label)
+            .first()
+            .measure(looseConstraints)
+        val cardTopOffsetPx = labelPlaceable.height / 2
+        val cardTopOffsetDp = with(density) { cardTopOffsetPx.toDp() }
+
+        val cardPlaceable = subcompose(GidFloatingLabelSlot.Card) { card(cardTopOffsetDp) }
+            .first()
+            .measure(constraints.copy(minHeight = 0))
+
+        val labelXPx = with(density) { PaddingDefaults.Medium.roundToPx() }
+        val totalHeight = cardPlaceable.height + cardTopOffsetPx
+
+        layout(constraints.maxWidth, totalHeight) {
+            cardPlaceable.placeRelative(x = 0, y = cardTopOffsetPx)
+            labelPlaceable.placeRelative(x = labelXPx, y = 0)
         }
     }
 }
+
+private enum class GidFloatingLabelSlot { Label, Card }
 
 @Suppress("FunctionName")
 private fun LazyListScope.OrderHealthCardHintSection(

@@ -23,44 +23,51 @@
 package de.gematik.ti.erp.app.redeem.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OrderState
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyContact
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.ContactInformationErpModel
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
+import de.gematik.ti.erp.app.pharmacy.model.OrderStateErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyOpeningHoursErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
 import de.gematik.ti.erp.app.redeem.model.RedeemContactValidationState
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParameter.contactPreviewData
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParameter.pharmacyPreviewData
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParameter.prescriptionsForOrdersPreviewData
+import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParameter.prescriptionsForOrdersPreviewDataTeratogenic
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemOverviewScreenPreviewParameter.profilePreviewData
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel.Companion.EmptyShippingInfoErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.Instant
 
-class PrescriptionSelectionSectionParameter : PreviewParameterProvider<List<PharmacyUseCaseData.PrescriptionInOrder>> {
+class PrescriptionSelectionSectionParameter : PreviewParameterProvider<List<PrescriptionInOrderErpModel>> {
     override val values = sequenceOf(prescriptionsForOrdersPreviewData, emptyList())
 }
 
 data class RedeemOverviewScreenPreviewData(
     val title: String,
-    val activeProfile: UiState<ProfilesUseCaseData.Profile>,
-    val prescriptions: List<PharmacyUseCaseData.PrescriptionInOrder>,
-    val orderOption: PharmacyScreenData.OrderOption?,
+    val activeProfile: UiState<ProfileErpModel>,
+    val prescriptions: List<PrescriptionInOrderErpModel>,
+    val orderOption: OrderOptionErpModel?,
     val markAsSelfPayer: Boolean,
-    val pharmacy: Pharmacy?,
+    val pharmacy: PharmacyDetailsErpModel?,
     val contactValidationState: RedeemContactValidationState,
     val contact: ShippingInfoErpModel,
     val isRedeemEnabled: Boolean,
     val isPrescriptionError: Boolean,
     val isPharmacyError: Boolean,
-    val isContactError: Boolean
+    val isContactError: Boolean,
+    val hasTeratogenicPrescriptionError: Boolean
 ) {
-    fun orderState() = OrderState(
+    fun orderState() = OrderStateErpModel(
         prescriptionsInOrder = prescriptions,
         selfPayerPrescriptionIds = if (markAsSelfPayer) prescriptions.map { it.taskId } else emptyList(),
         contact = contact
@@ -75,7 +82,7 @@ class RedeemOverviewScreenParameter : PreviewParameterProvider<RedeemOverviewScr
                 title = "normal_order",
                 activeProfile = profilePreviewData,
                 prescriptions = prescriptionsForOrdersPreviewData,
-                orderOption = PharmacyScreenData.OrderOption.Delivery,
+                orderOption = OrderOptionErpModel.Delivery,
                 markAsSelfPayer = false,
                 contactValidationState = RedeemContactValidationState.NoError,
                 pharmacy = pharmacyPreviewData,
@@ -83,14 +90,15 @@ class RedeemOverviewScreenParameter : PreviewParameterProvider<RedeemOverviewScr
                 isRedeemEnabled = true,
                 isPrescriptionError = false,
                 isPharmacyError = false,
-                isContactError = false
+                isContactError = false,
+                hasTeratogenicPrescriptionError = false
             ),
             // self payer order
             RedeemOverviewScreenPreviewData(
                 title = "self_payer_order",
                 activeProfile = profilePreviewData,
                 prescriptions = prescriptionsForOrdersPreviewData,
-                orderOption = PharmacyScreenData.OrderOption.Online,
+                orderOption = OrderOptionErpModel.Online,
                 markAsSelfPayer = true,
                 contactValidationState = RedeemContactValidationState.NoError,
                 pharmacy = pharmacyPreviewData,
@@ -98,7 +106,8 @@ class RedeemOverviewScreenParameter : PreviewParameterProvider<RedeemOverviewScr
                 isRedeemEnabled = true,
                 isPrescriptionError = false,
                 isPharmacyError = false,
-                isContactError = false
+                isContactError = false,
+                hasTeratogenicPrescriptionError = false
             ),
             // missing pharmacy
             RedeemOverviewScreenPreviewData(
@@ -113,14 +122,15 @@ class RedeemOverviewScreenParameter : PreviewParameterProvider<RedeemOverviewScr
                 isRedeemEnabled = false,
                 isPrescriptionError = false,
                 isPharmacyError = true,
-                isContactError = true
+                isContactError = true,
+                hasTeratogenicPrescriptionError = false
             ),
             // missing contact
             RedeemOverviewScreenPreviewData(
                 title = "missing_contact_order",
                 activeProfile = profilePreviewData,
                 prescriptions = prescriptionsForOrdersPreviewData,
-                orderOption = PharmacyScreenData.OrderOption.Online,
+                orderOption = OrderOptionErpModel.Online,
                 markAsSelfPayer = false,
                 contactValidationState = RedeemContactValidationState.MissingPersonalInfo,
                 pharmacy = pharmacyPreviewData,
@@ -128,14 +138,15 @@ class RedeemOverviewScreenParameter : PreviewParameterProvider<RedeemOverviewScr
                 isRedeemEnabled = false,
                 isPrescriptionError = false,
                 isPharmacyError = false,
-                isContactError = true
+                isContactError = true,
+                hasTeratogenicPrescriptionError = false
             ),
             // missing prescriptions
             RedeemOverviewScreenPreviewData(
                 title = "missing_prescription_order",
                 activeProfile = profilePreviewData,
                 prescriptions = emptyList(),
-                orderOption = PharmacyScreenData.OrderOption.Pickup,
+                orderOption = OrderOptionErpModel.Pickup,
                 markAsSelfPayer = false,
                 contactValidationState = RedeemContactValidationState.NoError,
                 pharmacy = pharmacyPreviewData,
@@ -143,7 +154,24 @@ class RedeemOverviewScreenParameter : PreviewParameterProvider<RedeemOverviewScr
                 isRedeemEnabled = false,
                 isPrescriptionError = true,
                 isPharmacyError = false,
-                isContactError = false
+                isContactError = false,
+                hasTeratogenicPrescriptionError = false
+            ),
+            // teratogenic prescription error
+            RedeemOverviewScreenPreviewData(
+                title = "teratogenic_prescription_error",
+                activeProfile = profilePreviewData,
+                prescriptions = prescriptionsForOrdersPreviewDataTeratogenic,
+                orderOption = OrderOptionErpModel.Online,
+                markAsSelfPayer = false,
+                contactValidationState = RedeemContactValidationState.NoError,
+                pharmacy = pharmacyPreviewData,
+                contact = contactPreviewData,
+                isRedeemEnabled = false,
+                isPrescriptionError = false,
+                isPharmacyError = false,
+                isContactError = false,
+                hasTeratogenicPrescriptionError = true
             )
         )
 }
@@ -151,24 +179,32 @@ class RedeemOverviewScreenParameter : PreviewParameterProvider<RedeemOverviewScr
 object RedeemOverviewScreenPreviewParameter {
 
     val profilePreviewData = UiState.Data(
-        ProfilesUseCaseData.Profile(
+        ProfileErpModel(
             id = "test-profile-1",
             name = "Ada Muster",
-            insurance = ProfileInsuranceInformation(
+            insuranceData = ProfileInsuranceDataErpModel(
+                insurantName = "Ada Muster",
                 insuranceIdentifier = "123456789",
                 insuranceName = "Test Insurance",
-                insuranceType = ProfilesUseCaseData.InsuranceType.GKV
+                insuranceType = InsuranceType.GKV,
+                organizationIdentifier = null
             ),
-            isActive = true,
-            color = ProfilesData.ProfileColorNames.BLUE_MOON,
-            avatar = ProfilesData.Avatar.FemaleDoctor,
-            image = null,
+            active = true,
+            isNewlyCreated = false,
+            profileImageData = ProfileImageDataErpModel(
+                color = ProfileColorNames.BLUE_MOON,
+                avatar = Avatar.FemaleDoctor,
+                image = null
+            ),
+            isConsentDrawerShown = false,
             lastAuthenticated = Instant.parse("2024-03-20T10:00:00Z"),
-            ssoTokenScope = null
+            lastAuditEventSynced = null,
+            lastTaskSynced = null,
+            userAuthentication = UserAuthenticationErpModel.NotInitialized
         )
     )
 
-    private val prescriptionForOrderPreviewData = PharmacyUseCaseData.PrescriptionInOrder(
+    private val prescriptionForOrderPreviewData = PrescriptionInOrderErpModel(
         taskId = "taskId",
         accessCode = "access-code-1",
         title = "Prescription",
@@ -176,7 +212,8 @@ object RedeemOverviewScreenPreviewParameter {
         index = 1,
         timestamp = Instant.parse("2024-08-01T10:00:00Z"),
         substitutionsAllowed = false,
-        isScanned = false
+        isScanned = false,
+        isTeratogenicPrescription = false
     )
 
     val contactPreviewData = ShippingInfoErpModel(
@@ -201,30 +238,43 @@ object RedeemOverviewScreenPreviewParameter {
         )
     )
 
-    val pharmacyPreviewData = Pharmacy(
+    val prescriptionsForOrdersPreviewDataTeratogenic = listOf(
+        prescriptionForOrderPreviewData,
+        prescriptionForOrderPreviewData.copy(
+            title = "Other Prescription",
+            taskId = "taskId2",
+            isTeratogenicPrescription = true
+        ),
+        prescriptionForOrderPreviewData.copy(
+            title = "Unwanted Prescription",
+            taskId = "taskId3"
+        )
+    )
+
+    val pharmacyPreviewData = PharmacyDetailsErpModel(
         id = "PHARMACY_ID",
-        name = "Pharmacy With a Very Long Name",
-        address = "Pharmacy Str,\n12345 Pharmacy City",
+        name = "PharmacyDetailsErpModel With a Very Long Name",
+        address = "PharmacyDetailsErpModel Str,\n12345 PharmacyDetailsErpModel City",
         coordinates = null,
         distance = null,
-        contact = PharmacyContact(
+        contact = ContactInformationErpModel(
             "1234",
             "mail@web.de",
             "https://www.gematik.de"
         ),
         provides = listOf(
-            PharmacyService.OnlinePharmacyService(name = "Online"),
-            PharmacyService.PickUpPharmacyService(name = "PickUp"),
-            PharmacyService.LocalPharmacyService(
+            PharmacyServiceErpModel.OnlinePharmacyServiceErpModel(name = "Online"),
+            PharmacyServiceErpModel.PickUpPharmacyServiceErpModel(name = "PickUp"),
+            PharmacyServiceErpModel.LocalPharmacyServiceErpModel(
                 name = "Local",
-                openingHours = PharmacyUseCaseData.OpeningHours(emptyMap())
+                openingHours = PharmacyOpeningHoursErpModel(emptyMap())
             ),
-            PharmacyService.DeliveryPharmacyService(
+            PharmacyServiceErpModel.DeliveryPharmacyServiceErpModel(
                 name = "Delivery",
-                openingHours = PharmacyUseCaseData.OpeningHours(emptyMap())
+                openingHours = PharmacyOpeningHoursErpModel(emptyMap())
             )
         ),
-        openingHours = PharmacyUseCaseData.OpeningHours(emptyMap()),
+        openingHours = PharmacyOpeningHoursErpModel(emptyMap()),
         telematikId = "TELEMATIK_ID"
     )
 }

@@ -182,8 +182,8 @@ private fun ThemeSelectionItem(
                 selected = checked,
                 onClick = null,
                 colors = RadioButtonDefaults.colors(
-                    selectedColor = AppTheme.colors.primary600,
-                    unselectedColor = AppTheme.colors.neutral400
+                    selectedColor = AppTheme.colors.primary700,
+                    unselectedColor = AppTheme.colors.neutral700
                 )
             )
             Text(

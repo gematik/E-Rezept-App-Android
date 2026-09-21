@@ -22,9 +22,11 @@
 
 package de.gematik.ti.erp.app.eurezept.repository
 
-import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
+import de.gematik.ti.erp.app.database.api.eurezept.EuTaskLocalDataSource
+import de.gematik.ti.erp.app.database.api.task.TaskLocalDataSource
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCodeErpModel
 import de.gematik.ti.erp.app.eurezept.model.EuEventType
-import de.gematik.ti.erp.app.eurezept.model.EuOrder
+import de.gematik.ti.erp.app.eurezept.model.EuOrderErpModel
 import de.gematik.ti.erp.app.eurezept.model.toModel
 import de.gematik.ti.erp.app.fhir.FhirErpModel
 import de.gematik.ti.erp.app.fhir.constant.prescription.euredeem.FhirEuRedeemAccessCodeRequestConstants.FhirEuRedeemAccessCodeRequestMeta
@@ -37,7 +39,6 @@ import de.gematik.ti.erp.app.fhir.pharmacy.parser.FhirVzdCountriesParser
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskMetadataParser
 import de.gematik.ti.erp.app.navigation.toNavigationString
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.PharmacyRemoteDataSource
-import de.gematik.ti.erp.app.prescription.repository.LegacyTaskLocalDataSource
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.utils.snapshot
 import io.github.aakira.napier.Napier
@@ -48,7 +49,8 @@ class DefaultEuRepository(
     private val pharmacyRemoteDataSource: PharmacyRemoteDataSource,
     private val euTaskRemoteDataSource: EuTaskRemoteDataSource,
     private val euTaskLocalDataSource: EuTaskLocalDataSource,
-    private val taskLocalDataSource: LegacyTaskLocalDataSource,
+    private val taskLocalDataSource: TaskLocalDataSource,
+    // private val taskLocalDataSource: LegacyTaskLocalDataSource,
     private val parser: FhirVzdCountriesParser,
     private val metadataParser: TaskMetadataParser,
     private val euRedeemAccessCodeResponseParser: EuRedeemAccessCodeResponseParser
@@ -59,11 +61,11 @@ class DefaultEuRepository(
             .map(::parseData)
     }
 
-    override fun observeEuOrder(orderId: String): Flow<EuOrder?> = euTaskLocalDataSource.observeEuOrder(orderId)
+    override fun observeEuOrder(orderId: String): Flow<EuOrderErpModel?> = euTaskLocalDataSource.observeEuOrder(orderId)
 
-    override fun observeAllEuOrders(): Flow<List<EuOrder>> = euTaskLocalDataSource.observeAllEuOrders()
+    override fun observeAllEuOrders(): Flow<List<EuOrderErpModel>> = euTaskLocalDataSource.observeAllEuOrders()
 
-    override fun getEuAccessCode(accessCode: String): Flow<EuAccessCode?> = euTaskLocalDataSource.getEuAccessCode(accessCode)
+    override fun getEuAccessCode(accessCode: String): Flow<EuAccessCodeErpModel?> = euTaskLocalDataSource.getEuAccessCode(accessCode)
 
     override suspend fun toggleIsEuRedeemableByPatientAuthorization(
         taskId: String,
@@ -93,7 +95,7 @@ class DefaultEuRepository(
                         taskIds = listOf(taskId),
                         eventType = if (isAuthorized) EuEventType.TASK_ADDED else EuEventType.TASK_REMOVED
                     )
-                    taskLocalDataSource.saveTaskEPrescriptionMetaData(profileId, taskMetaData)
+                    taskLocalDataSource.saveSyncedTaskMetaData(profileId, taskMetaData)
                     Result.success(Unit)
                 } ?: Result.failure(IllegalStateException("Failed to parse meta task bundle for taskId: $taskId"))
             },
@@ -108,7 +110,7 @@ class DefaultEuRepository(
         metadata: FhirEuRedeemAccessCodeRequestMeta,
         countryCode: String,
         relatedTaskIds: List<String>
-    ): Result<EuAccessCode> = runCatching {
+    ): Result<EuAccessCodeErpModel> = runCatching {
         // --- 1. Prepare payload ---
         val payload = createEuRedeemAccessCodePayload(
             countryCode = countryCode,
@@ -169,7 +171,7 @@ class DefaultEuRepository(
         }
     }
 
-    private fun EuOrder.copyFrom(newOrder: EuOrder): EuOrder {
+    private fun EuOrderErpModel.copyFrom(newOrder: EuOrderErpModel): EuOrderErpModel {
         return copy(
             createdAt = newOrder.createdAt,
             euAccessCode = newOrder.euAccessCode,
@@ -180,7 +182,7 @@ class DefaultEuRepository(
     override suspend fun getLatestValidEuAccessCodeByProfileIdAndCountry(
         profileId: ProfileIdentifier,
         countryCode: String
-    ): Flow<EuAccessCode?> {
+    ): Flow<EuAccessCodeErpModel?> {
         return euTaskLocalDataSource.getLatestEuAccessCodeByProfileIdAndCountry(profileId = profileId, countryCode = countryCode)
     }
 

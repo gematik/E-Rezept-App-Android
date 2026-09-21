@@ -90,6 +90,13 @@ object PrescriptionDetailRoutes : NavigationRoutes {
         fun path(taskId: String) = path(PRESCRIPTION_DETAIL_NAV_TASK_ID to taskId)
     }
 
+    object PrescriptionDetailTeratogenicPrescriptionScreen : Routes(
+        NavigationRouteNames.PrescriptionDetailTeratogenicPrescriptionScreen.name,
+        navArgument(PRESCRIPTION_DETAIL_NAV_TASK_ID) { type = NavType.StringType }
+    ) {
+        fun path(taskId: String) = path(PRESCRIPTION_DETAIL_NAV_TASK_ID to taskId)
+    }
+
     object PrescriptionDetailAccidentInfoScreen : Routes(
         NavigationRouteNames.PrescriptionDetailAccidentInfoScreen.name,
         navArgument(PRESCRIPTION_DETAIL_NAV_TASK_ID) { type = NavType.StringType }
@@ -226,5 +233,16 @@ object PrescriptionDetailRoutes : NavigationRoutes {
         navArgument(PRESCRIPTION_DETAIL_NAV_TASK_ID) { type = NavType.StringType }
     ) {
         fun path(taskId: String) = path(PRESCRIPTION_DETAIL_NAV_TASK_ID to taskId)
+    }
+
+    object TeratogenicPrescriptionBottomSheetScreen : Routes(
+        NavigationRouteNames.PrescriptionDetailTeratogenicPrescriptionBottomSheetScreen.name,
+        navArgument(BOTTOM_SHEET_TITLE_ID) { type = NavType.IntType },
+        navArgument(BOTTOM_SHEET_INFO_ID) { type = NavType.IntType }
+    ) {
+        fun path(
+            titleId: Int,
+            infoId: Int
+        ) = path(BOTTOM_SHEET_TITLE_ID to titleId, BOTTOM_SHEET_INFO_ID to infoId)
     }
 }

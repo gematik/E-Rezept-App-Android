@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.digas.domain.usecase
 
 import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +41,7 @@ class UpdateDigaStatusUseCase(
 
         // user is allowed to update only when task is completed or the user has send the comm request (InProgress)
         val canUpdate = when {
-            syncedTask?.status == SyncedTaskData.TaskStatus.Completed -> true
+            syncedTask?.status == TaskStatusEnum.Completed -> true
             status is DigaStatus.InProgress -> true
             else -> false
         }

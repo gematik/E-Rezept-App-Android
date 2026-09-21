@@ -22,24 +22,24 @@
 
 package de.gematik.ti.erp.app.prescription.ui.model
 
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 
 data class PrescriptionsScreenContentClickAction(
-    val onClickLogin: (ProfilesUseCaseData.Profile) -> Unit,
-    val onClickAvatar: (ProfilesUseCaseData.Profile) -> Unit,
+    val onClickLogin: (ProfileErpModel) -> Unit,
+    val onClickAvatar: (ProfileErpModel) -> Unit,
     val onClickArchive: () -> Unit,
     val onClickPrescription: (String, Boolean, Boolean) -> Unit,
-    val onChooseAuthenticationMethod: (ProfilesUseCaseData.Profile) -> Unit,
+    val onChooseAuthenticationMethod: (ProfileErpModel) -> Unit,
     val onClickRedeem: () -> Unit,
     val onClickRefresh: () -> Unit
 )
 
 data class MultiProfileTopAppBarClickAction(
     val onClickAddProfile: () -> Unit,
-    val onClickChangeProfileName: (ProfilesUseCaseData.Profile) -> Unit,
+    val onClickChangeProfileName: (ProfileErpModel) -> Unit,
     val onClickAddScannedPrescription: () -> Unit,
-    val onSwitchActiveProfile: (ProfilesUseCaseData.Profile) -> Unit,
+    val onSwitchActiveProfile: (ProfileErpModel) -> Unit,
     val onElevateTopAppBar: (Boolean) -> Unit
 )
 

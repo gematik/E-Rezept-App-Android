@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.digas.domain.usecase
 
-import de.gematik.ti.erp.app.digas.data.repository.DigaInformationRepository
+import de.gematik.ti.erp.app.diga.repository.DigaInformationRepository
 import de.gematik.ti.erp.app.digas.mapper.toDigaBfarmUiModel
 import de.gematik.ti.erp.app.digas.ui.model.DigaBfarmUiModel
 import de.gematik.ti.erp.app.utils.uistate.UiState

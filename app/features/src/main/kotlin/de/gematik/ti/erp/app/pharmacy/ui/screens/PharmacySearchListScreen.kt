@@ -99,7 +99,8 @@ import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacySearchErrorHint
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacySearchLoading
 import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacySearchListScreenPreviewData
 import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacySearchListScreenPreviewParameterProvider
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.SearchFilterErpModel
 import de.gematik.ti.erp.app.pharmacyId
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -159,6 +160,7 @@ class PharmacySearchListScreen(
         LaunchedEffect(Unit) {
             focusRequester.requestFocus()
         }
+
         PharmacySearchListScreenContent(
             pharmacies = pharmacies,
             searchTerm = searchTerm,
@@ -216,7 +218,7 @@ class PharmacySearchListScreen(
 private fun PharmacySearchListScreenContent(
     searchTerm: TextFieldValue,
     onSearchInputChange: (TextFieldValue) -> Unit,
-    filter: PharmacyUseCaseData.Filter,
+    filter: SearchFilterErpModel,
     isAtLeastOnePharmacyLoaded: Boolean,
     isLoading: Boolean,
     focusManager: FocusManager,
@@ -226,8 +228,8 @@ private fun PharmacySearchListScreenContent(
     onClickChip: (Boolean, FilterType) -> Unit,
     onRemoveOnSiteFeature: (PharmacyOnSiteFeatureOption) -> Unit,
     onRemoveAvailableService: (PharmacyFilterServiceOption) -> Unit,
-    onClickPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit,
-    pharmacies: LazyPagingItems<PharmacyUseCaseData.Pharmacy>,
+    onClickPharmacy: (PharmacyDetailsErpModel) -> Unit,
+    pharmacies: LazyPagingItems<PharmacyDetailsErpModel>,
     onClickFilter: () -> Unit,
     onBack: () -> Unit,
     onClickMaps: () -> Unit
@@ -398,8 +400,8 @@ private fun SearchResults(
     isAtLeastOnePharmacyLoaded: Boolean,
     lazyListState: LazyListState,
     onPharmacyLoaded: () -> Unit,
-    pharmacies: LazyPagingItems<PharmacyUseCaseData.Pharmacy>,
-    onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit
+    pharmacies: LazyPagingItems<PharmacyDetailsErpModel>,
+    onSelectPharmacy: (PharmacyDetailsErpModel) -> Unit
 ) {
     val errorTitle = stringResource(R.string.search_pharmacy_error_title)
     val errorSubtitle = stringResource(R.string.search_pharmacy_error_subtitle)
@@ -484,8 +486,8 @@ private fun PharmacyListSearchResult(
     modifier: Modifier,
     count: Int,
     index: Int,
-    pharmacy: PharmacyUseCaseData.Pharmacy,
-    onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit
+    pharmacy: PharmacyDetailsErpModel,
+    onSelectPharmacy: (PharmacyDetailsErpModel) -> Unit
 ) {
     Column {
         PharmacyResultCard(

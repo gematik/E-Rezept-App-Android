@@ -22,20 +22,35 @@
 
 package de.gematik.ti.erp.app.database.room.v2.task.organization
 
+import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
+import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskEntity
+import de.gematik.ti.erp.app.database.room.v2.task.util.AddressEmbeddable
 
-@Entity(tableName = "organizations")
+@Entity(
+    tableName = "organizations",
+    foreignKeys = [
+        ForeignKey(
+            entity = ErpTaskEntity::class,
+            parentColumns = ["taskId"],
+            childColumns = ["taskId"],
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("taskId")]
+)
 data class ErpOrganizationEntity(
     @PrimaryKey
-    val organizationId: String, // can be generated UUID or the original primary key
+    val organizationId: String,
+    val taskId: String,
     val name: String?,
-    val BSNR: String?,
+    /** BSNR – per design-doc diagram naming; maps to OrganizationErpModel.uniqueIdentifier. */
+    val bsnr: String?,
     val phone: String?,
     val mail: String?,
-    val fax: String?,
-    val line1: String?,
-    val line2: String?,
-    val postalCode: String?,
-    val city: String?
+    @Embedded val address: AddressEmbeddable? = null
 )

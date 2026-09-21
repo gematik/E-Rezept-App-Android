@@ -25,17 +25,17 @@ package de.gematik.ti.erp.app.settings.ui
 import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
 import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsLanguageScreenScaffoldPreview
-import de.gematik.ti.erp.app.utils.compose.preview.LanguageCodePreviewParameterProvider
+import de.gematik.ti.erp.app.settings.ui.preview.SettingsLanguageScreenPreviewParameterProvider
 import org.junit.Test
 
 class SettingsLanguageScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(config) {
 
     @Test
     fun screenShotTest() {
-        val parameters = LanguageCodePreviewParameterProvider().values.toList()
-        parameters.forEachIndexed { index, languageCode ->
+        val parameters = SettingsLanguageScreenPreviewParameterProvider().values.toList()
+        parameters.forEachIndexed { index, previewData ->
             paparazzi.snapshot("parameter_$index") {
-                SettingsLanguageScreenScaffoldPreview(languageCode)
+                SettingsLanguageScreenScaffoldPreview(previewData)
             }
         }
     }

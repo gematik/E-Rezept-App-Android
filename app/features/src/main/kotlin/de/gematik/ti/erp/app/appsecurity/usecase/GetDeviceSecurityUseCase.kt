@@ -47,7 +47,7 @@ class GetDeviceSecurityUseCase(
             "they are at their own risk if they are using the app."
     )
     operator fun invoke(): Flow<Boolean> =
-        settingsRepository.general
+        settingsRepository.loadSettings()
             .map {
                 val isDeviceSecure = (context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
                     .isDeviceSecure

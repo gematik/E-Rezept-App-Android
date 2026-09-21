@@ -28,7 +28,7 @@ import de.gematik.ti.erp.app.api.httpErrorState
 import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
 import de.gematik.ti.erp.app.fhir.communication.DigaDispenseRequestBuilder
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.DigaRedeemedPrescriptionState
 import de.gematik.ti.erp.app.redeem.model.MissingInformation
@@ -52,7 +52,7 @@ import kotlinx.datetime.Clock
  * Progress can optionally be tracked using [RedeemDigaProgressState].
  */
 class RedeemDigaUseCase(
-    private val prescriptionRepository: PrescriptionRepository,
+    private val taskOperationsRepository: TaskOperationsRepository,
     private val digaRepository: DigaRepository,
     private val digaDispenseRequestBuilder: DigaDispenseRequestBuilder,
     private val communicationDigaVersionRepository: CommunicationDigaVersionRepository,
@@ -95,7 +95,7 @@ class RedeemDigaUseCase(
         arguments.lifecycleHooks?.onRedeemStartState?.invoke()
 
         val prescription = withContext(dispatcher) {
-            prescriptionRepository.loadSyncedTaskByTaskId(arguments.taskId).firstOrNull()
+            taskOperationsRepository.loadDigaTaskByTaskId(arguments.taskId).firstOrNull()
         } ?: return DigaRedeemedPrescriptionState.NotAvailableInDatabase(
             missingType = MissingInformation.TaskId,
             value = arguments.taskId
@@ -110,7 +110,7 @@ class RedeemDigaUseCase(
         val accessCode = prescription.accessCode
 
         // insurance identifier (kvnr) for the patient
-        val kvnr = prescription.patient.insuranceIdentifier
+        val kvnr = prescription.patient?.insuranceIdentifier
             ?: return DigaRedeemedPrescriptionState.NotAvailableInDatabase(
                 missingType = MissingInformation.Kvnr,
                 value = "No Kvnr found for taskId ${arguments.taskId}"
@@ -141,7 +141,7 @@ class RedeemDigaUseCase(
 
         // send the communication dispense request to the insurance
         return withContext(dispatcher) {
-            prescriptionRepository.redeem(
+            taskOperationsRepository.redeem(
                 profileId = arguments.profileId,
                 communication = communicationDispenseRequestJson,
                 accessCode = accessCode

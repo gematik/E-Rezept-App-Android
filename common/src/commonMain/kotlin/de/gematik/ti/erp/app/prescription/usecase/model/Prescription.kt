@@ -23,12 +23,16 @@
 package de.gematik.ti.erp.app.prescription.usecase.model
 
 import androidx.compose.runtime.Immutable
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.diga.model.DigaStatus
-import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
+@Deprecated(
+    message = "Leaving this for now since ui needs mapping to taskErpModel",
+    level = DeprecationLevel.WARNING
+)
 @Immutable
 @Serializable
 sealed interface Prescription {
@@ -44,9 +48,13 @@ sealed interface Prescription {
     /**
      * Represents a single [Task] synchronized with the backend.
      */
+    @Deprecated(
+        message = "Leaving this for now since ui needs mapping to taskErpModel",
+        level = DeprecationLevel.WARNING
+    )
     @Immutable
     @Serializable
-    data class SyncedPrescription(
+    data class SyncedAndDigaCombinedPrescription(
         override val taskId: String,
         override val name: String?,
         override val redeemedOn: Instant?,
@@ -79,6 +87,10 @@ sealed interface Prescription {
     /**
      *  Represents a single [Task] scanned by the user.
      */
+    @Deprecated(
+        message = "Leaving this for now since ui needs mapping to taskErpModel",
+        level = DeprecationLevel.WARNING
+    )
     @Immutable
     @Serializable
     data class ScannedPrescription(
@@ -87,7 +99,7 @@ sealed interface Prescription {
         override val redeemedOn: Instant?,
         val scannedOn: Instant,
         val index: Int,
-        val communications: List<Communication>
+        val communications: List<CommunicationErpModel>
     ) : Prescription {
         override val startedOn = scannedOn
         override val expiresOn = null
@@ -97,6 +109,6 @@ sealed interface Prescription {
         when (this) {
             is ScannedPrescription -> requireNotNull(redeemedOn) { "Scanned prescription needs a redeemed timestamp" }
 
-            is SyncedPrescription -> redeemedOn ?: expiresOn ?: authoredOn
+            is SyncedAndDigaCombinedPrescription -> redeemedOn ?: expiresOn ?: authoredOn
         }
 }

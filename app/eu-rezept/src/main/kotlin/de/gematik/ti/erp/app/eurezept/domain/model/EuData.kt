@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.eurezept.domain.model
 
 import androidx.compose.ui.graphics.ImageBitmap
-import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCodeErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -76,7 +76,7 @@ data class EuRedeemError(
 )
 
 data class EuRedemptionDetails(
-    val euAccessCode: EuAccessCode,
+    val euAccessCode: EuAccessCodeErpModel,
     val insuranceNumber: String,
     val qrCodeBitmap: ImageBitmap?,
     val isExpired: Boolean = euAccessCode.validUntil < Clock.System.now()

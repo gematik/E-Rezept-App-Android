@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.medicationplan.alarm
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
 import kotlinx.serialization.json.Json
 
 class MedicationPlanNotificationReceiver : BroadcastReceiver() {
@@ -38,10 +38,16 @@ class MedicationPlanNotificationReceiver : BroadcastReceiver() {
         medicationPlanNotificationManager.showNotification()
         // reschedule
         val medicationScheduleJson = intent.getStringExtra("medicationScheduleJson")
+        val medicationPlanNotificationScheduler = MedicationPlanNotificationScheduler(context)
+        var taskId = ""
         if (medicationScheduleJson != null) {
-            val medicationSchedule = Json.decodeFromString<MedicationSchedule>(medicationScheduleJson)
-            val medicationPlanNotificationScheduler = MedicationPlanNotificationScheduler(context)
-            medicationPlanNotificationScheduler.scheduleMedicationSchedule(medicationSchedule)
+            try {
+                val medicationSchedule = Json.decodeFromString<MedicationScheduleErpModel>(medicationScheduleJson)
+                taskId = medicationSchedule.taskId
+                medicationPlanNotificationScheduler.scheduleMedicationSchedule(medicationSchedule)
+            } catch (e: Exception) {
+                medicationPlanNotificationScheduler.cancelNotification(taskId)
+            }
         }
     }
 }

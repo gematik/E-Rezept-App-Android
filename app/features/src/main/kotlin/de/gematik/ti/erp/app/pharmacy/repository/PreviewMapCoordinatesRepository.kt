@@ -23,13 +23,13 @@
 package de.gematik.ti.erp.app.pharmacy.repository
 
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.PreviewMapCoordinatesDataSource
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 
 class PreviewMapCoordinatesRepository(
     private val dataSource: PreviewMapCoordinatesDataSource
 ) {
     fun setPreviewCoordinates(
-        coordinates: Coordinates?
+        coordinates: PositionErpModel?
     ) {
         coordinates?.let {
             dataSource.coordinates.value = it

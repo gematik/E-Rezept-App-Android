@@ -65,6 +65,7 @@ class GetProfileByIdControllerTest {
     fun setUp() {
         MockKAnnotations.init(this)
         Dispatchers.setMain(dispatcher)
+        every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
         getProfileByIdUseCase = GetProfileByIdUseCase(profileRepository, dispatcher)
         getProfilesUseCase = GetProfilesUseCase(profileRepository, dispatcher)
         getActiveProfileUseCase = GetActiveProfileUseCase(profileRepository, dispatcher)

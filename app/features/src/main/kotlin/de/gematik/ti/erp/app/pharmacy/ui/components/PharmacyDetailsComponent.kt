@@ -60,15 +60,15 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.ClipBoardCopy
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRouteBackStackEntryArguments
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyGraphController
 import de.gematik.ti.erp.app.pharmacy.presentation.rememberPharmacyDetailsController
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyPortalText
 import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyPreviewParameterProvider
 import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacySheetFromMessagesParameterProvider
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -183,14 +183,14 @@ fun PharmacyDetailsComponent(
 
 @Composable
 private fun BasePharmacyDetailsContent(
-    pharmacy: PharmacyUseCaseData.Pharmacy,
+    pharmacy: PharmacyDetailsErpModel,
     clickableText: AnnotatedString,
     isMarkedAsFavorite: Boolean,
     screenType: ScreenType,
     currentDateTime: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
-    onClickOrder: (PharmacyUseCaseData.Pharmacy, PharmacyScreenData.OrderOption) -> Unit,
+    onClickOrder: (PharmacyDetailsErpModel, OrderOptionErpModel) -> Unit,
     showTelematikId: Boolean,
-    openExternalMap: (Coordinates) -> Unit,
+    openExternalMap: (PositionErpModel) -> Unit,
     onChangeFavoriteState: (Boolean) -> Unit,
     onClickPhone: (String) -> Unit,
     onClickMail: (String) -> Unit,
@@ -340,7 +340,7 @@ private fun BasePharmacyDetailsContent(
 fun PharmacyDetailsScreenFromPharmacyPreview(
     @PreviewParameter(
         PharmacyPreviewParameterProvider::class
-    ) pharmacy: PharmacyUseCaseData.Pharmacy
+    ) pharmacy: PharmacyDetailsErpModel
 ) {
     PreviewAppTheme {
         BasePharmacyDetailsContent(
@@ -368,7 +368,7 @@ fun PharmacyDetailsScreenFromPharmacyPreview(
 fun PharmacyDetailsScreenFromMessagePreview(
     @PreviewParameter(
         PharmacySheetFromMessagesParameterProvider::class
-    ) pharmacy: PharmacyUseCaseData.Pharmacy
+    ) pharmacy: PharmacyDetailsErpModel
 ) {
     PreviewAppTheme {
         BasePharmacyDetailsContent(

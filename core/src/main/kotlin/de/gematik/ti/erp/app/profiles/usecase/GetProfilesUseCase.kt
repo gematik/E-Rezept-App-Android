@@ -22,10 +22,9 @@
 
 package de.gematik.ti.erp.app.profiles.usecase
 
-import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
-import de.gematik.ti.erp.app.profiles.usecase.mapper.toModel
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -41,17 +40,20 @@ class GetProfilesUseCase(
     private val repository: ProfileRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(): Flow<List<ProfilesUseCaseData.Profile>> =
+    operator fun invoke(): Flow<List<ProfileErpModel>> =
         repository.profiles().mapNotNull { profiles ->
-            profiles.map { it.toModel() }
-        }.distinctUntilChanged()
+            profiles
+        }.distinctUntilChanged { old, new ->
+            old.size == new.size && old.zip(new).all { (a, b) -> !a.hasChanged(b) }
+        }
             .onEach { profiles ->
                 profiles.forEach { profile ->
                     when {
-                        profile.ssoTokenScope != null &&
-                            profile.ssoTokenScope !is IdpData.AlternateAuthenticationWithoutToken &&
-                            profile.lastAuthenticated == null -> {
-                            profile.ssoTokenScope?.token?.let { token ->
+                        !(
+                            profile.userAuthentication is UserAuthenticationErpModel.HealthCardWithSavedCredentials &&
+                                profile.userAuthentication.singleSignOnTokenErpModel == null
+                            ) && profile.lastAuthenticated == null -> {
+                            profile.userAuthentication.singleSignOnTokenErpModel?.let { token ->
                                 repository.updateLastAuthenticated(profile.id, token.validOn)
                             }
                         }

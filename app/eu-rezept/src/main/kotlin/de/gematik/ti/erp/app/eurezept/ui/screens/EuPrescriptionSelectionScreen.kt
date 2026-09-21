@@ -83,7 +83,7 @@ import de.gematik.ti.erp.app.listitem.GemListItemDefaults
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -136,7 +136,7 @@ internal class EuPrescriptionSelectionScreen(
         EuPrescriptionSelectionScaffold(
             listState = lazyListState,
             uiState = uiState,
-            profileData = profileData.data,
+            profileErpModel = profileData.data,
             snackbarHostState = snackbarHostState,
             onBack = { onBack() },
             onRetry = { controller.getEuPrescriptions() },
@@ -151,7 +151,7 @@ internal class EuPrescriptionSelectionScreen(
 fun EuPrescriptionSelectionScaffold(
     listState: LazyListState,
     uiState: UiState<List<EuPrescription>>,
-    profileData: ProfilesUseCaseData.Profile?,
+    profileErpModel: ProfileErpModel?,
     onBack: () -> Unit,
     onRetry: () -> Unit,
     onPrescriptionToggle: (EuPrescription) -> Unit,
@@ -207,7 +207,7 @@ fun EuPrescriptionSelectionScaffold(
                     paddingValues = paddingValues,
                     listState = listState,
                     prescriptions = prescriptions,
-                    profileData = profileData,
+                    profileErpModel = profileErpModel,
                     onPrescriptionToggle = onPrescriptionToggle
                 )
             }
@@ -220,7 +220,7 @@ fun EuPrescriptionSelectionContent(
     paddingValues: PaddingValues,
     listState: LazyListState,
     prescriptions: List<EuPrescription>,
-    profileData: ProfilesUseCaseData.Profile?,
+    profileErpModel: ProfileErpModel?,
     onPrescriptionToggle: (EuPrescription) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -232,7 +232,7 @@ fun EuPrescriptionSelectionContent(
         verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)
     ) {
         item {
-            ProfileSection(profileData = profileData)
+            ProfileSection(profileErpModel = profileErpModel)
         }
 
         item {
@@ -295,7 +295,7 @@ private fun PrescriptionListItemInContainer(
         leadingContent = {
             key(prescription.isLoading) {
                 if (prescription.type == EuPrescriptionType.EuRedeemable && prescription.isLoading) {
-                    CircularProgressIndicator(modifier.size(SizeDefaults.triple))
+                    CircularProgressIndicator(Modifier.size(SizeDefaults.triple))
                 } else {
                     PrescriptionIcon(prescription)
                 }
@@ -357,7 +357,7 @@ private fun PrescriptionIcon(prescription: EuPrescription) {
             Icon(
                 imageVector = Icons.Rounded.RadioButtonUnchecked,
                 contentDescription = null,
-                tint = AppTheme.colors.neutral400,
+                tint = AppTheme.colors.neutral700,
                 modifier = Modifier.size(SizeDefaults.triple)
             )
         }
@@ -374,21 +374,21 @@ private fun PrescriptionIcon(prescription: EuPrescription) {
 }
 
 @Composable
-fun ProfileSection(modifier: Modifier = Modifier, profileData: ProfilesUseCaseData.Profile?) {
-    profileData?.let {
+fun ProfileSection(modifier: Modifier = Modifier, profileErpModel: ProfileErpModel?) {
+    profileErpModel?.let {
         ListItem(
             modifier = modifier,
             colors = GemListItemDefaults.gemListItemColors(),
             leadingContent = {
                 EuAvatar(
-                    profile = profileData,
+                    profile = profileErpModel,
                     size = SizeDefaults.sixfold,
                     emptyIcon = Icons.Rounded.PersonOutline
                 )
             },
             headlineContent = {
                 Text(
-                    text = profileData.name,
+                    text = profileErpModel.name,
                     style = AppTheme.typography.subtitle2,
                     color = AppTheme.colors.neutral900,
                     fontWeight = FontWeight.Bold
@@ -409,7 +409,7 @@ fun EuPrescriptionSelectionContentPreview(
             paddingValues = PaddingValues(SizeDefaults.zero),
             listState = rememberLazyListState(),
             prescriptions = previewData.prescriptions,
-            profileData = previewData.profileData,
+            profileErpModel = previewData.profileData,
             onPrescriptionToggle = { }
         )
     }

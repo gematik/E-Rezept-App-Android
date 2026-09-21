@@ -23,8 +23,8 @@
 package de.gematik.ti.erp.app.messages.domain.usecase
 
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
-import de.gematik.ti.erp.app.prescription.model.TaskData
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -32,17 +32,17 @@ import kotlinx.coroutines.withContext
 
 class GetEuOrderTasksUseCase(
     private val euRepository: EuRepository,
-    private val prescriptionRepository: PrescriptionRepository,
+    private val taskOperationsRepository: TaskOperationsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(orderId: String): Result<List<TaskData>> =
+    suspend operator fun invoke(orderId: String): Result<List<TaskErpModel>> =
         withContext(dispatcher) {
             runCatching {
                 val order = euRepository.observeEuOrder(orderId).firstOrNull()
-                    ?: return@runCatching emptyList<TaskData>()
+                    ?: return@runCatching emptyList<TaskErpModel>()
 
                 order.relatedTaskIds.mapNotNull { taskId ->
-                    prescriptionRepository.getTask(taskId)
+                    taskOperationsRepository.loadTaskByTaskId(taskId).firstOrNull()
                 }
             }
         }

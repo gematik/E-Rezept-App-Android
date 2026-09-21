@@ -31,7 +31,15 @@ interface MedicationDispenseDao {
     @Upsert
     suspend fun upsertAll(items: List<ErpMedicationDispenseEntity>)
 
-    @Query("SELECT * FROM medication_dispense WHERE dispenseId = :taskId")
+    @Query(
+        """
+        DELETE FROM medication_dispense
+        WHERE taskId IN (SELECT taskId FROM tasks WHERE parentProfileId = :profileId)
+    """
+    )
+    suspend fun deleteByProfileId(profileId: String)
+
+    @Query("SELECT * FROM medication_dispense WHERE taskId = :taskId")
     suspend fun getByTaskId(taskId: String): List<ErpMedicationDispenseEntity>
 
     @Query("DELETE FROM medication_dispense")

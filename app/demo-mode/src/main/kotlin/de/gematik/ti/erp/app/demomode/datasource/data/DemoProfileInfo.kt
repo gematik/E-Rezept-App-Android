@@ -27,24 +27,26 @@ package de.gematik.ti.erp.app.demomode.datasource.data
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.EXPIRY_DATE
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.START_DATE
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfile
-import de.gematik.ti.erp.app.idp.model.IdpData
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.userauthentication.model.SingleSignOnTokenErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import kotlinx.datetime.Instant
 import java.util.UUID
 
 object DemoProfileInfo {
     private const val AUTHENTICATOR_NAME = "Gematik Versicherung"
-    private val singleSignOnToken = IdpData.SingleSignOnToken(
+    private val singleSignOnToken = SingleSignOnTokenErpModel(
         token = UUID.randomUUID().toString(),
         expiresOn = EXPIRY_DATE,
         validOn = START_DATE
     )
 
-    // TODO: Add demo mode for different modes of sign-on scopes
-    private val token = IdpData.ExternalAuthenticationToken(
-        token = singleSignOnToken,
-        authenticatorName = AUTHENTICATOR_NAME,
-        authenticatorId = UUID.randomUUID().toString()
+    private val token = UserAuthenticationErpModel.External(
+        singleSignOnTokenErpModel = singleSignOnToken,
+        externalAuthenticatorId = UUID.randomUUID().toString(),
+        externalAuthenticatorName = AUTHENTICATOR_NAME
     )
     private val HEALTH_INSURANCE_COMPANIES = listOf(
         "GesundheitsVersichert AG",
@@ -68,15 +70,15 @@ object DemoProfileInfo {
     internal val demoProfile01 = profile(
         profileName = "Erika Mustermann",
         isActive = true,
-        color = ProfilesData.ProfileColorNames.SUN_DEW,
-        insuranceType = ProfilesData.InsuranceType.GKV,
+        color = ProfileColorNames.SUN_DEW,
+        insuranceType = InsuranceType.GKV,
         avatar = listOf(
-            ProfilesData.Avatar.FemaleDoctor,
-            ProfilesData.Avatar.FemaleDoctorWithPhone,
-            ProfilesData.Avatar.WomanWithHeadScarf,
-            ProfilesData.Avatar.WomanWithPhone,
-            ProfilesData.Avatar.Grandmother,
-            ProfilesData.Avatar.FemaleDeveloper
+            Avatar.FemaleDoctor,
+            Avatar.FemaleDoctorWithPhone,
+            Avatar.WomanWithHeadScarf,
+            Avatar.WomanWithPhone,
+            Avatar.Grandmother,
+            Avatar.FemaleDeveloper
         ).random(),
         lastAuthenticated = null
     )
@@ -87,13 +89,13 @@ object DemoProfileInfo {
     internal val demoProfile02 = profile(
         profileName = "Max Mustermann",
         isActive = false,
-        insuranceType = ProfilesData.InsuranceType.GKV,
+        insuranceType = InsuranceType.GKV,
         avatar = listOf(
-            ProfilesData.Avatar.OldManOfColor,
-            ProfilesData.Avatar.Grandfather,
-            ProfilesData.Avatar.ManWithPhone,
-            ProfilesData.Avatar.WheelchairUser,
-            ProfilesData.Avatar.MaleDoctorWithPhone
+            Avatar.OldManOfColor,
+            Avatar.Grandfather,
+            Avatar.ManWithPhone,
+            Avatar.WheelchairUser,
+            Avatar.MaleDoctorWithPhone
         ).random(),
         lastAuthenticated = null
     )
@@ -105,11 +107,11 @@ object DemoProfileInfo {
     private fun profile(
         profileName: String,
         isActive: Boolean = true,
-        color: ProfilesData.ProfileColorNames = ProfilesData.ProfileColorNames.entries.toTypedArray().random(),
-        avatar: ProfilesData.Avatar = ProfilesData.Avatar.entries.toTypedArray().random(),
-        insuranceType: ProfilesData.InsuranceType = ProfilesData.InsuranceType.GKV,
+        color: ProfileColorNames = ProfileColorNames.entries.toTypedArray().random(),
+        avatar: Avatar = Avatar.entries.toTypedArray().random(),
+        insuranceType: InsuranceType = InsuranceType.GKV,
         lastAuthenticated: Instant? = null,
-        singleSignOnTokenScope: IdpData.SingleSignOnTokenScope? = token
+        userAuthenticationErpModel: UserAuthenticationErpModel? = token
     ): DemoModeProfile {
         val uuid = UUID.randomUUID()
         return DemoModeProfile(
@@ -118,15 +120,15 @@ object DemoProfileInfo {
             name = profileName,
             color = color,
             avatar = avatar,
-            insuranceIdentifier = insuranceNumberGenerator(),
-            insuranceType = insuranceType,
             insurantName = profileName,
+            insuranceIdentifier = insuranceNumberGenerator(),
             insuranceName = HEALTH_INSURANCE_COMPANIES.random(),
-            singleSignOnTokenScope = singleSignOnTokenScope,
-            active = isActive,
-            lastAuthenticated = lastAuthenticated
+            insuranceType = insuranceType,
+            lastAuthenticated = lastAuthenticated,
+            userAuthentication = userAuthenticationErpModel,
+            active = isActive
         )
     }
 
-    internal fun String.create(): DemoModeProfile = profile(profileName = this)
+    internal fun String.create() = profile(profileName = this)
 }

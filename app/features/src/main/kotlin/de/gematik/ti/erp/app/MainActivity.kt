@@ -29,9 +29,14 @@ import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
@@ -43,6 +48,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavHostController
 import de.gematik.ti.erp.app.app.ApplicationScaffold
 import de.gematik.ti.erp.app.appupdate.navigation.AppUpdateNavHost
 import de.gematik.ti.erp.app.authentication.presentation.rememberBiometricAuthenticator
@@ -57,8 +63,14 @@ import de.gematik.ti.erp.app.core.LocalDi
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.core.LocalNavController
 import de.gematik.ti.erp.app.core.LocalTimeZone
+import de.gematik.ti.erp.app.database.api.SettingsLocalDataSource
+import de.gematik.ti.erp.app.database.di.ModuleTags
+import de.gematik.ti.erp.app.database.migration.DataMigrator
+import de.gematik.ti.erp.app.logger.SessionLogHolder
 import de.gematik.ti.erp.app.mainscreen.presentation.rememberAppController
 import de.gematik.ti.erp.app.mainscreen.ui.ExternalAuthenticationUiHandler
+import de.gematik.ti.erp.app.migration.ui.screens.DataMigrationScreen
+import de.gematik.ti.erp.app.migration.usecase.CompleteMigrationUseCase
 import de.gematik.ti.erp.app.navigation.ErezeptNavigatorFactory.initNavigation
 import de.gematik.ti.erp.app.prescription.share.presentation.SharePrescriptionHandler
 import de.gematik.ti.erp.app.profiles.presentation.rememberProfileController
@@ -73,15 +85,13 @@ open class MainActivity : BaseActivity() {
     val testWrapper: TestWrapper by instance()
 
     @OptIn(ExperimentalComposeUiApi::class)
-    @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         catchAllUnCaughtExceptions(this)
+
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                intent?.let {
-                    intentHandler.propagateIntent(it)
-                }
+                intent?.let { intentHandler.propagateIntent(it) }
             }
         }
 
@@ -122,33 +132,83 @@ open class MainActivity : BaseActivity() {
                     LocalIntentHandler provides intentHandler
                 ) {
                     AppContent {
-                        if (isUpdateAvailable) {
-                            AppUpdateNavHost(navHostController)
-                        } else {
-                            val profilesController = rememberProfileController()
-                            val mainScreenController = rememberAppController()
-                            val isScreenshotsAllowed by mainScreenController.screenshotsState
-                            val authentication by authenticationModeAndMethod.collectAsStateWithLifecycle()
-
-                            toggleScreenshotsAllowed(isScreenshotsAllowed)
-
-                            val activeProfile by profilesController.getActiveProfileState()
-
-                            Box(modifier = Modifier.semantics { testTagsAsResourceId = true }) {
-                                ApplicationScaffold(
-                                    authentication = authentication,
-                                    isDemoMode = isDemoMode()
-                                )
-                                ExternalAuthenticationUiHandler()
-                                SharePrescriptionHandler(
-                                    activeProfile = activeProfile,
-                                    authenticationModeAndMethod = authenticationModeAndMethod
-                                )
-                            }
-                        }
+                        MainActivityContent(
+                            isUpdateAvailable = isUpdateAvailable,
+                            navHostController = navHostController
+                        )
                     }
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun MainActivityContent(
+        isUpdateAvailable: Boolean,
+        navHostController: NavHostController
+    ) {
+        if (isUpdateAvailable) {
+            AppUpdateNavHost(navHostController)
+        } else {
+            MigrationAwareContent()
+        }
+    }
+
+    @Composable
+    private fun MigrationAwareContent() {
+        val settingsLocalDataSource: SettingsLocalDataSource by instance(tag = ModuleTags.SETTINGS_V2)
+        val sessionLogHolder: SessionLogHolder by instance()
+        val dataMigrator: DataMigrator by instance()
+        val completeMigrationUseCase: CompleteMigrationUseCase by instance()
+
+        val isDataPorted by settingsLocalDataSource.isDataPortedToRoom().collectAsStateWithLifecycle(initialValue = null)
+        val migrationRequired by produceState<Boolean?>(initialValue = null, dataMigrator) {
+            value = runCatching { dataMigrator.isMigrationRequired() }.getOrDefault(true)
+        }
+        var useRealmFallback by rememberSaveable { mutableStateOf(false) }
+
+        LaunchedEffect(isDataPorted, migrationRequired) {
+            if (isDataPorted == false && migrationRequired == false) {
+                completeMigrationUseCase()
+            }
+        }
+
+        when {
+            useRealmFallback -> AppReadyContent()
+            isDataPorted == true -> AppReadyContent()
+            isDataPorted == false && migrationRequired == false -> AppReadyContent()
+            isDataPorted == false && migrationRequired == true -> {
+                DataMigrationScreen(
+                    onContinueWithRealmFallback = {
+                        useRealmFallback = true
+                    }
+                )
+            }
+
+            else -> Unit // still loading — render nothing until state is known
+        }
+    }
+
+    @Composable
+    private fun AppReadyContent() {
+        val profilesController = rememberProfileController()
+        val mainScreenController = rememberAppController()
+        val isScreenshotsAllowed by mainScreenController.screenshotsState
+        val authentication by authenticationModeAndMethod.collectAsStateWithLifecycle()
+        val activeProfile by profilesController.getActiveProfileState()
+
+        toggleScreenshotsAllowed(isScreenshotsAllowed)
+
+        Box(modifier = Modifier.semantics { testTagsAsResourceId = true }) {
+            ApplicationScaffold(
+                authentication = authentication,
+                isDemoMode = isDemoMode()
+            )
+            ExternalAuthenticationUiHandler()
+            SharePrescriptionHandler(
+                activeProfile = activeProfile,
+                authenticationModeAndMethod = authenticationModeAndMethod
+            )
         }
     }
 }

@@ -24,9 +24,9 @@
 
 package de.gematik.ti.erp.app.demomode.repository.orders
 
+import de.gematik.ti.erp.app.communication.model.InternalMessageErpModel
+import de.gematik.ti.erp.app.database.realm.v1.internalmessage.toModel
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
-import de.gematik.ti.erp.app.messages.mapper.toInternalMessage
-import de.gematik.ti.erp.app.messages.model.InternalMessage
 import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -34,12 +34,9 @@ import kotlinx.coroutines.flow.map
 class DemoInternalMessagesRepository(
     private val demoModeDataSource: DemoModeDataSource
 ) : InternalMessagesRepository {
-    override fun getInternalMessages(): Flow<List<InternalMessage>> =
-        demoModeDataSource.internalMessages.map {
-            it.map {
-                    internalMessageEntityV1 ->
-                internalMessageEntityV1.toInternalMessage()
-            }
+    override fun getInternalMessages(): Flow<List<InternalMessageErpModel>> =
+        demoModeDataSource.internalMessages.map { list ->
+            list.map { it.toModel() }
         }
 
     override fun getUnreadInternalMessagesCount(): Flow<Long> =
@@ -52,11 +49,11 @@ class DemoInternalMessagesRepository(
         // No-op
     }
 
-    override suspend fun updateInternalMessage(internalMessage: InternalMessage) {
+    override suspend fun updateInternalMessage(internalMessage: InternalMessageErpModel) {
         // No-op
     }
 
-    override suspend fun saveInternalMessage(internalMessage: InternalMessage) {
-        // no-op
+    override suspend fun saveInternalMessage(internalMessage: InternalMessageErpModel) {
+        // No-op
     }
 }

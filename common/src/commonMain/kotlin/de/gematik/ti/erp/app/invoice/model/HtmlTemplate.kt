@@ -23,7 +23,8 @@
 package de.gematik.ti.erp.app.invoice.model
 
 import de.gematik.ti.erp.app.fhir.temporal.toFormattedDate
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.task.model.MedicationRequestErpModel
+import de.gematik.ti.erp.app.task.model.MultiplePrescriptionInfo
 
 object PkvHtmlTemplate {
     private fun createOrganization(
@@ -58,80 +59,46 @@ object PkvHtmlTemplate {
 
     @Suppress("CyclomaticComplexMethod")
     fun createPriceData(
-        medicationRequest: SyncedTaskData.MedicationRequest,
+        medicationRequest: MedicationRequestErpModel?,
         taskId: String,
         totalBruttoAmount: Double,
-        items: List<InvoiceData.ChargeableItem>,
-        additionalDispenseItems: List<InvoiceData.ChargeableItem>,
+        items: List<ChargeableItemErpModel>,
+        additionalDispenseItems: List<ChargeableItemErpModel>,
         additionalInformation: List<String>
     ): String {
         val (fees, articles) = items.partition {
-            when (it.description) {
-                is InvoiceData.ChargeableItem.Description.PZN -> it.description.isSpecialPZN()
-                is InvoiceData.ChargeableItem.Description.HMNR -> it.description.isSpecialPZN()
-                is InvoiceData.ChargeableItem.Description.TA1 -> it.description.isSpecialPZN()
-                else -> false
-            }
+            InvoiceData.SpecialPZN.isAnyOf(it.description.value)
         }
 
         val medication = joinMedicationInfo(medicationRequest)
 
-        val multiplePrescriptionInfo = createMultiplePrescriptionInfo(
-            medicationRequest.multiplePrescriptionInfo
-        )
+        val multiplePrescriptionInfo = medicationRequest?.multiplePrescriptionInfo?.let {
+            createMultiplePrescriptionInfo(it)
+        } ?: ""
+
         // Process articles with Teilmengenabgabe support
         val processedArticles = articles.flatMap { article ->
-            val baseArticle = run {
-                val pzn = when (article.description) {
-                    is InvoiceData.ChargeableItem.Description.HMNR -> article.description.hmnr
-                    is InvoiceData.ChargeableItem.Description.PZN -> article.description.pzn
-                    is InvoiceData.ChargeableItem.Description.TA1 -> article.description.ta1
-                }
+            val pzn = article.description.value
 
-                val text = when (medicationRequest.medication) {
-                    is SyncedTaskData.Medication -> if (medicationRequest.medication.identifier.pzn == pzn) {
-                        "wie verordnet"
-                    } else {
-                        article.text
-                    }
-
-                    else -> article.text
-                }
-
-                createArticle(
-                    text = text,
-                    pzn = pzn,
-                    factor = article.factor,
-                    bruttoAmount = article.price.value
-                )
-            }
-
-            // Add Teilmengenabgabe entry if applicable
-            val teilmengenArticle = if (article.partialQuantityDelivery && article.spenderPzn != null) {
-                createArticle(
-                    text = "Teilmenge aus",
-                    pzn = article.spenderPzn,
-                    factor = 0.0,
-                    bruttoAmount = null
-                )
+            val text = if (medicationRequest?.medication?.identifier?.pzn == pzn) {
+                "wie verordnet"
             } else {
-                null
+                article.text
             }
 
-            if (teilmengenArticle != null) {
-                listOf(baseArticle, teilmengenArticle)
-            } else {
-                listOf(baseArticle)
-            }
+            val baseArticle = createArticle(
+                text = text,
+                pzn = pzn,
+                factor = article.factor,
+                bruttoAmount = article.price?.value
+            )
+
+            listOf(baseArticle)
         }
 
         // Process fees with PZN display
         val processedFees = fees.map { fee ->
-            val pzn = when (fee.description) {
-                is InvoiceData.ChargeableItem.Description.HMNR -> fee.description.hmnr
-                is InvoiceData.ChargeableItem.Description.PZN -> fee.description.pzn
-                is InvoiceData.ChargeableItem.Description.TA1 -> fee.description.ta1
-            }
+            val pzn = fee.description.value
             val article = when (InvoiceData.SpecialPZN.valueOfPZN(pzn)) {
                 InvoiceData.SpecialPZN.EmergencyServiceFee -> "Notdienstgebühr"
                 InvoiceData.SpecialPZN.BTMFee -> "BTM-Gebühr"
@@ -139,14 +106,14 @@ object PkvHtmlTemplate {
                 InvoiceData.SpecialPZN.ProvisioningCosts -> "Beschaffungskosten"
                 InvoiceData.SpecialPZN.DeliveryServiceCosts -> "Botendienst"
                 InvoiceData.SpecialPZN.SupplyShortageFee -> "Lieferengpass-Pauschale"
-                null -> error("wrong mapping")
+                null -> "Zusätzliche Gebühr"
             }
 
             createArticle(
                 text = article,
                 pzn = pzn,
                 factor = 0.0,
-                bruttoAmount = fee.price.value
+                bruttoAmount = fee.price?.value
             )
         }
 
@@ -156,15 +123,9 @@ object PkvHtmlTemplate {
             multiplePrescriptionInfo,
             processedArticles,
             additionalDispenseItems.map {
-                val pzn = when (it.description) {
-                    is InvoiceData.ChargeableItem.Description.HMNR -> it.description.hmnr
-                    is InvoiceData.ChargeableItem.Description.PZN -> it.description.pzn
-                    is InvoiceData.ChargeableItem.Description.TA1 -> it.description.ta1
-                }
-
                 createArticle(
                     text = it.text,
-                    pzn = pzn,
+                    pzn = it.description.value,
                     factor = 0.0,
                     bruttoAmount = null
                 )
@@ -186,24 +147,24 @@ object PkvHtmlTemplate {
     }
 
     private fun createMultiplePrescriptionInfo(
-        multiplePrescriptionInfo: SyncedTaskData.MultiplePrescriptionInfo
+        multiplePrescriptionInfo: MultiplePrescriptionInfo
     ): String {
         var info = ""
         if (multiplePrescriptionInfo.indicator) {
             info = " gültig ab " + multiplePrescriptionInfo.start?.toFormattedDate() +
                 " bis " + multiplePrescriptionInfo.end?.toFormattedDate() + " " +
-                multiplePrescriptionInfo.numbering?.numerator?.value + " von " +
-                multiplePrescriptionInfo.numbering?.denominator?.value + " Verordnungen"
+                (multiplePrescriptionInfo.numbering?.numerator?.value ?: "") + " von " +
+                (multiplePrescriptionInfo.numbering?.denominator?.value ?: "") + " Verordnungen"
         }
         return info
     }
 
-    fun joinMedicationInfo(medicationRequest: SyncedTaskData.MedicationRequest?): String =
+    fun joinMedicationInfo(medicationRequest: MedicationRequestErpModel?): String =
         medicationRequest?.medication?.let { medication ->
-            "${medicationRequest.quantity}x ${medication.text} / " +
-                "${medication.amount?.numerator?.value} " +
-                "${medication.amount?.numerator?.unit} " +
-                "${medication.normSizeCode} " + "PZN: " + medication.identifier.pzn
+            "${medicationRequest.quantity}x ${medication.name()} / " +
+                "${medication.amount?.numerator?.value ?: ""} " +
+                "${medication.amount?.numerator?.unit ?: ""} " +
+                "${medication.normSizeCode ?: ""} " + "PZN: " + (medication.identifier.pzn ?: "")
         } ?: ""
 
     private fun createFeesPriceData(
@@ -254,38 +215,38 @@ object PkvHtmlTemplate {
         </div>
     """.trimIndent()
 
-    fun createHTML(invoice: InvoiceData.PKVInvoiceRecord): String {
+    fun createHTML(invoice: PKVInvoiceErpModel): String {
         val patient = createPatient(
-            patientName = invoice.patient.name ?: "",
-            patientAddress = invoice.patient.address?.joinToHtmlString() ?: "",
-            patientKVNR = invoice.patient.insuranceIdentifier ?: ""
+            patientName = invoice.patient?.name ?: "",
+            patientAddress = invoice.patient?.address?.joinToHtmlString() ?: "",
+            patientKVNR = invoice.patient?.insuranceIdentifier ?: ""
         )
 
         val prescriber = createPrescriber(
-            prescriberName = invoice.practitioner.name ?: "",
-            prescriberAddress = invoice.practitionerOrganization.address?.joinToHtmlString() ?: "",
-            prescriberLANR = invoice.practitioner.practitionerIdentifier ?: ""
+            prescriberName = invoice.practitioner?.name ?: "",
+            prescriberAddress = invoice.practitionerOrganization?.address?.joinToHtmlString() ?: "",
+            prescriberLANR = invoice.practitioner?.practitionerIdentifier ?: ""
         )
         val pharmacy = createOrganization(
-            organizationName = invoice.pharmacyOrganization.name ?: "",
-            organizationAddress = invoice.pharmacyOrganization.address?.joinToHtmlString() ?: "",
-            organizationIKNR = invoice.pharmacyOrganization.uniqueIdentifier
+            organizationName = invoice.pharmacyOrganization?.name ?: "",
+            organizationAddress = invoice.pharmacyOrganization?.address?.joinToHtmlString() ?: "",
+            organizationIKNR = invoice.pharmacyOrganization?.uniqueIdentifier
         )
 
         val priceData = createPriceData(
             medicationRequest = invoice.medicationRequest,
             taskId = invoice.taskId,
-            totalBruttoAmount = invoice.invoice.totalBruttoAmount,
-            items = invoice.invoice.chargeableItems,
-            additionalDispenseItems = invoice.invoice.additionalDispenseItems,
-            additionalInformation = invoice.invoice.additionalInformation
+            totalBruttoAmount = invoice.invoice?.totalBruttoAmount ?: 0.0,
+            items = invoice.invoice?.chargeableItems ?: emptyList(),
+            additionalDispenseItems = invoice.invoice?.additionalDispenseItems ?: emptyList(),
+            additionalInformation = invoice.invoice?.additionalInformation ?: emptyList()
         )
 
         return createPkvHtmlInvoiceTemplate(
             patient = patient,
-            patientBirthdate = invoice.patient.birthdate?.toFormattedDate() ?: "",
+            patientBirthdate = invoice.patient?.dateOfBirth?.toFormattedDate() ?: "",
             prescriber = prescriber,
-            prescribedOn = invoice.medicationRequest.authoredOn?.toFormattedDate() ?: "",
+            prescribedOn = invoice.medicationRequest?.authoredOn?.toFormattedDate() ?: "",
             pharmacy = pharmacy,
             dispensedOn = invoice.whenHandedOver?.toFormattedDate() ?: "",
             priceData = priceData

@@ -25,16 +25,19 @@ package de.gematik.ti.erp.app.idp.repository
 import de.gematik.ti.erp.app.BCProvider
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.CoroutineTestRule
+import de.gematik.ti.erp.app.database.api.IdpConfigurationLocalDataSource
+import de.gematik.ti.erp.app.database.api.UserAuthenticationLocalDataSource
 import de.gematik.ti.erp.app.database.realm.v1.AddressEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.AuthenticationEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.AuthenticationPasswordEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.IdpAuthenticationDataEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.IdpConfigurationEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.PasswordEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.PharmacySearchEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.appauthentication.AuthenticationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.appauthentication.AuthenticationPasswordEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.userauthentication.IdpAuthenticationDataEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.idp.IdpConfigurationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.PasswordEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.PharmacySearchEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.profile.ProfileEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.SettingsEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.ShippingContactEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.idp.IdpConfigurationLocalDataSourceV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.ChargeableItemV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.invoice.PKVInvoiceEntityV1
@@ -57,12 +60,16 @@ import de.gematik.ti.erp.app.database.realm.v1.task.entity.QuantityEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.RatioEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.SyncedTaskEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.TeratogenicPrescriptionEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.userauthentication.UserAuthenticationLocalDataSourceV1
 import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.fhir.model.ResourceBasePath
+import de.gematik.ti.erp.app.database.realm.v1.profile.ProfileLocalDataSourceV1
 import de.gematik.ti.erp.app.idp.EllipticCurvesExtending
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profiles.repository.DefaultProfilesRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
+import de.gematik.ti.erp.app.userauthentication.model.SingleSignOnTokenErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -137,7 +144,10 @@ class CommonIdpRepositoryTest : TestDB() {
     lateinit var remoteDataSource: IdpRemoteDataSource
 
     @MockK
-    lateinit var idpLocalDataSource: IdpLocalDataSource
+    lateinit var idpConfigurationLocalDataSource: IdpConfigurationLocalDataSource
+
+    @MockK
+    lateinit var userAuthenticationLocalDataSource: UserAuthenticationLocalDataSource
 
     private lateinit var profileRepository: ProfileRepository
 
@@ -180,7 +190,8 @@ class CommonIdpRepositoryTest : TestDB() {
                     AuthenticationEntityV1::class,
                     AuthenticationPasswordEntityV1::class,
                     DeviceRequestEntityV1::class,
-                    DeviceRequestDispenseEntityV1::class
+                    DeviceRequestDispenseEntityV1::class,
+                    TeratogenicPrescriptionEntityV1::class
                 )
             )
                 .schemaVersion(SchemaVersion.ACTUAL)
@@ -188,16 +199,19 @@ class CommonIdpRepositoryTest : TestDB() {
                 .build()
         )
 
-        idpLocalDataSource = IdpLocalDataSource(realm)
+        idpConfigurationLocalDataSource = IdpConfigurationLocalDataSourceV1(realm)
+        userAuthenticationLocalDataSource = UserAuthenticationLocalDataSourceV1(realm)
 
         repo = DefaultIdpRepository(
             remoteDataSource = remoteDataSource,
-            localDataSource = idpLocalDataSource,
+            idpConfigurationLocalDataSource = idpConfigurationLocalDataSource,
+            userAuthenticationLocalDataSource = userAuthenticationLocalDataSource,
             accessTokenDataSource = accessTokenDataSource
         )
 
         profileRepository = DefaultProfilesRepository(
-            realm = realm
+            profileLocalDataSource = ProfileLocalDataSourceV1(realm),
+            userAuthenticationLocalDataSource = UserAuthenticationLocalDataSourceV1(realm)
         )
     }
 
@@ -216,21 +230,21 @@ class CommonIdpRepositoryTest : TestDB() {
 
     @Test
     fun `save and get single signOn token`() = runTest {
-        val ssoToken = IdpData.DefaultToken(
-            token = IdpData.SingleSignOnToken(
+        val ssoToken = UserAuthenticationErpModel.HealthCard(
+            singleSignOnTokenErpModel = SingleSignOnTokenErpModel(
                 token = ssoToken
             ),
             "123123",
-            healthCardCert
+            healthCardCert.encoded
         )
 
         profileRepository.createNewProfile(defaultProfileName1)
 
         val testProfile = profileRepository.profiles().first()[0]
 
-        repo.saveSingleSignOnToken(testProfile.id, ssoToken)
+        repo.saveUserAuthentication(testProfile.id, ssoToken)
 
-        val savedSsoToken = profileRepository.profiles().first()[0].singleSignOnTokenScope
+        val savedSsoToken = profileRepository.profiles().first()[0].userAuthentication
         assertEquals(ssoToken, savedSsoToken)
     }
 

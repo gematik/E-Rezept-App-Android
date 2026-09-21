@@ -22,14 +22,14 @@
 
 package de.gematik.ti.erp.app.redeem.model
 
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
 import de.gematik.ti.erp.app.redeem.model.RedeemablePrescriptionInfo.Companion.getPrescriptionErrorStateForDialog
 
 sealed class RedeemedPrescriptionState : BaseRedeemState() {
 
     data class OrderCompleted(
         val orderId: String,
-        val results: Map<PharmacyUseCaseData.PrescriptionInOrder, BaseRedeemState>
+        val results: Map<PrescriptionInOrderErpModel, BaseRedeemState>
     ) : RedeemedPrescriptionState() // everything is processed and this contains the internal states of every prescription once they are processed
 
     data class IncompleteOrder(

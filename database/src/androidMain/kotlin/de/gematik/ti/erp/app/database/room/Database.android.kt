@@ -25,6 +25,8 @@ package de.gematik.ti.erp.app.database.room
 import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import de.gematik.ti.erp.app.database.room.security.RoomEncryptionConfig
 import de.gematik.ti.erp.app.database.BuildConfig as ModuleBuildConfig
 
@@ -54,6 +56,21 @@ fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<AppDatabase> {
     RoomEncryptionConfig.getOpenHelperFactoryIfNeeded(appContext)?.let { factory ->
         builder.openHelperFactory(factory)
     }
+
+    // Migration: Remove legacy task_multiple_prescription table introduced by duplicate entity
+    val migration_1_2 = object : Migration(1, 2) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("DROP TABLE IF EXISTS task_multiple_prescription")
+        }
+    }
+    // Migration: Add sentCommunicationOn and userActionState columns to device-request entity
+    val migration_2_3 = object : Migration(2, 3) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE task_med_device_requests ADD COLUMN sentCommunicationOn INTEGER")
+            db.execSQL("ALTER TABLE task_med_device_requests ADD COLUMN userActionState INTEGER")
+        }
+    }
+    builder.addMigrations(migration_1_2, migration_2_3)
 
     return builder
 }

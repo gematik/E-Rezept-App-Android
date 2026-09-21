@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.prescription.usecase.model
 
 import androidx.compose.runtime.Immutable
-import de.gematik.ti.erp.app.messages.model.Communication
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import kotlinx.datetime.Instant
 
@@ -31,6 +31,10 @@ object PrescriptionUseCaseData {
     /**
      * Individual prescription backed by its original task id.
      */
+    @Deprecated(
+        message = "Use TaskErpModel instead",
+        level = DeprecationLevel.WARNING
+    )
     @Immutable
     sealed class Prescription {
         abstract val taskId: String
@@ -39,10 +43,14 @@ object PrescriptionUseCaseData {
         /**
          * Represents a single [Task] synchronized with the backend.
          */
+        @Deprecated(
+            message = "Use TaskErpModel.Synced <Prescription or Diga> instead",
+            level = DeprecationLevel.WARNING
+        )
         @Immutable
         data class Synced(
             override val taskId: String,
-            val state: SyncedTaskData.SyncedTask.TaskState,
+            val state: SyncedTaskData.SyncedTask.TaskState, // TODO: Replace SyncedTaskData.SyncedTask with TaskErpModel.Synced <Prescription or Diga>
             val name: String?,
             val isIncomplete: Boolean,
             val organization: String,
@@ -65,12 +73,16 @@ object PrescriptionUseCaseData {
         /**
          *  Represents a single [Task] scanned by the user.
          */
+        @Deprecated(
+            message = "Use TaskErpModel.Scanned instead",
+            level = DeprecationLevel.WARNING
+        )
         @Immutable
         data class Scanned(
             override val taskId: String,
             val scannedOn: Instant,
             override val redeemedOn: Instant?,
-            val communications: List<Communication>
+            val communications: List<CommunicationErpModel>
         ) : Prescription()
 
         fun redeemedOrExpiredOn(): Instant =

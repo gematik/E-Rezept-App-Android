@@ -41,7 +41,8 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 fun LazyListScope.FavouritePharmacies(
     modifier: Modifier = Modifier,
     pharmacies: List<PharmacyErpModel>,
-    onClickPharmacy: (PharmacyErpModel) -> Unit
+    onClickPharmacy: (PharmacyErpModel) -> Unit,
+    onToggleFavorite: (PharmacyErpModel) -> Unit
 ) {
     item {
         Box(
@@ -62,7 +63,8 @@ fun LazyListScope.FavouritePharmacies(
         FavoritePharmacyCard(
             modifier = modifier,
             overviewPharmacy = it,
-            onClickPharmacy = onClickPharmacy
+            onClickPharmacy = onClickPharmacy,
+            onToggleFavorite = onToggleFavorite
         )
     }
 }

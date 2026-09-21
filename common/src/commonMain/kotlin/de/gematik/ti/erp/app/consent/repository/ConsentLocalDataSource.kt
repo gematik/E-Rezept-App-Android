@@ -23,14 +23,14 @@
 package de.gematik.ti.erp.app.consent.repository
 
 import de.gematik.ti.erp.app.database.realm.utils.queryFirst
-import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.profile.ProfileEntityV1
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import io.realm.kotlin.Realm
 
 class ConsentLocalDataSource(
     private val realm: Realm
-) {
-    suspend fun saveGiveConsentDrawerShown(profileId: ProfileIdentifier) {
+) : ProfileLocalStore {
+    override suspend fun saveGiveConsentDrawerShown(profileId: ProfileIdentifier) {
         realm.write {
             queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
                 this.isConsentDrawerShown = true
@@ -38,11 +38,11 @@ class ConsentLocalDataSource(
         }
     }
 
-    fun getConsentDrawerShown(profileIdentifier: ProfileIdentifier): Boolean =
+    override fun getConsentDrawerShown(profileIdentifier: ProfileIdentifier): Boolean =
         realm.queryFirst<ProfileEntityV1>("id = $0", profileIdentifier)
             ?.isConsentDrawerShown ?: false
 
-    fun getInsuranceId(profileId: ProfileIdentifier): String? =
+    override fun getInsuranceId(profileId: ProfileIdentifier): String? =
         realm.queryFirst<ProfileEntityV1>("id = $0", profileId)
             ?.insuranceIdentifier
 }

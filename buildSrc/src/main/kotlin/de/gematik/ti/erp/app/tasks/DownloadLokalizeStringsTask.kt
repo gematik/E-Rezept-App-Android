@@ -48,15 +48,8 @@ fun TaskContainer.downloadLokaliseStrings() {
         group = "lokalise"
         description = "Downloads Android strings.xml files from Lokalise (async) and extracts them into res/"
 
-        val lokaliseApiKey = project.findProperty("lokaliseApiKey") as? String
-            ?: throw GradleScriptException("Missing parameter", IllegalArgumentException("Pass -PlokaliseApiKey=..."))
-
-        val lokaliseProjectId = project.findProperty("lokaliseProjectId") as? String
-            ?: project.loadCiOverridesProperties().getProperty("LOKALISE_PROJECT_ID")
-            ?: throw GradleScriptException(
-                "Missing 'lokaliseProjectId'",
-                IllegalArgumentException("Set -PlokaliseProjectId=... or define LOKALISE_PROJECT_ID in ci-overrides.properties")
-            )
+        lateinit var lokaliseApiKey: String
+        lateinit var lokaliseProjectId: String
 
         val outputResDir = project.rootProject.file("core/src/main/res")
 
@@ -216,6 +209,16 @@ fun TaskContainer.downloadLokaliseStrings() {
         }
 
         doLast {
+            lokaliseApiKey = project.findProperty("lokaliseApiKey") as? String
+                ?: throw GradleScriptException("Missing parameter", IllegalArgumentException("Pass -PlokaliseApiKey=..."))
+
+            lokaliseProjectId = project.findProperty("lokaliseProjectId") as? String
+                ?: project.loadCiOverridesProperties().getProperty("LOKALISE_PROJECT_ID")
+                ?: throw GradleScriptException(
+                    "Missing 'lokaliseProjectId'",
+                    IllegalArgumentException("Set -PlokaliseProjectId=... or define LOKALISE_PROJECT_ID in ci-overrides.properties")
+                )
+
             println("🔄 Lokalise async export (per language) → $outputResDir")
 
             // Per-language async export (keeps bundles small & avoids 413)

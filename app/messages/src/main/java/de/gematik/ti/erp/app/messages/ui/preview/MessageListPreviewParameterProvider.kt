@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.messages.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.messages.model.LastMessage
 import de.gematik.ti.erp.app.messages.model.LastMessageDetails
@@ -84,26 +84,26 @@ val mockMessageDetailsAddress = LastMessageDetails(
 )
 val mockLastMessageWithoutCodeAndLink = LastMessage(
     lastMessageDetails = mockMessageDetailsWithoutCodeAndLink,
-    profile = CommunicationProfile.ErxCommunicationReply
+    profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply
 )
 
 val mockLastMessageWithoutCode = LastMessage(
     lastMessageDetails = mockMessageDetailsWithoutCode,
-    profile = CommunicationProfile.ErxCommunicationReply
+    profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply
 )
 
 val mockLastMessage = LastMessage(
     lastMessageDetails = mockMessageDetails,
-    profile = CommunicationProfile.ErxCommunicationReply
+    profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply
 )
 
 val mockLastMessageAdress = LastMessage(
     lastMessageDetails = mockMessageDetailsAddress,
-    profile = CommunicationProfile.ErxCommunicationReply
+    profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply
 )
 val mockLastMessageLong = LastMessage(
     lastMessageDetails = mockMessageDetails.copy(content = LATEST_MESSAGE_LONG),
-    profile = CommunicationProfile.ErxCommunicationReply
+    profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply
 
 )
 
@@ -116,7 +116,7 @@ private val PreviewListView1 = InAppMessage(
     tag = "tag",
     isUnread = false,
     lastMessage = mockLastMessage,
-    messageProfile = CommunicationProfile.ErxCommunicationReply,
+    messageProfile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply,
     version = "1.0.0"
 )
 
@@ -129,7 +129,7 @@ private val PreviewListView2 = InAppMessage(
     tag = "tag",
     isUnread = true,
     lastMessage = mockLastMessageAdress,
-    messageProfile = CommunicationProfile.ErxCommunicationDispReq,
+    messageProfile = CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq,
     version = "1.0.0"
 )
 
@@ -142,7 +142,7 @@ private val PreviewListView3 = InAppMessage(
     tag = "Team",
     isUnread = true,
     lastMessage = null,
-    messageProfile = CommunicationProfile.InApp,
+    messageProfile = CommunicationErpModel.CommunicationProfile.InApp,
     version = "1.0.0"
 )
 
@@ -155,7 +155,7 @@ private val PreviewListView4 = InAppMessage(
     tag = "tag",
     isUnread = true,
     lastMessage = mockLastMessageWithoutCode,
-    messageProfile = CommunicationProfile.ErxCommunicationReply,
+    messageProfile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply,
     version = "1.0.0"
 )
 
@@ -168,7 +168,7 @@ private val PreviewListView5 = InAppMessage(
     tag = "tag",
     isUnread = true,
     lastMessage = mockLastMessageWithoutCodeAndLink,
-    messageProfile = CommunicationProfile.ErxCommunicationReply,
+    messageProfile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply,
     version = "1.0.0"
 )
 
@@ -181,7 +181,7 @@ private val PreviewListView6 = InAppMessage(
     tag = "tag",
     isUnread = true,
     lastMessage = null,
-    messageProfile = CommunicationProfile.ErxCommunicationReply,
+    messageProfile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply,
     version = "1.0.0"
 )
 
@@ -194,6 +194,6 @@ private val PreviewListView7 = InAppMessage(
     tag = "tag",
     isUnread = true,
     lastMessage = null,
-    messageProfile = CommunicationProfile.ErxCommunicationDispReq,
+    messageProfile = CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq,
     version = "1.0.0"
 )

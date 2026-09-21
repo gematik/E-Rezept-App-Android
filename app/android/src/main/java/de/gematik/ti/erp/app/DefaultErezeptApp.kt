@@ -25,16 +25,17 @@ package de.gematik.ti.erp.app
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
+import de.gematik.ti.erp.app.appauthentication.observer.InactivityTimeoutObserver
+import de.gematik.ti.erp.app.appauthentication.observer.ProcessLifecycleObserver
 import de.gematik.ti.erp.app.di.appModules
 import de.gematik.ti.erp.app.di.featureModule
-import de.gematik.ti.erp.app.settings.usecase.PerformSettingsMigrationUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.AdvancePushKeyChainUseCase
 import de.gematik.ti.erp.app.translation.di.textTranslatorModule
-import de.gematik.ti.erp.app.userauthentication.observer.InactivityTimeoutObserver
-import de.gematik.ti.erp.app.userauthentication.observer.ProcessLifecycleObserver
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.kodein.di.DI
 import org.kodein.di.DIAware
@@ -58,7 +59,7 @@ class DefaultErezeptApp : ErezeptApp(), DIAware {
 
     private val visibleDebugTree: VisibleDebugTree by instance()
 
-    private val performSettingsMigration: PerformSettingsMigrationUseCase by instance()
+    private val advancePushKeyChainUseCase: AdvancePushKeyChainUseCase by instance()
 
     @Requirement(
         "O.Source_3#2",
@@ -79,7 +80,8 @@ class DefaultErezeptApp : ErezeptApp(), DIAware {
         PDFBoxResourceLoader.init(this)
 
         ProcessLifecycleOwner.get().lifecycleScope.launch(Dispatchers.IO) {
-            performSettingsMigration()
+            val pushKeyChain = async { advancePushKeyChainUseCase() }
+            pushKeyChain.await()
         }
     }
 }

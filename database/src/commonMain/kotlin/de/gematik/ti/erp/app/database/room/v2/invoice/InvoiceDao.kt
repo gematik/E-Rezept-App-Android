@@ -25,20 +25,45 @@ package de.gematik.ti.erp.app.database.room.v2.invoice
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface InvoiceDao {
     @Upsert
     suspend fun upsertAll(items: List<InvoiceRoomEntity>)
 
+    @Upsert
+    suspend fun upsert(item: InvoiceRoomEntity)
+
     @Query("SELECT * FROM invoices WHERE profileId = :profileId")
     suspend fun getByProfile(profileId: String): List<InvoiceRoomEntity>
+
+    @Query("SELECT * FROM invoices WHERE profileId = :profileId")
+    fun observeByProfile(profileId: String): Flow<List<InvoiceRoomEntity>>
 
     @Query("SELECT * FROM invoices WHERE taskId = :taskId LIMIT 1")
     suspend fun getByTaskId(taskId: String): InvoiceRoomEntity?
 
+    @Query("SELECT * FROM invoices WHERE taskId = :taskId LIMIT 1")
+    fun observeByTaskId(taskId: String): Flow<InvoiceRoomEntity?>
+
+    @Query("SELECT MAX(timestampEpochMillis) FROM invoices WHERE profileId = :profileId")
+    fun latestInvoiceModifiedTimestamp(profileId: String): Flow<Long?>
+
+    @Query("SELECT * FROM invoices WHERE consumed = 0")
+    fun observeUnread(): Flow<List<InvoiceRoomEntity>>
+
+    @Query("UPDATE invoices SET consumed = :consumed WHERE taskId = :taskId")
+    suspend fun updateConsumedStatus(taskId: String, consumed: Boolean)
+
+    @Query("SELECT COUNT(*) FROM invoices WHERE taskId IN (:taskIds) AND consumed = 0")
+    fun countUnread(taskIds: List<String>): Flow<Int>
+
     @Query("DELETE FROM invoices WHERE taskId = :taskId")
     suspend fun deleteByTaskId(taskId: String)
+
+    @Query("DELETE FROM invoices WHERE profileId = :profileId")
+    suspend fun deleteByProfileId(profileId: String)
 
     @Query("DELETE FROM invoices")
     suspend fun clearAll()

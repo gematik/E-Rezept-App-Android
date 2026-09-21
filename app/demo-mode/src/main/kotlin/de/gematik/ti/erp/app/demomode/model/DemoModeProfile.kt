@@ -22,46 +22,57 @@
 
 package de.gematik.ti.erp.app.demomode.model
 
-import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import kotlinx.datetime.Instant
 import java.util.UUID
 
 data class DemoModeProfile(
     val demoModeId: UUID,
     val id: ProfileIdentifier,
-    val color: ProfilesData.ProfileColorNames,
-    val avatar: ProfilesData.Avatar,
+    val color: ProfileColorNames,
+    val avatar: Avatar,
     val personalizedImage: ByteArray? = null,
     val name: String,
     val insurantName: String? = null,
     val insuranceIdentifier: String? = null,
     val insuranceName: String? = null,
-    val insuranceType: ProfilesData.InsuranceType,
+    val insuranceType: InsuranceType,
     val lastAuthenticated: Instant? = null,
     val lastAuditEventSynced: Instant? = null,
     val lastTaskSynced: Instant? = null,
     val active: Boolean = false,
-    val singleSignOnTokenScope: IdpData.SingleSignOnTokenScope?
+    val userAuthentication: UserAuthenticationErpModel?
 )
 
 fun MutableList<DemoModeProfile>.toProfiles() = map(DemoModeProfile::toProfile).toMutableList()
 
-fun DemoModeProfile.toProfile() = ProfilesData.Profile(
+fun DemoModeProfile.toProfile() = ProfileErpModel(
     id = id,
-    color = color,
-    avatar = avatar,
-    image = personalizedImage,
     name = name,
-    insurantName = insurantName,
-    insuranceIdentifier = insuranceIdentifier,
-    insuranceName = insuranceName,
-    insuranceType = insuranceType,
+    profileImageData = ProfileImageDataErpModel(
+        image = personalizedImage,
+        avatar = avatar,
+        color = color
+    ),
+    isConsentDrawerShown = true,
+    insuranceData = ProfileInsuranceDataErpModel(
+        insuranceIdentifier = insuranceIdentifier,
+        insuranceName = insuranceName,
+        insuranceType = insuranceType,
+        insurantName = insurantName,
+        organizationIdentifier = null
+    ),
     lastAuthenticated = lastAuthenticated,
     lastAuditEventSynced = lastAuditEventSynced,
     lastTaskSynced = lastTaskSynced,
     active = active,
-    isConsentDrawerShown = true,
-    singleSignOnTokenScope = singleSignOnTokenScope
+    isNewlyCreated = false,
+    userAuthentication = userAuthentication ?: UserAuthenticationErpModel.NotInitialized
 )

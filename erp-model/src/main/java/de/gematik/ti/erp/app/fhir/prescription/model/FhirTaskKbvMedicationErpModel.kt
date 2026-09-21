@@ -22,6 +22,8 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.model
 
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType.Compounding
+import de.gematik.ti.erp.app.fhir.prescription.model.ErpMedicationProfileType.Ingredient
 import de.gematik.ti.erp.app.fhir.support.FhirMedicationIdentifierErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirMedicationIngredientErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirRatioErpModel
@@ -43,4 +45,11 @@ data class FhirTaskKbvMedicationErpModel(
     val identifier: FhirMedicationIdentifierErpModel,
     val lotNumber: String?,
     val expirationDate: FhirTemporal?
-)
+) {
+    val ingredientNumber: String?
+        get() = when (medicationProfile.type) {
+            Compounding -> identifier.pzn
+            Ingredient -> identifier.ask
+            else -> identifier.getFirstAvailableIdentifier()
+        }
+}

@@ -25,6 +25,9 @@ package de.gematik.ti.erp.app.di
 import de.gematik.ti.erp.app.idp.api.models.JWSKey
 import de.gematik.ti.erp.app.idp.api.models.JWSPublicKey
 import de.gematik.ti.erp.app.idp.repository.JWSDiscoveryDocument
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
 import okhttp3.ResponseBody
 import org.jose4j.jwk.JsonWebKey
 import org.jose4j.jwk.PublicJsonWebKey
@@ -51,51 +54,78 @@ class JWSConverterFactory : Converter.Factory() {
 
 class JWSDiscoveryDocumentConverter : Converter<ResponseBody, JWSDiscoveryDocument> {
     override fun convert(value: ResponseBody): JWSDiscoveryDocument {
-        return JWSDiscoveryDocument(
-            JsonWebStructure.fromCompactSerialization(
-                value.string()
-            ) as JsonWebSignature
-        )
+        return value.use { response ->
+            JWSDiscoveryDocument(
+                JsonWebStructure.fromCompactSerialization(
+                    response.string()
+                ) as JsonWebSignature
+            )
+        }
     }
 }
 
 class JsonWebSignatureConverter : Converter<ResponseBody, JsonWebSignature> {
     override fun convert(value: ResponseBody): JsonWebSignature {
-        return JsonWebStructure.fromCompactSerialization(
-            value.string()
-        )as JsonWebSignature
+        return value.use { response ->
+            JsonWebStructure.fromCompactSerialization(
+                response.string()
+            ) as JsonWebSignature
+        }
     }
 }
 
 class JWSKeyConverter : Converter<ResponseBody, JWSKey> {
     override fun convert(value: ResponseBody): JWSKey {
-        return JWSKey(
-            JsonWebKey.Factory.newJwk(value.string())
-        )
+        return value.use { response ->
+            JWSKey(
+                JsonWebKey.Factory.newJwk(response.string())
+            )
+        }
     }
 }
 
 class JWSPublicKeyConverter : Converter<ResponseBody, JWSPublicKey> {
 
     override fun convert(value: ResponseBody): JWSPublicKey {
-        val body = value.string()
-        val jwk = parseJwkWithFallback(body)
+        val body = value.use { it.string() }
+
+        /**
+         * Some IDP responses might contain null values in JWK fields which jose4j's parser
+         * doesn't handle gracefully. We sanitize the JSON by removing nulls, provided it's
+         * not a JWS compact serialization (which contains dots and isn't a plain JSON object).
+         */
+        val processedBody = if (body.isCompactSerialization()) body else body.sanitizeJwkJson()
+
+        val jwk = parseJwkWithFallback(processedBody)
         return JWSPublicKey(jwk)
+    }
+
+    private fun String.isCompactSerialization(): Boolean = count { it == '.' } == 2
+
+    private fun String.sanitizeJwkJson(): String {
+        return try {
+            val element = Json.parseToJsonElement(this)
+            if (element is JsonObject) {
+                JsonObject(element.filterValues { it !is JsonNull }).toString()
+            } else this
+        } catch (_: Exception) {
+            this
+        }
     }
 
     private fun parseJwkWithFallback(body: String): PublicJsonWebKey {
         return try {
-            parseJwk(body)
+            parseJwk(body, forceOpposite = false)
         } catch (e: Exception) {
             // Fallback: try the opposite format once
             parseJwk(body, forceOpposite = true)
         }
     }
 
-    private fun parseJwk(body: String, forceOpposite: Boolean = false): PublicJsonWebKey {
-        val isJws = body.count { it == '.' } == 2
+    private fun parseJwk(body: String, forceOpposite: Boolean): PublicJsonWebKey {
+        val shouldParseAsJws = body.isCompactSerialization() xor forceOpposite
 
-        return if ((isJws && !forceOpposite) || (!isJws && forceOpposite)) {
+        return if (shouldParseAsJws) {
             // Parse compact JWS: extract payload first
             val jws = JsonWebStructure.fromCompactSerialization(body) as JsonWebSignature
             PublicJsonWebKey.Factory.newPublicJwk(jws.payload)

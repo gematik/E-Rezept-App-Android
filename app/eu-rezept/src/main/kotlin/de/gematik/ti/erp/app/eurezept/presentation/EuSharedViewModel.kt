@@ -160,15 +160,17 @@ internal class DefaultEuSharedViewModel(
                         )
                     }
                 }
-                val qr = generateEuQrCodeUseCase(euAccessCode = euAccessCode, insuranceNumber = profile.insurance.insuranceIdentifier).firstOrNull()
-                _euRedemptionCode.update {
-                    UiState.Data(
-                        EuRedemptionDetails(
-                            euAccessCode = euAccessCode,
-                            insuranceNumber = profile.insurance.insuranceIdentifier,
-                            qrCodeBitmap = qr
+                profile.insuranceData.insuranceIdentifier?.let { insuranceIdentifier ->
+                    val qr = generateEuQrCodeUseCase(euAccessCode = euAccessCode, insuranceNumber = insuranceIdentifier).firstOrNull()
+                    _euRedemptionCode.update {
+                        UiState.Data(
+                            EuRedemptionDetails(
+                                euAccessCode = euAccessCode,
+                                insuranceNumber = insuranceIdentifier,
+                                qrCodeBitmap = qr
+                            )
                         )
-                    )
+                    }
                 }
             }
         }

@@ -420,4 +420,88 @@ internal object FhirMedicationRequestTestData {
             allowed = true
         )
     )
+
+    val fhirMedicationRequestModelV14WithTeratogenic = FhirMedicationRequest(
+        commentsSection = null,
+        resourceType = FhirMeta(
+            profiles = listOf(
+                "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.4"
+            )
+        ),
+        extensions = listOf(
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_StatusCoPayment",
+                valueCoding = FhirCoding(
+                    system = "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_StatusCoPayment",
+                    code = "0"
+                )
+            ),
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee",
+                valueBoolean = false
+            ),
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_SER",
+                valueBoolean = false
+            ),
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription",
+                extensions = listOf(
+                    FhirExtension(
+                        url = "Kennzeichen",
+                        valueBoolean = false
+                    )
+                )
+            ),
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Teratogenic",
+                extensions = listOf(
+                    FhirExtension(
+                        url = "Off-Label",
+                        valueBoolean = true
+                    ),
+                    FhirExtension(
+                        url = "GebaerfaehigeFrau",
+                        valueBoolean = true
+                    ),
+                    FhirExtension(
+                        url = "EinhaltungSicherheitsmassnahmen",
+                        valueBoolean = true
+                    ),
+                    FhirExtension(
+                        url = "AushaendigungInformationsmaterialien",
+                        valueBoolean = true
+                    ),
+                    FhirExtension(
+                        url = "ErklaerungSachkenntnis",
+                        valueBoolean = true
+                    )
+                )
+            )
+        ),
+        status = "active",
+        intent = "order",
+        authoredOn = "2025-03-15",
+        dosageInstruction = listOf(
+            FhirMedicationRequestDosageInstruction(
+                text = "1x tägl. 1 Kapsel",
+                extensions = listOf(
+                    FhirExtension(
+                        url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag",
+                        valueBoolean = true
+                    )
+                )
+            )
+        ),
+        note = emptyList(),
+        dispenseRequest = FhirMedicationRequestDispenseRequest(
+            quantity = FhirMedicationRequestQuantityValue(
+                value = "1",
+                unit = "Packung"
+            )
+        ),
+        substitution = FhirMedicationRequestSubstitution(
+            allowed = false
+        )
+    )
 }

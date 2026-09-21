@@ -40,10 +40,10 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.core.LifecycleEventObserver
-import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
+import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstructionErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosageErpModel
 import de.gematik.ti.erp.app.medicationplan.model.parseInstruction
 import de.gematik.ti.erp.app.medicationplan.model.toMedicationSchedule
 import de.gematik.ti.erp.app.medicationplan.usecase.DeactivateMedicationScheduleUseCase
@@ -55,8 +55,8 @@ import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleNotific
 import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleNotificationTimeUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetOrCreateActiveMedicationScheduleUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetOrCreateMedicationScheduleNotificationUseCase
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.usecase.GetPrescriptionByTaskIdUseCase
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -82,36 +82,36 @@ class MedicationPlanScheduleDetailScreenController(
     private val checkAndScheduleMedicationScheduleUseCase: CheckAndScheduleMedicationScheduleUseCase,
     private val taskId: String
 ) : Controller() {
-    val changeMedicationScheduleNotificationTimeEvent = ComposableEvent<MedicationScheduleNotification>()
+    val changeMedicationScheduleNotificationErpModelTimeEvent = ComposableEvent<MedicationScheduleNotificationErpModel>()
     val addMedicationNotificationTimeEvent = ComposableEvent<Unit>()
-    val changeMedicationScheduleNotificationDosageEvent = ComposableEvent<MedicationScheduleNotification>()
+    val changeMedicationScheduleNotificationErpModelDosageEvent = ComposableEvent<MedicationScheduleNotificationErpModel>()
     val changeAllowExactAlarmsEvent = ComposableEvent<Unit>()
     val deleteMedicationScheduleEvent = ComposableEvent<Unit>()
 
-    private val _dosageInstruction: MutableStateFlow<MedicationPlanDosageInstruction> =
-        MutableStateFlow(MedicationPlanDosageInstruction.Empty)
-    private val _medicationSchedule: MutableStateFlow<UiState<MedicationSchedule>> =
+    private val _dosageInstruction: MutableStateFlow<MedicationPlanDosageInstructionErpModel> =
+        MutableStateFlow(MedicationPlanDosageInstructionErpModel.Empty)
+    private val _medicationScheduleErpModel: MutableStateFlow<UiState<MedicationScheduleErpModel>> =
         MutableStateFlow(UiState.Loading())
-    val dosageInstruction: StateFlow<MedicationPlanDosageInstruction> =
+    val dosageInstruction: StateFlow<MedicationPlanDosageInstructionErpModel> =
         _dosageInstruction
-    val medicationSchedule: StateFlow<UiState<MedicationSchedule>> =
-        _medicationSchedule
+    val medicationScheduleErpModel: StateFlow<UiState<MedicationScheduleErpModel>> =
+        _medicationScheduleErpModel
 
     init {
         controllerScope.launch {
-            _medicationSchedule.update { UiState.Loading() }
+            _medicationScheduleErpModel.update { UiState.Loading() }
             runCatching {
                 getPrescriptionByTaskIdUseCase(taskId).first()
             }.fold(
                 onSuccess = { prescription ->
                     _dosageInstruction.update {
                         when (prescription) {
-                            is PrescriptionData.Synced -> parseInstruction(prescription.medicationRequest.dosageInstruction)
-                            is PrescriptionData.Scanned -> MedicationPlanDosageInstruction.Empty
+                            is TaskErpModel.Synced.Prescription -> parseInstruction(prescription.medicationRequest?.dosageInstruction)
+                            else -> MedicationPlanDosageInstructionErpModel.Empty
                         }
                     }
                     getMedicationScheduleByTaskIdUseCase(taskId).collect { medicationSchedule ->
-                        _medicationSchedule.update {
+                        _medicationScheduleErpModel.update {
                             UiState.Data(
                                 medicationSchedule ?: prescription.toMedicationSchedule()
                             )
@@ -122,7 +122,7 @@ class MedicationPlanScheduleDetailScreenController(
                     }
                 },
                 onFailure = { error ->
-                    _medicationSchedule.update { UiState.Error(error) }
+                    _medicationScheduleErpModel.update { UiState.Error(error) }
                 }
             )
         }
@@ -130,15 +130,15 @@ class MedicationPlanScheduleDetailScreenController(
 
     internal fun activateSchedule() {
         controllerScope.launch {
-            _medicationSchedule.value.data?.let { schedule ->
-                setOrCreateActiveMedicationScheduleUseCase.invoke(medicationSchedule = schedule)
+            _medicationScheduleErpModel.value.data?.let { schedule ->
+                setOrCreateActiveMedicationScheduleUseCase.invoke(medicationScheduleErpModel = schedule)
             }
         }
     }
 
     internal fun deactivateSchedule() {
         controllerScope.launch {
-            _medicationSchedule.value.data?.let { schedule ->
+            _medicationScheduleErpModel.value.data?.let { schedule ->
                 deactivateMedicationScheduleUseCase.invoke(taskId = schedule.taskId)
             }
         }
@@ -146,31 +146,31 @@ class MedicationPlanScheduleDetailScreenController(
 
     internal fun addNewMedicationNotification(
         uuid: String = UUID.randomUUID().toString(),
-        dosage: MedicationScheduleNotificationDosage,
+        dosage: MedicationScheduleNotificationDosageErpModel,
         time: LocalTime
     ) {
         controllerScope.launch {
-            _medicationSchedule.value.data?.let { schedule ->
-                val newMedicationScheduleNotification = MedicationScheduleNotification(
+            _medicationScheduleErpModel.value.data?.let { schedule ->
+                val newMedicationScheduleNotificationErpModel = MedicationScheduleNotificationErpModel(
                     dosage = dosage,
                     time = LocalTime(time.hour, time.minute),
                     id = uuid
                 )
                 setOrCreateMedicationScheduleNotificationUseCase.invoke(
                     taskId = schedule.taskId,
-                    medicationScheduleNotification = newMedicationScheduleNotification
+                    medicationScheduleNotificationErpModel = newMedicationScheduleNotificationErpModel
                 )
             }
         }
     }
 
-    internal fun removeMedicationNotification(notification: MedicationScheduleNotification) {
+    internal fun removeMedicationNotification(notification: MedicationScheduleNotificationErpModel) {
         controllerScope.launch {
             deleteMedicationScheduleNotificationUseCase(medicationScheduleNotificationId = notification.id)
         }
     }
 
-    internal fun changeMedicationNotificationTime(notification: MedicationScheduleNotification, time: LocalTime) {
+    internal fun changeMedicationNotificationTime(notification: MedicationScheduleNotificationErpModel, time: LocalTime) {
         controllerScope.launch {
             setMedicationScheduleNotificationTimeUseCase(
                 medicationScheduleNotificationId = notification.id,
@@ -179,7 +179,10 @@ class MedicationPlanScheduleDetailScreenController(
         }
     }
 
-    internal fun changeMedicationNotificationDosage(notification: MedicationScheduleNotification, dosage: MedicationScheduleNotificationDosage) {
+    internal fun changeMedicationNotificationDosage(
+        notification: MedicationScheduleNotificationErpModel,
+        dosage: MedicationScheduleNotificationDosageErpModel
+    ) {
         controllerScope.launch {
             setMedicationScheduleNotificationDosageUseCase(
                 medicationScheduleNotificationId = notification.id,
@@ -196,12 +199,12 @@ class MedicationPlanScheduleDetailScreenController(
         }
     }
 
-    internal fun onTriggerChangeMedicationNotificationDosageEvent(notification: MedicationScheduleNotification) {
-        changeMedicationScheduleNotificationDosageEvent.trigger(notification)
+    internal fun onTriggerChangeMedicationNotificationDosageEvent(notification: MedicationScheduleNotificationErpModel) {
+        changeMedicationScheduleNotificationErpModelDosageEvent.trigger(notification)
     }
 
-    internal fun onTriggerChangeMedicationNotificationTimeEvent(notification: MedicationScheduleNotification) {
-        changeMedicationScheduleNotificationTimeEvent.trigger(notification)
+    internal fun onTriggerChangeMedicationNotificationTimeEvent(notification: MedicationScheduleNotificationErpModel) {
+        changeMedicationScheduleNotificationErpModelTimeEvent.trigger(notification)
     }
 
     internal fun onTriggerAddMedicationNotificationTimeEvent() {

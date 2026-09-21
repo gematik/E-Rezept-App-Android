@@ -29,9 +29,7 @@ import de.gematik.ti.erp.app.medicationplan.repository.DefaultMedicationPlanRepo
 import de.gematik.ti.erp.app.medicationplan.usecase.GetAllProfileWithSchedulesUseCase
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
-import de.gematik.ti.erp.app.profiles.usecase.mapper.toModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -115,8 +113,7 @@ class MedicationPlanScheduleDurationAndIntervalScreenListScreenControllerTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `test data state with active structured schedule`() {
-        val expectedSchedule = PrescriptionData.Synced(task = API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE)
-            .toMedicationSchedule()
+        val expectedSchedule = API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE.toMedicationSchedule()
 
         coEvery { profileRepository.profiles() } returns flowOf(listOf(API_MOCK_PROFILE))
         coEvery { defaultMedicationPlanRepository.getAllMedicationSchedules() } returns flowOf(
@@ -135,7 +132,7 @@ class MedicationPlanScheduleDurationAndIntervalScreenListScreenControllerTest {
                     UiState.Data(
                         listOf(
                             ProfileWithSchedules(
-                                profile = API_MOCK_PROFILE.toModel(),
+                                profile = API_MOCK_PROFILE,
                                 medicationSchedules = listOf(expectedSchedule)
                             )
                         )

@@ -33,7 +33,7 @@ import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleNotific
 import de.gematik.ti.erp.app.medicationplan.usecase.SetMedicationScheduleNotificationTimeUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetOrCreateActiveMedicationScheduleUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.SetOrCreateMedicationScheduleNotificationUseCase
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.prescription.usecase.GetPrescriptionByTaskIdUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
@@ -55,7 +55,7 @@ class MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest 
     private val now = Instant.parse("2024-01-01T12:00:00Z")
     private val profileRepository: ProfileRepository = mockk()
     private val medicationPlanRepository: MedicationPlanRepository = mockk()
-    private val prescriptionRepository: PrescriptionRepository = mockk()
+    private val taskOperationsRepository: TaskOperationsRepository = mockk()
     private val getPrescriptionByTaskIdUseCase: GetPrescriptionByTaskIdUseCase = mockk()
     private val medicationPlanNotificationScheduler: MedicationPlanNotificationScheduler = mockk()
     private val dispatcher = StandardTestDispatcher()
@@ -132,8 +132,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest 
         @OptIn(ExperimentalCoroutinesApi::class)
         @Test
         fun `test initial state with scanned prescription`() {
-            coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SCANNED_TASK)
-            coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
+            coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SCANNED_TASK)
+            coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
             coEvery { medicationPlanRepository.getMedicationSchedule(any()) } returns flowOf(null)
             coEvery { getPrescriptionByTaskIdUseCase(any()) } returns
                 flowOf(PrescriptionData.Scanned(API_ACTIVE_SCANNED_TASK))
@@ -161,8 +161,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest 
         fun `test initial state with synced prescription`() {
             val expectedPrescription = PrescriptionData.Synced(task = API_ACTIVE_SYNCED_TASK, now = now)
 
-            coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
-            coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(expectedPrescription.task)
+            coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+            coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(expectedPrescription.task)
             coEvery { medicationPlanRepository.getMedicationSchedule(any()) } returns flowOf(null)
 
             coEvery { getPrescriptionByTaskIdUseCase(any()) } returns flowOf(expectedPrescription)
@@ -190,8 +190,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest 
             val expectedPrescription = PrescriptionData.Synced(task = API_ACTIVE_SYNCED_TASK, now = now)
             val medicationSchedule = expectedPrescription.toMedicationSchedule(now)
 
-            coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
-            coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(expectedPrescription.task)
+            coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+            coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(expectedPrescription.task)
             coEvery { medicationPlanRepository.getMedicationSchedule(any()) } returns flowOf(medicationSchedule)
             coEvery { getPrescriptionByTaskIdUseCase(any()) } returns flowOf(expectedPrescription)
 
@@ -214,8 +214,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest 
         @OptIn(ExperimentalCoroutinesApi::class)
         @Test
         fun `test initial state with empty prescription should be error state`() {
-            coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
-            coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
+            coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+            coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
             coEvery { medicationPlanRepository.getMedicationSchedule(any()) } returns flowOf(null)
             coEvery { getPrescriptionByTaskIdUseCase(any()) } returns emptyFlow()
 
@@ -233,8 +233,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest 
         fun `test add new time slot with scanned`() {
             val expectedPrescription = PrescriptionData.Synced(task = API_ACTIVE_SYNCED_TASK, now = now)
 
-            coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
-            coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(expectedPrescription.task)
+            coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+            coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(expectedPrescription.task)
             coEvery { medicationPlanRepository.getMedicationSchedule(any()) } returns flowOf(null)
             coEvery { getPrescriptionByTaskIdUseCase(any()) } returns flowOf(expectedPrescription)
             coEvery { medicationPlanRepository.setOrCreateMedicationScheduleNotification(any(), any()) } returns Unit
@@ -266,8 +266,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest 
         fun `remove notification`() {
             val expectedPrescription = PrescriptionData.Synced(task = API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE, now = now)
 
-            coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
-            coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(expectedPrescription.task)
+            coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+            coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(expectedPrescription.task)
             coEvery { medicationPlanRepository.getMedicationSchedule(any()) } returns flowOf(null)
             coEvery { getPrescriptionByTaskIdUseCase(any()) } returns flowOf(expectedPrescription)
             coEvery { medicationPlanRepository.deleteMedicationScheduleNotification(any()) } returns Unit
@@ -291,8 +291,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest 
         fun `test modify notification time`() {
             val expectedPrescription = PrescriptionData.Synced(task = API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE, now = now)
 
-            coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
-            coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(expectedPrescription.task)
+            coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+            coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(expectedPrescription.task)
             coEvery { medicationPlanRepository.getMedicationSchedule(any()) } returns flowOf(null)
             coEvery { getPrescriptionByTaskIdUseCase(any()) } returns flowOf(expectedPrescription)
             coEvery { medicationPlanRepository.setMedicationScheduleNotificationTime(any(), any()) } returns Unit
@@ -320,8 +320,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest 
         fun `test modify notification dosage`() {
             val expectedPrescription = PrescriptionData.Synced(task = API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE, now = now)
 
-            coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
-            coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(expectedPrescription.task)
+            coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns emptyFlow()
+            coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns flowOf(expectedPrescription.task)
             coEvery { medicationPlanRepository.getMedicationSchedule(any()) } returns flowOf(null)
             coEvery { getPrescriptionByTaskIdUseCase(any()) } returns flowOf(expectedPrescription)
             coEvery { medicationPlanRepository.setMedicationScheduleNotificationDosage(any(), any()) } returns Unit
@@ -347,8 +347,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest 
         @OptIn(ExperimentalCoroutinesApi::class)
         @Test
         fun `test activate schedule`() {
-            coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SCANNED_TASK)
-            coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
+            coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SCANNED_TASK)
+            coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
             coEvery { medicationPlanRepository.getMedicationSchedule(any()) } returns flowOf(null)
             coEvery { getPrescriptionByTaskIdUseCase(any()) } returns
                 flowOf(PrescriptionData.Scanned(API_ACTIVE_SCANNED_TASK))
@@ -371,8 +371,8 @@ class MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest 
         @OptIn(ExperimentalCoroutinesApi::class)
         @Test
         fun `test deActivate schedule`() {
-            coEvery { prescriptionRepository.loadScannedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SCANNED_TASK)
-            coEvery { prescriptionRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
+            coEvery { taskOperationsRepository.loadScannedTaskByTaskId(any()) } returns flowOf(API_ACTIVE_SCANNED_TASK)
+            coEvery { taskOperationsRepository.loadSyncedTaskByTaskId(any()) } returns emptyFlow()
             val prescription = PrescriptionData.Scanned(API_ACTIVE_SCANNED_TASK)
             val activeMedicationSchedule = prescription.toMedicationSchedule().copy(isActive = true)
             coEvery { medicationPlanRepository.getMedicationSchedule(any()) } returns flowOf(activeMedicationSchedule)

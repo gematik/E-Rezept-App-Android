@@ -51,7 +51,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.eurezept.domain.model.EuRedemptionDetails
-import de.gematik.ti.erp.app.eurezept.model.EuAccessCode
+import de.gematik.ti.erp.app.eurezept.model.EuAccessCodeErpModel
 import de.gematik.ti.erp.app.extensions.dashedBorder
 import de.gematik.ti.erp.app.extensions.roundedCornerShape
 import de.gematik.ti.erp.app.fhir.temporal.toHourMinuteString
@@ -186,7 +186,7 @@ private fun EuRedemptionQrViewErrorPreview() {
     PreviewTheme {
         EuRedemptionQrCodeCard(
             redemptionData = EuRedemptionDetails(
-                euAccessCode = EuAccessCode(
+                euAccessCode = EuAccessCodeErpModel(
                     countryCode = "IT",
                     accessCode = "123456",
                     validUntil = Instant.DISTANT_PAST,

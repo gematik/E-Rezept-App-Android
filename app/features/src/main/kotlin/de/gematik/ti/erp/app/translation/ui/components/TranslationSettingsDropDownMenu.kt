@@ -41,6 +41,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.DpOffset
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
@@ -51,12 +52,15 @@ import de.gematik.ti.erp.app.theme.SizeDefaults
 internal fun TranslationSettingsDropDownMenu(onClick: () -> Unit) {
     var isMenuExpanded by remember { mutableStateOf(false) }
     val description = stringResource(R.string.diga_show_actions)
-
+    val closeHint = stringResource(R.string.a11y_three_dot_menu_options_hint)
     IconButton(
         onClick = { isMenuExpanded = true },
         modifier = Modifier
             .testTag(TestTag.Prescriptions.Details.MoreButton)
-            .semantics { contentDescription = description }
+            .semantics {
+                contentDescription = description
+                stateDescription = closeHint
+            }
     ) {
         Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral700)
     }

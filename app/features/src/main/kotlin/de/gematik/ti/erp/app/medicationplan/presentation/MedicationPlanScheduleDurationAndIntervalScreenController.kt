@@ -25,9 +25,9 @@ package de.gematik.ti.erp.app.medicationplan.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.base.Controller
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDuration
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleInterval
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDurationErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleIntervalErpModel
 import de.gematik.ti.erp.app.medicationplan.model.toMedicationSchedule
 import de.gematik.ti.erp.app.medicationplan.usecase.GetMedicationScheduleByTaskIdUseCase
 import de.gematik.ti.erp.app.medicationplan.usecase.CheckAndScheduleMedicationScheduleUseCase
@@ -56,22 +56,22 @@ class MedicationPlanScheduleDurationAndIntervalScreenController(
     private val taskId: String,
     private val now: Instant = Clock.System.now()
 ) : Controller() {
-    val pickPersonalizedDurationDateRangeEvent = ComposableEvent<MedicationScheduleDuration>()
+    val pickPersonalizedDurationDateRangeEvent = ComposableEvent<MedicationScheduleDurationErpModel>()
     val pickDurationStartDateEvent = ComposableEvent<LocalDate>()
     val pickDurationEndDateEvent = ComposableEvent<LocalDate>()
 
-    private val _medicationSchedule: MutableStateFlow<UiState<MedicationSchedule>> = MutableStateFlow(UiState.Loading())
-    val medicationSchedule: StateFlow<UiState<MedicationSchedule>> = _medicationSchedule
+    private val _medicationScheduleErpModel: MutableStateFlow<UiState<MedicationScheduleErpModel>> = MutableStateFlow(UiState.Loading())
+    val medicationScheduleErpModel: StateFlow<UiState<MedicationScheduleErpModel>> = _medicationScheduleErpModel
 
     init {
         controllerScope.launch {
-            _medicationSchedule.update { UiState.Loading() }
+            _medicationScheduleErpModel.update { UiState.Loading() }
             runCatching {
                 getPrescriptionByTaskIdUseCase(taskId).first()
             }.fold(
                 onSuccess = { prescription ->
                     getMedicationScheduleByTaskIdUseCase(taskId).collect { medicationSchedule ->
-                        _medicationSchedule.update {
+                        _medicationScheduleErpModel.update {
                             UiState.Data(medicationSchedule ?: prescription.toMedicationSchedule(now))
                         }
                         medicationSchedule?.let {
@@ -80,7 +80,7 @@ class MedicationPlanScheduleDurationAndIntervalScreenController(
                     }
                 },
                 onFailure = { error ->
-                    _medicationSchedule.update { UiState.Error(error) }
+                    _medicationScheduleErpModel.update { UiState.Error(error) }
                 }
             )
         }
@@ -88,10 +88,10 @@ class MedicationPlanScheduleDurationAndIntervalScreenController(
 
     internal fun setMedicationScheduleDurationToEndless() {
         controllerScope.launch {
-            _medicationSchedule.value.data?.let { schedule ->
+            _medicationScheduleErpModel.value.data?.let { schedule ->
                 setMedicationScheduleDurationUseCase.invoke(
                     taskId = schedule.taskId,
-                    medicationScheduleDuration = MedicationScheduleDuration.Endless()
+                    medicationScheduleDurationErpModel = MedicationScheduleDurationErpModel.Endless()
                 )
             }
         }
@@ -99,12 +99,12 @@ class MedicationPlanScheduleDurationAndIntervalScreenController(
 
     internal fun setMedicationScheduleDurationToEndOfPack() {
         controllerScope.launch {
-            _medicationSchedule.value.data?.let { schedule ->
+            _medicationScheduleErpModel.value.data?.let { schedule ->
                 val startDate = schedule.duration.startDate
                 val endDate = schedule.calculateEndOfPack()
                 setMedicationScheduleDurationUseCase.invoke(
                     taskId = schedule.taskId,
-                    medicationScheduleDuration = MedicationScheduleDuration.EndOfPack(
+                    medicationScheduleDurationErpModel = MedicationScheduleDurationErpModel.EndOfPack(
                         startDate = startDate,
                         endDate = endDate
                     )
@@ -119,10 +119,10 @@ class MedicationPlanScheduleDurationAndIntervalScreenController(
     ) {
         if (startDate != null && endDate != null) {
             controllerScope.launch {
-                _medicationSchedule.value.data?.let { schedule ->
+                _medicationScheduleErpModel.value.data?.let { schedule ->
                     setMedicationScheduleDurationUseCase.invoke(
                         taskId = schedule.taskId,
-                        medicationScheduleDuration = MedicationScheduleDuration.Personalized(
+                        medicationScheduleDurationErpModel = MedicationScheduleDurationErpModel.Personalized(
                             startDate = startDate,
                             endDate = endDate
                         )
@@ -137,18 +137,18 @@ class MedicationPlanScheduleDurationAndIntervalScreenController(
     ) {
         if (startDate != null) {
             controllerScope.launch {
-                _medicationSchedule.value.data?.let { schedule ->
+                _medicationScheduleErpModel.value.data?.let { schedule ->
                     val updatedDuration = when (val currentDuration = schedule.duration) {
-                        is MedicationScheduleDuration.Endless -> currentDuration.copy(startDate = startDate)
-                        is MedicationScheduleDuration.EndOfPack -> currentDuration.copy(
+                        is MedicationScheduleDurationErpModel.Endless -> currentDuration.copy(startDate = startDate)
+                        is MedicationScheduleDurationErpModel.EndOfPack -> currentDuration.copy(
                             startDate = startDate,
                             endDate = schedule.calculateEndOfPack(startDate = startDate)
                         )
-                        is MedicationScheduleDuration.Personalized -> currentDuration.copy(startDate = startDate)
+                        is MedicationScheduleDurationErpModel.Personalized -> currentDuration.copy(startDate = startDate)
                     }
                     setMedicationScheduleDurationUseCase.invoke(
                         taskId = schedule.taskId,
-                        medicationScheduleDuration = updatedDuration
+                        medicationScheduleDurationErpModel = updatedDuration
                     )
                 }
             }
@@ -160,15 +160,15 @@ class MedicationPlanScheduleDurationAndIntervalScreenController(
     ) {
         if (endDate != null) {
             controllerScope.launch {
-                _medicationSchedule.value.data?.let { schedule ->
+                _medicationScheduleErpModel.value.data?.let { schedule ->
                     val updatedDuration = when (val currentDuration = schedule.duration) {
-                        is MedicationScheduleDuration.Endless -> currentDuration.copy(endDate = endDate)
-                        is MedicationScheduleDuration.EndOfPack -> currentDuration.copy(endDate = endDate)
-                        is MedicationScheduleDuration.Personalized -> currentDuration.copy(endDate = endDate)
+                        is MedicationScheduleDurationErpModel.Endless -> currentDuration.copy(endDate = endDate)
+                        is MedicationScheduleDurationErpModel.EndOfPack -> currentDuration.copy(endDate = endDate)
+                        is MedicationScheduleDurationErpModel.Personalized -> currentDuration.copy(endDate = endDate)
                     }
                     setMedicationScheduleDurationUseCase.invoke(
                         taskId = schedule.taskId,
-                        medicationScheduleDuration = updatedDuration
+                        medicationScheduleDurationErpModel = updatedDuration
                     )
                 }
             }
@@ -177,10 +177,10 @@ class MedicationPlanScheduleDurationAndIntervalScreenController(
 
     internal fun setMedicationScheduleIntervalToDaily() {
         controllerScope.launch {
-            _medicationSchedule.value.data?.let { schedule ->
+            _medicationScheduleErpModel.value.data?.let { schedule ->
                 setMedicationScheduleIntervalUseCase.invoke(
                     taskId = schedule.taskId,
-                    medicationScheduleInterval = MedicationScheduleInterval.Daily
+                    medicationScheduleIntervalErpModel = MedicationScheduleIntervalErpModel.Daily
                 )
             }
         }
@@ -188,10 +188,10 @@ class MedicationPlanScheduleDurationAndIntervalScreenController(
 
     internal fun setMedicationScheduleIntervalToEveryToDays() {
         controllerScope.launch {
-            _medicationSchedule.value.data?.let { schedule ->
+            _medicationScheduleErpModel.value.data?.let { schedule ->
                 setMedicationScheduleIntervalUseCase.invoke(
                     taskId = schedule.taskId,
-                    medicationScheduleInterval = MedicationScheduleInterval.EveryTwoDays
+                    medicationScheduleIntervalErpModel = MedicationScheduleIntervalErpModel.EveryTwoDays
                 )
             }
         }
@@ -201,38 +201,38 @@ class MedicationPlanScheduleDurationAndIntervalScreenController(
         dayOfWeek: DayOfWeek
     ) {
         controllerScope.launch {
-            _medicationSchedule.value.data?.let { schedule ->
+            _medicationScheduleErpModel.value.data?.let { schedule ->
                 val interval = schedule.interval
-                val updatedInterval = if (interval is MedicationScheduleInterval.Personalized) {
+                val updatedInterval = if (interval is MedicationScheduleIntervalErpModel.Personalized) {
                     if (interval.selectedDays.contains(dayOfWeek)) {
                         val updatedDays = interval.selectedDays.minus(dayOfWeek)
                         if (updatedDays.isEmpty()) {
-                            MedicationScheduleInterval.Daily
+                            MedicationScheduleIntervalErpModel.Daily
                         } else {
-                            MedicationScheduleInterval.Personalized(selectedDays = updatedDays)
+                            MedicationScheduleIntervalErpModel.Personalized(selectedDays = updatedDays)
                         }
                     } else {
                         val updatedDays = interval.selectedDays.plus(dayOfWeek)
                         if (updatedDays.containsAll(DayOfWeek.entries)) {
-                            MedicationScheduleInterval.Daily
+                            MedicationScheduleIntervalErpModel.Daily
                         } else {
-                            MedicationScheduleInterval.Personalized(selectedDays = updatedDays)
+                            MedicationScheduleIntervalErpModel.Personalized(selectedDays = updatedDays)
                         }
                     }
                 } else {
-                    MedicationScheduleInterval.Personalized(
+                    MedicationScheduleIntervalErpModel.Personalized(
                         selectedDays = setOf(dayOfWeek)
                     )
                 }
                 setMedicationScheduleIntervalUseCase.invoke(
                     taskId = schedule.taskId,
-                    medicationScheduleInterval = updatedInterval
+                    medicationScheduleIntervalErpModel = updatedInterval
                 )
             }
         }
     }
 
-    internal fun onTriggerPersonalizedDurationDateRangeEvent(duration: MedicationScheduleDuration) {
+    internal fun onTriggerPersonalizedDurationDateRangeEvent(duration: MedicationScheduleDurationErpModel) {
         pickPersonalizedDurationDateRangeEvent.trigger(duration)
     }
 

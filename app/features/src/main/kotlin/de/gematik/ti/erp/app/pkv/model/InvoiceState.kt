@@ -23,14 +23,14 @@
 package de.gematik.ti.erp.app.pkv.model
 
 import androidx.compose.runtime.Composable
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 sealed class InvoiceState {
     data object LoadingOnChange : InvoiceState()
     data object NoInvoice : InvoiceState()
-    class InvoiceLoaded(val record: InvoiceData.PKVInvoiceRecord) : InvoiceState()
+    class InvoiceLoaded(val record: PKVInvoiceErpModel) : InvoiceState()
 
     @Composable
     @OptIn(ExperimentalContracts::class)

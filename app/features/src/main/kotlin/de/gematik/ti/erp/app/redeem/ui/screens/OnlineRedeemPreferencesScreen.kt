@@ -47,7 +47,7 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
 import de.gematik.ti.erp.app.prescription.ui.preview.OnlineRedeemPreferencesScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
 import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemSharedViewModel
@@ -86,7 +86,7 @@ class OnlineRedeemPreferencesScreen(
                 prescriptions = prescriptions,
                 onNavigateToRedeemSelection = {
                     navController.navigate(
-                        RedeemRoutes.RedeemPrescriptionSelection.path(isModal = false)
+                        RedeemRoutes.RedeemPrescriptionSelection.path(isModal = false, pharmacy = null)
                     )
                 },
                 onNavigateToPharmacyStart = {
@@ -101,7 +101,7 @@ class OnlineRedeemPreferencesScreen(
 @Composable
 fun OnlineRedeemPreferencesScreenScaffold(
     listState: LazyListState,
-    prescriptions: List<PharmacyUseCaseData.PrescriptionInOrder>,
+    prescriptions: List<PrescriptionInOrderErpModel>,
     onNavigateToRedeemSelection: () -> Unit,
     onNavigateToPharmacyStart: () -> Unit,
     onResetPrescriptionSelection: () -> Unit
@@ -160,7 +160,7 @@ fun OnlineRedeemPreferencesScreenScaffold(
 @Composable
 fun OnlineRedeemPreferencesScreenPreview(
     @PreviewParameter(OnlineRedeemPreferencesScreenPreviewParameterProvider::class)
-    prescriptions: List<PharmacyUseCaseData.PrescriptionInOrder>
+    prescriptions: List<PrescriptionInOrderErpModel>
 ) {
     val listState = rememberLazyListState()
 

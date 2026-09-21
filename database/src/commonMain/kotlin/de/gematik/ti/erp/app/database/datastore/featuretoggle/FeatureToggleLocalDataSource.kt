@@ -30,11 +30,17 @@ import kotlinx.coroutines.flow.map
 const val FEATURE_TOGGLE_DATA_SOURCE = "FeatureToggles"
 const val IsRoomEnabled = "IS_ROOM_ENABLED"
 
-val ROOM_DB = FeatureEntity(name = "Room", isActive = false)
+fun interface RoomFeatureToggle {
+    fun isEnabled(): Boolean
+}
+
+val ROOM_DB = FeatureEntity(name = "Room", isActive = true)
 val EU_REDEEM = FeatureEntity(name = "EuRedeem", isActive = false)
+val PUSH_NOTIFICATIONS = FeatureEntity(name = "PushNotifications", isActive = false)
 val FEATURE_ENTITIES = setOf(
     ROOM_DB,
-    EU_REDEEM
+    EU_REDEEM,
+    PUSH_NOTIFICATIONS
 )
 
 class FeatureToggleLocalDataSource(

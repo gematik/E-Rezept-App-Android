@@ -24,34 +24,41 @@ package de.gematik.ti.erp.app.pharmacy.usecase.mapper
 
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType
+import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.FHIRVZD
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates.Companion.toModel
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours.Companion.toModel
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyContact.Companion.toModel
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.DeliveryPharmacyService
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.OnlinePharmacyService
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.PickUpPharmacyService
+import de.gematik.ti.erp.app.pharmacy.model.ContactInformationErpModel
+import de.gematik.ti.erp.app.pharmacy.model.LocationModeErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyOpeningHoursErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyOpeningTimeErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel.DeliveryPharmacyServiceErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel.LocalPharmacyServiceErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel.OnlinePharmacyServiceErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel.PickUpPharmacyServiceErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 
 fun List<FhirPharmacyErpModel>.toModel(
-    locationMode: PharmacyUseCaseData.LocationMode? = null,
+    locationMode: LocationModeErpModel? = null,
     type: PharmacyVzdService = FHIRVZD
-): List<PharmacyUseCaseData.Pharmacy> =
+): List<PharmacyDetailsErpModel> =
     map { erpModel ->
-        PharmacyUseCaseData.Pharmacy(
+        val position = erpModel.position?.let { PositionErpModel(it.latitude, it.longitude) }
+        PharmacyDetailsErpModel(
             id = erpModel.id ?: "",
             name = erpModel.name,
             address = erpModel.address.let { "${it?.lineAddress}\n${it?.postalCode} ${it?.city}" }.trim(),
-            coordinates = erpModel.position?.toModel(),
+            coordinates = position,
             distance = when (locationMode) {
-                is PharmacyUseCaseData.LocationMode.Enabled -> erpModel.position?.toModel()?.minus(locationMode.coordinates)
+                is LocationModeErpModel.Enabled -> position?.minus(locationMode.coordinates)
                 else -> null
             },
-            contact = erpModel.contact.toModel(),
+            contact = erpModel.contact.let {
+                ContactInformationErpModel(phone = it.phone, mail = it.mail, url = it.url)
+            },
             provides = erpModel.extractServices(type),
-            openingHours = erpModel.availableTime.toModel(),
+            openingHours = erpModel.availableTime.toPharmacyOpeningHours(),
             specialClosingTimes = erpModel.notAvailablePeriodsWithMetadata(),
             specialOpeningTimes = erpModel.specialOpeningTimesWithMetadata(),
             telematikId = erpModel.telematikId,
@@ -60,14 +67,23 @@ fun List<FhirPharmacyErpModel>.toModel(
         )
     }
 
-private fun FhirPharmacyErpModel.extractServices(type: PharmacyVzdService = FHIRVZD): List<PharmacyUseCaseData.PharmacyService> {
-    val services = mutableListOf<PharmacyUseCaseData.PharmacyService>()
+fun OpeningHoursErpModel.toPharmacyOpeningHours(): PharmacyOpeningHoursErpModel =
+    PharmacyOpeningHoursErpModel(
+        openingTime = openingTime.mapValues { (_, times) ->
+            times.map { PharmacyOpeningTimeErpModel(it.openingTime, it.closingTime) }
+        }
+    )
+
+private fun FhirPharmacyErpModel.extractServices(type: PharmacyVzdService = FHIRVZD): List<PharmacyServiceErpModel> {
+    val services = mutableListOf<PharmacyServiceErpModel>()
 
     val isOpeningHoursPresent = availableTime.isNotEmpty()
 
-    val localServices = PharmacyUseCaseData.PharmacyService.LocalPharmacyService(
+    val openingHours = if (isOpeningHoursPresent) availableTime.toPharmacyOpeningHours() else PharmacyOpeningHoursErpModel(emptyMap())
+
+    val localServices = LocalPharmacyServiceErpModel(
         name = name,
-        openingHours = if (isOpeningHoursPresent) availableTime.toModel() else OpeningHours(emptyMap())
+        openingHours = openingHours
     )
 
     // adding the hours of operation as local services (this is used in the ui to decide the opening hours)
@@ -76,13 +92,13 @@ private fun FhirPharmacyErpModel.extractServices(type: PharmacyVzdService = FHIR
     services.addAll(
         specialities.mapNotNull { speciality ->
             when (speciality) {
-                FhirVzdSpecialtyType.Pickup -> PickUpPharmacyService(name)
-                FhirVzdSpecialtyType.Delivery -> DeliveryPharmacyService(
+                FhirVzdSpecialtyType.Pickup -> PickUpPharmacyServiceErpModel(name)
+                FhirVzdSpecialtyType.Delivery -> DeliveryPharmacyServiceErpModel(
                     name = name,
-                    openingHours = if (isOpeningHoursPresent) availableTime.toModel() else OpeningHours(emptyMap())
+                    openingHours = openingHours
                 )
 
-                FhirVzdSpecialtyType.Shipment -> OnlinePharmacyService(name)
+                FhirVzdSpecialtyType.Shipment -> OnlinePharmacyServiceErpModel(name)
                 else -> null
             }
         }

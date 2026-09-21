@@ -40,13 +40,18 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.invoice.model.ChargeableItemDescriptionErpModel
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.invoice.model.InvoiceErpModel
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
 import de.gematik.ti.erp.app.invoice.model.currencyString
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pkv.navigation.PkvNavigationArguments.Companion.getPkvNavigationArguments
 import de.gematik.ti.erp.app.pkv.presentation.rememberInvoiceController
 import de.gematik.ti.erp.app.pkv.ui.preview.InvoiceExpandedDetailsScreenPreviewParameterProvider
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.task.model.OrganizationErpModel
+import de.gematik.ti.erp.app.task.model.PatientErpModel
+import de.gematik.ti.erp.app.task.model.PractitionerErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
@@ -68,7 +73,7 @@ class InvoiceExpandedDetailsScreen(
         arguments.profileId.let { profileId ->
             val invoiceController = rememberInvoiceController(profileId)
             val listState = rememberLazyListState()
-            val invoice by produceState<InvoiceData.PKVInvoiceRecord?>(null) {
+            val invoice by produceState<PKVInvoiceErpModel?>(null) {
                 arguments.taskId?.let { taskId ->
                     invoiceController.getInvoiceForTaskId(taskId).collect {
                         value = it
@@ -87,7 +92,7 @@ class InvoiceExpandedDetailsScreen(
 @Composable
 private fun InvoiceExpandedDetailsScreenScaffold(
     listState: LazyListState,
-    invoice: InvoiceData.PKVInvoiceRecord?,
+    invoice: PKVInvoiceErpModel?,
     onBack: () -> Unit
 ) {
     AnimatedElevationScaffold(
@@ -130,7 +135,7 @@ private fun InvoiceExpandedDetailsScreenScaffold(
                     )
                 }
                 item {
-                    PriceData(it.invoice)
+                    it.invoice?.let { inv -> PriceData(inv) }
                 }
             }
         }
@@ -138,36 +143,27 @@ private fun InvoiceExpandedDetailsScreenScaffold(
 }
 
 @Composable
-private fun PriceData(invoice: InvoiceData.Invoice) {
+private fun PriceData(invoice: InvoiceErpModel) {
     val (fees, articles) = invoice.chargeableItems.partition {
-        (it.description as? InvoiceData.ChargeableItem.Description.PZN)?.isSpecialPZN() ?: false
+        InvoiceData.SpecialPZN.isAnyOf(it.description.value)
     }
 
     articles.map {
         val article = when (it.description) {
-            is InvoiceData.ChargeableItem.Description.HMNR ->
-                stringResource(
-                    R.string.invoice_description_hmknr,
-                    (it.description as InvoiceData.ChargeableItem.Description.HMNR).hmnr
-                )
+            is ChargeableItemDescriptionErpModel.HMNR ->
+                stringResource(R.string.invoice_description_hmknr, it.description.value)
 
-            is InvoiceData.ChargeableItem.Description.PZN ->
-                stringResource(
-                    R.string.invoice_description_pzn,
-                    (it.description as InvoiceData.ChargeableItem.Description.PZN).pzn
-                )
+            is ChargeableItemDescriptionErpModel.PZN ->
+                stringResource(R.string.invoice_description_pzn, it.description.value)
 
-            is InvoiceData.ChargeableItem.Description.TA1 ->
-                stringResource(
-                    R.string.invoice_description_ta1,
-                    (it.description as InvoiceData.ChargeableItem.Description.TA1).ta1
-                )
+            is ChargeableItemDescriptionErpModel.TA1 ->
+                stringResource(R.string.invoice_description_ta1, it.description.value)
         }
 
         Text(stringResource(R.string.invoice_description_articel, article))
         Text(stringResource(R.string.invoice_description_factor, it.factor))
-        Text(stringResource(R.string.invoice_description_tax, it.price.tax.currencyString()))
-        Text(stringResource(R.string.invoice_description_brutto_price, it.price.value))
+        Text(stringResource(R.string.invoice_description_tax, it.price?.tax?.currencyString() ?: "0.00"))
+        Text(stringResource(R.string.invoice_description_brutto_price, it.price?.value ?: 0.0))
 
         SpacerMedium()
     }
@@ -175,12 +171,8 @@ private fun PriceData(invoice: InvoiceData.Invoice) {
     if (fees.isNotEmpty()) {
         Text(stringResource(R.string.invoice_description_additional_fees))
         fees.map {
-            require(it.description is InvoiceData.ChargeableItem.Description.PZN)
-            val article = when (
-                InvoiceData.SpecialPZN.valueOfPZN(
-                    (it.description as InvoiceData.ChargeableItem.Description.PZN).pzn
-                )
-            ) {
+            val pzn = it.description.value
+            val article = when (InvoiceData.SpecialPZN.valueOfPZN(pzn)) {
                 InvoiceData.SpecialPZN.EmergencyServiceFee -> stringResource(R.string.invoice_details_emergency_fee)
                 InvoiceData.SpecialPZN.BTMFee -> stringResource(R.string.invoice_details_narcotic_fee)
                 InvoiceData.SpecialPZN.TPrescriptionFee -> stringResource(R.string.invoice_details_t_prescription_fee)
@@ -192,11 +184,11 @@ private fun PriceData(invoice: InvoiceData.Invoice) {
                     R.string.invoice_details_supply_shortage_fee
                 )
 
-                null -> error("wrong mapping")
+                null -> "Zusätzliche Gebühr"
             }
 
             Text(stringResource(R.string.invoice_description_articel, article))
-            Text(stringResource(R.string.invoice_description_brutto_price, it.price.value))
+            Text(stringResource(R.string.invoice_description_brutto_price, it.price?.value ?: 0.0))
 
             SpacerMedium()
         }
@@ -209,28 +201,28 @@ private fun PriceData(invoice: InvoiceData.Invoice) {
 }
 
 @Composable
-private fun PharmacyLabel(pharmacyOrganization: SyncedTaskData.Organization) {
+private fun PharmacyLabel(pharmacyOrganization: OrganizationErpModel?) {
     LabeledTextItems(
         label = stringResource(R.string.invoice_redeemed_in),
         items = listOf(
-            pharmacyOrganization.name,
-            pharmacyOrganization.address?.joinToString(),
-            pharmacyOrganization.uniqueIdentifier?.let { stringResource(R.string.invoice_pharmacy_id, it) }
+            pharmacyOrganization?.name,
+            pharmacyOrganization?.address?.let { "${it.line1} ${it.line2 ?: ""}, ${it.postalCode} ${it.city}" },
+            pharmacyOrganization?.uniqueIdentifier?.let { stringResource(R.string.invoice_pharmacy_id, it) }
         )
     )
 }
 
 @Composable
 private fun PractitionerLabel(
-    practitioner: SyncedTaskData.Practitioner,
-    practitionerOrganization: SyncedTaskData.Organization
+    practitioner: PractitionerErpModel?,
+    practitionerOrganization: OrganizationErpModel?
 ) {
     LabeledTextItems(
         label = stringResource(R.string.invoice_prescribed_by),
         items = listOf(
-            practitioner.name,
-            practitionerOrganization.address?.joinToString(),
-            practitioner.practitionerIdentifier?.let { stringResource(R.string.invoice_practitioner_id, it) }
+            practitioner?.name,
+            practitionerOrganization?.address?.let { "${it.line1} ${it.line2 ?: ""}, ${it.postalCode} ${it.city}" },
+            practitioner?.practitionerIdentifier?.let { stringResource(R.string.invoice_practitioner_id, it) }
         )
     )
 }
@@ -249,14 +241,14 @@ private fun LabeledTextItems(label: String, items: List<String?>) {
 }
 
 @Composable
-private fun PatientLabel(patient: SyncedTaskData.Patient) {
+private fun PatientLabel(patient: PatientErpModel?) {
     LabeledTextItems(
         label = stringResource(R.string.invoice_prescribed_for),
         items = listOf(
-            patient.name,
-            patient.insuranceIdentifier?.let { stringResource(R.string.invoice_insurance_id, it) },
-            patient.address?.joinToString(),
-            patient.birthdate?.formattedString()?.let { stringResource(R.string.invoice_born_on, it) }
+            patient?.name,
+            patient?.insuranceIdentifier?.let { stringResource(R.string.invoice_insurance_id, it) },
+            patient?.address?.let { "${it.line1} ${it.line2 ?: ""}, ${it.postalCode} ${it.city}" },
+            patient?.dateOfBirth?.formattedString()?.let { stringResource(R.string.invoice_born_on, it) }
         )
     )
 }
@@ -264,7 +256,7 @@ private fun PatientLabel(patient: SyncedTaskData.Patient) {
 @LightDarkPreview
 @Composable
 fun invoiceExpandedDetailsScreenContentPreview(
-    @PreviewParameter(InvoiceExpandedDetailsScreenPreviewParameterProvider::class) previewData: InvoiceData.PKVInvoiceRecord?
+    @PreviewParameter(InvoiceExpandedDetailsScreenPreviewParameterProvider::class) previewData: PKVInvoiceErpModel?
 ) {
     PreviewAppTheme {
         InvoiceExpandedDetailsScreenScaffold(

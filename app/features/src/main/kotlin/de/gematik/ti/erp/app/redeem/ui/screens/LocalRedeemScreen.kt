@@ -186,14 +186,12 @@ class LocalRedeemScreen(
             },
             onTabChange = { index ->
                 controller.onSelectTab(index = index)
-                controller.getDmCodes()
             },
             onEuPrescriptionClick = {
                 if (controller.onRedeemInEuAbroadClick()) {
                     navController.navigate(EuRoutes.EuConsentScreen.path(taskId))
                 }
             },
-            onRefreshCodes = { controller.refreshDmCodes() },
             onSharedWarningHeightUpdated = { sharedWarningHeight = it },
             onBack = { navController.popBackStack() }
         )
@@ -211,7 +209,6 @@ private fun LocalRedeemScreenScaffold(
     onClickReady: () -> Unit,
     onTabChange: (Int) -> Unit,
     onEuPrescriptionClick: () -> Unit,
-    onRefreshCodes: () -> Unit,
     onSharedWarningHeightUpdated: (Int) -> Unit,
     onBack: () -> Unit
 ) {
@@ -238,7 +235,6 @@ private fun LocalRedeemScreenScaffold(
             }
         }
     ) { padding ->
-
         UiStateMachine(
             state = codes,
             onLoading = {
@@ -251,14 +247,14 @@ private fun LocalRedeemScreenScaffold(
                     titleText = stringResource(R.string.generic_error_title),
                     bodyText = stringResource(R.string.generic_error_info),
                     tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
-                ) { onRefreshCodes() }
+                )
             },
             onEmpty = {
                 ErrorScreenComponent(
                     titleText = stringResource(R.string.generic_error_title),
                     bodyText = stringResource(R.string.generic_error_info),
                     tryAgainText = stringResource(R.string.cdw_fasttrack_try_again)
-                ) { onRefreshCodes() }
+                )
             },
             onContent = { codes ->
                 LocalRedeemScreenContent(
@@ -533,7 +529,6 @@ fun LocalRedeemScreenPreview(
             onEuPrescriptionClick = {},
             onClickReady = {},
             onTabChange = {},
-            onRefreshCodes = {},
             onSharedWarningHeightUpdated = {},
             onBack = {}
         )

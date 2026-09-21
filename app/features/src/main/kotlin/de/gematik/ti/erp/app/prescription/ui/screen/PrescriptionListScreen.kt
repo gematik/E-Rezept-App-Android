@@ -24,11 +24,15 @@
 
 package de.gematik.ti.erp.app.prescription.ui.screen
 
+import android.os.Build
+import android.os.Build.VERSION_CODES.TIRAMISU
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.FabPosition
@@ -38,6 +42,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -55,16 +60,19 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.appsecurity.navigation.AppSecurityRoutes
+import de.gematik.ti.erp.app.appsecurity.ui.DeprecationBanner
 import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
 import de.gematik.ti.erp.app.base.BaseActivity
+import de.gematik.ti.erp.app.base.model.DownloadResourcesState
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState.Companion.isFinished
-import de.gematik.ti.erp.app.base.model.DownloadResourcesState.NotStarted
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallIntroScreen
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.core.LocalNow
 import de.gematik.ti.erp.app.digas.navigation.DigasRoutes
 import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarWrapper
 import de.gematik.ti.erp.app.mainscreen.ui.MultiProfileTopAppBar
@@ -86,22 +94,23 @@ import de.gematik.ti.erp.app.prescription.ui.model.MultiProfileTopAppBarClickAct
 import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionsScreenContentClickAction
 import de.gematik.ti.erp.app.prescription.ui.preview.PrescriptionScreenPreviewData
 import de.gematik.ti.erp.app.prescription.ui.preview.PrescriptionScreenPreviewParameterProvider
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.pulltorefresh.PullToRefresh
 import de.gematik.ti.erp.app.pulltorefresh.extensions.triggerEnd
 import de.gematik.ti.erp.app.pulltorefresh.extensions.triggerStart
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
 import de.gematik.ti.erp.app.utils.uistate.UiState
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 
 const val ZERO_DAYS_LEFT = 0
 const val ONE_DAY_LEFT = 1
@@ -125,7 +134,6 @@ class PrescriptionListScreen(
         val scope = rememberCoroutineScope()
 
         val actionString = stringResource(R.string.consent_action_to_invoices)
-        stringResource(R.string.consent_revoked_info)
         val consentGrantedInfo = stringResource(R.string.consent_granted_info)
 
         val activePrescriptions by controller.activePrescriptions.collectAsStateWithLifecycle()
@@ -133,7 +141,7 @@ class PrescriptionListScreen(
         val hasRedeemableTasks by controller.hasRedeemableTasks.collectAsStateWithLifecycle()
 
         val profileData by controller.activeProfile.collectAsStateWithLifecycle()
-        val resourcesDownloadedState by controller.resourcesDownloadedState.collectAsState(NotStarted)
+        val resourcesDownloadedState by controller.resourcesDownloadedState.collectAsState(DownloadResourcesState.NotStarted)
 
         val consentViewState by consentController.consentViewState.collectAsStateWithLifecycle()
         var topBarElevated by remember { mutableStateOf(true) }
@@ -148,6 +156,7 @@ class PrescriptionListScreen(
         val intentHandler = LocalIntentHandler.current
         LaunchedEffect(Unit) {
             intentHandler.gidSuccessfulIntent.collectLatest {
+                Napier.d { "intentHandler called" }
                 controller.refreshDownload()
             }
         }
@@ -168,14 +177,21 @@ class PrescriptionListScreen(
         }
 
         navBackStackEntry.onReturnAction(PrescriptionRoutes.PrescriptionListScreen) {
-            controller.refreshDownload()
+            if ((resourcesDownloadedState == DownloadResourcesState.NotStarted || resourcesDownloadedState.isFinished())) {
+                controller.refreshDownload()
+            }
         }
 
-        LaunchedEffect(profileData) {
-            if (controller.shouldShowWelcomeDrawer.first()) {
+        val shouldShowWelcomeDrawer by controller.shouldShowWelcomeDrawer.collectAsStateWithLifecycle()
+        LaunchedEffect(shouldShowWelcomeDrawer, profileData) {
+            if (shouldShowWelcomeDrawer) {
                 profileData.data?.let { navController.navigate(CardWallRoutes.CardWallSelectInsuranceTypeBottomSheetScreen.path(it.id)) }
             }
-            if (controller.shouldShowGrantConsentDrawer.first()) {
+        }
+
+        val shouldShowGrantConsent by controller.shouldShowGrantConsentDrawer.collectAsStateWithLifecycle()
+        LaunchedEffect(shouldShowGrantConsent) {
+            if (shouldShowGrantConsent) {
                 navController.navigate(PrescriptionRoutes.GrantConsentBottomSheetScreen.path())
             }
         }
@@ -215,52 +231,66 @@ class PrescriptionListScreen(
         }
 
         BackHandler { onBack() }
-        PrescriptionListScreenScaffold(
-            pullToRefreshState = pullToRefreshState,
-            listState = listState,
-            isTopBarElevated = topBarElevated,
-            fabPadding = fabPadding,
-            multiProfileData = controller.multiProfileData,
-            profileData = profileData,
-            activePrescriptions = activePrescriptions,
-            isArchiveEmpty = isArchiveEmpty,
-            hasRedeemableTasks = hasRedeemableTasks,
-            consentState = consentViewState.state,
-            topAppBarClickAction = MultiProfileTopAppBarClickAction(
-                onClickAddProfile = { navController.navigate(ProfileRoutes.ProfileAddNameBottomSheetScreen.path()) },
-                onClickChangeProfileName = { profile -> navController.navigate(ProfileRoutes.ProfileEditNameBottomSheetScreen.path(profile.id)) },
-                onClickAddScannedPrescription = {
-                    navController.navigate(PrescriptionRoutes.PrescriptionScanScreen.path())
-                },
-                onSwitchActiveProfile = { profile ->
-                    controller.disablePrescriptionRefresh()
-                    controller.switchActiveProfile(profile.id)
-                },
-                onElevateTopAppBar = { topBarElevated = it }
-            ),
-            consentClickAction = ConsentClickAction(
-                onGetChargeConsent = { profileId -> consentController.getChargeConsent(profileId) }
-            ),
-            prescriptionClickAction = PrescriptionsScreenContentClickAction(
-                onClickLogin = { profile -> controller.chooseAuthenticationMethod(profile) },
-                onClickAvatar = { profile -> navController.navigate(ProfileRoutes.ProfileEditPictureBottomSheetScreen.path(profile.id)) },
-                onClickArchive = { navController.navigate(PrescriptionRoutes.PrescriptionsArchiveScreen.path()) },
-                onChooseAuthenticationMethod = controller::chooseAuthenticationMethod,
-                onClickRefresh = controller::refreshDownload,
-                onClickPrescription = { taskId, isDiga, isReady ->
-                    if (isDiga) {
-                        navController.navigate(DigasRoutes.DigasMainScreen.path(taskId, isReady))
-                    } else {
-                        navController.navigate(PrescriptionDetailRoutes.PrescriptionDetailScreen.path(taskId))
-                    }
-                },
-                onClickRedeem = {
-                    if (hasRedeemableTasks) {
-                        navController.navigate(RedeemRoutes.HowToRedeemScreen.path())
+
+        CompositionLocalProvider(LocalNow provides Clock.System.now()) {
+            Column(
+                modifier = Modifier.fillMaxSize().statusBarsPadding()
+            ) {
+                AnimatedVisibility(
+                    visible = Build.VERSION.SDK_INT <= TIRAMISU
+                ) {
+                    DeprecationBanner {
+                        navController.navigate(AppSecurityRoutes.Android13DeprecationScreen.path(nextRoute = PrescriptionRoutes.PrescriptionListScreen.path()))
                     }
                 }
-            )
-        )
+                PrescriptionListScreenScaffold(
+                    pullToRefreshState = pullToRefreshState,
+                    listState = listState,
+                    isTopBarElevated = topBarElevated,
+                    fabPadding = fabPadding,
+                    multiProfileData = controller.multiProfileData,
+                    profileData = profileData,
+                    activePrescriptions = activePrescriptions,
+                    isArchiveEmpty = isArchiveEmpty,
+                    hasRedeemableTasks = hasRedeemableTasks,
+                    consentState = consentViewState.state,
+                    topAppBarClickAction = MultiProfileTopAppBarClickAction(
+                        onClickAddProfile = { navController.navigate(ProfileRoutes.ProfileAddNameBottomSheetScreen.path()) },
+                        onClickChangeProfileName = { profile -> navController.navigate(ProfileRoutes.ProfileEditNameBottomSheetScreen.path(profile.id)) },
+                        onClickAddScannedPrescription = {
+                            navController.navigate(PrescriptionRoutes.PrescriptionScanScreen.path())
+                        },
+                        onSwitchActiveProfile = { profile ->
+                            controller.disablePrescriptionRefresh()
+                            controller.switchActiveProfile(profile.id)
+                        },
+                        onElevateTopAppBar = { topBarElevated = it }
+                    ),
+                    consentClickAction = ConsentClickAction(
+                        onGetChargeConsent = { profileId -> consentController.getChargeConsent(profileId) }
+                    ),
+                    prescriptionClickAction = PrescriptionsScreenContentClickAction(
+                        onClickLogin = { profile -> controller.chooseAuthenticationMethod(profile) },
+                        onClickAvatar = { profile -> navController.navigate(ProfileRoutes.ProfileEditPictureBottomSheetScreen.path(profile.id)) },
+                        onClickArchive = { navController.navigate(PrescriptionRoutes.PrescriptionsArchiveScreen.path()) },
+                        onChooseAuthenticationMethod = controller::chooseAuthenticationMethod,
+                        onClickRefresh = controller::refreshDownload,
+                        onClickPrescription = { taskId, isDiga, isReady ->
+                            if (isDiga) {
+                                navController.navigate(DigasRoutes.DigasMainScreen.path(taskId, isReady))
+                            } else {
+                                navController.navigate(PrescriptionDetailRoutes.PrescriptionDetailScreen.path(taskId))
+                            }
+                        },
+                        onClickRedeem = {
+                            if (hasRedeemableTasks) {
+                                navController.navigate(RedeemRoutes.HowToRedeemScreen.path())
+                            }
+                        }
+                    )
+                )
+            }
+        }
     }
 }
 
@@ -270,8 +300,8 @@ private fun PrescriptionListScreenScaffold(
     pullToRefreshState: PullToRefreshState,
     listState: LazyListState,
     multiProfileData: MultiProfileAppBarWrapper,
-    profileData: UiState<ProfilesUseCaseData.Profile>,
-    activePrescriptions: UiState<List<Prescription>>,
+    profileData: UiState<ProfileErpModel>,
+    activePrescriptions: UiState<List<TaskErpModel>>,
     fabPadding: ApplicationInnerPadding?,
     isTopBarElevated: Boolean,
     hasRedeemableTasks: Boolean,
@@ -307,8 +337,10 @@ private fun PrescriptionListScreenScaffold(
                     )
                 }
             }
-        ) {
-            Column {
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier.padding(innerPadding)
+            ) {
                 ProfileLoadingSection(
                     profileData = profileData,
                     consentState = consentState,
@@ -318,7 +350,6 @@ private fun PrescriptionListScreenScaffold(
                     onChooseAuthenticationMethod = prescriptionClickAction.onChooseAuthenticationMethod
                 )
                 PrescriptionsSection(
-                    modifier = Modifier.padding(it),
                     listState = listState,
                     profileLifecycleState = multiProfileData.profileLifecycleState,
                     activeProfile = profileData,
@@ -357,20 +388,22 @@ internal fun PrescriptionsScreenScaffoldPreview(
     @PreviewParameter(PrescriptionScreenPreviewParameterProvider::class) data: PrescriptionScreenPreviewData
 ) {
     PreviewAppTheme {
-        PrescriptionListScreenScaffold(
-            pullToRefreshState = rememberPullToRefreshState(),
-            listState = rememberLazyListState(),
-            activePrescriptions = data.activePrescription,
-            isArchiveEmpty = data.isArchivedEmpty,
-            hasRedeemableTasks = data.hasRedeemableTasks,
-            multiProfileData = data.multiProfileAppBarWrapper,
-            profileData = data.profileData,
-            consentState = data.consentState,
-            isTopBarElevated = data.isTopBarElevated,
-            fabPadding = data.fabPadding,
-            prescriptionClickAction = data.prescriptionsClickAction,
-            topAppBarClickAction = data.topAppBarClickAction,
-            consentClickAction = data.consentClickAction
-        )
+        CompositionLocalProvider(LocalNow provides data.now) {
+            PrescriptionListScreenScaffold(
+                pullToRefreshState = rememberPullToRefreshState(),
+                listState = rememberLazyListState(),
+                activePrescriptions = data.activePrescription,
+                isArchiveEmpty = data.isArchivedEmpty,
+                hasRedeemableTasks = data.hasRedeemableTasks,
+                multiProfileData = data.multiProfileAppBarWrapper,
+                profileData = data.profileData,
+                consentState = data.consentState,
+                isTopBarElevated = data.isTopBarElevated,
+                fabPadding = data.fabPadding,
+                prescriptionClickAction = data.prescriptionsClickAction,
+                topAppBarClickAction = data.topAppBarClickAction,
+                consentClickAction = data.consentClickAction
+            )
+        }
     }
 }

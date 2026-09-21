@@ -43,17 +43,25 @@ import de.gematik.ti.erp.app.fhir.support.FhirAccidentInformationErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirTaskAccidentType
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
-import de.gematik.ti.erp.app.prescription.model.Quantity
-import de.gematik.ti.erp.app.prescription.model.Ratio
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Medication
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationDispense
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationRequest
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Organization
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Patient
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Practitioner
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.task.model.AccidentType
+import de.gematik.ti.erp.app.task.model.AdditionalFeeErpModel
+import de.gematik.ti.erp.app.task.model.AddressErpModel
+import de.gematik.ti.erp.app.task.model.Identifier
+import de.gematik.ti.erp.app.task.model.InsuranceErpModel
+import de.gematik.ti.erp.app.task.model.InsuranceErpModelCoverageType
+import de.gematik.ti.erp.app.task.model.MedicationCategory
+import de.gematik.ti.erp.app.task.model.MedicationDispenseErpModel
+import de.gematik.ti.erp.app.task.model.MedicationErpModel
+import de.gematik.ti.erp.app.task.model.MedicationRequestErpModel
+import de.gematik.ti.erp.app.task.model.MultiplePrescriptionInfo
+import de.gematik.ti.erp.app.task.model.OrganizationErpModel
+import de.gematik.ti.erp.app.task.model.PatientErpModel
+import de.gematik.ti.erp.app.task.model.PractitionerErpModel
+import de.gematik.ti.erp.app.task.model.QuantityErpModel
+import de.gematik.ti.erp.app.task.model.RatioErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
@@ -253,22 +261,24 @@ object DemoPrescriptionInfo {
 
     internal const val DEMO_MODE_IDENTIFIER = "1234567890"
 
-    internal val PRACTITIONER = Practitioner(
+    internal val PRACTITIONER = PractitionerErpModel(
         name = NAMES.random(),
         qualification = MEDICATION_SPECIALITIES.random(),
-        practitionerIdentifier = DEMO_MODE_IDENTIFIER
+        practitionerIdentifier = DEMO_MODE_IDENTIFIER,
+        dentistIdentifier = null,
+        telematikId = null
     )
 
-    private val ADDRESS = SyncedTaskData.Address(
+    private val ADDRESS = AddressErpModel(
         line1 = STREET_NAMES.random(),
         line2 = FLOORS.random(),
         postalCode = POSTAL_CODES.random(),
         city = CITY_NAMES.random()
     )
 
-    private fun organization(): Organization {
+    private fun organization(): OrganizationErpModel {
         val item = MEDICAL_PRACTICES.random()
-        return Organization(
+        return OrganizationErpModel(
             name = item.first,
             address = ADDRESS,
             uniqueIdentifier = DEMO_MODE_IDENTIFIER,
@@ -279,29 +289,29 @@ object DemoPrescriptionInfo {
 
     internal val ORGANIZATION = organization()
 
-    internal val PATIENT = Patient(
+    internal val PATIENT = PatientErpModel(
         name = "${FIRST_NAMES.random()} Mustermann",
         address = ADDRESS,
-        birthdate = null,
+        dateOfBirth = null,
         insuranceIdentifier = DEMO_MODE_IDENTIFIER
     )
 
-    private val RATIO = Ratio(
-        numerator = Quantity(
+    private val RATIO = RatioErpModel(
+        numerator = QuantityErpModel(
             value = listOf("1", "2", "3", "4", "5").random(),
             unit = "oz"
         ),
         denominator = null
     )
 
-    private val MEDICATION = Medication(
-        category = SyncedTaskData.MedicationCategory.entries.toTypedArray().random(),
-        vaccine = Random.nextBoolean(),
+    private val MEDICATION = MedicationErpModel(
+        category = MedicationCategory.entries.toTypedArray().random(),
+        isVaccine = Random.nextBoolean(),
         text = SYNCED_MEDICATION_NAMES.random(),
         form = codeToFormMapping.random(),
         lotNumber = DEMO_MODE_IDENTIFIER,
         expirationDate = FhirTemporal.Instant(EXPIRY_DATE),
-        identifier = SyncedTaskData.Identifier(DEMO_MODE_IDENTIFIER),
+        identifier = Identifier(pzn = DEMO_MODE_IDENTIFIER),
         normSizeCode = normSizeMappings.random(),
         amount = RATIO,
         ingredientMedications = emptyList(),
@@ -314,12 +324,11 @@ object DemoPrescriptionInfo {
         packaging = null
     )
 
-    private val COVERAGE_TYPE = SyncedTaskData.CoverageType.entries
-        .toTypedArray().random()
+    private val COVERAGE_TYPE = InsuranceErpModelCoverageType.entries.toTypedArray().random()
 
-    private fun medication(index: Int) = Medication(
-        category = SyncedTaskData.MedicationCategory.entries.toTypedArray().random(),
-        vaccine = Random.nextBoolean(),
+    private fun medication(index: Int) = MedicationErpModel(
+        category = MedicationCategory.entries.toTypedArray().random(),
+        isVaccine = Random.nextBoolean(),
         text = when (index) {
             0 -> "\uD83C\uDDEA\uD83C\uDDFA FreeMovementin"
             30 -> "\uD83C\uDDEA\uD83C\uDDFA Schengenadol"
@@ -328,7 +337,7 @@ object DemoPrescriptionInfo {
         form = codeToFormMapping.random(),
         lotNumber = DEMO_MODE_IDENTIFIER,
         expirationDate = FhirTemporal.Instant(EXPIRY_DATE),
-        identifier = SyncedTaskData.Identifier(DEMO_MODE_IDENTIFIER),
+        identifier = Identifier(pzn = DEMO_MODE_IDENTIFIER),
         normSizeCode = normSizeMappings.random(),
         amount = RATIO,
         ingredientMedications = emptyList(),
@@ -344,7 +353,7 @@ object DemoPrescriptionInfo {
     private fun medicationDispense(
         isCompleted: Boolean,
         isDeviceRequest: Boolean
-    ) = MedicationDispense(
+    ) = MedicationDispenseErpModel(
         dispenseId = UUID.randomUUID().toString(),
         patientIdentifier = PATIENT.insuranceIdentifier ?: "",
         medication = MEDICATION,
@@ -352,7 +361,9 @@ object DemoPrescriptionInfo {
         dosageInstruction = DOSAGE.random(),
         performer = PERFORMERS.random(),
         whenHandedOver = null,
-        deviceRequest = if (isDeviceRequest) deviceRequestDispense(isCompleted) else null
+        deviceRequest = if (isDeviceRequest) deviceRequestDispense(isCompleted) else null,
+        pharmacyName = DemoPharmacyInfo.PHARMACY_NAMES.random(),
+        euCountryCode = "DE"
     )
 
     @Suppress("ktlint:max-line-length")
@@ -367,7 +378,7 @@ object DemoPrescriptionInfo {
         modifiedDate = Instant.parse(input = "2024-08-01T10:00:00Z").asFhirTemporal()
     )
 
-    internal val INSURANCE_INFORMATION = SyncedTaskData.InsuranceInformation(
+    internal val INSURANCE_INFORMATION = InsuranceErpModel(
         name = null,
         status = null,
         coverageType = COVERAGE_TYPE
@@ -393,8 +404,8 @@ object DemoPrescriptionInfo {
         "FAKECODE123",
         "IM_NOT_A_ROBOT"
     )
-
-    internal fun medicationRequest(isDeviceRequest: Boolean, index: Int) = MedicationRequest(
+    /*
+       internal fun medicationRequest(isDeviceRequest: Boolean, isTeratogenicPrescription: Boolean, index: Int) = MedicationRequest(
         medication = if (!isDeviceRequest) medication(index) else null,
         dateOfAccident = null,
         location = CITY_NAMES.random(),
@@ -402,11 +413,37 @@ object DemoPrescriptionInfo {
         dosageInstruction = DOSAGE.random(),
         multiplePrescriptionInfo = SyncedTaskData.MultiplePrescriptionInfo(),
         note = DOCTORS_NOTES.random(),
-        substitutionAllowed = BOOLEAN.random()
+        substitutionAllowed = BOOLEAN.random(),
+        teratogenicPrescription = if (!isDeviceRequest && isTeratogenicPrescription) {
+            SyncedTaskData.TeratogenicPrescriptionErpModel(
+                offLabel = BOOLEAN.random(),
+                gebaerfaehigeFrau = BOOLEAN.random(),
+                einhaltungSicherheitsmassnahmen = BOOLEAN.random(),
+                aushaendigungInformationsmaterialien = BOOLEAN.random(),
+                erklaerungSachkenntnis = BOOLEAN.random()
+            )
+        } else null
+    )
+    // DVG fix this
+     */
+
+    internal fun medicationRequest(isDeviceRequest: Boolean, index: Int) = MedicationRequestErpModel(
+        medication = if (!isDeviceRequest) medication(index) else null,
+        dateOfAccident = null,
+        location = CITY_NAMES.random(),
+        emergencyFee = BOOLEAN.random(),
+        dosageInstruction = DOSAGE.random(),
+        multiplePrescriptionInfo = MultiplePrescriptionInfo(),
+        note = DOCTORS_NOTES.random(),
+        substitutionAllowed = BOOLEAN.random(),
+        accidentType = AccidentType.None,
+        quantity = 0,
+        bvg = null,
+        additionalFee = AdditionalFeeErpModel.None
     )
 
     internal object DemoScannedPrescription {
-        internal val demoScannedTask01 = ScannedTaskData.ScannedTask(
+        internal val demoScannedTask01 = TaskErpModel.Scanned(
             profileId = demoProfile01.id,
             taskId = "160.000.006.394.157.15",
             index = 1,
@@ -414,9 +451,9 @@ object DemoPrescriptionInfo {
             accessCode = "8cc887c16681517e2db71078f367d4446c156bde743e15c2440722ec0835f406",
             scannedOn = randomTimeToday,
             redeemedOn = null,
-            communications = emptyList()
+            isEuRedeemable = false
         )
-        internal val demoScannedTask02 = ScannedTaskData.ScannedTask(
+        internal val demoScannedTask02 = TaskErpModel.Scanned(
             profileId = DemoProfileInfo.demoProfile02.id,
             taskId = "160.000.006.386.866.63",
             index = 2,
@@ -424,7 +461,7 @@ object DemoPrescriptionInfo {
             accessCode = "c0967e56ccbcb55ef0851ac9ad3a03dcfbb5ba1934d8d1338290167e348c876f",
             scannedOn = randomTimeToday,
             redeemedOn = null,
-            communications = emptyList()
+            isEuRedeemable = false
         )
     }
 
@@ -486,51 +523,81 @@ object DemoPrescriptionInfo {
     internal object DemoSyncedPrescription {
         internal fun syncedTask(
             profileIdentifier: ProfileIdentifier,
-            status: SyncedTaskData.TaskStatus = SyncedTaskData.TaskStatus.Ready,
+            status: TaskStatusEnum = TaskStatusEnum.Ready,
             isDirectAssignment: Boolean = false,
             isDeviceRequest: Boolean = false,
             isDeviceRequestCompleted: Boolean = false,
             deviceRequestStatusIndex: Int? = null,
             medicationNamesIndex: Int,
             appName: String? = null,
+            isTeratogenicPrescription: Boolean = false,
             isEuRedeemable: Boolean = false,
             isEuRedeemableByPatientAuthorization: Boolean = false
-        ): SyncedTaskData.SyncedTask {
+        ): TaskErpModel.Synced {
             val taskId =
                 when {
                     isDirectAssignment -> "$DIRECT_ASSIGNMENT_TASK_PRESET.$medicationNamesIndex"
                     isDeviceRequest -> "$DIGA_TASK_PRESET.$medicationNamesIndex"
                     else -> "$SYNCED_TASK_PRESET.$medicationNamesIndex"
                 }
-            return SyncedTaskData.SyncedTask(
-                profileId = profileIdentifier,
-                taskId = taskId,
-                isIncomplete = false, // making this true makes the prescription defective
-                pvsIdentifier = DEMO_MODE_IDENTIFIER,
-                accessCode = DEMO_MODE_IDENTIFIER,
-                lastModified = longerRandomTimeToday,
-                organization = ORGANIZATION,
-                practitioner = PRACTITIONER,
-                patient = PATIENT,
-                insuranceInformation = INSURANCE_INFORMATION,
-                expiresOn = if (medicationNamesIndex == 30) Clock.System.now() else EXPIRY_DATE,
-                acceptUntil = SHORT_EXPIRY_DATE,
-                authoredOn = NOW,
-                status = status,
-                medicationRequest = medicationRequest(isDeviceRequest, medicationNamesIndex),
-                lastMedicationDispense = null,
-                medicationDispenses = listOf(
-                    medicationDispense(
-                        isCompleted = isDeviceRequestCompleted,
-                        isDeviceRequest = isDeviceRequest
-                    )
-                ),
-                communications = emptyList(),
-                failureToReport = "",
-                deviceRequest = if (isDeviceRequest) demoDiga(deviceRequestStatusIndex, appName) else null,
-                isEuRedeemable = isEuRedeemable,
-                isEuRedeemableByPatientAuthorization = isEuRedeemableByPatientAuthorization
-            )
+            return if (isDeviceRequest) {
+                TaskErpModel.Synced.Diga(
+                    profileId = profileIdentifier,
+                    name = null,
+                    taskId = taskId,
+                    isIncomplete = false,
+                    pvsIdentifier = DEMO_MODE_IDENTIFIER,
+                    accessCode = DEMO_MODE_IDENTIFIER,
+                    lastModified = longerRandomTimeToday,
+                    organization = ORGANIZATION,
+                    practitioner = PRACTITIONER,
+                    patient = PATIENT,
+                    insuranceInformation = INSURANCE_INFORMATION,
+                    expiresOn = if (medicationNamesIndex == 30) Clock.System.now() else EXPIRY_DATE,
+                    acceptUntil = SHORT_EXPIRY_DATE,
+                    authoredOn = NOW,
+                    status = status,
+                    medicationDispenses = listOf(
+                        medicationDispense(
+                            isCompleted = isDeviceRequestCompleted,
+                            isDeviceRequest = true
+                        )
+                    ),
+                    failureToReport = "",
+                    deviceRequest = demoDiga(deviceRequestStatusIndex, appName),
+                    isEuRedeemable = isEuRedeemable,
+                    isEuRedeemableByPatientAuthorization = isEuRedeemableByPatientAuthorization
+                )
+            } else {
+                TaskErpModel.Synced.Prescription(
+                    profileId = profileIdentifier,
+                    name = null,
+                    taskId = taskId,
+                    isIncomplete = false,
+                    pvsIdentifier = DEMO_MODE_IDENTIFIER,
+                    accessCode = DEMO_MODE_IDENTIFIER,
+                    lastModified = longerRandomTimeToday,
+                    organization = ORGANIZATION,
+                    practitioner = PRACTITIONER,
+                    patient = PATIENT,
+                    insuranceInformation = INSURANCE_INFORMATION,
+                    expiresOn = if (medicationNamesIndex == 30) Clock.System.now() else EXPIRY_DATE,
+                    acceptUntil = SHORT_EXPIRY_DATE,
+                    authoredOn = NOW,
+                    status = status,
+                    medicationRequest = medicationRequest(isDeviceRequest = false, index = medicationNamesIndex),
+                    lastMedicationDispense = null,
+                    medicationDispenses = listOf(
+                        medicationDispense(
+                            isCompleted = isDeviceRequestCompleted,
+                            isDeviceRequest = false
+                        )
+                    ),
+                    failureToReport = "",
+                    isEuRedeemable = isEuRedeemable,
+                    isEuRedeemableByPatientAuthorization = isEuRedeemableByPatientAuthorization
+                )
+            }
         }
     }
 }

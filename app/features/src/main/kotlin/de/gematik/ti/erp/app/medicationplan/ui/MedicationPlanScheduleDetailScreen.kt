@@ -65,6 +65,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.DpOffset
@@ -75,10 +76,10 @@ import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
-import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
-import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
+import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstructionErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationErpModel
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosageErpModel
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
 import de.gematik.ti.erp.app.medicationplan.presentation.canScheduleExactAlarms
 import de.gematik.ti.erp.app.medicationplan.presentation.checkNotificationPermission
@@ -126,7 +127,7 @@ class MedicationPlanScheduleDetailScreen(
         val context = LocalContext.current
         val dialogScaffold = LocalDialog.current
         val controller = rememberMedicationPlanScheduleDetailScreenController(taskId)
-        val medicationScheduleUiState by controller.medicationSchedule.collectAsStateWithLifecycle()
+        val medicationScheduleUiState by controller.medicationScheduleErpModel.collectAsStateWithLifecycle()
         val dosageInstruction by controller.dosageInstruction.collectAsStateWithLifecycle()
         val listState = rememberLazyListState()
 
@@ -135,9 +136,9 @@ class MedicationPlanScheduleDetailScreen(
         val onBack by rememberUpdatedState {
             navController.popBackStack()
         }
-        val defaultMedicationDosage = MedicationScheduleNotificationDosage(
+        val defaultMedicationDosage = MedicationScheduleNotificationDosageErpModel(
             stringResource(R.string.medication_plan_default_form),
-            context.getString(
+            stringResource(
                 R.string.medication_plan_default_dosage
             )
         )
@@ -159,7 +160,7 @@ class MedicationPlanScheduleDetailScreen(
 
         with(controller) {
             ChangeMedicationNotificationTimeDialog(
-                event = changeMedicationScheduleNotificationTimeEvent,
+                event = changeMedicationScheduleNotificationErpModelTimeEvent,
                 dialogScaffold = dialogScaffold,
                 onConfirmChosenTime = { notification, time -> controller.changeMedicationNotificationTime(notification, time) }
             )
@@ -175,7 +176,7 @@ class MedicationPlanScheduleDetailScreen(
                 }
             )
             ChangeMedicationDosageDialog(
-                event = changeMedicationScheduleNotificationDosageEvent,
+                event = changeMedicationScheduleNotificationErpModelDosageEvent,
                 dialog = dialogScaffold,
                 onDosageChanged = { notification, dosage ->
                     controller.changeMedicationNotificationDosage(notification, dosage)
@@ -206,7 +207,7 @@ class MedicationPlanScheduleDetailScreen(
         }
         MedicationPlanScheduleDetailScreenScaffold(
             listState = listState,
-            medicationScheduleUiState = medicationScheduleUiState,
+            medicationScheduleErpModelUiState = medicationScheduleUiState,
             dosageInstruction = dosageInstruction,
             currentDate = currentDate,
             canScheduleExactAlarms = canScheduleExactAlarms,
@@ -263,17 +264,17 @@ class MedicationPlanScheduleDetailScreen(
 @Composable
 fun MedicationPlanScheduleDetailScreenScaffold(
     listState: LazyListState,
-    medicationScheduleUiState: UiState<MedicationSchedule>,
-    dosageInstruction: MedicationPlanDosageInstruction,
+    medicationScheduleErpModelUiState: UiState<MedicationScheduleErpModel>,
+    dosageInstruction: MedicationPlanDosageInstructionErpModel,
     currentDate: LocalDate,
     canScheduleExactAlarms: Boolean,
     onAddNewTimeSlot: () -> Unit,
-    onRemoveNotificationTime: (MedicationScheduleNotification) -> Unit,
-    onNotificationTimeClick: (MedicationScheduleNotification) -> Unit,
+    onRemoveNotificationTime: (MedicationScheduleNotificationErpModel) -> Unit,
+    onNotificationTimeClick: (MedicationScheduleNotificationErpModel) -> Unit,
     onClickChangeDateRange: () -> Unit,
     onClickDosageInfo: () -> Unit,
     onClickDelete: () -> Unit,
-    onDosageClicked: (MedicationScheduleNotification) -> Unit,
+    onDosageClicked: (MedicationScheduleNotificationErpModel) -> Unit,
     onActivateSchedule: () -> Unit,
     onDeactivateSchedule: () -> Unit,
     onShowBatteryOptimizationDialog: () -> Unit,
@@ -289,7 +290,7 @@ fun MedicationPlanScheduleDetailScreenScaffold(
         actions = { ThreeDotMenu(onClickDelete = onClickDelete) }
     ) { contentPadding ->
         UiStateMachine(
-            state = medicationScheduleUiState,
+            state = medicationScheduleErpModelUiState,
             onLoading = {
                 FullScreenLoadingIndicator()
             },
@@ -320,7 +321,7 @@ fun MedicationPlanScheduleDetailScreenScaffold(
                     contentPadding = contentPadding,
                     dosageInstruction = dosageInstruction,
                     currentDate = currentDate,
-                    medicationSchedule = prescriptionSchedule,
+                    medicationScheduleErpModel = prescriptionSchedule,
                     isIgnoringBatteryOptimizations = canScheduleExactAlarms,
                     onAddNewItem = onAddNewTimeSlot,
                     onRemoveNotificationTime = onRemoveNotificationTime,
@@ -342,16 +343,16 @@ fun MedicationPlanScheduleDetailScreenScaffold(
 private fun MedicationPlanScheduleDetailScreenContent(
     listState: LazyListState,
     contentPadding: PaddingValues,
-    medicationSchedule: MedicationSchedule,
-    dosageInstruction: MedicationPlanDosageInstruction,
+    medicationScheduleErpModel: MedicationScheduleErpModel,
+    dosageInstruction: MedicationPlanDosageInstructionErpModel,
     currentDate: LocalDate,
     isIgnoringBatteryOptimizations: Boolean,
     onAddNewItem: () -> Unit,
-    onRemoveNotificationTime: (MedicationScheduleNotification) -> Unit,
-    onNotificationTimeClick: (MedicationScheduleNotification) -> Unit,
+    onRemoveNotificationTime: (MedicationScheduleNotificationErpModel) -> Unit,
+    onNotificationTimeClick: (MedicationScheduleNotificationErpModel) -> Unit,
     onClickChangeDateRange: () -> Unit,
     onClickDosageInfo: () -> Unit,
-    onDosageClicked: (MedicationScheduleNotification) -> Unit,
+    onDosageClicked: (MedicationScheduleNotificationErpModel) -> Unit,
     onActivateSchedule: () -> Unit,
     onDeactivateSchedule: () -> Unit,
     onShowBatteryOptimizationDialog: () -> Unit
@@ -362,9 +363,9 @@ private fun MedicationPlanScheduleDetailScreenContent(
         verticalArrangement = Arrangement.spacedBy(PaddingDefaults.XXLarge),
         modifier = Modifier.fillMaxSize().padding(horizontal = PaddingDefaults.Medium)
     ) {
-        medicationScheduleScreenHeader(medicationSchedule = medicationSchedule)
+        medicationScheduleScreenHeader(medicationScheduleErpModel = medicationScheduleErpModel)
         activateScheduleAndDosageInstructionCard(
-            schedule = medicationSchedule,
+            schedule = medicationScheduleErpModel,
             dosageInstruction = dosageInstruction,
             isIgnoringBatteryOptimizations = isIgnoringBatteryOptimizations,
             onIgnoreBatteryOptimizations = onShowBatteryOptimizationDialog,
@@ -372,9 +373,9 @@ private fun MedicationPlanScheduleDetailScreenContent(
             onDeactivateSchedule = onDeactivateSchedule,
             onClickDosageInfo = onClickDosageInfo
         )
-        if (medicationSchedule.isActive) {
+        if (medicationScheduleErpModel.isActive) {
             scheduleTimeSelectionSection(
-                medicationSchedule = medicationSchedule,
+                medicationScheduleErpModel = medicationScheduleErpModel,
                 currentDate = currentDate,
                 onClickChangeDateRange = onClickChangeDateRange,
                 onAddNewItem = onAddNewItem,
@@ -387,7 +388,7 @@ private fun MedicationPlanScheduleDetailScreenContent(
 }
 
 private fun LazyListScope.medicationScheduleScreenHeader(
-    medicationSchedule: MedicationSchedule
+    medicationScheduleErpModel: MedicationScheduleErpModel
 ) {
     item {
         Column(
@@ -405,7 +406,7 @@ private fun LazyListScope.medicationScheduleScreenHeader(
                     .size(SizeDefaults.sevenfold)
             )
             Text(
-                text = medicationSchedule.message.title.ifBlank {
+                text = medicationScheduleErpModel.message.title.ifBlank {
                     stringResource(R.string.medication_plan_missing_medication_name)
                 },
                 style = AppTheme.typography.h6,
@@ -421,10 +422,14 @@ private fun ThreeDotMenu(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val description = stringResource(R.string.a11y_medication_schedule_three_dot_menu)
+    val closeHint = stringResource(R.string.a11y_three_dot_menu_options_hint)
     IconButton(
         onClick = { expanded = true },
         modifier = Modifier.testTag(TestTag.Profile.ThreeDotMenuButton)
-            .semantics { contentDescription = description }
+            .semantics {
+                contentDescription = description
+                stateDescription = closeHint
+            }
     ) {
         Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral700)
     }
@@ -459,7 +464,7 @@ fun MedicationPlanScheduleDetailScreenPreview(
 
         MedicationPlanScheduleDetailScreenScaffold(
             listState = listState,
-            medicationScheduleUiState = previewData.state,
+            medicationScheduleErpModelUiState = previewData.state,
             dosageInstruction = previewData.dosageInstruction,
             currentDate = previewData.currentDate,
             canScheduleExactAlarms = previewData.isIgnoringBatteryOptimizations,

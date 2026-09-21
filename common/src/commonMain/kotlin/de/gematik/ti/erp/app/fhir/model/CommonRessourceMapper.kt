@@ -32,7 +32,7 @@ import de.gematik.ti.erp.app.fhir.parser.containedStringOrNull
 import de.gematik.ti.erp.app.fhir.parser.filterWith
 import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.stringValue
-import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -195,10 +195,10 @@ fun <MultiplePrescriptionInfo, Ratio, Quantity> JsonElement.extractMultiplePresc
         ?.contained("valuePeriod")
 
     val start = validityPeriod
-        ?.containedOrNull("start")?.jsonPrimitive?.toFhirTemporal()
+        ?.containedOrNull("start")?.jsonPrimitive?.asFhirTemporal()
 
     val end = validityPeriod
-        ?.containedOrNull("end")?.jsonPrimitive?.toFhirTemporal()
+        ?.containedOrNull("end")?.jsonPrimitive?.asFhirTemporal()
 
     return processMultiplePrescriptionInfo(
         indicator,

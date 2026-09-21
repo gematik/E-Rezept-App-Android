@@ -22,9 +22,8 @@
 
 package de.gematik.ti.erp.app.model
 
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.datasource.data.MockConstants.MOCK_COMMUNICATION_ID_01
-import de.gematik.ti.erp.app.messages.model.Communication
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -37,7 +36,7 @@ data class MockProfileLinkedCommunication(
     val taskId: String,
     val communicationId: String,
     val orderId: String,
-    val profile: CommunicationProfile,
+    val profile: CommunicationErpModel.CommunicationProfile,
     val sentOn: Instant,
     val sender: String,
     val recipient: String,
@@ -45,17 +44,18 @@ data class MockProfileLinkedCommunication(
     val consumed: Boolean
 )
 
-fun MockProfileLinkedCommunication.toSyncedTaskDataCommunication() =
-    Communication(
+fun MockProfileLinkedCommunication.toCommunicationErpModel() =
+    CommunicationErpModel(
         taskId = taskId,
         communicationId = communicationId,
         orderId = orderId,
         profile = profile,
-        sentOn = sentOn,
-        sender = sender,
+        timeStamp = sentOn,
+        senderTelematikId = sender,
         recipient = recipient,
         payload = payload,
-        consumed = consumed
+        consumed = consumed,
+        profileId = profileId
     )
 
 internal fun MockSentCommunicationJson.toMockProfileLinkedCommunication(
@@ -67,8 +67,8 @@ internal fun MockSentCommunicationJson.toMockProfileLinkedCommunication(
         taskId = basedOn.firstNotNullOfOrNull { it.taskId } ?: "",
         orderId = identifier.firstNotNullOfOrNull { it.value } ?: "",
         profile = when (meta.isRequest) {
-            true -> CommunicationProfile.ErxCommunicationDispReq
-            false -> CommunicationProfile.ErxCommunicationReply
+            true -> CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq
+            false -> CommunicationErpModel.CommunicationProfile.ErxCommunicationReply
         },
         sentOn = Clock.System.now(),
         sender = payload.firstNotNullOfOrNull { it.name } ?: "",

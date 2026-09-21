@@ -48,8 +48,10 @@ fun openMailClient(
 @Composable
 fun buildFeedbackBodyWithDeviceInfo(
     title: String = stringResource(R.string.settings_feedback_mail_title),
-    userHint: String = stringResource(R.string.seetings_feedback_form_additional_data_info),
+    userHint: String = stringResource(R.string.settings_report_accessibility_issue_mail_info),
     errorState: String? = null,
+    fontScale: Float,
+    talkback: String,
     darkMode: String,
     versionName: String,
     language: String,
@@ -61,8 +63,6 @@ fun buildFeedbackBodyWithDeviceInfo(
       |
       |$userHint
       |
-      |Systeminformationen
-      |
       |Betriebssystem: Android ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT}) (PATCH ${Build.VERSION.SECURITY_PATCH})
       |Modell: $phoneModel
       |App Version: $versionName (${BuildKonfig.GIT_HASH})
@@ -70,5 +70,34 @@ fun buildFeedbackBodyWithDeviceInfo(
       |Sprache: $language
       |FehlerStatus: ${errorState ?: ""}
       |NFC: $nfcInfo
+      |Vergrößerte Schrift: ${(fontScale * 100).toInt()}%
+      |Talkback: $talkback
+      |
+""".trimMargin()
+
+@Suppress("MaxLineLength")
+@Composable
+fun buildAccessibilityReportBodyWithDeviceInfo(
+    title: String = stringResource(R.string.settings_report_accessibility_issue_mail_title),
+    userHint: String = stringResource(R.string.settings_report_accessibility_issue_mail_info),
+    fontScale: Float,
+    darkMode: String,
+    versionName: String,
+    language: String,
+    phoneModel: String,
+    talkback: String
+): String = """$title
+      |
+      |
+      |
+      |$userHint
+      |
+      |Betriebssystem: Android ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT}) (PATCH ${Build.VERSION.SECURITY_PATCH})
+      |Modell: $phoneModel
+      |App Version: $versionName (${BuildKonfig.GIT_HASH})
+      |DarkMode: $darkMode
+      |Sprache: $language
+      |Vergrößerte Schrift: ${(fontScale * 100).toInt()}%
+      |Talkback: $talkback
       |
 """.trimMargin()

@@ -22,20 +22,21 @@
 
 package de.gematik.ti.erp.app.mocks.settings.api
 
-import de.gematik.ti.erp.app.settings.model.SettingsData
+import de.gematik.ti.erp.app.settings.model.AppVersionErpModel
+import de.gematik.ti.erp.app.settings.model.SettingsErpModel
+import de.gematik.ti.erp.app.settings.model.ThemeMode
 
-val SETTINGS_DATA_GENERAL = SettingsData.General(
-    latestAppVersion = SettingsData.AppVersion(
+val SETTINGS_DATA_GENERAL = SettingsErpModel(
+    latestAppVersion = AppVersionErpModel(
         code = 123,
         name = "1.2.3"
     ),
+    theme = ThemeMode.SYSTEM,
     onboardingShownIn = null,
     welcomeDrawerShown = false,
-    mainScreenTooltipsShown = false,
     zoomEnabled = false,
     userHasAcceptedInsecureDevice = false,
     userHasAcceptedIntegrityNotOk = false,
-    mlKitAccepted = false,
     trackingAllowed = false,
     screenShotsAllowed = false
 )

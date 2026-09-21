@@ -22,21 +22,20 @@
 
 package de.gematik.ti.erp.app.messages.domain.usecase
 
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.messages.mappers.toOrderDetail
-import de.gematik.ti.erp.app.messages.model.Communication
+import de.gematik.ti.erp.app.messages.mapper.toOrderDetail
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import de.gematik.ti.erp.app.messages.repository.firstOrNullCachedPharmacy
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
-import de.gematik.ti.erp.app.prescription.mapper.toPrescription
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 
 class GetMessageUsingOrderIdUseCase(
     private val communicationRepository: CommunicationRepository,
@@ -44,32 +43,31 @@ class GetMessageUsingOrderIdUseCase(
     private val invoiceRepository: InvoiceRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(orderId: String): Flow<OrderUseCaseData.OrderDetail?> =
-        combine(
-            communicationRepository.loadDispReqCommunications(orderId),
-            communicationRepository.loadPharmacies()
-        ) { communications, pharmacies ->
-            communications.firstOrNull()?.let { communication ->
-                communication.dispenseRequestCommunicationToOrder(
+    operator fun invoke(orderId: String): Flow<OrderUseCaseData.OrderDetail?> {
+        return communicationRepository.loadDispReqCommunications(orderId)
+            .map { communications ->
+                communications.firstOrNull()?.dispenseRequestCommunicationToOrder(
                     communicationRepository = communicationRepository,
                     withMedicationNames = true,
-                    pharmacyName = pharmacies.find { it.telematikId == communication.recipient }?.name
+                    pharmacyName = communications.firstOrNull()?.pharmacyName
                 )
             }
-        }.flowOn(dispatcher)
+            .flowOn(dispatcher)
+    }
 
-    private suspend fun Communication.dispenseRequestCommunicationToOrder(
+    private suspend fun CommunicationErpModel.dispenseRequestCommunicationToOrder(
         communicationRepository: CommunicationRepository,
         withMedicationNames: Boolean,
         pharmacyName: String?
     ): OrderUseCaseData.OrderDetail {
         val taskIds = communicationRepository.taskIdsByOrder(orderId).first()
         val taskDetailedBundles = taskIds.map {
-            val invoice: InvoiceData.PKVInvoiceRecord? = invoiceRepository.invoiceByTaskId(it).first()
+            val invoice: PKVInvoiceErpModel? = invoiceRepository.invoiceByTaskId(it).first()
             OrderUseCaseData.TaskDetailedBundle(
                 invoiceInfo = OrderUseCaseData.InvoiceInfo(
                     hasInvoice = invoice != null,
-                    invoiceSentOn = invoice?.timestamp
+                    invoiceSentOn = invoice?.timestamp,
+                    medicationName = invoice?.medicationRequest?.medication?.name()
                 ),
                 prescription = when {
                     withMedicationNames -> loadPrescription(it)
@@ -77,20 +75,20 @@ class GetMessageUsingOrderIdUseCase(
                 }
             )
         }
-        if (pharmacyName == null) {
-            val downloadedPharmacy = pharmacyRepository.searchPharmacyByTelematikId(recipient)
-                .firstOrNullCachedPharmacy()
-
-            downloadedPharmacy?.let { pharmacyRepository.savePharmacyToCache(it) }
-        }
+        val resolvedPharmacyName = pharmacyName?.takeIf { it.isNotBlank() } ?: resolvePharmacyName(
+            pharmacyRepository = pharmacyRepository,
+            communicationRepository = communicationRepository,
+            communicationId = communicationId,
+            telematikId = recipient
+        )
 
         return toOrderDetail(
             taskDetailedBundles = taskDetailedBundles,
-            pharmacyName = pharmacyName
+            pharmacyName = resolvedPharmacyName
         )
     }
 
-    private suspend fun loadPrescription(taskId: String) =
-        communicationRepository.loadSyncedByTaskId(taskId).first()?.toPrescription()
-            ?: communicationRepository.loadScannedByTaskId(taskId).first()?.toPrescription()
+    private suspend fun loadPrescription(taskId: String): TaskErpModel? =
+        communicationRepository.loadSyncedByTaskId(taskId).first()
+            ?: communicationRepository.loadScannedByTaskId(taskId).first()
 }

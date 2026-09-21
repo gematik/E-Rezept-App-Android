@@ -31,6 +31,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
@@ -48,7 +50,7 @@ fun SkipOnBoardingButton(onClick: () -> Unit) {
                 .testTag(TestTag.Onboarding.Debug.SkipOnboardingButton)
         ) {
             OutlinedDebugButton(
-                "SKIP",
+                stringResource(R.string.skip),
                 onClick = onClick
             )
         }

@@ -24,6 +24,8 @@
 
 package de.gematik.ti.erp.app.ui
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -108,11 +110,13 @@ import de.gematik.ti.erp.app.cardwall.presentation.SaveCredentialsController
 import de.gematik.ti.erp.app.cardwall.presentation.rememberSaveCredentialsScreenController
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.database.api.ProfileLocalDataSource
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.FeatureEntity
-import de.gematik.ti.erp.app.database.settings.CommunicationDigaVersion
-import de.gematik.ti.erp.app.database.settings.CommunicationVersion
-import de.gematik.ti.erp.app.database.settings.ConsentVersion
-import de.gematik.ti.erp.app.database.settings.EuVersion
+import de.gematik.ti.erp.app.database.di.ModuleTags
+import de.gematik.ti.erp.app.debug.model.CommunicationDigaVersion
+import de.gematik.ti.erp.app.debug.model.CommunicationVersion
+import de.gematik.ti.erp.app.debug.model.ConsentVersion
+import de.gematik.ti.erp.app.debug.model.EuVersion
 import de.gematik.ti.erp.app.debugsettings.encryption.ui.screens.DebugDatabaseEncryptionScreen
 import de.gematik.ti.erp.app.debugsettings.logger.ui.screens.DbMigrationLoggerScreen
 import de.gematik.ti.erp.app.debugsettings.logger.ui.screens.LoggerScreen.LoggerScreen
@@ -121,6 +125,7 @@ import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.ui.screens
 import de.gematik.ti.erp.app.debugsettings.pkv.presentation.rememberDebugPkvController
 import de.gematik.ti.erp.app.debugsettings.pkv.ui.DebugScreenPKV
 import de.gematik.ti.erp.app.debugsettings.presentation.DebugSettingsViewModel
+import de.gematik.ti.erp.app.debugsettings.pushnotifications.ui.screens.DebugPushNotificationsScreen
 import de.gematik.ti.erp.app.debugsettings.qrcode.QrCodeScannerScreen
 import de.gematik.ti.erp.app.debugsettings.timeout.DebugTimeoutScreen
 import de.gematik.ti.erp.app.debugsettings.ui.components.ClearTextTrafficSection
@@ -262,7 +267,7 @@ fun DebugCard(
  * Shows loading state and provides visual feedback.
  */
 @Composable
-private fun DebugActionButton(
+internal fun DebugActionButton(
     text: String,
     modifier: Modifier = Modifier,
     icon: Painter? = null,
@@ -368,7 +373,7 @@ private fun DebugNavigationItem(
             Icon(
                 imageVector = Icons.Rounded.ChevronRight,
                 contentDescription = "Navigate",
-                tint = AppTheme.colors.neutral400
+                tint = AppTheme.colors.neutral700
             )
         }
     }
@@ -459,7 +464,8 @@ fun DebugScreen(
                 vauRepository = instance(),
                 idpRepository = instance(),
                 idpUseCase = instance(),
-                profilesUseCase = instance(),
+                getActiveProfileUseCase = instance(),
+                getProfilesUseCase = instance(),
                 featureToggleRepository = instance(),
                 getAppUpdateManagerFlagUseCase = instance(),
                 changeAppUpdateManagerFlagUseCase = instance(),
@@ -473,8 +479,9 @@ fun DebugScreen(
                 communicationVersionDataStore = instance(),
                 communicationDigaVersionDataStore = instance(),
                 euVersionDataStore = instance(),
-                getAndroid8DeprecationOverrideUseCase = instance(),
-                setAndroid8DeprecationOverrideUseCase = instance(),
+                roomProfileLocalDataSource = instance<ProfileLocalDataSource>(tag = ModuleTags.PROFILE_V2),
+                getShouldShowAndroid13DeprecationWarningUseCase = instance(),
+                setShouldShowAndroid13DeprecationWarningUseCase = instance(),
                 resetOnboardingUseCase = instance(),
                 virtualHealthCardPrivateKeyDataStore = instance(),
                 dispatchers = instance()
@@ -511,6 +518,9 @@ fun DebugScreen(
                         },
                         onClickDatabaseEncryption = {
                             navController.navigate(DebugScreenNavigation.DebugDatabaseEncryption.path())
+                        },
+                        onClickPushNotifications = {
+                            navController.navigate(DebugScreenNavigation.DebugPushNotifications.path())
                         },
                         onLoginSuccess = {
                             settingsNavController.navigateAndClearStack(PrescriptionRoutes.PrescriptionListScreen.route)
@@ -557,6 +567,13 @@ fun DebugScreen(
                     DebugDatabaseEncryptionScreen.Content(onBack = navController::popBackStack)
                 }
             }
+            composable(DebugScreenNavigation.DebugPushNotifications.route) {
+                NavigationAnimation(mode = navMode) {
+                    DebugPushNotificationsScreen(
+                        onBack = navController::popBackStack
+                    )
+                }
+            }
         }
     }
 }
@@ -573,6 +590,7 @@ fun DebugScreenMain(
     onClickLogger: () -> Unit,
     onClickDbMigrationLogger: () -> Unit,
     onClickDatabaseEncryption: () -> Unit,
+    onClickPushNotifications: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
     val context = LocalContext.current
@@ -586,6 +604,7 @@ fun DebugScreenMain(
     val messageMarkingLoading by viewModel.messageMarkingLoading.collectAsStateWithLifecycle()
     val prescriptionDeletionLoading by viewModel.prescriptionDeletionLoading.collectAsStateWithLifecycle()
     val featureState by viewModel.featureToggles.collectAsStateWithLifecycle()
+
     val iknr by viewModel.iknr.collectAsStateWithLifecycle()
     val onIknrChangedEvent = viewModel.onIknrChangedEvent
 
@@ -633,7 +652,7 @@ fun DebugScreenMain(
                 verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium),
                 contentPadding = PaddingValues(PaddingDefaults.Medium)
             ) {
-                // 1. Environment Selection - FIRST
+                // Environment Selection
                 item {
                     DebugCard(title = "Environment") {
                         OutlinedDebugButton(
@@ -644,7 +663,7 @@ fun DebugScreenMain(
                     }
                 }
 
-                // 2. Feature Toggles - SECOND (collapsible)
+                // Feature Toggles - (collapsible)
                 item {
                     FeatureToggles(
                         viewModel = viewModel,
@@ -656,7 +675,7 @@ fun DebugScreenMain(
                     }
                 }
 
-                // 3. Authentication (Break SSO Token) - THIRD
+                // Authentication (Break SSO Token)
                 item {
                     DebugCard(
                         title = "Authentication"
@@ -693,7 +712,7 @@ fun DebugScreenMain(
                     }
                 }
 
-                // 4. General (collapsible)
+                // General (collapsible)
                 item {
                     DebugCard(
                         title = "General",
@@ -714,7 +733,7 @@ fun DebugScreenMain(
                     }
                 }
 
-                // 5. Logging (collapsible)
+                // Logging (collapsible)
                 item {
                     DebugCard(
                         title = "Logging",
@@ -747,7 +766,19 @@ fun DebugScreenMain(
                     }
                 }
 
-                // 6. Database Encryption
+                // Push Notifications
+                item {
+                    DebugCard(title = "Push Notifications") {
+                        DebugNavigationItem(
+                            icon = rememberVectorPainter(Icons.Rounded.ChevronRight),
+                            text = "Push Notifications",
+                            subtitle = "Test FCM and encrypted push notifications",
+                            onClick = onClickPushNotifications
+                        )
+                    }
+                }
+
+                //  Database Encryption
                 item {
                     DebugCard(title = "Database Encryption") {
                         DebugNavigationItem(
@@ -1084,6 +1115,7 @@ fun DebugScreenMain(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 private fun VirtualHealthCard(
     modifier: Modifier = Modifier,
@@ -1224,19 +1256,19 @@ private fun FeatureToggles(
             }
         }
 
-        // Android 8 deprecation override (debug only)
-        val android8Override by viewModel.android8DeprecationOverride.collectAsStateWithLifecycle()
+        // Android 13 deprecation override
+        val deprecationWarning by viewModel.shouldShowDeprecationWarning.collectAsStateWithLifecycle()
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Force Android 8 deprecation screen",
+                text = "Force Android 13 deprecation screen",
                 modifier = Modifier.weight(1f)
             )
             GemSwitch(
-                checked = android8Override,
-                onCheckedChange = { viewModel.setAndroid8DeprecationOverride(it) }
+                checked = deprecationWarning,
+                onCheckedChange = { viewModel.toggleShouldShowDeprecationWarning(it) }
             )
         }
 
@@ -1312,7 +1344,7 @@ private fun <T> VersionSelector(
                                 RadioButton(
                                     colors = RadioButtonDefaults.colors(
                                         selectedColor = AppTheme.colors.primary700,
-                                        unselectedColor = AppTheme.colors.neutral400
+                                        unselectedColor = AppTheme.colors.neutral700
                                     ),
                                     selected = currentVersion == version,
                                     onClick = { onVersionSelected(version) }
@@ -1503,7 +1535,7 @@ fun ConsentVersionSelector(viewModel: DebugSettingsViewModel) {
                             onClick = { viewModel.setConsentVersion(version) },
                             colors = RadioButtonDefaults.colors(
                                 selectedColor = AppTheme.colors.primary600,
-                                unselectedColor = AppTheme.colors.neutral400
+                                unselectedColor = AppTheme.colors.neutral700
                             )
                         )
                         Spacer(modifier = Modifier.width(PaddingDefaults.Small))
@@ -1577,10 +1609,6 @@ fun CommunicationDigaVersionSelector(viewModel: DebugSettingsViewModel) {
         useRadioButtons = true
     )
 }
-
-// ============================================================================
-// Previews
-// ============================================================================
 
 @Preview(showBackground = true)
 @Composable

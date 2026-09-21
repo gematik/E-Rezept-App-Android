@@ -28,12 +28,11 @@ import coil.util.DebugLogger
 import de.gematik.ti.erp.app.base.usecase.MarkAutoNavigationTriggerConsumedUseCase
 import de.gematik.ti.erp.app.base.usecase.ObserveNavigationTriggerUseCase
 import de.gematik.ti.erp.app.base.usecase.TriggerNavigationUseCase
-import de.gematik.ti.erp.app.diga.local.DigaLocalDataSource
+import de.gematik.ti.erp.app.database.api.debug.CommunicationDigaVersionLocalDataSource
+import de.gematik.ti.erp.app.diga.repository.DefaultDigaInformationRepository
 import de.gematik.ti.erp.app.diga.repository.DefaultDigaRepository
+import de.gematik.ti.erp.app.diga.repository.DigaInformationRepository
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
-import de.gematik.ti.erp.app.database.settings.CommunicationDigaVersionDataStore
-import de.gematik.ti.erp.app.digas.data.repository.DefaultDigaInformationRepository
-import de.gematik.ti.erp.app.digas.data.repository.DigaInformationRepository
 import de.gematik.ti.erp.app.digas.domain.usecase.FetchDigaByPznUseCase
 import de.gematik.ti.erp.app.digas.domain.usecase.FetchInsuranceListUseCase
 import de.gematik.ti.erp.app.digas.domain.usecase.GetDigaByTaskIdUseCase
@@ -64,7 +63,7 @@ val digaModule = DI.Module("digaModule", allowSilentOverride = true) {
 
     bindProvider<CommunicationDigaVersionRepository> {
         DefaultCommunicationDigaVersionRepository(
-            dataStore = runCatching { instance<CommunicationDigaVersionDataStore>() }.getOrNull(),
+            dataStore = runCatching { instance<CommunicationDigaVersionLocalDataSource>() }.getOrNull(),
             isDebugMode = BuildConfigExtension.isDebug
         )
     }
@@ -127,7 +126,7 @@ val digaModule = DI.Module("digaModule", allowSilentOverride = true) {
 }
 
 val digaRepositoryModule = DI.Module("digaRepositoryModule", allowSilentOverride = true) {
-    bindProvider { DigaLocalDataSource(instance()) }
+    // bindProvider { DigaLocalDataSource(instance()) }
     bindProvider<DigaInformationRepository> { DefaultDigaInformationRepository(instance()) }
     bindProvider<DigaRepository> { DefaultDigaRepository(instance()) }
 }

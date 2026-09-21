@@ -33,7 +33,7 @@ import kotlin.contracts.contract
 
 @OptIn(ExperimentalSerializationApi::class)
 val json = Json {
-    ignoreUnknownKeys = false
+    ignoreUnknownKeys = true
     isLenient = true
     prettyPrint = false // enable this to see the json that is being converted
     allowStructuredMapKeys = true

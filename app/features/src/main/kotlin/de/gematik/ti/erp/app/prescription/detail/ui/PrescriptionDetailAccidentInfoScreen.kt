@@ -51,8 +51,8 @@ import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRo
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
 import de.gematik.ti.erp.app.prescription.detail.ui.preview.AccidentInfoPreviewParameter
 import de.gematik.ti.erp.app.prescription.detail.ui.preview.AccidentInfoPreviewParameterProvider
-import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.task.model.AccidentType
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
@@ -101,7 +101,7 @@ class PrescriptionDetailAccidentInfoScreen(
                 )
             },
             onContent = { (_, prescription) ->
-                val syncedPrescription = prescription as? PrescriptionData.Synced
+                val syncedPrescription = prescription as? TaskErpModel.Synced.Prescription
                 val listState = rememberLazyListState()
                 PrescriptionDetailAccidentInfoScreenScaffold(
                     listState = listState,
@@ -116,7 +116,7 @@ class PrescriptionDetailAccidentInfoScreen(
 @Composable
 private fun PrescriptionDetailAccidentInfoScreenScaffold(
     listState: LazyListState,
-    syncedPrescription: PrescriptionData.Synced?,
+    syncedPrescription: TaskErpModel.Synced.Prescription?,
     onBack: () -> Unit
 ) {
     AnimatedElevationScaffold(
@@ -139,7 +139,7 @@ private fun PrescriptionDetailAccidentInfoScreenScaffold(
 private fun PrescriptionDetailAccidentInfoScreenContent(
     listState: LazyListState,
     innerPadding: PaddingValues,
-    syncedPrescription: PrescriptionData.Synced?
+    syncedPrescription: TaskErpModel.Synced.Prescription?
 ) {
     LazyColumn(
         Modifier.padding(innerPadding),
@@ -151,10 +151,10 @@ private fun PrescriptionDetailAccidentInfoScreenContent(
             if (syncedPrescription != null) {
                 Label(
                     text =
-                    when (syncedPrescription.medicationRequest.accidentType) {
-                        SyncedTaskData.AccidentType.Unfall -> stringResource(id = R.string.pres_detail_accident_type_accident)
-                        SyncedTaskData.AccidentType.Arbeitsunfall -> stringResource(id = R.string.pres_detail_accident_type_work_accident)
-                        SyncedTaskData.AccidentType.Berufskrankheit -> stringResource(id = R.string.pres_detail_accident_type_occupational_illness)
+                    when (syncedPrescription.medicationRequest?.accidentType) {
+                        AccidentType.Unfall -> stringResource(id = R.string.pres_detail_accident_type_accident)
+                        AccidentType.Arbeitsunfall -> stringResource(id = R.string.pres_detail_accident_type_work_accident)
+                        AccidentType.Berufskrankheit -> stringResource(id = R.string.pres_detail_accident_type_occupational_illness)
                         else -> NoInfo
                     },
                     label = stringResource(R.string.pres_detail_accident_title)

@@ -25,8 +25,8 @@ package de.gematik.ti.erp.app.redeem.ui.screens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import de.gematik.ti.erp.app.mainscreen.presentation.AppController
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemSharedViewModel
 import de.gematik.ti.erp.app.redeem.presentation.RedeemOrderOverviewScreenController
 import de.gematik.ti.erp.app.redeem.ui.components.ErrorOnRedeemablePrescriptionDialog
@@ -63,10 +63,10 @@ internal fun RedeemOrderDialogs(
     orderOverviewController: RedeemOrderOverviewScreenController,
     appController: AppController,
     sharedViewModel: OnlineRedeemSharedViewModel,
-    pharmacy: PharmacyUseCaseData.Pharmacy?,
+    pharmacy: PharmacyDetailsErpModel?,
     orderHasError: Boolean,
     onDismiss: () -> Unit,
-    redeemOrder: (ProfilesUseCaseData.Profile) -> Unit
+    redeemOrder: (ProfileErpModel) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 

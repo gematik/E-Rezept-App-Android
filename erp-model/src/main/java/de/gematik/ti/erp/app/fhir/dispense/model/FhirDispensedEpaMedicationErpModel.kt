@@ -38,7 +38,10 @@ data class DispensedEpaMedicationErpModel(
     override val lotNumber: String?,
     override val expirationDate: FhirTemporal?,
     val contextualData: EpaContextualData
-) : DispensedMedicationErpModel()
+) : DispensedMedicationErpModel() {
+    override val identifier: FhirMedicationIdentifierErpModel?
+        get() = contextualData.identifier
+}
 
 @Serializable
 data class EpaContextualData(

@@ -35,9 +35,9 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundleMetaProfile.Co
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundleTaskData.Companion.getTaskData
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier.Companion.findPrescriptionId
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirTaskResource.Companion.getResourceIdentifiers
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskStatusErpModel
 import de.gematik.ti.erp.app.fhir.support.FhirTaskEntryDataErpModel
-import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
-import de.gematik.ti.erp.app.task.model.TaskStatus
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import kotlinx.serialization.json.JsonElement
 
 /**
@@ -78,8 +78,8 @@ class TaskEntryParser : BundleParser {
                     taskId?.let {
                         FhirTaskEntryDataErpModel(
                             id = it,
-                            status = TaskStatus.fromString(taskData.status),
-                            lastModified = taskData.lastModified?.toFhirTemporal()
+                            status = FhirTaskStatusErpModel.fromString(taskData.status),
+                            lastModified = taskData.lastModified?.asFhirTemporal()
                         )
                     }
                 }

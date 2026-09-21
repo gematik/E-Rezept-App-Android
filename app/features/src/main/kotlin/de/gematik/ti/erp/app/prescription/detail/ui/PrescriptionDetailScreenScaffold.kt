@@ -42,15 +42,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.DpOffset
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleErpModel
 import de.gematik.ti.erp.app.pkv.presentation.model.InvoiceCardUiState
-import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailBottomSheetNavigationData
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
+import de.gematik.ti.erp.app.prescription.model.PrescriptionDetailBottomSheetNavigationData
 import de.gematik.ti.erp.app.prescription.model.PrescriptionType
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -62,19 +66,19 @@ import kotlinx.datetime.Instant
 @Suppress("LongParameterList", "FunctionNaming")
 @Composable
 fun PrescriptionDetailScreenScaffold(
-    activeProfile: ProfilesUseCaseData.Profile,
+    activeProfile: ProfileErpModel,
     scaffoldState: ScaffoldState,
     listState: LazyListState,
     isDemoMode: Boolean,
-    prescription: PrescriptionData.Prescription?,
-    medicationSchedule: MedicationSchedule?,
+    medicationScheduleErpModel: MedicationScheduleErpModel?,
+    prescription: TaskErpModel?,
     invoiceCardState: InvoiceCardUiState,
     onShowInfoBottomSheet: PrescriptionDetailBottomSheetNavigationData,
     euRedeemFeatureFlag: Boolean,
     now: Instant = Clock.System.now(),
     onSwitchRedeemed: (Boolean) -> Unit,
     onNavigateToRoute: (String) -> Unit,
-    onClickMedication: (PrescriptionData.Medication) -> Unit,
+    onClickMedication: (PrescriptionData.Medication) -> Unit, // TODO (dinesh) use erp-model
     onChangePrescriptionName: (String) -> Unit,
     onGrantConsent: () -> Unit,
     onClickRedeemLocal: () -> Unit,
@@ -116,7 +120,7 @@ fun PrescriptionDetailScreenScaffold(
                 }
 
                 PrescriptionDetailsDropdownMenu(
-                    isDeletable = (actualPrescription as? PrescriptionData.Synced)?.isDeletable ?: true,
+                    isDeletable = (actualPrescription as? TaskErpModel.Synced.Prescription)?.isDeletable() ?: true,
                     isEuRedeemable = actualPrescription.isEuRedeemable && actualPrescription.isReady(),
                     isActive = actualPrescription.isActive(),
                     euRedeemFeatureFlag = euRedeemFeatureFlag,
@@ -127,7 +131,7 @@ fun PrescriptionDetailScreenScaffold(
         }
     ) {
         when (prescription) {
-            is PrescriptionData.Synced ->
+            is TaskErpModel.Synced.Prescription ->
                 SyncedPrescriptionOverview(
                     invoiceCardState = invoiceCardState,
                     onGrantConsent = onGrantConsent,
@@ -137,7 +141,7 @@ fun PrescriptionDetailScreenScaffold(
                     now = now,
                     isDemoMode = isDemoMode,
                     onClickInvoice = onClickInvoice,
-                    medicationSchedule = medicationSchedule,
+                    medicationScheduleErpModel = medicationScheduleErpModel,
                     onClickMedication = onClickMedication,
                     onNavigateToRoute = onNavigateToRoute,
                     onClickRedeemLocal = onClickRedeemLocal,
@@ -147,11 +151,11 @@ fun PrescriptionDetailScreenScaffold(
                     onClickMedicationPlan = { onClickMedicationPlan(PrescriptionType.SyncedTask) }
                 )
 
-            is PrescriptionData.Scanned ->
+            is TaskErpModel.Scanned ->
                 ScannedPrescriptionOverview(
                     listState = listState,
                     prescription = prescription,
-                    medicationSchedule = medicationSchedule,
+                    medicationScheduleErpModel = medicationScheduleErpModel,
                     isDemoMode = isDemoMode,
                     onSwitchRedeemed = {
                         onSwitchRedeemed(it)
@@ -181,12 +185,16 @@ private fun PrescriptionDetailsDropdownMenu(
     onClickRedeemInEuAbroad: () -> Unit
 ) {
     var dropdownExpanded by remember { mutableStateOf(false) }
-
+    val description = stringResource(R.string.a11y_prescription_more_option)
+    val closeHint = stringResource(R.string.a11y_three_dot_menu_options_hint)
     IconButton(
         onClick = { dropdownExpanded = true },
-        modifier = Modifier.testTag(TestTag.Prescriptions.Details.MoreButton)
+        modifier = Modifier.testTag(TestTag.Prescriptions.Details.MoreButton).semantics {
+            contentDescription = description
+            stateDescription = closeHint
+        }
     ) {
-        Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.a11y_prescription_more_option), tint = AppTheme.colors.neutral700)
+        Icon(Icons.Rounded.MoreVert, contentDescription = null, tint = AppTheme.colors.neutral700)
     }
     DropdownMenu(
         expanded = dropdownExpanded,
@@ -223,7 +231,7 @@ private fun PrescriptionDetailsDropdownMenu(
                 if (isDeletable) {
                     AppTheme.colors.red700
                 } else {
-                    AppTheme.colors.neutral400
+                    AppTheme.colors.neutral700
                 }
             )
         }

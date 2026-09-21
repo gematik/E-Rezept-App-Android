@@ -35,6 +35,7 @@ enum class CoverageTypeV1 {
     GPV, // Gesetzliche Pflegeversicherung
     PPV, // Private Pflegeversicherung
     BEI, // Beihilfe
+    UK, // Unfallkasse
     UNKNOWN
     ;
 

@@ -4,16 +4,18 @@
     <ID>ConstructorParameterNaming:PrescriptionDetailController.kt$PrescriptionDetailController$private val _prescription: MutableStateFlow&lt;UiState&lt;PrescriptionData.Prescription&gt;&gt; = MutableStateFlow(UiState.Loading())</ID>
   </ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>CompositionLocalAllowlist:AppContent.kt$LocalActivity</ID>
-    <ID>CompositionLocalAllowlist:AppContent.kt$LocalBiometricAuthenticator</ID>
-    <ID>CompositionLocalAllowlist:AppContent.kt$LocalBottomSheetNavigator</ID>
-    <ID>CompositionLocalAllowlist:AppContent.kt$LocalBottomSheetNavigatorSheetState</ID>
     <ID>CompositionLocalAllowlist:AppContent.kt$LocalCardCommunicationAnalytics</ID>
-    <ID>CompositionLocalAllowlist:AppContent.kt$LocalDi</ID>
-    <ID>CompositionLocalAllowlist:AppContent.kt$LocalNavController</ID>
-    <ID>CompositionLocalAllowlist:AppContent.kt$LocalTimeZone</ID>
+    <ID>CompositionLocalAllowlist:AppContentCore.kt$LocalActivity</ID>
+    <ID>CompositionLocalAllowlist:AppContentCore.kt$LocalBiometricAuthenticator</ID>
+    <ID>CompositionLocalAllowlist:AppContentCore.kt$LocalBottomSheetNavigator</ID>
+    <ID>CompositionLocalAllowlist:AppContentCore.kt$LocalBottomSheetNavigatorSheetState</ID>
+    <ID>CompositionLocalAllowlist:AppContentCore.kt$LocalDi</ID>
+    <ID>CompositionLocalAllowlist:AppContentCore.kt$LocalNavController</ID>
+    <ID>CompositionLocalAllowlist:AppContentCore.kt$LocalTimeZone</ID>
     <ID>CompositionLocalAllowlist:Dialog.kt$LocalDialogHostState</ID>
     <ID>CompositionLocalAllowlist:IntentHandler.kt$LocalIntentHandler</ID>
+    <ID>CompositionLocalAllowlist:LocalDialogVisibilityObserver.kt$LocalDialogVisibilityObserver</ID>
+    <ID>CompositionLocalAllowlist:PreviewAppTheme.kt$LocalTimeZone</ID>
     <ID>CompositionLocalAllowlist:SettingsScreenPreviewData.kt$LocalIsPreviewMode</ID>
     <ID>CompositionLocalAllowlist:SnackbarScaffold.kt$LocalSnackbarScaffold</ID>
     <ID>CompositionLocalAllowlist:Theme.kt$LocalAppColors</ID>
@@ -22,48 +24,172 @@
     <ID>CompositionLocalAllowlist:Theme.kt$LocalFonts</ID>
     <ID>CompositionLocalAllowlist:Theme.kt$LocalSizes</ID>
     <ID>CompositionLocalAllowlist:UiScopeScaffold.kt$LocalUiScopeScaffold</ID>
+    <ID>ConstructorParameterNaming:ErpOrganizationEntity.kt$ErpOrganizationEntity$val BSNR: String?</ID>
+    <ID>ConstructorParameterNaming:PrescriptionDetailController.kt$PrescriptionDetailController$private val _profilePrescription: MutableStateFlow&lt;UiState&lt;Pair&lt;ProfilesUseCaseData.Profile, PrescriptionData.Prescription&gt;&gt;&gt; = MutableStateFlow(UiState.Loading())</ID>
+    <ID>ConstructorParameterNaming:ProfileEuConsentScreenController.kt$ProfileEuConsentScreenController$private val _consentViewState: MutableStateFlow&lt;UiState&lt;EuConsentViewState&gt;&gt; = MutableStateFlow(UiState.Loading())</ID>
+    <ID>ConstructorParameterNaming:SettingsRoomEntity.kt$SettingsRoomEntity$val pharmacySearch_filterDeliveryService: Boolean?</ID>
+    <ID>ConstructorParameterNaming:SettingsRoomEntity.kt$SettingsRoomEntity$val pharmacySearch_filterOnlineService: Boolean?</ID>
+    <ID>ConstructorParameterNaming:SettingsRoomEntity.kt$SettingsRoomEntity$val pharmacySearch_filterOpenNow: Boolean?</ID>
+    <ID>ConstructorParameterNaming:SettingsRoomEntity.kt$SettingsRoomEntity$val pharmacySearch_filterReady: Boolean?</ID>
+    <ID>ConstructorParameterNaming:SettingsRoomEntity.kt$SettingsRoomEntity$val pharmacySearch_locationEnabled: Boolean?</ID>
+    <ID>ConstructorParameterNaming:SettingsRoomEntity.kt$SettingsRoomEntity$val pharmacySearch_name: String?</ID>
+    <ID>CyclomaticComplexMethod:AnimatedCheckLoadingIcon.kt$@Composable internal fun AnimatedCheckLoadingIcon( state: AnimatedCheckLoadingIconState, size: Dp = SizeDefaults.sixfold, loadingColor: Color = AppTheme.colors.primary600, successColor: Color = AppTheme.colors.green600, errorColor: Color = AppTheme.colors.red600, modifier: Modifier = Modifier )</ID>
     <ID>CyclomaticComplexMethod:Avatar.kt$@Composable fun ProfilesData.Avatar.toDescription(): String</ID>
+    <ID>CyclomaticComplexMethod:ChooseAuthenticationController.kt$ChooseAuthenticationController$fun chooseAuthenticationMethod( profile: ProfilesUseCaseData.Profile, useBiometricPairingScope: Boolean = false, authenticationReason: AuthReason = AuthReason.SUBMIT )</ID>
+    <ID>CyclomaticComplexMethod:DigaMainScreen.kt$DigasMainScreen$@Composable override fun Content()</ID>
+    <ID>CyclomaticComplexMethod:EuAvatar.kt$private fun getAvatarImageResource(avatar: ProfilesData.Avatar): Int</ID>
+    <ID>CyclomaticComplexMethod:IntentHandler.kt$IntentHandler$@Requirement( "O.Source_1#7", sourceSpecification = "BSI-eRp-ePA", rationale = "Processing of universal link", codeLines = 33 ) suspend fun propagateIntent(intent: Intent)</ID>
+    <ID>CyclomaticComplexMethod:MedicationPlanScheduleDurationAndIntervalScreen.kt$private fun LazyListScope.scheduleIntervalSection( medicationScheduleInterval: MedicationScheduleInterval, onClickIntervalOptionDaily: () -&gt; Unit, onClickIntervalOptionEveryTwoDays: () -&gt; Unit, onClickIntervalOptionPersonalized: (day: DayOfWeek) -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:PharmacyContact.kt$@Composable internal fun PharmacyContact( openingHours: OpeningHours?, specialOpeningTimes: List&lt;SpecialOpeningTimeMetadata&gt;, specialClosingTimes: List&lt;NotAvailablePeriodMetadata&gt;, phone: String, mail: String, url: String, detailedInfoText: AnnotatedString, onSiteFeatures: List&lt;PharmacyOnSiteFeatureErpModel&gt;, availableServices: List&lt;PharmacyAvailableServiceErpModel&gt;, onPhoneClicked: (String) -&gt; Unit, onMailClicked: (String) -&gt; Unit, onUrlClicked: (String) -&gt; Unit, onHintClicked: () -&gt; Unit, currentDateTime: LocalDateTime )</ID>
+    <ID>CyclomaticComplexMethod:PharmacyOrderOptionCard.kt$@Composable fun RowScope.PharmacyOrderOptionCard( modifier: Modifier = Modifier, isSelected: Boolean = false, isError: Boolean = false, isServiceEnabled: Boolean, text: String, image: Painter, type: PharmacyOrderOptionCardType, showDisabledToast: Boolean = false, onClick: () -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:RedeemOrderOverviewScreen.kt$RedeemOrderOverviewScreen$@Composable override fun Content()</ID>
+    <ID>CyclomaticComplexMethod:SafeFhirTaskExtensionArraySerializer.kt$SafeFhirTaskExtensionArraySerializer$override fun deserialize(decoder: Decoder): FhirTaskExtensionValues</ID>
     <ID>CyclomaticComplexMethod:SyncedTaskDataEntityV1Test.kt$SyncedTaskDataEntityV1Test$@Test fun `cascading delete`()</ID>
     <ID>CyclomaticComplexMethod:UnlockEgkUseCase.kt$UnlockEgkUseCase$private fun handleException(unlockMethod: String, e: Throwable): UnlockEgkState</ID>
     <ID>CyclomaticComplexMethod:UnlockEgkUseCase.kt$private suspend fun ProducerScope&lt;UnlockEgkState&gt;.healthCardCommunication( unlockMethod: String, channel: NfcCardChannel, can: String, puk: String, oldSecret: String, newSecret: String )</ID>
+    <ID>EmptyDefaultConstructor:FeatureEntityDataMigration.kt$FeatureToggleDataMigration$()</ID>
+    <ID>EmptyDefaultConstructor:FhirPkvBaseBundleType.kt$FhirPkvBaseBundleType$()</ID>
+    <ID>EmptyDefaultConstructor:TaskLocalDataSourceV2.kt$TaskLocalDataSourceV2$()</ID>
     <ID>EmptyFunctionBlock:DebugScreenWrapper.kt${}</ID>
+    <ID>EmptyFunctionBlock:FeatureEntityDataMigration.kt$FeatureToggleDataMigration${ }</ID>
+    <ID>EmptyFunctionBlock:TextToSpeechManager.kt$TextToSpeechManager.&lt;no name provided&gt;${}</ID>
+    <ID>EmptyFunctionBlock:VirtualHealthCardDataMigration.kt$VirtualHealthCardDataMigration${}</ID>
     <ID>FunctionNaming:MapsSection.kt$internal fun LazyListScope.MapsSection( previewCoordinates: Coordinates, previewMap: PharmacyMap, onClick: () -&gt; Unit )</ID>
+    <ID>LargeClass:ChargeItemBundleParserMocks.kt$ChargeItemBundleParserMocks</ID>
+    <ID>LargeClass:FhirMedicationTestData.kt$FhirMedicationTestData</ID>
+    <ID>LargeClass:FhirTaskDataErpTestData.kt$FhirTaskDataErpTestData</ID>
+    <ID>LongParameterList:MedicationPlanScheduleDetailScreen.kt$( listState: LazyListState, contentPadding: PaddingValues, medicationSchedule: MedicationSchedule, dosageInstruction: MedicationPlanDosageInstruction, currentDate: LocalDate, isIgnoringBatteryOptimizations: Boolean, onAddNewItem: () -&gt; Unit, onRemoveNotificationTime: (MedicationScheduleNotification) -&gt; Unit, onNotificationTimeClick: (MedicationScheduleNotification) -&gt; Unit, onClickChangeDateRange: () -&gt; Unit, onClickDosageInfo: () -&gt; Unit, onDosageClicked: (MedicationScheduleNotification) -&gt; Unit, onActivateSchedule: () -&gt; Unit, onDeactivateSchedule: () -&gt; Unit, onShowBatteryOptimizationDialog: () -&gt; Unit )</ID>
+    <ID>LongParameterList:MedicationPlanScheduleDetailScreen.kt$( listState: LazyListState, medicationScheduleUiState: UiState&lt;MedicationSchedule&gt;, dosageInstruction: MedicationPlanDosageInstruction, currentDate: LocalDate, canScheduleExactAlarms: Boolean, onAddNewTimeSlot: () -&gt; Unit, onRemoveNotificationTime: (MedicationScheduleNotification) -&gt; Unit, onNotificationTimeClick: (MedicationScheduleNotification) -&gt; Unit, onClickChangeDateRange: () -&gt; Unit, onClickDosageInfo: () -&gt; Unit, onClickDelete: () -&gt; Unit, onDosageClicked: (MedicationScheduleNotification) -&gt; Unit, onActivateSchedule: () -&gt; Unit, onDeactivateSchedule: () -&gt; Unit, onShowBatteryOptimizationDialog: () -&gt; Unit, onBack: () -&gt; Unit )</ID>
     <ID>LongParameterList:MessageDetailController.kt$MessageDetailController$( private val application: Application, private val orderId: String, private val isLocalMessage: Boolean = false, private val getRepliedMessagesUseCase: GetRepliedMessagesUseCase, private val getMessageUsingOrderIdUseCase: GetMessageUsingOrderIdUseCase, private val getInternalMessagesUseCase: GetInternalMessagesUseCase, private val setInternalMessageIsReadUseCase: SetInternalMessagesAsReadUseCase, private val updateCommunicationConsumedStatusUseCase: UpdateCommunicationConsumedStatusUseCase, private val updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase, private val getPharmacyByTelematikIdUseCase: GetPharmacyByTelematikIdUseCase, private val getProfileByOrderIdUseCase: GetProfileByOrderIdUseCase, private val getTranslationConsentUseCase: GetTranslationConsentUseCase, private val isTargetLanguageSetUseCase: IsTargetLanguageSetUseCase, private val toggleTranslationConsentUseCase: ToggleTranslationConsentUseCase, private val downloadedLanguagesUseCase: DownloadLanguageModelUseCase, private val translateTextUseCase: TranslateTextUseCase )</ID>
+    <ID>LongParameterList:PharmacySearchListScreen.kt$( searchTerm: TextFieldValue, onSearchInputChange: (TextFieldValue) -&gt; Unit, filter: PharmacyUseCaseData.Filter, isAtLeastOnePharmacyLoaded: Boolean, isLoading: Boolean, focusManager: FocusManager, focusRequester: FocusRequester, lazyListState: LazyListState, onPharmacyLoaded: () -&gt; Unit, onClickChip: (Boolean, FilterType) -&gt; Unit, onRemoveOnSiteFeature: (PharmacyOnSiteFeatureOption) -&gt; Unit, onRemoveAvailableService: (PharmacyFilterServiceOption) -&gt; Unit, onClickPharmacy: (PharmacyUseCaseData.Pharmacy) -&gt; Unit, pharmacies: LazyPagingItems&lt;PharmacyUseCaseData.Pharmacy&gt;, onClickFilter: () -&gt; Unit, onBack: () -&gt; Unit, onClickMaps: () -&gt; Unit )</ID>
+    <ID>LongParameterList:RedeemOrderOverviewScreen.kt$( activeProfile: UiState&lt;Profile&gt;, listState: LazyListState, scaffoldState: ScaffoldState, selectedOrderState: PharmacyUseCaseData.OrderState, selectedOrderOption: PharmacyScreenData.OrderOption?, contactValidationState: RedeemContactValidationState, selectedPharmacy: PharmacyUseCaseData.Pharmacy?, isLoadingIndicatorShown: Boolean, isRedeemEnabled: Boolean, isPrescriptionError: Boolean, isPharmacyError: Boolean, isContactError: Boolean, processStateEvent: ProcessStateEvent, redeemClickEvent: RedeemClickEvent, videoContent: @Composable BoxScope.() -&gt; Unit, onClickRedeem: () -&gt; Unit )</ID>
+    <ID>MagicNumber:AnimatedCheckLoadingIcon.kt$0.10f</ID>
+    <ID>MagicNumber:AnimatedCheckLoadingIcon.kt$0.28f</ID>
+    <ID>MagicNumber:AnimatedCheckLoadingIcon.kt$0.30f</ID>
+    <ID>MagicNumber:AnimatedCheckLoadingIcon.kt$0.35f</ID>
+    <ID>MagicNumber:AnimatedCheckLoadingIcon.kt$0.42f</ID>
+    <ID>MagicNumber:AnimatedCheckLoadingIcon.kt$0.55f</ID>
+    <ID>MagicNumber:AnimatedCheckLoadingIcon.kt$0.70f</ID>
+    <ID>MagicNumber:AnimatedCheckLoadingIcon.kt$0.72f</ID>
+    <ID>MagicNumber:AnimatedCheckLoadingIcon.kt$0.7f</ID>
+    <ID>MagicNumber:AnimatedCheckLoadingIcon.kt$250</ID>
+    <ID>MagicNumber:AnimatedCheckLoadingIcon.kt$300</ID>
+    <ID>MagicNumber:AnimatedCheckLoadingIcon.kt$360f</ID>
+    <ID>MagicNumber:Annotations.kt$1</ID>
+    <ID>MagicNumber:CardWallGidListScreen.kt$10</ID>
     <ID>MagicNumber:CardWallScannerScreen.kt$1f</ID>
-    <ID>MagicNumber:ClickableText.kt$1</ID>
+    <ID>MagicNumber:Color.kt$AppColors$0xFF003399</ID>
+    <ID>MagicNumber:CountryListLoadingSection.kt$6</ID>
+    <ID>MagicNumber:CountryRowLabelShimmer.kt$0.25f</ID>
+    <ID>MagicNumber:CountryRowLabelShimmer.kt$0.5f</ID>
     <ID>MagicNumber:CrashCollector.kt$1</ID>
+    <ID>MagicNumber:DbMigrationLoggerScreen.kt$0.5f</ID>
     <ID>MagicNumber:DefaultIdpUseCase.kt$DefaultIdpUseCase$400</ID>
     <ID>MagicNumber:DefaultIdpUseCase.kt$DefaultIdpUseCase$401</ID>
     <ID>MagicNumber:DefaultIdpUseCase.kt$DefaultIdpUseCase$403</ID>
-    <ID>MagicNumber:OnboardingAnalyticsPreviewScreen.kt$OnboardingAnalyticsPreviewScreen$3</ID>
+    <ID>MagicNumber:DefaultSettingsRepository.kt$DefaultSettingsRepository$1</ID>
+    <ID>MagicNumber:DefaultSettingsRepository.kt$DefaultSettingsRepository$3</ID>
+    <ID>MagicNumber:DefaultSettingsRepository.kt$DefaultSettingsRepository$4</ID>
+    <ID>MagicNumber:DefaultSettingsRepository.kt$DefaultSettingsRepository$5</ID>
+    <ID>MagicNumber:DefaultSettingsRepository.kt$DefaultSettingsRepository$6</ID>
+    <ID>MagicNumber:DemoEuRepository.kt$DemoEuRepository$1</ID>
+    <ID>MagicNumber:DemoEuRepository.kt$DemoEuRepository$250</ID>
+    <ID>MagicNumber:DemoEuRepository.kt$DemoEuRepository$500</ID>
+    <ID>MagicNumber:DemoModeDataSource.kt$DemoModeDataSource$36</ID>
+    <ID>MagicNumber:DemoModeDataSource.kt$DemoModeDataSource$7</ID>
+    <ID>MagicNumber:EuDeleteAccessCodeBottomSheetScreen.kt$EuDeleteAccessCodeBottomSheetScreen$500</ID>
+    <ID>MagicNumber:EuRedemptionQrCard.kt$30f</ID>
+    <ID>MagicNumber:EuRedemptionQrCard.kt$50</ID>
+    <ID>MagicNumber:EuTaskEventLogFactory.kt$EuTaskEventLogFactory$8</ID>
+    <ID>MagicNumber:FhirPharmacyErpModel.kt$23</ID>
+    <ID>MagicNumber:FhirPharmacyErpModel.kt$59</ID>
+    <ID>MagicNumber:FhirPkvInvoiceBundle.kt$FhirPkvInvoiceBundle.Companion$1000.0</ID>
+    <ID>MagicNumber:IdentifyMethodName.android.kt$3</ID>
+    <ID>MagicNumber:IdentifyMethodName.desktop.kt$3</ID>
+    <ID>MagicNumber:ImageLoaderBuilder.kt$28</ID>
+    <ID>MagicNumber:InvoiceDetailsScreen.kt$0.3f</ID>
+    <ID>MagicNumber:MedicationSchedule.kt$MedicationSchedule$7</ID>
+    <ID>MagicNumber:MessageTimeline.kt$0.25f</ID>
+    <ID>MagicNumber:MessageTimeline.kt$0.35f</ID>
+    <ID>MagicNumber:MessageTimeline.kt$3</ID>
+    <ID>MagicNumber:MessageTimeline.kt$300</ID>
+    <ID>MagicNumber:PharmacyBackendServiceSelectionScreen.kt$40</ID>
+    <ID>MagicNumber:PharmacyBundleParser.kt$PharmacyBundleParser$3</ID>
+    <ID>MagicNumber:PharmacyBundleParser.kt$PharmacyBundleParser$60</ID>
+    <ID>MagicNumber:PharmacyPeriodSorting.kt$1</ID>
+    <ID>MagicNumber:QrCodeGenerator.kt$QrCodeGenerator.Companion$512</ID>
+    <ID>MagicNumber:RedeemContactInformationSection.kt$0.5f</ID>
+    <ID>MagicNumber:RedeemPrescriptionsOnLoggedInUseCase.kt$RedeemPrescriptionsOnLoggedInUseCase$3</ID>
+    <ID>MagicNumber:RoomEncryption.kt$RoomEncryptionConfig$16</ID>
+    <ID>MagicNumber:ScanPrescriptionController.kt$ScanPrescriptionController$2000L</ID>
+    <ID>MagicNumber:ScheduleTimeSelectionSection.kt$12</ID>
+    <ID>MagicNumber:ScheduleTimeSelectionSection.kt$15</ID>
+    <ID>MagicNumber:ScheduleTimeSelectionSection.kt$18</ID>
+    <ID>MagicNumber:ScheduleTimeSelectionSection.kt$2024</ID>
+    <ID>MagicNumber:ScheduleTimeSelectionSection.kt$31</ID>
+    <ID>MagicNumber:ScheduleTimeSelectionSection.kt$6</ID>
+    <ID>MagicNumber:ScheduleTimeSelectionSection.kt$8</ID>
+    <ID>MagicNumber:SelectionSummaryButton.kt$0.02f</ID>
+    <ID>MagicNumber:SharePrescriptionController.kt$SharePrescriptionController$3</ID>
+    <ID>MagicNumber:SpecialOpeningTimes.kt$16</ID>
+    <ID>MagicNumber:SpecialOpeningTimes.kt$8</ID>
+    <ID>MagicNumber:StringToCountryCodeMapper.kt$0x1F1E6</ID>
+    <ID>MagicNumber:StringToCountryCodeMapper.kt$0x41</ID>
+    <ID>MagicNumber:TextToSpeechManager.kt$TextToSpeechManager$0.9f</ID>
     <ID>MagicNumber:TranslationRemoteDataSource.kt$TranslationRemoteDataSource$10</ID>
     <ID>MagicNumber:TranslationRemoteDataSource.kt$TranslationRemoteDataSource$300</ID>
     <ID>MagicNumber:UncaughtException.kt$UncaughtException$1</ID>
     <ID>MagicNumber:UncaughtException.kt$UncaughtException$20</ID>
-    <ID>ModifierReused:CardWallSaveCredentialsScreen.kt$Card( border = cardBorderStroke, backgroundColor = AppTheme.colors.neutral000, modifier = modifier .padding(horizontal = PaddingDefaults.Medium) .fillMaxWidth(), shape = RoundedCornerShape(SizeDefaults.one) ) { Row( modifier = Modifier .fillMaxWidth() .clickable( enabled = true, onClick = onCardSelected ) .padding(PaddingDefaults.Medium), verticalAlignment = Alignment.CenterVertically ) { Icon( startIcon, null, tint = AppTheme.colors.primary700 ) Text( text, style = AppTheme.typography.subtitle1, modifier = modifier .weight(1f) .padding(start = PaddingDefaults.Medium) ) Icon( checkIcon, null, tint = checkIconTint ) } }</ID>
+    <ID>MagicNumber:VauRemoteDataSource.kt$0xFF</ID>
+    <ID>MagicNumber:VauRemoteDataSource.kt$4</ID>
+    <ID>MayBeConst:FhirPkvConstants.kt$FhirPkvInvoiceBundleConstats$val DISPENSE_INFORMATION_PROFILE_URL = "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-ZusatzdatenEinheit"</ID>
+    <ID>MayBeConst:FhirPkvConstants.kt$FhirPkvInvoiceBundleConstats$val MANUFACTURING_STEP_COUNTER_EXTENSION_URL = "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-Zaehler"</ID>
+    <ID>MayBeConst:GemDatePickerDefaults.kt$GemDatePickerDefaults$private val disabledOpacity = 0.40f</ID>
+    <ID>MayBeConst:GemSwitchDefaults.kt$GemSwitchDefaults$private val disabledOpacity = 0.40f</ID>
+    <ID>MayBeConst:TestTags.kt$TestTag.CardWall.SelectInsuranceTypeBottomSheet$val GkvButton = "wlcd_btn_gkv_user"</ID>
+    <ID>MayBeConst:TestTags.kt$TestTag.CardWall.SelectInsuranceTypeBottomSheet$val PkvButton = "wlcd_btn_pkv_user"</ID>
+    <ID>MayBeConst:TestTags.kt$TestTag.Onboarding.DataProtectionAndTermsOfUseScreen$val NextButton = "onb_btn_next"</ID>
+    <ID>MayBeConst:TestTags.kt$TestTag.Onboarding.DataProtectionAndTermsOfUseScreen$val PrivacyButton = "onb_txt_terms_of_privacy"</ID>
+    <ID>MayBeConst:TestTags.kt$TestTag.Onboarding.DataProtectionAndTermsOfUseScreen$val TermsOfUseButton = "onb_txt_terms_of_use"</ID>
+    <ID>MayBeConst:TestTags.kt$TestTag.Onboarding.PasswordAuthenticationScreen$val BackButton = "onb_auth_btn_back"</ID>
+    <ID>MayBeConst:TestTags.kt$TestTag.Onboarding.PasswordAuthenticationScreen$val PasswordFieldA = "onb_auth_inp_passwordA"</ID>
+    <ID>MayBeConst:TestTags.kt$TestTag.Onboarding.PasswordAuthenticationScreen$val PasswordFieldB = "onb_auth_inp_passwordB"</ID>
+    <ID>MayBeConst:TestTags.kt$TestTag.Onboarding.PasswordAuthenticationScreen$val SaveButton = "onb_auth_btn_password"</ID>
+    <ID>MayBeConst:TestTags.kt$TestTag.Onboarding.SelectAppLoginScreen$val DeviceSecurityButton = "onb_auth_btn_face_id"</ID>
+    <ID>MayBeConst:TestTags.kt$TestTag.Onboarding.SelectAppLoginScreen$val PasswordButton = "onb_auth_btn_password"</ID>
+    <ID>MayBeConst:TestTags.kt$TestTag.Onboarding.WelcomeScreen$val StartButton = "onb_btn_start"</ID>
+    <ID>MemberNameEqualsClassName:PrettyPrintJson.kt$PrettyPrintJson$@OptIn(ExperimentalSerializationApi::class) internal fun String.prettyPrintJson(): String</ID>
+    <ID>ModifierReused:CardWallSaveCredentialsScreen.kt$Card( border = cardBorderStroke, backgroundColor = AppTheme.colors.neutral000, modifier = modifier .padding(horizontal = PaddingDefaults.Medium) .fillMaxWidth(), shape = RoundedCornerShape(SizeDefaults.one) ) { Row( modifier = Modifier .fillMaxWidth() .toggleable( enabled = true, role = Role.Checkbox, value = selected, onValueChange = { onCardSelected() } ).semantics(mergeDescendants = true) { stateDescription = if (selected) contentDescriptionOn else contentDescriptionOff } .padding(PaddingDefaults.Medium), verticalAlignment = Alignment.CenterVertically ) { Icon( startIcon, null, tint = AppTheme.colors.primary700 ) Text( text, style = AppTheme.typography.subtitle1, modifier = modifier .weight(1f) .padding(start = PaddingDefaults.Medium) ) Icon( checkIcon, null, tint = checkIconTint ) } }</ID>
     <ID>ModifierReused:CardWallSaveCredentialsScreen.kt$Text( text, style = AppTheme.typography.subtitle1, modifier = modifier .weight(1f) .padding(start = PaddingDefaults.Medium) )</ID>
     <ID>ModifierReused:CardWallScannerScreen.kt$Box(modifier = modifier) { AndroidView( modifier = Modifier.fillMaxSize(), factory = { context -&gt; PreviewView(context).also { preview -&gt; previewView = preview } } ) LaunchedEffect(previewView) { previewView?.let { preview -&gt; onSetupCamera( CameraSetupParams( context = context, lifecycleOwner = lifecycleOwner, previewView = preview, cameraExecutor = cameraExecutor, onImageAnalysis = { imageProxy -&gt; if (!isPaused) { onImageAnalyzed( imageProxy, preview, density, screenDimensions.first, screenDimensions.second ) } else { imageProxy.close() } } ) ) } } capturedBitmap?.let { bitmap -&gt; if (isPaused) { Image( bitmap = bitmap.asImageBitmap(), contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop ) } } }</ID>
     <ID>ModifierReused:CardWallScannerScreen.kt$MockCameraPreview(modifier = modifier)</ID>
-    <ID>ModifierReused:Common.kt$Text( text = text, modifier = modifier, color = color, fontSize = fontSize, fontStyle = fontStyle, fontWeight = fontWeight, fontFamily = fontFamily, letterSpacing = letterSpacing, textDecoration = textDecoration, textAlign = textAlign, lineHeight = lineHeight, overflow = overflow, softWrap = softWrap, maxLines = maxLines, inlineContent = with(LocalDensity.current) { contentPlaceables.mapValues { (_, value) -&gt; val (content, maxSize) = value InlineTextContent( placeholder = content.placeholder.copy( width = maxSize.width.toSp(), height = maxSize.height.toSp() ), children = content.children ) } }, onTextLayout = onTextLayout, style = style )</ID>
-    <ID>ModifierReused:Common.kt$layout(main.measuredWidth, main.measuredHeight) { main.placeRelative(0, 0) }</ID>
+    <ID>ModifierReused:DynamicText.kt$Text( text = text, modifier = modifier, color = color, fontSize = fontSize, fontStyle = fontStyle, fontWeight = fontWeight, fontFamily = fontFamily, letterSpacing = letterSpacing, textDecoration = textDecoration, textAlign = textAlign, lineHeight = lineHeight, overflow = overflow, softWrap = softWrap, maxLines = maxLines, inlineContent = with(LocalDensity.current) { contentPlaceables.mapValues { (_, value) -&gt; val (content, maxSize) = value InlineTextContent( placeholder = content.placeholder.copy( width = maxSize.width.toSp(), height = maxSize.height.toSp() ), children = content.children ) } }, onTextLayout = onTextLayout, style = style )</ID>
+    <ID>ModifierReused:DynamicText.kt$layout(main.measuredWidth, main.measuredHeight) { main.placeRelative(0, 0) }</ID>
+    <ID>ModifierReused:EuPrescriptionSelectionScreen.kt$CircularProgressIndicator(modifier.size(SizeDefaults.triple))</ID>
+    <ID>ModifierReused:EuPrescriptionSelectionScreen.kt$ListItem( modifier = modifier .clickable(enabled = prescription.type == EuPrescriptionType.EuRedeemable, role = Role.Button) { onToggle() } .semantics(mergeDescendants = true) { stateDescription = if (prescription.type == EuPrescriptionType.EuRedeemable) { if (prescription.isMarkedAsEuRedeemableByPatientAuthorization) selectedText else notSelectedText } else { notAvailableText } }, colors = GemListItemDefaults.gemListItemColors(), leadingContent = { key(prescription.isLoading) { if (prescription.type == EuPrescriptionType.EuRedeemable &amp;&amp; prescription.isLoading) { CircularProgressIndicator(modifier.size(SizeDefaults.triple)) } else { PrescriptionIcon(prescription) } } }, headlineContent = { Text( text = prescription.name, style = AppTheme.typography.body1, color = AppTheme.colors.neutral900, fontWeight = FontWeight.Medium ) }, supportingContent = { Text( text = when (prescription.type) { EuPrescriptionType.EuRedeemable -&gt; prescription.expiryDate?.let { stringResource( R.string.eu_prescription_selection_available_until, remember { formatter.date(prescription.expiryDate) } ) } ?: stringResource(R.string.eu_prescription_selection_available) EuPrescriptionType.Scanned -&gt; stringResource(R.string.eu_prescription_selection_scanned_not_available) EuPrescriptionType.FreeText -&gt; stringResource(R.string.eu_prescription_selection_freetext_not_available) EuPrescriptionType.BTM -&gt; stringResource(R.string.eu_prescription_selection_narcotic_not_available) EuPrescriptionType.Ingredient -&gt; stringResource(R.string.eu_prescription_selection_ingredient_not_available) EuPrescriptionType.Unknown -&gt; stringResource(R.string.eu_prescription_selection_not_available) }, style = AppTheme.typography.body2, color = AppTheme.colors.neutral700 ) } )</ID>
+    <ID>ModifierReused:EuRedemptionCard.kt$Card( modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(SizeDefaults.oneHalf), elevation = SizeDefaults.threeSeventyFifth ) { Column( modifier = Modifier .fillMaxWidth() .padding(PaddingDefaults.Medium) ) { Row( verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start ) { OutlinedIconButton( shape = CircleShape, onClick = onPlayInsuranceAudio, border = GemIconButtonDefaults.gemOutlinedIconButtonBorder(), colors = GemIconButtonDefaults.gemIconButtonColors() ) { Icon( imageVector = Icons.AutoMirrored.Outlined.VolumeUp, contentDescription = stringResource(R.string.eu_redemption_play_audio) ) } SpacerSmall() Text( text = countrySpecificLabels.insuranceNumberLabel, style = AppTheme.typography.body1, color = AppTheme.colors.primary900 ) } SpacerMedium() Box( modifier = Modifier .fillMaxWidth() .background( color = AppTheme.colors.neutral100, shape = RoundedCornerShape(SizeDefaults.one) ) .padding(vertical = PaddingDefaults.Tiny), contentAlignment = Alignment.Center ) { Text( text = redemptionData.insuranceNumber, letterSpacing = SizeDefaults.one.value.sp, lineHeight = SizeDefaults.doubleHalf.value.sp, style = AppTheme.typography.h5, color = AppTheme.colors.neutral900, textAlign = TextAlign.End ) } SpacerXXLargeMedium() Row( verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start ) { val redemptionCodeDeactivateText = stringResource(R.string.eu_redemption_play_audio_disabled) OutlinedIconButton( shape = CircleShape, enabled = !redemptionData.isExpired, onClick = onPlayCodeAudio, border = GemIconButtonDefaults.gemOutlinedIconButtonBorder(!redemptionData.isExpired), colors = GemIconButtonDefaults.gemIconButtonColors(), modifier = Modifier.also { if (redemptionData.isExpired) { modifier.clearAndSetSemantics { contentDescription = redemptionCodeDeactivateText } } } ) { Icon( imageVector = Icons.AutoMirrored.Outlined.VolumeUp, contentDescription = stringResource(R.string.eu_redemption_play_audio) ) } SpacerSmall() Text( text = countrySpecificLabels.codeLabel, style = AppTheme.typography.body1, color = AppTheme.colors.primary900 ) } SpacerMedium() Box( modifier = Modifier .fillMaxWidth() .background( color = if (redemptionData.isExpired) AppTheme.colors.red100 else AppTheme.colors.primary100, shape = RoundedCornerShape(SizeDefaults.one) ) .run { if (redemptionData.isExpired) { dashedBorder( color = AppTheme.colors.red700, shape = RoundedCornerShape(SizeDefaults.one) ) } else { this } } .padding(vertical = PaddingDefaults.Tiny), contentAlignment = Alignment.Center ) { if (redemptionData.isExpired) { Text( modifier = modifier.padding(PaddingDefaults.Tiny), text = stringResource(R.string.eu_redemption_code_expired_text), style = AppTheme.typography.h5, color = AppTheme.colors.red900, textAlign = TextAlign.Center ) } else { Text( text = redemptionData.euAccessCode.accessCode, letterSpacing = SizeDefaults.doubleHalf.value.sp, lineHeight = SizeDefaults.sixfoldAndQuarter.value.sp, style = AppTheme.typography.h4, color = AppTheme.colors.neutral900, textAlign = TextAlign.Center ) } } SpacerTiny() Column( horizontalAlignment = Alignment.End, modifier = Modifier.fillMaxWidth() ) { // Status message - only show text when active when { !redemptionData.isExpired -&gt; { // Code is active - show remaining time Text( text = stringResource( R.string.eu_redemption_code_remaining_time_message, redemptionData.euAccessCode.validUntil.toLocalDateTime( TimeZone.currentSystemDefault() ).time.toHourMinuteString() ), style = AppTheme.typography.subtitle2, color = AppTheme.colors.neutral700, textAlign = TextAlign.Center ) } } TextButton( onClick = onRenewCode ) { Row( verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Tiny) ) { Icon( imageVector = Icons.Default.Refresh, contentDescription = null, tint = AppTheme.colors.primary700, modifier = Modifier.size(SizeDefaults.double) ) Text( text = stringResource(R.string.eu_redemption_code_renew), color = AppTheme.colors.primary700, style = AppTheme.typography.body1 ) } } } } }</ID>
+    <ID>ModifierReused:EuRedemptionCard.kt$Text( modifier = modifier.padding(PaddingDefaults.Tiny), text = stringResource(R.string.eu_redemption_code_expired_text), style = AppTheme.typography.h5, color = AppTheme.colors.red900, textAlign = TextAlign.Center )</ID>
+    <ID>ModifierReused:EuRedemptionQrCard.kt$Box(modifier = modifier.width(SizeDefaults.twentyfivefold).rotate(-30f)) { Surface( color = AppTheme.colors.red100, shape = RoundedCornerShape(SizeDefaults.one), modifier = Modifier .fillMaxWidth() .dashedBorder( color = AppTheme.colors.red700, shape = RoundedCornerShape(SizeDefaults.one) ) ) { Text( modifier = modifier.padding(PaddingDefaults.Tiny), text = stringResource(R.string.eu_redemption_code_expired_text), style = AppTheme.typography.h6, color = AppTheme.colors.red900, textAlign = TextAlign.Center ) } }</ID>
+    <ID>ModifierReused:EuRedemptionQrCard.kt$Card( modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(SizeDefaults.oneHalf), elevation = SizeDefaults.threeSeventyFifth ) { Column( modifier = Modifier .fillMaxWidth() .padding(PaddingDefaults.Large), horizontalAlignment = Alignment.CenterHorizontally ) { SpacerMedium() Box( modifier = Modifier.wrapContentHeight(), contentAlignment = Alignment.Center ) { Box( modifier = Modifier .size(SizeDefaults.fifteenfoldAndHalf) .background( color = Color.White, shape = RoundedCornerShape(SizeDefaults.one) ), contentAlignment = Alignment.Center ) { redemptionData.qrCodeBitmap?.let { qrCode -&gt; Image( bitmap = qrCode, contentDescription = stringResource(R.string.eu_redemption_qr_code_content_description), modifier = Modifier .size(SizeDefaults.fifteenfoldAndHalf) .roundedCornerShape() ) } ?: Text( text = stringResource(R.string.eu_redemption_qr_code_generating), style = AppTheme.typography.body1, color = AppTheme.colors.neutral700 ) } // Expired overlay banner if (redemptionData.isExpired) { Box(modifier = modifier.width(SizeDefaults.twentyfivefold).rotate(-30f)) { Surface( color = AppTheme.colors.red100, shape = RoundedCornerShape(SizeDefaults.one), modifier = Modifier .fillMaxWidth() .dashedBorder( color = AppTheme.colors.red700, shape = RoundedCornerShape(SizeDefaults.one) ) ) { Text( modifier = modifier.padding(PaddingDefaults.Tiny), text = stringResource(R.string.eu_redemption_code_expired_text), style = AppTheme.typography.h6, color = AppTheme.colors.red900, textAlign = TextAlign.Center ) } } } } SpacerMedium() // Status message - only show text when active or renewal error when { !redemptionData.isExpired -&gt; { // Code is active - show remaining time Text( text = stringResource( R.string.eu_redemption_qr_code_remaining_time_message, redemptionData.euAccessCode.validUntil.toLocalDateTime( TimeZone.currentSystemDefault() ).time.toHourMinuteString() ), style = AppTheme.typography.body2, color = AppTheme.colors.neutral700, textAlign = TextAlign.Center ) } } TextButton( onClick = onRenewCode ) { Row( verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Tiny) ) { Icon( imageVector = Icons.Default.Refresh, contentDescription = null, tint = AppTheme.colors.primary700, modifier = Modifier.size(SizeDefaults.double) ) Text( text = stringResource(R.string.eu_redemption_code_renew), color = AppTheme.colors.primary700, style = AppTheme.typography.body1 ) } } } }</ID>
+    <ID>ModifierReused:EuRedemptionQrCard.kt$Text( modifier = modifier.padding(PaddingDefaults.Tiny), text = stringResource(R.string.eu_redemption_code_expired_text), style = AppTheme.typography.h6, color = AppTheme.colors.red900, textAlign = TextAlign.Center )</ID>
+    <ID>ModifierReused:InvoiceDetailsScreen.kt$Icon( modifier = modifier, imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null, tint = AppTheme.colors.primary700 )</ID>
+    <ID>ModifierReused:InvoiceDetailsScreen.kt$Text( modifier = modifier, text = stringResource(R.string.link_to_invoice_list), style = AppTheme.typography.body2, color = AppTheme.colors.primary700 )</ID>
     <ID>ModifierReused:OrderHealthCardSelectMethodScreen.kt$Card( modifier = modifier, onClick = onClick, shape = RoundedCornerShape(SizeDefaults.one), contentColor = AppTheme.colors.primary700, border = BorderStroke(SizeDefaults.eighth, AppTheme.colors.neutral300), backgroundColor = AppTheme.colors.neutral050, elevation = SizeDefaults.zero ) { Column(Modifier.padding(PaddingDefaults.Medium), horizontalAlignment = Alignment.CenterHorizontally) { Icon(icon, null) SpacerSmall() Text( name, modifier = modifier.widthIn(SizeDefaults.ninefold), textAlign = TextAlign.Center, style = AppTheme.typography.subtitle2 ) } }</ID>
     <ID>ModifierReused:OrderHealthCardSelectMethodScreen.kt$Text( name, modifier = modifier.widthIn(SizeDefaults.ninefold), textAlign = TextAlign.Center, style = AppTheme.typography.subtitle2 )</ID>
-    <ID>ModifierReused:PharmacyContact.kt$ClickableText( modifier = modifier .fillMaxWidth(), text = detailedInfoText, style = AppTheme.typography.body2l, onClick = onTextClicked )</ID>
-    <ID>ModifierReused:PharmacyContact.kt$Row(modifier = modifier) { HintTextActionButton( text = stringResource(R.string.pharmacy_detail_data_info_btn), onClick = onHintClicked ) }</ID>
+    <ID>ModifierReused:PharmacyContact.kt$BasicText( modifier = modifier .fillMaxWidth(), text = detailedInfoText, style = AppTheme.typography.body2l )</ID>
+    <ID>ModifierReused:PharmacyContact.kt$Row(modifier = modifier) { HintTextActionButton( text = stringResource(R.string.pharmacy_detail_data_info_btn), onClick = onHintClicked, icon = { Icon( painter = painterResource(R.drawable.open_link), contentDescription = null, modifier = Modifier.size(SizeDefaults.triple) ) } ) }</ID>
     <ID>ModifierWithoutDefault:Avatar.kt$iconModifier</ID>
-    <ID>ModifierWithoutDefault:Avatar.kt$modifier</ID>
     <ID>ModifierWithoutDefault:CardUnlockNewSecretScreen.kt$modifier</ID>
     <ID>ModifierWithoutDefault:CardUnlockPukScreen.kt$modifier</ID>
     <ID>ModifierWithoutDefault:CardWallCanScreen.kt$modifier</ID>
     <ID>ModifierWithoutDefault:CardWallPinScreen.kt$modifier</ID>
-    <ID>ModifierWithoutDefault:Common.kt$modifier</ID>
     <ID>ModifierWithoutDefault:ConfirmationPasswordTextField.kt$modifier</ID>
     <ID>ModifierWithoutDefault:DataMatrix.kt$modifier</ID>
     <ID>ModifierWithoutDefault:DataMatrixCode.kt$modifier</ID>
     <ID>ModifierWithoutDefault:DebugScreen.kt$modifier</ID>
     <ID>ModifierWithoutDefault:EditablePathComponentWithControl.kt$modifier</ID>
     <ID>ModifierWithoutDefault:FavoritePharmacyCard.kt$modifier</ID>
-    <ID>ModifierWithoutDefault:FilterButton.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:FeaturesCommon.kt$modifier</ID>
     <ID>ModifierWithoutDefault:InvoiceDetailsScreen.kt$modifier</ID>
     <ID>ModifierWithoutDefault:LocalRedeemScreen.kt$modifier</ID>
     <ID>ModifierWithoutDefault:LoggerScreen.kt$modifier</ID>
@@ -71,7 +197,6 @@
     <ID>ModifierWithoutDefault:OnboardingWelcomeScreen.kt$modifier</ID>
     <ID>ModifierWithoutDefault:OrderHealthCardSelectInsuranceCompanyScreen.kt$modifier</ID>
     <ID>ModifierWithoutDefault:OrderHealthCardSelectMethodScreen.kt$modifier</ID>
-    <ID>ModifierWithoutDefault:OrderSelection.kt$modifier</ID>
     <ID>ModifierWithoutDefault:PasswordScore.kt$modifier</ID>
     <ID>ModifierWithoutDefault:PasswordTextField.kt$modifier</ID>
     <ID>ModifierWithoutDefault:PharmacyContact.kt$modifier</ID>
@@ -99,15 +224,14 @@
     <ID>MultipleEmitters:LoggerScreen.kt$OverviewEntry</ID>
     <ID>MultipleEmitters:LoggerScreen.kt$RequestEntry</ID>
     <ID>MultipleEmitters:LoggerScreen.kt$ResponseEntry</ID>
+    <ID>MultipleEmitters:MedicationPlanScheduleDetailScreen.kt$ThreeDotMenu</ID>
     <ID>MultipleEmitters:MessageBottomSheetScreen.kt$OrdersCodeInfo</ID>
     <ID>MultipleEmitters:MessageDetailDropDown.kt$MessageDetailDropdownMenu</ID>
-    <ID>MultipleEmitters:MlKitInformationScreen.kt$Paragraph</ID>
+    <ID>MultipleEmitters:MessagePrescriptionDividerWithTitle.kt$MessagePrescriptionDividerWithTitle</ID>
     <ID>MultipleEmitters:PharmacyContact.kt$DataInfoSection</ID>
+    <ID>MultipleEmitters:PharmacyFilterServiceSection.kt$PharmacyFilterServiceSection</ID>
     <ID>MultipleEmitters:PrescriptionDetailScreenScaffold.kt$PrescriptionDetailsDropdownMenu</ID>
-    <ID>MultipleEmitters:PrescriptionScanScreen.kt$SheetContent</ID>
-    <ID>MultipleEmitters:ProfileEditPairedDeviceSection.kt$ProfileEditPairedDeviceSection</ID>
     <ID>MultipleEmitters:ProfileScreen.kt$ThreeDotMenu</ID>
-    <ID>MultipleEmitters:ProfileSecuritySection.kt$ProfileSecuritySection</ID>
     <ID>MultipleEmitters:SettingsLegalNoticeScreen.kt$ContactOptionsSection</ID>
     <ID>MultipleEmitters:SettingsLegalNoticeScreen.kt$HintSection</ID>
     <ID>MultipleEmitters:SettingsLegalNoticeScreen.kt$IssuerSection</ID>
@@ -116,10 +240,20 @@
     <ID>MultipleEmitters:UserAuthenticationBottomSection.kt$UserAuthenticationBottomErrorSection</ID>
     <ID>MutableParams:Hints.kt$initiallyVisible</ID>
     <ID>MutableParams:PrescriptionScanScreen.kt$scanPrescriptionVibration</ID>
+    <ID>NestedBlockDepth:FhirPharmacyErpModel.kt$fun NotAvailablePeriodErpModel.overlapsWithAvailableTime( availableTime: OpeningHoursErpModel, timeZone: TimeZone = TimeZone.currentSystemDefault() ): Boolean</ID>
+    <ID>NestedBlockDepth:TruststoreUseCase.kt$internal fun getValidatedChainSignedByTrustAnchor( trustAnchorCert: X509CertificateHolder, crossCerts: List&lt;X509CertificateHolder&gt;, currentDate: Date ): List&lt;X509CertificateHolder&gt;</ID>
     <ID>PreviewNaming:LightDarkPreview.kt$BigFontPreview$BigFontPreview</ID>
+    <ID>PreviewNaming:LightDarkPreview.kt$LightDarkAllPreview$LightDarkAllPreview</ID>
+    <ID>PreviewNaming:LightDarkPreview.kt$LightDarkBigFontPreview$LightDarkBigFontPreview</ID>
+    <ID>PreviewNaming:LightDarkPreview.kt$LightDarkLargeFontPreview$LightDarkLargeFontPreview</ID>
     <ID>PreviewNaming:LightDarkPreview.kt$LightDarkLongPreview$LightDarkLongPreview</ID>
+    <ID>PreviewNaming:LightDarkPreview.kt$LightDarkPhoneLandscapePreview$LightDarkPhoneLandscapePreview</ID>
     <ID>PreviewNaming:LightDarkPreview.kt$LightDarkPreview$LightDarkPreview</ID>
+    <ID>PreviewNaming:LightDarkPreview.kt$LightDarkSquarePreview$LightDarkSquarePreview</ID>
+    <ID>PreviewNaming:LightDarkPreview.kt$LightDarkTabletLandscapePreview$LightDarkTabletLandscapePreview</ID>
+    <ID>PreviewNaming:LightDarkPreview.kt$LightDarkTabletPortraitPreview$LightDarkTabletPortraitPreview</ID>
     <ID>PreviewPublic:ArchiveScreen.kt$PrescriptionsArchiveScreenPreview</ID>
+    <ID>PreviewPublic:AuthenticationFailureDialog.kt$AuthenticationFailureDialogPreview</ID>
     <ID>PreviewPublic:CardUnlockCanScreen.kt$CardUnlockCanScreenScaffoldPreview</ID>
     <ID>PreviewPublic:CardUnlockEgkScreen.kt$CardUnlockEgkScreenPreview</ID>
     <ID>PreviewPublic:CardUnlockIntroScreen.kt$CardUnlockIntroScreenScaffoldPreview</ID>
@@ -127,6 +261,7 @@
     <ID>PreviewPublic:CardUnlockOldSecretScreen.kt$CardUnlockOldSecretScreenPreview</ID>
     <ID>PreviewPublic:CardUnlockPukScreen.kt$CardUnlockPukScreenPreview</ID>
     <ID>PreviewPublic:CardWallCanScreen.kt$CardWallCanScreenPreview</ID>
+    <ID>PreviewPublic:CardWallGidHelpScreen.kt$CardWallGidHelpScreenPreview</ID>
     <ID>PreviewPublic:CardWallGidListScreen.kt$GidListScreenScaffoldPreview</ID>
     <ID>PreviewPublic:CardWallIntroScreen.kt$CardWallIntroScreenContentPreview</ID>
     <ID>PreviewPublic:CardWallPinScreen.kt$CardWallPinScreenPreview</ID>
@@ -134,9 +269,18 @@
     <ID>PreviewPublic:CardWallSaveCredentialsInfoScreen.kt$CardWallSaveCredentialsInfoScreenPreview</ID>
     <ID>PreviewPublic:CardWallSaveCredentialsScreen.kt$CardWallSaveCredentialsScreenPreview</ID>
     <ID>PreviewPublic:CardWallScannerScreen.kt$ScannerScreenContentPreview</ID>
+    <ID>PreviewPublic:ConsentFailureDialog.kt$ConsentFailureDialogPreview</ID>
+    <ID>PreviewPublic:DigaInsuranceSearchListScreen.kt$InsuranceSearchListScreenPreview</ID>
     <ID>PreviewPublic:ErrorOnRedeemablePrescriptionDialog.kt$ErrorOnRedeemablePrescriptionDialogPreview</ID>
+    <ID>PreviewPublic:EuConsentScreen.kt$EuConsentScreenScaffoldPreview</ID>
+    <ID>PreviewPublic:EuCountrySelectionScreen.kt$EuCountrySelectionScreenPreview</ID>
+    <ID>PreviewPublic:EuDeleteAccessCodeBottomSheetScreen.kt$EuDeleteAccessCodeBottomSheetContentPreview</ID>
+    <ID>PreviewPublic:EuInstructionsScreen.kt$EuInstructionsScreenPreview</ID>
+    <ID>PreviewPublic:EuPrescriptionSelectionScreen.kt$EuPrescriptionSelectionContentPreview</ID>
+    <ID>PreviewPublic:EuRedeemMessageDetailsScreen.kt$EuRedeemMessageContentPreview</ID>
+    <ID>PreviewPublic:EuRedeemOverviewScreen.kt$EuRedeemScreenScaffoldPreview</ID>
+    <ID>PreviewPublic:EuRedemptionCodeScreen.kt$EuRedemptionCodeScreenScaffoldPreview</ID>
     <ID>PreviewPublic:InsecureDeviceScreen.kt$InsecureDeviceScreenPreview</ID>
-    <ID>PreviewPublic:InsuranceSearchListScreen.kt$InsuranceSearchListScreenPreview</ID>
     <ID>PreviewPublic:IntegrityWarningScreen.kt$IntegrityWarningScreenPreview</ID>
     <ID>PreviewPublic:InvoiceDetailsScreen.kt$InvoiceDetailsScreenPreview</ID>
     <ID>PreviewPublic:InvoiceExpandedDetailsScreen.kt$invoiceExpandedDetailsScreenContentPreview</ID>
@@ -144,10 +288,11 @@
     <ID>PreviewPublic:InvoiceLocalCorrectionScreen.kt$InvoiceLocalCorrectionContentPreview</ID>
     <ID>PreviewPublic:LocalRedeemScreen.kt$LocalRedeemScreenPreview</ID>
     <ID>PreviewPublic:MainScreenAvatar.kt$ProfileStatePreviews</ID>
-    <ID>PreviewPublic:MedicationListScheduleScreen.kt$MedicationListScheduleScreenPreview</ID>
-    <ID>PreviewPublic:MedicationNotificationSuccessScreen.kt$MedicationNotificationSuccessScreenPreview</ID>
-    <ID>PreviewPublic:MedicationPlanDosageInfoBottomSheetScreen.kt$MedicationPlanDosageInfoContentPreview</ID>
-    <ID>PreviewPublic:MedicationPlanScheduleScreen.kt$MedicationPlanScheduleScreenPreview</ID>
+    <ID>PreviewPublic:MedicationPlanDosageInstructionBottomSheetScreen.kt$MedicationPlanDosageInfoContentPreview</ID>
+    <ID>PreviewPublic:MedicationPlanNotificationScreen.kt$MedicationNotificationSuccessScreenPreview</ID>
+    <ID>PreviewPublic:MedicationPlanScheduleDetailScreen.kt$MedicationPlanScheduleDetailScreenPreview</ID>
+    <ID>PreviewPublic:MedicationPlanScheduleDurationAndIntervalScreen.kt$MedicationPlanScheduleDurationAndIntervalScreenPreview</ID>
+    <ID>PreviewPublic:MedicationPlanScheduleListScreen.kt$MedicationPlanScheduleListScreenPreview</ID>
     <ID>PreviewPublic:MessageBottomSheetScreen.kt$MessageBottomSheetScreenContentPreview</ID>
     <ID>PreviewPublic:MessageDetailScreen.kt$MessageDetailScreenInAppWithPharmacyPreview</ID>
     <ID>PreviewPublic:MessageDetailScreen.kt$MessageDetailScreenWithPharmacyPreview</ID>
@@ -158,7 +303,10 @@
     <ID>PreviewPublic:OrderHealthCardSelectInsuranceCompanyScreen.kt$OrderHealthCardSelectInsuranceCompanyScreenPreview</ID>
     <ID>PreviewPublic:PharmacyDetailsComponent.kt$PharmacyDetailsScreenFromMessagePreview</ID>
     <ID>PreviewPublic:PharmacyDetailsComponent.kt$PharmacyDetailsScreenFromPharmacyPreview</ID>
+    <ID>PreviewPublic:PharmacyFilterSheetScreen.kt$PharmacyFilterSheetScreenPreview</ID>
     <ID>PreviewPublic:PharmacySearchListScreen.kt$PharmacySearchListScreenContentPreview</ID>
+    <ID>PreviewPublic:PharmacyStartScreen.kt$PharmacyStartScreenPreview</ID>
+    <ID>PreviewPublic:PkvConsentErrorDialog.kt$PkvConsentErrorDialogPreview</ID>
     <ID>PreviewPublic:PrescriptionDetailAccidentInfoScreen.kt$PrescriptionDetailAccidentInfoScreenPreview</ID>
     <ID>PreviewPublic:PrescriptionDetailMedicationOverviewScreen.kt$PrescriptionDetailMedicationOverviewScreenPreview</ID>
     <ID>PreviewPublic:PrescriptionDetailMedicationScreen.kt$PrescriptionDetailMedicationScreenPreview</ID>
@@ -168,33 +316,55 @@
     <ID>PreviewPublic:ProfileChip.kt$ProfileChipSelectedPreview</ID>
     <ID>PreviewPublic:ProfileChip.kt$ProfileChipUnSelectedPreview</ID>
     <ID>PreviewPublic:ProfileEditNameBottomSheetScreen.kt$ProfileEditNameBottomSheetScreenContentPreview</ID>
+    <ID>PreviewPublic:ProfileEuConsentScreen.kt$EuConsentScreenScaffoldPreview</ID>
     <ID>PreviewPublic:ProfilePairedDevicesScreen.kt$ProfilePairedDevicesScreenScaffoldPreview</ID>
+    <ID>PreviewPublic:ProfilePushNotificationsScreen.kt$ProfilePushNotificationsScreenScaffoldPreview</ID>
     <ID>PreviewPublic:ProfileScreen.kt$ProfileScreenPreview</ID>
     <ID>PreviewPublic:RedeemEditShippingContactScreen.kt$RedeemEditShippingScreenPreview</ID>
-    <ID>PreviewPublic:ScheduleDateRangeScreen.kt$ScheduleDateRangeScreenPreview</ID>
+    <ID>PreviewPublic:RedeemOrderOverviewScreen.kt$RedeemOrderOverviewScreenContentPreview</ID>
     <ID>PreviewPublic:SettingsAppSecurityScreen.kt$SettingsAppSecurityScreenScaffoldPreview</ID>
     <ID>PreviewPublic:SettingsLanguageScreen.kt$SettingsLanguageScreenScaffoldPreview</ID>
-    <ID>PreviewPublic:SettingsProductImprovementsScreen.kt$PreviewSettingsProductImprovementsScreen</ID>
     <ID>PreviewPublic:SettingsScreen.kt$SettingsScreenPreview</ID>
     <ID>PreviewPublic:SettingsSetAppPasswordScreen.kt$SettingsSetAppPasswordScreenPreview</ID>
     <ID>PreviewPublic:TroubleShootingNoSuccessScreen.kt$TroubleShootingNoSuccessScreenPreview</ID>
     <ID>PreviewPublic:UserAuthenticationScreen.kt$UserAuthenticationScreenPreview</ID>
+    <ID>SpreadOperator:EuTaskLocalDataSource.kt$EuTaskLocalDataSource$( buildString { append("profileId = $0 AND countryCode = $1") // TODO: Does it make sense to filter by taskIds?, can we have two orders for the same profileId/countryCode? if (hasTasks) { append(" AND (") append(taskIdQueryFragment(count = taskIds.size)) append(")") } }, // Bind parameters: profileId, countryCode, and all taskIds profileId, countryCode, *taskIds.toTypedArray() )</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:DbMigrationLoggerScreenPreviewParameterProvider.kt$DbMigrationLoggerScreenPreviewParameterProvider$Throwable()</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:EuConsentPreviewParameterProvider.kt$EuConsentPreviewParameterProvider$Exception()</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:EuRedemptionCodePreviewParameterProvider.kt$EuRedemptionCodePreviewParameterProvider$Throwable()</ID>
     <ID>ThrowsCount:DefaultIdpUseCase.kt$DefaultIdpUseCase$@Suppress("CyclomaticComplexMethod", "NestedBlockDepth") private suspend fun loadAccessToken( refresh: Boolean = false, profileId: ProfileIdentifier, scope: IdpScope, singleSignOnTokenScope: suspend () -&gt; IdpData.SingleSignOnTokenScope?, decryptedAccessToken: suspend () -&gt; AccessToken?, invalidateDecryptedAccessToken: suspend () -&gt; Unit, invalidateSingleSignOnTokenRetainingScope: suspend () -&gt; Unit, saveDecryptedAccessToken: suspend (decryptedAccessToken: String, expiresOn: Instant) -&gt; Unit ): String</ID>
+    <ID>TooGenericExceptionThrown:FeatureToggleLocalDataSource.kt$FeatureToggleLocalDataSource$throw Throwable("Togglable Feature ${feature.name} not found")</ID>
+    <ID>TooGenericExceptionThrown:FhirEuRedeemAccessCodeResponseModel.kt$FhirEuRedeemAccessCodeResponseModel.Companion$throw Exception("AccessCode could not be parsed")</ID>
+    <ID>TooGenericExceptionThrown:FhirEuRedeemAccessCodeResponseModel.kt$FhirEuRedeemAccessCodeResponseModel.Companion$throw Exception("CountryCode could not be parsed")</ID>
+    <ID>TooGenericExceptionThrown:FhirEuRedeemAccessCodeResponseModel.kt$FhirEuRedeemAccessCodeResponseModel.Companion$throw Exception("CreatedAt could not be parsed")</ID>
+    <ID>TooGenericExceptionThrown:FhirEuRedeemAccessCodeResponseModel.kt$FhirEuRedeemAccessCodeResponseModel.Companion$throw Exception("ValidUntil could not be parsed")</ID>
+    <ID>TooManyFunctions:DebugSettingsViewModel.kt$DebugSettingsViewModel : ViewModel</ID>
     <ID>UnstableCollections:ColumnItems.kt$List&lt;T&gt;</ID>
-    <ID>UnstableCollections:Common.kt$Map&lt;String, InlineTextContent&gt;</ID>
     <ID>UnstableCollections:CustomSegmentedButton.kt$List&lt;String&gt;</ID>
+    <ID>UnstableCollections:DbMigrationLoggerScreen.kt$List&lt;DbMigrationLogEntry&gt;</ID>
+    <ID>UnstableCollections:DebugScreen.kt$List&lt;String&gt;</ID>
+    <ID>UnstableCollections:DebugScreen.kt$List&lt;T&gt;</ID>
+    <ID>UnstableCollections:DebugScreen.kt$Set&lt;FeatureEntity&gt;</ID>
     <ID>UnstableCollections:DebugTrackerScreen.kt$List&lt;DebugTrackerScreenEvent&gt;</ID>
+    <ID>UnstableCollections:DynamicText.kt$Map&lt;String, InlineTextContent&gt;</ID>
     <ID>UnstableCollections:ErrorOnRedeemablePrescriptionDialog.kt$List&lt;RedeemablePrescriptionInfo&gt;</ID>
+    <ID>UnstableCollections:EuCountrySelectionScreen.kt$List&lt;Country&gt;</ID>
+    <ID>UnstableCollections:EuPrescriptionSelectionScreen.kt$List&lt;EuPrescription&gt;</ID>
+    <ID>UnstableCollections:EuRedeemMessageDetailsScreen.kt$List&lt;EuOrderMessageUiModel&gt;</ID>
+    <ID>UnstableCollections:EuRedeemMessageDetailsScreen.kt$List&lt;T&gt;</ID>
+    <ID>UnstableCollections:EuRedeemOverviewScreen.kt$List&lt;String&gt;</ID>
     <ID>UnstableCollections:InvoiceExpandedDetailsScreen.kt$List&lt;String?&gt;</ID>
-    <ID>UnstableCollections:InvoiceListScreen.kt$Map&lt;de.gematik.ti.erp.app.fhir.parser.Year, List&lt;PKVInvoiceRecord&gt;&gt;</ID>
+    <ID>UnstableCollections:InvoiceListScreen.kt$Map&lt;Year, List&lt;PKVInvoiceRecord&gt;&gt;</ID>
     <ID>UnstableCollections:ItemsMenu.kt$List&lt;T&gt;</ID>
     <ID>UnstableCollections:LanguagePickerList.kt$List&lt;Pair&lt;String, String&gt;&gt;</ID>
     <ID>UnstableCollections:LocalRedeemScreen.kt$List&lt;DMCode&gt;</ID>
     <ID>UnstableCollections:LoggerScreen.kt$List&lt;HeaderLog&gt;</ID>
     <ID>UnstableCollections:LoggerScreen.kt$LoggerScreen$List&lt;LogEntry&gt;</ID>
     <ID>UnstableCollections:LoggerScreen.kt$LoggerScreen$Map&lt;Int, Boolean&gt;</ID>
-    <ID>UnstableCollections:MedicationListScheduleScreen.kt$List&lt;ProfileWithSchedules&gt;</ID>
-    <ID>UnstableCollections:MedicationNotificationSuccessScreen.kt$List&lt;ProfileWithSchedules&gt;</ID>
+    <ID>UnstableCollections:MedicationPlanNotificationScreen.kt$List&lt;MedicationSchedule&gt;</ID>
+    <ID>UnstableCollections:MedicationPlanNotificationScreen.kt$List&lt;ProfileWithSchedules&gt;</ID>
+    <ID>UnstableCollections:MedicationPlanScheduleListScreen.kt$List&lt;MedicationSchedule&gt;</ID>
+    <ID>UnstableCollections:MedicationPlanScheduleListScreen.kt$List&lt;ProfileWithSchedules&gt;</ID>
     <ID>UnstableCollections:MessageDetailScreen.kt$List&lt;InAppMessage&gt;</ID>
     <ID>UnstableCollections:MessageDetailScreen.kt$List&lt;OrderUseCaseData.Message&gt;</ID>
     <ID>UnstableCollections:MessageDetailScreen.kt$Map&lt;String, Boolean&gt;</ID>
@@ -203,48 +373,112 @@
     <ID>UnstableCollections:Messages.kt$Map&lt;String, Boolean&gt;</ID>
     <ID>UnstableCollections:OnlineRedeemPreferencesScreen.kt$List&lt;PharmacyUseCaseData.PrescriptionInOrder&gt;</ID>
     <ID>UnstableCollections:OrderHealthCardSelectInsuranceCompanyScreen.kt$List&lt;HealthInsuranceCompany&gt;</ID>
+    <ID>UnstableCollections:PharmacyContact.kt$List&lt;NotAvailablePeriodMetadata&gt;</ID>
     <ID>UnstableCollections:PharmacyContact.kt$List&lt;OpeningTime&gt;</ID>
+    <ID>UnstableCollections:PharmacyContact.kt$List&lt;PharmacyAvailableServiceErpModel&gt;</ID>
+    <ID>UnstableCollections:PharmacyContact.kt$List&lt;PharmacyOnSiteFeatureErpModel&gt;</ID>
+    <ID>UnstableCollections:PharmacyContact.kt$List&lt;SpecialOpeningTimeMetadata&gt;</ID>
+    <ID>UnstableCollections:PharmacyFilterServiceSection.kt$Set&lt;String&gt;</ID>
+    <ID>UnstableCollections:PharmacyFilterSheetScreen.kt$Set&lt;String&gt;</ID>
+    <ID>UnstableCollections:PharmacyOnSiteSection.kt$List&lt;String&gt;</ID>
+    <ID>UnstableCollections:PharmacySearchListController.kt$Set&lt;String&gt;</ID>
     <ID>UnstableCollections:PharmacySearchMapsScreen.kt$List&lt;PharmacyUseCaseData.Pharmacy&gt;</ID>
-    <ID>UnstableCollections:PharmacyStartScreen.kt$List&lt;OverviewPharmacy&gt;</ID>
+    <ID>UnstableCollections:PharmacyServicesSection.kt$List&lt;String&gt;</ID>
+    <ID>UnstableCollections:PharmacyStartScreen.kt$List&lt;PharmacyErpModel&gt;</ID>
+    <ID>UnstableCollections:PrescriptionListForMessages.kt$List&lt;String&gt;</ID>
+    <ID>UnstableCollections:PrescriptionSelectionScreen.kt$List&lt;PrescriptionInOrder&gt;</ID>
     <ID>UnstableCollections:ProfileEditNameBottomSheetScreen.kt$List&lt;ProfilesUseCaseData.Profile&gt;</ID>
     <ID>UnstableCollections:ProfileNameSection.kt$List&lt;ProfilesUseCaseData.Profile&gt;</ID>
     <ID>UnstableCollections:ProfilePairedDevicesScreen.kt$List&lt;PairedDevice&gt;</ID>
     <ID>UnstableCollections:ProfileSection.kt$List&lt;ProfilesUseCaseData.Profile&gt;</ID>
-    <ID>UnstableCollections:RedeemOrderOverviewScreen.kt$List&lt;PharmacyUseCaseData.PrescriptionInOrder&gt;</ID>
+    <ID>UnstableCollections:RedeemOrderOverviewScreen.kt$List&lt;PrescriptionInOrder&gt;</ID>
     <ID>UnstableCollections:SelfPayerPrescriptionWarning.kt$List&lt;String&gt;</ID>
     <ID>UnstableCollections:SelfPayerPrescriptionWarning.kt$List&lt;String?&gt;</ID>
     <ID>UnstableCollections:SettingsLanguageScreen.kt$List&lt;LanguageCode&gt;</ID>
     <ID>UnstableCollections:SettingsScreen.kt$List&lt;Profile&gt;</ID>
+    <ID>UnstableCollections:SpecialClosingTimes.kt$List&lt;NotAvailablePeriodMetadata&gt;</ID>
+    <ID>UnstableCollections:SpecialOpeningTimes.kt$List&lt;SpecialOpeningTimeMetadata&gt;</ID>
     <ID>UnstableCollections:TopBars.kt$List&lt;String&gt;</ID>
     <ID>UnstableCollections:TopBars.kt$List&lt;TabPosition&gt;</ID>
-    <ID>UnusedParameter:CardWallGidListScreen.kt$onClickHealthInsuranceWithGidNotSupported: () -&gt; Unit</ID>
+    <ID>UnusedParameter:ButtonDefaults.kt$GemButtonDefaults$disabledBackgroundColor: Color = AppTheme.colors.neutral300</ID>
+    <ID>UnusedParameter:CommunicationDispenseRequest.kt$CommunicationDispenseRequest$flowTypeDisplay: String</ID>
+    <ID>UnusedParameter:CountryRowLabelShimmer.kt$painter: Painter</ID>
     <ID>UnusedParameter:DebugScreenWrapper.kt$navigation: NavController</ID>
     <ID>UnusedParameter:EndpointHelper.kt$EndpointHelper$context: Context</ID>
-    <ID>UnusedParameter:NoElevationScaffold.kt$listState: LazyListState</ID>
+    <ID>UnusedParameter:MedicationPlanScheduleListScreen.kt$onOpenMedicationPlanOverview: () -&gt; Unit</ID>
+    <ID>UnusedParameter:PharmacyUseCaseDataMapper.kt$type: PharmacyVzdService = FHIRVZD</ID>
     <ID>UnusedParameter:ProfileEditNameBottomSheetScreen.kt$existingProfiles: List&lt;ProfilesUseCaseData.Profile&gt;</ID>
+    <ID>UnusedParameter:RedeemButton.kt$modifier: Modifier = Modifier</ID>
+    <ID>UnusedParameter:RedeemOrderDialogs.kt$pharmacy: PharmacyUseCaseData.Pharmacy?</ID>
     <ID>UnusedParameter:ReleaseCommon.kt$modifier: Modifier = Modifier</ID>
     <ID>UnusedParameter:ReleaseCommon.kt$onClick: () -&gt; Unit</ID>
     <ID>UnusedParameter:ReleaseCommon.kt$text: String</ID>
-    <ID>UnusedParameter:SearchInputField.kt$onBack: () -&gt; Unit</ID>
+    <ID>UnusedPrivateMember:AnimatedCheckLoadingIcon.kt$@LightDarkPreview @Composable private fun AnimatedCheckLoadingPreview_Error()</ID>
+    <ID>UnusedPrivateMember:AnimatedCheckLoadingIcon.kt$@LightDarkPreview @Composable private fun AnimatedCheckLoadingPreview_Loading()</ID>
+    <ID>UnusedPrivateMember:AnimatedCheckLoadingIcon.kt$@LightDarkPreview @Composable private fun AnimatedCheckLoadingPreview_Success()</ID>
+    <ID>UnusedPrivateMember:ClickableText.kt$@LightDarkPreview @Composable private fun ClickableTextPreview()</ID>
+    <ID>UnusedPrivateMember:CountryListLoadingSection.kt$@LightDarkPreview @Composable private fun OverviewLoadingSectionPreview()</ID>
+    <ID>UnusedPrivateMember:DbMigrationLoggerScreen.kt$@LightDarkPreview @Composable private fun DbMigrationLoggerScreenPreview( @PreviewParameter(DbMigrationLoggerScreenPreviewParameterProvider::class) data: DbMigrationLoggerScreenPreviewData )</ID>
+    <ID>UnusedPrivateMember:DispenseMessage.kt$@LightDarkPreview @Composable private fun DispenseMessagePreview()</ID>
     <ID>UnusedPrivateMember:DownloadedLanguageItem.kt$@LightDarkPreview @Composable private fun ClickableTextFieldDeletablePreview()</ID>
     <ID>UnusedPrivateMember:DownloadedLanguageItem.kt$@LightDarkPreview @Composable private fun ClickableTextFieldNonDeletablePreview()</ID>
+    <ID>UnusedPrivateMember:EuAvatar.kt$@LightDarkPreview(name = "Avatar") @Composable private fun AvatarColorsPreview()</ID>
+    <ID>UnusedPrivateMember:EuLogo.kt$@LightDarkPreview @Composable private fun EuLogoPreview()</ID>
+    <ID>UnusedPrivateMember:EuLogo.kt$@LightDarkPreview @Composable private fun EuLogoRoundedPreview()</ID>
+    <ID>UnusedPrivateMember:EuRedemptionCard.kt$@LightDarkPreview @Composable private fun EuRedemptionCardActivePreview()</ID>
+    <ID>UnusedPrivateMember:EuRedemptionQrCard.kt$@LightDarkPreview @Composable private fun EuRedemptionQrViewErrorPreview()</ID>
+    <ID>UnusedPrivateMember:FilterSheetChip.kt$@LightDarkPreview @Composable private fun FilterSheetChipCheckedPreview()</ID>
+    <ID>UnusedPrivateMember:FilterSheetChip.kt$@LightDarkPreview @Composable private fun FilterSheetChipUncheckedPreview()</ID>
     <ID>UnusedPrivateMember:GemDropdownMenuItem.kt$@LightDarkPreview @Composable private fun GemDropdownMenuItemPreview()</ID>
     <ID>UnusedPrivateMember:InsuranceListLoadingSection.kt$@LightDarkPreview @Composable private fun OverviewLoadingSectionPreview()</ID>
+    <ID>UnusedPrivateMember:InvoiceMessage.kt$@LightDarkPreview @Composable private fun InvoiceMessagePreview()</ID>
+    <ID>UnusedPrivateMember:MedicationPlanScheduleListScreen.kt$@OptIn(ExperimentalMaterialApi::class) @Composable private fun MedicationPlanOverviewSection( onOpenMedicationPlanOverview: () -&gt; Unit )</ID>
+    <ID>UnusedPrivateMember:MessageActionButton.kt$@LightDarkPreview @Composable private fun MessageActionButtonPreview()</ID>
+    <ID>UnusedPrivateMember:OrderSelectedServicesRow.kt$@LightDarkPreview @Composable private fun OrderRowPreview()</ID>
+    <ID>UnusedPrivateMember:Orders.kt$@LightDarkPreview @Composable private fun OrderItemItemPreview()</ID>
+    <ID>UnusedPrivateMember:Orders.kt$@LightDarkPreview @Composable private fun OrdersPreview()</ID>
+    <ID>UnusedPrivateMember:PharmacyFilterServiceSection.kt$@LightDarkPreview @Composable private fun PharmacyFilterServiceSectionPreview()</ID>
+    <ID>UnusedPrivateMember:PharmacyFilterServiceSection.kt$@LightDarkPreview @Composable private fun PharmacyFilterServiceSectionWithDescriptionsPreview()</ID>
+    <ID>UnusedPrivateMember:PharmacyOnSiteSection.kt$@LightDarkPreview @Composable private fun PharmacyOnSiteSectionPreview()</ID>
+    <ID>UnusedPrivateMember:PharmacyOrderOptionCard.kt$@LightDarkPreview @Composable private fun OrderIconFlatPreview()</ID>
+    <ID>UnusedPrivateMember:PharmacyOrderOptionCard.kt$@LightDarkPreview @Composable private fun OrderIconLongPreview()</ID>
+    <ID>UnusedPrivateMember:PrescriptionListForMessages.kt$@LightDarkPreview @Composable private fun PrescriptionListForMessagesPreview()</ID>
+    <ID>UnusedPrivateMember:ProfileHeader.kt$@LightDarkPreview @Composable private fun ProfileHeaderPreview()</ID>
+    <ID>UnusedPrivateMember:RedeemContactInformationSection.kt$@LightDarkPreview @Composable private fun RedeemContactMissingSectionPreview()</ID>
+    <ID>UnusedPrivateMember:RedeemContactInformationSection.kt$@LightDarkPreview @Composable private fun ShippingInformationSectionPreview()</ID>
+    <ID>UnusedPrivateMember:RedeemContactInformationSection.kt$@LightDarkPreview @Composable private fun ShippingInformationSectionWithErrorPreview()</ID>
+    <ID>UnusedPrivateMember:RedeemOrderOverviewScreen.kt$@LightDarkPreview @Composable private fun ContactSelectionSectionPreview()</ID>
+    <ID>UnusedPrivateMember:RedeemOrderOverviewScreen.kt$@LightDarkPreview @Composable private fun PharmacySelectionSectionPreview()</ID>
+    <ID>UnusedPrivateMember:RedeemOrderOverviewScreen.kt$@LightDarkPreview @Composable private fun PrescriptionSelectionSectionPreview( @PreviewParameter(PrescriptionSelectionSectionParameter::class) state: List&lt;PrescriptionInOrder&gt; )</ID>
+    <ID>UnusedPrivateMember:RedemptionCardWithToggle.kt$@LightDarkPreview(name = "Card View - QR") @Composable private fun RedemptionQRCardWithToggleCardPreview()</ID>
+    <ID>UnusedPrivateMember:RedemptionCardWithToggle.kt$@LightDarkPreview(name = "Card View") @Composable private fun RedemptionCardWithToggleCardPreview()</ID>
+    <ID>UnusedPrivateMember:ScheduleTimeSelectionSection.kt$@LightDarkPreview @Composable private fun ScheduleTimeCardPreview()</ID>
+    <ID>UnusedPrivateMember:TextFilter.kt$TextFilter.Companion$private fun String.sanitize(): String</ID>
     <ID>UnusedPrivateMember:TranslateChip.kt$@LightDarkPreview @Composable private fun TranslateChipPreview()</ID>
     <ID>UnusedPrivateMember:TranslationFailure.kt$TranslationFailure.LanguageNotDownloaded$private fun readResolve(): Any</ID>
     <ID>UnusedPrivateMember:TranslationFailure.kt$TranslationFailure.SourceLanguageNotSupported$private fun readResolve(): Any</ID>
     <ID>UnusedPrivateMember:TranslationFailure.kt$TranslationFailure.TargetLanguageNotSet$private fun readResolve(): Any</ID>
-    <ID>UnusedPrivateProperty:CommunicationMocks.kt$private const val MOCK_COMMUNICATION_ID_01 = "CID-123-001"</ID>
+    <ID>UnusedPrivateMember:VauRepository.kt$VauRepository$private suspend fun loadVauAndOcsp(): Pair&lt;UntrustedVauList, UntrustedOCSPList&gt;</ID>
     <ID>UnusedPrivateProperty:DefaultProfilesRepository.kt$private const val DEBUG_ORGANIZATION_IDENTIFIER = "104212505"</ID>
+    <ID>UnusedPrivateProperty:EuInstructionControllerTest.kt$EuInstructionControllerTest$private val context: Context = mockk()</ID>
+    <ID>UnusedPrivateProperty:GetShippingContactValidationUseCase.kt$GetShippingContactValidationUseCase.Companion$private val hintRegex = Regex("[\\p{L}0-9\\-.,:!@_%+?'/\"\\s]{1,$MAX_HINT_TEXT_LENGTH}$")</ID>
     <ID>UnusedPrivateProperty:LoadHealthInsuranceListUseCaseTest.kt$LoadHealthInsuranceListUseCaseTest.Companion$private val mockInputStream = ByteArrayInputStream(contacts.toByteArray())</ID>
+    <ID>UnusedPrivateProperty:MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest.kt$MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest$private val now = Instant.parse("2024-01-01T12:00:00Z")</ID>
+    <ID>UnusedPrivateProperty:MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest.kt$MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest$private val prescriptionRepository: PrescriptionRepository = mockk()</ID>
+    <ID>UnusedPrivateProperty:MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest.kt$MedicationPlanScheduleDurationAndIntervalScreenDetailScreenControllerTest$private val testScope = TestScope(dispatcher)</ID>
+    <ID>UnusedPrivateProperty:MedicationPlanScheduleDurationAndIntervalScreenDurationAndIntervalScreenControllerTest.kt$MedicationPlanScheduleDurationAndIntervalScreenDurationAndIntervalScreenControllerTest$private val prescriptionRepository: PrescriptionRepository = mockk()</ID>
+    <ID>UnusedPrivateProperty:MedicationPlanScheduleDurationAndIntervalScreenDurationAndIntervalScreenControllerTest.kt$MedicationPlanScheduleDurationAndIntervalScreenDurationAndIntervalScreenControllerTest$private val testScope = TestScope(dispatcher)</ID>
     <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_1 = OrderUseCaseData.Order( orderId = "2", sentOn = Instant.parse("2023-07-03T15:20:00Z"), hasUnreadMessages = true, pharmacy = OrderUseCaseData.Pharmacy("123", "Apotheke"), prescriptions = emptyList(), latestCommunicationMessage = mockLastMessage )</ID>
     <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_2 = OrderUseCaseData.Order( orderId = "2", sentOn = Instant.parse("2023-07-04T15:20:00Z"), hasUnreadMessages = true, pharmacy = OrderUseCaseData.Pharmacy("123", "Flughafen"), prescriptions = emptyList(), latestCommunicationMessage = mockLastMessageLong )</ID>
     <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_3 = OrderUseCaseData.Order( orderId = "3", sentOn = Instant.parse("2023-07-05T15:20:00Z"), hasUnreadMessages = false, pharmacy = OrderUseCaseData.Pharmacy("123", "TaxiStand"), prescriptions = listOf(PREVIEW_PRESCRIPTION), latestCommunicationMessage = null )</ID>
     <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_4 = OrderUseCaseData.Order( orderId = "4", sentOn = Instant.parse("2023-07-06T15:20:00Z"), hasUnreadMessages = true, pharmacy = OrderUseCaseData.Pharmacy("123", "HauptBahnhof"), prescriptions = listOf(PREVIEW_PRESCRIPTION), latestCommunicationMessage = mockLastMessage )</ID>
     <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_5 = OrderUseCaseData.Order( orderId = "5", sentOn = Instant.parse("2023-07-08T15:20:00Z"), hasUnreadMessages = false, pharmacy = OrderUseCaseData.Pharmacy("123", "BusStation"), prescriptions = listOf( PREVIEW_PRESCRIPTION, PREVIEW_PRESCRIPTION.copy(index = 1), PREVIEW_PRESCRIPTION.copy(index = 2) ), latestCommunicationMessage = mockLastMessageLong )</ID>
+    <ID>UnusedPrivateProperty:PharmacyBackendServiceSelectionScreen.kt$private const val EQUAL_WEIGHTS = 0.5f</ID>
+    <ID>UnusedPrivateProperty:PharmacyBundleParser.kt$PharmacyBundleParser.Companion$// Length of date string in format YYYY-MM-DD private const val DATE_LENGTH = 10</ID>
+    <ID>UnusedPrivateProperty:PharmacyBundleParser.kt$PharmacyBundleParser.Companion$// Start index for time substring in ISO date-time string private const val TIME_START_INDEX = 11</ID>
+    <ID>UnusedPrivateProperty:PharmacyMapperTest.kt$private val testBundle by lazy { File("$ResourceBasePath/pharmacy_result_bundle.json").readText() }</ID>
     <ID>UnusedPrivateProperty:RedeemDigaUseCaseTest.kt$RedeemDigaUseCaseTest.Companion$private const val iknr = "123456789"</ID>
-    <ID>UnusedPrivateProperty:RedeemPrescriptionsOnLoggedInUseCase.kt$private val json = Json { encodeDefaults = true prettyPrint = false }</ID>
-    <ID>UtilityClassWithPublicConstructor:FhirMarkdownGenerator.kt$FhirMarkdownGenerator</ID>
     <ID>VariableNaming:FhirMedicationDispenseReference.kt$FhirMedicationDispenseReference$private val DECLINE_EXTENSION_URL = "http://hl7.org/fhir/StructureDefinition/data-absent-reason"</ID>
+    <ID>ViewModelForwarding:CardWallScannerScreen.kt$ScannerEventHandlers( navController = navController, sharedViewModel = sharedViewModel, cardWallScannerController = cardWallScannerController ) { handleCanSelection, handleClose -&gt; ScannerScreenContent( state = ScannerState( detectedCan = detectedCan, isScanning = isScanning, isFlashlightOn = isFlashlightOn ), callbacks = ScannerCallbacks( onSetupCamera = cardWallScannerController::setupCamera, onToggleFlashlight = cardWallScannerController::toggleFlashlight, onImageAnalyzed = { imageProxy, previewView, density, screenWidth, screenHeight -&gt; cardWallScannerController.processImageFrame( imageProxy, previewView, density, screenWidth, screenHeight, debugHealthCardReference, releaseHealthCardReference ) }, onCanSelected = handleCanSelection, onClose = handleClose, onFlashlightToggle = { isFlashlightOn = !isFlashlightOn } ) ) }</ID>
   </CurrentIssues>
 </SmellBaseline>

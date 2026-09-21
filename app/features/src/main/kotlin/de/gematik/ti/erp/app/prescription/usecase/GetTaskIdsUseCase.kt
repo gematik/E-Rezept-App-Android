@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.prescription.usecase
 
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -30,11 +30,11 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 
 class GetTaskIdsUseCase(
-    private val repository: PrescriptionRepository,
+    private val repository: TaskOperationsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend operator fun invoke(profileId: ProfileIdentifier): List<String> =
         withContext(dispatcher) {
-            repository.loadAllTaskIds(profileId).firstOrNull() ?: emptyList()
+            repository.loadTaskIdStringListByProfileId(profileId).firstOrNull() ?: emptyList()
         }
 }

@@ -23,11 +23,10 @@
 package de.gematik.ti.erp.app.messages.repository
 
 import de.gematik.ti.erp.app.api.ResourcePaging
-import de.gematik.ti.erp.app.messages.model.Communication
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 
@@ -42,22 +41,28 @@ interface CommunicationRepository {
     ): Result<ResourcePaging.ResourceResult<Unit>>
 
     suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant?
-    fun loadPharmacies(): Flow<List<CachedPharmacy>>
-    fun loadSyncedByTaskId(taskId: String): Flow<SyncedTaskData.SyncedTask?>
-    fun loadScannedByTaskId(taskId: String): Flow<ScannedTaskData.ScannedTask?>
+    fun loadSyncedByTaskId(taskId: String): Flow<TaskErpModel.Synced.Prescription?>
+    fun loadScannedByTaskId(taskId: String): Flow<TaskErpModel.Scanned?>
 
-    fun loadDispReqCommunications(orderId: String): Flow<List<Communication>>
-    fun loadDispReqCommunicationsByProfileId(profileId: ProfileIdentifier): Flow<List<Communication>>
-    fun loadRepliedCommunications(taskIds: List<String>, telematikId: String): Flow<List<Communication>>
-    fun loadAllRepliedCommunications(taskIds: List<String>): Flow<List<Communication>>
+    fun loadDispReqCommunications(orderId: String): Flow<List<CommunicationErpModel>>
+    fun loadDispReqCommunicationsByProfileId(profileId: ProfileIdentifier): Flow<List<CommunicationErpModel>>
+    fun loadDispReqCommunicationsByTaskId(taskId: String): Flow<List<CommunicationErpModel>>
+    fun loadRepliedCommunications(taskIds: List<String>, telematikId: String): Flow<List<CommunicationErpModel>>
+    fun loadRepliedCommunications(orderId: String): Flow<List<CommunicationErpModel>>
+    fun loadRepliedCommunications(orderId: String, telematikId: String): Flow<List<CommunicationErpModel>>
+    fun loadRepliedCommunicationsByProfileId(profileId: ProfileIdentifier): Flow<List<CommunicationErpModel>>
+
+    fun taskIdsByOrder(orderId: String): Flow<List<String>>
+    fun loadAllRepliedCommunications(taskIds: List<String>): Flow<List<CommunicationErpModel>>
+    fun getAllUnreadMessages(): Flow<List<CommunicationErpModel>>
+    fun unreadMessagesCount(): Flow<Long>
     fun hasUnreadDispenseMessage(taskIds: List<String>, orderId: String): Flow<Boolean>
     fun hasUnreadDispenseMessage(profileId: ProfileIdentifier): Flow<Boolean>
-    fun unreadMessagesCount(): Flow<Long>
     fun unreadPrescriptionsInAllOrders(profileId: ProfileIdentifier): Flow<Long>
-    fun taskIdsByOrder(orderId: String): Flow<List<String>>
-    fun profileByOrderId(orderId: String): Flow<ProfilesData.Profile>
-    fun getAllUnreadMessages(): Flow<List<Communication>>
+    fun profileByOrderId(orderId: String): Flow<ProfileErpModel>
+    fun profileByTaskId(taskId: String): Flow<ProfileErpModel>
     suspend fun setCommunicationStatus(communicationId: String, consumed: Boolean)
+    suspend fun updatePharmacyName(communicationId: String, pharmacyName: String)
     suspend fun saveLocalCommunication(taskId: String, pharmacyId: String, transactionId: String)
     suspend fun hasUnreadRepliedMessages(taskIds: List<String>, telematikId: String): Flow<Boolean>
 }

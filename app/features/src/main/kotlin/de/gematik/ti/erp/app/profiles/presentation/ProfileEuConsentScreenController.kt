@@ -34,8 +34,8 @@ import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.eurezept.ui.model.EuConsentNavigationEvent
 import de.gematik.ti.erp.app.eurezept.ui.model.EuConsentViewState
 import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -84,10 +84,6 @@ class ProfileEuConsentScreenController(
     private val _navigationEvents = MutableSharedFlow<EuConsentNavigationEvent>()
     val navigationEvents: SharedFlow<EuConsentNavigationEvent> = _navigationEvents.asSharedFlow()
 
-    fun retryLoadingConsent() {
-        refreshActiveProfile()
-    }
-
     fun onConsentAccepted() {
         val currentConsentState = _consentViewState.value
         val currentProfileState = activeProfile.value
@@ -127,7 +123,7 @@ class ProfileEuConsentScreenController(
         }
     }
 
-    private suspend fun reloadConsentAfterGrant(profile: ProfilesUseCaseData.Profile) {
+    private suspend fun reloadConsentAfterGrant(profile: ProfileErpModel) {
         val result = getEuPrescriptionConsentUseCase(profile.id, ConsentCategory.EUCONSENT.code).first()
         result.fold(
             onSuccess = { consent ->
@@ -204,7 +200,7 @@ class ProfileEuConsentScreenController(
         }
     }
 
-    private suspend fun reloadConsentAfterRevoke(profile: ProfilesUseCaseData.Profile) {
+    private suspend fun reloadConsentAfterRevoke(profile: ProfileErpModel) {
         val result = getEuPrescriptionConsentUseCase(profile.id, ConsentCategory.EUCONSENT.code).first()
 
         result.fold(

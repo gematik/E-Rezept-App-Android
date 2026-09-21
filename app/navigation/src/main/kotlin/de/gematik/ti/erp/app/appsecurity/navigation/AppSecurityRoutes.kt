@@ -37,14 +37,14 @@ object AppSecurityRoutes : NavigationRoutes {
     object DeviceCheckLoadingScreen : Routes(NavigationRouteNames.DeviceCheckLoadingScreen.name)
     object InsecureDeviceScreen : Routes(NavigationRouteNames.InsecureDeviceScreen.name)
 
-    const val ANDROID8_NEXT_ROUTE = "nextRoute"
+    const val ANDROID13_NEXT_ROUTE = "nextRoute"
 
-    object Android8DeprecationScreen : Routes(
-        NavigationRouteNames.Android8DeprecationScreen.name,
-        navArgument(ANDROID8_NEXT_ROUTE) { type = NavType.StringType; nullable = true; defaultValue = null }
+    object Android13DeprecationScreen : Routes(
+        NavigationRouteNames.Android13DeprecationScreen.name,
+        navArgument(ANDROID13_NEXT_ROUTE) { type = NavType.StringType; nullable = true; defaultValue = null }
     ) {
         fun path(nextRoute: String? = null) =
-            if (nextRoute != null) path(ANDROID8_NEXT_ROUTE to nextRoute) else path()
+            if (nextRoute != null) path(ANDROID13_NEXT_ROUTE to nextRoute) else path()
     }
 
     object IntegrityWarningScreen : Routes(

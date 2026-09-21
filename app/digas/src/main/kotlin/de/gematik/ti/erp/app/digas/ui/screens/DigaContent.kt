@@ -61,7 +61,7 @@ fun DigaContent(
     uiState: UiState<DigaMainScreenUiModel>,
     uiStateBfarm: UiState<DigaBfarmUiModel>,
     logo: @Composable ColumnScope.() -> Unit,
-    lastRefreshedTime: Instant,
+    lastRefreshedTime: Instant?,
     selectedTab: DigaSegmentedControllerTap,
     actions: DigasActions,
     onTabChange: (Int) -> Unit

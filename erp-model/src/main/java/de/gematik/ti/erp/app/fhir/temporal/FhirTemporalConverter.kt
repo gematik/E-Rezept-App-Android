@@ -160,11 +160,7 @@ object FhirTemporalSerializer : JsonContentPolymorphicSerializer<FhirTemporal>(F
     }
 }
 
-fun Instant.asFhirTemporal(): FhirTemporal.Instant {
-    val desiredFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    val updatedInstant = Instant.parse(toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime().format(desiredFormatter))
-    return FhirTemporal.Instant(updatedInstant)
-}
+fun Instant.asFhirTemporal(): FhirTemporal.Instant = FhirTemporal.Instant(this)
 
 fun Instant.toFormattedDateTime(): String? = this.toLocalDateTime(TimeZone.currentSystemDefault())
     .toJavaLocalDateTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.SHORT))
@@ -187,8 +183,7 @@ fun Year.asFhirTemporal() = FhirTemporal.Year(this)
 fun LocalTime.asFhirTemporal() = FhirTemporal.LocalTime(this)
 
 @Suppress("ReturnCount")
-@Deprecated("Use asFhirTemporal() instead")
-fun String.toFhirTemporal(): FhirTemporal {
+fun String.asFhirTemporal(): FhirTemporal {
     // going from the most specific to the least
 
     try {
@@ -219,8 +214,8 @@ fun String.toFhirTemporal(): FhirTemporal {
     error("Couldn't parse `$this`")
 }
 
-fun JsonPrimitive.toFhirTemporal() =
-    this.contentOrNull?.toFhirTemporal()
+fun JsonPrimitive.asFhirTemporal() =
+    this.contentOrNull?.asFhirTemporal()
 
 fun JsonPrimitive.asFhirLocalTime(): FhirTemporal.LocalTime? =
     this.contentOrNull?.let {

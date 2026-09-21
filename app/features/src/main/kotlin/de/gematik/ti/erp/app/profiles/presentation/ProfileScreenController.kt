@@ -32,7 +32,9 @@ import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
 import de.gematik.ti.erp.app.consent.usecase.GetConsentUseCase
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.EU_REDEEM
+import de.gematik.ti.erp.app.database.datastore.featuretoggle.PUSH_NOTIFICATIONS
 import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.AddProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.DeleteProfileUseCase
@@ -41,8 +43,8 @@ import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.LogoutProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.SwitchActiveProfileUseCase
-import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileUseCase
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileNameUseCase
+import de.gematik.ti.erp.app.profiles.model.EuConsentStatus
 import de.gematik.ti.erp.app.redeem.usecase.HasEuRedeemablePrescriptionsUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -67,7 +69,7 @@ class ProfileScreenController(
     networkStatusTracker: NetworkStatusTracker,
     chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase,
     private val switchActiveProfileUseCase: SwitchActiveProfileUseCase,
-    private val updateProfileUseCase: UpdateProfileUseCase,
+    private val updateProfileNameUseCase: UpdateProfileNameUseCase,
     private val logoutProfileUseCase: LogoutProfileUseCase,
     private val addProfileUseCase: AddProfileUseCase,
     private val deleteProfileUseCase: DeleteProfileUseCase,
@@ -84,11 +86,19 @@ class ProfileScreenController(
     networkStatusTracker = networkStatusTracker
 ) {
 
-    private val _euConsentStatus = MutableStateFlow<Boolean?>(null)
-    val euConsentStatus: StateFlow<Boolean?> = _euConsentStatus.asStateFlow()
+    private val _euConsentStatus = MutableStateFlow<EuConsentStatus>(EuConsentStatus.Loading)
+    val euConsentStatus: StateFlow<EuConsentStatus> = _euConsentStatus.asStateFlow()
 
     val euRedeemFeatureFlag: StateFlow<Boolean> =
         isFeatureToggleEnabledUseCase(EU_REDEEM)
+            .stateIn(
+                controllerScope,
+                SharingStarted.WhileSubscribed(),
+                false
+            )
+
+    val pushNotificationsFeatureFlag: StateFlow<Boolean> =
+        isFeatureToggleEnabledUseCase(PUSH_NOTIFICATIONS)
             .stateIn(
                 controllerScope,
                 SharingStarted.WhileSubscribed(),
@@ -100,16 +110,20 @@ class ProfileScreenController(
             getEuPrescriptionConsentUseCase(profileId, ConsentCategory.EUCONSENT.code)
                 .first().fold(
                     onSuccess = { consentCollection ->
-                        _euConsentStatus.value = consentCollection.isActive()
+                        _euConsentStatus.value = if (consentCollection.isActive()) {
+                            EuConsentStatus.Accepted
+                        } else {
+                            EuConsentStatus.Declined
+                        }
                     },
                     onFailure = {
-                        _euConsentStatus.value = false
+                        _euConsentStatus.value = EuConsentStatus.Error
                     }
                 )
         }
     }
 
-    fun onEuConsentClick(profile: ProfilesUseCaseData.Profile): Boolean =
+    fun onEuConsentClick(profile: ProfileErpModel): Boolean =
         profile.isSSOTokenValid().also { if (!it) chooseAuthenticationMethod(profile) }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -144,10 +158,7 @@ class ProfileScreenController(
     fun updateProfileName(name: String) {
         controllerScope.launch {
             combinedProfile.value.data?.selectedProfile?.let {
-                updateProfileUseCase(
-                    modifier = UpdateProfileUseCase.Companion.ProfileModifier.Name(name),
-                    id = it.id
-                )
+                updateProfileNameUseCase(it.id, name)
             }
         }
     }
@@ -174,7 +185,7 @@ fun rememberProfileScreenController(profileId: ProfileIdentifier): ProfileScreen
     val getProfileByIdUseCase by rememberInstance<GetProfileByIdUseCase>()
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
     val getProfilesUseCase by rememberInstance<GetProfilesUseCase>()
-    val updateProfileUseCase by rememberInstance<UpdateProfileUseCase>()
+    val updateProfileNameUseCase by rememberInstance<UpdateProfileNameUseCase>()
     val switchActiveProfileUseCase by rememberInstance<SwitchActiveProfileUseCase>()
     val addProfileUseCase by rememberInstance<AddProfileUseCase>()
     val deleteProfileUseCase by rememberInstance<DeleteProfileUseCase>()
@@ -193,7 +204,7 @@ fun rememberProfileScreenController(profileId: ProfileIdentifier): ProfileScreen
             getProfileByIdUseCase = getProfileByIdUseCase,
             getProfilesUseCase = getProfilesUseCase,
             switchActiveProfileUseCase = switchActiveProfileUseCase,
-            updateProfileUseCase = updateProfileUseCase,
+            updateProfileNameUseCase = updateProfileNameUseCase,
             addProfileUseCase = addProfileUseCase,
             deleteProfileUseCase = deleteProfileUseCase,
             logoutProfileUseCase = logoutProfileUseCase,

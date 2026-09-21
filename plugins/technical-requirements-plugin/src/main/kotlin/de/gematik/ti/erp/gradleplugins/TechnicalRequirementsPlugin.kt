@@ -78,10 +78,14 @@ class TechnicalRequirementsPlugin : Plugin<Project> {
                 val sourceDirs = setOf(
                     File(project.rootDir.path, ANDROID_APP_PATH),
                     File(project.rootDir, APP_FEATURES_PATH),
+                    File(project.rootDir.path, APP_PUSH_NOTIFICATIONS_MODULE_PATH),
                     File(project.rootDir.path, SHARED_MODULE_PATH),
                     File(project.rootDir.path, SHARED_TEST_MODULE_PATH),
                     File(project.rootDir.path, SHARED_ANDROID_MODULE_PATH),
-                    File(project.rootDir.path, FHIR_PARSER_MODULE_PATH)
+                    File(project.rootDir.path, FHIR_PARSER_MODULE_PATH),
+                    File(project.rootDir.path, DATABASE_MODULE_PATH),
+                    File(project.rootDir.path, CORE_MODULE_PATH),
+                    File(project.rootDir.path, ERP_MODEL_MODULE_PATH)
                 )
                 try {
                     val requirements = generateRequirements(sourceDirs)

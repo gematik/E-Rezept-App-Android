@@ -30,25 +30,29 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PersonOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
 import de.gematik.ti.erp.app.profiles.ui.components.Avatar
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ProfileHeader(profile: ProfilesUseCaseData.Profile) {
+fun ProfileHeader(profile: ProfileErpModel) {
     ListItem(
         modifier = Modifier,
         icon = {
             Avatar(
                 modifier = Modifier.size(SizeDefaults.sixfold),
                 emptyIcon = Icons.Rounded.PersonOutline,
-                profile = profile,
+                imageData = profile.profileImageData,
                 iconModifier = Modifier.size(SizeDefaults.doubleHalf)
             )
         },
@@ -66,18 +70,28 @@ fun ProfileHeader(profile: ProfilesUseCaseData.Profile) {
 private fun ProfileHeaderPreview() {
     PreviewAppTheme {
         ProfileHeader(
-            profile = ProfilesUseCaseData.Profile(
+            profile = ProfileErpModel(
                 id = "1",
                 name = "Max Mustermann",
-                insurance = ProfileInsuranceInformation(
-                    insuranceType = ProfilesUseCaseData.InsuranceType.GKV
+                insuranceData = ProfileInsuranceDataErpModel(
+                    insuranceType = InsuranceType.GKV,
+                    insuranceIdentifier = "123456789",
+                    insurantName = "Max Mustermann",
+                    insuranceName = "GKV",
+                    organizationIdentifier = null
                 ),
-                isActive = true,
-                color = ProfilesData.ProfileColorNames.SPRING_GRAY,
+                active = true,
+                profileImageData = ProfileImageDataErpModel(
+                    color = ProfileColorNames.SPRING_GRAY,
+                    avatar = Avatar.PersonalizedImage,
+                    image = null
+                ),
                 lastAuthenticated = null,
-                ssoTokenScope = null,
-                avatar = ProfilesData.Avatar.PersonalizedImage,
-                image = null
+                userAuthentication = UserAuthenticationErpModel.NotInitialized,
+                lastTaskSynced = null,
+                lastAuditEventSynced = null,
+                isConsentDrawerShown = true,
+                isNewlyCreated = false
             )
         )
     }

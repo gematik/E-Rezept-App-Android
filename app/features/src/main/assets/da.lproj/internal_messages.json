@@ -70,5 +70,11 @@
         "text": "**🏥 Forbedrede apoteksoplysninger** \nApoteker kan nu tilføje tjenester såsom vaccinationer og funktioner på stedet som handicapvenlig adgang. Apoteker kan filtreres baseret på disse nye oplysninger. \n \n **✨ Forbedret apotekssøgning** \nSenest brugte apoteker og foretrukne apoteker er nu mere tydeligt adskilt. Filtrene er blevet forbedret. \n \n **✅ Sundheds-ID til andre forsikrede personer** \nForsikrede personer, der ikke er dækket af lovpligtig eller privat sygeforsikring, kan nu også logge ind med deres sundheds-ID. \n \n **🛡️ Sporing fjernet** \nVi har fjernet det sporingsværktøj, der bruges i appen. Der indsamles ikke længere app-brugsdata. \n \n **♿ Forbedret tilgængelighed** \nFiltrene har nu højere kontrast, og filterstatussen er nu lettere at se.",
         "timestamp": "2026-03-30T08:00:00.000Z",
         "version": "1.38"
+    },
+    {
+        "id": "14",
+        "text": "**✅ T-recepter tilgængelige**\nT-recepter kan nu modtages og vises korrekt. T-recepter bruges til visse lægemidler med særlige sikkerhedskrav.\n\n**⚙️ Indstillinger ryddet op**\nProfilindstillingerne er blevet revideret og gjort tydeligere.\n\n**♿ Mere tilgængelighed**\nBarrierer kan nu rapporteres direkte fra indstillingerne. Knapper, menuer, lister og overskrifter er blevet optimeret til brug med TalkBack. Kontrasten er blevet forbedret, og animationer afspilles nu kun én gang. Navnefeltet har nu en permanent synlig etiket. Større skriftstørrelser understøttes nu også i appens webvisninger.",
+        "timestamp": "2026-08-18T08:00:00.000Z",
+        "version": "1.39"
     }
 ]

@@ -23,10 +23,9 @@
 package de.gematik.ti.erp.app.prescription.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.diga.model.DigaStatus
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.ui.model.ArchiveSegmentedControllerTap
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
@@ -45,8 +44,8 @@ class PrescriptionsArchiveScreenPreviewParameterProvider : PreviewParameterProvi
 }
 
 data class PrescriptionsDigasArchiveScreenPreviewData(
-    val archivedDigas: UiState<List<Prescription>>,
-    val archivedPrescriptions: UiState<List<Prescription>>,
+    val archivedDigas: UiState<List<TaskErpModel>>,
+    val archivedPrescriptions: UiState<List<TaskErpModel>>,
     val selectedTab: ArchiveSegmentedControllerTap = ArchiveSegmentedControllerTap.PRESCRIPTION
 )
 
@@ -86,114 +85,64 @@ val mockError = PrescriptionsDigasArchiveScreenPreviewData(
 object PrescriptionsArchiveScreenPreviewData {
     val now: Instant = Instant.parse("2023-11-20T15:20:00Z")
 
-    private val mockPrescriptions = listOf(
-        Prescription.SyncedPrescription(
-            taskId = "1",
-            name = "Painkillers Medication 1",
-            redeemedOn = now - 2.days,
-            expiresOn = now - 3.days,
-            state = SyncedTaskData.SyncedTask.Expired(
-                expiredOn = now - 1.days
-            ),
-            isIncomplete = true,
-            organization = "Health Organization A",
-            authoredOn = now - 10.days,
-            acceptUntil = now + 20.days,
-            isDirectAssignment = false,
-            deviceRequestState = DigaStatus.Ready,
-            lastModified = Instant.fromEpochSeconds(123456),
-            prescriptionChipInformation = Prescription.PrescriptionChipInformation(
-                isSelfPayPrescription = true,
-                isPartOfMultiplePrescription = false,
-                numerator = "1",
-                denominator = "5",
-                start = now - 5.days
-            )
-        ),
-        Prescription.SyncedPrescription(
-            taskId = "2",
-            name = "Painkillers Medication 2",
-            redeemedOn = now - 10.days,
-            expiresOn = null,
-            state = SyncedTaskData.SyncedTask.Deleted(
-                lastModified = now - 5.days
-            ),
-            isIncomplete = true,
-            organization = "Health Organization B",
-            authoredOn = now - 15.days,
-            acceptUntil = null,
-            isDirectAssignment = false,
-            deviceRequestState = DigaStatus.Ready,
-            lastModified = Instant.fromEpochSeconds(123456),
-            prescriptionChipInformation = Prescription.PrescriptionChipInformation(
-                isSelfPayPrescription = true,
-                isPartOfMultiplePrescription = false,
-                numerator = null,
-                denominator = null,
-                start = null
-            )
-        ),
-        Prescription.SyncedPrescription(
-            taskId = "3",
-            name = "Painkillers Medication 3",
-            redeemedOn = null,
+    private fun buildPrescription(
+        taskId: String,
+        name: String,
+        status: TaskStatusEnum,
+        expiresOn: Instant? = null,
+        acceptUntil: Instant? = null,
+        authoredOn: Instant = now - 10.days,
+        isIncomplete: Boolean = false
+    ) = TaskErpModel.Synced.Prescription(
+        profileId = "preview",
+        taskId = taskId,
+        name = name,
+        accessCode = "",
+        isEuRedeemable = false,
+        isEuRedeemableByPatientAuthorization = false,
+        lastModified = Instant.fromEpochSeconds(123456),
+        organization = null,
+        practitioner = null,
+        patient = null,
+        insuranceInformation = null,
+        expiresOn = expiresOn,
+        acceptUntil = acceptUntil,
+        authoredOn = authoredOn,
+        status = status,
+        isIncomplete = isIncomplete,
+        pvsIdentifier = "",
+        failureToReport = "",
+        medicationRequest = null,
+        medicationDispenses = emptyList()
+    )
+
+    private val mockPrescriptions: List<TaskErpModel> = listOf(
+        buildPrescription("1", "Painkillers Medication 1", TaskStatusEnum.Canceled, expiresOn = now - 3.days, authoredOn = now - 10.days),
+        buildPrescription("2", "Painkillers Medication 2", TaskStatusEnum.Canceled, authoredOn = now - 15.days),
+        buildPrescription(
+            "3",
+            "Painkillers Medication 3",
+            TaskStatusEnum.Canceled,
             expiresOn = now - 1.days,
-            state = SyncedTaskData.SyncedTask.Expired(
-                expiredOn = now - 1.days
-            ),
-            isIncomplete = false,
-            organization = "Health Organization C",
-            authoredOn = now - 40.days,
             acceptUntil = now - 40.days,
-            isDirectAssignment = false,
-            deviceRequestState = DigaStatus.Ready,
-            lastModified = Instant.fromEpochSeconds(123456),
-            prescriptionChipInformation = Prescription.PrescriptionChipInformation(
-                isSelfPayPrescription = false,
-                isPartOfMultiplePrescription = true,
-                numerator = "2",
-                denominator = "3",
-                start = now - 35.days
-            )
+            authoredOn = now - 40.days
         ),
-        Prescription.ScannedPrescription(
+        TaskErpModel.Scanned(
+            profileId = "preview",
             taskId = "4",
-            name = "Painkillers Medication 4",
-            redeemedOn = now - 5.days,
-            scannedOn = now - 10.days,
             index = 1,
-            communications = emptyList()
+            name = "Painkillers Medication 4",
+            accessCode = "",
+            scannedOn = now - 10.days,
+            redeemedOn = now - 5.days,
+            isEuRedeemable = false
         )
     )
 
-    private val mockDiga = listOf(
-        Prescription.SyncedPrescription(
-            taskId = "3",
-            name = "Painkillers Medication 3",
-            redeemedOn = null,
-            expiresOn = now - 1.days,
-            state = SyncedTaskData.SyncedTask.Expired(
-                expiredOn = now - 1.days
-            ),
-            isIncomplete = false,
-            organization = "Health Organization C",
-            authoredOn = now - 40.days,
-            acceptUntil = now - 40.days,
-            isDirectAssignment = false,
-            deviceRequestState = DigaStatus.SelfArchiveDiga,
-            isDiga = true,
-            isNew = false,
-            lastModified = Instant.fromEpochSeconds(123456),
-            prescriptionChipInformation = Prescription.PrescriptionChipInformation(
-                isSelfPayPrescription = false,
-                isPartOfMultiplePrescription = true,
-                numerator = "2",
-                denominator = "3",
-                start = now - 35.days
-            )
-        )
+    private val mockDiga: List<TaskErpModel> = listOf(
+        buildPrescription("5", "Diga App 1", TaskStatusEnum.Canceled, expiresOn = now - 1.days, acceptUntil = now - 40.days, authoredOn = now - 40.days)
     )
 
-    val mockPrescriptionsUiState: UiState<List<Prescription>> = UiState.Data(mockPrescriptions)
-    val mockDigasUiState: UiState<List<Prescription>> = UiState.Data(mockDiga)
+    val mockPrescriptionsUiState: UiState<List<TaskErpModel>> = UiState.Data(mockPrescriptions)
+    val mockDigasUiState: UiState<List<TaskErpModel>> = UiState.Data(mockDiga)
 }

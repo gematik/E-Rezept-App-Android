@@ -19,21 +19,29 @@
 
 ## About The Project
 
-Prescriptions for medicines that are only available in pharmacies can be issued as electronic prescriptions (e-prescriptions resp. E-Rezepte) for people with
+Prescriptions for medicines that are only available in pharmacies can be issued as electronic
+prescriptions (e-prescriptions resp. E-Rezepte) for people with
 public health insurance from 1 July 2021.
-The official gematik E-Rezept App (electronic prescription app) is available to receive and redeem prescriptions digitally. Anyone can download the app for
+The official gematik E-Rezept App (electronic prescription app) is available to receive and redeem
+prescriptions digitally. Anyone can download the app for
 free:
 
 [![Download E-Rezept on the App Store](https://user-images.githubusercontent.com/52454541/126137060-cb8c7ceb-6a72-423d-9079-f3e1a98b2638.png)](https://apps.apple.com/de/app/das-e-rezept/id1511792179)[![Download E-Rezept on the PlayStore](https://user-images.githubusercontent.com/52454541/126138350-a52e1d84-1588-4e8a-86df-189ee4df8bc8.png)](https://play.google.com/store/apps/details?id=de.gematik.ti.erp.app)[![Download E-Rezept on the App Gallery](https://user-images.githubusercontent.com/52454541/126158983-15d73f12-36c6-41ce-8de5-29d10baaed04.png)](https://appgallery.huawei.com/#/app/C104463531)
 
 or as an apk here in GitHub: [Releases](https://github.com/gematik/E-Rezept-App-Android/releases)
 
-Login is possible with the health card or the app of the users public health insurance company. In July 2021, the e-prescription started with a test phase,
-initially in the focus region Berlin-Brandenburg. The nationwide rollout started three month later in September 2022.
+Login is possible with the health card or the app of the users public health insurance company. In
+July 2021, the e-prescription started with a test phase,
+initially in the focus region Berlin-Brandenburg. The nationwide rollout started three month later
+in September 2022.
 
 The e-prescriptions are stored in the telematics infrastructure, for which gematik is responsible.
 
-Visit our [FAQ page](https://www.das-e-rezept-fuer-deutschland.de/faq) for more information about the e-prescription.
+Visit our [FAQ page](https://www.das-e-rezept-fuer-deutschland.de/faq) for more information about
+the e-prescription.
+
+For more details about the project,
+visit: [https://gematik.github.io/E-Rezept-App-Android/](https://gematik.github.io/E-Rezept-App-Android/)
 
 ### Release Notes
 
@@ -46,37 +54,43 @@ including setting up the development environment and building the application.
 
 ### Prerequisites
 
-Before you can build and run the application, ensure you have the following prerequisites installed on your system:
+Before you can build and run the application, ensure you have the following prerequisites installed
+on your system:
 
 - **Android Studio:** The official IDE for Android app development.
-- **Kotlin:** The primary programming language used in this project. Android Studio comes bundled with Kotlin support.
+- **Kotlin:** The primary programming language used in this project. Android Studio comes bundled
+  with Kotlin support.
 - **Git:** A distributed version control system used to manage the project's source code.
 
 **Getting the Project Code**
 
 To begin, clone the project's repository from GitHub using the following command in your terminal:
-"git clone https://github.com/gematik/E-Rezept-App-Android.git" or by using the version control tool of Android Studio.
+"git clone https://github.com/gematik/E-Rezept-App-Android.git" or by using the version control tool
+of Android Studio.
 
 ### Structure
 
-The following graphic provides an overview over the more important parts of the kotlin multiplatform project:
+The following graphic provides an overview over the current Kotlin Multiplatform project structure:
 
 ```text
 |-- app
 |   |-- android              # Main Android application module
 |   |-- android-mock         # Mocked Android build used for testing & CI
+|   |-- consent              # Consent feature module
 |   |-- demo-mode            # Demo mode with mocked datasources and flows
 |   |-- digas                # DiGA integration module
 |   |-- eu-rezept            # EU prescription UI flows and logic
 |   |-- features             # All Android features, screens, controllers, navigation
 |   |-- messages             # Unified message & timeline feature (EU + DE)
 |   |-- navigation           # Central Compose Navigation setup
+|   |-- push-notifications   # Push notification feature module
 |   |-- test-actions         # UI test helpers and robot actions
 |   |-- test-tags            # UI test tags for accessibility and snapshot tests
 |   |-- tracker              # Analytics tracking
 |
 |-- buildSrc                 # Custom Gradle plugins, convention scripts, configs
 |-- ci                       # CI/CD pipelines and workflow definitions
+|-- config                   # Shared configuration files
 |
 |-- common                   # Kotlin Multiplatform shared code (models, use cases)
 |   |-- src/commonMain       # Shared business logic, FHIR helpers, domain models
@@ -108,61 +122,39 @@ The following graphic provides an overview over the more important parts of the 
 |-- scripts                  # Shell scripts, SBOM generator, build helpers
 |
 |-- ui-components            # Shared Compose UI components & design system
+|-- utils                    # Utility helpers and tooling
 ```
 
-- **app/android/src/main:** includes build parameters for the android app.
-- **app/android-mock/src/main:** includes build parameters for the android app-mock (mostly used for testing).
-- **app/features/src/main:** includes the core logic of the android app. Including Screens, UseCases and Navigation.
-- **app/demo-mode/src/main:** includes the core logic of the demo-mode of the android app. Including all overwritten Datasources and UseCases
-- **common/src/commonMain:** includes the general logic of app. Most important the localDatasource and it's entities.
+- **app/android/src/main:** includes build parameters for the Android app.
+- **app/features/src/main:** includes the core logic of the Android app, including screens, use
+  cases, and navigation.
+- **app/demo-mode/src/main:** includes the demo mode logic of the Android app, including overwritten
+  datasources and use cases.
+- **common/src/commonMain:** includes shared business logic for the app, including datasource
+  abstractions and entities.
 
 ### Installation
 
-To create and install an unsigned debug.apk on your connected android device, run:
-
-- "./gradlew :app:android:assembleGoogleTuInternalDebug" in your terminal.
-    - This will create an apk in the following path "app/android/build/outputs/apk/googleTuInternal/debug", which you can then install on your device
-    - run "adb install app/android/build/outputs/apk/googleTuInternal/debug/android-googleTuInternal-debug.apk"
-- or click on the green "run"-Button in the top right of android studio.
+For local setup, build, and installation instructions,
+see [documentation/LOCAL_BUILD_SETUP.md](./documentation/LOCAL_BUILD_SETUP.md).
 
 ## Usage
 
-The installed debug.apk can't communicate to connected servers. It's purpose is for local testing only. To show some data, you can enter the demo-mode via the
+The installed debug.apk can't communicate to connected servers. It's purpose is for local testing
+only. To show some data, you can enter the demo-mode via the
 settings.
-If you want or need an active app, please download a live version from the sources mentioned in the [About The Project](#about-the-project) section.
+If you want or need an active app, please download a live version from the sources mentioned in
+the [About The Project](#about-the-project) section.
 
 ## Contributing
 
-See [Contributing.md](./CONTRIBUTING.md) for all information regarding the the contributing process in this project.
+See [Contributing.md](./CONTRIBUTING.md) for all information regarding the the contributing process
+in this project.
 
 ## Security And Privacy
 
-See [Security.md](./SECURITY.md) for all information regarding the used security and privacy guidelines in this project.
-
-### Room database encryption (Android)
-
-- Debug builds: Room uses standard SQLite (unencrypted) for easy inspection via Database Inspector.
-- Release / non-debug builds: Room uses SQLCipher with an AES-256 passphrase. The passphrase is generated once and stored securely using Android Keystore-backed EncryptedSharedPreferences.
-
-Key generation and storage
-- A 64-byte random passphrase is generated on first use via SecureRandom, then Base64-encoded and stored in EncryptedSharedPreferences protected by a MasterKey (AES256_GCM) in the Android Keystore. The key is never hardcoded.
-- Location: preferences file name "ENCRYPTED_ROOM_PREFS_FILE_NAME", value key "ENCRYPTED_ROOM_PASSWORD_KEY". MasterKey alias: "ROOM_DB_MASTER_KEY".
-
-How it integrates
-- On Android, the Room builder applies openHelperFactory(SupportFactory(passphrase)) only when the module BuildConfig.DEBUG is false.
-- This mirrors the Realm encryption strategy already present in the project (EncryptedSharedPreferences + MasterKey + generated passphrase), but keeps Room unencrypted for debug builds.
-
-Migration of existing plaintext DB
-- If a plaintext Room DB (header starts with "SQLite format 3") is detected when switching to an encrypted Release build, the app performs a controlled wipe of the Room DB (deletes the DB file and its -wal/-shm) and recreates it encrypted on next open. This avoids complex plaintext->encrypted migration logic. Ensure data that needs persistence is already backed by Realm or can be re-synced.
-
-Reinstall / backup-restore behavior
-- Uninstalling the app removes the encrypted Room DB and its key. On reinstall, a new key is generated. If device backup/restore restores app data, EncryptedSharedPreferences is restored with the stored key, which allows the encrypted Room DB to be opened again on the same device/user context (subject to Android backup settings and policies).
-
-Verification
-- In a Release build, the Room database file should not begin with the plaintext header "SQLite format 3". You can verify with:
-  - adb shell run-as <package> cat databases/room.db | head -c 16
-  - Expect the output not to be "SQLite format 3"; it should be non-readable bytes.
-- In a Debug build, you should see a normal SQLite header and be able to browse the DB via Android Studio Database Inspector.
+See [Security.md](./SECURITY.md) for all information regarding the used security and privacy
+guidelines in this project.
 
 ## License
 
@@ -172,23 +164,36 @@ EUROPEAN UNION PUBLIC LICENCE v. 1.2
 
 EUPL © the European Union 2007, 2016
 
-See the [License.md](./LICENSE.md) for the specific language governing permissions and limitations under the License
+See the [License.md](./LICENSE.md) for the specific language governing permissions and limitations
+under the License
 
 ## Additional Notes and Disclaimer from gematik GmbH
 
-1. Copyright notice: Each published work result is accompanied by an explicit statement of the license conditions for use. These are regularly typical
-   conditions in connection with open source or free software. Programs described/provided/linked here are free software, unless otherwise stated.
-2. Permission notice: Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "
-   Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute,
-   sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-    1. The copyright notice (Item 1) and the permission notice (Item 2) shall be included in all copies or substantial portions of the Software.
-    2. The software is provided "as is" without warranty of any kind, either express or implied, including, but not limited to, the warranties of fitness for a
-       particular purpose, merchantability, and/or non-infringement. The authors or copyright holders shall not be liable in any manner whatsoever for any
-       damages or other claims arising from, out of or in connection with the software or the use or other dealings with the software, whether in an action of
+1. Copyright notice: Each published work result is accompanied by an explicit statement of the
+   license conditions for use. These are regularly typical
+   conditions in connection with open source or free software. Programs described/provided/linked
+   here are free software, unless otherwise stated.
+2. Permission notice: Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "
+   Software"), to deal in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute,
+   sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+    1. The copyright notice (Item 1) and the permission notice (Item 2) shall be included in all
+       copies or substantial portions of the Software.
+    2. The software is provided "as is" without warranty of any kind, either express or implied,
+       including, but not limited to, the warranties of fitness for a
+       particular purpose, merchantability, and/or non-infringement. The authors or copyright
+       holders shall not be liable in any manner whatsoever for any
+       damages or other claims arising from, out of or in connection with the software or the use or
+       other dealings with the software, whether in an action of
        contract, tort, or otherwise.
-    3. We take open source license compliance very seriously. We are always striving to achieve compliance at all times and to improve our processes. If you
-       find any issues or have any suggestions or comments, or if you see any other ways in which we can improve, please reach out to: ospo@gematik.de
-3. Please note: Parts of this code may have been generated using AI-supported technology. Please take this into account, especially when troubleshooting, for
+    3. We take open source license compliance very seriously. We are always striving to achieve
+       compliance at all times and to improve our processes. If you
+       find any issues or have any suggestions or comments, or if you see any other ways in which we
+       can improve, please reach out to: ospo@gematik.de
+3. Please note: Parts of this code may have been generated using AI-supported technology. Please
+   take this into account, especially when troubleshooting, for
    security analyses and possible adjustments.
 
 ## Contact
@@ -211,5 +216,6 @@ IT specialists
 ### Additional Links And Sourcecode
 
 - [E-Rezept iOS implementation](https://github.com/gematik/E-Rezept-App-iOS)
-- Reference implementation of the [IDP (**ID**entity **P**rovider)](https://github.com/gematik/ref-idp-server)
-- Reference implementation of the [FD (**F**ach**D**ienst)](https://github.com/gematik/ref-eRp-FD-Server)
+- Reference implementation of
+  the [IDP (Identity Provider)](https://github.com/gematik/ref-idp-server)
+- Reference implementation of the [FD (Fachdienst)](https://github.com/gematik/ref-eRp-FD-Server)

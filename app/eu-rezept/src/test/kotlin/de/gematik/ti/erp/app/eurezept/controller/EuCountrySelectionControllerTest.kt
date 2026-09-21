@@ -48,6 +48,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import java.util.Locale
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -57,6 +58,7 @@ class EuCountrySelectionControllerTest {
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
     private val euRepository: EuRepository = mockk()
+    private lateinit var originalLocale: Locale
     private var getAllEuCountriesUseCase: GetAllEuCountriesUseCase = GetAllEuCountriesUseCase(euRepository, dispatcher)
 
     private val getLocationUseCase: GetLocationUseCase = mockk()
@@ -67,6 +69,8 @@ class EuCountrySelectionControllerTest {
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
+        originalLocale = Locale.getDefault()
+        Locale.setDefault(Locale.ENGLISH)
 
         coEvery { euRepository.fetchAvailableCountries() } returns Result.success(mockFhirCountryModel)
 
@@ -90,6 +94,7 @@ class EuCountrySelectionControllerTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+        Locale.setDefault(originalLocale)
     }
 
     @Test

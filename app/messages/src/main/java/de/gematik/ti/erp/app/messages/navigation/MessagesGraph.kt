@@ -27,8 +27,10 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
 import de.gematik.ti.erp.app.messages.ui.components.MessageBottomSheetScreen
 import de.gematik.ti.erp.app.messages.ui.screens.EuRedeemMessageDetailsScreen
-import de.gematik.ti.erp.app.messages.ui.screens.MessageDetailScreen
+import de.gematik.ti.erp.app.messages.ui.screens.InternalMessageDetailScreen
+import de.gematik.ti.erp.app.messages.ui.screens.OrderMessageDetailScreen
 import de.gematik.ti.erp.app.messages.ui.screens.MessageListScreen
+import de.gematik.ti.erp.app.messages.ui.screens.UnknownOrderMessageDetailScreen
 import de.gematik.ti.erp.app.navigation.renderBottomSheet
 import de.gematik.ti.erp.app.navigation.renderComposable
 import de.gematik.ti.erp.app.navigation.slideInDown
@@ -55,19 +57,28 @@ fun NavGraphBuilder.messagesGraph(
             )
         }
         renderComposable(
-            route = MessagesRoutes.MessageDetailScreen.route,
-            arguments = MessagesRoutes.MessageDetailScreen.arguments
+            route = MessagesRoutes.OrderMessageDetailScreen.route,
+            arguments = MessagesRoutes.OrderMessageDetailScreen.arguments
         ) { navEntry ->
-            MessageDetailScreen(
+            OrderMessageDetailScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )
         }
-        renderBottomSheet(
-            route = MessagesRoutes.MessageBottomSheetScreen.route,
-            arguments = MessagesRoutes.MessageBottomSheetScreen.arguments
+        renderComposable(
+            route = MessagesRoutes.UnknownOrderMessageDetailScreen.route,
+            arguments = MessagesRoutes.UnknownOrderMessageDetailScreen.arguments
         ) { navEntry ->
-            MessageBottomSheetScreen(
+            UnknownOrderMessageDetailScreen(
+                navController = navController,
+                navBackStackEntry = navEntry
+            )
+        }
+        renderComposable(
+            route = MessagesRoutes.InternalMessageDetailScreen.route,
+            arguments = MessagesRoutes.InternalMessageDetailScreen.arguments
+        ) { navEntry ->
+            InternalMessageDetailScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )
@@ -77,6 +88,15 @@ fun NavGraphBuilder.messagesGraph(
             arguments = MessagesRoutes.EuRedeemMessageDetailsScreen.arguments
         ) { navEntry ->
             EuRedeemMessageDetailsScreen(
+                navController = navController,
+                navBackStackEntry = navEntry
+            )
+        }
+        renderBottomSheet(
+            route = MessagesRoutes.MessageBottomSheetScreen.route,
+            arguments = MessagesRoutes.MessageBottomSheetScreen.arguments
+        ) { navEntry ->
+            MessageBottomSheetScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )

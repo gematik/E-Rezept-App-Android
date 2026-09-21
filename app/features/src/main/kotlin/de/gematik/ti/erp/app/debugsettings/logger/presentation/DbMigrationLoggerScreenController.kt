@@ -25,11 +25,10 @@ package de.gematik.ti.erp.app.debugsettings.logger.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.base.Controller
-import de.gematik.ti.erp.app.logger.DbMigrationExpandedState.CLOSED
-import de.gematik.ti.erp.app.logger.DbMigrationExpandedState.OPEN
-import de.gematik.ti.erp.app.logger.DbMigrationLogEntry
-import de.gematik.ti.erp.app.logger.DbMigrationLogEntry.Companion.toJson
-import de.gematik.ti.erp.app.logger.DbMigrationLogHolder
+import de.gematik.ti.erp.app.database.datastore.debug.logger.DbMigrationLogHolder
+import de.gematik.ti.erp.app.debug.model.DbMigrationExpandedState
+import de.gematik.ti.erp.app.debug.model.DbMigrationLogEntry
+import de.gematik.ti.erp.app.debug.model.DbMigrationLogEntry.Companion.toJson
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -85,7 +84,7 @@ class DbMigrationLoggerScreenController(
             if (entry.id == uuid) {
                 // Assuming isExpanded is the property to toggle
                 entry.copy(
-                    expandedState = if (entry.expandedState == OPEN) CLOSED else OPEN
+                    expandedState = if (entry.expandedState == DbMigrationExpandedState.OPEN) DbMigrationExpandedState.CLOSED else DbMigrationExpandedState.OPEN
                 )
             } else {
                 entry
@@ -105,7 +104,9 @@ class DbMigrationLoggerScreenController(
     }
 
     fun resetLogs() {
-        logHolder.resetLogs()
+        controllerScope.launch {
+            logHolder.resetLogs()
+        }
     }
 }
 

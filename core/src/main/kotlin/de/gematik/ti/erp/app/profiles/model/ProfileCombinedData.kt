@@ -24,10 +24,10 @@ package de.gematik.ti.erp.app.profiles.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 
 @Immutable
 data class ProfileCombinedData(
-    @Stable val selectedProfile: ProfilesUseCaseData.Profile?,
-    @Stable val profiles: List<ProfilesUseCaseData.Profile> = emptyList()
+    @Stable val selectedProfile: ProfileErpModel?,
+    @Stable val profiles: List<ProfileErpModel> = emptyList()
 )

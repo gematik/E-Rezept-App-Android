@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.profiles.usecase
 
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.profiles.usecase.model.PairedDevice
+import de.gematik.ti.erp.app.profile.model.PairedDeviceErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -36,7 +36,7 @@ class DeletePairedDevicesUseCase(
 
     suspend operator fun invoke(
         profileId: ProfileIdentifier,
-        device: PairedDevice
+        device: PairedDeviceErpModel
     ): Result<String> =
         withContext(dispatcher) {
             idpUseCase.deletePairedDevice(profileId = profileId, deviceAlias = device.alias).map {

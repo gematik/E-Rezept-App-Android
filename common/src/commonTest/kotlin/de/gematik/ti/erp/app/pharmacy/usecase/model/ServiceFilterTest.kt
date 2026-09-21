@@ -83,15 +83,88 @@ class ServiceFilterTest {
     }
 
     @Test
-    fun `buildTextSearch - available service codes are included in text`() {
+    fun `buildTextSearch - available service codes are mapped to German text keywords`() {
         val filter = CodedServiceFilter(availableServiceCodes = setOf("50", "60"))
-        assertEquals("50 60", filter.buildTextSearch())
+        assertEquals("Sterilherstellung Bluthochdruck", filter.buildTextSearch())
     }
 
     @Test
-    fun `buildTextSearch - services plus available service codes are all included`() {
+    fun `buildTextSearch - services plus available service codes all mapped to text`() {
         val filter = CodedServiceFilter(pickup = true, availableServiceCodes = setOf("50"))
-        assertEquals("Handverkauf 50", filter.buildTextSearch())
+        assertEquals("Handverkauf Sterilherstellung", filter.buildTextSearch())
+    }
+
+    @Test
+    fun `buildTextSearch - on-site feature codes are mapped to German text keywords`() {
+        val filter = CodedServiceFilter()
+        assertEquals(
+            "Abholautomat Barrierefrei",
+            filter.buildTextSearch(onSiteFeatureCodes = setOf("abholautomat", "barrierefrei"))
+        )
+    }
+
+    @Test
+    fun `buildTextSearch - all on-site features produce correct German keywords`() {
+        val filter = CodedServiceFilter()
+        assertEquals(
+            "Abholautomat Barrierefrei ÖPNV Parkmöglichkeit",
+            filter.buildTextSearch(
+                onSiteFeatureCodes = setOf("abholautomat", "barrierefrei", "oepnv", "parkmoeglichkeit")
+            )
+        )
+    }
+
+    @Test
+    fun `buildTextSearch - services with on-site features and additional text all combined`() {
+        val filter = CodedServiceFilter(shipment = true, availableServiceCodes = setOf("impfung"))
+        assertEquals(
+            "Versand Impfung Barrierefrei Apotheke",
+            filter.buildTextSearch("Apotheke", setOf("barrierefrei"))
+        )
+    }
+
+    @Test
+    fun `buildTextSearch - all available service codes map to correct German keywords`() {
+        val mappings = mapOf(
+            "50" to "Sterilherstellung",
+            "60" to "Bluthochdruck",
+            "70" to "Inhalationstechnik",
+            "80" to "Polymedikation",
+            "90" to "Krebstherapie",
+            "100" to "Organtransplantation",
+            "allergietest" to "Allergietest",
+            "impfung" to "Impfung",
+            "koerperwerte" to "Körperwerte",
+            "reisemedizin-beratung" to "Reisemedizin"
+        )
+        for ((code, expectedText) in mappings) {
+            val filter = CodedServiceFilter(availableServiceCodes = setOf(code))
+            assertEquals(expectedText, filter.buildTextSearch(), "Code '$code' should map to '$expectedText'")
+        }
+    }
+
+    @Test
+    fun `buildTextSearch - unknown available service code falls back to code`() {
+        val filter = CodedServiceFilter(availableServiceCodes = setOf("unknown-code"))
+        assertEquals("unknown-code", filter.buildTextSearch())
+    }
+
+    @Test
+    fun `buildTextSearch - unknown on-site feature code falls back to code`() {
+        val filter = CodedServiceFilter()
+        assertEquals("unknown-feature", filter.buildTextSearch(onSiteFeatureCodes = setOf("unknown-feature")))
+    }
+
+    @Test
+    fun `buildTextSearch - mixed known and unknown service codes`() {
+        val filter = CodedServiceFilter(
+            courier = true,
+            availableServiceCodes = setOf("50", "unknown")
+        )
+        assertEquals(
+            "Botendienst Sterilherstellung unknown ÖPNV",
+            filter.buildTextSearch(onSiteFeatureCodes = setOf("oepnv"))
+        )
     }
 
     @Test

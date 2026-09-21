@@ -25,7 +25,9 @@ package de.gematik.ti.erp.app.digas.ui.preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.digas.ui.model.InsuranceUiModel
 import de.gematik.ti.erp.app.digas.util.InsuranceDrawableUtil
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.ContactInformationErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
 
 /**
@@ -64,22 +66,22 @@ data class InsuranceSearchListPreviewData(
     val searchTerm: String = ""
 )
 
-// Convert PharmacyUseCaseData.Pharmacy objects to InsuranceUiModel objects
+// Convert PharmacyDetailsErpModel objects to InsuranceUiModel objects
 val mockInsuranceUiModelList = listOf(
     InsuranceUiModel(
-        pharmacy = PharmacyUseCaseData.Pharmacy(
+        pharmacy = PharmacyDetailsErpModel(
             id = "1",
             name = "AOK Nordost - Die Gesundheitskasse",
             address = null,
             coordinates = null,
             distance = null,
-            contact = PharmacyUseCaseData.PharmacyContact(
+            contact = ContactInformationErpModel(
                 phone = "0800 2650800",
                 mail = "service@nordost.aok.de",
                 url = "https://www.aok.de/pk/nordost/"
             ),
             provides = listOf(
-                PharmacyUseCaseData.PharmacyService.OnlinePharmacyService(
+                PharmacyServiceErpModel.OnlinePharmacyServiceErpModel(
                     name = "Online Service"
                 )
             ),
@@ -89,19 +91,19 @@ val mockInsuranceUiModelList = listOf(
         drawableResourceId = InsuranceDrawableUtil.getDrawableResourceForTelematikId("ic_8010000000015")
     ),
     InsuranceUiModel(
-        pharmacy = PharmacyUseCaseData.Pharmacy(
+        pharmacy = PharmacyDetailsErpModel(
             id = "2",
             name = "BARMER",
             address = null,
             coordinates = null,
             distance = null,
-            contact = PharmacyUseCaseData.PharmacyContact(
+            contact = ContactInformationErpModel(
                 phone = "0800 3331010",
                 mail = "service@barmer.de",
                 url = "https://www.barmer.de"
             ),
             provides = listOf(
-                PharmacyUseCaseData.PharmacyService.OnlinePharmacyService(
+                PharmacyServiceErpModel.OnlinePharmacyServiceErpModel(
                     name = "Online Service"
                 )
             ),
@@ -111,19 +113,19 @@ val mockInsuranceUiModelList = listOf(
         drawableResourceId = InsuranceDrawableUtil.getDrawableResourceForTelematikId("ic_8010000000019")
     ),
     InsuranceUiModel(
-        pharmacy = PharmacyUseCaseData.Pharmacy(
+        pharmacy = PharmacyDetailsErpModel(
             id = "3",
             name = "Techniker Krankenkasse",
             address = null,
             coordinates = null,
             distance = null,
-            contact = PharmacyUseCaseData.PharmacyContact(
+            contact = ContactInformationErpModel(
                 phone = "0800 2858585",
                 mail = "service@tk.de",
                 url = "https://www.tk.de"
             ),
             provides = listOf(
-                PharmacyUseCaseData.PharmacyService.OnlinePharmacyService(
+                PharmacyServiceErpModel.OnlinePharmacyServiceErpModel(
                     name = "Online Service"
                 )
             ),
@@ -133,19 +135,19 @@ val mockInsuranceUiModelList = listOf(
         drawableResourceId = InsuranceDrawableUtil.getDrawableResourceForTelematikId("ic_8010000000001")
     ),
     InsuranceUiModel(
-        pharmacy = PharmacyUseCaseData.Pharmacy(
+        pharmacy = PharmacyDetailsErpModel(
             id = "4",
             name = "DAK-Gesundheit",
             address = null,
             coordinates = null,
             distance = null,
-            contact = PharmacyUseCaseData.PharmacyContact(
+            contact = ContactInformationErpModel(
                 phone = "040 325325555",
                 mail = "service@dak.de",
                 url = "https://www.dak.de"
             ),
             provides = listOf(
-                PharmacyUseCaseData.PharmacyService.OnlinePharmacyService(
+                PharmacyServiceErpModel.OnlinePharmacyServiceErpModel(
                     name = "Online Service"
                 )
             ),
@@ -155,19 +157,19 @@ val mockInsuranceUiModelList = listOf(
         drawableResourceId = InsuranceDrawableUtil.getDrawableResourceForTelematikId("ic_8010000000024")
     ),
     InsuranceUiModel(
-        pharmacy = PharmacyUseCaseData.Pharmacy(
+        pharmacy = PharmacyDetailsErpModel(
             id = "5",
             name = "IKK classic",
             address = null,
             coordinates = null,
             distance = null,
-            contact = PharmacyUseCaseData.PharmacyContact(
+            contact = ContactInformationErpModel(
                 phone = "0800 4551111",
                 mail = "service@ikk-classic.de",
                 url = "https://www.ikk-classic.de"
             ),
             provides = listOf(
-                PharmacyUseCaseData.PharmacyService.OnlinePharmacyService(
+                PharmacyServiceErpModel.OnlinePharmacyServiceErpModel(
                     name = "Online Service"
                 )
             ),

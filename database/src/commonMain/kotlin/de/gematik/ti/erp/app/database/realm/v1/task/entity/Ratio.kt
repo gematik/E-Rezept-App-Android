@@ -23,6 +23,8 @@
 package de.gematik.ti.erp.app.database.realm.v1.task.entity
 
 import de.gematik.ti.erp.app.database.realm.utils.Cascading
+import de.gematik.ti.erp.app.task.model.QuantityErpModel
+import de.gematik.ti.erp.app.task.model.RatioErpModel
 import io.realm.kotlin.Deleteable
 import io.realm.kotlin.types.RealmObject
 
@@ -35,4 +37,32 @@ class RatioEntityV1 : RealmObject, Cascading {
             numerator?.let { yield(it) }
             denominator?.let { yield(it) }
         }
+}
+
+fun RatioErpModel?.toRatioEntity(): RatioEntityV1 = RatioEntityV1().apply {
+    this.numerator = QuantityEntityV1().apply {
+        this.value = this@toRatioEntity?.numerator?.value ?: ""
+        this.unit = this@toRatioEntity?.numerator?.unit ?: ""
+    }
+    this.denominator = QuantityEntityV1().apply {
+        this.value = this@toRatioEntity?.numerator?.value ?: ""
+        this.unit = this@toRatioEntity?.numerator?.unit ?: ""
+    }
+}
+
+fun RatioEntityV1?.toRatioErpModel(): RatioErpModel? = this?.let {
+    RatioErpModel(
+        numerator = it.numerator?.let { quantity ->
+            QuantityErpModel(
+                value = quantity.value,
+                unit = quantity.unit
+            )
+        },
+        denominator = it.denominator?.let { quantity ->
+            QuantityErpModel(
+                value = quantity.value,
+                unit = quantity.unit
+            )
+        }
+    )
 }

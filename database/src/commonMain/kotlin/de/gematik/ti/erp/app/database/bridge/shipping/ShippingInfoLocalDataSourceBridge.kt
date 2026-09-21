@@ -23,43 +23,24 @@ package de.gematik.ti.erp.app.database.bridge.shipping
 
 import de.gematik.ti.erp.app.base.utils.getCurrentMethodName
 import de.gematik.ti.erp.app.database.api.ShippingInfoLocalDataSource
-import de.gematik.ti.erp.app.logger.DbMigrationFunctionalState.CheckFunctionalityForDifferentModels
-import de.gematik.ti.erp.app.logger.DbMigrationFunctionalState.OperationNoCheck
-import de.gematik.ti.erp.app.logger.DbMigrationLogEntry
-import de.gematik.ti.erp.app.logger.DbMigrationLogHolder
+import de.gematik.ti.erp.app.database.datastore.debug.logger.DbMigrationLogHolder
+import de.gematik.ti.erp.app.database.datastore.featuretoggle.RoomFeatureToggle
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
-import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel.Companion.toJson
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.runBlocking
 
-internal class ShippingInfoLocalDataSourceBridge(
+class ShippingInfoLocalDataSourceBridge(
     private val shippingInfoLocalDataSourceV1: ShippingInfoLocalDataSource,
     private val shippingInfoLocalDataSourceV2: ShippingInfoLocalDataSource,
     private val logger: DbMigrationLogHolder,
-    private val useRoom: Boolean
+    private val roomFeatureToggle: RoomFeatureToggle
 ) : ShippingInfoLocalDataSource {
 
+    private val useRoom: Boolean get() = roomFeatureToggle.isEnabled()
+
     override fun observeShippingInfo(): Flow<ShippingInfoErpModel?> {
-        val operationName = getCurrentMethodName()
         return when {
             useRoom -> shippingInfoLocalDataSourceV2.observeShippingInfo()
             else -> shippingInfoLocalDataSourceV1.observeShippingInfo()
-        }.also {
-            runBlocking(Dispatchers.IO) {
-                val dataFromRealmDb = shippingInfoLocalDataSourceV1.observeShippingInfo().firstOrNull()
-                val dataFromRoomDb = shippingInfoLocalDataSourceV2.observeShippingInfo().firstOrNull()
-                logger.addLog(
-                    DbMigrationLogEntry(
-                        operation = operationName,
-                        usesRoom = useRoom,
-                        functionalState = CheckFunctionalityForDifferentModels,
-                        roomData = dataFromRoomDb?.toJson().toString(),
-                        realmData = dataFromRealmDb?.toJson().toString()
-                    )
-                )
-            }
         }
     }
 
@@ -76,19 +57,7 @@ internal class ShippingInfoLocalDataSourceBridge(
             useRoom -> shippingInfoLocalDataSourceV2.saveShippingInfo(contact)
             else -> shippingInfoLocalDataSourceV1.saveShippingInfo(contact)
         }.also {
-            runBlocking(Dispatchers.IO) {
-                val dataFromRealmDb = shippingInfoLocalDataSourceV1.getShippingInfo()
-                val dataFromRoomDb = shippingInfoLocalDataSourceV2.getShippingInfo()
-                logger.addLog(
-                    DbMigrationLogEntry(
-                        operation = operationName,
-                        usesRoom = useRoom,
-                        functionalState = CheckFunctionalityForDifferentModels,
-                        roomData = dataFromRoomDb?.toJson().toString(),
-                        realmData = dataFromRealmDb?.toJson().toString()
-                    )
-                )
-            }
+            logger.logOperation(operationName, useRoom)
         }
     }
 
@@ -98,17 +67,7 @@ internal class ShippingInfoLocalDataSourceBridge(
             useRoom -> shippingInfoLocalDataSourceV2.deleteShippingInfo()
             else -> shippingInfoLocalDataSourceV1.deleteShippingInfo()
         }.also {
-            runBlocking(Dispatchers.IO) {
-                logger.addLog(
-                    DbMigrationLogEntry(
-                        operation = operationName,
-                        usesRoom = useRoom,
-                        functionalState = OperationNoCheck,
-                        roomData = "deleting shipping info",
-                        realmData = "deleting shipping info "
-                    )
-                )
-            }
+            logger.logOperation(operationName, useRoom)
         }
     }
 }

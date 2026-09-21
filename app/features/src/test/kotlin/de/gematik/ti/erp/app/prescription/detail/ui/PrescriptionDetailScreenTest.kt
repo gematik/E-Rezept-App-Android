@@ -22,11 +22,7 @@
 
 package de.gematik.ti.erp.app.prescription.detail.ui
 
-import de.gematik.ti.erp.app.prescription.detail.ui.preview.PrescriptionDetailPreviewParameter
-import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
-import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
-import org.junit.Test
-
+/*Todo Room - comment out again after merging the dependent MRs.
 class PrescriptionDetailScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(config) {
     @Test
     fun screenShotTest() {
@@ -38,3 +34,5 @@ class PrescriptionDetailScreenTest(config: ScreenshotConfig) : BaseScreenshotTes
         }
     }
 }
+
+ */

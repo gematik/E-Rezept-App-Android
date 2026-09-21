@@ -39,7 +39,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.uistate.UiState
 
@@ -79,7 +79,7 @@ sealed class ProfileIconState {
      */
     @Composable
     open fun chip(): ProfileChipAppearance = ProfileChipAppearance(
-        color = AppTheme.colors.neutral400,
+        color = AppTheme.colors.neutral700,
         icon = Icons.Rounded.Cloud
     )
 
@@ -89,9 +89,9 @@ sealed class ProfileIconState {
      */
     @Composable
     open fun avatar(): ProfileAvatarAppearance = ProfileAvatarAppearance(
-        background = AppTheme.colors.neutral400,
+        background = AppTheme.colors.neutral700,
         imageVector = Icons.Rounded.Cloud,
-        tint = AppTheme.colors.neutral400
+        tint = AppTheme.colors.neutral700
     )
 
     /**
@@ -103,14 +103,14 @@ sealed class ProfileIconState {
         @Composable
         override fun chip() = ProfileChipAppearance(
             icon = Icons.Outlined.Autorenew,
-            color = AppTheme.colors.primary400
+            color = AppTheme.colors.primary700
         )
 
         @Composable
         override fun avatar() = ProfileAvatarAppearance(
             background = AppTheme.colors.primary200,
             imageVector = Icons.Outlined.Autorenew,
-            tint = AppTheme.colors.primary500
+            tint = AppTheme.colors.primary700
         )
     }
 
@@ -123,7 +123,7 @@ sealed class ProfileIconState {
         @Composable
         override fun chip() = ProfileChipAppearance(
             icon = Icons.Rounded.CloudOff,
-            color = AppTheme.colors.neutral400
+            color = AppTheme.colors.neutral700
         )
 
         @Composable
@@ -143,14 +143,14 @@ sealed class ProfileIconState {
         @Composable
         override fun chip() = ProfileChipAppearance(
             icon = Icons.Rounded.CloudDone,
-            color = AppTheme.colors.green400
+            color = AppTheme.colors.green700
         )
 
         @Composable
         override fun avatar() = ProfileAvatarAppearance(
             background = AppTheme.colors.green200,
             imageVector = Icons.Rounded.Check,
-            tint = AppTheme.colors.green500
+            tint = AppTheme.colors.green700
         )
     }
 
@@ -163,12 +163,12 @@ sealed class ProfileIconState {
         @Composable
         override fun chip() = ProfileChipAppearance(
             icon = ImageVector.vectorResource(id = R.drawable.ic_cloud_warning),
-            color = AppTheme.colors.yellow400
+            color = AppTheme.colors.yellow800
         )
 
         @Composable
         override fun avatar() = ProfileAvatarAppearance(
-            background = AppTheme.colors.yellow500,
+            background = AppTheme.colors.yellow900,
             imageVector = ImageVector.vectorResource(id = R.drawable.ic_checkmark),
             tint = AppTheme.colors.yellow200
         )
@@ -182,7 +182,7 @@ sealed class ProfileIconState {
      * objects, ensuring recomposition happens only when necessary.
      *
      * @param profileLifecycleState A [ProfileLifecycleState] containing the state flows for refresh status and network connectivity.
-     * @param activeProfile The currently active [ProfilesUseCaseData.Profile], which includes the SSO token scope data.
+     * @param activeProfile The currently active [ProfileErpModel], which includes the SSO token scope data.
      * @return The current [ProfileIconState], which can be:
      * - [ProfileIconState.IsOffline]: The SSO token is invalid or a fallback state.
      * - [ProfileIconState.IsError]: The device is offline.
@@ -192,7 +192,7 @@ sealed class ProfileIconState {
     @Composable
     fun rememberProfileIconState(
         profileLifecycleState: ProfileLifecycleState,
-        activeProfile: UiState<ProfilesUseCaseData.Profile>
+        activeProfile: UiState<ProfileErpModel>
     ): State<ProfileIconState> {
         // Collect the current refresh state as a StateFlow and observe its lifecycle for updates.
         val isProfileRefreshing by profileLifecycleState.isProfileRefreshing.collectAsStateWithLifecycle()
@@ -203,10 +203,10 @@ sealed class ProfileIconState {
         val isTokenValid by profileLifecycleState.isTokenValid.collectAsStateWithLifecycle()
 
         // Extract the SSO token scope from the active profile, if available.
-        val ssoTokenScope = activeProfile.data?.ssoTokenScope
+        val userAuthentication = activeProfile.data?.userAuthentication
 
         // Compute the refreshing state, which is true only if the device is connected and a refresh is in progress.
-        val isRefreshing = remember(isProfileRefreshing, ssoTokenScope?.token, isNetworkConnected) {
+        val isRefreshing = remember(isProfileRefreshing, userAuthentication?.singleSignOnTokenErpModel, isNetworkConnected) {
             if (isNetworkConnected) isProfileRefreshing else false
         }
 
@@ -215,7 +215,7 @@ sealed class ProfileIconState {
          * network connectivity, token validity, and refresh state.
          *
          * This state is recomposed only when one of its dependencies (`refreshState`,
-         * `ssoTokenScope?.token`, or `isNetworkConnected`) changes. The derived state ensures
+         * `userAuthentication?.token`, or `isNetworkConnected`) changes. The derived state ensures
          * efficient recalculation of `iconState` without unnecessary recompositions.
          *
          * The possible states are:
@@ -224,7 +224,7 @@ sealed class ProfileIconState {
          * - `ProfileIconState.IsRefreshing`: Network is connected, and a refresh operation is ongoing.
          * - `ProfileIconState.IsOnline`: Network is connected, and the token is valid.
          */
-        return remember(isProfileRefreshing, ssoTokenScope?.token, isNetworkConnected) {
+        return remember(isProfileRefreshing, userAuthentication?.singleSignOnTokenErpModel, isNetworkConnected) {
             derivedStateOf {
                 getCurrentProfileIconState(isTokenValid, isNetworkConnected, isRefreshing)
             }

@@ -23,38 +23,40 @@
 package de.gematik.ti.erp.app.prescription.ui.components
 
 import androidx.compose.foundation.lazy.LazyListScope
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.TaskStateSerializationType
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.ScannedPrescription
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStateErpModel
 
 fun LazyListScope.prescriptionContentSection(
-    activePrescriptions: List<Prescription>,
+    activePrescriptions: List<TaskErpModel>,
     onClickPrescription: (String, Boolean, Boolean) -> Unit
 ) {
     activePrescriptions.forEach { prescription ->
-        item(key = "prescription-${prescription.uuid}") {
+        val typeSuffix = when (prescription) {
+            is TaskErpModel.Scanned -> "scanned"
+            is TaskErpModel.Synced.Diga -> "diga"
+            is TaskErpModel.Synced.Prescription -> "synced"
+        }
+        item(key = "prescription-${prescription.taskId}-$typeSuffix") {
             when (prescription) {
-                is SyncedPrescription ->
-                    if (prescription.isDiga) {
-                        FullDetailDiga(
-                            modifier = CardPaddingModifier,
-                            prescription = prescription,
-                            onClick = {
-                                onClickPrescription(prescription.taskId, true, prescription.state.type == TaskStateSerializationType.Ready)
-                            }
-                        )
-                    } else {
-                        FullDetailMedication(
-                            modifier = CardPaddingModifier,
-                            prescription = prescription,
-                            onClick = {
-                                onClickPrescription(prescription.taskId, false, false)
-                            }
-                        )
-                    }
+                is TaskErpModel.Synced.Diga ->
+                    FullDetailDiga(
+                        modifier = CardPaddingModifier,
+                        prescription = prescription,
+                        onClick = {
+                            onClickPrescription(prescription.taskId, true, prescription.state() is TaskStateErpModel.Ready)
+                        }
+                    )
 
-                is ScannedPrescription -> {
+                is TaskErpModel.Synced.Prescription ->
+                    FullDetailMedication(
+                        modifier = CardPaddingModifier,
+                        prescription = prescription,
+                        onClick = {
+                            onClickPrescription(prescription.taskId, false, false)
+                        }
+                    )
+
+                is TaskErpModel.Scanned -> {
                     LowDetailMedication(
                         modifier = CardPaddingModifier,
                         prescription,

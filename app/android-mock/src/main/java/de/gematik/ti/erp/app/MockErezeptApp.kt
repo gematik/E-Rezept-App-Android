@@ -27,15 +27,18 @@
 package de.gematik.ti.erp.app
 
 import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import de.gematik.ti.erp.app.di.appModules
 import de.gematik.ti.erp.app.di.mockFeatureModule
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.AdvancePushKeyChainUseCase
 import de.gematik.ti.erp.app.usecase.CreateProfileWhenMissingUseCase
-import de.gematik.ti.erp.app.userauthentication.observer.InactivityTimeoutObserver
-import de.gematik.ti.erp.app.userauthentication.observer.ProcessLifecycleObserver
+import de.gematik.ti.erp.app.appauthentication.observer.InactivityTimeoutObserver
+import de.gematik.ti.erp.app.appauthentication.observer.ProcessLifecycleObserver
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.kodein.di.DI
@@ -51,7 +54,7 @@ class MockErezeptApp : ErezeptApp(), DIAware {
         import(androidXModule(this@MockErezeptApp), allowOverride = true)
         importAll(appModules, allowOverride = true)
         importAll(mockFeatureModule, allowOverride = true)
-        bindProvider { CreateProfileWhenMissingUseCase(instance(), instance()) }
+        bindProvider { CreateProfileWhenMissingUseCase(instance(), instance(), instance()) }
         bindSingleton { InactivityTimeoutObserver(instance(), instance()) }
         bindSingleton { ProcessLifecycleObserver(ProcessLifecycleOwner, instance()) }
         bindSingleton { VisibleDebugTree() }
@@ -64,6 +67,8 @@ class MockErezeptApp : ErezeptApp(), DIAware {
     // only for mock
     private val createProfile: CreateProfileWhenMissingUseCase by instance()
 
+    private val advancePushKeyChainUseCase: AdvancePushKeyChainUseCase by instance()
+
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
@@ -73,5 +78,6 @@ class MockErezeptApp : ErezeptApp(), DIAware {
 
         PDFBoxResourceLoader.init(this)
         GlobalScope.launch { createProfile.invoke() }
+        ProcessLifecycleOwner.get().lifecycleScope.launch(Dispatchers.IO) { advancePushKeyChainUseCase() }
     }
 }

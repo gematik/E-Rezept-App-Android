@@ -52,12 +52,6 @@ data class PharmacyErpModel(
 }
 
 @Serializable
-data class PositionErpModel(
-    val latitude: Double,
-    val longitude: Double
-)
-
-@Serializable
 data class ContactInformationErpModel(
     val phone: String,
     val mail: String,
@@ -84,5 +78,3 @@ data class PharmacyAddressErpModel(
         }
     }
 }
-
-data class TelematikId(val value: String)

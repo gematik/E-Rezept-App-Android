@@ -26,10 +26,10 @@ internal object Versions {
     internal object SdkVersions {
         const val MIN_SDK_VERSION = 26 // Android 8.0
         const val COMPILE_SDK_VERSION = 35
-        const val TARGET_SDK_VERSION = 35
+        const val TARGET_SDK_VERSION = 36
     }
 
-    internal const val BUILD_TOOLS_VERSION = "35.0.0"
+    internal const val BUILD_TOOLS_VERSION = "36.0.0"
 
     internal object JavaVersion {
         const val KOTLIN_OPTIONS_JVM_TARGET = "17"

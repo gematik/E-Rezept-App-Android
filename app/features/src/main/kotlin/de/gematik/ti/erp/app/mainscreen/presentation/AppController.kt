@@ -35,7 +35,6 @@ import de.gematik.ti.erp.app.messages.domain.usecase.GetUnreadMessagesCountUseCa
 import de.gematik.ti.erp.app.prescription.usecase.GetDownloadResourcesDetailStateUseCase
 import de.gematik.ti.erp.app.profiles.presentation.GetActiveProfileController
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.settings.usecase.GetOnboardingSucceededUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetScreenShotsAllowedUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -49,7 +48,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -66,15 +67,9 @@ class AppController(
     private val getUnreadMessagesCountUseCase: GetUnreadMessagesCountUseCase,
     private val observeNavigationTriggerUseCase: ObserveNavigationTriggerUseCase,
     private val markAutoNavigationTriggerConsumedUseCase: MarkAutoNavigationTriggerConsumedUseCase,
-    private val _unreadOrders: MutableStateFlow<Long> = MutableStateFlow(0L),
     private val _orderedEvent: MutableStateFlow<OrderedEvent?> = MutableStateFlow(null)
 ) : GetActiveProfileController(
-    getActiveProfileUseCase = getActiveProfileUseCase,
-    onSuccess = { profile, coroutineScope ->
-        coroutineScope.launch {
-            _unreadOrders.value = getUnreadMessagesCountUseCase.invoke(profile.id).first()
-        }
-    }
+    getActiveProfileUseCase = getActiveProfileUseCase
 ) {
 
     init {
@@ -87,7 +82,18 @@ class AppController(
     }
 
     val orderedEvent: StateFlow<OrderedEvent?> = _orderedEvent
-    val unreadOrders: StateFlow<Long> = _unreadOrders
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val unreadOrders: StateFlow<Long> by lazy {
+        activeProfile
+            .map { it.data?.id }
+            .distinctUntilChanged()
+            .flatMapLatest { profileId ->
+                profileId?.let {
+                    getUnreadMessagesCountUseCase.invoke(profileId)
+                } ?: flowOf(0L)
+            }.stateIn(controllerScope, SharingStarted.WhileSubscribed(), 0L)
+    }
 
     private val _promptFeedback = MutableStateFlow(false)
     val promptFeedback = _promptFeedback.asStateFlow()
@@ -117,10 +123,6 @@ class AppController(
     val refreshState = downloadResourcesStateUseCase.invoke()
 
     val onboardingSucceeded = getOnboardingSucceededUseCase.invoke()
-
-    suspend fun updateUnreadOrders(profile: ProfilesUseCaseData.Profile) {
-        _unreadOrders.value = getUnreadMessagesCountUseCase.invoke(profile.id).first()
-    }
 
     fun onOrdered(hasError: Boolean) {
         _orderedEvent.value = if (hasError) OrderedEvent.Error else OrderedEvent.Success

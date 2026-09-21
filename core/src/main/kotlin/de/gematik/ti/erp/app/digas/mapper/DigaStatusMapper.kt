@@ -31,6 +31,7 @@ import de.gematik.ti.erp.app.diga.model.DigaStatus.WrappedTaskStatus
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.TaskStatus
 import kotlinx.datetime.Instant
 
+@Deprecated("Replace with TaskStatusEnum.mapToDigaStatus")
 fun TaskStatus.mapToDigaStatus(
     isDeclined: Boolean,
     isRedeemed: Boolean,

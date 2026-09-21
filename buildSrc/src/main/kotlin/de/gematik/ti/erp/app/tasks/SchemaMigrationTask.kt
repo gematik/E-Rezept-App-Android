@@ -68,3 +68,46 @@ fun TaskContainer.generateSchemaMigrationsFile() {
         }
     }
 }
+
+fun TaskContainer.generateRoomSchemaMigrationsFile() {
+    register(TaskNames.generateRoomSchemaMigrationsFile) {
+        group = "build"
+        description = "Generates a markdown file with Room schema migration history."
+
+        val schemaSourceFile = project.rootProject
+            .file("database/src/commonMain/kotlin/de/gematik/ti/erp/app/database/room/RoomSchemaVersion.kt")
+
+        val outputFile = project.rootProject
+            .file("database/build/schema/room_schema_migrations.md")
+
+        doLast {
+            println("✅ Running Room schema migration generator")
+            if (!schemaSourceFile.exists()) {
+                throw GradleScriptException(
+                    "Room schema version file not found",
+                    Exception("Expected file: ${schemaSourceFile.absolutePath}")
+                )
+            }
+
+            val migrationLines = schemaSourceFile.readLines()
+                .filter { it.trim().startsWith("RoomSchemaMigration(") }
+                .mapNotNull { line ->
+                    Regex("""RoomSchemaMigration\((\d+),\s*"(.*?)"\)""")
+                        .find(line)
+                        ?.destructured
+                        ?.let { (version, description) -> "- **$version**: $description" }
+                }
+
+            outputFile.parentFile.mkdirs()
+            outputFile.writeText(
+                buildString {
+                    appendLine("# Room Schema Migrations")
+                    appendLine()
+                    migrationLines.forEach { appendLine(it) }
+                }
+            )
+
+            println("✅ Wrote Room schema migration file to: ${outputFile.absolutePath}")
+        }
+    }
+}

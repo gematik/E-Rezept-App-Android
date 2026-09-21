@@ -22,14 +22,14 @@
 
 package de.gematik.ti.erp.app.messages.repository
 
-import de.gematik.ti.erp.app.messages.model.InternalMessage
+import de.gematik.ti.erp.app.communication.model.InternalMessageErpModel
 import kotlinx.coroutines.flow.Flow
 
 interface InternalMessagesRepository {
-    fun getInternalMessages(): Flow<List<InternalMessage>>
+    fun getInternalMessages(): Flow<List<InternalMessageErpModel>>
     fun getUnreadInternalMessagesCount(): Flow<Long>
     fun getLastUpdatedVersion(): Flow<String?>
     suspend fun setInternalMessagesAsRead()
-    suspend fun updateInternalMessage(internalMessage: InternalMessage)
-    suspend fun saveInternalMessage(internalMessage: InternalMessage)
+    suspend fun updateInternalMessage(internalMessage: InternalMessageErpModel)
+    suspend fun saveInternalMessage(internalMessage: InternalMessageErpModel)
 }

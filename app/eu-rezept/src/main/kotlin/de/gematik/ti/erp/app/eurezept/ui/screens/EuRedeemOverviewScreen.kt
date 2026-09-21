@@ -70,6 +70,7 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
 import de.gematik.ti.erp.app.button.SelectionSummaryButton
 import de.gematik.ti.erp.app.button.SelectionSummaryButtonData
+import de.gematik.ti.erp.app.button.SelectionSummaryButtonState
 import de.gematik.ti.erp.app.button.selectionSummaryButtonText
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.eurezept.domain.model.Country
@@ -302,11 +303,11 @@ fun EuRedeemScreenContent(
                 SelectionSummaryButton(
                     data = SelectionSummaryButtonData(
                         buttonTitleText = stringResource(R.string.eu_redeem_prescriptions_title),
-                        errorTitleText = stringResource(R.string.eu_redeem_select_prescriptions),
-                        errorHintText = stringResource(R.string.eu_redeem_select_prescriptions_error),
+                        infoTitleText = stringResource(R.string.eu_redeem_select_prescriptions),
+                        infoHintText = stringResource(R.string.eu_redeem_select_prescriptions_error),
                         buttonTexts = selectedPrescriptions.map { selectionSummaryButtonText(it) }
                     ),
-                    isError = false, // Always false to ignore red styling and errorHintText
+                    selectionSummaryButtonState = SelectionSummaryButtonState.None,
                     onClick = onSelectPrescriptions
                 )
                 SpacerLarge()
@@ -314,11 +315,11 @@ fun EuRedeemScreenContent(
                     modifier = Modifier.fillMaxWidth(),
                     data = SelectionSummaryButtonData(
                         buttonTitleText = stringResource(R.string.eu_redeem_country_title),
-                        errorTitleText = stringResource(R.string.eu_redeem_select_country),
-                        errorHintText = stringResource(R.string.eu_redeem_select_country_error),
+                        infoTitleText = stringResource(R.string.eu_redeem_select_country),
+                        infoHintText = stringResource(R.string.eu_redeem_select_country_error),
                         buttonTexts = selectedCountry?.name?.let { listOf(selectionSummaryButtonText(it)) } ?: emptyList()
                     ),
-                    isError = false, // Always false to ignore red styling and errorHintText
+                    selectionSummaryButtonState = SelectionSummaryButtonState.None,
                     leadingContent = {
                         EmojiFlag(
                             flagEmoji = selectedCountry?.flagEmoji ?: "🇪🇺",

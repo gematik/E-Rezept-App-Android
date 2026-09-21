@@ -24,7 +24,10 @@ package de.gematik.ti.erp.app.pharmacy.presentation
 
 import de.gematik.ti.erp.app.fhir.pharmacy.model.PharmacyAvailableServiceErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.PharmacyOnSiteFeatureErpModel
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyOpeningHoursErpModel
+import de.gematik.ti.erp.app.pharmacy.model.ContactInformationErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyServiceErpModel
 import org.junit.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -203,9 +206,9 @@ class PharmacyExtensionsTest {
     fun `deliveryService - filter enabled returns true when pharmacy has delivery service`() {
         val pharmacy = pharmacyWith(
             provides = listOf(
-                PharmacyUseCaseData.PharmacyService.DeliveryPharmacyService(
+                PharmacyServiceErpModel.DeliveryPharmacyServiceErpModel(
                     name = "Botendienst",
-                    openingHours = PharmacyUseCaseData.OpeningHours(emptyMap())
+                    openingHours = PharmacyOpeningHoursErpModel(emptyMap())
                 )
             )
         )
@@ -216,7 +219,7 @@ class PharmacyExtensionsTest {
     fun `deliveryService - filter enabled returns false when pharmacy has no delivery service`() {
         val pharmacy = pharmacyWith(
             provides = listOf(
-                PharmacyUseCaseData.PharmacyService.PickUpPharmacyService(name = "PickUp")
+                PharmacyServiceErpModel.PickUpPharmacyServiceErpModel(name = "PickUp")
             )
         )
         assertFalse(pharmacy.deliveryService(true))
@@ -232,7 +235,7 @@ class PharmacyExtensionsTest {
     fun `onlineService - filter enabled returns true when pharmacy has online service`() {
         val pharmacy = pharmacyWith(
             provides = listOf(
-                PharmacyUseCaseData.PharmacyService.OnlinePharmacyService(name = "Versand")
+                PharmacyServiceErpModel.OnlinePharmacyServiceErpModel(name = "Versand")
             )
         )
         assertTrue(pharmacy.onlineService(true))
@@ -242,7 +245,7 @@ class PharmacyExtensionsTest {
     fun `onlineService - filter enabled returns false when pharmacy has no online service`() {
         val pharmacy = pharmacyWith(
             provides = listOf(
-                PharmacyUseCaseData.PharmacyService.PickUpPharmacyService(name = "PickUp")
+                PharmacyServiceErpModel.PickUpPharmacyServiceErpModel(name = "PickUp")
             )
         )
         assertFalse(pharmacy.onlineService(true))
@@ -270,15 +273,15 @@ class PharmacyExtensionsTest {
         private fun pharmacyWith(
             onSiteFeatures: List<PharmacyOnSiteFeatureErpModel> = emptyList(),
             availableServices: List<PharmacyAvailableServiceErpModel> = emptyList(),
-            provides: List<PharmacyUseCaseData.PharmacyService> = emptyList(),
+            provides: List<PharmacyServiceErpModel> = emptyList(),
             telematikId: String = "test-telematik-id"
-        ) = PharmacyUseCaseData.Pharmacy(
+        ) = PharmacyDetailsErpModel(
             id = "test-id",
             name = "Test Apotheke",
             address = "Teststraße 1\n12345 Berlin",
             coordinates = null,
             distance = null,
-            contact = PharmacyUseCaseData.PharmacyContact(
+            contact = ContactInformationErpModel(
                 phone = "",
                 mail = "",
                 url = ""

@@ -22,9 +22,8 @@
 
 package de.gematik.ti.erp.app.messages.domain.usecase
 
+import de.gematik.ti.erp.app.communication.model.InternalMessageErpModel
 import de.gematik.ti.erp.app.messages.domain.repository.ChangeLogLocalDataSource
-import de.gematik.ti.erp.app.messages.mapper.toInAppMessage
-import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -40,15 +39,15 @@ class GetInternalMessagesUseCase(
     private val changeLogLocalDataSource: ChangeLogLocalDataSource,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(currentAppLanguage: String): Flow<List<InAppMessage>> =
+    operator fun invoke(currentAppLanguage: String): Flow<List<InternalMessageErpModel>> =
         internalMessagesRepository.getInternalMessages().map { list ->
             list.map { internalMessage ->
                 if (currentAppLanguage == internalMessage.languageCode) {
-                    internalMessage.toInAppMessage()
+                    internalMessage
                 } else {
                     val updatedLanguageInternalMessage = changeLogLocalDataSource.getInternalMessageInCurrentLanguage(internalMessage)
                     updatedLanguageInternalMessage?.let { internalMessagesRepository.updateInternalMessage(it) }
-                    updatedLanguageInternalMessage?.toInAppMessage() ?: internalMessage.toInAppMessage()
+                    updatedLanguageInternalMessage ?: internalMessage
                 }
             }
         }.flowOn(dispatcher)

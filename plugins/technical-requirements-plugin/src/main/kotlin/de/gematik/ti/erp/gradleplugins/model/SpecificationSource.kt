@@ -60,6 +60,10 @@ enum class SpecificationSource(
         spec = "gemSpec_FD_eRp",
         url = "https://gemspec.gematik.de/docs/gemSpec/gemSpec_FD_eRp/latest/index.html"
     ),
+    GEM_F_PUSH_NOTIFICATION(
+        spec = "gemF_PushNotification",
+        url = "https://gemspec.gematik.de/docs/gemF/gemF_PushNotification/gemF_PushNotification_V1.3.0/"
+    ),
 
     @Suppress("ktlint:standard:max-line-length", "MaxLineLength")
     BSI_ERP_EPA(

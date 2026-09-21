@@ -38,12 +38,30 @@ import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.fhir.consent.model.FhirCodeableConceptErp
 import de.gematik.ti.erp.app.fhir.consent.model.FhirCodingErp
 import de.gematik.ti.erp.app.fhir.consent.model.FhirConsentErpModel
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.localization.CountryCode
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profile.model.Avatar
+import de.gematik.ti.erp.app.profile.model.InsuranceType
+import de.gematik.ti.erp.app.profile.model.ProfileColorNames
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileImageDataErpModel
+import de.gematik.ti.erp.app.profile.model.ProfileInsuranceDataErpModel
+import de.gematik.ti.erp.app.task.model.AccidentType
+import de.gematik.ti.erp.app.task.model.AdditionalFeeErpModel
+import de.gematik.ti.erp.app.task.model.AddressErpModel
+import de.gematik.ti.erp.app.task.model.Identifier
+import de.gematik.ti.erp.app.task.model.InsuranceErpModel
+import de.gematik.ti.erp.app.task.model.InsuranceErpModelCoverageType
+import de.gematik.ti.erp.app.task.model.MedicationCategory
+import de.gematik.ti.erp.app.task.model.MedicationErpModel
+import de.gematik.ti.erp.app.task.model.MedicationRequestErpModel
+import de.gematik.ti.erp.app.task.model.MultiplePrescriptionInfo
+import de.gematik.ti.erp.app.task.model.OrganizationErpModel
+import de.gematik.ti.erp.app.task.model.PatientErpModel
+import de.gematik.ti.erp.app.task.model.PractitionerErpModel
+import de.gematik.ti.erp.app.task.model.TaskErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
+import de.gematik.ti.erp.app.userauthentication.model.SingleSignOnTokenErpModel
+import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.datetime.Clock
@@ -64,49 +82,117 @@ object MockEuTestData {
     internal const val MOCK_MEDICATION_NAME_1 = "Ibuprofen 400mg"
     private const val MOCK_PRACTITIONER_NAME = "Dr. John Doe"
 
-    internal val mockValidSsoToken = mockk<IdpData.SingleSignOnToken> {
+    internal val mockValidSsoToken = mockk<SingleSignOnTokenErpModel> {
         every { isValid(any()) } returns true
+        every { token } returns "mock-token"
     }
 
-    internal val mockInvalidSsoToken = mockk<IdpData.SingleSignOnToken> {
+    internal val mockInvalidSsoToken = mockk<SingleSignOnTokenErpModel> {
         every { isValid(any()) } returns false
+        every { token } returns "mock-token"
+        every { validOn } returns Instant.DISTANT_PAST
     }
 
-    internal val mockValidSsoTokenScope = mockk<IdpData.DefaultToken> {
-        every { token } returns mockValidSsoToken
+    internal val mockValidUserAuthentication = mockk<UserAuthenticationErpModel.HealthCard> {
+        every { singleSignOnTokenErpModel } returns mockValidSsoToken
+        every { cardAccessNumber } returns "123123"
     }
 
-    internal val mockInvalidSsoTokenScope = mockk<IdpData.DefaultToken> {
-        every { token } returns mockInvalidSsoToken
+    internal val mockInvalidUserAuthentication = mockk<UserAuthenticationErpModel.HealthCard> {
+        every { singleSignOnTokenErpModel } returns mockInvalidSsoToken
+        every { cardAccessNumber } returns "123123"
     }
 
-    internal val mockProfileWithValidToken = ProfilesUseCaseData.Profile(
+    internal val mockProfileWithValidToken = ProfileErpModel(
         id = MOCK_PROFILE_ID,
         name = "Test Profile",
-        insurance = ProfileInsuranceInformation(),
-        isActive = true,
-        color = ProfilesData.ProfileColorNames.SPRING_GRAY,
-        avatar = ProfilesData.Avatar.PersonalizedImage,
+        active = true,
+        isNewlyCreated = false,
+        profileImageData = ProfileImageDataErpModel(
+            color = ProfileColorNames.SPRING_GRAY,
+            avatar = Avatar.PersonalizedImage,
+            image = null
+        ),
+        insuranceData = ProfileInsuranceDataErpModel(
+            insurantName = null,
+            insuranceIdentifier = null,
+            insuranceName = null,
+            insuranceType = InsuranceType.NONE,
+            organizationIdentifier = null
+        ),
+        isConsentDrawerShown = false,
         lastAuthenticated = Clock.System.now().minus(1.hours),
-        ssoTokenScope = mockValidSsoTokenScope
+        lastAuditEventSynced = null,
+        lastTaskSynced = null,
+        userAuthentication = mockValidUserAuthentication
     )
 
-    internal val mockProfileWithInvalidToken = ProfilesUseCaseData.Profile(
+    internal val mockProfileWithInvalidToken = ProfileErpModel(
         id = MOCK_PROFILE_ID,
         name = "Test Profile",
-        insurance = ProfileInsuranceInformation(),
-        isActive = true,
-        color = ProfilesData.ProfileColorNames.SPRING_GRAY,
-        avatar = ProfilesData.Avatar.PersonalizedImage,
+        active = true,
+        isNewlyCreated = false,
+        profileImageData = ProfileImageDataErpModel(
+            color = ProfileColorNames.SPRING_GRAY,
+            avatar = Avatar.PersonalizedImage,
+            image = null
+        ),
+        insuranceData = ProfileInsuranceDataErpModel(
+            insurantName = null,
+            insuranceIdentifier = null,
+            insuranceName = null,
+            insuranceType = InsuranceType.NONE,
+            organizationIdentifier = null
+        ),
+        isConsentDrawerShown = false,
         lastAuthenticated = Clock.System.now().minus(1.hours),
-        ssoTokenScope = mockInvalidSsoTokenScope
+        lastAuditEventSynced = null,
+        lastTaskSynced = null,
+        userAuthentication = mockInvalidUserAuthentication
     )
 
-    internal val mockValidProfile = mockk<ProfilesUseCaseData.Profile> {
+    internal val mockValidProfileMock = mockk<ProfileErpModel> {
         every { id } returns MOCK_PROFILE_ID
         every { isSSOTokenValid(any()) } returns true
-        every { ssoTokenScope } returns mockValidSsoTokenScope
+        every { userAuthentication } returns mockValidUserAuthentication
         every { isRedemptionAllowed() } returns true
+        every { active } returns true
+        every { lastAuthenticated } returns null
+        every { profileImageData } returns ProfileImageDataErpModel(
+            color = ProfileColorNames.SPRING_GRAY,
+            avatar = Avatar.PersonalizedImage,
+            image = null
+        )
+        every { insuranceData } returns ProfileInsuranceDataErpModel(
+            insurantName = null,
+            insuranceIdentifier = "X123456789",
+            insuranceName = null,
+            insuranceType = InsuranceType.NONE,
+            organizationIdentifier = null
+        )
+        every { name } returns "Test Profile"
+    }
+
+    internal val mockInvalidProfileMock = mockk<ProfileErpModel> {
+        every { id } returns MOCK_PROFILE_ID
+        every { isSSOTokenValid(any()) } returns false
+        every { userAuthentication } returns mockInvalidUserAuthentication
+        every { isRedemptionAllowed() } returns false
+        every { active } returns true
+        every { lastAuthenticated } returns null
+        every { profileImageData } returns ProfileImageDataErpModel(
+            color = ProfileColorNames.SPRING_GRAY,
+            avatar = Avatar.PersonalizedImage,
+            image = null
+        )
+        every { insuranceData } returns ProfileInsuranceDataErpModel(
+            insurantName = null,
+            insuranceIdentifier = null,
+            insuranceName = null,
+            insuranceType = InsuranceType.NONE,
+            organizationIdentifier = null
+        )
+        every { name } returns "Test Profile"
     }
 
     internal val mockActiveConsent = FhirConsentErpModelCollection(
@@ -226,7 +312,7 @@ object MockEuTestData {
         insuranceNumberLabel = "Versichertennummer"
     )
 
-    internal val mockEuAccessCode = EuAccessCode(
+    internal val mockEuAccessCode = EuAccessCodeErpModel(
         countryCode = "DE",
         accessCode = "123456789",
         validUntil = Clock.System.now() + 7.days,
@@ -243,38 +329,49 @@ object MockEuTestData {
     private val byteArray = Base64.decode(BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE)
     private val healthCertificate = X509CertificateHolder(byteArray)
 
-    internal val profileData = ProfilesData.Profile(
+    internal val profileData = ProfileErpModel(
         id = "1",
         name = "Max Mustermann",
-        color = ProfilesData.ProfileColorNames.BLUE_MOON,
-        lastAuthenticated = Clock.System.now(),
-        avatar = ProfilesData.Avatar.ManWithPhone,
-        insuranceName = "AOK",
-        insuranceType = ProfilesData.InsuranceType.GKV,
-        isConsentDrawerShown = true,
         active = true,
-        singleSignOnTokenScope = IdpData.DefaultToken(
-            token = mockValidSsoToken,
+        isNewlyCreated = false,
+        profileImageData = ProfileImageDataErpModel(
+            color = ProfileColorNames.BLUE_MOON,
+            avatar = Avatar.ManWithPhone,
+            image = null
+        ),
+        insuranceData = ProfileInsuranceDataErpModel(
+            insurantName = "Max Mustermann",
+            insuranceIdentifier = null,
+            insuranceName = "AOK",
+            insuranceType = InsuranceType.GKV,
+            organizationIdentifier = null
+        ),
+        isConsentDrawerShown = true,
+        lastAuthenticated = Clock.System.now(),
+        lastAuditEventSynced = null,
+        lastTaskSynced = null,
+        userAuthentication = UserAuthenticationErpModel.HealthCard(
+            singleSignOnTokenErpModel = mockValidSsoToken,
             cardAccessNumber = "123123",
-            healthCardCertificate = healthCertificate
+            healthCardCertificate = healthCertificate.encoded
         )
     )
 
-    private val MOCK_PATIENT = SyncedTaskData.Patient(
+    private val MOCK_PATIENT = PatientErpModel(
         name = "Jane",
-        address = SyncedTaskData.Address(
+        address = AddressErpModel(
             line1 = "",
             line2 = "",
             postalCode = "",
             city = ""
         ),
-        birthdate = null,
+        dateOfBirth = null,
         insuranceIdentifier = "ins123"
     )
 
-    private val MOCK_ORGANIZATION = SyncedTaskData.Organization(
+    private val MOCK_ORGANIZATION = OrganizationErpModel(
         name = "TestOrganization",
-        address = SyncedTaskData.Address(
+        address = AddressErpModel(
             line1 = "123 Main Street",
             line2 = "Apt 4",
             postalCode = "12345",
@@ -285,21 +382,23 @@ object MockEuTestData {
         mail = "info@testorg.com"
     )
 
-    private val MOCK_PRACTITIONER = SyncedTaskData.Practitioner(
+    private val MOCK_PRACTITIONER = PractitionerErpModel(
         name = MOCK_PRACTITIONER_NAME,
         qualification = "",
-        practitionerIdentifier = " "
+        practitionerIdentifier = " ",
+        dentistIdentifier = null,
+        telematikId = null
     )
 
-    internal val MOCK_MEDICATION = SyncedTaskData.Medication(
-        category = SyncedTaskData.MedicationCategory.ARZNEI_UND_VERBAND_MITTEL,
+    internal val MOCK_MEDICATION = MedicationErpModel(
+        category = MedicationCategory.ARZNEI_UND_VERBAND_MITTEL,
         medicationProfile = null,
-        vaccine = false,
+        isVaccine = false,
         text = MOCK_MEDICATION_NAME_1,
         form = "Tablet",
         lotNumber = null,
         expirationDate = null,
-        identifier = SyncedTaskData.Identifier(),
+        identifier = Identifier(),
         normSizeCode = null,
         amount = null,
         manufacturingInstructions = null,
@@ -308,54 +407,86 @@ object MockEuTestData {
         ingredients = emptyList()
     )
 
-    internal val MOCK_MEDICATION_REQUEST = SyncedTaskData.MedicationRequest(
+    internal val MOCK_MEDICATION_REQUEST = MedicationRequestErpModel(
         medication = MOCK_MEDICATION,
         authoredOn = null,
         dateOfAccident = null,
-        accidentType = SyncedTaskData.AccidentType.None,
+        accidentType = AccidentType.None,
         location = null,
         emergencyFee = null,
         substitutionAllowed = false,
         dosageInstruction = null,
-        multiplePrescriptionInfo = SyncedTaskData.MultiplePrescriptionInfo(false),
+        multiplePrescriptionInfo = MultiplePrescriptionInfo(false),
         quantity = 1,
         note = null,
         bvg = null,
-        additionalFee = SyncedTaskData.AdditionalFee.None
+        additionalFee = AdditionalFeeErpModel.None
     )
 
-    internal val MOCK_SYNCED_TASK_DATA_01 = SyncedTaskData.SyncedTask(
+    internal val MOCK_SYNCED_TASK_DATA_01 = TaskErpModel.Synced.Prescription(
         profileId = MOCK_PROFILE_ID,
+        name = MOCK_MEDICATION_NAME_1,
         taskId = MOCK_TASK_ID_01,
         accessCode = "testAccessCode",
+        isEuRedeemable = false,
         lastModified = Instant.parse(MESSAGE_TIMESTAMP),
+        isEuRedeemableByPatientAuthorization = false,
         organization = MOCK_ORGANIZATION,
         practitioner = MOCK_PRACTITIONER,
         patient = MOCK_PATIENT,
-        insuranceInformation = SyncedTaskData.InsuranceInformation(
+        insuranceInformation = InsuranceErpModel(
             name = "TestInsurance",
             status = "Active",
-            coverageType = SyncedTaskData.CoverageType.GKV
+            coverageType = InsuranceErpModelCoverageType.GKV
         ),
         expiresOn = Instant.parse(MESSAGE_TIMESTAMP),
         acceptUntil = Instant.parse(MESSAGE_TIMESTAMP),
         authoredOn = Instant.parse(MESSAGE_TIMESTAMP),
-        status = SyncedTaskData.TaskStatus.Ready,
+        status = TaskStatusEnum.Ready,
         isIncomplete = false,
         pvsIdentifier = "testPvsIdentifier",
         failureToReport = "testFailureToReport",
-        medicationRequest = MOCK_MEDICATION_REQUEST,
-        lastMedicationDispense = null,
-        medicationDispenses = emptyList(),
-        communications = emptyList(),
-        isEuRedeemable = false,
-        isEuRedeemableByPatientAuthorization = false
+        medicationRequest = MOCK_MEDICATION_REQUEST
     )
 
     internal val MOCK_READY_EU_SYNCED_TASK = MOCK_SYNCED_TASK_DATA_01.copy(
         expiresOn = Clock.System.now() + 30.days,
         acceptUntil = Clock.System.now() + 30.days,
-        status = SyncedTaskData.TaskStatus.Ready,
+        status = TaskStatusEnum.Ready,
         isEuRedeemable = true
+    )
+
+    val mockProfile = ProfileErpModel(
+        id = "profile-id-1",
+        name = "Test Profile",
+        active = true,
+        isNewlyCreated = false,
+        profileImageData = ProfileImageDataErpModel(
+            color = ProfileColorNames.PINK,
+            avatar = Avatar.PersonalizedImage,
+            image = null
+        ),
+        insuranceData = ProfileInsuranceDataErpModel(
+            insurantName = "Test User",
+            insuranceIdentifier = "X123456789",
+            insuranceName = "Test Insurance",
+            insuranceType = InsuranceType.GKV,
+            organizationIdentifier = null
+        ),
+        isConsentDrawerShown = false,
+        lastAuthenticated = null,
+        lastAuditEventSynced = null,
+        lastTaskSynced = null,
+        userAuthentication = UserAuthenticationErpModel.NotInitialized
+    )
+
+    val mockProfile2 = mockProfile.copy(
+        id = "profile-id-2",
+        name = "Second Profile",
+        profileImageData = ProfileImageDataErpModel(
+            color = ProfileColorNames.BLUE_MOON,
+            avatar = Avatar.PersonalizedImage,
+            image = null
+        )
     )
 }

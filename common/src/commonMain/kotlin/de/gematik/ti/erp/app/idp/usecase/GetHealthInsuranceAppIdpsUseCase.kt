@@ -32,6 +32,7 @@ import de.gematik.ti.erp.app.vau.extractECPublicKey
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.bouncycastle.cert.X509CertificateHolder
 
 class GetHealthInsuranceAppIdpsUseCase(
     private val repository: IdpRepository,
@@ -78,7 +79,7 @@ class GetHealthInsuranceAppIdpsUseCase(
         try {
             repository.fetchFederationIDList(
                 url = requireNotNull(initialData.config.federationAuthorizationIDsEndpoint) { "GiD is not available" },
-                idpPukSigKey = initialData.config.certificate.extractECPublicKey()
+                idpPukSigKey = X509CertificateHolder(initialData.config.certificate).extractECPublicKey()
             ).map { it.mapToDomain() }
                 .sortedWith(compareBy { it.name.lowercase() })
         } catch (e: Throwable) {

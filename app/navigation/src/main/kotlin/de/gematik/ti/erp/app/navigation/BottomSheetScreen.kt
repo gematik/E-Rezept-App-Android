@@ -34,6 +34,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavController
@@ -86,7 +87,18 @@ private fun Content(
 
     ModalBottomSheet(
         sheetState = modalBottomSheetState,
-        modifier = Modifier.semantics { testTagsAsResourceId = true },
+        modifier = Modifier.semantics { testTagsAsResourceId = true }.onKeyEvent(
+            onKeyEvent = {
+                if (it.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_BACK ||
+                    it.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_ESCAPE
+                ) {
+                    navController.navigateUp()
+                    true
+                } else {
+                    false
+                }
+            }
+        ),
         onDismissRequest = navController::navigateUp,
         containerColor = AppTheme.colors.neutral000,
         contentColor = AppTheme.colors.neutral000,

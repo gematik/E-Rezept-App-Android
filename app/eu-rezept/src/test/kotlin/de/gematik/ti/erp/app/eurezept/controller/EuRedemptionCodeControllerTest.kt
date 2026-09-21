@@ -26,10 +26,12 @@ import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
 import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.eurezept.domain.usecase.GetCountryLocaleRedemptionCodeUseCase
+import de.gematik.ti.erp.app.eurezept.model.MockEuTestData
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockCountrySpecificLabels
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockEuAccessCode
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockEuRedemptionDetails
 import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockTtsLocale
+import de.gematik.ti.erp.app.eurezept.model.MockEuTestData.mockValidProfileMock
 import de.gematik.ti.erp.app.eurezept.presentation.EuRedemptionCodeController
 import de.gematik.ti.erp.app.eurezept.util.TextToSpeechManager
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
@@ -38,6 +40,7 @@ import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import junit.framework.TestCase.assertFalse
@@ -65,9 +68,9 @@ class EuRedemptionCodeControllerTest {
     private val profileRepository: ProfileRepository = mockk()
     private val idpRepository: IdpRepository = mockk()
 
-    private lateinit var getActiveProfileUseCase: GetActiveProfileUseCase
-    private lateinit var getProfileByIdUseCase: GetProfileByIdUseCase
-    private lateinit var getProfilesUseCase: GetProfilesUseCase
+    private val getActiveProfileUseCase: GetActiveProfileUseCase = mockk()
+    private val getProfileByIdUseCase: GetProfileByIdUseCase = mockk()
+    private val getProfilesUseCase: GetProfilesUseCase = mockk()
     private lateinit var chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase
 
     private val networkStatusTracker: NetworkStatusTracker = mockk()
@@ -79,23 +82,21 @@ class EuRedemptionCodeControllerTest {
     private val mockCountryCode = "DE"
     private lateinit var controller: EuRedemptionCodeController
 
+    private val mockProfile = mockValidProfileMock
+
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
 
-        getActiveProfileUseCase = GetActiveProfileUseCase(profileRepository, dispatcher)
-        getProfileByIdUseCase = GetProfileByIdUseCase(profileRepository, dispatcher)
-        getProfilesUseCase = GetProfilesUseCase(profileRepository, dispatcher)
         chooseAuthenticationDataUseCase = ChooseAuthenticationDataUseCase(profileRepository, idpRepository, dispatcher)
 
-        val mockProfileData = mockk<de.gematik.ti.erp.app.profiles.model.ProfilesData.Profile>(relaxed = true)
-        coEvery { profileRepository.activeProfile() } returns flowOf(mockProfileData)
-        coEvery { profileRepository.getProfileById(any()) } returns flowOf(mockProfileData)
-        coEvery { profileRepository.profiles() } returns flowOf(listOf(mockProfileData))
-        coEvery { profileRepository.updateLastAuthenticated(any(), any()) } returns Unit
+        every { getActiveProfileUseCase.invoke() } returns flowOf(mockProfile)
+        every { getProfilesUseCase.invoke() } returns flowOf(listOf(mockProfile))
+        every { getProfileByIdUseCase.invoke(any()) } returns flowOf(mockProfile)
 
-        val mockAuthData = mockk<de.gematik.ti.erp.app.idp.model.IdpData.AuthenticationData>(relaxed = true)
-        coEvery { idpRepository.authenticationData(any()) } returns flowOf(mockAuthData)
+        val mockAuthData = MockEuTestData.mockValidUserAuthentication
+        coEvery { idpRepository.getUserAuthentication(any()) } returns flowOf(mockAuthData)
+        coEvery { profileRepository.updateLastAuthenticated(any(), any()) } returns Unit
 
         coEvery { networkStatusTracker.networkStatus } returns flowOf(true)
 

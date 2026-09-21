@@ -1,0 +1,249 @@
+/*
+ * Copyright (Change Date see Readme), gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
+ * You may not use this work except in compliance with the Licence.
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
+ */
+
+package de.gematik.ti.erp.app.prescription.repository
+
+import de.gematik.ti.erp.app.api.FhirPagination
+import de.gematik.ti.erp.app.database.api.eurezept.EuTaskLocalDataSource
+import de.gematik.ti.erp.app.database.api.task.TaskLocalDataSource
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskStatusErpModel
+import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEPrescriptionParsers
+import de.gematik.ti.erp.app.fhir.support.FhirTaskEntryDataErpModel
+import de.gematik.ti.erp.app.prescription.remote.TaskRemoteDataSource
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.utils.toFachdienstTimestampString
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withContext
+import kotlinx.datetime.Instant
+import kotlinx.serialization.json.JsonElement
+
+/**
+ * Default implementation of [TaskSyncRepository], handling fetching and processing of
+ * prescription tasks via FHIR endpoints.
+ */
+class DefaultTaskSyncRepository(
+    private val remoteDataSource: TaskRemoteDataSource,
+    private val taskLocalDataSource: TaskLocalDataSource,
+    private val euTaskLocalDataSource: EuTaskLocalDataSource,
+    private val parsers: TaskEPrescriptionParsers,
+    private val paginator: FhirPagination,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+) : TaskSyncRepository {
+
+    override val tag: String = javaClass::getSimpleName.name
+
+    /**
+     * Public API: Download all tasks modified since last sync, returning the count.
+     */
+    override suspend fun downloadTasks(profileId: ProfileIdentifier): Result<Int> {
+        return paginateTasks(
+            profileId = profileId,
+            lastUpdated = syncedUpTo(profileId).toFachdienstTimestampString()
+        )
+    }
+
+    /**
+     * Query the latest modified timestamp from the local store for the given profile.
+     */
+    override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =
+        taskLocalDataSource.getLatestTaskModifiedTimestamp(profileId).first()
+    // legacyTaskLocalDataSource.latestTaskModifiedTimestamp(profileId).first()
+
+    /**
+     * Fetches all task bundles via pagination, processes each page on arrival,
+     * and returns a Result with the total number of processed tasks, or an error.
+     */
+    private suspend fun paginateTasks(
+        profileId: ProfileIdentifier,
+        lastUpdated: String?
+    ): Result<Int> = runCatching {
+        var totalCount = 0
+
+        paginator.paginate(
+            onFirstPage = { remoteDataSource.getTasks(profileId = profileId, lastUpdated = lastUpdated) },
+            onNextPage = { url -> remoteDataSource.getTasksByUrl(profileId = profileId, url = url) },
+            nextOf = { parsers.taskEntryParser.extract(it).nextPageUrl }
+        ) { bundle ->
+            val entries = parsers.taskEntryParser.extract(bundle).taskEntries
+            val pageCount = supervisorScope {
+                entries
+                    .map { async(dispatcher) { processTaskEntry(profileId, it) } }
+                    .awaitAll()
+                    .onEach { it.getOrThrow() } // fail fast on any entry error
+                    .size
+            }
+            totalCount += pageCount
+        }
+        totalCount
+    }
+
+    /**
+     * Process a single task entry: update status or fetch+process full bundle.
+     */
+    private suspend fun processTaskEntry(profileId: ProfileIdentifier, data: FhirTaskEntryDataErpModel): Result<Unit> {
+        return data.lastModified?.let { lastModified ->
+            if (data.status == FhirTaskStatusErpModel.Canceled) {
+                // If canceled, update local status only
+                taskLocalDataSource.updateSyncedTaskStatus(
+                    taskId = data.id,
+                    status = data.status,
+                    lastModified = lastModified
+                )
+                // legacyTaskLocalDataSource.updateTaskStatus(data.id, data.status, lastModified)
+                Result.success(Unit)
+            } else {
+                // Otherwise, fetch KBV bundle and process
+                fetchKbvJsonDataForTaskId(profileId, data.id)
+                    .mapCatching { taskMetaDataAndKbvBundle ->
+                        processTaskBundle(profileId, data.id, taskMetaDataAndKbvBundle).getOrThrow()
+                    }
+            }
+        } ?: Result.failure(IllegalStateException("Missing lastModified for task ${data.id}"))
+    }
+
+    /**
+     * Parse and persist metadata and medical data from a combined FHIR bundle.
+     * Handles Partial failures by marking tasks incomplete and saving what is valid.
+     */
+    private suspend fun processTaskBundle(profileId: String, taskId: String, taskMetaDataAndKbvBundle: JsonElement): Result<Unit> {
+        return parsers.taskBundleSeparationParser.extract(taskMetaDataAndKbvBundle)?.let { (metaDataBundle, kbvDataBundle) ->
+            // 1) Process metadata
+            val metaData = metaDataBundle.value.let(parsers.taskMetadataParser::extract)
+            if (metaData != null) {
+                taskLocalDataSource.saveSyncedTaskMetaData(profileId, metaData)
+                // legacyTaskLocalDataSource.saveTaskEPrescriptionMetaData(profileId, metaData)
+            } else {
+                Result.failure(IllegalStateException("Failed to parse meta task bundle for taskId: $taskId"))
+            }
+
+            // 2) Process medical data
+            val medicalData = kbvDataBundle.value.let(parsers.taskMedicalDataParser::extract)
+            // TODO: Return with parser errors that can be used to identify the root cause of parsing failures
+            when {
+                // Parsing failed -> mark incomplete
+                medicalData == null -> {
+                    taskLocalDataSource.markSyncedTaskAsIncomplete(
+                        taskId = taskId,
+                        error = IllegalStateException("Failed to parse KBV bundle for taskId: $taskId"),
+                        originalBundle = taskMetaDataAndKbvBundle
+                    )
+                    // legacyTaskLocalDataSource.markTaskAsIncomplete(taskId, IllegalStateException("Failed to parse KBV bundle for taskId: $taskId"))
+                    Result.failure(IllegalStateException("Failed to parse task bundle on null kbv data for taskId: $taskId"))
+                }
+
+                // Partial data -> mark incomplete and save what we have
+                medicalData.getMissingProperties().isNotEmpty() -> {
+                    taskLocalDataSource.markSyncedTaskAsIncomplete(
+                        taskId = taskId,
+                        error = IllegalStateException("Failed to parse KBV bundle fields: ${medicalData.getMissingProperties()}"),
+                        originalBundle = taskMetaDataAndKbvBundle
+                    )
+                    // legacyTaskLocalDataSource.markTaskAsIncomplete(
+                    // taskId,
+                    //  IllegalStateException("Failed to parse KBV bundle fields: ${medicalData.getMissingProperties()}")
+                    // )
+                    taskLocalDataSource.saveSyncedTaskKBVData(taskId, medicalData)
+                        // legacyTaskLocalDataSource.saveTaskEPrescriptionMedicalData(taskId, medicalData)
+                        .map { taskResult ->
+                            if (taskResult.isCompleted || taskResult.lastMedicationDispense != null) {
+                                downloadMedicationDispenses(profileId, taskId)
+                            }
+                        }
+                }
+
+                // Full data -> save and possibly fetch dispenses
+                else -> {
+                    taskLocalDataSource.saveSyncedTaskKBVData(taskId, medicalData)
+                        // legacyTaskLocalDataSource.saveTaskEPrescriptionMedicalData(taskId, medicalData)
+                        .map { taskResult ->
+                            if (taskResult.isCompleted || taskResult.lastMedicationDispense != null) {
+                                downloadMedicationDispenses(profileId, taskId)
+                            }
+                        }
+                }
+            }
+        } ?: Result.failure(IllegalStateException("Failed to parse task bundle for taskId: $taskId"))
+    }
+
+    /**
+     * Fetch the combined task metadata + KBV bundle JSON from the remote.
+     */
+    private suspend fun fetchKbvJsonDataForTaskId(
+        profileId: ProfileIdentifier,
+        taskId: String
+    ): Result<JsonElement> = remoteDataSource
+        .taskWithKBVBundle(profileId, taskId)
+        .mapCatching { it }
+
+    /**
+     * Download and persist any medication dispenses associated with the task.
+     *
+     * After saving, fires a [de.gematik.ti.erp.app.eurezept.model.EuEventType.TASK_REDEEMED]
+     * event for every **distinct** EU country code found in the dispense bundle, running all
+     * event writes concurrently.
+     */
+    private suspend fun downloadMedicationDispenses(
+        profileId: ProfileIdentifier,
+        taskId: String
+    ): Result<Unit> = withContext(dispatcher) {
+        remoteDataSource.loadBundleOfMedicationDispenses(profileId, taskId)
+            .mapCatching { bundle ->
+                val collection = parsers.taskDispenseParser.extract(bundle)
+
+                if (collection == null) {
+                    Napier.w(tag = tag) { "No dispense collection returned for taskId=$taskId — skipping" }
+                    return@mapCatching
+                }
+
+                // Fire TASK_REDEEMED for each distinct EU country code, concurrently.
+                // addRedeemedEventIfValidOrderExists catches its own exceptions, so a plain
+                // coroutineScope (vs supervisorScope) is safe here.
+                val distinctEuCountryCodes = collection.dispensedMedications
+                    .mapNotNull { it.euCountryCode }
+                    .distinct()
+
+                coroutineScope {
+                    distinctEuCountryCodes.forEach { countryCode ->
+                        launch {
+                            euTaskLocalDataSource.addRedeemedEventIfValidOrderExists(
+                                profileId = profileId,
+                                countryCode = countryCode,
+                                taskId = taskId
+                            )
+                        }
+                    }
+                }
+
+                taskLocalDataSource.saveSyncedTaskMedicationDispense(taskId, collection)
+            }
+    }
+
+    // private fun TaskData.isEuRedeemable() = this is SyncedTaskData.SyncedTask && isEuRedeemable && isEuRedeemableByPatientAuthorization
+}
