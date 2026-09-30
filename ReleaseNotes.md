@@ -1,3 +1,23 @@
+# Release 1.40.0
+
+### fixed (1 change):
+
+- Fix communication counter
+
+### ⚡ enhancements (3 changes):
+
+- Implement Room migration validation and add comprehensive migration guide
+- Remove Huawei AppGallery build configurations and related tasks
+- Enhance Nexus repository configuration to support dynamic credential resolution
+
+### ✨ features (5 changes):
+
+- Push activation dialog shown when app is updated
+- Display push notification properly and integrate Fachdienst push notification
+- Manage registered push devices and handle token lifecycle on logout/deletion
+- Update internal messages and strings for push notifications and delivery statuses
+- Update default communication version to 1.6 across relevant components
+
 # Release 1.39.0
 
 ### fixed (1 change):

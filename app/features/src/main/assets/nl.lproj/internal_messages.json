@@ -76,5 +76,11 @@
         "text": "**✅ T-recepten beschikbaar**\nT-recepten kunnen nu correct worden ontvangen en weergegeven. T-recepten worden gebruikt voor bepaalde geneesmiddelen met speciale veiligheidseisen.\n\n**⚙️ Instellingen opgeschoond**\nDe profielinstellingen zijn herzien en duidelijker gemaakt.\n\n**♿ Betere toegankelijkheid**\nBelemmeringen kunnen nu rechtstreeks vanuit de instellingen worden gemeld. Knoppen, menu's, lijsten en koppen zijn geoptimaliseerd voor gebruik met TalkBack. Het contrast is verbeterd en animaties worden nu slechts één keer afgespeeld. Het naamveld heeft nu een permanent zichtbaar label. Grotere lettergroottes worden nu ook ondersteund in de webweergaven van de app.",
         "timestamp": "2026-08-18T08:00:00.000Z",
         "version": "1.39"
+    },
+    {
+        "id": "15",
+        "text": "**🗞️ Pushmeldingen beschikbaar**\nJe kunt nu pushmeldingen ontvangen voor verschillende gebeurtenissen. Denk hierbij aan nieuwe e-recepten, statuswijzigingen van ingewisselde e-recepten of berichten van de apotheek.",
+        "timestamp": "2026-09-21T08:00:00.000Z",
+        "version": "1.40"
     }
 ]

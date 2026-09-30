@@ -30,6 +30,6 @@ enum class CommunicationVersion(val version: String, val displayName: String) {
     V_1_2("1.2", "Version 1.2"),
     V_1_3("1.3", "Version 1.3"),
     V_1_4("1.4", "Version 1.4"),
-    V_1_5("1.5", "(Production) Version 1.5"),
+    V_1_5("1.5", "Version 1.5"),
     V_1_6("1.6", "Version 1.6")
 }

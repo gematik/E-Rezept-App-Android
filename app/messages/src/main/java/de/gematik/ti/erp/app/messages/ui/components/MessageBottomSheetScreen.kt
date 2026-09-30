@@ -82,6 +82,9 @@ import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import de.gematik.ti.erp.app.utils.letNotNull
 import de.gematik.ti.erp.app.utils.letNotNullOnCondition
 
+// TODO CommResV3 design: https://www.figma.com/design/Xg4X8ULc7fwxzkxaCnxW0I/%F0%9F%A4%96-eRezept-Android?node-id=41291-19441&m=dev
+// Not Part of MVP
+
 class MessageBottomSheetScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry

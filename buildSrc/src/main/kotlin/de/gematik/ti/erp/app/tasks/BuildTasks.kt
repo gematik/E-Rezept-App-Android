@@ -97,60 +97,6 @@ internal fun TaskContainer.buildPlayStoreApp() {
 }
 
 /**
- * Registers a task to build the App Gallery bundle.
- * This task calculates the version code and name, then executes the build script.
- */
-internal fun TaskContainer.buildAppGalleryBundle() {
-    register(TaskNames.buildAppGalleryBundle) {
-        runDependencyTasks()
-        val buildCondition = BuildAppFlavoursPlugin.BuildCondition.AppGalleryBundle
-        doLast {
-            val (versionCode, versionName) = project.calculateVersionCodeName(isRC = false)
-            project.exec {
-                commandLine(
-                    "bash",
-                    "-c",
-                    project.buildScript(
-                        versionCode = versionCode,
-                        versionName = versionName,
-                        buildCondition = buildCondition
-                    )
-                )
-                standardOutput = System.out
-                errorOutput = System.out
-            }
-        }
-    }
-}
-
-/**
- * Registers a task to build the App Gallery APK.
- * This task calculates the version code and name, then executes the build script.
- */
-internal fun TaskContainer.buildAppGalleryApp() {
-    register(TaskNames.buildAppGalleryApp) {
-        runDependencyTasks()
-        val buildCondition = BuildAppFlavoursPlugin.BuildCondition.AppGalleryApk
-        doLast {
-            val (versionCode, versionName) = project.calculateVersionCodeName(isRC = false)
-            project.exec {
-                commandLine(
-                    "bash",
-                    "-c",
-                    project.buildScript(
-                        versionCode = versionCode,
-                        versionName = versionName,
-                        buildCondition = buildCondition
-                    )
-                )
-                standardOutput = System.out
-                errorOutput = System.out
-            }
-        }
-    }
-}
-
-/**
  * Registers a task to build the TU release APK.
  * This task calculates the version code and name, appends the git hash if available, then executes the build script.
  */

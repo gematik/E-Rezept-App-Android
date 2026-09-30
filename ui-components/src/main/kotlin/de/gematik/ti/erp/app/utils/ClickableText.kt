@@ -85,6 +85,12 @@ fun ClickableText(
     )
 }
 
+/**
+ * A text which highlights [clickableText] inside [fullText] (found via [String.indexOf])
+ * and makes that substring clickable, without requiring the caller to split the text into
+ * a leading/trailing part themselves.
+ */
+
 @LightDarkPreview
 @Composable
 private fun ClickableTextPreview() {

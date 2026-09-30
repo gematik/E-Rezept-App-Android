@@ -23,6 +23,10 @@
 package de.gematik.ti.erp.app.database.room.v2.task.communication
 
 import de.gematik.ti.erp.app.communication.model.CommunicationProfileV1
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyTextPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationSupplyOptionTypeErpModel
+import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestCommunicationPayloadV1ErpModel
 import de.gematik.ti.erp.app.database.api.CommunicationLocalDataSource
 import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -163,18 +167,23 @@ class CommunicationLocalDataSourceV2Test {
         override suspend fun updateConsumedForGroup(
             orderId: String,
             taskId: String,
-            payload: String,
             sender: String,
             recipient: String,
             consumed: Boolean
         ): Int {
             val targets = store.communications.values.filter {
-                it.orderId == orderId && it.taskId == taskId && it.payload == payload && it.telematikId == sender && it.recipient == recipient
+                it.orderId == orderId && it.taskId == taskId && it.telematikId == sender && it.recipient == recipient
             }
             targets.forEach {
                 store.put(it.copy(consumed = consumed))
             }
             return targets.size
+        }
+
+        override suspend fun updateConsumedById(communicationId: String, consumed: Boolean): Int {
+            val existing = store.communications[communicationId] ?: return 0
+            store.put(existing.copy(consumed = consumed))
+            return 1
         }
 
         override suspend fun updatePharmacyName(communicationId: String, pharmacyName: String): Int {
@@ -253,7 +262,7 @@ class CommunicationLocalDataSourceV2Test {
         telematikId: String = "pharmacy-1",
         kvnr: String = "kvnr-1",
         consumed: Boolean = false,
-        payload: String = "payload",
+        payload: CommunicationPayloadErpModel? = null,
         profile: CommunicationProfileV1 = CommunicationProfileV1.ErxCommunicationDispReq,
         recipient: String = "",
         insuranceId: String? = "profile-1",
@@ -300,9 +309,27 @@ class CommunicationLocalDataSourceV2Test {
                 // Order 2: 1 read dispReq -> 0 count
                 entity("3", orderId = "O2", profile = CommunicationProfileV1.ErxCommunicationDispReq, consumed = true),
                 // Replies: unique (taskId, payload) -> 2 unique unconsumed
-                entity("4", taskId = "T1", payload = "P1", profile = CommunicationProfileV1.ErxCommunicationReply, consumed = false),
-                entity("5", taskId = "T1", payload = "P1", profile = CommunicationProfileV1.ErxCommunicationReply, consumed = false), // Duplicate (T1, P1)
-                entity("6", taskId = "T2", payload = "P2", profile = CommunicationProfileV1.ErxCommunicationReply, consumed = false)
+                entity(
+                    "4",
+                    taskId = "T1",
+                    payload = CommunicationReplyTextPayloadErpModel(transactionID = "t1", text = "P1"),
+                    profile = CommunicationProfileV1.ErxCommunicationReply,
+                    consumed = false
+                ),
+                entity(
+                    "5",
+                    taskId = "T1",
+                    payload = CommunicationReplyTextPayloadErpModel(transactionID = "t1", text = "P1"),
+                    profile = CommunicationProfileV1.ErxCommunicationReply,
+                    consumed = false
+                ), // Duplicate (T1, P1)
+                entity(
+                    "6",
+                    taskId = "T2",
+                    payload = CommunicationReplyTextPayloadErpModel(transactionID = "t2", text = "P2"),
+                    profile = CommunicationProfileV1.ErxCommunicationReply,
+                    consumed = false
+                )
             )
         )
 
@@ -313,9 +340,10 @@ class CommunicationLocalDataSourceV2Test {
     @Test
     fun setCommunicationStatus_updatesGroup() = runTest {
         val (sut, store) = buildSut()
-        val e1 = entity("1", orderId = "O1", taskId = "T1", payload = "P1", telematikId = "S1", consumed = false)
-        val e2 = entity("2", orderId = "O1", taskId = "T1", payload = "P1", telematikId = "S1", consumed = false)
-        val e3 = entity("3", orderId = "O1", taskId = "T2", payload = "P1", telematikId = "S1", consumed = false)
+        val p1 = CommunicationReplyTextPayloadErpModel(transactionID = "t1", text = "P1")
+        val e1 = entity("1", orderId = "O1", taskId = "T1", payload = p1, telematikId = "S1", consumed = false)
+        val e2 = entity("2", orderId = "O1", taskId = "T1", payload = p1, telematikId = "S1", consumed = false)
+        val e3 = entity("3", orderId = "O1", taskId = "T2", payload = p1, telematikId = "S1", consumed = false)
         store.putAll(listOf(e1, e2, e3))
 
         sut.setCommunicationStatus("1", true)
@@ -329,16 +357,19 @@ class CommunicationLocalDataSourceV2Test {
     fun latestCommunicationTimestamp_returnsMax() = runTest {
         val (sut, store) = buildSut()
         val now = Clock.System.now()
+        val t1 = now.minus(Duration.parse("1h"))
+        val t2 = now
+
         store.putAll(
             listOf(
-                entity("1", insuranceId = "P1", timeStamp = now.minus(Duration.parse("1h"))),
-                entity("2", insuranceId = "P1", timeStamp = now),
-                entity("3", insuranceId = "P2", timeStamp = now.plus(Duration.parse("1h")))
+                entity("1", insuranceId = "profile-1", timeStamp = t1),
+                entity("2", insuranceId = "profile-1", timeStamp = t2),
+                entity("3", insuranceId = "profile-2", timeStamp = now.plus(Duration.parse("1h")))
             )
         )
 
-        val latest = sut.latestCommunicationTimestamp("P1").first()
-        assertEquals(now, latest)
+        val result = sut.latestCommunicationTimestamp("profile-1").first()
+        assertEquals(t2, result)
     }
 
     @Test
@@ -354,7 +385,7 @@ class CommunicationLocalDataSourceV2Test {
                     sender = de.gematik.ti.erp.app.fhir.communication.model.support.CommunicationParticipantErpModel("pharmacy-123"),
                     recipient = de.gematik.ti.erp.app.fhir.communication.model.support.CommunicationParticipantErpModel("patient-456"),
                     sent = null,
-                    payload = de.gematik.ti.erp.app.fhir.communication.model.support.DispenseCommunicationPayloadContentErpModel("content-data")
+                    payload = """{"version":1,"supplyOptionsType":"onPremise","name":"Test","address":["Street"],"phone":"123"}"""
                 )
             )
         )
@@ -364,7 +395,50 @@ class CommunicationLocalDataSourceV2Test {
         val saved = store.communications["msg-123"]
         assertNotNull(saved)
         assertEquals("task-abc", saved.taskId)
-        assertEquals("content-data", saved.payload)
+        assertEquals(
+            DispenseRequestCommunicationPayloadV1ErpModel(
+                version = 1,
+                supplyOptionsType = CommunicationSupplyOptionTypeErpModel.ON_PREMISE,
+                name = "Test",
+                address = listOf("Street"),
+                phone = "123"
+            ),
+            saved.payload
+        )
         assertEquals("pharmacy-123", saved.telematikId)
+    }
+
+    @Test
+    fun saveCommunications_replyWithNoResolvableOrderId_fallsBackToTaskIdAndTelematikIdAsOrderId() = runTest {
+        // Real-world scenario: the dispense-request was created and redeemed on a different device and
+        // is not known locally (e.g. already removed server-side), and the reply itself carries no
+        // OrderID identifier either. Without a fallback, this reply would be persisted with a blank
+        // orderId, making the resulting order permanently un-openable (order lookups key on orderId).
+        val (sut, store) = buildSut()
+        val bundle = de.gematik.ti.erp.app.fhir.FhirCommunicationBundleErpModel(
+            total = 1,
+            messages = listOf(
+                de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel(
+                    id = "reply-1",
+                    profile = "reply-profile",
+                    taskId = "task-orphan",
+                    sender = de.gematik.ti.erp.app.fhir.communication.model.support.CommunicationParticipantErpModel("pharmacy-999"),
+                    recipient = de.gematik.ti.erp.app.fhir.communication.model.support.CommunicationParticipantErpModel("patient-999"),
+                    orderId = null,
+                    sent = null,
+                    received = null,
+                    payload = """
+                        {"type":"de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyTextPayloadErpModel",
+                        "version":3,"communicationType":"text","transactionID":"","text":"Ready for pickup"}
+                    """.trimIndent()
+                )
+            )
+        )
+
+        val savedCount = sut.saveCommunications(bundle)
+        assertEquals(1, savedCount)
+        val saved = store.communications["reply-1"]
+        assertNotNull(saved)
+        assertEquals("task-orphan:pharmacy-999", saved.orderId)
     }
 }

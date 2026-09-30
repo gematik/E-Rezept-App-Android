@@ -23,20 +23,20 @@
 package de.gematik.ti.erp.app.messages.mapper
 
 import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyDeliveryStatusPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyLinkPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPaymentInfoPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPayloadV1ErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPickupCodeDMCPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPickupCodeHRPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyReservationStatusPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyTextPayloadErpModel
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.model.LastMessageDetails
-import de.gematik.ti.erp.app.pharmacy.repository.model.CommunicationPayloadInbox
 import de.gematik.ti.erp.app.task.model.TaskErpModel
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.Json
-
-private val lenientJson = Json {
-    isLenient = true
-    ignoreUnknownKeys = true
-}
 
 fun CommunicationErpModel.toOrderDetail(
     taskDetailedBundles: List<OrderUseCaseData.TaskDetailedBundle>,
@@ -57,34 +57,51 @@ fun CommunicationErpModel.toMessage(taskIds: List<String>, isTaskIdCountMatching
         pickUpCodeDMC = null,
         pickUpCodeHR = null,
         link = null,
+        deliveryStatusPayload = null,
         consumed = consumed,
         prescriptions = emptyList<TaskErpModel?>(),
         taskIds = taskIds,
         isTaskIdCountMatching = isTaskIdCountMatching
     )
 
-    return payload?.let { nonNullPayload ->
-        try {
-            val inbox = lenientJson.decodeFromString<CommunicationPayloadInbox>(nonNullPayload)
-            OrderUseCaseData.Message(
-                communicationId = communicationId,
-                sentOn = timeStamp ?: Clock.System.now(),
-                content = inbox.infoText?.takeUnless { it.isBlank() },
-                pickUpCodeDMC = inbox.pickUpCodeDMC?.takeUnless { it.isBlank() },
-                pickUpCodeHR = inbox.pickUpCodeHR?.takeUnless { it.isBlank() },
-                link = inbox.url?.takeUnless { it.isBlank() }?.takeIf { isValidUrl(it) },
-                consumed = consumed,
-                prescriptions = emptyList<TaskErpModel?>(),
-                taskIds = taskIds,
-                isTaskIdCountMatching = isTaskIdCountMatching
-            )
-        } catch (ignored: SerializationException) {
+    return when (val parsedPayload = payload) {
+        null -> {
             Napier.d { "No payload, default message" }
             defaultValues
         }
-    } ?: run {
-        Napier.d { "No payload, default message" }
-        defaultValues
+        is CommunicationReplyPayloadV1ErpModel -> defaultValues.copy(
+            content = parsedPayload.infoText?.takeUnless { it.isBlank() },
+            pickUpCodeDMC = parsedPayload.pickUpCodeDMC?.takeUnless { it.isBlank() },
+            pickUpCodeHR = parsedPayload.pickUpCodeHR?.takeUnless { it.isBlank() },
+            link = parsedPayload.url?.takeUnless { it.isBlank() }?.takeIf { isValidUrl(it) }
+        )
+        is CommunicationReplyTextPayloadErpModel -> defaultValues.copy(
+            content = parsedPayload.text.takeUnless { it.isBlank() }
+        )
+        is CommunicationReplyLinkPayloadErpModel -> defaultValues.copy(
+            content = parsedPayload.text.takeUnless { it.isBlank() },
+            link = parsedPayload.url.takeUnless { it.isBlank() }?.takeIf { isValidUrl(it) }
+        )
+        is CommunicationReplyPickupCodeHRPayloadErpModel -> defaultValues.copy(
+            content = parsedPayload.text?.takeUnless { it.isBlank() },
+            pickUpCodeHR = parsedPayload.pickUpCode.takeUnless { it.isBlank() }
+        )
+        is CommunicationReplyPickupCodeDMCPayloadErpModel -> defaultValues.copy(
+            content = parsedPayload.text?.takeUnless { it.isBlank() },
+            pickUpCodeDMC = parsedPayload.pickUpCodeDmc.takeUnless { it.isBlank() }
+        )
+        is CommunicationReplyReservationStatusPayloadErpModel -> defaultValues.copy(
+            content = parsedPayload.readyForCollection.name
+        )
+        is CommunicationReplyDeliveryStatusPayloadErpModel -> defaultValues.copy(
+            content = parsedPayload.text?.takeUnless { it.isBlank() } ?: parsedPayload.deliveryStatus.name,
+            deliveryStatusPayload = parsedPayload
+        )
+        is CommunicationReplyPaymentInfoPayloadErpModel -> defaultValues.copy(
+            content = parsedPayload.text?.takeUnless { it.isBlank() } ?: "Betrag: ${parsedPayload.totalAmount} €",
+            link = parsedPayload.paymentMethods.firstNotNullOfOrNull { it.url }?.takeIf { isValidUrl(it) }
+        )
+        else -> defaultValues
     }
 }
 
@@ -93,15 +110,29 @@ private fun List<CommunicationErpModel>.groupByPayloadAndTaskId(expectedTaskIdCo
     val others = this.filter { it.profile != CommunicationErpModel.CommunicationProfile.ErxCommunicationReply }
     val otherMessage = others.map { it.toMessage(emptyList<String>(), false) }
 
-    val groupedRepliesMessage = replies.groupBy { it.payload }.flatMap { (_, communications) ->
-        val repliedTaskIds = communications.distinctBy { it.taskId }.map { it.taskId }
-        communications.distinctBy { it.payload }.map { communication ->
-            communication.toMessage(
-                taskIds = repliedTaskIds,
-                isTaskIdCountMatching = repliedTaskIds.size == expectedTaskIdCount
-            )
-        }
+    // Replies with a null payload carry no information that lets us safely correlate them across tasks,
+    // so each is kept as its own message tied to just its own task-id (no merging, no cross-task dedupe).
+    // Replies with a non-null payload that is identical across multiple tasks of the same order (e.g. a
+    // pharmacy sending the same reply text to every redeemed prescription in a MultiReply order) are merged
+    // into a single message listing all the task-ids that share it.
+    val (nullPayloadReplies, parsedPayloadReplies) = replies.partition { it.payload == null }
+
+    val nullPayloadMessages = nullPayloadReplies.map { communication ->
+        communication.toMessage(
+            taskIds = listOf(communication.taskId),
+            isTaskIdCountMatching = expectedTaskIdCount == 1
+        )
     }
+
+    val parsedPayloadMessages = parsedPayloadReplies.groupBy { it.payload }.map { (_, communications) ->
+        val repliedTaskIds = communications.distinctBy { it.taskId }.map { it.taskId }
+        communications.first().toMessage(
+            taskIds = repliedTaskIds,
+            isTaskIdCountMatching = repliedTaskIds.size == expectedTaskIdCount
+        )
+    }
+
+    val groupedRepliesMessage = nullPayloadMessages + parsedPayloadMessages
     return otherMessage + groupedRepliesMessage
 }
 

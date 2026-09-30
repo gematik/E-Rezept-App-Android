@@ -20,24 +20,6 @@
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
-/*
- * Copyright (Change Date see Readme), gematik GmbH
- *
- * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
- * European Commission – subsequent versions of the EUPL (the "Licence").
- * You may not use this work except in compliance with the Licence.
- *
- * You find a copy of the Licence in the "Licence" file or at
- * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik GmbH find details in the "Readme" file.
- *
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
-
 package de.gematik.ti.erp.app.database.bridge.eurezept
 
 import de.gematik.ti.erp.app.database.api.eurezept.EuTaskLocalDataSource
@@ -69,9 +51,16 @@ class EuTaskLocalDataSourceBridgeTest {
     private val logger: DbMigrationLogHolder = mockk(relaxed = true)
     private val now = Clock.System.now()
 
+    private fun createBridge(useRoom: Boolean) = EuTaskLocalDataSourceBridge(
+        euTaskLocalDataSourceV1 = v1,
+        euTaskLocalDataSourceV2 = v2,
+        logger = logger,
+        roomFeatureToggle = { useRoom }
+    )
+
     @Test
     fun testObserveEuOrder_callsV2_whenUseRoomIsTrue() = runTest {
-        val sut = EuTaskLocalDataSourceBridge(v1, v2, logger, useRoom = true)
+        val sut = createBridge(useRoom = true)
         val orderModel = EuOrderErpModel(
             orderId = "id123",
             countryCode = "DE",
@@ -113,7 +102,7 @@ class EuTaskLocalDataSourceBridgeTest {
 
     @Test
     fun testObserveEuOrder_callsV1_whenUseRoomIsFalse() = runTest {
-        val sut = EuTaskLocalDataSourceBridge(v1, v2, logger, useRoom = false)
+        val sut = createBridge(useRoom = false)
         val orderModel = EuOrderErpModel(
             orderId = "id123",
             countryCode = "DE",
@@ -139,7 +128,7 @@ class EuTaskLocalDataSourceBridgeTest {
 
     @Test
     fun testSaveEuOrder_callsV2_whenUseRoomIsTrue() = runTest {
-        val sut = EuTaskLocalDataSourceBridge(v1, v2, logger, useRoom = true)
+        val sut = createBridge(useRoom = true)
         val orderModel = EuOrderErpModel(
             orderId = "id123",
             countryCode = "DE",
@@ -169,7 +158,7 @@ class EuTaskLocalDataSourceBridgeTest {
 
     @Test
     fun testDeleteEuAccessCodeByProfileId_callsV1_whenUseRoomIsFalse() = runTest {
-        val sut = EuTaskLocalDataSourceBridge(v1, v2, logger, useRoom = false)
+        val sut = createBridge(useRoom = false)
 
         coEvery { v1.deleteEuAccessCodeByProfileId("profile123") } just runs
 
@@ -188,7 +177,7 @@ class EuTaskLocalDataSourceBridgeTest {
 
     @Test
     fun testMarkEventsAsRead_callsV2_whenUseRoomIsTrue() = runTest {
-        val sut = EuTaskLocalDataSourceBridge(v1, v2, logger, useRoom = true)
+        val sut = createBridge(useRoom = true)
         val eventIds = listOf("e1", "e2")
 
         coEvery { v2.markEventsAsRead(eventIds) } just runs
@@ -201,7 +190,7 @@ class EuTaskLocalDataSourceBridgeTest {
 
     @Test
     fun testAddEventToValidOrders_callsV1_whenUseRoomIsFalse() = runTest {
-        val sut = EuTaskLocalDataSourceBridge(v1, v2, logger, useRoom = false)
+        val sut = createBridge(useRoom = false)
         val taskIds = listOf("task1")
 
         coEvery { v1.addEventToValidOrders("profileId1", taskIds, EuEventType.TASK_ADDED) } just runs
@@ -214,7 +203,7 @@ class EuTaskLocalDataSourceBridgeTest {
 
     @Test
     fun testGetEuAccessCode_callsV2_whenUseRoomIsTrue() = runTest {
-        val sut = EuTaskLocalDataSourceBridge(v1, v2, logger, useRoom = true)
+        val sut = createBridge(useRoom = true)
         val accessCodeModel = EuAccessCodeErpModel("DE", "CODE123", now, now, "profileId1")
 
         every { v1.getEuAccessCode("CODE123") } returns flowOf(null)
@@ -245,7 +234,7 @@ class EuTaskLocalDataSourceBridgeTest {
 
     @Test
     fun testAddRedeemedEventIfValidOrderExists_callsV2_whenUseRoomIsTrue() = runTest {
-        val sut = EuTaskLocalDataSourceBridge(v1, v2, logger, useRoom = true)
+        val sut = createBridge(useRoom = true)
 
         coEvery { v2.addRedeemedEventIfValidOrderExists("profile123", "DE", "task123") } just runs
 
@@ -263,7 +252,7 @@ class EuTaskLocalDataSourceBridgeTest {
 
     @Test
     fun testAddRedeemedEventIfValidOrderExists_callsV1_whenUseRoomIsFalse() = runTest {
-        val sut = EuTaskLocalDataSourceBridge(v1, v2, logger, useRoom = false)
+        val sut = createBridge(useRoom = false)
 
         coEvery { v1.addRedeemedEventIfValidOrderExists("profile123", "DE", "task123") } just runs
 

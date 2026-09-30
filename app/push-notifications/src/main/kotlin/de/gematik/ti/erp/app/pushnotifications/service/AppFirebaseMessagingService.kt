@@ -30,17 +30,22 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.pushnotifications.BuildConfig
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushNotificationCryptoError
+import de.gematik.ti.erp.app.pushnotifications.domain.model.IncomingPushNotification
+import de.gematik.ti.erp.app.pushnotifications.domain.model.IncomingPushNotificationMapper
+import de.gematik.ti.erp.app.pushnotifications.domain.model.PushNotificationContent
 import de.gematik.ti.erp.app.pushnotifications.domain.usecase.DecryptPushNotificationUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.InitializeDebugPushKeyChainUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.UpdateFcmTokenUseCase
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.kodein.di.DIAware
 import org.kodein.di.android.closestDI
 import org.kodein.di.instance
@@ -51,6 +56,9 @@ class AppFirebaseMessagingService : FirebaseMessagingService(), DIAware {
     override val di by closestDI()
 
     private val decryptPushNotificationUseCase: DecryptPushNotificationUseCase by instance()
+    private val updateFcmTokenUseCase: UpdateFcmTokenUseCase by instance()
+    private val initializeDebugPushKeyChainUseCase: InitializeDebugPushKeyChainUseCase by instance()
+    private val incomingPushNotificationMapper: IncomingPushNotificationMapper by instance()
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private lateinit var notificationManager: NotificationManager
 
@@ -58,8 +66,23 @@ class AppFirebaseMessagingService : FirebaseMessagingService(), DIAware {
         super.onCreate()
         notificationManager = checkNotNull(getSystemService()) { "NotificationManager not available" }
         notificationManager.createNotificationChannel(
-            NotificationChannel(CHANNEL_ID, "E-Rezept Notifications", NotificationManager.IMPORTANCE_HIGH).apply {
-                description = "Push notifications for E-Rezept"
+            NotificationChannel(
+                CHANNEL_ID,
+                getString(R.string.push_notification_channel_name),
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = getString(R.string.push_notification_channel_description)
+                enableVibration(true)
+                enableLights(true)
+            }
+        )
+        notificationManager.createNotificationChannel(
+            NotificationChannel(
+                DEBUG_CHANNEL_ID,
+                "Raw Push Debug",
+                NotificationManager.IMPORTANCE_MAX
+            ).apply {
+                description = "Shows raw JSON payloads of incoming FCM pushes"
                 enableVibration(true)
                 enableLights(true)
             }
@@ -68,7 +91,10 @@ class AppFirebaseMessagingService : FirebaseMessagingService(), DIAware {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        // TODO: Handle FCM token rotation by updating the stored registration and updating the Fachdienst with the new FCM token when push backend is ready.
+        serviceScope.launch {
+            updateFcmTokenUseCase(token)
+                .onFailure { error -> Napier.e("Failed to update rotated FCM token", error) }
+        }
     }
 
     override fun onDestroy() {
@@ -79,63 +105,109 @@ class AppFirebaseMessagingService : FirebaseMessagingService(), DIAware {
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
 
-        Napier.d("Message received — notification: ${message.notification?.title}, data keys: ${message.data.keys}")
+        val incoming = incomingPushNotificationMapper.parse(message.data)
 
-        val data = message.data
-        val ciphertext = data[FCM_KEY_CIPHERTEXT]
-        val timeEncrypted = data[FCM_KEY_TIME_ENCRYPTED]
-        val keyIdentifier = data[FCM_KEY_IDENTIFIER]
+        val typeLabel = when (incoming) {
+            is IncomingPushNotification.Encrypted -> "Encrypted"
+            is IncomingPushNotification.Rejected -> if (message.data.isNotEmpty()) "Plain/Other" else "Rejected"
+            else -> "Unknown"
+        }
 
-        if (ciphertext != null && timeEncrypted != null) {
-            if (keyIdentifier == null) {
-                Napier.w("Encrypted push missing $FCM_KEY_IDENTIFIER — rejecting message.")
-                return
-            }
-            handleEncryptedNotification(ciphertext, timeEncrypted, keyIdentifier)
-        } else {
-            val title = message.notification?.title ?: data[FCM_KEY_TITLE] ?: "E-Rezept"
-            val body = message.notification?.body ?: data[FCM_KEY_BODY] ?: ""
-            if (title.isNotBlank() || body.isNotBlank()) showNotification(title, body)
+        Napier.d(
+            message = "Incoming push received (Type: $typeLabel) — message: ${message.data}",
+            tag = "Push"
+        )
+
+        showDebugNotificationIfEnabled(typeLabel, message.data.toString())
+
+        when (incoming) {
+            is IncomingPushNotification.Encrypted -> handleEncryptedNotification(incoming)
+            is IncomingPushNotification.Rejected -> Napier.w(incoming.reason, tag = "Push")
         }
     }
 
-    private fun handleEncryptedNotification(
-        ciphertext: String,
-        timeMessageEncrypted: String,
-        keyIdentifier: String
-    ) {
-        serviceScope.launch {
-            runCatching {
-                val payload = decryptPushNotificationUseCase(ciphertext, timeMessageEncrypted, keyIdentifier)
-                    .getOrThrow()
+    private fun showDebugNotificationIfEnabled(typeLabel: String, rawData: String) {
+        val prefs = applicationContext.getSharedPreferences(
+            "debug_push_notifications_prefs_sp",
+            MODE_PRIVATE
+        )
+        val showRaw = prefs.getBoolean("show_raw_push_notification", false)
+        Napier.d("Debug notification flag is set to: $showRaw", tag = "Push")
+        if (!showRaw) return
 
-                if (BuildKonfig.INTERNAL && BuildConfig.DEBUG) {
-                    Napier.d("Decrypted push payload: ${payload.rawPayload}")
-                }
+        val notificationId = notificationIdCounter.incrementAndGet()
 
-                // TODO: Map all ChannelIds for navigation when backend is ready.
-                val title = when (payload.channelId) {
-                    CHANNEL_ID_NEW_PRESCRIPTION -> "Neues Rezept"
-                    else -> "E-Rezept"
-                }
-                val body = if (payload.identifier != null) {
-                    "${payload.channelId}: ${payload.identifier}: ${payload.identifierType}"
+        // 1. Copy Action (BroadcastReceiver)
+        val copyIntent = Intent(applicationContext, DebugPushClipboardReceiver::class.java).apply {
+            putExtra("clip_text", rawData)
+        }
+        val copyPendingIntent = PendingIntent.getBroadcast(
+            applicationContext,
+            notificationId,
+            copyIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // 2. Main Content Intent (Activity)
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+            ?.apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP }
+        val contentPendingIntent = PendingIntent.getActivity(
+            this,
+            notificationId,
+            launchIntent ?: Intent(),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notificationBuilder = NotificationCompat.Builder(this, DEBUG_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_logo)
+            .setContentTitle("RAW Push ($typeLabel)")
+            .setContentText("Payload: $rawData")
+            .setStyle(NotificationCompat.BigTextStyle().bigText(rawData))
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setAutoCancel(true)
+            .setContentIntent(contentPendingIntent)
+            .addAction(0, "Copy Payload", copyPendingIntent)
+
+        notificationManager.notify(notificationId, notificationBuilder.build())
+    }
+
+    private fun handleEncryptedNotification(message: IncomingPushNotification.Encrypted) {
+        runBlocking(Dispatchers.IO) {
+            try {
+                initializeDebugPushKeyChainUseCase(requiredKeyIdentifier = message.keyIdentifier)
+                val payload = decryptPushNotificationUseCase(
+                    message.ciphertext,
+                    message.timeMessageEncrypted,
+                    message.keyIdentifier
+                ).getOrThrow()
+
+                Napier.d("Decrypted push payload: channelId=${payload.channelId}, identifier=${payload.identifier}, identifierType=${payload.identifierType}")
+
+                val content = incomingPushNotificationMapper.mapDecrypted(payload)
+                if (content != null) {
+                    showNotification(content)
                 } else {
-                    payload.channelId ?: payload.rawPayload
+                    Napier.d("Push notification ignored for no-op channel: ${payload.channelId}")
                 }
-
-                showNotification(title, body)
-            }.onFailure { e ->
-                when (e) {
-                    is PushNotificationCryptoError -> Napier.w("Failed to decrypt push notification: ${e.message}")
-                    else ->
-                        Napier.e("Unexpected error in push notification handler — dropping message.", e)
-                }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (error: PushNotificationCryptoError.UnknownKeyIdentifier) {
+                // Key material is unknown or was cleared (e.g. profile was deleted locally while remote deregistration failed).
+                // deregistration failed). Drop the push silently instead of showing a fallback for a deleted profile.
+                Napier.w("Dropping push notification for unknown key_identifier: ${error.message}")
+            } catch (error: PushNotificationCryptoError) {
+                Napier.w("Failed to decrypt push notification: ${error.message}")
+                // Show a generic notification so the user knows something arrived.
+                showNotification(incomingPushNotificationMapper.fallback())
+            } catch (error: Exception) {
+                Napier.e("Unexpected error in push notification handler — dropping message.", error)
+                showNotification(incomingPushNotificationMapper.fallback())
             }
         }
     }
 
-    private fun showNotification(title: String, body: String) {
+    private fun showNotification(content: PushNotificationContent) {
         val notificationId = notificationIdCounter.incrementAndGet()
         val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
             ?.apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP }
@@ -147,31 +219,25 @@ class AppFirebaseMessagingService : FirebaseMessagingService(), DIAware {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+        val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_logo)
-            .setContentTitle(title)
-            .setContentText(body)
+            .setContentTitle(getString(content.title))
+            .setContentText(getString(content.body))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
-            .build()
 
-        notificationManager.notify(notificationId, notification)
+        content.groupKey?.let { groupKey ->
+            notificationBuilder.setGroup(groupKey)
+        }
+
+        notificationManager.notify(notificationId, notificationBuilder.build())
     }
 
     companion object {
         const val CHANNEL_ID = "fcm_push_channel"
-
-        // FCM data payload keys
-        const val FCM_KEY_CIPHERTEXT = "ciphertext"
-        const val FCM_KEY_TIME_ENCRYPTED = "time_message_encrypted"
-        const val FCM_KEY_IDENTIFIER = "key_identifier"
-        const val FCM_KEY_TITLE = "title"
-        const val FCM_KEY_BODY = "body"
-
-        // Known ChannelId values from the decrypted payload
-        const val CHANNEL_ID_NEW_PRESCRIPTION = "erp.task.activate"
+        const val DEBUG_CHANNEL_ID = "raw_push_message_channel"
 
         private val notificationIdCounter = AtomicInteger(0)
     }

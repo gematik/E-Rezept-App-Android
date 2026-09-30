@@ -32,10 +32,14 @@ import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Clock
 
 class GetMessageUsingOrderIdUseCase(
     private val communicationRepository: CommunicationRepository,
@@ -43,6 +47,7 @@ class GetMessageUsingOrderIdUseCase(
     private val invoiceRepository: InvoiceRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
+    @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke(orderId: String): Flow<OrderUseCaseData.OrderDetail?> {
         return communicationRepository.loadDispReqCommunications(orderId)
             .map { communications ->
@@ -52,6 +57,25 @@ class GetMessageUsingOrderIdUseCase(
                     pharmacyName = communications.firstOrNull()?.pharmacyName
                 )
             }
+            .flatMapLatest { dispenseRequestOrderDetail ->
+                if (dispenseRequestOrderDetail != null) {
+                    flowOf(dispenseRequestOrderDetail)
+                } else {
+                    // No dispense-request communication is known locally for this order - this happens
+                    // e.g. when the redemption itself was performed on a different device and the
+                    // dispense-request was already removed server-side by the time this device synced.
+                    // Fall back to building the OrderDetail purely from the reply side so the order can
+                    // still be opened.
+                    communicationRepository.loadRepliedCommunications(orderId)
+                        .map { replies ->
+                            replies.firstOrNull()?.replyCommunicationToOrder(
+                                communicationRepository = communicationRepository,
+                                withMedicationNames = true,
+                                pharmacyName = replies.firstOrNull()?.pharmacyName
+                            )
+                        }
+                }
+            }
             .flowOn(dispatcher)
     }
 
@@ -60,8 +84,48 @@ class GetMessageUsingOrderIdUseCase(
         withMedicationNames: Boolean,
         pharmacyName: String?
     ): OrderUseCaseData.OrderDetail {
+        val taskDetailedBundles = taskDetailedBundlesByOrder(orderId, withMedicationNames)
+        val resolvedPharmacyName = pharmacyName?.takeIf { it.isNotBlank() } ?: resolvePharmacyName(
+            pharmacyRepository = pharmacyRepository,
+            communicationRepository = communicationRepository,
+            communicationId = communicationId,
+            telematikId = recipient
+        )
+
+        return toOrderDetail(
+            taskDetailedBundles = taskDetailedBundles,
+            pharmacyName = resolvedPharmacyName
+        )
+    }
+
+    private suspend fun CommunicationErpModel.replyCommunicationToOrder(
+        communicationRepository: CommunicationRepository,
+        withMedicationNames: Boolean,
+        pharmacyName: String?
+    ): OrderUseCaseData.OrderDetail {
+        val taskDetailedBundles = taskDetailedBundlesByOrder(orderId, withMedicationNames)
+        val resolvedPharmacyName = pharmacyName?.takeIf { it.isNotBlank() } ?: resolvePharmacyName(
+            pharmacyRepository = pharmacyRepository,
+            communicationRepository = communicationRepository,
+            communicationId = communicationId,
+            // The reply's `recipient` is the patient, not the pharmacy - the pharmacy is the sender.
+            telematikId = senderTelematikId
+        )
+
+        return OrderUseCaseData.OrderDetail(
+            orderId = orderId,
+            taskDetailedBundles = taskDetailedBundles,
+            sentOn = timeStamp ?: Clock.System.now(),
+            pharmacy = OrderUseCaseData.Pharmacy(name = resolvedPharmacyName ?: "", id = senderTelematikId)
+        )
+    }
+
+    private suspend fun taskDetailedBundlesByOrder(
+        orderId: String,
+        withMedicationNames: Boolean
+    ): List<OrderUseCaseData.TaskDetailedBundle> {
         val taskIds = communicationRepository.taskIdsByOrder(orderId).first()
-        val taskDetailedBundles = taskIds.map {
+        return taskIds.map {
             val invoice: PKVInvoiceErpModel? = invoiceRepository.invoiceByTaskId(it).first()
             OrderUseCaseData.TaskDetailedBundle(
                 invoiceInfo = OrderUseCaseData.InvoiceInfo(
@@ -75,17 +139,6 @@ class GetMessageUsingOrderIdUseCase(
                 }
             )
         }
-        val resolvedPharmacyName = pharmacyName?.takeIf { it.isNotBlank() } ?: resolvePharmacyName(
-            pharmacyRepository = pharmacyRepository,
-            communicationRepository = communicationRepository,
-            communicationId = communicationId,
-            telematikId = recipient
-        )
-
-        return toOrderDetail(
-            taskDetailedBundles = taskDetailedBundles,
-            pharmacyName = resolvedPharmacyName
-        )
     }
 
     private suspend fun loadPrescription(taskId: String): TaskErpModel? =

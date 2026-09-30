@@ -24,7 +24,8 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.communication.model.CommunicationPayload
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationSupplyOptionTypeErpModel
+import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestCommunicationPayloadV1ErpModel
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
@@ -50,9 +51,9 @@ class FhirVzdCommunicationMapperTest {
             taskId = "taskId$JsonSymbols",
             accessCode = "accessCode$JsonSymbols",
             recipientTID = "recipientTID$JsonSymbols",
-            payload = CommunicationPayload(
+            payload = DispenseRequestCommunicationPayloadV1ErpModel(
                 version = 1,
-                supplyOptionsType = "onPremise",
+                supplyOptionsType = CommunicationSupplyOptionTypeErpModel.ON_PREMISE,
                 name = "Anton Miller",
                 address = listOf("Some Street", "1234", JsonSymbols),
                 hint = "Oh no",

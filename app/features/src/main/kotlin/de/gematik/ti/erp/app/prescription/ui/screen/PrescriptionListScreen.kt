@@ -66,13 +66,15 @@ import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigat
 import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState.Companion.isFinished
+import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallIntroScreen
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalIntentHandler
-import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.core.LocalNow
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.database.datastore.featuretoggle.PUSH_NOTIFICATIONS
 import de.gematik.ti.erp.app.digas.navigation.DigasRoutes
 import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarWrapper
 import de.gematik.ti.erp.app.mainscreen.ui.MultiProfileTopAppBar
@@ -99,9 +101,11 @@ import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
 import de.gematik.ti.erp.app.pulltorefresh.PullToRefresh
 import de.gematik.ti.erp.app.pulltorefresh.extensions.triggerEnd
 import de.gematik.ti.erp.app.pulltorefresh.extensions.triggerStart
+import de.gematik.ti.erp.app.pushnotifications.ui.components.FirstLoginPushNotificationOnboarding
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
 import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
@@ -110,6 +114,7 @@ import de.gematik.ti.erp.app.utils.uistate.UiState
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import org.kodein.di.compose.rememberInstance
 import kotlinx.datetime.Clock
 
 const val ZERO_DAYS_LEFT = 0
@@ -127,6 +132,10 @@ class PrescriptionListScreen(
         val fabPadding = (LocalActivity.current as? BaseActivity)?.applicationInnerPadding
         val controller = rememberPrescriptionListController()
         val consentController = rememberConsentController()
+
+        val isFeatureToggleEnabledUseCase by rememberInstance<IsFeatureToggleEnabledUseCase>()
+        val pushNotificationsEnabled by remember { isFeatureToggleEnabledUseCase(PUSH_NOTIFICATIONS) }
+            .collectAsStateWithLifecycle(initialValue = false)
 
         val pullToRefreshState = pullToRefreshState
         val snackbar = LocalSnackbarScaffold.current
@@ -228,6 +237,32 @@ class PrescriptionListScreen(
                     }
                 }
             )
+        }
+
+        val isDemoMode = (LocalActivity.current as? BaseActivity)?.isDemoMode() ?: false
+
+        val showPushNotificationOnboardingEvent = remember { ComposableEvent<ProfileErpModel>() }
+        var pushNotificationOnboardingProfile by remember { mutableStateOf<ProfileErpModel?>(null) }
+
+        LaunchedEffect(profileData, pushNotificationsEnabled, isDemoMode) {
+            profileData.data?.let { activeProfile ->
+                if (pushNotificationsEnabled && !isDemoMode) {
+                    showPushNotificationOnboardingEvent.trigger(activeProfile)
+                }
+            }
+        }
+
+        showPushNotificationOnboardingEvent.listen { activeProfile ->
+            pushNotificationOnboardingProfile = activeProfile
+        }
+
+        if (!isDemoMode) {
+            pushNotificationOnboardingProfile?.let { activeProfile ->
+                FirstLoginPushNotificationOnboarding(
+                    profileId = activeProfile.id,
+                    isAuthenticated = activeProfile.isSSOTokenValid()
+                )
+            }
         }
 
         BackHandler { onBack() }

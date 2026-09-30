@@ -54,10 +54,9 @@ sealed class PushNotificationCryptoError(message: String, cause: Throwable? = nu
             "key_identifier mismatch: received '$received', expected '$expected'."
         )
 
-    class KeyStorageUnavailable(operation: String, keyIdentifier: String, cause: Throwable? = null) :
+    class UnknownKeyIdentifier(received: String, known: Set<String>) :
         PushNotificationCryptoError(
-            "Push key storage unavailable during '$operation' for key_identifier '$keyIdentifier'.",
-            cause
+            "Unknown key_identifier '$received'. Known identifiers: ${known.ifEmpty { setOf("<none>") }}."
         )
 
     class KeyStorageCommitFailed(operation: String, keyIdentifier: String) :

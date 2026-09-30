@@ -25,12 +25,15 @@ package de.gematik.ti.erp.app.messages.usecase
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessageUsingOrderIdUseCase
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
+import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_DISP_REPLY_COMMUNICATION_01_ERP
+import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_DISP_REPLY_COMMUNICATION_02_ERP
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_DISP_REQ_COMMUNICATION_01_ERP
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_DISP_REQ_COMMUNICATION_02_ERP
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_INVOICE_01
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_INVOICE_02
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_ORDER_DETAIL
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_ORDER_ID
+import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_PHARMACY_O1
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_SYNCED_TASK_DATA_01
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_SYNCED_TASK_DATA_02
 import de.gematik.ti.erp.app.mocks.messages.model.MessageMocks.MOCK_TASK_ID_01
@@ -47,6 +50,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 @ExperimentalCoroutinesApi
 class GetMessageUsingOrderIdUseCaseTest {
@@ -89,4 +93,40 @@ class GetMessageUsingOrderIdUseCaseTest {
 
         assertEquals(expectedOrderDetail, resultOrderDetail)
     }
+
+    // Regression test for the "orphaned reply" scenario: the dispense-request was created and
+    // redeemed on a different device and is not known locally (e.g. already removed server-side by
+    // the time this device synced), but replies for that order did sync down. The order must still
+    // be openable, built entirely from the reply-side data.
+    @Test
+    fun `invoke falls back to reply communications when no dispense-request communication is known locally`() =
+        runTest(dispatcher) {
+            coEvery { communicationRepository.loadDispReqCommunications(MOCK_ORDER_ID) } returns flowOf(emptyList())
+            coEvery {
+                communicationRepository.loadRepliedCommunications(MOCK_ORDER_ID)
+            } returns flowOf(listOf(MOCK_DISP_REPLY_COMMUNICATION_01_ERP, MOCK_DISP_REPLY_COMMUNICATION_02_ERP))
+
+            val result = useCase(MOCK_ORDER_ID).first()
+
+            assertEquals(MOCK_ORDER_ID, result?.orderId)
+            // Replies expose the pharmacy via `senderTelematikId`, not `recipient` - this must be used
+            // when resolving the pharmacy identity for a reply-only order.
+            assertEquals(MOCK_DISP_REPLY_COMMUNICATION_01_ERP.senderTelematikId, result?.pharmacy?.id)
+            assertEquals(MOCK_PHARMACY_O1.name, result?.pharmacy?.name)
+            assertEquals(
+                listOf(MOCK_SYNCED_TASK_DATA_01, MOCK_SYNCED_TASK_DATA_02),
+                result?.taskDetailedBundles?.map { it.prescription }
+            )
+        }
+
+    @Test
+    fun `invoke returns null when neither dispense-request nor reply communications are known locally`() =
+        runTest(dispatcher) {
+            coEvery { communicationRepository.loadDispReqCommunications(MOCK_ORDER_ID) } returns flowOf(emptyList())
+            coEvery { communicationRepository.loadRepliedCommunications(MOCK_ORDER_ID) } returns flowOf(emptyList())
+
+            val result = useCase(MOCK_ORDER_ID).first()
+
+            assertNull(result)
+        }
 }

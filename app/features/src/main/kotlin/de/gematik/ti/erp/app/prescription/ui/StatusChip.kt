@@ -58,6 +58,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -67,6 +68,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.messages.ui.components.InfoChip
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -81,6 +83,7 @@ fun GemAssistChip(
     modifier: Modifier = Modifier,
     text: String,
     enabled: Boolean = true,
+    shape: Shape = RoundedCornerShape(SizeDefaults.one),
     labelColor: Color = AppTheme.colors.neutral900,
     iconColor: Color = AppTheme.colors.primary700,
     containerColor: Color = AppTheme.colors.neutral025,
@@ -93,7 +96,7 @@ fun GemAssistChip(
         modifier = modifier,
         enabled = enabled,
         elevation = null,
-        shape = RoundedCornerShape(SizeDefaults.one),
+        shape = shape,
         border = border,
         colors = AssistChipDefaults.assistChipColors(
             containerColor = containerColor,
@@ -117,6 +120,7 @@ fun GemAssistChip(
 fun GemNonInteractiveAssistChip(
     modifier: Modifier = Modifier,
     text: String,
+    shape: Shape = RoundedCornerShape(SizeDefaults.one),
     labelColor: Color = AppTheme.colors.neutral900,
     iconColor: Color = AppTheme.colors.neutral500,
     containerColor: Color = AppTheme.colors.neutral200,
@@ -131,7 +135,7 @@ fun GemNonInteractiveAssistChip(
         },
         enabled = false,
         elevation = null,
-        shape = RoundedCornerShape(SizeDefaults.one),
+        shape = shape,
         border = border,
         colors = AssistChipDefaults.assistChipColors(
             containerColor = containerColor,
@@ -152,6 +156,31 @@ fun GemNonInteractiveAssistChip(
 }
 
 // PrescriptionStatus
+@Composable
+fun OrderedStatusChip(content: String) =
+    InfoChip(content = content, backgroundColor = AppTheme.colors.primary100, contentColor = AppTheme.colors.primary900)
+
+@Composable
+fun ReadyTomorrowStatusChip(content: String) =
+    InfoChip(content = content, backgroundColor = AppTheme.colors.green100, contentColor = AppTheme.colors.green900)
+
+@Composable
+fun ReadyForPickupStatusChip(content: String) =
+    InfoChip(content = content, backgroundColor = AppTheme.colors.green100, contentColor = AppTheme.colors.green900)
+
+@Composable
+fun NotAvailableStatusChip(content: String) =
+    InfoChip(content = content, backgroundColor = AppTheme.colors.red100, contentColor = AppTheme.colors.red900)
+
+@Composable
+fun PickedUpStatusChip(content: String) =
+    InfoChip(
+        content = content,
+        backgroundColor = AppTheme.colors.neutral100,
+        contentColor = AppTheme.colors.neutral900,
+        leadingIcon = Icons.Rounded.Check
+    )
+
 @Composable
 fun ReadyStatusChip() =
     GemNonInteractiveAssistChip(
@@ -488,20 +517,14 @@ fun InsuranceCodeChip() =
 
 @LightDarkPreview
 @Composable
-fun StatusChipsPreview() {
+fun FigmaStatusChipsPreview() {
     PreviewAppTheme {
         Column {
-            ReadyStatusChip()
-            SentStatusChip()
-            PendingStatusChip()
-            InProgressStatusChip()
-            FailureStatusChip()
-            CompletedStatusChip()
-            ProvidedStatusChip()
-            DeletedStatusChip()
-            ExpiredStatusChip()
-            LaterRedeemableStatusChip()
-            SelfPayerPrescriptionChip()
+            OrderedStatusChip(content = "Bestellt • Abholung • 1 Rezept")
+            ReadyTomorrowStatusChip(content = "Morgen abholbereit • Abholung • 1 Rezept")
+            ReadyForPickupStatusChip(content = "Abholbereit • Abholung • 1 Rezept")
+            NotAvailableStatusChip(content = "Nicht verfügbar • Abholung • 1 Rezept")
+            PickedUpStatusChip(content = "Abgeholt • Abholung • 1 Rezept")
         }
     }
 }

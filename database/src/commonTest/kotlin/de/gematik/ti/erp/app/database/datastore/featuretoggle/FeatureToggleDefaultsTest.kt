@@ -40,7 +40,7 @@ class FeatureToggleDefaultsTest {
         assertEquals(FEATURE_ENTITIES, serializer.defaultValue.classes)
         assertTrue(featureStateByName.getValue(ROOM_DB.name).isActive)
         assertFalse(featureStateByName.getValue(EU_REDEEM.name).isActive)
-        assertFalse(featureStateByName.getValue(PUSH_NOTIFICATIONS.name).isActive)
+        assertTrue(featureStateByName.getValue(PUSH_NOTIFICATIONS.name).isActive)
     }
 
     @Test
@@ -56,7 +56,7 @@ class FeatureToggleDefaultsTest {
 
         assertFalse(featureStateByName.getValue(ROOM_DB.name).isActive)
         assertFalse(featureStateByName.getValue(EU_REDEEM.name).isActive)
-        assertFalse(featureStateByName.getValue(PUSH_NOTIFICATIONS.name).isActive)
+        assertTrue(featureStateByName.getValue(PUSH_NOTIFICATIONS.name).isActive)
     }
 
     private object NoOpDataStoreCryptography : DataStoreCryptography {

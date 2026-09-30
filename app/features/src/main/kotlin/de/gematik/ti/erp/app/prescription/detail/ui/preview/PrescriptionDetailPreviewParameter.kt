@@ -297,7 +297,7 @@ private val PREVIEW_REQUEST_COMMUNICATION = CommunicationErpModel(
     consumed = false,
     profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq,
     orderId = "order-Id-1",
-    payload = "",
+    payload = null,
     recipient = "Max Mustermann",
     profileId = ""
 )

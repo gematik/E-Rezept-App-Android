@@ -160,7 +160,7 @@ class OrderMessageDetailController(
         }
     }
 
-    fun consumeAllMessages(onMessagesConsumed: () -> Unit) {
+    fun consumeAllMessages(onMessagesConsumed: () -> Unit = {}) {
         viewModelScope.launch {
             // Marks the replied messages as read
             _messages.value.data?.forEach { message ->

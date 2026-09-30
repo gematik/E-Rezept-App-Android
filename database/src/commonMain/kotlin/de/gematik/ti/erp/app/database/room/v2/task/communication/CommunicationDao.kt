@@ -28,13 +28,14 @@ import androidx.room.TypeConverters
 import androidx.room.Upsert
 import de.gematik.ti.erp.app.communication.model.CommunicationProfileV1
 import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskEntity
+import de.gematik.ti.erp.app.database.room.v2.task.util.CommunicationPayloadConverter
 import de.gematik.ti.erp.app.database.room.v2.task.util.CommunicationProfileConverter
 import de.gematik.ti.erp.app.database.room.v2.task.util.InstantConverter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 
 @Dao
-@TypeConverters(InstantConverter::class, CommunicationProfileConverter::class)
+@TypeConverters(InstantConverter::class, CommunicationProfileConverter::class, CommunicationPayloadConverter::class)
 interface CommunicationDao {
     @Upsert
     suspend fun upsertAll(items: List<ErpCommunicationEntity>)
@@ -62,7 +63,7 @@ interface CommunicationDao {
     fun observeByTaskIdAndProfile(taskId: String, profile: CommunicationProfileV1): Flow<List<ErpCommunicationEntity>>
 
     // Observe by insurance/profile sorted by timestamp desc
-    // TODO DB Insurance is the wrong name here, should be insurant or profileId
+    // TODO CommResV3 CleanUp of Migration: DB Insurance is the wrong name here, should be insurant or profileId
     @Query(
         """
         SELECT * FROM communications
@@ -151,12 +152,20 @@ interface CommunicationDao {
         SET consumed = :consumed
         WHERE orderId = :orderId
           AND taskId = :taskId
-          AND payload = :payload
           AND telematikId = :sender
           AND recipient = :recipient
         """
     )
-    suspend fun updateConsumedForGroup(orderId: String, taskId: String, payload: String, sender: String, recipient: String, consumed: Boolean): Int
+    suspend fun updateConsumedForGroup(
+        orderId: String,
+        taskId: String,
+        sender: String,
+        recipient: String,
+        consumed: Boolean
+    ): Int
+
+    @Query("UPDATE communications SET consumed = :consumed WHERE communicationId = :communicationId")
+    suspend fun updateConsumedById(communicationId: String, consumed: Boolean): Int
 
     @Query("UPDATE communications SET pharmacyName = :pharmacyName WHERE communicationId = :communicationId")
     suspend fun updatePharmacyName(communicationId: String, pharmacyName: String): Int
@@ -165,7 +174,7 @@ interface CommunicationDao {
     @Query("SELECT MAX(timeStamp) FROM communications WHERE insuranceId = :insuranceId")
     fun observeMaxTimestampByInsurance(insuranceId: String): Flow<Instant?>
 
-    // TODO DB Insurance is the wrong name here, should be insurant or profileId
+    // TODO CommResV3 CleanUp of Migration: DB Insurance is the wrong name here, should be insurant or profileId
     @Query("SELECT parentProfileId FROM tasks WHERE taskId = :taskId LIMIT 1")
     suspend fun getInsuranceIdByTaskId(taskId: String): String?
 

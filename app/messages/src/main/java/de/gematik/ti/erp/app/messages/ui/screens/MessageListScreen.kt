@@ -45,6 +45,10 @@ import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.Instant
 
+// TODO CommResV3 design: https://www.figma.com/design/Xg4X8ULc7fwxzkxaCnxW0I/%F0%9F%A4%96-eRezept-Android?node-id=41291-29059&m=dev
+// Not part of MVP, only change in MVP are the Tags https://www.figma.com/design/Xg4X8ULc7fwxzkxaCnxW0I/%F0%9F%A4%96-eRezept-Android?node-id=41291-17435&m=dev
+// Big Ones are on Prescription Screen, small ones for MessageListScreen
+
 class MessageListScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry
@@ -95,7 +99,7 @@ class MessageListScreen(
 }
 
 @Composable
-private fun MessageListScreenScaffold(
+internal fun MessageListScreenScaffold(
     messagesList: UiState<List<InAppMessage>>,
     listState: LazyListState,
     onClickOrder: (String) -> Unit,

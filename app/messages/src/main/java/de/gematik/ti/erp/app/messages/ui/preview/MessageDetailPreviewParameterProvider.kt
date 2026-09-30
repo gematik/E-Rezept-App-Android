@@ -27,6 +27,7 @@ import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.ui.preview.MessagePreviewMocks.MOCK_PRESCRIPTION_01
 import de.gematik.ti.erp.app.messages.ui.preview.MessagePreviewMocks.MOCK_PRESCRIPTION_02
 import de.gematik.ti.erp.app.messages.ui.preview.MessagePreviewMocks.MOCK_PRESCRIPTION_03
+import de.gematik.ti.erp.app.messages.ui.preview.MessageSheetsPreviewData.DELIVERY_STATUS_MESSAGE_PREVIEW
 import de.gematik.ti.erp.app.messages.ui.preview.MessageSheetsPreviewData.EMPTY_MESSAGE_PREVIEW
 import de.gematik.ti.erp.app.messages.ui.preview.MessageSheetsPreviewData.PICK_DMC_CODE_MESSAGE_PREVIEW
 import de.gematik.ti.erp.app.messages.ui.preview.MessageSheetsPreviewData.PICK_DMC_HR_CODE_MESSAGE_NO_MSG_PAYLOAD_WITH_LINK_PREVIEW
@@ -57,7 +58,8 @@ class MessagesPreviewParameterProvider : PreviewParameterProvider<OrderUseCaseDa
         PICK_DMC_HR_CODE_MESSAGE_WITH_MSG_PAYLOAD_PREVIEW,
         PICK_DMC_HR_CODE_MESSAGE_WITH_MSG_PAYLOAD_WITH_LINK_PREVIEW,
         PICK_DMC_HR_CODE_MESSAGE_NO_MSG_PAYLOAD_WITH_LINK_PREVIEW,
-        REPLIED_PICK_DMC_HR_CODE_MESSAGE_NO_MSG_PAYLOAD_WITH_LINK_PREVIEW
+        REPLIED_PICK_DMC_HR_CODE_MESSAGE_NO_MSG_PAYLOAD_WITH_LINK_PREVIEW,
+        DELIVERY_STATUS_MESSAGE_PREVIEW
     )
 }
 
@@ -230,6 +232,17 @@ object MessageSheetsPreviewData {
             MOCK_PRESCRIPTION_01,
             MOCK_PRESCRIPTION_02
         )
+    )
+
+    val DELIVERY_STATUS_MESSAGE_PREVIEW = OrderUseCaseData.Message(
+        communicationId = "delivery-123",
+        sentOn = time,
+        content = "Ihr Bote ist unterwegs.",
+        pickUpCodeDMC = null,
+        pickUpCodeHR = null,
+        link = null,
+        consumed = false,
+        prescriptions = listOf(MOCK_PRESCRIPTION_01)
     )
 
     val orderMessageWithPickUpCode =

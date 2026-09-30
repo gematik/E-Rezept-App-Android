@@ -25,12 +25,12 @@ package de.gematik.ti.erp.app.fhir.communication
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.communication.model.CommunicationDispenseRequest
-import de.gematik.ti.erp.app.fhir.communication.model.CommunicationPayload
 import de.gematik.ti.erp.app.fhir.communication.model.CommunicationRecipient
 import de.gematik.ti.erp.app.fhir.communication.model.CommunicationReference
 import de.gematik.ti.erp.app.fhir.communication.model.CommunicationValueCoding
 import de.gematik.ti.erp.app.fhir.communication.model.CommunicationValueCodingExtension
 import de.gematik.ti.erp.app.fhir.communication.model.PayloadForCommunication
+import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestCommunicationPayloadV1ErpModel
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants
@@ -49,7 +49,7 @@ object CommunicationDispenseRequest {
         taskId: String,
         accessCode: String,
         recipientId: String,
-        payloadContent: CommunicationPayload,
+        payloadContent: DispenseRequestCommunicationPayloadV1ErpModel,
         flowTypeCode: String,
         flowTypeDisplay: String,
         version: FhirCommunicationVersions.CommunicationVersion = FhirCommunicationVersions.CommunicationVersion.V_1_6
@@ -91,7 +91,9 @@ object CommunicationDispenseRequest {
             ),
             payload = listOf(
                 PayloadForCommunication(
-                    contentString = SafeJson.value.encodeToString(CommunicationPayload.serializer(), payloadContent)
+                    // TODO CommResV3 change to V3 Dispense
+                    // (DispenseRequestReservationPayloadErpModel, DispenseRequestShippingPayloadErpModel, DispenseRequestOrderPayloadErpModel)
+                    contentString = SafeJson.value.encodeToString(DispenseRequestCommunicationPayloadV1ErpModel.serializer(), payloadContent)
                 )
             )
         )

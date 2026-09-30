@@ -76,5 +76,11 @@
         "text": "**✅ T-Prescriptions available**\nT-Prescriptions can now be received and displayed correctly. T-Prescriptions are used for certain medicines with special safety requirements.\n\n**⚙️ Settings cleaned up**\nThe profile settings have been revised and made clearer.\n\n**♿ More accessibility**\nBarriers can now be reported directly from the settings. Buttons, menus, lists, and headings have been optimized for use with TalkBack. Contrast has been improved, and animations now only play once. The name field now has a permanently visible label. Larger font sizes are now also supported in the app's web views.",
         "timestamp": "2026-08-18T08:00:00.000Z",
         "version": "1.39"
+    },
+    {
+        "id": "15",
+        "text": "**🗞️ Push notifications available**\nPush notifications can now be received for various events. These include new e-prescriptions, status changes of redeemed e-prescriptions, or messages from the pharmacy.",
+        "timestamp": "2026-09-21T08:00:00.000Z",
+        "version": "1.40"
     }
 ]

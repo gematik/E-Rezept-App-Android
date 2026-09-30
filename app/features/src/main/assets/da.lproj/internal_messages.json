@@ -76,5 +76,11 @@
         "text": "**✅ T-recepter tilgængelige**\nT-recepter kan nu modtages og vises korrekt. T-recepter bruges til visse lægemidler med særlige sikkerhedskrav.\n\n**⚙️ Indstillinger ryddet op**\nProfilindstillingerne er blevet revideret og gjort tydeligere.\n\n**♿ Mere tilgængelighed**\nBarrierer kan nu rapporteres direkte fra indstillingerne. Knapper, menuer, lister og overskrifter er blevet optimeret til brug med TalkBack. Kontrasten er blevet forbedret, og animationer afspilles nu kun én gang. Navnefeltet har nu en permanent synlig etiket. Større skriftstørrelser understøttes nu også i appens webvisninger.",
         "timestamp": "2026-08-18T08:00:00.000Z",
         "version": "1.39"
+    },
+    {
+        "id": "15",
+        "text": "**🗞️ Push-notifikationer tilgængelige**\nPush-notifikationer kan nu modtages for forskellige begivenheder. Disse inkluderer nye e-recepter, statusændringer for indløste e-recepter eller beskeder fra apoteket.",
+        "timestamp": "2026-09-21T08:00:00.000Z",
+        "version": "1.40"
     }
 ]

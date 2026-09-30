@@ -48,7 +48,7 @@ import org.kodein.di.instance
 
 val profilesModule = DI.Module("profilesModule") {
     bindProvider { AddProfileUseCase(instance()) }
-    bindProvider { DeleteProfileUseCase(instance(), instance(), instance(), instance()) }
+    bindProvider { DeleteProfileUseCase(instance(), instance(), instance(), instance(), instance()) }
     bindProvider { GetActiveProfileUseCase(instance()) }
     bindProvider { GetProfileByIdUseCase(instance()) }
     bindProvider { GetProfilesUseCase(instance()) }

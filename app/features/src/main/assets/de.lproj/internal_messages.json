@@ -76,5 +76,11 @@
         "text": "**✅ T‑Rezepte verfügbar**\nT‑Rezepte können jetzt empfangen und korrekt angezeigt werden. T‑Rezepte werden für bestimmte Arzneimittel mit besonderen Sicherheitsanforderungen verwendet.\n\n**⚙️ Einstellungen aufgeräumt**\nDie Profileinstellungen wurden überarbeitet und übersichtlicher gestaltet.\n\n**♿ Mehr Barrierefreiheit**\nBarrieren können jetzt direkt aus den Einstellungen heraus gemeldet werden. Buttons, Menüs, Listen und Überschriften wurden für die Nutzung mit TalkBack optimiert. Kontraste wurden verbessert und Animationen werden nun nur noch einmal abgespielt. Das Namensfeld besitzt jetzt ein dauerhaft sichtbares Label. Außerdem wird vergrößerte Schrift jetzt auch in den Webansichten der App unterstützt.",
         "timestamp": "2026-08-18T08:00:00.000Z",
         "version": "1.39"
+    },
+    {
+        "id": "15",
+        "text": "**🗞️ Push Nachrichten verfügbar**\nPush Nachrichten können jetzt für verschiedene Ereignisse empfangen werden. Dazu gehören neue E-Rezepte, Statusänderungen eingelöster E-Rezepte oder Nachrichten der Apotheke.",
+        "timestamp": "2026-09-21T08:00:00.000Z",
+        "version": "1.40"
     }
 ]

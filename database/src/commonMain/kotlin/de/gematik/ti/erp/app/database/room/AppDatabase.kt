@@ -40,6 +40,9 @@ import de.gematik.ti.erp.app.database.room.v2.internalmessage.InternalMessageDao
 import de.gematik.ti.erp.app.database.room.v2.internalmessage.InternalMessageRoomEntity
 import de.gematik.ti.erp.app.database.room.v2.invoice.InvoiceDao
 import de.gematik.ti.erp.app.database.room.v2.invoice.InvoiceRoomEntity
+import de.gematik.ti.erp.app.database.room.v2.medicationplan.MedicationPlanDao
+import de.gematik.ti.erp.app.database.room.v2.medicationplan.MedicationScheduleEntity
+import de.gematik.ti.erp.app.database.room.v2.medicationplan.MedicationScheduleNotificationEntity
 import de.gematik.ti.erp.app.database.room.v2.pharmacy.PharmacyDao
 import de.gematik.ti.erp.app.database.room.v2.pharmacy.PharmacyEntity
 import de.gematik.ti.erp.app.database.room.v2.profile.ProfileDao
@@ -71,9 +74,6 @@ import de.gematik.ti.erp.app.database.room.v2.task.practitioner.ErpPractitionerE
 import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskDao
 import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskEntity
 import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskWithRefsDao
-import de.gematik.ti.erp.app.database.room.v2.medicationplan.MedicationPlanDao
-import de.gematik.ti.erp.app.database.room.v2.medicationplan.MedicationScheduleEntity
-import de.gematik.ti.erp.app.database.room.v2.medicationplan.MedicationScheduleNotificationEntity
 import de.gematik.ti.erp.app.database.room.v2.task.util.InstantConverter
 import de.gematik.ti.erp.app.database.room.v2.task.util.IntSetConverter
 import de.gematik.ti.erp.app.database.room.v2.task.util.LocalTimeConverter
@@ -168,7 +168,7 @@ fun getRoomDatabase(
     builder: RoomDatabase.Builder<AppDatabase>
 ): AppDatabase {
     return builder
-        .fallbackToDestructiveMigration(dropAllTables = true) // this is kept till we do the part of migrating realm to room
         .setQueryCoroutineContext(Dispatchers.IO)
+        .fallbackToDestructiveMigrationOnDowngrade(true)
         .build()
 }

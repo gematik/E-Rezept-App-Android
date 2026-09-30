@@ -111,3 +111,131 @@ fun TaskContainer.generateRoomSchemaMigrationsFile() {
         }
     }
 }
+
+/**
+ * Validates that Room database migrations are properly implemented when entities are modified.
+ * This task ensures developers can't build the app if they:
+ * 1. Modified Room entity files
+ * 2. But didn't increment RoomSchemaVersion.ACTUAL
+ * 3. And didn't add corresponding migrations in Database.android.kt
+ *
+ * This prevents data loss issues when switching between branches with different database schemas.
+ */
+fun TaskContainer.validateRoomMigrations() {
+    register(TaskNames.validateRoomMigrations) {
+        group = "verification"
+        description = "Validates that Room database migrations are properly implemented when entities are modified."
+
+        val schemaVersionFile = project.rootProject
+            .file("database/src/commonMain/kotlin/de/gematik/ti/erp/app/database/room/RoomSchemaVersion.kt")
+
+        val databaseAndroidFile = project.rootProject
+            .file("database/src/androidMain/kotlin/de/gematik/ti/erp/app/database/room/Database.android.kt")
+
+        val entityDir = project.rootProject
+            .file("database/src/commonMain/kotlin/de/gematik/ti/erp/app/database/room/v2")
+
+        doLast {
+            println("🔍 Validating Room database migrations...")
+
+            if (!schemaVersionFile.exists()) {
+                throw GradleScriptException(
+                    "RoomSchemaVersion.kt file not found",
+                    Exception("Expected file: ${schemaVersionFile.absolutePath}")
+                )
+            }
+
+            if (!databaseAndroidFile.exists()) {
+                throw GradleScriptException(
+                    "Database.android.kt file not found",
+                    Exception("Expected file: ${databaseAndroidFile.absolutePath}")
+                )
+            }
+
+            // Extract current schema version from RoomSchemaVersion.kt
+            val schemaVersionContent = schemaVersionFile.readText()
+            val currentVersion = Regex("""const val ACTUAL = (\d+)""")
+                .find(schemaVersionContent)
+                ?.groupValues
+                ?.get(1)
+                ?.toIntOrNull()
+                ?: throw GradleScriptException(
+                    "Could not parse current Room schema version",
+                    Exception("Check RoomSchemaVersion.ACTUAL value in ${schemaVersionFile.absolutePath}")
+                )
+
+            // Extract migration count from Database.android.kt
+            // This gets the highest target version from all migration_X_Y definitions
+            val databaseContent = databaseAndroidFile.readText()
+            val highestMigrationTarget = Regex("""val migration_(\d+)_(\d+)""")
+                .findAll(databaseContent)
+                .map { it.groupValues[2].toInt() }
+                .maxOrNull()
+                ?: 0
+
+            // Extract annotations from RoomSchemaVersion.kt
+            val annotationCount = Regex("""RoomSchemaMigration\((\d+),""")
+                .findAll(schemaVersionContent)
+                .count()
+
+            println("  📊 Schema version: $currentVersion")
+            println("  📝 Highest migration target version: $highestMigrationTarget")
+            println("  📚 Annotations declared: $annotationCount")
+
+            // Validate migration consistency
+            val errors = mutableListOf<String>()
+
+            // The highest migration target should equal the current schema version
+            // E.g., if we have migration_11_12, highest target is 12, ACTUAL should be 12
+            if (highestMigrationTarget != currentVersion) {
+                errors.add(
+                    """
+                    ❌ Migration target version mismatch!
+                       - Expected highest migration target: $currentVersion
+                       - Actual highest migration target: $highestMigrationTarget
+                       
+                    You must implement migrations for each version increment.
+                    
+                    To fix:
+                    1. If you modified Room entity files, you MUST increment RoomSchemaVersion.ACTUAL to $highestMigrationTarget
+                    2. Or remove the extra migration and keep ACTUAL at $currentVersion
+                    3. See: database/src/androidMain/kotlin/de/gematik/ti/erp/app/database/room/Database.android.kt
+                    """.trimIndent()
+                )
+            }
+
+            if (annotationCount != currentVersion - 1) {
+                errors.add(
+                    """
+                    ❌ Migration annotation mismatch!
+                       - Expected annotations: ${currentVersion - 1}
+                       - Actual annotations: $annotationCount
+                       
+                    Add RoomSchemaMigration annotations for each migration in RoomSchemaVersion.kt
+                    """.trimIndent()
+                )
+            }
+
+            if (errors.isNotEmpty()) {
+                throw GradleScriptException(
+                    """
+                    
+                    🚨 ROOM DATABASE MIGRATION VALIDATION FAILED 🚨
+                    
+                    ${errors.joinToString("\n\n")}
+                    
+                    ℹ️  This check ensures that database schema changes include proper migrations.
+                    ℹ️  Without migrations, users switching between branches will lose data!
+                    
+                    📖 Documentation:
+                       - Copilot instructions: .github/copilot-instructions.md
+                       - Database module: database/src/androidMain/kotlin/de/gematik/ti/erp/app/database/room/
+                    """.trimIndent(),
+                    Exception("Migration validation failed")
+                )
+            }
+
+            println("✅ Room migrations validation passed!")
+        }
+    }
+}

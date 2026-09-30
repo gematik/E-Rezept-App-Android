@@ -49,7 +49,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.mainscreen.navigation.MainScreenBottomNavigationItems
+import de.gematik.ti.erp.app.mainscreen.navigation.mainScreenBottomNavigationItems
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
 import de.gematik.ti.erp.app.navigation.navigateAndClearStack
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
@@ -58,6 +58,7 @@ import de.gematik.ti.erp.app.settings.navigation.SettingsRoutes
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.BottomNavigation
+import androidx.compose.material.icons.rounded.ChatBubbleOutline as RoundedChatBubbleOutline
 
 private const val BottomBarBadgeOffsetX = -5
 private const val BottomBarBadgeOffsetY = 5
@@ -66,21 +67,25 @@ private const val BottomBarBadgeOffsetY = 5
 @Composable
 internal fun MainScreenBottomBar(
     mainNavController: NavController,
-    unreadOrdersCount: Long
+    unreadOrdersCount: Long,
+    isCommResV3Enabled: Boolean
 ) {
     val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    val bottomNavigationItems = mainScreenBottomNavigationItems(isCommResV3Enabled)
 
     BottomNavigation(
         backgroundColor = MaterialTheme.colors.surface,
         extraContent = {}
     ) {
-        MainScreenBottomNavigationItems.forEach { screen ->
+        bottomNavigationItems.forEach { screen ->
             BottomNavigationItem(
                 modifier = Modifier.testTag(
                     when (screen) {
                         PrescriptionRoutes.PrescriptionListScreen -> TestTag.BottomNavigation.PrescriptionButton
                         MessagesRoutes.MessageListScreen -> TestTag.BottomNavigation.OrdersButton
+                        MessagesRoutes.CommResV3MessageListScreen -> TestTag.BottomNavigation.OrdersV3Button
                         PharmacyRoutes.PharmacyStartScreen -> TestTag.BottomNavigation.PharmaciesButton
                         SettingsRoutes.SettingsScreen -> TestTag.BottomNavigation.SettingsButton
                         else -> ""
@@ -132,6 +137,12 @@ internal fun MainScreenBottomBar(
                                     )
                                 }
 
+                            MessagesRoutes.CommResV3MessageListScreen -> Icon(
+                                Icons.Rounded.RoundedChatBubbleOutline,
+                                contentDescription = null,
+                                modifier = Modifier.size(SizeDefaults.triple)
+                            )
+
                             SettingsRoutes.SettingsScreen -> Icon(
                                 Icons.Outlined.Settings,
                                 contentDescription = null,
@@ -146,6 +157,7 @@ internal fun MainScreenBottomBar(
                             when (screen) {
                                 PrescriptionRoutes.PrescriptionListScreen -> R.string.pres_bottombar_prescriptions
                                 MessagesRoutes.MessageListScreen -> R.string.messages_bottombar
+                                MessagesRoutes.CommResV3MessageListScreen -> R.string.messages_bottombar
                                 PharmacyRoutes.PharmacyStartScreen -> R.string.pres_bottombar_pharmacies
                                 SettingsRoutes.SettingsScreen -> R.string.main_settings_acc
                                 else -> R.string.pres_bottombar_prescriptions
@@ -171,6 +183,9 @@ internal fun MainScreenBottomBar(
                             mainNavController.navigate(screen.path())
                         }
                         is MessagesRoutes.MessageListScreen -> {
+                            mainNavController.navigate(screen.path())
+                        }
+                        is MessagesRoutes.CommResV3MessageListScreen -> {
                             mainNavController.navigate(screen.path())
                         }
                         is PrescriptionRoutes.PrescriptionListScreen -> {

@@ -25,12 +25,19 @@ package de.gematik.ti.erp.app.api
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.pushnotifications.model.EmptyJsonObjectResponse
+import de.gematik.ti.erp.app.pushnotifications.model.PushChannelRequest
+import de.gematik.ti.erp.app.pushnotifications.model.PushChannelsResponse
+import de.gematik.ti.erp.app.pushnotifications.model.PusherDeregistrationRequest
+import de.gematik.ti.erp.app.pushnotifications.model.PusherRegistrationRequest
+import de.gematik.ti.erp.app.pushnotifications.model.PushersResponse
 import kotlinx.serialization.json.JsonElement
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Headers
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -181,4 +188,42 @@ interface ErpService {
     suspend fun deleteEuRedeemAccessCode(
         @Tag profileId: ProfileIdentifier
     ): Response<Unit>
+
+    // Push-notification operations are VAU inner requests using JSON rather than FHIR JSON.
+    // Source: https://github.com/gematik/api-erp/blob/master/docs/erp_push_notifications.adoc
+
+    @GET("pushers/v1")
+    @Headers("Accept: application/json")
+    suspend fun getPushers(
+        @Tag profileId: ProfileIdentifier
+    ): Response<PushersResponse>
+
+    @GET("channels/v1/{pushkey}")
+    @Headers("Accept: application/json")
+    suspend fun getPusherChannels(
+        @Tag profileId: ProfileIdentifier,
+        @Path("pushkey") pushKey: String
+    ): Response<PushChannelsResponse>
+
+    @POST("pushers/v1/set")
+    @Headers("Accept: application/json")
+    suspend fun setPusher(
+        @Tag profileId: ProfileIdentifier,
+        @Body request: PusherRegistrationRequest
+    ): Response<EmptyJsonObjectResponse>
+
+    @POST("pushers/v1/set")
+    @Headers("Accept: application/json")
+    suspend fun deletePusher(
+        @Tag profileId: ProfileIdentifier,
+        @Body request: PusherDeregistrationRequest
+    ): Response<EmptyJsonObjectResponse>
+
+    @POST("channels/v1/{pushkey}")
+    @Headers("Accept: application/json")
+    suspend fun setPusherChannels(
+        @Tag profileId: ProfileIdentifier,
+        @Path("pushkey") pushKey: String,
+        @Body request: PushChannelRequest
+    ): Response<EmptyJsonObjectResponse>
 }

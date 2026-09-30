@@ -35,6 +35,7 @@ import de.gematik.ti.erp.app.BCProvider
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.ErezeptApp
 import de.gematik.ti.erp.app.appsecurity.usecase.GetShouldShowAndroid13DeprecationWarningUseCase
+import de.gematik.ti.erp.app.appsecurity.usecase.SetShouldShowAndroid13DeprecationWarningUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.ChangeAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
@@ -73,7 +74,6 @@ import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.settings.usecase.ResetOnboardingUseCase
 import de.gematik.ti.erp.app.userauthentication.model.SingleSignOnTokenErpModel
 import de.gematik.ti.erp.app.userauthentication.model.UserAuthenticationErpModel
-import de.gematik.ti.erp.app.appsecurity.usecase.SetShouldShowAndroid13DeprecationWarningUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
@@ -167,6 +167,27 @@ class DebugSettingsViewModel(
     val iknr = _iknr.asStateFlow()
     val onIknrChangedEvent = ComposableEvent<Unit>()
 
+    var debugSettingsData by mutableStateOf(createDebugSettingsData())
+
+    private val _android13DeprecationOverride = MutableStateFlow(false)
+    val shouldShowDeprecationWarning: StateFlow<Boolean> = _android13DeprecationOverride.asStateFlow()
+
+    // Consent Version (DEBUG ONLY)
+    private var _consentVersion = MutableStateFlow(ConsentVersion.V1_1)
+    val consentVersion: StateFlow<ConsentVersion> = _consentVersion.asStateFlow()
+
+    // Communication Version (DEBUG ONLY)
+    private var _communicationVersion = MutableStateFlow(CommunicationVersion.V_1_6)
+    val communicationVersion: StateFlow<CommunicationVersion> = _communicationVersion.asStateFlow()
+
+    // Communication DiGA Version (DEBUG ONLY)
+    private var _communicationDigaVersion = MutableStateFlow(CommunicationDigaVersion.V_1_6)
+    val communicationDigaVersion: StateFlow<CommunicationDigaVersion> = _communicationDigaVersion.asStateFlow()
+
+    // Eu Version (DEBUG ONLY)
+    private var _euVersion = MutableStateFlow(EuVersion.V_1_1)
+    val euVersion: StateFlow<EuVersion> = _euVersion.asStateFlow()
+
     init {
         viewModelScope.launch {
             val value = getAppUpdateManagerFlagUseCase()
@@ -216,11 +237,6 @@ class DebugSettingsViewModel(
             }
         }
     }
-
-    var debugSettingsData by mutableStateOf(createDebugSettingsData())
-
-    private val _android13DeprecationOverride = MutableStateFlow(false)
-    val shouldShowDeprecationWarning: StateFlow<Boolean> = _android13DeprecationOverride.asStateFlow()
 
     private fun createDebugSettingsData() = DebugSettingsData(
         eRezeptServiceURL = endpointHelper.eRezeptServiceUri,
@@ -600,10 +616,6 @@ class DebugSettingsViewModel(
     }
 
     // Consent Version (DEBUG ONLY)
-    private var _consentVersion = MutableStateFlow(ConsentVersion.V1_1)
-
-    val consentVersion: StateFlow<ConsentVersion> = _consentVersion.asStateFlow()
-
     fun setConsentVersion(version: ConsentVersion) {
         _consentVersion.value = version
         viewModelScope.launch {
@@ -612,10 +624,6 @@ class DebugSettingsViewModel(
     }
 
     // Communication Version (DEBUG ONLY)
-    private var _communicationVersion = MutableStateFlow(CommunicationVersion.V_1_6)
-
-    val communicationVersion: StateFlow<CommunicationVersion> = _communicationVersion.asStateFlow()
-
     fun setCommunicationVersion(version: CommunicationVersion) {
         _communicationVersion.value = version
         viewModelScope.launch {
@@ -624,10 +632,6 @@ class DebugSettingsViewModel(
     }
 
     // Communication DiGA Version (DEBUG ONLY)
-    private var _communicationDigaVersion = MutableStateFlow(CommunicationDigaVersion.V_1_5)
-
-    val communicationDigaVersion: StateFlow<CommunicationDigaVersion> = _communicationDigaVersion.asStateFlow()
-
     fun setCommunicationDigaVersion(version: CommunicationDigaVersion) {
         _communicationDigaVersion.value = version
         viewModelScope.launch {
@@ -636,10 +640,6 @@ class DebugSettingsViewModel(
     }
 
     // Eu Version (DEBUG ONLY)
-    private var _euVersion = MutableStateFlow(EuVersion.V_1_1)
-
-    val euVersion: StateFlow<EuVersion> = _euVersion.asStateFlow()
-
     fun setEuVersion(version: EuVersion) {
         _euVersion.value = version
         viewModelScope.launch {

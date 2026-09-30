@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.pushnotifications.domain.crypto
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushNotificationKeyRotationService.Companion.incrementMonth
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushNotificationKeyRotationService.Companion.requireYearMonth
+import de.gematik.ti.erp.app.pushnotifications.domain.formatPushNotificationYearMonth
 import de.gematik.ti.erp.app.pushnotifications.domain.model.PushNotificationKeyGeneration
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -37,47 +38,38 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 interface PushNotificationCryptoService {
-    val keyIdentifier: String
+    /** The set of `key_identifier`s with a currently usable key chain. */
+    suspend fun knownKeyIdentifiers(): Set<String>
 
-    suspend fun decrypt(combined: ByteArray): ByteArray
-
-    suspend fun decryptForMonth(combined: ByteArray, timeMessageEncrypted: String): ByteArray
+    suspend fun decryptForMonth(
+        combined: ByteArray,
+        timeMessageEncrypted: String,
+        keyIdentifier: String
+    ): ByteArray
 }
 
 class DefaultPushNotificationCryptoService(
-    private val keyRotationService: PushNotificationKeyRotationService,
+    private val keyChain: PushKeyChainAdvancer,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val currentMonthProvider: () -> String = {
         val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-        "${now.year}-${now.monthNumber.toString().padStart(2, '0')}"
+        formatPushNotificationYearMonth(now.year, now.monthNumber)
     }
 ) : PushNotificationCryptoService {
 
-    override val keyIdentifier: String
-        get() = keyRotationService.keyIdentifier
-
-    @Requirement(
-        "A_27181#1",
-        sourceSpecification = "gemF_PushNotification",
-        rationale = "Decrypts the AES/GCM content and strips the PNM1 padding.",
-        codeLines = 7
-    )
-    override suspend fun decrypt(combined: ByteArray): ByteArray = withContext(dispatcher) {
-        val generation = keyRotationService.getLatestGeneration()
-            ?: throw PushNotificationCryptoError.NoKeyAvailable()
-        decryptWithGeneration(combined, generation)
-    }
+    override suspend fun knownKeyIdentifiers(): Set<String> = keyChain.knownKeyIdentifiers()
 
     @Requirement(
         "A_27179#2",
         "A_27181#2",
         sourceSpecification = "gemF_PushNotification",
         rationale = "Derives keys to the time_message_encrypted month for A_27179 and decrypts the content for A_27181.",
-        codeLines = 25
+        codeLines = 28
     )
     override suspend fun decryptForMonth(
         combined: ByteArray,
-        timeMessageEncrypted: String
+        timeMessageEncrypted: String,
+        keyIdentifier: String
     ): ByteArray = withContext(dispatcher) {
         val validTimeMessageEncrypted = requireYearMonth(timeMessageEncrypted)
         val currentMonth = requireYearMonth(currentMonthProvider())
@@ -87,20 +79,27 @@ class DefaultPushNotificationCryptoService(
             throw PushNotificationCryptoError.FutureMonthRejected(validTimeMessageEncrypted, maxAllowed)
         }
 
-        val generation = keyRotationService.getGenerationForMonth(validTimeMessageEncrypted)
+        val generation = keyChain.getGenerationForMonth(keyIdentifier, validTimeMessageEncrypted)
             ?: run {
-                // Only attempt to advance if the month is not already past the head.
-                val latest = keyRotationService.getLatestGeneration()
+                // Only reject if the month is already past the chain head; otherwise advance
+                // forward from the current head (or derive the initial generation on an empty chain).
+                val latest = keyChain.getLatestGeneration(keyIdentifier)
                 if (latest != null && validTimeMessageEncrypted < latest.month) {
                     throw PushNotificationCryptoError.KeyNotFoundForMonth(validTimeMessageEncrypted)
                 }
-                keyRotationService.advanceToMonth(validTimeMessageEncrypted)
-                keyRotationService.getGenerationForMonth(validTimeMessageEncrypted)
+                keyChain.advanceToMonth(keyIdentifier, validTimeMessageEncrypted)
+                keyChain.getGenerationForMonth(keyIdentifier, validTimeMessageEncrypted)
                     ?: throw PushNotificationCryptoError.KeyNotFoundForMonth(validTimeMessageEncrypted)
             }
         decryptWithGeneration(combined, generation)
     }
 
+    @Requirement(
+        "A_27181#1",
+        sourceSpecification = "gemF_PushNotification",
+        rationale = "Decrypts the AES/GCM content and strips the PNM1 padding.",
+        codeLines = 26
+    )
     private fun decryptWithGeneration(
         combined: ByteArray,
         generation: PushNotificationKeyGeneration

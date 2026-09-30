@@ -29,7 +29,7 @@ package de.gematik.ti.erp.app.fhir.model
  * European Commission – subsequent versions of the EUPL (the "Licence").
  */
 
-import de.gematik.ti.erp.app.fhir.communication.model.CommunicationPayload
+import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestCommunicationPayloadV1ErpModel
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedOrNull
@@ -94,7 +94,7 @@ fun createCommunicationDispenseRequest(
     taskId: String,
     accessCode: String,
     recipientTID: String,
-    payload: CommunicationPayload
+    payload: DispenseRequestCommunicationPayloadV1ErpModel
 ): JsonElement {
     val communicationRequest = CommunicationRequest(
         meta = CommunicationMeta(

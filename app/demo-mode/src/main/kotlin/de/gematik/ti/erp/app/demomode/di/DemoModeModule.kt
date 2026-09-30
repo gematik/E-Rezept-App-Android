@@ -31,6 +31,7 @@ import de.gematik.ti.erp.app.demomode.repository.consent.DemoConsentRepository
 import de.gematik.ti.erp.app.demomode.repository.diga.DemoDigaInformationRepository
 import de.gematik.ti.erp.app.demomode.repository.diga.DemoDigaRepository
 import de.gematik.ti.erp.app.demomode.repository.eurezept.DemoEuRepository
+import de.gematik.ti.erp.app.demomode.repository.invoice.DemoInvoiceRepository
 import de.gematik.ti.erp.app.demomode.repository.orders.DemoCommunicationRepository
 import de.gematik.ti.erp.app.demomode.repository.orders.DemoDownloadCommunicationResource
 import de.gematik.ti.erp.app.demomode.repository.orders.DemoInternalMessagesRepository
@@ -46,6 +47,7 @@ import de.gematik.ti.erp.app.diga.repository.DigaInformationRepository
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
+import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.navigation.triggers.NavigationTriggerDataStore
@@ -87,4 +89,5 @@ fun DI.MainBuilder.demoModeOverrides() {
     }
     bindProvider<ShippingContactRepository>(overrides = true) { DemoShippingContactRepository() }
     bindSingleton<NavigationTriggerDataStore>(overrides = true) { DemoNavigationTriggerDataStore() }
+    bindProvider<InvoiceRepository>(overrides = true) { DemoInvoiceRepository(instance()) }
 }

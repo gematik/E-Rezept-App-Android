@@ -55,6 +55,8 @@ downloads/
 /skills-lock.json
 /.env
 /.tool-versions
+/.zed/settings.json
+/documentation/HANDOVER_DOC.md
 
 Jenkinsfile
 Nightly.Jenkinsfile

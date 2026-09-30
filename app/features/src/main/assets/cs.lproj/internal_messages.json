@@ -76,5 +76,11 @@
         "text": "**✅ K dispozici jsou léky na předpis T**\nLéky na předpis T-Prespections lze nyní správně přijímat a zobrazovat. Léky na předpis T-Prespections se používají pro určité léky se zvláštními bezpečnostními požadavky.\n\n**⚙️ Vyčištění nastavení**\nNastavení profilu bylo přepracováno a zpřehledněno.\n\n**♿ Větší přístupnost**\nBariéry lze nyní hlásit přímo z nastavení. Tlačítka, nabídky, seznamy a nadpisy byly optimalizovány pro použití s ​​aplikací TalkBack. Byl vylepšen kontrast a animace se nyní přehrávají pouze jednou. Pole s názvem má nyní trvale viditelný popisek. Větší velikosti písma jsou nyní podporovány i ve webových zobrazeních aplikace.",
         "timestamp": "2026-08-18T08:00:00.000Z",
         "version": "1.39"
+    },
+    {
+        "id": "15",
+        "text": "**🗞️ Push notifikace k dispozici**\nPush notifikace lze nyní dostávat o různých událostech. Patří mezi ně nové elektronické recepty, změny stavu uplatněných elektronických receptů nebo zprávy z lékárny.",
+        "timestamp": "2026-09-21T08:00:00.000Z",
+        "version": "1.40"
     }
 ]

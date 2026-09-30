@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.pushnotifications.domain.crypto
 import androidx.annotation.VisibleForTesting
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushNotificationKeyRotationService.Companion.RETAINED_GENERATION_COUNT
+import de.gematik.ti.erp.app.pushnotifications.domain.formatPushNotificationYearMonth
 import de.gematik.ti.erp.app.pushnotifications.domain.model.PushNotificationKeyGeneration
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.sync.Mutex
@@ -42,17 +43,16 @@ import kotlinx.datetime.todayIn
  * @param timeIssCreated  "YYYY-MM" — the first month a key is generated for; sent as `time_iss_created` during registration.
  * @param keyIdentifier   UUID identifying this key chain; sent during registration and echoed in every FCM push.
  */
-class PushNotificationKeyRotationService(
-    private val initialSharedSecret: String,
+class PushNotificationKeyRotationService private constructor(
+    initialSharedSecret: String?,
     private val timeIssCreated: String,
     val keyIdentifier: String,
     private val hkdf: HkdfSha256,
     private val storage: PushNotificationKeyStorage? = null,
-    private val currentMonthProvider: () -> String = {
-        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-        "${today.year}-${today.monthNumber.toString().padStart(2, '0')}"
-    }
-) : PushKeyChainAdvancer {
+    restoredGenerations: List<PushNotificationKeyGeneration> = emptyList(),
+    private val currentMonthProvider: () -> String
+) {
+    private var initialSharedSecret: String? = initialSharedSecret
     private val validatedTimeIssCreated: String = requireYearMonth(timeIssCreated)
 
     // One month behind timeIssCreated so the first addGenerationLocked() call derives
@@ -63,12 +63,12 @@ class PushNotificationKeyRotationService(
     private val generations = mutableListOf<PushNotificationKeyGeneration>()
 
     init {
-        val saved = storage?.load(keyIdentifier)
-            ?.onFailure { Napier.e("Failed to restore push key generations for keyIdentifier=$keyIdentifier; starting fresh", it) }
-            ?.getOrNull()
-        if (!saved.isNullOrEmpty()) {
-            generations.addAll(saved)
-            Napier.d { "Restored ${saved.size} push key generation(s) for keyIdentifier=$keyIdentifier from storage" }
+        if (restoredGenerations.isNotEmpty()) {
+            generations.addAll(restoredGenerations)
+            Napier.d {
+                "Restored ${restoredGenerations.size} push key generation(s) " +
+                    "for keyIdentifier=$keyIdentifier"
+            }
         }
     }
 
@@ -79,17 +79,19 @@ class PushNotificationKeyRotationService(
 
     private fun addGenerationLocked() {
         val latest = generations.firstOrNull()
+        val inputSecret = latest?.secret
+            ?: checkNotNull(initialSharedSecret) { "Initial shared secret has already been discarded." }
         addGenerationLocked(
-            inputKeyMaterial = (latest?.secret ?: initialSharedSecret).hexToByteArray(),
+            inputKeyMaterial = inputSecret.hexToByteArray(),
             currentMonth = latest?.month ?: seedMonth
         )
     }
 
     @Requirement(
         "A_27170-01#2",
-        "A_27176",
         sourceSpecification = "gemF_PushNotification",
-        rationale = "Derives the monthly secret and AES/GCM key via HKDF; the first generation is the initial derivation for time_iss_created.",
+        rationale = "Uses the validated yyyy-MM month as HKDF info, derives 64 bytes, and splits the output " +
+            "into the next 32-byte shared secret and 32-byte AES/GCM key.",
         codeLines = 18
     )
     private fun addGenerationLocked(inputKeyMaterial: ByteArray, currentMonth: String) {
@@ -116,9 +118,9 @@ class PushNotificationKeyRotationService(
         "A_27180#1",
         sourceSpecification = "gemF_PushNotification",
         rationale = "Derives key material forward to the requested month on push receipt and invokes old-key cleanup after derivation.",
-        codeLines = 35
+        codeLines = 36
     )
-    override suspend fun advanceToMonth(targetMonth: String) = lock.withLock {
+    suspend fun advanceToMonth(targetMonth: String) = lock.withLock {
         requireYearMonth(targetMonth)
 
         val currentMonth = requireYearMonth(currentMonthProvider())
@@ -134,6 +136,7 @@ class PushNotificationKeyRotationService(
         if (generations.first().month == targetMonth) {
             if (generatedInitialKey) {
                 storage?.save(keyIdentifier, generations.toList())?.getOrThrow()
+                discardInitialSharedSecret()
             }
             return@withLock
         }
@@ -151,9 +154,19 @@ class PushNotificationKeyRotationService(
 
         removeOldGenerations()
         storage?.save(keyIdentifier, generations.toList())?.getOrThrow()
+        if (generatedInitialKey) discardInitialSharedSecret()
     }
 
-    override suspend fun getLatestGeneration(): PushNotificationKeyGeneration? = lock.withLock {
+    private fun discardInitialSharedSecret() {
+        initialSharedSecret = null
+    }
+
+    @VisibleForTesting
+    internal suspend fun hasInitialSharedSecret() = lock.withLock {
+        initialSharedSecret != null
+    }
+
+    suspend fun getLatestGeneration(): PushNotificationKeyGeneration? = lock.withLock {
         generations.firstOrNull()
     }
 
@@ -186,6 +199,48 @@ class PushNotificationKeyRotationService(
     companion object {
         const val RETAINED_GENERATION_COUNT = 2
         const val MAX_FUTURE_MONTHS_ALLOWED = 2
+
+        fun create(
+            initialSharedSecret: String,
+            timeIssCreated: String,
+            keyIdentifier: String,
+            hkdf: HkdfSha256,
+            storage: PushNotificationKeyStorage? = null,
+            currentMonthProvider: () -> String = ::currentMonth
+        ) = PushNotificationKeyRotationService(
+            initialSharedSecret = initialSharedSecret,
+            timeIssCreated = timeIssCreated,
+            keyIdentifier = keyIdentifier,
+            hkdf = hkdf,
+            storage = storage,
+            currentMonthProvider = currentMonthProvider
+        )
+
+        fun restore(
+            timeIssCreated: String,
+            keyIdentifier: String,
+            hkdf: HkdfSha256,
+            restoredGenerations: List<PushNotificationKeyGeneration>,
+            storage: PushNotificationKeyStorage? = null,
+            currentMonthProvider: () -> String = ::currentMonth
+        ): PushNotificationKeyRotationService {
+            require(restoredGenerations.isNotEmpty()) { "Restored generations must not be empty." }
+            return PushNotificationKeyRotationService(
+                initialSharedSecret = null,
+                timeIssCreated = timeIssCreated,
+                keyIdentifier = keyIdentifier,
+                hkdf = hkdf,
+                storage = storage,
+                restoredGenerations = restoredGenerations,
+                currentMonthProvider = currentMonthProvider
+            )
+        }
+
+        private fun currentMonth(): String {
+            val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+            return formatPushNotificationYearMonth(today.year, today.monthNumber)
+        }
+
         private const val HKDF_OUTPUT_LENGTH = 64 // total HKDF output bytes (spec A_27170-01)
         private const val HKDF_SECRET_LENGTH = 32 // first 32 bytes → next IKM
         private const val HKDF_KEY_OFFSET = 32 // last 32 bytes → AES-256 encryption key
@@ -199,7 +254,7 @@ class PushNotificationKeyRotationService(
 
         private fun shiftMonth(month: String, delta: Int): String {
             val shifted = LocalDate.parse("${requireYearMonth(month)}-01").plus(DatePeriod(months = delta))
-            return "${shifted.year}-${shifted.monthNumber.toString().padStart(2, '0')}"
+            return formatPushNotificationYearMonth(shifted.year, shifted.monthNumber)
         }
 
         private val YYYY_MM_REGEX = Regex("""\d{4}-(0[1-9]|1[0-2])""")

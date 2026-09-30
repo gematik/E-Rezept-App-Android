@@ -39,9 +39,12 @@ class DecryptPushNotificationUseCaseTest {
     ) : PushNotificationCryptoService {
         var decryptForMonthCalls = 0
 
-        override val keyIdentifier: String get() = keyId
-        override suspend fun decrypt(combined: ByteArray): ByteArray = decryptResult()
-        override suspend fun decryptForMonth(combined: ByteArray, timeMessageEncrypted: String): ByteArray {
+        override suspend fun knownKeyIdentifiers(): Set<String> = setOf(keyId)
+        override suspend fun decryptForMonth(
+            combined: ByteArray,
+            timeMessageEncrypted: String,
+            keyIdentifier: String
+        ): ByteArray {
             decryptForMonthCalls++
             return decryptResult()
         }
@@ -54,9 +57,9 @@ class DecryptPushNotificationUseCaseTest {
         private const val CORRECT_KEY_ID = "correct-key-id"
         private const val TEST_TIME = "2026-05"
         private val DEFAULT_PAYLOAD =
-            """{"${DecryptPushNotificationUseCase.KEY_CHANNEL_ID}":"erp.task.activate",
-                |"${DecryptPushNotificationUseCase.KEY_IDENTIFIER}":"160.000.000.000.001",
-                |"${DecryptPushNotificationUseCase.KEY_IDENTIFIER_TYPE}":"TaskId"}
+            """{"ChannelId":"erp.task.activate",
+                |"Identifier":"160.000.000.000.001",
+                |"IdentifierType":"TaskId"}
             """.trimMargin()
     }
 
@@ -81,9 +84,9 @@ class DecryptPushNotificationUseCaseTest {
     @Test
     fun `success - rawPayload contains original decrypted JSON string`() = runTest {
         val json =
-            """{"${DecryptPushNotificationUseCase.KEY_CHANNEL_ID}":"erp.task.activate",
-                |"${DecryptPushNotificationUseCase.KEY_IDENTIFIER}":"abc",
-                |"${DecryptPushNotificationUseCase.KEY_IDENTIFIER_TYPE}":"TaskId"}
+            """{"ChannelId":"erp.task.activate",
+                |"Identifier":"abc",
+                |"IdentifierType":"TaskId"}
             """.trimMargin()
         val fake = FakeCryptoService(decryptResult = { json.toByteArray() })
         val result = buildUseCase(fake).invoke(
@@ -96,7 +99,7 @@ class DecryptPushNotificationUseCaseTest {
     }
 
     @Test
-    fun `key_identifier mismatch returns failure with KeyIdentifierMismatch error`() = runTest {
+    fun `unknown key_identifier returns failure with UnknownKeyIdentifier error`() = runTest {
         val fake = FakeCryptoService(keyId = CORRECT_KEY_ID)
         val result = buildUseCase(fake).invoke(
             ciphertext = dummyCiphertext,
@@ -105,7 +108,7 @@ class DecryptPushNotificationUseCaseTest {
         )
 
         assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() is PushNotificationCryptoError.KeyIdentifierMismatch)
+        assertTrue(result.exceptionOrNull() is PushNotificationCryptoError.UnknownKeyIdentifier)
         assertEquals(0, fake.decryptForMonthCalls)
     }
 
@@ -144,7 +147,7 @@ class DecryptPushNotificationUseCaseTest {
     @Test
     fun `JSON with missing optional fields returns payload with null for those fields`() = runTest {
         val fake = FakeCryptoService(
-            decryptResult = { """{"${DecryptPushNotificationUseCase.KEY_CHANNEL_ID}":"erp.task.activate"}""".toByteArray() }
+            decryptResult = { """{"ChannelId":"erp.task.activate"}""".toByteArray() }
         )
         val result = buildUseCase(fake).invoke(
             ciphertext = dummyCiphertext,
@@ -157,6 +160,40 @@ class DecryptPushNotificationUseCaseTest {
         assertEquals("erp.task.activate", payload.channelId)
         assertNull(payload.identifier)
         assertNull(payload.identifierType)
+    }
+
+    @Test
+    fun `JSON with unknown fields still parses known fields`() = runTest {
+        val fake = FakeCryptoService(
+            decryptResult = {
+                """{"ChannelId":"erp.task.activate","UnknownField":"ignored"}""".toByteArray()
+            }
+        )
+
+        val payload = buildUseCase(fake).invoke(
+            ciphertext = dummyCiphertext,
+            timeMessageEncrypted = TEST_TIME,
+            keyIdentifier = CORRECT_KEY_ID
+        ).getOrThrow()
+
+        assertEquals("erp.task.activate", payload.channelId)
+    }
+
+    @Test
+    fun `JSON with non-string field falls back to unparsed payload`() = runTest {
+        val json = """{"ChannelId":42}"""
+        val fake = FakeCryptoService(decryptResult = { json.toByteArray() })
+
+        val payload = buildUseCase(fake).invoke(
+            ciphertext = dummyCiphertext,
+            timeMessageEncrypted = TEST_TIME,
+            keyIdentifier = CORRECT_KEY_ID
+        ).getOrThrow()
+
+        assertNull(payload.channelId)
+        assertNull(payload.identifier)
+        assertNull(payload.identifierType)
+        assertEquals(json, payload.rawPayload)
     }
 
     @Test

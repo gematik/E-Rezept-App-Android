@@ -40,7 +40,7 @@ interface HkdfSha256 {
 @Requirement(
     "A_27170-01#1",
     sourceSpecification = "gemF_PushNotification",
-    rationale = "Key derivation via RFC 5869 style HKDF-SHA256, 64 bytes, info = yyyy-MM, but no salt.",
+    rationale = "Implements RFC 5869 HKDF-SHA256 with the zero-filled default salt.",
     codeLines = 31
 )
 class DefaultHkdfSha256 : HkdfSha256 {

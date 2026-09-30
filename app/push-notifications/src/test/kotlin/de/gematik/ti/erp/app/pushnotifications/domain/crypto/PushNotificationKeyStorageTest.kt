@@ -24,157 +24,51 @@ package de.gematik.ti.erp.app.pushnotifications.domain.crypto
 
 import de.gematik.ti.erp.app.pushnotifications.domain.model.PushNotificationKeyGeneration
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Persistence unit tests for [InMemoryKeyStorage].
- * Note: The storage holds **derived** key material (monthly HKDF outputs) — it never
- * contains the ISS, which lives only in RAM for the lifetime of [PushNotificationKeyRotationService].
+ * Persistence behavior for [PushNotificationKeyRotationService].
+ * Storage holds derived monthly key material, never the ISS.
  */
 class PushNotificationKeyStorageTest {
 
     private val KEY_ID = "test-key-identifier"
 
-    private fun makeGeneration(month: String, suffix: String = month) = PushNotificationKeyGeneration(
-        month = month,
-        secret = "secret_$suffix",
-        encryptionKey = "encKey_$suffix",
-        keyIdentifier = KEY_ID
-    )
-
-    private fun buildService(storage: PushNotificationKeyStorage) = PushNotificationKeyRotationService(
-        initialSharedSecret = PushNotificationCryptoServiceTest.TEST_ISS,
-        timeIssCreated = PushNotificationCryptoServiceTest.TEST_TIME_ISS_CREATED,
-        keyIdentifier = KEY_ID,
-        hkdf = DefaultHkdfSha256(),
-        storage = storage
-    )
+    private fun buildService(
+        storage: PushNotificationKeyStorage,
+        restoredGenerations: List<PushNotificationKeyGeneration> = emptyList()
+    ) = if (restoredGenerations.isEmpty()) {
+        PushNotificationKeyRotationService.create(
+            initialSharedSecret = PushNotificationCryptoServiceTest.TEST_ISS,
+            timeIssCreated = PushNotificationCryptoServiceTest.TEST_TIME_ISS_CREATED,
+            keyIdentifier = KEY_ID,
+            hkdf = DefaultHkdfSha256(),
+            storage = storage
+        )
+    } else {
+        PushNotificationKeyRotationService.restore(
+            timeIssCreated = PushNotificationCryptoServiceTest.TEST_TIME_ISS_CREATED,
+            keyIdentifier = KEY_ID,
+            hkdf = DefaultHkdfSha256(),
+            storage = storage,
+            restoredGenerations = restoredGenerations
+        )
+    }
 
     private class SaveFailingStorage : PushNotificationKeyStorage {
-        override fun save(
+        override suspend fun save(
             keyIdentifier: String,
             generations: List<PushNotificationKeyGeneration>
         ): Result<Unit> =
             Result.failure(PushNotificationCryptoError.KeyStorageCommitFailed("save", keyIdentifier))
 
-        override fun load(keyIdentifier: String): Result<List<PushNotificationKeyGeneration>> =
+        override suspend fun load(keyIdentifier: String): Result<List<PushNotificationKeyGeneration>> =
             Result.success(emptyList())
 
-        override fun clear(keyIdentifier: String): Result<Unit> =
+        override suspend fun clear(keyIdentifier: String): Result<Unit> =
             Result.success(Unit)
-    }
-
-    private class LoadFailingStorage : PushNotificationKeyStorage {
-        override fun save(
-            keyIdentifier: String,
-            generations: List<PushNotificationKeyGeneration>
-        ): Result<Unit> =
-            Result.success(Unit)
-
-        override fun load(keyIdentifier: String): Result<List<PushNotificationKeyGeneration>> =
-            Result.failure(PushNotificationCryptoError.ReEnrollmentRequired(keyIdentifier))
-
-        override fun clear(keyIdentifier: String): Result<Unit> =
-            Result.success(Unit)
-    }
-
-    @Test
-    fun `save and load returns identical generations in same order`() = runTest {
-        val storage = InMemoryKeyStorage()
-        val generations = listOf(
-            makeGeneration("2024-06"),
-            makeGeneration("2024-05"),
-            makeGeneration("2024-04")
-        )
-
-        storage.save(KEY_ID, generations).getOrThrow()
-        val restored = storage.load(KEY_ID).getOrThrow()
-
-        assertEquals(generations.size, restored.size)
-        generations.forEachIndexed { index, expected ->
-            assertEquals("month[$index]", expected.month, restored[index].month)
-            assertEquals("secret[$index]", expected.secret, restored[index].secret)
-            assertEquals("encryptionKey[$index]", expected.encryptionKey, restored[index].encryptionKey)
-            assertEquals("keyIdentifier[$index]", expected.keyIdentifier, restored[index].keyIdentifier)
-        }
-    }
-
-    @Test
-    fun `load on empty storage returns empty list`() = runTest {
-        val storage = InMemoryKeyStorage()
-        val result = storage.load(KEY_ID).getOrThrow()
-        assertTrue(result.isEmpty())
-    }
-
-    @Test
-    fun `load for unknown key returns empty list`() = runTest {
-        val storage = InMemoryKeyStorage()
-        storage.save(KEY_ID, listOf(makeGeneration("2024-06"))).getOrThrow()
-
-        val result = storage.load("different-key-id").getOrThrow()
-        assertTrue(result.isEmpty())
-    }
-
-    @Test
-    fun `second save overwrites first save for same key identifier`() = runTest {
-        val storage = InMemoryKeyStorage()
-        storage.save(KEY_ID, listOf(makeGeneration("2024-04"), makeGeneration("2024-03"))).getOrThrow()
-
-        val updated = listOf(makeGeneration("2024-06"), makeGeneration("2024-05"))
-        storage.save(KEY_ID, updated).getOrThrow()
-
-        val restored = storage.load(KEY_ID).getOrThrow()
-        assertEquals(2, restored.size)
-        assertEquals("2024-06", restored[0].month)
-        assertEquals("2024-05", restored[1].month)
-    }
-
-    @Test
-    fun `clear removes all generations for key identifier`() = runTest {
-        val storage = InMemoryKeyStorage()
-        storage.save(KEY_ID, listOf(makeGeneration("2024-06"))).getOrThrow()
-
-        storage.clear(KEY_ID).getOrThrow()
-
-        assertTrue(storage.load(KEY_ID).getOrThrow().isEmpty())
-    }
-
-    @Test
-    fun `clear does not affect generations stored under a different key identifier`() = runTest {
-        val storage = InMemoryKeyStorage()
-        val otherId = "other-key-id"
-        storage.save(KEY_ID, listOf(makeGeneration("2024-06"))).getOrThrow()
-        storage.save(otherId, listOf(makeGeneration("2024-05", "other"))).getOrThrow()
-
-        storage.clear(KEY_ID).getOrThrow()
-
-        assertTrue(storage.load(KEY_ID).getOrThrow().isEmpty())
-        assertEquals(1, storage.load(otherId).getOrThrow().size)
-    }
-
-    @Test
-    fun `stored generations encode with storage format version`() {
-        val generations = listOf(makeGeneration("2024-06"))
-
-        val encoded = EncryptedSharedPreferencesKeyStorage.encodeStoredGenerations(generations)
-
-        assertTrue(encoded.contains(""""version":1"""))
-        val decoded = EncryptedSharedPreferencesKeyStorage.decodeStoredGenerations(encoded)
-        assertEquals(generations, decoded)
-    }
-
-    @Test
-    fun `legacy bare generation list still decodes`() {
-        val generations = listOf(makeGeneration("2024-06"))
-        val legacyJson = Json.encodeToString(generations)
-
-        val decoded = EncryptedSharedPreferencesKeyStorage.decodeStoredGenerations(legacyJson)
-
-        assertEquals(generations, decoded)
     }
 
     @Test
@@ -203,51 +97,13 @@ class PushNotificationKeyStorageTest {
     }
 
     @Test
-    fun `storage load failure signals re-enrollment instead of empty key chain`() {
-        try {
-            buildService(LoadFailingStorage())
-            fail("Expected re-enrollment signal")
-        } catch (e: PushNotificationCryptoError.ReEnrollmentRequired) {
-            assertEquals(
-                "Stored push key material for key_identifier '$KEY_ID' is unreadable. Re-enrollment is required.",
-                e.message
-            )
-        }
-    }
-
-    @Test
-    fun `key rotation service restores generations from storage after simulated app restart`() = runTest {
-        val storage = InMemoryKeyStorage()
-
-        val serviceFirstLaunch = buildService(storage)
-        serviceFirstLaunch.advanceToMonth("2023-11")
-        val generationsAfterFirstLaunch = serviceFirstLaunch.getGenerations()
-        assertTrue(generationsAfterFirstLaunch.isNotEmpty())
-
-        // App restart: the init block should restore the persisted generations.
-        val serviceAfterRestart = buildService(storage)
-        val restoredGenerations = serviceAfterRestart.getGenerations()
-
-        assertEquals(
-            "Restored generation count should match original",
-            generationsAfterFirstLaunch.size,
-            restoredGenerations.size
-        )
-        generationsAfterFirstLaunch.forEachIndexed { i, expected ->
-            assertEquals("month[$i]", expected.month, restoredGenerations[i].month)
-            assertEquals("secret[$i]", expected.secret, restoredGenerations[i].secret)
-            assertEquals("encryptionKey[$i]", expected.encryptionKey, restoredGenerations[i].encryptionKey)
-        }
-    }
-
-    @Test
     fun `service advancing after restore continues the chain correctly`() = runTest {
         val storage = InMemoryKeyStorage()
 
         buildService(storage).advanceToMonth("2023-10")
 
         // Simulate restart
-        val serviceAfterRestart = buildService(storage)
+        val serviceAfterRestart = buildService(storage, storage.load(KEY_ID).getOrThrow())
 
         // Advance one more month: should derive Nov-2023 from the persisted Oct-2023 chain, not from ISS
         serviceAfterRestart.advanceToMonth("2023-11")

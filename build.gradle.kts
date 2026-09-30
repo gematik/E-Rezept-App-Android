@@ -99,3 +99,7 @@ tasks.withType<Test> {
     ignoreFailures = false
     maxParallelForks = 1 // Optional
 }
+
+if (file("local.gradle.kts").exists()) {
+    apply(from = "local.gradle.kts")
+}

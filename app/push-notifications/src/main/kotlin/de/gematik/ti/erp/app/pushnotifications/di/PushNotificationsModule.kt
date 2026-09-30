@@ -22,56 +22,203 @@
 
 package de.gematik.ti.erp.app.pushnotifications.di
 
-import android.app.Application
+import de.gematik.ti.erp.app.api.ErpService
+import de.gematik.ti.erp.app.base.BaseConstants.applicationScope
+import de.gematik.ti.erp.app.database.datastore.pushnotification.keymaterial.PushKeyMaterialLocalDataSource
+import de.gematik.ti.erp.app.database.datastore.pushnotification.keymaterial.pushKeyMaterialLocalDataSource
+import de.gematik.ti.erp.app.database.datastore.pushnotification.registration.PushRegistrationLocalDataSource
+import de.gematik.ti.erp.app.database.datastore.pushnotification.registration.pushRegistrationLocalDataSource
 import de.gematik.ti.erp.app.pushnotifications.BuildConfig
+import de.gematik.ti.erp.app.pushnotifications.BuildConfig.PUSH_GATEWAY_URL_PU
+import de.gematik.ti.erp.app.pushnotifications.BuildConfig.PUSH_GATEWAY_URL_RU
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.DefaultHkdfSha256
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.DefaultPushNotificationCryptoService
-import de.gematik.ti.erp.app.pushnotifications.domain.crypto.EncryptedSharedPreferencesKeyStorage
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.HkdfSha256
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushKeyChainAdvancer
+import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushKeyChainManager
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushNotificationCryptoService
-import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushNotificationKeyRotationService
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushNotificationKeyStorage
+import de.gematik.ti.erp.app.pushnotifications.domain.model.IncomingPushNotificationMapper
+import de.gematik.ti.erp.app.pushnotifications.domain.registration.PushRegistrationManager
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.AcceptPushNotificationPermissionUseCase
 import de.gematik.ti.erp.app.pushnotifications.domain.usecase.AdvancePushKeyChainUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.DeclinePushNotificationPermissionUseCase
 import de.gematik.ti.erp.app.pushnotifications.domain.usecase.DecryptPushNotificationUseCase
-import de.gematik.ti.erp.app.pushnotifications.domain.usecase.GetFcmTokenUseCase
-import de.gematik.ti.erp.app.pushnotifications.domain.usecase.GetFirebaseProjectIdUseCase
-import de.gematik.ti.erp.app.pushnotifications.domain.usecase.GetProfilePushNotificationSettingsUseCase
-import de.gematik.ti.erp.app.pushnotifications.domain.usecase.SaveProfilePushNotificationSettingUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.DeletePusherUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.GetPusherChannelsUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.GetPushersUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.InitializeDebugPushKeyChainUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.RegisterPushNotificationsForProfileUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.ShouldShowPushPermissionPromptUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.SyncProfilePushNotificationStateUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.UpdateFcmTokenUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.UpdateProfilePushNotificationSettingUseCase
+import de.gematik.ti.erp.app.pushnotifications.provider.FcmTokenProvider
+import de.gematik.ti.erp.app.pushnotifications.provider.FirebaseAppProjectIdProvider
+import de.gematik.ti.erp.app.pushnotifications.provider.FirebaseMessagingTokenProvider
+import de.gematik.ti.erp.app.pushnotifications.provider.FirebaseProjectIdProvider
+import de.gematik.ti.erp.app.pushnotifications.provider.FirebasePushApplicationIdProvider
+import de.gematik.ti.erp.app.pushnotifications.provider.PushApplicationIdProvider
+import android.app.Application
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.firstOrNull
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import de.gematik.ti.erp.app.pushnotifications.provider.PushGatewayUrlProvider
+import de.gematik.ti.erp.app.pushnotifications.repository.DefaultPusherRepository
+import de.gematik.ti.erp.app.pushnotifications.repository.PusherRemoteDataSource
+import de.gematik.ti.erp.app.pushnotifications.repository.PusherRepository
+import de.gematik.ti.erp.app.pushnotifications.storage.DataStorePushNotificationKeyStorage
+import de.gematik.ti.erp.app.pushnotifications.storage.DataStorePushRegistrationStorage
+import de.gematik.ti.erp.app.pushnotifications.storage.PushRegistrationStorage
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
+private val android.content.Context.debugPushNotificationsDataStore by preferencesDataStore("debug_push_notifications_prefs")
+
 val pushNotificationsModule = DI.Module("pushNotificationsModule") {
 
     bindSingleton<HkdfSha256> { DefaultHkdfSha256() }
 
+    bindSingleton<PushKeyMaterialLocalDataSource> { pushKeyMaterialLocalDataSource(instance<Application>()) }
+    bindSingleton<PushRegistrationLocalDataSource> { pushRegistrationLocalDataSource(instance<Application>()) }
+
     bindSingleton<PushNotificationKeyStorage> {
-        EncryptedSharedPreferencesKeyStorage(context = instance<Application>())
+        DataStorePushNotificationKeyStorage(localDataSource = instance())
     }
 
-    // TODO: Replace these debug test values with app-generated push registration values once the registration flow is wired up.
-    bindSingleton {
-        PushNotificationKeyRotationService(
-            initialSharedSecret = BuildConfig.PUSH_NOTIFICATION_DEBUG_INITIAL_SHARED_SECRET,
-            timeIssCreated = BuildConfig.PUSH_NOTIFICATION_DEBUG_TIME_ISS_CREATED,
-            keyIdentifier = BuildConfig.PUSH_NOTIFICATION_DEBUG_KEY_IDENTIFIER,
+    bindSingleton<PushRegistrationStorage> {
+        DataStorePushRegistrationStorage(localDataSource = instance())
+    }
+
+    // The tag keeps this stateful manager in the parent application DI instead of copying it into Activity DI.
+    bindSingleton<PushKeyChainManager>(applicationScope) {
+        PushKeyChainManager(
             hkdf = instance(),
-            storage = instance()
+            keyStorage = instance(),
+            registrationStorage = instance()
         )
     }
 
-    bindSingleton<PushKeyChainAdvancer> { instance<PushNotificationKeyRotationService>() }
+    // Preserve untagged injection sites while resolving the shared application instance above.
+    bindSingleton<PushKeyChainManager> { instance(tag = applicationScope) }
+    bindSingleton<PushKeyChainAdvancer> { instance<PushKeyChainManager>() }
 
     bindSingleton<PushNotificationCryptoService> {
-        DefaultPushNotificationCryptoService(keyRotationService = instance())
+        DefaultPushNotificationCryptoService(keyChain = instance<PushKeyChainAdvancer>())
     }
 
-    bindProvider { GetProfilePushNotificationSettingsUseCase(instance()) }
-    bindProvider { SaveProfilePushNotificationSettingUseCase(instance()) }
-    bindProvider { GetFcmTokenUseCase() }
-    bindProvider { GetFirebaseProjectIdUseCase() }
-    bindProvider { DecryptPushNotificationUseCase(instance()) }
-    bindProvider { AdvancePushKeyChainUseCase(instance<PushKeyChainAdvancer>()) }
+    bindSingleton<FcmTokenProvider> { FirebaseMessagingTokenProvider() }
+    bindSingleton<FirebaseProjectIdProvider> { FirebaseAppProjectIdProvider() }
+    bindSingleton<PushApplicationIdProvider> { FirebasePushApplicationIdProvider() }
+
+    bindSingleton<PushGatewayUrlProvider> {
+        val context = instance<Application>()
+        PushGatewayUrlProvider {
+            if (BuildConfig.DEBUG) {
+                val url = runBlocking {
+                    val key = stringPreferencesKey("debug_push_gateway_url")
+                    context.debugPushNotificationsDataStore.data.firstOrNull()?.get(key)
+                }
+                if (!url.isNullOrBlank()) url else PUSH_GATEWAY_URL_RU
+            } else {
+                PUSH_GATEWAY_URL_PU
+            }
+        }
+    }
+
+    // Reuse the VAU-enabled ERP service for authenticated push endpoints.
+    bindSingleton<PusherRemoteDataSource> { PusherRemoteDataSource(instance<ErpService>()) }
+
+    bindSingleton<PusherRepository> {
+        DefaultPusherRepository(
+            dataSource = instance(),
+            pushApplicationIdProvider = instance(),
+            pushGatewayUrlProvider = instance()
+        )
+    }
+
+    bindProvider<IncomingPushNotificationMapper> { IncomingPushNotificationMapper() }
+    bindProvider<DecryptPushNotificationUseCase> { DecryptPushNotificationUseCase(instance()) }
+    bindProvider<AdvancePushKeyChainUseCase> { AdvancePushKeyChainUseCase(instance()) }
+    bindProvider<InitializeDebugPushKeyChainUseCase> { InitializeDebugPushKeyChainUseCase(keyChainManager = instance()) }
+
+    bindProvider<PushRegistrationManager> {
+        PushRegistrationManager(
+            repository = instance(),
+            fcmTokenProvider = instance(),
+            keyChainManager = instance(),
+            registrationStorage = instance()
+        )
+    }
+
+    bindProvider<RegisterPushNotificationsForProfileUseCase> {
+        RegisterPushNotificationsForProfileUseCase(registrationManager = instance())
+    }
+
+    bindProvider<AcceptPushNotificationPermissionUseCase> {
+        AcceptPushNotificationPermissionUseCase(
+            registrationManager = instance(),
+            registrationStorage = instance(),
+            pusherRepository = instance()
+        )
+    }
+
+    bindProvider<DeclinePushNotificationPermissionUseCase> {
+        DeclinePushNotificationPermissionUseCase(registrationStorage = instance())
+    }
+
+    bindProvider<ShouldShowPushPermissionPromptUseCase> {
+        ShouldShowPushPermissionPromptUseCase(registrationStorage = instance())
+    }
+
+    bindProvider<GetPusherChannelsUseCase> {
+        GetPusherChannelsUseCase(
+            registrationStorage = instance(),
+            repository = instance()
+        )
+    }
+
+    bindProvider<GetPushersUseCase> {
+        GetPushersUseCase(
+            repository = instance()
+        )
+    }
+
+    bindProvider<DeletePusherUseCase> {
+        DeletePusherUseCase(
+            repository = instance()
+        )
+    }
+
+    bindProvider<UpdateProfilePushNotificationSettingUseCase> {
+        UpdateProfilePushNotificationSettingUseCase(
+            registrationStorage = instance(),
+            pusherRepository = instance(),
+            registrationManager = instance()
+        )
+    }
+
+    bindProvider<SyncProfilePushNotificationStateUseCase> {
+        SyncProfilePushNotificationStateUseCase(
+            registrationStorage = instance(),
+            pusherRepository = instance(),
+            fcmTokenProvider = instance(),
+            pushApplicationIdProvider = instance(),
+            keyChainManager = instance(),
+            registrationManager = instance()
+        )
+    }
+
+    bindProvider<UpdateFcmTokenUseCase> {
+        UpdateFcmTokenUseCase(
+            registrationManager = instance(),
+            registrationStorage = instance(),
+            idpUseCase = instance(),
+            pusherRepository = instance(),
+            fcmTokenProvider = instance()
+        )
+    }
 }

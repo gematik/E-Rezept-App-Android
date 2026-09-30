@@ -40,7 +40,6 @@ object AndroidDataStoreCryptography : DataStoreCryptography {
     private const val PADDING = KeyProperties.ENCRYPTION_PADDING_NONE
     private const val TRANSFORMATION = "$ALGORITHM/$BLOCK_MODE/$PADDING"
 
-    private val cipher = Cipher.getInstance(TRANSFORMATION)
     private val keyStore = KeyStore
         .getInstance("AndroidKeyStore")
         .apply {
@@ -66,15 +65,16 @@ object AndroidDataStoreCryptography : DataStoreCryptography {
             }.generateKey()
     }
 
-    private fun getKey(): SecretKey {
+    private val getKey: SecretKey by lazy {
         // Retrieves or generates a secret key
         val existingKey = keyStore.getEntry(KEY_ALIAS, null) as? KeyStore.SecretKeyEntry
-        return existingKey?.secretKey ?: createKey()
+        existingKey?.secretKey ?: createKey()
     }
 
     override fun encrypt(bytes: ByteArray): ByteArray {
         // Initializes the cipher in encrypt mode and encrypts data
-        cipher.init(Cipher.ENCRYPT_MODE, getKey())
+        val cipher = Cipher.getInstance(TRANSFORMATION)
+        cipher.init(Cipher.ENCRYPT_MODE, getKey)
         val iv = cipher.iv
         val encrypted = cipher.doFinal(bytes)
         return iv + encrypted
@@ -85,7 +85,8 @@ object AndroidDataStoreCryptography : DataStoreCryptography {
         val iv = bytes.copyOfRange(0, IV_SIZE_BYTES)
         val data = bytes.copyOfRange(IV_SIZE_BYTES, bytes.size)
         val spec = GCMParameterSpec(TAG_SIZE_BITS, iv)
-        cipher.init(Cipher.DECRYPT_MODE, getKey(), spec)
+        val cipher = Cipher.getInstance(TRANSFORMATION)
+        cipher.init(Cipher.DECRYPT_MODE, getKey, spec)
         return cipher.doFinal(data)
     }
 }

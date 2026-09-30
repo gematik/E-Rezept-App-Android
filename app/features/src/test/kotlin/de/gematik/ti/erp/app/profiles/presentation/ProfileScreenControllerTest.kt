@@ -42,10 +42,12 @@ import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.LogoutProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.SwitchActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileNameUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.registration.PushRegistrationManager
 import de.gematik.ti.erp.app.redeem.usecase.HasEuRedeemablePrescriptionsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
@@ -68,6 +70,7 @@ class ProfileScreenControllerTest {
     private val profileRepository: ProfileRepository = mockk()
     private val idpRepository: IdpRepository = mockk()
     private val taskOperationsRepository: TaskOperationsRepository = mockk()
+    private val pushRegistrationManager: PushRegistrationManager = mockk()
     private val consentRepository: ConsentRepository = mockk()
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
@@ -100,7 +103,9 @@ class ProfileScreenControllerTest {
         getProfileByIdUseCase = GetProfileByIdUseCase(profileRepository, dispatcher)
         getProfilesUseCase = GetProfilesUseCase(profileRepository, dispatcher)
         addProfileUseCase = spyk(AddProfileUseCase(profileRepository, dispatcher))
-        deleteProfileUseCase = spyk(DeleteProfileUseCase(profileRepository, idpRepository, medicationPlanRepository, taskOperationsRepository, dispatcher))
+        deleteProfileUseCase = spyk(
+            DeleteProfileUseCase(profileRepository, idpRepository, medicationPlanRepository, taskOperationsRepository, pushRegistrationManager, dispatcher)
+        )
         logoutProfileUseCase = spyk(LogoutProfileUseCase(idpRepository, dispatcher))
         switchActiveProfileUseCase = spyk(SwitchActiveProfileUseCase(profileRepository, dispatcher))
         updateProfileNameUseCase = spyk(UpdateProfileNameUseCase(profileRepository, dispatcher))
@@ -113,6 +118,7 @@ class ProfileScreenControllerTest {
         every { networkStatusTracker.networkStatus } returns flowOf(true)
         isFeatureToggleEnabledUseCase = mockk(relaxed = true)
         every { isFeatureToggleEnabledUseCase.invoke(any()) } returns flowOf(true)
+        coEvery { pushRegistrationManager.clear(any()) } returns Result.success(Unit)
 
         controllerUnderTest = ProfileScreenController(
             profileId = PROFILE_ID,
@@ -167,7 +173,7 @@ class ProfileScreenControllerTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `logout profile should invoke the logoutProfileUseCase and invalidate idp data in the repository`() {
+    fun `logout profile should preserve push registration while invalidating idp data`() {
         coEvery { idpRepository.invalidate(any()) } returns Unit
 
         testScope.runTest {
@@ -176,6 +182,7 @@ class ProfileScreenControllerTest {
         }
         coVerify(exactly = 1) { logoutProfileUseCase.invoke("profileId") }
         coVerify(exactly = 1) { idpRepository.invalidate("profileId") }
+        coVerify(exactly = 0) { pushRegistrationManager.clear("profileId") }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -206,6 +213,8 @@ class ProfileScreenControllerTest {
         coEvery { taskOperationsRepository.deleteCommunicationsByProfileId(any()) } returns Unit
         coEvery { taskOperationsRepository.deleteInvoicesByProfileId(any()) } returns Unit
         coEvery { taskOperationsRepository.deleteTasksByProfileId(any()) } returns Unit
+        coEvery { pushRegistrationManager.clear("profileId") } returns
+            Result.failure(IllegalStateException("push cleanup failed"))
         coEvery { profileRepository.removeProfile(any(), any()) } returns Unit
         coEvery { medicationPlanRepository.deleteAllMedicationSchedulesForProfile(any()) } returns Unit
         coEvery { idpRepository.invalidateDecryptedAccessToken(any()) } returns Unit
@@ -217,7 +226,11 @@ class ProfileScreenControllerTest {
         coVerify(exactly = 1) {
             deleteProfileUseCase.invoke("profileId", "name")
         }
-        coVerify(exactly = 1) { idpRepository.invalidateDecryptedAccessToken("profileId") }
-        coVerify(exactly = 1) { profileRepository.removeProfile("profileId", "name") }
+        coVerifyOrder {
+            pushRegistrationManager.clear("profileId")
+            medicationPlanRepository.deleteAllMedicationSchedulesForProfile("profileId")
+            idpRepository.invalidateDecryptedAccessToken("profileId")
+            profileRepository.removeProfile("profileId", "name")
+        }
     }
 }

@@ -34,7 +34,6 @@ import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationParser
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.PharmacyRemoteDataSource
 import de.gematik.ti.erp.app.prescription.remote.PrescriptionRemoteDataSource
-import de.gematik.ti.erp.app.database.api.CommunicationLocalDataSource as DbCommunicationLocalDataSource
 import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
@@ -47,6 +46,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import de.gematik.ti.erp.app.database.api.CommunicationLocalDataSource as DbCommunicationLocalDataSource
 
 private const val COMMUNICATION_MAX_PAGE_SIZE = 50
 

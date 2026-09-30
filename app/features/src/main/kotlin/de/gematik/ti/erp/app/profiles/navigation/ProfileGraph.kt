@@ -40,7 +40,6 @@ import de.gematik.ti.erp.app.profiles.ui.screens.ProfileImageCropperScreen
 import de.gematik.ti.erp.app.profiles.ui.screens.ProfileImageEmojiScreen
 import de.gematik.ti.erp.app.profiles.ui.screens.ProfilePairedDevicesScreen
 import de.gematik.ti.erp.app.profiles.ui.screens.ProfileScreen
-import de.gematik.ti.erp.app.pushnotifications.ui.screens.ProfilePushNotificationsScreen
 
 fun NavGraphBuilder.profileGraph(
     startDestination: String = ProfileRoutes.ProfileScreen.route,
@@ -58,15 +57,6 @@ fun NavGraphBuilder.profileGraph(
             arguments = ProfileRoutes.ProfileScreen.arguments
         ) { navEntry ->
             ProfileScreen(
-                navController = navController,
-                navBackStackEntry = navEntry
-            )
-        }
-        renderComposable(
-            route = ProfileRoutes.ProfilePushNotificationSettingsScreen.route,
-            arguments = ProfileRoutes.ProfilePushNotificationSettingsScreen.arguments
-        ) { navEntry ->
-            ProfilePushNotificationsScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )

@@ -26,9 +26,6 @@ import de.gematik.ti.erp.app.plugins.buildapp.BuildAppFlavoursPlugin
 import de.gematik.ti.erp.app.utils.APP_MOCK_PROJECT_NAME
 import de.gematik.ti.erp.app.utils.APP_PROJECT_NAME
 import de.gematik.ti.erp.app.utils.GOOGLE_TU_EXTERNAL_MAPPING_PATH
-import de.gematik.ti.erp.app.utils.HUAWEI_STORE_BUNDLE_FILE
-import de.gematik.ti.erp.app.utils.HUAWEI_STORE_BUNDLE_PATH
-import de.gematik.ti.erp.app.utils.HUAWEI_STORE_MAPPING_PATH
 import de.gematik.ti.erp.app.utils.KONNY_APP_APK_FILE
 import de.gematik.ti.erp.app.utils.KONNY_APP_APK_PATH
 import de.gematik.ti.erp.app.utils.MAPPING_FILE
@@ -66,28 +63,6 @@ internal fun TaskContainer.copyPlayStoreBundle() {
                 }
                 val inputMappingFile = sourceDir.resolve("$PLAY_STORE_MAPPING_PATH/$MAPPING_FILE")
                 inputMappingFile moveMappingFileAndRenameTo BuildAppFlavoursPlugin.MappingFileName.PlayStore.fileName()
-            }
-        } ?: run {
-            throw GradleScriptException("Project missing", Exception("Expected project not found"))
-        }
-    }
-}
-
-internal fun TaskContainer.copyAppGalleryBundle() {
-    register(TaskNames.copyAppGalleryBundle) {
-        project.makeAppOutputDirectoryIfNotExists()
-        project.subprojects.find { it.name == APP_PROJECT_NAME }?.let { androidProject ->
-            println("in ${androidProject.name} sub-project")
-            val sourceDir = androidProject.buildDir
-            doLast {
-                val inputFile = sourceDir.resolve("$HUAWEI_STORE_BUNDLE_PATH/$HUAWEI_STORE_BUNDLE_FILE")
-                if (inputFile.exists()) {
-                    project copyFileFrom inputFile
-                } else {
-                    throw GradleScriptException("AAB not found", Exception("copyAppGalleryBundle failed"))
-                }
-                val inputMappingFile = sourceDir.resolve("$HUAWEI_STORE_MAPPING_PATH/$MAPPING_FILE")
-                inputMappingFile moveMappingFileAndRenameTo BuildAppFlavoursPlugin.MappingFileName.AppGallery.fileName()
             }
         } ?: run {
             throw GradleScriptException("Project missing", Exception("Expected project not found"))

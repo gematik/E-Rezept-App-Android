@@ -26,9 +26,10 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
 import de.gematik.ti.erp.app.messages.ui.components.MessageBottomSheetScreen
+import de.gematik.ti.erp.app.messages.ui.screens.CommResV3MessageListScreen
 import de.gematik.ti.erp.app.messages.ui.screens.EuRedeemMessageDetailsScreen
+import de.gematik.ti.erp.app.messages.ui.screens.FeatureToggledOrderMessageDetailScreen
 import de.gematik.ti.erp.app.messages.ui.screens.InternalMessageDetailScreen
-import de.gematik.ti.erp.app.messages.ui.screens.OrderMessageDetailScreen
 import de.gematik.ti.erp.app.messages.ui.screens.MessageListScreen
 import de.gematik.ti.erp.app.messages.ui.screens.UnknownOrderMessageDetailScreen
 import de.gematik.ti.erp.app.navigation.renderBottomSheet
@@ -56,11 +57,25 @@ fun NavGraphBuilder.messagesGraph(
                 navBackStackEntry = navEntry
             )
         }
+
+        renderComposable(
+            stackEnterAnimation = { slideInDown() },
+            stackExitAnimation = { slideOutUp() },
+            popExitAnimation = { slideOutUp() },
+            route = MessagesRoutes.CommResV3MessageListScreen.route,
+            arguments = MessagesRoutes.CommResV3MessageListScreen.arguments
+        ) { navEntry ->
+            CommResV3MessageListScreen(
+                navController = navController,
+                navBackStackEntry = navEntry
+            )
+        }
+
         renderComposable(
             route = MessagesRoutes.OrderMessageDetailScreen.route,
             arguments = MessagesRoutes.OrderMessageDetailScreen.arguments
         ) { navEntry ->
-            OrderMessageDetailScreen(
+            FeatureToggledOrderMessageDetailScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )

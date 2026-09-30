@@ -40,7 +40,7 @@ object CommunicationDatabaseMappers {
             this.sentOn = this@toDatabaseModel.sent?.value?.toRealmInstant() ?: Clock.System.now().toRealmInstant()
             this.sender = this@toDatabaseModel.sender?.identifier ?: ""
             this.recipient = this@toDatabaseModel.recipient?.identifier ?: ""
-            this.payload = this@toDatabaseModel.payload.text.toString()
+            this.payload = this@toDatabaseModel.payload
             this.consumed = false
         }
 
@@ -53,7 +53,7 @@ object CommunicationDatabaseMappers {
             this.sentOn = this@toDatabaseModel.sent?.value?.toRealmInstant() ?: Clock.System.now().toRealmInstant()
             this.sender = this@toDatabaseModel.sender?.identifier ?: ""
             this.recipient = this@toDatabaseModel.recipient?.identifier ?: ""
-            this.payload = this@toDatabaseModel.payload.contentString.toString()
+            this.payload = this@toDatabaseModel.payload
             this.consumed = false
         }
 }

@@ -35,6 +35,10 @@ import de.gematik.ti.erp.app.debugsettings.pushnotifications.datasource.DebugPus
 import de.gematik.ti.erp.app.debugsettings.pushnotifications.usecase.EncryptDebugPushNotificationPayloadUseCase
 import de.gematik.ti.erp.app.debugsettings.pushnotifications.usecase.SendFcmMessageUseCase
 import de.gematik.ti.erp.app.debugsettings.usecase.BreakSsoTokenUseCase
+import de.gematik.ti.erp.app.features.BuildConfig
+import de.gematik.ti.erp.app.pushnotifications.BuildConfig.PUSH_GATEWAY_URL_PU
+import de.gematik.ti.erp.app.pushnotifications.BuildConfig.PUSH_GATEWAY_URL_RU
+import de.gematik.ti.erp.app.pushnotifications.provider.PushGatewayUrlProvider
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
@@ -45,6 +49,14 @@ val debugSettingsModule = DI.Module("debugSettingsModule") {
     bindProvider<DebugSettingsRepository> { DefaultDebugSettingsRepository(instance()) }
 
     bindSingleton { DebugPushNotificationsLocalDataSource(instance<Application>()) }
+    bindSingleton<PushGatewayUrlProvider>(overrides = true) {
+        val localDataSource = instance<DebugPushNotificationsLocalDataSource>()
+        val defaultGatewayUrl = when {
+            BuildConfig.DEBUG -> PUSH_GATEWAY_URL_RU
+            else -> PUSH_GATEWAY_URL_PU
+        }
+        PushGatewayUrlProvider { localDataSource.getPushGatewayUrlSync() ?: defaultGatewayUrl }
+    }
     bindProvider { EncryptDebugPushNotificationPayloadUseCase(instance(), instance()) }
     bindProvider { SendFcmMessageUseCase(instance()) }
 

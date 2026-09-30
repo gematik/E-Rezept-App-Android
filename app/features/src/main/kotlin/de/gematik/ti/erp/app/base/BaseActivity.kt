@@ -69,6 +69,7 @@ import de.gematik.ti.erp.app.demomode.DefaultDemoModeObserver
 import de.gematik.ti.erp.app.demomode.DemoModeObserver
 import de.gematik.ti.erp.app.demomode.di.demoModeModule
 import de.gematik.ti.erp.app.demomode.di.demoModeOverrides
+import de.gematik.ti.erp.app.di.activityDiCopyPolicy
 import de.gematik.ti.erp.app.features.BuildConfig
 import de.gematik.ti.erp.app.medicationplan.DefaultMedicationPlanNotificationObserver
 import de.gematik.ti.erp.app.medicationplan.MedicationPlanNotificationObserver
@@ -92,7 +93,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.kodein.di.Copy
 import org.kodein.di.DIAware
 import org.kodein.di.android.closestDI
 import org.kodein.di.android.retainedSubDI
@@ -108,7 +108,7 @@ open class BaseActivity :
     AppCompatActivity(),
     DemoModeObserver by DefaultDemoModeObserver(),
     MedicationPlanNotificationObserver by DefaultMedicationPlanNotificationObserver() {
-    override val di by retainedSubDI(closestDI(), copy = Copy.All) {
+    override val di by retainedSubDI(closestDI(), copy = activityDiCopyPolicy) {
         // should be only done from feature module
         import(demoModeModule)
         if (isDemoMode()) demoModeOverrides()

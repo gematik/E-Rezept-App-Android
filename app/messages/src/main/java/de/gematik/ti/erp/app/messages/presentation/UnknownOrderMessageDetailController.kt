@@ -48,6 +48,7 @@ import de.gematik.ti.erp.app.translation.usecase.IsTargetLanguageSetUseCase
 import de.gematik.ti.erp.app.translation.usecase.ToggleTranslationConsentUseCase
 import de.gematik.ti.erp.app.translation.usecase.TranslateTextUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState
+import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.extract
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,7 +63,6 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
-import kotlin.getValue
 
 @Stable
 class UnknownOrderMessageDetailController(
@@ -160,10 +160,12 @@ class UnknownOrderMessageDetailController(
         }
     }
 
-    fun consumeAllMessages(onMessagesConsumed: () -> Unit) {
+    fun consumeAllMessages(onMessagesConsumed: () -> Unit = {}) {
         viewModelScope.launch {
             // Marks the replied messages as read
-            _messages.value.data?.forEach { message ->
+            val messages = _messages.extract()
+
+            messages?.forEach { message ->
                 updateCommunicationConsumedStatusUseCase(CommunicationIdentifier.Communication(message.communicationId))
             }
 

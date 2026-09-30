@@ -76,5 +76,11 @@
         "text": "**✅ Reçeteli ilaçlar mevcuttur**\nT-Reçeteleri artık doğru şekilde alınabiliyor ve görüntülenebiliyor. T-Reçeteleri, özel güvenlik gereksinimleri olan bazı ilaçlar için kullanılır.\n\n**⚙️ Ayarlar temizlendi**\nProfil ayarları gözden geçirildi ve daha anlaşılır hale getirildi.\n\n**♿ Daha fazla erişilebilirlik**\nEngeller artık doğrudan ayarlardan bildirilebiliyor. Düğmeler, menüler, listeler ve başlıklar TalkBack ile kullanım için optimize edildi. Kontrast iyileştirildi ve animasyonlar artık yalnızca bir kez oynatılıyor. Ad alanı artık kalıcı olarak görünür bir etikete sahip. Uygulamanın web görünümlerinde daha büyük yazı tipi boyutları da destekleniyor.",
         "timestamp": "2026-08-18T08:00:00.000Z",
         "version": "1.39"
+    },
+    {
+        "id": "15",
+        "text": "**🗞️ Anlık bildirimler mevcut**\nArtık çeşitli olaylar için anlık bildirimler alınabiliyor. Bunlar arasında yeni elektronik reçeteler, kullanılmış elektronik reçetelerin durum değişiklikleri veya eczaneden gelen mesajlar yer alıyor.",
+        "timestamp": "2026-09-21T08:00:00.000Z",
+        "version": "1.40"
     }
 ]

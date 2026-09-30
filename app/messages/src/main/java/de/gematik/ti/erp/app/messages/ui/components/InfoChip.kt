@@ -24,35 +24,58 @@ package de.gematik.ti.erp.app.messages.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerTiny
 
 @Composable
-internal fun InfoChip(content: String) {
+fun InfoChip(
+    content: String,
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = AppTheme.colors.primary100,
+    contentColor: Color = AppTheme.colors.primary900,
+    leadingIcon: ImageVector? = null
+) {
     Box(
-        Modifier
+        modifier
             .padding(bottom = PaddingDefaults.Tiny)
             .clip(CircleShape)
-            .background(AppTheme.colors.primary100)
+            .background(backgroundColor)
             .padding(horizontal = PaddingDefaults.Small, vertical = PaddingDefaults.Tiny),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = content,
-            style = AppTheme.typography.caption1l,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            color = AppTheme.colors.primary900
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            leadingIcon?.let {
+                Icon(
+                    imageVector = it,
+                    contentDescription = null,
+                    tint = contentColor,
+                    modifier = Modifier.size(SizeDefaults.double)
+                )
+                SpacerTiny()
+            }
+            Text(
+                text = content,
+                style = AppTheme.typography.caption1l,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+                color = contentColor
+            )
+        }
     }
     SpacerTiny()
 }

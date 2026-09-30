@@ -32,6 +32,7 @@ import de.gematik.ti.erp.app.demomode.model.toProfiles
 import de.gematik.ti.erp.app.demomode.repository.profiles.DemoProfilesRepository.ImageActions.Add
 import de.gematik.ti.erp.app.demomode.repository.profiles.DemoProfilesRepository.ImageActions.NoAction
 import de.gematik.ti.erp.app.demomode.repository.profiles.DemoProfilesRepository.ImageActions.Remove
+import de.gematik.ti.erp.app.profile.model.InsuranceType
 import de.gematik.ti.erp.app.profile.model.ProfileColorNames
 import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
@@ -40,8 +41,10 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
@@ -179,18 +182,27 @@ class DemoProfilesRepository(
     }
 
     override suspend fun switchProfileToPKV(profileId: ProfileIdentifier) {
-        // no-op
+        withContext(dispatcher) {
+            dataSource.profiles.update { list ->
+                list.map { if (it.id == profileId) it.copy(insuranceType = InsuranceType.PKV) else it }.toMutableList()
+            }
+        }
     }
 
     override suspend fun switchProfileToGKV(profileId: ProfileIdentifier) {
-        // no-op
+        withContext(dispatcher) {
+            dataSource.profiles.update { list ->
+                list.map { if (it.id == profileId) it.copy(insuranceType = InsuranceType.GKV) else it }.toMutableList()
+            }
+        }
     }
 
     override suspend fun switchProfileToBUND(profileId: ProfileIdentifier) {
         // no-op
     }
 
-    override suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean = false
+    override suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean =
+        demoModeProfiles().first().find { it.id == profileId }?.insuranceType == InsuranceType.PKV
 
     override fun getProfileById(profileId: ProfileIdentifier): Flow<ProfileErpModel> =
         demoModeProfiles().mapNotNull {

@@ -52,12 +52,12 @@ import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskWithRefsD
 import de.gematik.ti.erp.app.database.room.v2.task.prescription.TaskTypeValues
 import de.gematik.ti.erp.app.fhir.FhirCommunicationBundleErpModel
 import de.gematik.ti.erp.app.fhir.FhirTaskDataErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyTextPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationTypeErpModel
 import de.gematik.ti.erp.app.fhir.FhirTaskMetaDataErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.support.CommunicationParticipantErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.support.DispenseCommunicationPayloadContentErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.support.ReplyCommunicationPayloadContentErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirCoverageErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvPatientErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvPractitionerErpModel
@@ -355,21 +355,23 @@ class TaskLocalDataSourceV2Test {
         override suspend fun updateConsumedForGroup(
             orderId: String,
             taskId: String,
-            payload: String,
             sender: String,
             recipient: String,
             consumed: Boolean
         ): Int {
-            val targets =
-                store.communications.values.filter {
-                    it.orderId == orderId &&
-                        it.taskId == taskId &&
-                        it.payload == payload &&
-                        it.telematikId == sender &&
-                        it.recipient == recipient
-                }
-            targets.forEach { store.putCommunication(it.copy(consumed = consumed)) }
+            val targets = store.communications.values.filter {
+                it.orderId == orderId && it.taskId == taskId && it.telematikId == sender && it.recipient == recipient
+            }
+            targets.forEach {
+                store.putCommunication(it.copy(consumed = consumed))
+            }
             return targets.size
+        }
+
+        override suspend fun updateConsumedById(communicationId: String, consumed: Boolean): Int {
+            val existing = store.communications[communicationId] ?: return 0
+            store.putCommunication(existing.copy(consumed = consumed))
+            return 1
         }
 
         override suspend fun updatePharmacyName(communicationId: String, pharmacyName: String): Int {
@@ -1106,17 +1108,24 @@ class TaskLocalDataSourceV2Test {
 
         val bundle1 = FhirCommunicationBundleErpModel(
             total = 1,
-            messages = listOf(replyMessage("comm-1", taskId = "task-1", payloadText = "first"))
+            messages = listOf(
+                replyMessage("comm-1", taskId = "task-1", payloadText = """{"version":1,"communicationType":"text","transactionID":"t-0","text":"first"}""")
+            )
         )
         sut.saveCommunications(bundle1)
 
         val bundle2 = FhirCommunicationBundleErpModel(
             total = 1,
-            messages = listOf(replyMessage("comm-1", taskId = "task-1", payloadText = "updated"))
+            messages = listOf(
+                replyMessage("comm-1", taskId = "task-1", payloadText = """{"version":3,"communicationType":"text","transactionID":"t-1","text":"updated"}""")
+            )
         )
         sut.saveCommunications(bundle2)
 
-        assertEquals("updated", store.communications["comm-1"]?.payload)
+        assertEquals(
+            CommunicationReplyTextPayloadErpModel(version = 3, communicationType = CommunicationTypeErpModel.Text, transactionID = "t-1", text = "updated"),
+            store.communications["comm-1"]?.payload
+        )
     }
 
     @Test
@@ -1136,7 +1145,7 @@ class TaskLocalDataSourceV2Test {
     private fun replyMessage(
         id: String,
         taskId: String?,
-        payloadText: String = "reply-payload"
+        payloadText: String = """{"version":1,"communicationType":"text","transactionID":"t-0","text":"reply-payload"}"""
     ) = FhirReplyCommunicationEntryErpModel(
         id = id,
         profile = "ErxCommunicationReply",
@@ -1146,13 +1155,13 @@ class TaskLocalDataSourceV2Test {
         orderId = "order-$id",
         sent = FhirTemporal.Instant(NOW),
         received = null,
-        payload = ReplyCommunicationPayloadContentErpModel(text = payloadText)
+        payload = payloadText
     )
 
     private fun dispenseMessage(
         id: String,
         taskId: String?,
-        contentString: String = "dispense-payload"
+        contentString: String = """{"version":1,"communicationType":"dispense","transactionID":"t-0","content":"dispense-payload"}"""
     ) = FhirDispenseCommunicationEntryErpModel(
         id = id,
         profile = "ErxCommunicationDispReq",
@@ -1161,7 +1170,7 @@ class TaskLocalDataSourceV2Test {
         recipient = CommunicationParticipantErpModel(identifier = "recipient-id"),
         orderId = "order-$id",
         sent = FhirTemporal.Instant(NOW),
-        payload = DispenseCommunicationPayloadContentErpModel(contentString = contentString)
+        payload = contentString
     )
 
     // ─────────────────────────────────────────────────────────────────────────
