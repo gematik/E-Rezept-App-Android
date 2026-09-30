@@ -40,7 +40,7 @@ class CommunicationLocalDataSourceV2(
 ) : CommunicationLocalDataSource {
 
     override suspend fun saveLocalCommunication(taskId: String, pharmacyId: String, transactionId: String) {
-        // TODO DB Insurance is the wrong name here, should be insurant or profileId
+        // TODO CommResV3 CleanUp of Migration: DB Insurance is the wrong name here, should be insurant or profileId
         val insuranceId = dao.getInsuranceIdByTaskId(taskId)
         val task = dao.getTaskByTaskId(taskId) ?: return
         val profileId = task.parentProfileId ?: return
@@ -52,7 +52,7 @@ class CommunicationLocalDataSourceV2(
             telematikId = pharmacyId,
             kvnr = "",
             consumed = false,
-            payload = "",
+            payload = null,
             profile = CommunicationProfileV1.ErxCommunicationDispReq,
             insuranceId = insuranceId,
             timeStamp = System.now()
@@ -93,6 +93,16 @@ class CommunicationLocalDataSourceV2(
                     }
                     if (orderId == null) {
                         orderId = dao.getOrderIdByTaskIdAndTelematikId(taskId, telematikId)
+                    }
+                    if (orderId == null) {
+                        // No real OrderID could be resolved - this happens e.g. when the
+                        // corresponding dispense-request was created (and later removed server-side)
+                        // on a different device before this device ever synced. Fall back to a stable,
+                        // deterministic synthetic orderId built from taskId+telematikId (the same key
+                        // already used by getOrderIdByTaskIdAndTelematikId above) so that all replies
+                        // for the same task from the same pharmacy keep being grouped into one openable
+                        // order, instead of being persisted with a blank orderId that breaks order lookups.
+                        orderId = syntheticOrderId(taskId, telematikId)
                     }
                     message.toErpCommunicationEntity(task, profileId, orderId, insuranceId)
                 }
@@ -196,14 +206,23 @@ class CommunicationLocalDataSourceV2(
 
     override suspend fun setCommunicationStatus(communicationId: String, consumed: Boolean) {
         val entity = dao.getById(communicationId) ?: return
-        dao.updateConsumedForGroup(
-            orderId = entity.orderId,
-            taskId = entity.taskId,
-            payload = entity.payload,
-            sender = entity.telematikId,
-            recipient = entity.recipient,
-            consumed = consumed
-        )
+
+        // Find duplicates in Kotlin to avoid SQLite TypeConverter issues when comparing complex payloads
+        val duplicates = dao.getByTaskId(entity.taskId).filter {
+            it.orderId == entity.orderId &&
+                it.telematikId == entity.telematikId &&
+                it.recipient == entity.recipient &&
+                it.payload == entity.payload
+        }
+
+        if (duplicates.isNotEmpty()) {
+            duplicates.forEach { duplicate ->
+                dao.updateConsumedById(duplicate.communicationId, consumed)
+            }
+        } else {
+            // Fallback just in case
+            dao.updateConsumedById(communicationId, consumed)
+        }
     }
 
     override suspend fun updatePharmacyName(communicationId: String, pharmacyName: String) {
@@ -223,5 +242,13 @@ class CommunicationLocalDataSourceV2(
         return flow.map { it > 0 }
     }
 
-    private companion object
+    private companion object {
+        /**
+         * Deterministic synthetic orderId used when no real OrderID can be resolved for a
+         * reply (e.g. the dispense-request was created on another device and is unknown/removed here).
+         * Built from the same taskId+telematikId key already used by [CommunicationDao.getOrderIdByTaskIdAndTelematikId]
+         * so replies for the same task from the same pharmacy keep being grouped into one openable order.
+         */
+        fun syntheticOrderId(taskId: String, telematikId: String): String = "$taskId:$telematikId"
+    }
 }

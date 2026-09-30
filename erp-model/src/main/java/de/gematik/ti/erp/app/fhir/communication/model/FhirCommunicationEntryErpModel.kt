@@ -23,9 +23,7 @@
 package de.gematik.ti.erp.app.fhir.communication.model
 
 import de.gematik.ti.erp.app.fhir.communication.model.support.CommunicationParticipantErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.support.DispenseCommunicationPayloadContentErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.support.DispensePrescriptionTypeErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.support.ReplyCommunicationPayloadContentErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.serialization.Serializable
 
@@ -54,7 +52,7 @@ data class FhirReplyCommunicationEntryErpModel(
     override val orderId: String? = null,
     override val sent: FhirTemporal.Instant?,
     val received: FhirTemporal.Instant?,
-    val payload: ReplyCommunicationPayloadContentErpModel,
+    val payload: String? = null,
     override val isDiga: Boolean = false,
     override var pharmacyName: String? = null
 ) : FhirCommunicationEntryErpModel()
@@ -69,7 +67,7 @@ data class FhirDispenseCommunicationEntryErpModel(
     override val recipient: CommunicationParticipantErpModel?,
     override val orderId: String? = null,
     override val sent: FhirTemporal.Instant?,
-    val payload: DispenseCommunicationPayloadContentErpModel,
+    val payload: String? = null,
     val prescriptionType: DispensePrescriptionTypeErpModel? = null,
     override val isDiga: Boolean = false,
     override var pharmacyName: String? = null

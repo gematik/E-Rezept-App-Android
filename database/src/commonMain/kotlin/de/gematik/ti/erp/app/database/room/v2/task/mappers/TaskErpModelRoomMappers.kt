@@ -1050,6 +1050,8 @@ fun ErpCommunicationEntity.toErpModel(): CommunicationErpModel {
         taskId = taskId,
         senderTelematikId = telematikId,
         consumed = consumed,
+        // payload is already the structured CommunicationPayloadErpModel here - Room applies
+        // CommunicationPayloadConverter.toPayload() when reading the row, so no further parsing is needed.
         payload = payload,
         profile = profile.toCommunicationProfile(),
         recipient = recipient,

@@ -37,7 +37,7 @@ class CommunicationDigaVersionLocalDataStore(
     override val communicationDigaVersion: Flow<CommunicationDigaVersion> = dataStore.data
         .map { schema ->
             runCatching { CommunicationDigaVersion.valueOf(schema.entity.communicationDigaVersion) }
-                .getOrDefault(CommunicationDigaVersion.V_1_5)
+                .getOrDefault(CommunicationDigaVersion.V_1_6)
         }
 
     override suspend fun saveCommunicationDigaVersion(communicationDigaVersion: CommunicationDigaVersion) {

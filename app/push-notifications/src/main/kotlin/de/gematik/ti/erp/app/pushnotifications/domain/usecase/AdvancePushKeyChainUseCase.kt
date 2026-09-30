@@ -22,32 +22,28 @@
 
 package de.gematik.ti.erp.app.pushnotifications.domain.usecase
 
-import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushKeyChainAdvancer
+import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushKeyChainManager
 import io.github.aakira.napier.Napier
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
- * Advances HKDF push-notification key chain to the current calendar month.
- * No-op if the chain is already current.
+ * Advances every registered profile's HKDF push-notification key chain to the current calendar month.
+ * No-op for chains that are already current.
  */
 class AdvancePushKeyChainUseCase(
-    private val keyChainAdvancer: PushKeyChainAdvancer,
-    private val currentMonthProvider: () -> String = {
-        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-        "${now.year}-${now.monthNumber.toString().padStart(2, '0')}"
-    }
+    private val keyChainManager: PushKeyChainManager,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke() {
-        val currentMonth = currentMonthProvider()
-        val latest = keyChainAdvancer.getLatestGeneration()
-
-        if (latest == null || latest.month < currentMonth) {
-            Napier.d { "Advancing push key chain to $currentMonth (was: ${latest?.month ?: "empty"})" }
-            keyChainAdvancer.advanceToMonth(currentMonth)
-        } else {
-            Napier.d { "Push key chain already current at $currentMonth — no advance needed." }
+    suspend operator fun invoke() = withContext(dispatcher) {
+        try {
+            keyChainManager.advanceAllToCurrentMonth()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Napier.e("AdvancePushKeyChainUseCase: push key chain advance failed", e)
         }
     }
 }

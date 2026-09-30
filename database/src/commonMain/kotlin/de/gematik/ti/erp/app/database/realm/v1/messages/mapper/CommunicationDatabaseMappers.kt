@@ -24,10 +24,12 @@ package de.gematik.ti.erp.app.database.realm.v1.messages.mapper
 
 import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.communication.model.CommunicationProfileV1
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationPayloadErpModel
 import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
 import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationEntityV1
 import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import kotlinx.datetime.Clock
 
 object CommunicationDatabaseMappers {
@@ -41,7 +43,9 @@ object CommunicationDatabaseMappers {
             this.sentOn = this@toDatabaseModel.timeStamp?.toRealmInstant() ?: Clock.System.now().toRealmInstant()
             this.sender = this@toDatabaseModel.senderTelematikId
             this.recipient = this@toDatabaseModel.recipient
-            this.payload = this@toDatabaseModel.payload.orEmpty()
+            this.payload = this@toDatabaseModel.payload?.let {
+                SafeJson.value.encodeToString(CommunicationPayloadErpModel.serializer(), it)
+            }.orEmpty()
             this.consumed = this@toDatabaseModel.consumed
             this.pharmacyName = this@toDatabaseModel.pharmacyName
         }
@@ -57,7 +61,7 @@ object CommunicationDatabaseMappers {
                 this.sentOn = this@toDatabaseModel.sent?.value?.toRealmInstant() ?: Clock.System.now().toRealmInstant()
                 this.sender = this@toDatabaseModel.sender?.identifier ?: ""
                 this.recipient = this@toDatabaseModel.recipient?.identifier ?: ""
-                this.payload = this@toDatabaseModel.payload.text.toString()
+                this.payload = this@toDatabaseModel.payload.toString()
                 this.consumed = false
                 this.pharmacyName = this@toDatabaseModel.pharmacyName
             }
@@ -73,7 +77,7 @@ object CommunicationDatabaseMappers {
                 this.sentOn = this@toDatabaseModel.sent?.value?.toRealmInstant() ?: Clock.System.now().toRealmInstant()
                 this.sender = this@toDatabaseModel.sender?.identifier ?: ""
                 this.recipient = this@toDatabaseModel.recipient?.identifier ?: ""
-                this.payload = this@toDatabaseModel.payload.contentString.toString()
+                this.payload = this@toDatabaseModel.payload.toString()
                 this.consumed = false
                 this.pharmacyName = this@toDatabaseModel.pharmacyName
             }

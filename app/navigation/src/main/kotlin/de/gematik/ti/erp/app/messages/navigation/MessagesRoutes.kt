@@ -45,6 +45,8 @@ object MessagesRoutes : NavigationRoutes {
 
     object MessageListScreen : Routes(NavigationRouteNames.MessageListScreen.name)
 
+    object CommResV3MessageListScreen : Routes(NavigationRouteNames.CommResV3MessageListScreen.name)
+
     object OrderMessageDetailScreen : Routes(
         NavigationRouteNames.OrderMessageDetailScreen.name,
         navArgument(MESSAGE_NAV_ORDER_ID) { type = NavType.StringType }

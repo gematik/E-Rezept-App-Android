@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.messages.usecase
 
 import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationPayloadParser
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.mapper.toMessage
 import kotlinx.datetime.Instant
@@ -41,14 +42,17 @@ class MessageUseCaseTest {
             timeStamp = Instant.fromEpochSeconds(123456),
             senderTelematikId = "ABC123456",
             recipient = "ABC654321",
-            payload = """
-            {
-                "version": 1,
-                "info_text": "Hi!",
-                "supplyOptionsType": "shipment", 
-                "url": "https://example.org" 
-            }
-            """.trimIndent(),
+            payload = CommunicationPayloadParser.extract(
+                """
+                {
+                    "version": 1,
+                    "info_text": "Hi!",
+                    "supplyOptionsType": "shipment", 
+                    "url": "https://example.org" 
+                }
+                """.trimIndent(),
+                isRequest = false
+            ),
             consumed = false,
             profileId = ""
         )
@@ -77,7 +81,10 @@ class MessageUseCaseTest {
             timeStamp = Instant.fromEpochSeconds(123456),
             senderTelematikId = "ABC123456",
             recipient = "ABC654321",
-            payload = """{ "version": 1, "supplyOptionsType": "shipment", "url": "    ", "pickUpCodeHR": "" }""",
+            payload = CommunicationPayloadParser.extract(
+                """{ "version": 1, "supplyOptionsType": "shipment", "url": "    ", "pickUpCodeHR": "" }""",
+                isRequest = false
+            ),
             consumed = false,
             profileId = ""
         )
@@ -107,7 +114,10 @@ class MessageUseCaseTest {
             timeStamp = Instant.fromEpochSeconds(123456),
             senderTelematikId = "ABC123456",
             recipient = "ABC654321",
-            payload = """{   - """,
+            payload = CommunicationPayloadParser.extract(
+                """{   - """,
+                isRequest = false
+            ),
             consumed = false,
             profileId = ""
         )
@@ -136,7 +146,10 @@ class MessageUseCaseTest {
             timeStamp = Instant.fromEpochSeconds(123456),
             senderTelematikId = "ABC123456",
             recipient = "ABC654321",
-            payload = """{ "version": 1, "supplyOptionsType": "shipment", "url": "ftp://example.org" }""",
+            payload = CommunicationPayloadParser.extract(
+                """{ "version": 1, "supplyOptionsType": "shipment", "url": "ftp://example.org" }""",
+                isRequest = false
+            ),
             consumed = false,
             profileId = ""
         )

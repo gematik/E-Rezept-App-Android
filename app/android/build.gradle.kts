@@ -20,7 +20,6 @@ val VERSION_NAME: String by overrides()
 val namesPlugin = AppDependencyNamesPlugin()
 val isRunningOnJenkins = System.getenv("JENKINS_HOME") != null // Check if running on Jenkins
 val googleRelease = "googleRelease"
-val huaweiRelease = "huaweiRelease"
 
 android {
     namespace = namesPlugin.appNameSpace
@@ -63,9 +62,6 @@ android {
                             if (target == googleRelease) {
                                 println("BuildGradle: Google release ${System.getenv("KEYSTORE_PLAY_PATH")}")
                                 rootProject.file(System.getenv("KEYSTORE_PLAY_PATH"))
-                            } else if (target == huaweiRelease) {
-                                println("BuildGradle: Huawei release ${System.getenv("KEYSTORE_HUAWEI_PATH")}")
-                                rootProject.file(System.getenv("KEYSTORE_HUAWEI_PATH"))
                             } else {
                                 signingProperties["$target.storePath"]?.let { rootProject.file("erp-app-android/$it") }
                             }
@@ -83,18 +79,10 @@ android {
             }
 
             // Create the signing config based on the properties found
-            when {
-                signingProperties["${googleRelease}.storePath"] != null -> {
-                    val googleRelease by createRelease()
-                }
-
-                signingProperties["${huaweiRelease}.storePath"] != null -> {
-                    val huaweiRelease by createRelease()
-                }
-
-                else -> {
-                    println("BuildGradle: No google or huawei release signing properties found!")
-                }
+            if (signingProperties["${googleRelease}.storePath"] != null) {
+                val googleRelease by createRelease()
+            } else {
+                println("BuildGradle: No google release signing properties found!")
             }
         }
     } else {
@@ -148,19 +136,7 @@ android {
             }
 
         }
-        if (flavor?.startsWith("huawei") == true) {
-            try {
-                create(flavor) {
-                    dimension = "version"
-                    applicationIdSuffix = ".huawei"
-                    versionNameSuffix = "-huawei"
-                    signingConfig = signingConfigs.findByName(huaweiRelease)
-                }
-            } catch (e: Exception) {
-                println("BuildGradle: Error creating huawei flavor: ${e.stackTraceToString()}")
-            }
 
-        }
         if (flavor?.startsWith("konnektathonRu") == true) {
             try {
                 create(flavor) {

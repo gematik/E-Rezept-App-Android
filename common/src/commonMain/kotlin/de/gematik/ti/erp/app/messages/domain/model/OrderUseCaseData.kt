@@ -22,12 +22,14 @@
 
 package de.gematik.ti.erp.app.messages.domain.model
 
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyDeliveryStatusPayloadErpModel
 import de.gematik.ti.erp.app.messages.model.LastMessage
 import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
-@Deprecated("Remove this whole class. Use ErpModel from commResV3 instead")
+// TODO CommResV3 Rework to OrderErpModel using  Communication And CommunicationPayload ErpModels
+@Deprecated("Rework this whole class. Use ErpModel from commResV3")
 object OrderUseCaseData {
     @Serializable
     data class Pharmacy(
@@ -77,6 +79,7 @@ object OrderUseCaseData {
         val pickUpCodeDMC: String?,
         val pickUpCodeHR: String?,
         val link: String?,
+        val deliveryStatusPayload: CommunicationReplyDeliveryStatusPayloadErpModel? = null,
         val consumed: Boolean,
         val prescriptions: List<TaskErpModel?>,
         val taskIds: List<String> = emptyList(),

@@ -71,7 +71,7 @@ object DemoProfileInfo {
         profileName = "Erika Mustermann",
         isActive = true,
         color = ProfileColorNames.SUN_DEW,
-        insuranceType = InsuranceType.GKV,
+        insuranceType = InsuranceType.PKV,
         avatar = listOf(
             Avatar.FemaleDoctor,
             Avatar.FemaleDoctorWithPhone,

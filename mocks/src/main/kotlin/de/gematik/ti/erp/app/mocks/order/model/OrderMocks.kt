@@ -79,7 +79,7 @@ val COMMUNICATION_DATA = CommunicationErpModel(
     timeStamp = DATE_2024_01_01,
     senderTelematikId = "",
     recipient = TELEMATIK_ID,
-    payload = "",
+    payload = null,
     consumed = true,
     profileId = ""
 )
@@ -99,7 +99,7 @@ fun communicationDataReply(
     timeStamp = date,
     senderTelematikId = telematikId,
     recipient = "",
-    payload = "",
+    payload = null,
     consumed = consumed,
     taskIds = taskIds,
     profileId = ""
@@ -113,7 +113,7 @@ val COMMUNICATION_DATA_WITH_TASK_ID = CommunicationErpModel(
     timeStamp = DATE_2024_01_01,
     senderTelematikId = "",
     recipient = TELEMATIK_ID,
-    payload = "",
+    payload = null,
     consumed = true,
     taskIds = listOf("testId1"),
     profileId = ""
@@ -127,7 +127,7 @@ val COMMUNICATION_DATA_WITH_TASK_ID_ERP = CommunicationErpModel(
     timeStamp = DATE_2024_01_01,
     senderTelematikId = "",
     recipient = TELEMATIK_ID,
-    payload = "",
+    payload = null,
     consumed = true,
     profileId = ""
 )

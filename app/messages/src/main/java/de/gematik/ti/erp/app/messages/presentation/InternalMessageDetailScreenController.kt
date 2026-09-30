@@ -57,7 +57,7 @@ class InternalMessageDetailScreenController(
         initialValue = emptyList<InAppMessage>()
     )
 
-    fun consumeAllMessages(onMessagesConsumed: () -> Unit) {
+    fun consumeAllMessages(onMessagesConsumed: () -> Unit = {}) {
         viewModelScope.launch {
             setInternalMessageAsReadUseCase.invoke()
             onMessagesConsumed()

@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.communication.model
 
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationPayloadErpModel
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -35,7 +36,7 @@ data class CommunicationErpModel(
     val taskId: String,
     val senderTelematikId: String,
     val consumed: Boolean,
-    val payload: String?,
+    val payload: CommunicationPayloadErpModel? = null,
     val profile: CommunicationProfile,
     var recipient: String = "",
     val profileId: String?,

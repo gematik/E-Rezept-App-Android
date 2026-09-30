@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.demomode.model
 
 import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationPayloadParser
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -60,7 +61,12 @@ fun DemoModeProfileLinkedCommunication.toSyncedTaskDataCommunication() =
         timeStamp = sentOn,
         senderTelematikId = sender,
         recipient = recipient,
-        payload = payload,
+        payload = payload?.let {
+            CommunicationPayloadParser.extract(
+                it,
+                isRequest = profile == CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq
+            )
+        },
         consumed = consumed,
         profileId = profileId,
         pharmacyName = pharmacyName

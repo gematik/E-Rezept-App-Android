@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.interceptor
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
+import de.gematik.ti.erp.app.interceptor.BearerHeaderInterceptor.Companion.FHIR_JSON_MEDIA_TYPE
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.runBlocking
@@ -72,23 +73,28 @@ class BearerHeaderInterceptor(
         }
 
     /**
-     * Builds a new request that:
-     *  • re-attaches the ProfileIdentifier tag so downstream interceptors still see it
-     *  • adds only the Authorization header (Accept/Content-Type are handled elsewhere)
+     * Attaches the Bearer token and re-tags [ProfileIdentifier] for downstream interceptors.
+     * Preserves any explicit `Accept`/`Content-Type` (e.g. push's `application/json`) and only
+     * defaults to [FHIR_JSON_MEDIA_TYPE] when neither is set, so FHIR callers are unaffected.
      */
     private fun requestWithAuth(
         original: Request,
         token: String,
         profileId: ProfileIdentifier
-    ): Request =
-        original.newBuilder()
+    ): Request {
+        val acceptHeader = original.header("Accept") ?: FHIR_JSON_MEDIA_TYPE
+        val contentTypeHeader = original.header("Content-Type") ?: "$acceptHeader; charset=UTF-8"
+
+        return original.newBuilder()
             .tag(ProfileIdentifier::class.java, profileId)
             .header("Authorization", "Bearer $token")
-            .header("Accept", "application/fhir+json")
-            .header("Content-Type", "application/fhir+json; charset=UTF-8")
+            .header("Accept", acceptHeader)
+            .header("Content-Type", contentTypeHeader)
             .build()
+    }
 
     companion object {
+        private const val FHIR_JSON_MEDIA_TYPE = "application/fhir+json"
         private const val invalidAccessTokenHeader = "Www-Authenticate"
         private const val invalidAccessTokenValue = "Bearer realm='prescriptionserver.telematik', error='invalACCESS_TOKEN'"
     }

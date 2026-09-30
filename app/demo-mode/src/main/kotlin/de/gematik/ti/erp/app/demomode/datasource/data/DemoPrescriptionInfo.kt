@@ -368,10 +368,10 @@ object DemoPrescriptionInfo {
 
     @Suppress("ktlint:max-line-length")
     private fun deviceRequestDispense(isCompleted: Boolean) = FhirDispenseDeviceRequestErpModel(
-        deepLink = "intent://maps.google.com/maps?q=Rosenthaler+Str.+30,+13127+Berlin#Intent;scheme=https;package=com.google.android.apps.maps;S.browser_fallback_url=https://maps.google.com?q=Rosenthaler+Str.+30,+13127+Berlin;end",
+        deepLink = "https://www.gematik.de/",
         redeemCode = FUNNY_REDEEM_CODES.random(),
         declineCode = null,
-        note = null,
+        note = DOCTORS_NOTES.random(),
         referencePzn = "420",
         display = "Super Legit DiGA App™️ v9000",
         status = if (isCompleted) "completed" else "reject",
@@ -404,28 +404,6 @@ object DemoPrescriptionInfo {
         "FAKECODE123",
         "IM_NOT_A_ROBOT"
     )
-    /*
-       internal fun medicationRequest(isDeviceRequest: Boolean, isTeratogenicPrescription: Boolean, index: Int) = MedicationRequest(
-        medication = if (!isDeviceRequest) medication(index) else null,
-        dateOfAccident = null,
-        location = CITY_NAMES.random(),
-        emergencyFee = BOOLEAN.random(),
-        dosageInstruction = DOSAGE.random(),
-        multiplePrescriptionInfo = SyncedTaskData.MultiplePrescriptionInfo(),
-        note = DOCTORS_NOTES.random(),
-        substitutionAllowed = BOOLEAN.random(),
-        teratogenicPrescription = if (!isDeviceRequest && isTeratogenicPrescription) {
-            SyncedTaskData.TeratogenicPrescriptionErpModel(
-                offLabel = BOOLEAN.random(),
-                gebaerfaehigeFrau = BOOLEAN.random(),
-                einhaltungSicherheitsmassnahmen = BOOLEAN.random(),
-                aushaendigungInformationsmaterialien = BOOLEAN.random(),
-                erklaerungSachkenntnis = BOOLEAN.random()
-            )
-        } else null
-    )
-    // DVG fix this
-     */
 
     internal fun medicationRequest(isDeviceRequest: Boolean, index: Int) = MedicationRequestErpModel(
         medication = if (!isDeviceRequest) medication(index) else null,
@@ -541,9 +519,10 @@ object DemoPrescriptionInfo {
                     else -> "$SYNCED_TASK_PRESET.$medicationNamesIndex"
                 }
             return if (isDeviceRequest) {
+                val diga = demoDiga(deviceRequestStatusIndex, appName)
                 TaskErpModel.Synced.Diga(
                     profileId = profileIdentifier,
-                    name = null,
+                    name = diga.appName,
                     taskId = taskId,
                     isIncomplete = false,
                     pvsIdentifier = DEMO_MODE_IDENTIFIER,
@@ -564,14 +543,15 @@ object DemoPrescriptionInfo {
                         )
                     ),
                     failureToReport = "",
-                    deviceRequest = demoDiga(deviceRequestStatusIndex, appName),
+                    deviceRequest = diga,
                     isEuRedeemable = isEuRedeemable,
                     isEuRedeemableByPatientAuthorization = isEuRedeemableByPatientAuthorization
                 )
             } else {
+                val medRequest = medicationRequest(isDeviceRequest = false, index = medicationNamesIndex)
                 TaskErpModel.Synced.Prescription(
                     profileId = profileIdentifier,
-                    name = null,
+                    name = medRequest.medication?.name(),
                     taskId = taskId,
                     isIncomplete = false,
                     pvsIdentifier = DEMO_MODE_IDENTIFIER,
@@ -585,7 +565,7 @@ object DemoPrescriptionInfo {
                     acceptUntil = SHORT_EXPIRY_DATE,
                     authoredOn = NOW,
                     status = status,
-                    medicationRequest = medicationRequest(isDeviceRequest = false, index = medicationNamesIndex),
+                    medicationRequest = medRequest,
                     lastMedicationDispense = null,
                     medicationDispenses = listOf(
                         medicationDispense(

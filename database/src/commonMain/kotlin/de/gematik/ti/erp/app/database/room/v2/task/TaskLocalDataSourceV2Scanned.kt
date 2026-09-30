@@ -102,7 +102,7 @@ internal class TaskLocalDataSourceV2Scanned(
                     telematikId = pharmacyId,
                     kvnr = "",
                     consumed = false,
-                    payload = "",
+                    payload = null,
                     profile = ErxCommunicationDispReq,
                     insuranceId = null,
                     timeStamp = Clock.System.now()

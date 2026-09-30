@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.model
 
 import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.datasource.data.MockConstants.MOCK_COMMUNICATION_ID_01
+import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationPayloadParser
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -53,7 +54,12 @@ fun MockProfileLinkedCommunication.toCommunicationErpModel() =
         timeStamp = sentOn,
         senderTelematikId = sender,
         recipient = recipient,
-        payload = payload,
+        payload = payload?.let {
+            CommunicationPayloadParser.extract(
+                it,
+                isRequest = profile == CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq
+            )
+        },
         consumed = consumed,
         profileId = profileId
     )

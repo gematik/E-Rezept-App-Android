@@ -76,5 +76,11 @@
         "text": "**✅ Prescriptions de T disponibles**\nLes ordonnances T peuvent désormais être reçues et affichées correctement. Elles sont utilisées pour certains médicaments présentant des exigences de sécurité particulières.\n\n**⚙️ Paramètres nettoyés**\nLes paramètres du profil ont été revus et clarifiés.\n\n**♿ Plus d'accessibilité**\nIl est désormais possible de signaler les problèmes directement depuis les paramètres. Les boutons, menus, listes et titres ont été optimisés pour TalkBack. Le contraste a été amélioré et les animations ne sont plus diffusées qu'une seule fois. Le champ Nom affiche désormais une étiquette permanente. Les polices de plus grande taille sont également prises en charge dans les vues web de l'application.",
         "timestamp": "2026-08-18T08:00:00.000Z",
         "version": "1.39"
+    },
+    {
+        "id": "15",
+        "text": "**🗞️ Notifications push disponibles**\nIl est désormais possible de recevoir des notifications push pour divers événements, notamment les nouvelles ordonnances électroniques, les changements de statut des ordonnances électroniques exécutées ou les messages de la pharmacie.",
+        "timestamp": "2026-09-21T08:00:00.000Z",
+        "version": "1.40"
     }
 ]

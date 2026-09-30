@@ -76,5 +76,11 @@
         "text": "**✅ Ricette mediche disponibili**\nLe prescrizioni T possono ora essere ricevute e visualizzate correttamente. Le prescrizioni T vengono utilizzate per alcuni medicinali con particolari requisiti di sicurezza.\n\n**⚙️ Impostazioni ripulite**\nLe impostazioni del profilo sono state riviste e rese più chiare.\n\n**♿ Maggiore accessibilità**\nOra è possibile segnalare gli ostacoli direttamente dalle impostazioni. Pulsanti, menu, elenchi e intestazioni sono stati ottimizzati per l'utilizzo con TalkBack. Il contrasto è stato migliorato e le animazioni ora vengono riprodotte una sola volta. Il campo del nome ora ha un'etichetta sempre visibile. Anche le dimensioni dei caratteri più grandi sono ora supportate nelle visualizzazioni web dell'app.",
         "timestamp": "2026-08-18T08:00:00.000Z",
         "version": "1.39"
+    },
+    {
+        "id": "15",
+        "text": "**🗞️ Notifiche push disponibili**\nOra è possibile ricevere notifiche push per diversi eventi. Tra questi, nuove ricette elettroniche, modifiche di stato delle ricette elettroniche già riscattate o messaggi dalla farmacia.",
+        "timestamp": "2026-09-21T08:00:00.000Z",
+        "version": "1.40"
     }
 ]

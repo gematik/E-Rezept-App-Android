@@ -23,6 +23,8 @@
 package de.gematik.ti.erp.app.mocks.prescription.model
 
 import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPayloadV1ErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationSupplyOptionTypeErpModel
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
 import kotlinx.datetime.Instant
@@ -37,7 +39,14 @@ val COMMUNICATION_DATA = CommunicationErpModel(
     timeStamp = DATE_2024_01_01,
     senderTelematikId = "ABC123456",
     recipient = "ABC654321",
-    payload = "payload1",
+    payload = CommunicationReplyPayloadV1ErpModel(
+        version = 1,
+        supplyOptionsType = CommunicationSupplyOptionTypeErpModel.ON_PREMISE,
+        infoText = "mock message.",
+        pickUpCodeDMC = "Test_01___Rezept_01___abcdefg12345",
+        pickUpCodeHR = "T01__R01",
+        url = "https://www.tree.fm/forest/33"
+    ),
     consumed = false,
     profileId = null
 )

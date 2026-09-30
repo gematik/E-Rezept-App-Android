@@ -8,6 +8,8 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+        
+        <receiver android:name="de.gematik.ti.erp.app.pushnotifications.service.DebugPushClipboardReceiver" android:exported="false" />
     </application>
 </manifest>
 

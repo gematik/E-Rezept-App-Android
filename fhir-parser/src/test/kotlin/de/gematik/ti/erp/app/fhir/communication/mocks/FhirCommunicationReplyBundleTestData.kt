@@ -28,11 +28,7 @@ import de.gematik.ti.erp.app.fhir.FhirCommunicationBundleErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.support.CommunicationParticipantErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.support.DispenseCommunicationPayloadContentErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.support.DispensePrescriptionTypeErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.support.DispenseSupplyOptionsType
-import de.gematik.ti.erp.app.fhir.communication.model.support.ReplyCommunicationPayloadContentErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.support.ReplyCommunicationSupplyOptionsErpModel
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporalSerializationType
 import kotlinx.datetime.Instant
@@ -63,9 +59,6 @@ object FhirCommunicationReplyBundleTestData {
                     sent: String,
                     received: String?,
                     textJson: String,
-                    onPremise: Boolean,
-                    shipment: Boolean,
-                    delivery: Boolean,
                     isDiga: Boolean
                 ) = FhirReplyCommunicationEntryErpModel(
                     id = id,
@@ -76,14 +69,7 @@ object FhirCommunicationReplyBundleTestData {
                     orderId = null,
                     sent = instant(sent),
                     received = received?.let(::instant),
-                    payload = ReplyCommunicationPayloadContentErpModel(
-                        text = textJson,
-                        supplyOptions = ReplyCommunicationSupplyOptionsErpModel(
-                            onPremise = onPremise,
-                            shipment = shipment,
-                            delivery = delivery
-                        )
-                    ),
+                    payload = textJson,
                     isDiga = isDiga
                 )
 
@@ -94,7 +80,6 @@ object FhirCommunicationReplyBundleTestData {
                     recipientTi: String,
                     sent: String,
                     contentString: String,
-                    supplyOptionsType: DispenseSupplyOptionsType,
                     flowCode: String,
                     flowDisplay: String,
                     isDiga: Boolean
@@ -106,13 +91,7 @@ object FhirCommunicationReplyBundleTestData {
                     recipient = senderTI(recipientTi),
                     orderId = null,
                     sent = instant(sent),
-                    payload = DispenseCommunicationPayloadContentErpModel(
-                        contentString = contentString,
-                        supplyOptionsType = supplyOptionsType,
-                        name = null,
-                        address = null,
-                        phone = null
-                    ),
+                    payload = contentString,
                     prescriptionType = DispensePrescriptionTypeErpModel(
                         code = flowCode,
                         system = "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
@@ -131,7 +110,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-08-03T20:52:22.949Z",
                         received = "2025-08-03T20:52:23Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Nachricht Nr. 4 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -144,7 +123,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-08-03T20:52:22.811Z",
                         received = "2025-08-03T20:52:23Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Nachricht Nr. 3 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -157,7 +136,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-08-03T20:52:22.639Z",
                         received = "2025-08-03T20:52:23Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Nachricht Nr. 2 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -170,7 +149,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-08-03T20:52:22.467Z",
                         received = "2025-08-03T20:52:23Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Nachricht Nr. 1 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -183,7 +162,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-08-03T20:52:22.285Z",
                         received = "2025-08-03T20:52:23Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Nachricht Nr. 0 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -198,7 +177,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-07-30T15:36:34.848Z",
                         received = "2025-07-30T15:36:35Z",
                         textJson = """{"version":1,"supplyOptionsType":"shipment","info_text":"Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = false, shipment = true, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -210,7 +189,7 @@ object FhirCommunicationReplyBundleTestData {
                         recipientTi = "3-SMC-B-Testkarte--883110000163973",
                         sent = "2025-07-30T15:36:34.037Z",
                         contentString = """{"version":1,"supplyOptionsType":"shipment","hint":"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        supplyOptionsType = DispenseSupplyOptionsType.SHIPMENT,
+
                         flowCode = "169",
                         flowDisplay = "Muster 16 (Direkte Zuweisung)",
                         isDiga = false
@@ -227,7 +206,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-07-29T13:46:10.969Z",
                         received = "2025-07-29T13:46:11Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Nachricht Nr. 4 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -240,7 +219,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-07-29T13:46:10.818Z",
                         received = "2025-07-29T13:46:11Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Nachricht Nr. 3 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -253,7 +232,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-07-29T13:46:10.667Z",
                         received = "2025-07-29T13:46:11Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Nachricht Nr. 2 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -266,7 +245,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-07-29T13:46:10.530Z",
                         received = "2025-07-29T13:46:11Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Nachricht Nr. 1 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -279,7 +258,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-07-29T13:46:10.375Z",
                         received = "2025-07-29T13:46:11Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Nachricht Nr. 0 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -294,7 +273,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-07-17T20:47:12.094Z",
                         received = "2025-07-17T20:47:12Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -306,7 +285,7 @@ object FhirCommunicationReplyBundleTestData {
                         recipientTi = "3-SMC-B-Testkarte--883110000163973",
                         sent = "2025-07-17T20:47:11.247Z",
                         contentString = """{"version":1,"supplyOptionsType":"onPremise","hint":"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        supplyOptionsType = DispenseSupplyOptionsType.ON_PREMISE,
+
                         flowCode = "200",
                         flowDisplay = "PKV (Apothekenpflichtige Arzneimittel)",
                         isDiga = false
@@ -325,7 +304,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-07-16T20:48:16.064Z",
                         received = "2025-07-16T20:48:16Z",
                         textJson = """{"version":1,"supplyOptionsType":"delivery","info_text":"Nachricht Nr. 4 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = false, shipment = false, delivery = true,
+
                         isDiga = false
                     )
                 )
@@ -338,7 +317,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-07-16T20:48:15.926Z",
                         received = "2025-07-16T20:48:16Z",
                         textJson = """{"version":1,"supplyOptionsType":"delivery","info_text":"Nachricht Nr. 3 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = false, shipment = false, delivery = true,
+
                         isDiga = false
                     )
                 )
@@ -351,7 +330,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-07-16T20:48:15.764Z",
                         received = "2025-07-16T20:48:16Z",
                         textJson = """{"version":1,"supplyOptionsType":"delivery","info_text":"Nachricht Nr. 2 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = false, shipment = false, delivery = true,
+
                         isDiga = false
                     )
                 )
@@ -364,7 +343,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-07-16T20:48:15.614Z",
                         received = "2025-07-16T20:48:16Z",
                         textJson = """{"version":1,"supplyOptionsType":"delivery","info_text":"Nachricht Nr. 1 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = false, shipment = false, delivery = true,
+
                         isDiga = false
                     )
                 )
@@ -377,7 +356,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-07-16T20:48:15.471Z",
                         received = "2025-07-16T20:48:16Z",
                         textJson = """{"version":1,"supplyOptionsType":"delivery","info_text":"Nachricht Nr. 0 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = false, shipment = false, delivery = true,
+
                         isDiga = false
                     )
                 )
@@ -392,7 +371,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-07-06T21:08:00.327Z",
                         received = "2025-07-06T21:08:00Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -404,7 +383,7 @@ object FhirCommunicationReplyBundleTestData {
                         recipientTi = v14Sender,
                         sent = "2025-07-06T21:07:59.425Z",
                         contentString = """{"version":1,"supplyOptionsType":"onPremise","hint":"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        supplyOptionsType = DispenseSupplyOptionsType.ON_PREMISE,
+
                         flowCode = "200",
                         flowDisplay = "PKV (Apothekenpflichtige Arzneimittel)",
                         isDiga = false
@@ -421,7 +400,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-06-21T20:46:49.261Z",
                         received = "2025-06-21T20:46:49Z",
                         textJson = """{"version":1,"supplyOptionsType":"shipment","info_text":"Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = false, shipment = true, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -433,7 +412,7 @@ object FhirCommunicationReplyBundleTestData {
                         recipientTi = v14Sender,
                         sent = "2025-06-21T20:46:48.570Z",
                         contentString = """{"version":1,"supplyOptionsType":"shipment","hint":"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        supplyOptionsType = DispenseSupplyOptionsType.SHIPMENT,
+
                         flowCode = "160",
                         flowDisplay = "Muster 16 (Apothekenpflichtige Arzneimittel)",
                         isDiga = false
@@ -450,7 +429,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-06-12T20:45:30.085Z",
                         received = "2025-06-12T20:45:30Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Nachricht Nr. 4 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -463,7 +442,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-06-12T20:45:29.965Z",
                         received = "2025-06-12T20:45:30Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Nachricht Nr. 3 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -476,7 +455,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-06-12T20:45:29.828Z",
                         received = "2025-06-12T20:45:30Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Nachricht Nr. 2 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -489,7 +468,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-06-12T20:45:29.722Z",
                         received = "2025-06-12T20:45:30Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Nachricht Nr. 1 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -502,7 +481,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-06-12T20:45:29.624Z",
                         received = "2025-06-12T20:45:30Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Nachricht Nr. 0 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -517,7 +496,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-06-09T20:45:37.657Z",
                         received = "2025-06-09T20:45:37Z",
                         textJson = """{"version":1,"supplyOptionsType":"shipment","info_text":"Nachricht Nr. 4 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = false, shipment = true, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -530,7 +509,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-06-09T20:45:37.528Z",
                         received = "2025-06-09T20:45:37Z",
                         textJson = """{"version":1,"supplyOptionsType":"shipment","info_text":"Nachricht Nr. 3 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = false, shipment = true, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -543,7 +522,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-06-09T20:45:37.421Z",
                         received = "2025-06-09T20:45:37Z",
                         textJson = """{"version":1,"supplyOptionsType":"shipment","info_text":"Nachricht Nr. 2 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = false, shipment = true, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -556,7 +535,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-06-09T20:45:37.310Z",
                         received = "2025-06-09T20:45:37Z",
                         textJson = """{"version":1,"supplyOptionsType":"shipment","info_text":"Nachricht Nr. 1 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = false, shipment = true, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -569,7 +548,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-06-09T20:45:37.212Z",
                         received = "2025-06-09T20:45:37Z",
                         textJson = """{"version":1,"supplyOptionsType":"shipment","info_text":"Nachricht Nr. 0 zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = false, shipment = true, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -583,7 +562,7 @@ object FhirCommunicationReplyBundleTestData {
                         recipientTi = v14Sender,
                         sent = "2025-05-30T20:43:54.592Z",
                         contentString = """{"version":1,"supplyOptionsType":"delivery","hint":"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        supplyOptionsType = DispenseSupplyOptionsType.DELIVERY,
+
                         flowCode = "169",
                         flowDisplay = "Muster 16 (Direkte Zuweisung)",
                         isDiga = false
@@ -598,7 +577,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-05-20T20:45:44.725Z",
                         received = "2025-05-20T20:45:44Z",
                         textJson = """{"version":1,"supplyOptionsType":"delivery","info_text":"Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = false, shipment = false, delivery = true,
+
                         isDiga = false
                     )
                 )
@@ -610,7 +589,7 @@ object FhirCommunicationReplyBundleTestData {
                         recipientTi = v14Sender,
                         sent = "2025-05-20T20:45:44.076Z",
                         contentString = """{"version":1,"supplyOptionsType":"delivery","hint":"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        supplyOptionsType = DispenseSupplyOptionsType.DELIVERY,
+
                         flowCode = "160",
                         flowDisplay = "Muster 16 (Apothekenpflichtige Arzneimittel)",
                         isDiga = false
@@ -626,7 +605,7 @@ object FhirCommunicationReplyBundleTestData {
                         recipientTi = v14Sender,
                         sent = "2025-05-07T20:43:24.965Z",
                         contentString = """{"version":1,"supplyOptionsType":"delivery","hint":"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        supplyOptionsType = DispenseSupplyOptionsType.DELIVERY,
+
                         flowCode = "160",
                         flowDisplay = "Muster 16 (Apothekenpflichtige Arzneimittel)",
                         isDiga = false
@@ -641,7 +620,7 @@ object FhirCommunicationReplyBundleTestData {
                         sent = "2025-04-29T20:46:14.290Z",
                         received = "2025-04-29T20:46:14Z",
                         textJson = """{"version":1,"supplyOptionsType":"onPremise","info_text":"Hey patient, how are you? does the medicine takes an effect??"}""",
-                        onPremise = true, shipment = false, delivery = false,
+
                         isDiga = false
                     )
                 )
@@ -653,7 +632,7 @@ object FhirCommunicationReplyBundleTestData {
                         recipientTi = v14Sender,
                         sent = "2025-04-29T20:46:13.543Z",
                         contentString = """{"version":1,"supplyOptionsType":"onPremise","hint":"Nachricht Nr. {0} zum testen des ErpFD bezüglich Communication: Hey patient, how are you? does the medicine takes an effect??"}""",
-                        supplyOptionsType = DispenseSupplyOptionsType.ON_PREMISE,
+
                         flowCode = "169",
                         flowDisplay = "Muster 16 (Direkte Zuweisung)",
                         isDiga = false

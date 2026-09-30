@@ -91,6 +91,7 @@ class TrackingScreenMapper {
                 NavigationRouteNames.ProfileAuditEventsScreen -> "profile:auditEvents"
                 NavigationRouteNames.ProfileEuConsentScreen -> "profile:euConsent"
                 NavigationRouteNames.ProfilePairedDevicesScreen -> "profile:registeredDevices"
+                NavigationRouteNames.RegisteredPushDevicesScreen -> "profile:pushNotifications:registeredDevices"
                 NavigationRouteNames.ProfileEditPictureBottomSheetScreen -> "main:editProfilePicture"
                 NavigationRouteNames.ProfileEditNameBottomSheetScreen -> "main:editName"
                 NavigationRouteNames.ProfileAddNameBottomSheetScreen -> "main:createProfile"
@@ -150,6 +151,7 @@ class TrackingScreenMapper {
                 NavigationRouteNames.GrantConsentBottomSheetScreen -> "main:grantConsent"
 
                 NavigationRouteNames.MessageListScreen -> "orders"
+                NavigationRouteNames.CommResV3MessageListScreen -> "orders:commresv3"
                 NavigationRouteNames.OrderMessageDetailScreen -> "orders:details"
                 NavigationRouteNames.UnknownOrderMessageDetailScreen -> "orders:details:unknown"
                 NavigationRouteNames.InternalMessageDetailScreen -> "orders:details:internal"

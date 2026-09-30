@@ -51,8 +51,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.toClipEntry
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.debugsettings.pushnotifications.presentation.DebugPushNotificationsViewModel
@@ -66,7 +66,7 @@ import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.ErezeptOutlineText
-import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
+import de.gematik.ti.erp.app.utils.compose.LightDarkLongPreview
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import kotlinx.coroutines.launch
 
@@ -82,11 +82,15 @@ fun DebugEncryptedPushSection(
     val oauthToken by viewModel.oauthToken.collectAsStateWithLifecycle()
     val cipherOutput by viewModel.cipherOutput.collectAsStateWithLifecycle()
     val decryptedOutput by viewModel.decryptedOutput.collectAsStateWithLifecycle()
-    val curlCommand by viewModel.encryptedCurlCommand.collectAsStateWithLifecycle()
+    val fcmCurlCommand by viewModel.encryptedCurlCommand.collectAsStateWithLifecycle()
+    val pushGatewayCurlCommand by viewModel.encryptedPushGatewayCurlCommand.collectAsStateWithLifecycle()
     val isSending by viewModel.isEncryptedSending.collectAsStateWithLifecycle()
     val latestKeyGen by viewModel.latestKeyGeneration.collectAsStateWithLifecycle()
 
-    viewModel.encryptedErrorEvent.listen { message ->
+    viewModel.pushErrorEvent.listen { message ->
+        snackbarHostState.showSnackbar(message)
+    }
+    viewModel.pushSuccessEvent.listen { message ->
         snackbarHostState.showSnackbar(message)
     }
 
@@ -95,11 +99,13 @@ fun DebugEncryptedPushSection(
         oauthToken = oauthToken,
         cipherOutput = cipherOutput,
         decryptedOutput = decryptedOutput,
-        curlCommand = curlCommand,
+        fcmCurlCommand = fcmCurlCommand,
+        pushGatewayCurlCommand = pushGatewayCurlCommand,
         isSending = isSending,
         latestKeyGen = latestKeyGen,
         onEncrypt = viewModel::encryptPayload,
         onUpdateOauthToken = viewModel::updateOauthToken,
+        onUpdateCurlCommands = viewModel::updateEncryptedCurlCommands,
         onSendPush = viewModel::sendEncryptedPush,
         onDecrypt = viewModel::decryptPayload,
         snackbarHostState = snackbarHostState
@@ -112,11 +118,13 @@ private fun DebugEncryptedPushSectionContent(
     oauthToken: String,
     cipherOutput: String,
     decryptedOutput: String,
-    curlCommand: String,
+    fcmCurlCommand: String,
+    pushGatewayCurlCommand: String,
     isSending: Boolean,
     latestKeyGen: PushNotificationKeyGeneration?,
     onEncrypt: (String, String) -> Unit,
     onUpdateOauthToken: (String) -> Unit,
+    onUpdateCurlCommands: (String) -> Unit,
     onSendPush: (String) -> Unit,
     onDecrypt: () -> Unit,
     snackbarHostState: SnackbarHostState,
@@ -127,32 +135,41 @@ private fun DebugEncryptedPushSectionContent(
 
     var plaintext by remember { mutableStateOf(DEFAULT_TEST_PAYLOAD) }
     var targetToken by remember { mutableStateOf(fcmToken ?: "") }
-    var showCurl by remember { mutableStateOf(false) }
 
     LaunchedEffect(fcmToken) {
-        if (fcmToken != null && targetToken.isBlank()) targetToken = fcmToken
+        if (fcmToken != null && targetToken.isBlank()) {
+            targetToken = fcmToken
+            onUpdateCurlCommands(fcmToken)
+        }
     }
 
     val canSend = !isSending && cipherOutput.isNotBlank() && targetToken.isNotBlank() && oauthToken.isNotBlank()
 
     DebugCard(
-        title = "🔐 Encrypted Push Test",
+        title = "🔐 Test Encrypted Push",
         collapsible = true,
         initiallyExpanded = initiallyExpanded
     ) {
         Text(
-            text = "Test encrypt/decrypt per gemF_PushNotification spec.",
-            style = AppTheme.typography.caption1,
+            text = "Encrypt a payload, test its delivery, and verify decryption.",
+            style = AppTheme.typography.subtitle2,
             color = AppTheme.colors.neutral600
         )
         SpacerMedium()
 
-        // Show current key generation info
+        Text(
+            text = "1. Encrypt payload",
+            style = AppTheme.typography.subtitle2,
+            fontWeight = FontWeight.SemiBold
+        )
+        SpacerSmall()
+
         latestKeyGen?.let { gen ->
             InfoSurface {
                 Column(modifier = Modifier.padding(PaddingDefaults.Small)) {
-                    Text("Month: ${gen.month}", style = AppTheme.typography.caption1)
-                    Text("Key: ${gen.encryptionKey}", style = AppTheme.typography.caption1, maxLines = 3)
+                    Text("Month: ${gen.month}", style = AppTheme.typography.caption2)
+                    Text("Key ID: ${gen.keyIdentifier}", style = AppTheme.typography.caption2, maxLines = 1)
+                    Text("Key: ${gen.encryptionKey}", style = AppTheme.typography.caption2, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
         }
@@ -175,15 +192,13 @@ private fun DebugEncryptedPushSectionContent(
 
         if (cipherOutput.isNotBlank()) {
             SpacerMedium()
-            HorizontalDivider(color = AppTheme.colors.neutral200)
-            SpacerMedium()
 
-            Text("Ciphertext (Base64):", style = AppTheme.typography.caption1, fontWeight = FontWeight.SemiBold)
+            Text("Ciphertext (Base64):", style = AppTheme.typography.subtitle2, fontWeight = FontWeight.SemiBold)
             SpacerTiny()
             InfoSurface {
                 Text(
-                    text = cipherOutput.take(80) + "…",
-                    style = AppTheme.typography.caption1,
+                    text = cipherOutput.take(80) + if (cipherOutput.length > 80) "…" else "",
+                    style = AppTheme.typography.caption2,
                     modifier = Modifier.padding(PaddingDefaults.Small),
                     maxLines = 3
                 )
@@ -203,17 +218,23 @@ private fun DebugEncryptedPushSectionContent(
             HorizontalDivider(color = AppTheme.colors.neutral200)
             SpacerMedium()
 
-            // In-app send section
             Text(
-                text = "Send Encrypted FCM Push",
+                text = "2. Deliver encrypted push",
+                style = AppTheme.typography.subtitle2,
+                fontWeight = FontWeight.SemiBold
+            )
+            SpacerMedium()
+
+            Text(
+                text = "Direct FCM",
                 style = AppTheme.typography.subtitle2,
                 fontWeight = FontWeight.SemiBold
             )
 
             SpacerSmall()
             Text(
-                text = "Send encrypted FCM Push to this device or any other device by pasting their FCM token",
-                style = AppTheme.typography.caption1,
+                text = "Bypasses the Push Gateway and requires an OAuth2 access token.",
+                style = AppTheme.typography.caption2,
                 color = AppTheme.colors.neutral600
             )
             SpacerSmall()
@@ -222,14 +243,14 @@ private fun DebugEncryptedPushSectionContent(
                 Column(modifier = Modifier.padding(PaddingDefaults.Small)) {
                     Text(
                         text = "Get an OAuth2 token (~1hr validity)",
-                        style = AppTheme.typography.caption1,
+                        style = AppTheme.typography.subtitle2,
                         color = AppTheme.colors.neutral600,
                         fontWeight = FontWeight.SemiBold
                     )
                     SpacerTiny()
                     Text(
                         text = "$ gcloud auth print-access-token",
-                        style = AppTheme.typography.caption1.copy(fontFamily = FontFamily.Monospace),
+                        style = AppTheme.typography.caption2,
                         color = AppTheme.colors.neutral800
                     )
                 }
@@ -251,15 +272,29 @@ private fun DebugEncryptedPushSectionContent(
             ErezeptOutlineText(
                 modifier = Modifier.fillMaxWidth(),
                 value = oauthToken,
-                onValueChange = onUpdateOauthToken,
+                onValueChange = { token ->
+                    onUpdateOauthToken(token)
+                    onUpdateCurlCommands(targetToken)
+                },
                 label = "OAuth2 Token (saved, ~1hr validity)",
                 placeholder = null
             )
+            if (oauthToken.isBlank()) {
+                SpacerTiny()
+                Text(
+                    text = "OAuth2 token required for direct FCM sending.",
+                    style = AppTheme.typography.caption2,
+                    color = AppTheme.colors.neutral600
+                )
+            }
             SpacerSmall()
             ErezeptOutlineText(
                 modifier = Modifier.fillMaxWidth(),
                 value = targetToken,
-                onValueChange = { targetToken = it },
+                onValueChange = { token ->
+                    targetToken = token
+                    onUpdateCurlCommands(token)
+                },
                 label = "Target Device FCM Token (this device by default)",
                 placeholder = null
             )
@@ -269,7 +304,10 @@ private fun DebugEncryptedPushSectionContent(
                     DebugActionButton(
                         text = "Reset to My Device",
                         enabled = targetToken != fcmToken,
-                        onClick = { targetToken = fcmToken }
+                        onClick = {
+                            targetToken = fcmToken
+                            onUpdateCurlCommands(fcmToken)
+                        }
                     )
                 }
             }
@@ -284,7 +322,7 @@ private fun DebugEncryptedPushSectionContent(
                     SpacerSmall()
                 }
                 DebugActionButton(
-                    text = if (isSending) "Sending…" else "Send Encrypted Push Now",
+                    text = if (isSending) "Sending…" else "Send via Direct FCM",
                     enabled = canSend,
                     onClick = { onSendPush(targetToken) }
                 )
@@ -294,65 +332,139 @@ private fun DebugEncryptedPushSectionContent(
             HorizontalDivider(color = AppTheme.colors.neutral200)
             SpacerMedium()
 
-            // cURL for reference
-            DebugActionButton(
-                text = if (showCurl) "Hide cURL Command" else "Show cURL Command",
-                onClick = { showCurl = !showCurl }
+            Text(
+                text = "Terminal cURL commands",
+                style = AppTheme.typography.subtitle2,
+                fontWeight = FontWeight.SemiBold
             )
-            if (showCurl && curlCommand.isNotBlank()) {
-                SpacerSmall()
-                InfoSurface {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 300.dp)
-                            .verticalScroll(rememberScrollState())
-                            .padding(PaddingDefaults.Small)
-                    ) {
-                        Text(
-                            text = curlCommand,
-                            style = AppTheme.typography.caption1.copy(fontFamily = FontFamily.Monospace),
-                            color = AppTheme.colors.neutral800
-                        )
+            SpacerSmall()
+
+            CurlCommands(
+                fcmCurlCommand = fcmCurlCommand,
+                pushGatewayCurlCommand = pushGatewayCurlCommand,
+                onCopy = { label, command ->
+                    scope.launch {
+                        clipboard.setClipEntry(ClipData.newPlainText(label, command).toClipEntry())
+                        snackbarHostState.showSnackbar("$label copied!")
                     }
                 }
-                SpacerTiny()
-                DebugActionButton(
-                    text = "Copy cURL",
-                    onClick = {
-                        scope.launch {
-                            clipboard.setClipEntry(ClipData.newPlainText("cURL", curlCommand).toClipEntry())
-                            snackbarHostState.showSnackbar("cURL copied!")
-                        }
-                    }
-                )
-            }
+            )
 
             SpacerMedium()
             HorizontalDivider(color = AppTheme.colors.neutral200)
             SpacerMedium()
 
+            Text(
+                text = "3. Verify payload",
+                style = AppTheme.typography.subtitle2,
+                fontWeight = FontWeight.SemiBold
+            )
+            SpacerSmall()
+
             DebugActionButton(
-                text = "Decrypt (verify round-trip)",
+                text = "Decrypt and Compare",
                 onClick = onDecrypt
             )
 
             if (decryptedOutput.isNotBlank()) {
+                val payloadMatches = decryptedOutput == plaintext
+                val resultText = if (payloadMatches) "Payload matches." else "Payload does not match."
+                val resultColor = if (payloadMatches) AppTheme.colors.green100 else AppTheme.colors.red100
+
                 SpacerSmall()
                 Surface(
                     shape = RoundedCornerShape(SizeDefaults.one),
-                    color = if (decryptedOutput == plaintext) AppTheme.colors.green100
-                    else AppTheme.colors.red100,
+                    color = resultColor,
                     border = BorderStroke(SizeDefaults.eighth, AppTheme.colors.neutral300)
                 ) {
-                    Text(
-                        text = decryptedOutput,
-                        style = AppTheme.typography.caption1,
-                        modifier = Modifier.padding(PaddingDefaults.Small)
-                    )
+                    Column(modifier = Modifier.padding(PaddingDefaults.Small)) {
+                        Text(
+                            text = resultText,
+                            style = AppTheme.typography.subtitle2,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        SpacerTiny()
+                        Text(
+                            text = decryptedOutput,
+                            style = AppTheme.typography.caption2
+                        )
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun CurlCommands(
+    fcmCurlCommand: String,
+    pushGatewayCurlCommand: String,
+    onCopy: (String, String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    DebugActionButton(
+        text = if (expanded) "Hide cURL Commands" else "Show cURL Commands",
+        onClick = { expanded = !expanded }
+    )
+    if (expanded) {
+        CurlCommand(
+            label = "Direct FCM cURL",
+            description = "Bypasses the Push Gateway and uses the OAuth2 token above.",
+            command = fcmCurlCommand,
+            onCopy = onCopy
+        )
+        SpacerMedium()
+        CurlCommand(
+            label = "Push Gateway cURL",
+            description = "Tests gateway delivery; replace the mTLS certificate paths before running.",
+            command = pushGatewayCurlCommand,
+            onCopy = onCopy
+        )
+    }
+}
+
+@Composable
+private fun CurlCommand(
+    label: String,
+    description: String,
+    command: String,
+    onCopy: (String, String) -> Unit
+) {
+    if (command.isNotBlank()) {
+        SpacerSmall()
+        Text(
+            text = label,
+            style = AppTheme.typography.subtitle2,
+            fontWeight = FontWeight.SemiBold
+        )
+        SpacerTiny()
+        Text(
+            text = description,
+            style = AppTheme.typography.caption2,
+            color = AppTheme.colors.neutral600
+        )
+        SpacerTiny()
+        InfoSurface {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 300.dp)
+                    .verticalScroll(rememberScrollState())
+                    .padding(PaddingDefaults.Small)
+            ) {
+                Text(
+                    text = command,
+                    style = AppTheme.typography.caption2,
+                    color = AppTheme.colors.neutral800
+                )
+            }
+        }
+        SpacerTiny()
+        DebugActionButton(
+            text = "Copy $label",
+            onClick = { onCopy(label, command) }
+        )
     }
 }
 
@@ -366,7 +478,7 @@ private fun InfoSurface(modifier: Modifier = Modifier, content: @Composable () -
     ) { content() }
 }
 
-@LightDarkPreview
+@LightDarkLongPreview
 @Composable
 private fun DebugEncryptedPushSectionPreview() {
     PreviewAppTheme {
@@ -375,7 +487,8 @@ private fun DebugEncryptedPushSectionPreview() {
             oauthToken = "sample-oauth-token",
             cipherOutput = "sample-cipher-output-base64-content-that-is-long-enough-to-test-wrapping",
             decryptedOutput = DEFAULT_TEST_PAYLOAD,
-            curlCommand = "curl -X POST ...",
+            fcmCurlCommand = "curl -X POST FCM ...",
+            pushGatewayCurlCommand = "curl -X POST Push Gateway ...",
             isSending = false,
             latestKeyGen = PushNotificationKeyGeneration(
                 encryptionKey = "0123456789abcdef0123456789abcdef0123456789abcde",
@@ -385,6 +498,7 @@ private fun DebugEncryptedPushSectionPreview() {
             ),
             onEncrypt = { _, _ -> },
             onUpdateOauthToken = {},
+            onUpdateCurlCommands = {},
             onSendPush = {},
             onDecrypt = {},
             snackbarHostState = remember { SnackbarHostState() },

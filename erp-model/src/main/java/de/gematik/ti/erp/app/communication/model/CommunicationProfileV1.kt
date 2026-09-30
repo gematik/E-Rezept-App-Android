@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.communication.model
 
+// TODO CommResV3 maybe rename to CommProfileEntity without versioning since it is used generally not only in v1
 enum class CommunicationProfileV1 {
     ErxCommunicationDispReq, ErxCommunicationReply, Unknown, InApp
 }

@@ -28,8 +28,10 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import de.gematik.ti.erp.app.communication.model.CommunicationProfileV1
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationPayloadErpModel
 import de.gematik.ti.erp.app.database.room.v2.profile.ProfileEntity
 import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskEntity
+import de.gematik.ti.erp.app.database.room.v2.task.util.CommunicationPayloadConverter
 import de.gematik.ti.erp.app.database.room.v2.task.util.CommunicationProfileConverter
 import de.gematik.ti.erp.app.database.room.v2.task.util.InstantConverter
 import kotlinx.datetime.Instant
@@ -46,7 +48,7 @@ import kotlinx.datetime.Instant
         ),
         ForeignKey(
             entity = ProfileEntity::class,
-            parentColumns = ["identifier"], // TODO: (Ümüt) Namings should be same
+            parentColumns = ["identifier"], // TODO: Namings should be same
             childColumns = ["profileId"],
             onUpdate = ForeignKey.CASCADE,
             onDelete = ForeignKey.CASCADE
@@ -61,7 +63,7 @@ import kotlinx.datetime.Instant
         Index("communicationId")
     ]
 )
-@TypeConverters(InstantConverter::class, CommunicationProfileConverter::class)
+@TypeConverters(InstantConverter::class, CommunicationProfileConverter::class, CommunicationPayloadConverter::class)
 data class ErpCommunicationEntity(
     @PrimaryKey val communicationId: String,
     val orderId: String,
@@ -70,10 +72,13 @@ data class ErpCommunicationEntity(
     val telematikId: String,
     val kvnr: String,
     val consumed: Boolean,
-    val payload: String,
+    val payload: CommunicationPayloadErpModel? = null,
+    // Transitional compatibility column introduced in Room migration 11->12 and kept through 12->13
+    // so app updates from older builds can preserve legacy communication payload data safely.
+    val payload_structured: String? = null,
     val profile: CommunicationProfileV1,
     var recipient: String = "",
-    // TODO DB Insurance is the wrong name here, should be insurant or profileId
+    // TODO CommResV3 CleanUp of Migration: DB Insurance is the wrong name here, should be insurant or profileId
     val insuranceId: String? = null,
     val timeStamp: Instant,
     val pharmacyName: String? = null

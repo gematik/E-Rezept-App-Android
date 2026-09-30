@@ -30,12 +30,13 @@ import de.gematik.ti.erp.app.appauthentication.observer.ProcessLifecycleObserver
 import de.gematik.ti.erp.app.di.appModules
 import de.gematik.ti.erp.app.di.featureModule
 import de.gematik.ti.erp.app.pushnotifications.domain.usecase.AdvancePushKeyChainUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.UpdateFcmTokenUseCase
 import de.gematik.ti.erp.app.translation.di.textTranslatorModule
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.kodein.di.DI
 import org.kodein.di.DIAware
@@ -60,6 +61,7 @@ class DefaultErezeptApp : ErezeptApp(), DIAware {
     private val visibleDebugTree: VisibleDebugTree by instance()
 
     private val advancePushKeyChainUseCase: AdvancePushKeyChainUseCase by instance()
+    private val updateFcmTokenUseCase: UpdateFcmTokenUseCase by instance()
 
     @Requirement(
         "O.Source_3#2",
@@ -79,9 +81,22 @@ class DefaultErezeptApp : ErezeptApp(), DIAware {
 
         PDFBoxResourceLoader.init(this)
 
-        ProcessLifecycleOwner.get().lifecycleScope.launch(Dispatchers.IO) {
-            val pushKeyChain = async { advancePushKeyChainUseCase() }
-            pushKeyChain.await()
+        @Requirement(
+            "A_27171#1",
+            sourceSpecification = "gemF_PushNotification",
+            rationale = "Triggers provider pushkey synchronization after application startup.",
+            codeLines = 8
+        )
+        val processLifecycleScope = ProcessLifecycleOwner.get().lifecycleScope
+        processLifecycleScope.launch(Dispatchers.IO + startupExceptionHandler) {
+            advancePushKeyChainUseCase()
         }
+        processLifecycleScope.launch(Dispatchers.IO + startupExceptionHandler) {
+            updateFcmTokenUseCase.syncAtAppStart()
+        }
+    }
+
+    private val startupExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Napier.e("Unhandled exception during application startup background work", throwable)
     }
 }

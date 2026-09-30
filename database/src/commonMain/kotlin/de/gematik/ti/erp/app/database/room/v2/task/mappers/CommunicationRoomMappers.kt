@@ -31,6 +31,7 @@ import de.gematik.ti.erp.app.database.room.v2.task.communication.ErpCommunicatio
 import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskEntity
 import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationPayloadParser
 import kotlinx.datetime.Clock
 
 /**
@@ -50,7 +51,7 @@ internal fun FhirReplyCommunicationEntryErpModel.toErpCommunicationEntity(
         telematikId = recipient?.identifier ?: "",
         kvnr = sender?.identifier ?: "",
         consumed = false,
-        payload = payload.text.toString(),
+        payload = payload?.let { CommunicationPayloadParser.extract(it, isRequest = false) },
         profile = CommunicationProfileV1.ErxCommunicationReply,
         recipient = recipient?.identifier ?: "",
         insuranceId = insurantId,
@@ -72,7 +73,7 @@ internal fun FhirDispenseCommunicationEntryErpModel.toErpCommunicationEntity(
         telematikId = sender?.identifier ?: "",
         kvnr = recipient?.identifier ?: "",
         consumed = false,
-        payload = payload.contentString.toString(),
+        payload = payload?.let { CommunicationPayloadParser.extract(it, isRequest = true) },
         profile = CommunicationProfileV1.ErxCommunicationDispReq,
         recipient = recipient?.identifier ?: "",
         insuranceId = insurantId,
@@ -90,10 +91,10 @@ internal fun CommunicationErpModel.toErpCommunicationEntity(): ErpCommunicationE
         telematikId = senderTelematikId,
         kvnr = recipient,
         consumed = consumed,
-        payload = payload.orEmpty(),
+        payload = payload,
         profile = profile.toEntityValue() ?: CommunicationProfileV1.ErxCommunicationDispReq,
         recipient = recipient,
-        // TODO DB Insurance is the wrong name here, should be insurant or profileId
+        // TODO CommResV3 CleanUp of Migration: DB Insurance is the wrong name here, should be insurant or profileId
         insuranceId = profileId,
         timeStamp = timeStamp ?: Clock.System.now(),
         pharmacyName = pharmacyName
@@ -106,7 +107,7 @@ fun CommunicationEntityV1.toErpModel(profileId: String? = null): CommunicationEr
         taskId = taskId,
         senderTelematikId = sender,
         consumed = consumed,
-        payload = payload,
+        payload = payload?.let { CommunicationPayloadParser.extract(it, isRequest = profile == CommunicationProfileV1.ErxCommunicationDispReq) },
         recipient = recipient,
         profile = profile.toCommunicationProfile(),
         profileId = profileId ?: this.parent?.parent?.id,

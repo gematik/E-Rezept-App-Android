@@ -316,6 +316,7 @@ class OrderMessageDetailControllerTest {
         every { communicationRepository.loadRepliedCommunications(any<String>(), any<String>()) } returns flowOf(
             emptyList()
         )
+        every { communicationRepository.loadRepliedCommunications(ORDER_ID) } returns flowOf(emptyList())
         every { communicationRepository.loadDispReqCommunications(ORDER_ID) } returns flowOf(
             emptyList()
         )

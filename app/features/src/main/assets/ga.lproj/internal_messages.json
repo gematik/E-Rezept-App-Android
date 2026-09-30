@@ -76,5 +76,11 @@
         "text": "**✅ Oidis T ar fáil**\nIs féidir Oidis-T a fháil agus a thaispeáint i gceart anois. Úsáidtear Oidis-T le haghaidh cógais áirithe a bhfuil ceanglais sábháilteachta speisialta acu.\n\n**⚙️ Socruithe glanta**\nTá na socruithe próifíle athbhreithnithe agus déantar iad níos soiléire.\n\n**♿ Tuilleadh inrochtaineachta**\nIs féidir bacainní a thuairisciú go díreach ó na socruithe anois. Tá cnaipí, biachláir, liostaí agus ceannteidil optamaithe lena n-úsáid le TalkBack. Tá feabhas curtha ar an gcodarsnacht, agus ní imrítear beochan ach uair amháin anois. Tá lipéad buan le feiceáil ar an réimse ainm anois. Tacaítear le méideanna cló níos mó anois i radhairc ghréasáin an aip freisin.",
         "timestamp": "2026-08-18T08:00:00.000Z",
         "version": "1.39"
+    },
+    {
+        "id": "15",
+        "text": "**🗞️ Tá fógraí brú ar fáil**\nIs féidir fógraí brú a fháil anois le haghaidh imeachtaí éagsúla. Áirítear leis seo oidis leictreonacha nua, athruithe stádais oidis leictreonacha fuascailte, nó teachtaireachtaí ón gcógaslann.",
+        "timestamp": "2026-09-21T08:00:00.000Z",
+        "version": "1.40"
     }
 ]

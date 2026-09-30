@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.debugsettings.pushnotifications.usecase
 
+import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushKeyChainAdvancer
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushNotificationCryptoError
-import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushNotificationKeyRotationService
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.hexToByteArray
 import de.gematik.ti.erp.app.pushnotifications.domain.model.PushNotificationKeyGeneration
 import kotlinx.coroutines.CoroutineDispatcher
@@ -44,13 +44,15 @@ import javax.crypto.spec.SecretKeySpec
  * - actual payload
  */
 class EncryptDebugPushNotificationPayloadUseCase(
-    private val keyRotationService: PushNotificationKeyRotationService,
+    private val keyChainAdvancer: PushKeyChainAdvancer,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val secureRandom: SecureRandom = SecureRandom()
 ) {
     suspend operator fun invoke(payload: ByteArray): EncryptedDebugPushNotificationPayload =
         withContext(dispatcher) {
-            val generation = keyRotationService.getLatestGeneration()
+            val keyId = keyChainAdvancer.knownKeyIdentifiers().firstOrNull()
+                ?: throw PushNotificationCryptoError.NoKeyAvailable()
+            val generation = keyChainAdvancer.getLatestGeneration(keyId)
                 ?: throw PushNotificationCryptoError.NoKeyAvailable()
             val key = SecretKeySpec(generation.encryptionKey.hexToByteArray(), "AES")
 

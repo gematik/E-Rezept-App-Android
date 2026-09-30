@@ -24,7 +24,10 @@
 
 package de.gematik.ti.erp.app.ui
 
+import android.Manifest
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -134,7 +137,10 @@ import de.gematik.ti.erp.app.debugsettings.ui.components.EnvironmentSelector
 import de.gematik.ti.erp.app.demomode.DemoModeIntent
 import de.gematik.ti.erp.app.demomode.startAppWithNormalMode
 import de.gematik.ti.erp.app.fhir.constant.FhirProfileUrls
+import de.gematik.ti.erp.app.fhir.constant.communication.CommunicationDigaConstants.DigaDispenseRequestVersion
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.CommunicationVersion.Companion.PRODUCTION_DEFAULT
 import de.gematik.ti.erp.app.material3.components.switchs.GemSwitch
+import de.gematik.ti.erp.app.medicationplan.presentation.checkNotificationPermission
 import de.gematik.ti.erp.app.navigation.navigateAndClearStack
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -273,6 +279,8 @@ internal fun DebugActionButton(
     icon: Painter? = null,
     enabled: Boolean = true,
     loading: Boolean = false,
+    backgroundColor: Color = AppTheme.colors.primary600,
+    contentColor: Color = AppTheme.colors.neutral000,
     onClick: () -> Unit
 ) {
     Button(
@@ -283,8 +291,10 @@ internal fun DebugActionButton(
         enabled = enabled && !loading,
         shape = RoundedCornerShape(SizeDefaults.oneHalf),
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = AppTheme.colors.primary600,
-            disabledBackgroundColor = AppTheme.colors.neutral300
+            backgroundColor = backgroundColor,
+            contentColor = contentColor,
+            disabledBackgroundColor = if (loading) backgroundColor else AppTheme.colors.neutral300,
+            disabledContentColor = if (loading) contentColor else AppTheme.colors.neutral600
         ),
         elevation = ButtonDefaults.elevation(
             defaultElevation = SizeDefaults.quarter,
@@ -295,7 +305,7 @@ internal fun DebugActionButton(
         if (loading) {
             CircularProgressIndicator(
                 modifier = Modifier.size(SizeDefaults.doubleHalf),
-                color = AppTheme.colors.neutral000,
+                color = contentColor,
                 strokeWidth = SizeDefaults.quarter
             )
             SpacerSmall()
@@ -306,7 +316,7 @@ internal fun DebugActionButton(
                 painter = it,
                 contentDescription = null,
                 modifier = Modifier.size(SizeDefaults.doubleHalf),
-                tint = AppTheme.colors.neutral000
+                tint = contentColor
             )
             SpacerSmall()
         }
@@ -314,7 +324,7 @@ internal fun DebugActionButton(
         Text(
             text = text,
             textAlign = TextAlign.Center,
-            color = if (enabled && !loading) AppTheme.colors.neutral000 else AppTheme.colors.neutral600,
+            color = if (enabled || loading) contentColor else AppTheme.colors.neutral600,
             style = MaterialTheme.typography.button
         )
     }
@@ -599,6 +609,21 @@ fun DebugScreenMain(
     val modal = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            onClickPushNotifications()
+        } else {
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = "Permission denied. Enable notifications in the system settings.",
+                    duration = SnackbarDuration.Short,
+                    withDismissAction = true
+                )
+            }
+        }
+    }
 
     val appUpdateManager by viewModel.appUpdateManager.collectAsStateWithLifecycle()
     val messageMarkingLoading by viewModel.messageMarkingLoading.collectAsStateWithLifecycle()
@@ -772,8 +797,17 @@ fun DebugScreenMain(
                         DebugNavigationItem(
                             icon = rememberVectorPainter(Icons.Rounded.ChevronRight),
                             text = "Push Notifications",
-                            subtitle = "Test FCM and encrypted push notifications",
-                            onClick = onClickPushNotifications
+                            subtitle = "Test encrypted push delivery; manage Fachdienst pushers and channels",
+                            onClick = {
+                                context.checkNotificationPermission(
+                                    onGranted = onClickPushNotifications,
+                                    onDenied = {
+                                        notificationPermissionLauncher.launch(
+                                            Manifest.permission.POST_NOTIFICATIONS
+                                        )
+                                    }
+                                )
+                            }
                         )
                     }
                 }
@@ -1216,6 +1250,7 @@ private fun VirtualHealthCard(
                                 publicKeyOfSecureElementEntry = prompt.publicKey
                             )
                         }
+
                         else -> viewModel.onPairingAuthFailed()
                     }
                 }
@@ -1586,7 +1621,7 @@ fun CommunicationVersionSelector(viewModel: DebugSettingsViewModel) {
 
     VersionSelector(
         title = "Communication Version",
-        description = "Select communication dispense version for testing.\nProduction uses v1.5.",
+        description = "Select communication dispense version for testing.\nProduction uses v${PRODUCTION_DEFAULT.version}.",
         currentVersion = communicationVersion,
         versions = CommunicationVersion.entries,
         getDisplayName = { it.displayName },
@@ -1601,7 +1636,11 @@ fun CommunicationDigaVersionSelector(viewModel: DebugSettingsViewModel) {
 
     VersionSelector(
         title = "Communication DiGA Version",
-        description = "Select DiGA communication dispense version for testing.\nProduction uses v1.5.",
+        description = "Select DiGA communication dispense version for testing.\nProduction uses v${
+        DigaDispenseRequestVersion.PRODUCTION_DEFAULT.name.removePrefix(
+            "V_"
+        ).replace('_', '.')
+        }.",
         currentVersion = communicationDigaVersion,
         versions = CommunicationDigaVersion.entries,
         getDisplayName = { it.displayName },
@@ -1745,8 +1784,8 @@ private fun VersionSelectorPreview() {
                     // Radio button style (multiple versions)
                     VersionSelector(
                         title = "Communication Version",
-                        description = "Select communication dispense version for testing.\nProduction uses v1.5.",
-                        currentVersion = CommunicationVersion.V_1_5,
+                        description = "Select communication dispense version for testing.\nProduction uses v${PRODUCTION_DEFAULT.version}.",
+                        currentVersion = CommunicationVersion.V_1_6,
                         versions = CommunicationVersion.entries,
                         getDisplayName = { it.displayName },
                         onVersionSelected = {},

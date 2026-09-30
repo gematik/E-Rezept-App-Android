@@ -32,8 +32,12 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.composable
 import de.gematik.ti.erp.app.analytics.navigation.trackingGraph
+import de.gematik.ti.erp.app.appauthentication.navigation.AppAuthenticationRoutes
+import de.gematik.ti.erp.app.appauthentication.navigation.appAuthenticationGraph
+import de.gematik.ti.erp.app.appauthentication.observer.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.appsecurity.navigation.AppSecurityRoutes
 import de.gematik.ti.erp.app.appsecurity.navigation.appSecurityGraph
+import de.gematik.ti.erp.app.appsecurity.usecase.GetShouldShowAndroid13DeprecationWarningUseCase
 import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.cardunlock.navigation.cardUnlockGraph
 import de.gematik.ti.erp.app.cardwall.navigation.cardWallGraph
@@ -60,15 +64,12 @@ import de.gematik.ti.erp.app.prescription.detail.navigation.prescriptionDetailGr
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.prescription.navigation.prescriptionGraph
 import de.gematik.ti.erp.app.profiles.navigation.profileGraph
+import de.gematik.ti.erp.app.pushnotifications.navigation.pushNotificationsGraph
 import de.gematik.ti.erp.app.settings.navigation.settingsGraph
-import de.gematik.ti.erp.app.appsecurity.usecase.GetShouldShowAndroid13DeprecationWarningUseCase
 import de.gematik.ti.erp.app.shared.navigation.redeemAndPharmacySharedGraph
 import de.gematik.ti.erp.app.translation.navigation.translationGraph
 import de.gematik.ti.erp.app.troubleshooting.navigation.troubleShootingGraph
 import de.gematik.ti.erp.app.ui.DebugScreenWrapper
-import de.gematik.ti.erp.app.appauthentication.navigation.AppAuthenticationRoutes
-import de.gematik.ti.erp.app.appauthentication.navigation.appAuthenticationGraph
-import de.gematik.ti.erp.app.appauthentication.observer.AuthenticationModeAndMethod
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import org.kodein.di.compose.rememberInstance
@@ -150,6 +151,7 @@ fun NavigationGraph(
         prescriptionDetailGraph(navController = navHostController)
         messagesGraph(navController = navHostController)
         profileGraph(navController = navHostController)
+        pushNotificationsGraph(navController = navHostController)
         redeemAndPharmacySharedGraph(
             dependencyInjector = dependencyInjector,
             navController = navHostController

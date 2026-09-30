@@ -27,22 +27,23 @@ import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
+import de.gematik.ti.erp.app.pushnotifications.domain.registration.PushRegistrationManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/**
- * Deletes the profile from the [profileRepository] and invalidates it on the [idpRepository]
- */
+/** Removes a profile and its associated authentication, medication-plan, and push-notification data. */
 class DeleteProfileUseCase(
     private val profileRepository: ProfileRepository,
     private val idpRepository: IdpRepository,
     private val medicationPlanRepository: MedicationPlanRepository,
     private val taskOperationsRepository: TaskOperationsRepository,
+    private val pushRegistrationManager: PushRegistrationManager,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend operator fun invoke(profileIdentifier: ProfileIdentifier, profileName: String) {
         withContext(dispatcher) {
+            pushRegistrationManager.clear(profileIdentifier)
             medicationPlanRepository.deleteAllMedicationSchedulesForProfile(profileIdentifier)
             taskOperationsRepository.deleteCommunicationsByProfileId(profileIdentifier)
             taskOperationsRepository.deleteInvoicesByProfileId(profileIdentifier)

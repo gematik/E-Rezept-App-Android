@@ -76,5 +76,11 @@
         "text": "**✅ Dostępne recepty T**\nRecepty T mogą być teraz odbierane i wyświetlane poprawnie. Recepty T są wykorzystywane w przypadku niektórych leków, które wymagają spełnienia specjalnych wymogów bezpieczeństwa.\n\n**⚙️ Ustawienia zostały wyczyszczone**\nUstawienia profilu zostały zmienione i są teraz bardziej przejrzyste.\n\n**♿ Większa dostępność**\nBariery można teraz zgłaszać bezpośrednio z poziomu ustawień. Przyciski, menu, listy i nagłówki zostały zoptymalizowane pod kątem obsługi TalkBack. Poprawiono kontrast, a animacje są teraz odtwarzane tylko raz. Pole nazwy ma teraz stale widoczną etykietę. Większe rozmiary czcionek są teraz również obsługiwane w widokach internetowych aplikacji.",
         "timestamp": "2026-08-18T08:00:00.000Z",
         "version": "1.39"
+    },
+    {
+        "id": "15",
+        "text": "**🗞️ Dostępne powiadomienia push**\nPowiadomienia push można teraz otrzymywać w przypadku różnych zdarzeń, takich jak nowe e-recepty, zmiany statusu zrealizowanych e-recept czy wiadomości z apteki.",
+        "timestamp": "2026-09-21T08:00:00.000Z",
+        "version": "1.40"
     }
 ]

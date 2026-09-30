@@ -10,14 +10,63 @@ gradle.beforeProject {
         rootDir.resolve("gradle/libs.versions.toml")
 }
 
+// Resolve Nexus credentials once at the top level so both pluginManagement
+// and dependencyResolutionManagement can share them without duplication.
+val ciOverridesProps = Properties().apply {
+    val f = File("ci/local/ci-overrides.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+
+fun resolveProperty(key: String): String? =
+    System.getenv(key)
+        ?: gradle.startParameter.projectProperties[key]
+        ?: ciOverridesProps.getProperty(key)
+
+val nexusUrl: String? = resolveProperty("NEXUS_URL")
+val nexusUsername: String? = resolveProperty("NEXUS_USERNAME")
+val nexusPassword: String? = resolveProperty("NEXUS_PASSWORD")
+val hasNexus = !nexusUrl.isNullOrEmpty() && !nexusUsername.isNullOrEmpty() && !nexusPassword.isNullOrEmpty()
+
 pluginManagement {
     repositories {
-        maven("https://oss.sonatype.org/content/repositories/snapshots/")
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        google()
-        gradlePluginPortal()
-        mavenCentral()
-        maven("https://jitpack.io")
+        // pluginManagement is evaluated in stage-1 settings compilation,
+        // so compute Nexus credentials locally in this block.
+        val pluginCiOverrides = java.util.Properties().apply {
+            val f = java.io.File("ci/local/ci-overrides.properties")
+            if (f.exists()) f.inputStream().use { this.load(it) }
+        }
+        fun pluginProperty(key: String): String? =
+            System.getenv(key)
+                ?: gradle.startParameter.projectProperties[key]
+                ?: pluginCiOverrides.getProperty(key)
+
+        val pluginNexusUrl = pluginProperty("NEXUS_URL")
+        val pluginNexusUsername = pluginProperty("NEXUS_USERNAME")
+        val pluginNexusPassword = pluginProperty("NEXUS_PASSWORD")
+        val pluginHasNexus =
+            !pluginNexusUrl.isNullOrEmpty() && !pluginNexusUsername.isNullOrEmpty() && !pluginNexusPassword.isNullOrEmpty()
+
+        if (pluginHasNexus) {
+            // In CI: all plugin resolution goes through Nexus (no direct external calls).
+            // The Nexus allRepos group must proxy: gradlePluginPortal, mavenCentral, google,
+            // maven.pkg.jetbrains.space, oss.sonatype.org/snapshots, and jitpack.io.
+            maven {
+                name = "nexus-plugins"
+                setUrl(pluginNexusUrl!!)
+                credentials {
+                    username = pluginNexusUsername
+                    password = pluginNexusPassword
+                }
+            }
+        } else {
+            // Local dev fallback — direct external repos when Nexus credentials are not set.
+            maven("https://oss.sonatype.org/content/repositories/snapshots/")
+            maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+            google()
+            gradlePluginPortal()
+            mavenCentral()
+            maven("https://jitpack.io")
+        }
     }
     resolutionStrategy {
         eachPlugin {
@@ -39,45 +88,25 @@ dependencyResolutionManagement {
 
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 
-    // Resolve Nexus repo credentials as CI-only inputs.
-    val ciOverrides = Properties().apply {
-        val ciOverridesFile = File("ci/local/ci-overrides.properties")
-        if (ciOverridesFile.exists()) {
-            ciOverridesFile.inputStream().use { load(it) }
-        }
-    }
-
-    fun resolveCiOnlyProperty(key: String): String? {
-        return System.getenv(key)
-            ?: (gradle.startParameter.projectProperties[key])
-            ?: ciOverrides.getProperty(key)
-    }
-
-    val nexusUsername: String? = resolveCiOnlyProperty("NEXUS_USERNAME")
-    val nexusPassword: String? = resolveCiOnlyProperty("NEXUS_PASSWORD")
-    val nexusUrl: String? = resolveCiOnlyProperty("NEXUS_URL")
-    val obtainFromNexus =
-        !nexusUrl.isNullOrEmpty() && !nexusUsername.isNullOrEmpty() && !nexusPassword.isNullOrEmpty()
-
     repositories {
-        if (obtainFromNexus && nexusUrl != null) {
+        if (hasNexus) {
             maven {
                 name = "nexus"
-                setUrl(nexusUrl)
-
+                setUrl(nexusUrl!!)
                 credentials {
                     username = nexusUsername
                     password = nexusPassword
                 }
             }
         } else {
+            // Local dev fallback — direct external repos when Nexus credentials are not set.
             println("Skipping nexus repository")
+            maven("https://oss.sonatype.org/content/repositories/snapshots/")
+            maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+            google()
+            mavenCentral()
+            maven("https://jitpack.io")
         }
-        maven("https://oss.sonatype.org/content/repositories/snapshots/")
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        google()
-        mavenCentral()
-        maven("https://jitpack.io")
     }
 }
 

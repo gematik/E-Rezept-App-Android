@@ -73,6 +73,8 @@ import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.uistate.UiState
 
+// TODO CommResV3 design: https://www.figma.com/design/Xg4X8ULc7fwxzkxaCnxW0I/%F0%9F%A4%96-eRezept-Android?node-id=41435-3389&m=dev
+
 /**
  * Screen that displays detailed message history for EU prescription redemption orders.
  * Shows a timeline of messages related to access code creation, revocation, and redemption status,

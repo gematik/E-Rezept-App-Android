@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.mocks.messages.model
 
 import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationPayloadParser
 import de.gematik.ti.erp.app.invoice.model.ChargeableItemDescriptionErpModel
 import de.gematik.ti.erp.app.invoice.model.ChargeableItemErpModel
 import de.gematik.ti.erp.app.invoice.model.InvoiceErpModel
@@ -267,14 +268,14 @@ object MessageMocks {
         senderTelematikId = "sender1",
         recipient = MOCK_PHARMACY_O1.telematikId,
         pharmacyName = MOCK_PHARMACY_O1.name,
-        payload = "payload1",
+        payload = null,
         consumed = true,
         profileId = ""
     )
     val MOCK_DISP_REPLY_COMMUNICATION_01 = MOCK_DISP_REQ_COMMUNICATION_01.copy(
         profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply,
         consumed = false,
-        payload = MOCK_PAYLOAD
+        payload = CommunicationPayloadParser.extract(MOCK_PAYLOAD, isRequest = false)
     )
     val MOCK_DISP_REQ_COMMUNICATION_02 = CommunicationErpModel(
         taskId = MOCK_TASK_ID_02,
@@ -285,14 +286,14 @@ object MessageMocks {
         senderTelematikId = "sender2",
         recipient = MOCK_PHARMACY_O2.telematikId,
         pharmacyName = MOCK_PHARMACY_O2.name,
-        payload = "payload2",
+        payload = null,
         consumed = true,
         profileId = ""
     )
     val MOCK_DISP_REPLY_COMMUNICATION_02 = MOCK_DISP_REQ_COMMUNICATION_02.copy(
         profile = CommunicationErpModel.CommunicationProfile.ErxCommunicationReply,
         consumed = false,
-        payload = MOCK_PAYLOAD_02
+        payload = CommunicationPayloadParser.extract(MOCK_PAYLOAD_02, isRequest = false)
     )
 
     val MOCK_DISP_REQ_COMMUNICATION_01_ERP = MOCK_DISP_REQ_COMMUNICATION_01

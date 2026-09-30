@@ -23,15 +23,12 @@
 package de.gematik.ti.erp.app.plugins.buildapp
 
 import de.gematik.ti.erp.app.ErpPlugin
-import de.gematik.ti.erp.app.tasks.buildAppGalleryApp
-import de.gematik.ti.erp.app.tasks.buildAppGalleryBundle
 import de.gematik.ti.erp.app.tasks.buildKonnyApp
 import de.gematik.ti.erp.app.tasks.buildMockApp
 import de.gematik.ti.erp.app.tasks.buildPlayStoreApp
 import de.gematik.ti.erp.app.tasks.buildPlayStoreBundle
 import de.gematik.ti.erp.app.tasks.buildTuDebugApp
 import de.gematik.ti.erp.app.tasks.buildTuReleaseApp
-import de.gematik.ti.erp.app.tasks.copyAppGalleryBundle
 import de.gematik.ti.erp.app.tasks.copyDebugApp
 import de.gematik.ti.erp.app.tasks.copyGoogleTuApp
 import de.gematik.ti.erp.app.tasks.copyKonnyApp
@@ -46,8 +43,6 @@ class BuildAppFlavoursPlugin : ErpPlugin {
             // build tasks
             buildPlayStoreBundle()
             buildPlayStoreApp()
-            buildAppGalleryBundle()
-            buildAppGalleryApp()
             buildTuReleaseApp()
             buildKonnyApp()
             buildTuDebugApp()
@@ -55,7 +50,6 @@ class BuildAppFlavoursPlugin : ErpPlugin {
 
             // copy files tasks
             copyPlayStoreBundle()
-            copyAppGalleryBundle()
             copyKonnyApp()
             copyGoogleTuApp()
             copyDebugApp()
@@ -69,8 +63,6 @@ class BuildAppFlavoursPlugin : ErpPlugin {
     ) {
         PlayStoreBundle("bundleGooglePuExternalRelease", "googlePuExternal"),
         PlayStoreApk("assembleGooglePuExternalRelease", "googlePuExternal"),
-        AppGalleryApk("assembleHuaweiPuExternalRelease", "huaweiPuExternal"),
-        AppGalleryBundle("bundleHuaweiPuExternalRelease", "huaweiPuExternal"),
         GoogleTuApk("assembleGoogleTuExternalRelease", "googleTuExternal"),
         KonnyApk("assembleKonnektathonRuInternalDebug", "konnektathonRuInternal"),
         DebugTuApk("assembleGoogleTuInternalDebug", "googleTuInternal"),
@@ -81,7 +73,6 @@ class BuildAppFlavoursPlugin : ErpPlugin {
         private val mappingFileName: String
     ) {
         PlayStore("android-googlePuExternal-release-mapping"),
-        AppGallery("android-huaweiPuExternal-release-mapping"),
         TuExternal("android-googleTuExternal-release-mapping")
         ;
 

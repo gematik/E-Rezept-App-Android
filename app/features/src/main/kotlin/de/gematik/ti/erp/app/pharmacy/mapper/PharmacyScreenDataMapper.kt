@@ -22,12 +22,12 @@
 
 package de.gematik.ti.erp.app.pharmacy.mapper
 
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationSupplyOptionTypeErpModel
 import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
-import de.gematik.ti.erp.app.prescription.model.RemoteRedeemOption
 
-internal fun OrderOptionErpModel.toRedeemOption(): RemoteRedeemOption =
+internal fun OrderOptionErpModel.toRedeemOption(): CommunicationSupplyOptionTypeErpModel =
     when (this) {
-        OrderOptionErpModel.Pickup -> RemoteRedeemOption.Local
-        OrderOptionErpModel.Delivery -> RemoteRedeemOption.Delivery
-        OrderOptionErpModel.Online -> RemoteRedeemOption.Shipment
+        OrderOptionErpModel.Pickup -> CommunicationSupplyOptionTypeErpModel.ON_PREMISE
+        OrderOptionErpModel.Delivery -> CommunicationSupplyOptionTypeErpModel.DELIVERY
+        OrderOptionErpModel.Online -> CommunicationSupplyOptionTypeErpModel.SHIPMENT
     }

@@ -58,7 +58,10 @@ internal fun MessageActionButton(
             modifier // no clickable
         }
 
-    Row(modifier = clickableModifier) {
+    Row(
+        modifier = clickableModifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
             text = text,
             style = AppTheme.typography.body2,

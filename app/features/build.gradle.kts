@@ -14,6 +14,9 @@ val namesPlugin = AppDependencyNamesPlugin()
 
 android {
     namespace = namesPlugin.moduleName("features")
+    buildFeatures {
+        buildConfig = true
+    }
     defaultConfig {
         testApplicationId = namesPlugin.moduleName("test")
     }

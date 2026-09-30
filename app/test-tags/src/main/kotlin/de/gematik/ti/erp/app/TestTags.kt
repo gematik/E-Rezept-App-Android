@@ -399,6 +399,7 @@ object TestTag {
     object BottomNavigation {
         val PrescriptionButton by tagName()
         val OrdersButton by tagName()
+        val OrdersV3Button by tagName()
         val PharmaciesButton by tagName()
         val SettingsButton by tagName()
     }

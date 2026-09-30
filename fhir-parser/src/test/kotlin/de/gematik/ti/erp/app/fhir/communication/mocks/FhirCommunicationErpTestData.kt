@@ -26,11 +26,7 @@ import de.gematik.ti.erp.app.fhir.FhirCommunicationBundleErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.support.CommunicationParticipantErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.support.DispenseCommunicationPayloadContentErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.support.DispensePrescriptionTypeErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.support.DispenseSupplyOptionsType
-import de.gematik.ti.erp.app.fhir.communication.model.support.ReplyCommunicationPayloadContentErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.support.ReplyCommunicationSupplyOptionsErpModel
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.CommunicationVersion
 import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.datetime.Instant
@@ -55,14 +51,7 @@ object FhirCommunicationErpTestData {
             identifier = "X110432693",
             identifierSystem = "http://fhir.de/sid/gkv/kvid-10"
         ),
-        payload = ReplyCommunicationPayloadContentErpModel(
-            text = "Eisern",
-            supplyOptions = ReplyCommunicationSupplyOptionsErpModel(
-                onPremise = true,
-                delivery = false,
-                shipment = false
-            )
-        ),
+        payload = "Eisern",
         orderId = null
     )
 
@@ -80,14 +69,7 @@ object FhirCommunicationErpTestData {
             identifier = "X110432693",
             identifierSystem = "http://fhir.de/sid/gkv/kvid-10"
         ),
-        payload = ReplyCommunicationPayloadContentErpModel(
-            text = "Eisern",
-            supplyOptions = ReplyCommunicationSupplyOptionsErpModel(
-                onPremise = true,
-                delivery = false,
-                shipment = false
-            )
-        ),
+        payload = "Eisern",
         orderId = null
     )
 
@@ -105,14 +87,7 @@ object FhirCommunicationErpTestData {
             identifier = "X110432693",
             identifierSystem = "http://fhir.de/sid/gkv/kvid-10"
         ),
-        payload = ReplyCommunicationPayloadContentErpModel(
-            text = "Eisern",
-            supplyOptions = ReplyCommunicationSupplyOptionsErpModel(
-                onPremise = true,
-                delivery = false,
-                shipment = false
-            )
-        ),
+        payload = "Eisern",
         orderId = null
     )
 
@@ -131,14 +106,7 @@ object FhirCommunicationErpTestData {
             identifier = "X110432693",
             identifierSystem = "http://fhir.de/sid/gkv/kvid-10"
         ),
-        payload = ReplyCommunicationPayloadContentErpModel(
-            text = "Eisern",
-            supplyOptions = ReplyCommunicationSupplyOptionsErpModel(
-                onPremise = true,
-                delivery = false,
-                shipment = false
-            )
-        ),
+        payload = "Eisern",
         orderId = null
     )
 
@@ -157,14 +125,7 @@ object FhirCommunicationErpTestData {
             identifier = "X234567890",
             identifierSystem = "http://fhir.de/sid/gkv/kvid-10"
         ),
-        payload = ReplyCommunicationPayloadContentErpModel(
-            text = "Eisern",
-            supplyOptions = ReplyCommunicationSupplyOptionsErpModel(
-                onPremise = true,
-                delivery = true,
-                shipment = false
-            )
-        ),
+        payload = "Eisern",
         orderId = null
     )
 
@@ -181,15 +142,10 @@ object FhirCommunicationErpTestData {
             identifier = "3-10.2.0111108800.16.806",
             identifierSystem = "https://gematik.de/fhir/sid/telematik-id"
         ),
-        payload = DispenseCommunicationPayloadContentErpModel(
-            contentString = "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"name\":\"Paula" +
-                " Privati\",\"address\":[\"Blumenweg\",\"\",\"26427\",\"Esens\"]" +
-                ",\"hint\":\"\",\"phone\":\"\"}",
-            supplyOptionsType = DispenseSupplyOptionsType.ON_PREMISE,
-            name = "Paula Privati",
-            address = listOf("Blumenweg", "", "26427", "Esens"),
-            phone = ""
-        ),
+        payload =
+        "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"name\":\"Paula" +
+            " Privati\",\"address\":[\"Blumenweg\",\"\",\"26427\",\"Esens\"]" +
+            ",\"hint\":\"\",\"phone\":\"\"}",
         prescriptionType = DispensePrescriptionTypeErpModel(
             code = "200",
             system = "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
@@ -209,15 +165,9 @@ object FhirCommunicationErpTestData {
             identifier = "3-2-APO-XanthippeVeilchenblau01",
             identifierSystem = "https://gematik.de/fhir/sid/telematik-id"
         ),
-        payload = DispenseCommunicationPayloadContentErpModel(
-            contentString = "{ \"version\": 1, \"supplyOptionsType\": \"onPremise\", \"name\": \"Dr. Maximilian" +
-                " von Muster\", \"address\": [ \"wohnhaft bei Emilia Fischer\", \"Bundesallee" +
-                " 312\", \"123. OG\", \"12345 Berlin\" ], \"phone\": \"004916094858168\" }",
-            supplyOptionsType = DispenseSupplyOptionsType.ON_PREMISE,
-            name = "Dr. Maximilian von Muster",
-            address = listOf("wohnhaft bei Emilia Fischer", "Bundesallee 312", "123. OG", "12345 Berlin"),
-            phone = "004916094858168"
-        ),
+        payload = "{ \"version\": 1, \"supplyOptionsType\": \"onPremise\", \"name\": \"Dr. Maximilian" +
+            " von Muster\", \"address\": [ \"wohnhaft bei Emilia Fischer\", \"Bundesallee" +
+            " 312\", \"123. OG\", \"12345 Berlin\" ], \"phone\": \"004916094858168\" }",
         prescriptionType = DispensePrescriptionTypeErpModel(
             code = "160",
             system = "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
@@ -237,14 +187,8 @@ object FhirCommunicationErpTestData {
             identifier = "3-01.2.2023001.16.101",
             identifierSystem = "https://gematik.de/fhir/sid/telematik-id"
         ),
-        payload = DispenseCommunicationPayloadContentErpModel(
-            contentString = "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"name\":\"Paula" +
-                " Privati\",\"address\":[\"Blumenweg\",\"\",\"26427\",\"Esens\"],\"hint\":\"\",\"phone\":\"\"}",
-            supplyOptionsType = DispenseSupplyOptionsType.ON_PREMISE,
-            name = "Paula Privati",
-            address = listOf("Blumenweg", "", "26427", "Esens"),
-            phone = ""
-        ),
+        payload = "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"name\":\"Paula" +
+            " Privati\",\"address\":[\"Blumenweg\",\"\",\"26427\",\"Esens\"],\"hint\":\"\",\"phone\":\"\"}",
         prescriptionType = null,
         sent = null,
         orderId = "9437677e-729a-4dde-b174-e39802031423"
@@ -329,20 +273,9 @@ object FhirCommunicationErpTestData {
                 sent = FhirTemporal.Instant(
                     value = Instant.parse("2025-10-01T15:29:00.434Z")
                 ),
-                payload = DispenseCommunicationPayloadContentErpModel(
-                    contentString = """
+                payload = """
                     { "version": "1", "supplyOptionsType": "delivery", "name": "Dr. Maximilian von Muster", "address": [ "wohnhaft bei Emilia Fischer", "Bundesallee 312", "123. OG", "12345 Berlin" ], "hint": "Bitte im Morsecode klingeln: -.-.", "phone": "004916094858168" }
-                    """.trimIndent(),
-                    supplyOptionsType = DispenseSupplyOptionsType.DELIVERY,
-                    name = "Dr. Maximilian von Muster",
-                    address = listOf(
-                        "wohnhaft bei Emilia Fischer",
-                        "Bundesallee 312",
-                        "123. OG",
-                        "12345 Berlin"
-                    ),
-                    phone = "004916094858168"
-                ),
+                """.trimIndent(),
                 prescriptionType = DispensePrescriptionTypeErpModel(
                     code = "160",
                     system = "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
@@ -370,13 +303,7 @@ object FhirCommunicationErpTestData {
                 ),
                 orderId = null,
                 sent = FhirTemporal.Instant(Instant.parse("2025-10-01T15:29:00.434Z")),
-                payload = DispenseCommunicationPayloadContentErpModel(
-                    contentString = "Nachrichteninhalt für den Versicherten",
-                    supplyOptionsType = DispenseSupplyOptionsType.UNKNOWN,
-                    name = null,
-                    address = null,
-                    phone = null
-                ),
+                payload = "Nachrichteninhalt für den Versicherten",
                 prescriptionType = null,
                 isDiga = true
             )
@@ -402,13 +329,7 @@ object FhirCommunicationErpTestData {
                 sent = FhirTemporal.Instant(
                     value = Instant.parse("2025-10-01T15:29:00.434Z")
                 ),
-                payload = DispenseCommunicationPayloadContentErpModel(
-                    contentString = null,
-                    supplyOptionsType = DispenseSupplyOptionsType.UNKNOWN,
-                    name = null,
-                    address = null,
-                    phone = null
-                ),
+                payload = null,
                 prescriptionType = DispensePrescriptionTypeErpModel(
                     code = "162",
                     system = "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
@@ -439,14 +360,7 @@ object FhirCommunicationErpTestData {
                     value = Instant.parse("2025-10-01T15:29:00.434Z")
                 ),
                 received = null,
-                payload = ReplyCommunicationPayloadContentErpModel(
-                    text = "Eisern",
-                    supplyOptions = ReplyCommunicationSupplyOptionsErpModel(
-                        onPremise = true,
-                        shipment = false,
-                        delivery = true
-                    )
-                ),
+                payload = "Eisern",
                 isDiga = false
             )
         )
@@ -472,14 +386,7 @@ object FhirCommunicationErpTestData {
                     value = Instant.parse("2026-04-01T15:29:00.434Z")
                 ),
                 received = null,
-                payload = ReplyCommunicationPayloadContentErpModel(
-                    text = "Eisern",
-                    supplyOptions = ReplyCommunicationSupplyOptionsErpModel(
-                        onPremise = true,
-                        shipment = false,
-                        delivery = true
-                    )
-                ),
+                payload = "Eisern",
                 isDiga = false
             )
         )
@@ -504,13 +411,7 @@ object FhirCommunicationErpTestData {
                 sent = FhirTemporal.Instant(
                     value = Instant.parse("2026-04-01T15:29:00.434Z")
                 ),
-                payload = DispenseCommunicationPayloadContentErpModel(
-                    contentString = null,
-                    supplyOptionsType = DispenseSupplyOptionsType.UNKNOWN,
-                    name = null,
-                    address = null,
-                    phone = null
-                ),
+                payload = null,
                 prescriptionType = DispensePrescriptionTypeErpModel(
                     code = "162",
                     system = "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
@@ -540,31 +441,11 @@ object FhirCommunicationErpTestData {
                 sent = FhirTemporal.Instant(
                     value = Instant.parse("2026-04-01T15:29:00.434Z")
                 ),
-                payload = DispenseCommunicationPayloadContentErpModel(
-                    contentString = "Nachrichteninhalt für den Versicherten",
-                    supplyOptionsType = DispenseSupplyOptionsType.UNKNOWN,
-                    name = null,
-                    address = null,
-                    phone = null
-                ),
+                payload = "Nachrichteninhalt für den Versicherten",
                 prescriptionType = null,
                 isDiga = true
             )
         )
-    )
-
-    private val patientDispense_1_6_singleBundlePayload = DispenseCommunicationPayloadContentErpModel(
-        contentString = """{ "version": "1", "supplyOptionsType": "delivery", "name": "Dr. Maximilian von Muster", "address": [ "wohnhaft bei Emilia Fischer", "Bundesallee 312", "123. OG", "12345 Berlin" ], "hint": "Bitte im Morsecode klingeln: -.-.", "phone": "004916094858168" }
-        """.trimMargin(),
-        supplyOptionsType = DispenseSupplyOptionsType.DELIVERY,
-        name = "Dr. Maximilian von Muster",
-        address = listOf(
-            "wohnhaft bei Emilia Fischer",
-            "Bundesallee 312",
-            "123. OG",
-            "12345 Berlin"
-        ),
-        phone = "004916094858168"
     )
 
     val patientDispense_1_6_singleBundle = FhirCommunicationBundleErpModel(
@@ -586,7 +467,8 @@ object FhirCommunicationErpTestData {
                 sent = FhirTemporal.Instant(
                     value = Instant.parse("2026-04-01T15:29:00.434Z")
                 ),
-                payload = patientDispense_1_6_singleBundlePayload,
+                payload = """{ "version": "1", "supplyOptionsType": "delivery", "name": "Dr. Maximilian von Muster", "address": [ "wohnhaft bei Emilia Fischer", "Bundesallee 312", "123. OG", "12345 Berlin" ], "hint": "Bitte im Morsecode klingeln: -.-.", "phone": "004916094858168" }
+                """.trimMargin(),
                 prescriptionType = DispensePrescriptionTypeErpModel(
                     code = "160",
                     system = "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",

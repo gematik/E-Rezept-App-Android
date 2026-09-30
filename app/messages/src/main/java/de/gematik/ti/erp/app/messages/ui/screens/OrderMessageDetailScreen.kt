@@ -69,6 +69,8 @@ import de.gematik.ti.erp.app.utils.letNotNull
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import java.util.Locale
 
+// TODO CommResV3 design: https://www.figma.com/design/Xg4X8ULc7fwxzkxaCnxW0I/%F0%9F%A4%96-eRezept-Android?node-id=41314-44069&m=dev
+
 class OrderMessageDetailScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry
@@ -163,10 +165,16 @@ class OrderMessageDetailScreen(
             }
         }
 
+        LaunchedEffect(order.isLoading, messages.isLoading) {
+            if (!order.isLoading && !messages.isLoading) {
+                messageController.consumeAllMessages()
+            }
+        }
+
         val onToggleTranslationConsent = remember { messageController::toggleTranslationConsentUseCase }
 
-        val onBack: () -> Unit = remember(navController, messageController) {
-            { messageController.consumeAllMessages { navController.popBackStack() } }
+        val onBack: () -> Unit = remember(navController) {
+            { navController.popBackStack() }
         }
 
         OrderMessageDetailScreenScaffold(

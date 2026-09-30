@@ -35,5 +35,5 @@ data class CommunicationVersionEntitySchema(
 
 @Serializable
 data class CommunicationVersionEntity(
-    val communicationVersion: String = CommunicationVersion.V_1_6.version
+    val communicationVersion: String = CommunicationVersion.V_1_6.name
 )

@@ -27,7 +27,7 @@ package de.gematik.ti.erp.app.debug.model
  * Only used in debug builds for testing different consent versions.
  */
 enum class ConsentVersion(val version: String, val displayName: String) {
-    V1_0("1.0", "(Production) Version 1.0"),
+    V1_0("1.0", "Version 1.0"),
     V1_1("1.1", "Version 1.1");
 
     companion object {

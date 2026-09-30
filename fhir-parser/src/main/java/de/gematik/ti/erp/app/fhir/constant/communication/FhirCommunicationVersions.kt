@@ -49,6 +49,7 @@ object FhirCommunicationVersions {
 
         companion object {
             val all: List<String> = entries.map { it.version }
+            val PRODUCTION_DEFAULT: CommunicationVersion = V_1_6
         }
     }
 
@@ -86,7 +87,7 @@ object FhirCommunicationVersions {
     /**
      * Supported versions for Communication DiGA Dispense profiles.
      * Derived from [DigaDispenseRequestVersion] enum.
-     * Production default is [DigaDispenseRequestVersion.PRODUCTION_DEFAULT] (v1.4).
+     * Production default is [DigaDispenseRequestVersion.PRODUCTION_DEFAULT] (v1.6).
      */
     enum class SupportedCommunicationDigaDispenseVersions(val profileUrl: String) {
         V_1_4(DigaDispenseRequestVersion.V_1_4.profileUrl),

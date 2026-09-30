@@ -39,9 +39,14 @@ object MainNavigationScreens {
     object Debug : Routes("debug")
 }
 
-val MainScreenBottomNavigationItems = listOf(
-    PrescriptionRoutes.PrescriptionListScreen,
-    PharmacyRoutes.PharmacyStartScreen,
-    MessagesRoutes.MessageListScreen,
-    SettingsRoutes.SettingsScreen
-)
+fun mainScreenBottomNavigationItems(isCommResV3Enabled: Boolean): List<Routes> = buildList {
+    add(PrescriptionRoutes.PrescriptionListScreen)
+    add(PharmacyRoutes.PharmacyStartScreen)
+    add(MessagesRoutes.MessageListScreen)
+    if (isCommResV3Enabled) {
+        add(MessagesRoutes.CommResV3MessageListScreen)
+    }
+    add(SettingsRoutes.SettingsScreen)
+}
+
+val MainScreenBottomNavigationItems = mainScreenBottomNavigationItems(isCommResV3Enabled = false)

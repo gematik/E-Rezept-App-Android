@@ -22,60 +22,70 @@
 
 package de.gematik.ti.erp.app.pushnotifications.domain.usecase
 
-import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushNotificationCryptoError
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushNotificationCryptoService
 import de.gematik.ti.erp.app.pushnotifications.domain.model.PushNotificationPayload
-import org.json.JSONObject
 import java.util.Base64
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+
+@Serializable
+private data class SerializedPushNotificationPayload(
+    @SerialName("ChannelId") val channelId: String? = null,
+    @SerialName("Identifier") val identifier: String? = null,
+    @SerialName("IdentifierType") val identifierType: String? = null
+)
 
 /**
  * Validates [keyIdentifier], Base64-decodes and AES-256-GCM decrypts the [ciphertext],
  * then parses the result into a [PushNotificationPayload].
  */
 class DecryptPushNotificationUseCase(
-    private val cryptoService: PushNotificationCryptoService
+    private val cryptoService: PushNotificationCryptoService,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    @Requirement(
-        "A_27179#3",
-        sourceSpecification = "gemF_PushNotification",
-        rationale = "Rejects encrypted pushes whose key_identifier does not match the registered key chain before decrypting.",
-        codeLines = 13
-    )
     suspend operator fun invoke(
         ciphertext: String,
         timeMessageEncrypted: String,
         keyIdentifier: String
-    ): Result<PushNotificationPayload> = runCatching {
-        val expectedKeyId = cryptoService.keyIdentifier
-        if (keyIdentifier != expectedKeyId) {
-            throw PushNotificationCryptoError.KeyIdentifierMismatch(
-                received = keyIdentifier,
-                expected = expectedKeyId
-            )
+    ): Result<PushNotificationPayload> = withContext(dispatcher) {
+        try {
+            val known = cryptoService.knownKeyIdentifiers()
+            if (keyIdentifier !in known) {
+                throw PushNotificationCryptoError.UnknownKeyIdentifier(received = keyIdentifier, known = known)
+            }
+
+            val cipherBytes = Base64.getDecoder().decode(ciphertext)
+            val decryptedBytes = cryptoService.decryptForMonth(cipherBytes, timeMessageEncrypted, keyIdentifier)
+            val payloadString = decryptedBytes.decodeToString()
+
+            Result.success(parsePayload(payloadString))
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (error: Exception) {
+            Result.failure(error)
         }
-
-        val cipherBytes = Base64.getDecoder().decode(ciphertext)
-        val decryptedBytes = cryptoService.decryptForMonth(cipherBytes, timeMessageEncrypted)
-        val payloadString = decryptedBytes.decodeToString()
-
-        parsePayload(payloadString)
     }
 
     private fun parsePayload(json: String): PushNotificationPayload =
         runCatching {
-            val obj = JSONObject(json)
+            val payload = payloadJson.decodeFromString<SerializedPushNotificationPayload>(json)
             PushNotificationPayload(
-                channelId = obj.optString(KEY_CHANNEL_ID).takeIf { it.isNotBlank() },
-                identifier = obj.optString(KEY_IDENTIFIER).takeIf { it.isNotBlank() },
-                identifierType = obj.optString(KEY_IDENTIFIER_TYPE).takeIf { it.isNotBlank() },
+                channelId = payload.channelId?.takeIf { it.isNotBlank() },
+                identifier = payload.identifier?.takeIf { it.isNotBlank() },
+                identifierType = payload.identifierType?.takeIf { it.isNotBlank() },
                 rawPayload = json
             )
         }.getOrElse { PushNotificationPayload(rawPayload = json) }
 
-    companion object {
-        const val KEY_CHANNEL_ID = "ChannelId"
-        const val KEY_IDENTIFIER = "Identifier"
-        const val KEY_IDENTIFIER_TYPE = "IdentifierType"
+    private companion object {
+        val payloadJson = Json {
+            ignoreUnknownKeys = true
+        }
     }
 }

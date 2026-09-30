@@ -24,7 +24,18 @@ package de.gematik.ti.erp.app.pushnotifications.domain.crypto
 
 import de.gematik.ti.erp.app.pushnotifications.domain.model.PushNotificationKeyGeneration
 
+/**
+ * Advances independent HKDF key chains, one per registered profile and key identifier.
+ */
 interface PushKeyChainAdvancer {
-    suspend fun getLatestGeneration(): PushNotificationKeyGeneration?
-    suspend fun advanceToMonth(targetMonth: String)
+    suspend fun knownKeyIdentifiers(): Set<String>
+
+    suspend fun getLatestGeneration(keyIdentifier: String): PushNotificationKeyGeneration?
+    suspend fun advanceToMonth(keyIdentifier: String, targetMonth: String)
+
+    /**
+     * Returns the generation for [month] (`YYYY-MM`), or `null` if the chain is unknown or the
+     * month is outside the retention window.
+     */
+    suspend fun getGenerationForMonth(keyIdentifier: String, month: String): PushNotificationKeyGeneration?
 }

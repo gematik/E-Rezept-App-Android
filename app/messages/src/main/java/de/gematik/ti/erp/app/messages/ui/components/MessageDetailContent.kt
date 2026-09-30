@@ -156,7 +156,9 @@ internal fun MessageDetailContent(
                                     .firstOrNull { it.prescription?.taskId == taskId }
                                     ?.prescription
 
-                                prescription?.name ?: ""
+                                prescription?.name?.takeIf { it.isNotBlank() }
+                                    ?: prescription?.medicationName()
+                                    ?: ""
                             },
                             onClick = onClickPrescription
                         )

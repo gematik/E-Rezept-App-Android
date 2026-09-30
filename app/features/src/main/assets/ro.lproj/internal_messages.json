@@ -76,5 +76,11 @@
         "text": "**✅ Rețete T disponibile**\nRețetele T pot fi acum recepționate și afișate corect. Rețetele T sunt utilizate pentru anumite medicamente cu cerințe speciale de siguranță.\n\n**⚙️ Setările au fost curățate**\nSetările profilului au fost revizuite și făcute mai clare.\n\n**♿ Mai multă accesibilitate**\nBarierele pot fi acum raportate direct din setări. Butoanele, meniurile, listele și titlurile au fost optimizate pentru utilizarea cu TalkBack. Contrastul a fost îmbunătățit, iar animațiile sunt acum redate o singură dată. Câmpul de nume are acum o etichetă vizibilă permanent. Dimensiuni mai mari ale fontului sunt acum acceptate și în vizualizările web ale aplicației.",
         "timestamp": "2026-08-18T08:00:00.000Z",
         "version": "1.39"
+    },
+    {
+        "id": "15",
+        "text": "**🗞️ Notificări push disponibile**\nAcum se pot primi notificări push pentru diverse evenimente. Acestea includ rețete electronice noi, modificări de stare ale rețetelor electronice valorificate sau mesaje de la farmacie.",
+        "timestamp": "2026-09-21T08:00:00.000Z",
+        "version": "1.40"
     }
 ]

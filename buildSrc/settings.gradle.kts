@@ -1,11 +1,37 @@
 pluginManagement {
     repositories {
-        maven("https://oss.sonatype.org/content/repositories/snapshots/")
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        google()
-        gradlePluginPortal()
-        mavenCentral()
-        maven("https://jitpack.io")
+        val ciOverrides = java.util.Properties().apply {
+            val f = java.io.File("../ci/local/ci-overrides.properties")
+            if (f.exists()) f.inputStream().use { this.load(it) }
+        }
+        fun resolveProperty(key: String): String? =
+            System.getenv(key)
+                ?: gradle.startParameter.projectProperties[key]
+                ?: ciOverrides.getProperty(key)
+
+        val nexusUrl = resolveProperty("NEXUS_URL")
+        val nexusUsername = resolveProperty("NEXUS_USERNAME")
+        val nexusPassword = resolveProperty("NEXUS_PASSWORD")
+        val hasNexus =
+            !nexusUrl.isNullOrEmpty() && !nexusUsername.isNullOrEmpty() && !nexusPassword.isNullOrEmpty()
+
+        if (hasNexus) {
+            maven {
+                name = "nexus-buildsrc-plugins"
+                setUrl(nexusUrl!!)
+                credentials {
+                    username = nexusUsername
+                    password = nexusPassword
+                }
+            }
+        } else {
+            maven("https://oss.sonatype.org/content/repositories/snapshots/")
+            maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+            google()
+            gradlePluginPortal()
+            mavenCentral()
+            maven("https://jitpack.io")
+        }
     }
 }
 

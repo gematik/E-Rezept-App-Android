@@ -26,21 +26,75 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 
 private val Context.debugPushNotificationsDataStore by preferencesDataStore("debug_push_notifications_prefs")
 
-class DebugPushNotificationsLocalDataSource(context: Context) {
+class DebugPushNotificationsLocalDataSource(private val context: Context) {
 
     private val dataStore = context.debugPushNotificationsDataStore
 
     private val oauthTokenKey = stringPreferencesKey("fcm_oauth_token")
+    private val pushGatewayUrlKey = stringPreferencesKey("debug_push_gateway_url")
+
+    @Volatile
+    private var cachedPushGatewayUrl: String? = null
 
     fun oauthToken(): Flow<String> =
         dataStore.data.map { prefs -> prefs[oauthTokenKey] ?: "" }
 
     suspend fun saveOauthToken(token: String) {
         dataStore.edit { prefs -> prefs[oauthTokenKey] = token }
+    }
+
+    fun pushGatewayUrl(): Flow<String> =
+        dataStore.data.map { prefs ->
+            val url = prefs[pushGatewayUrlKey] ?: ""
+            cachedPushGatewayUrl = url.ifBlank { null }
+            url
+        }
+
+    fun getPushGatewayUrlSync(): String? {
+        if (cachedPushGatewayUrl == null) {
+            cachedPushGatewayUrl = runBlocking(Dispatchers.IO) {
+                dataStore.data.firstOrNull()?.get(pushGatewayUrlKey)?.ifBlank { null }
+            }
+        }
+        return cachedPushGatewayUrl
+    }
+
+    suspend fun savePushGatewayUrl(url: String) {
+        cachedPushGatewayUrl = url.ifBlank { null }
+        dataStore.edit { prefs -> prefs[pushGatewayUrlKey] = url }
+    }
+
+    private val sharedPrefs = context.getSharedPreferences("debug_push_notifications_prefs_sp", Context.MODE_PRIVATE)
+
+    fun isFailPushGatewayTest(): Flow<Boolean> = kotlinx.coroutines.flow.flow {
+        emit(sharedPrefs.getBoolean("fail_push_gateway_test", false))
+    }
+
+    fun isFailPushGatewayTestSync(): Boolean {
+        return sharedPrefs.getBoolean("fail_push_gateway_test", false)
+    }
+
+    suspend fun saveFailPushGatewayTest(fail: Boolean) {
+        sharedPrefs.edit().putBoolean("fail_push_gateway_test", fail).apply()
+    }
+
+    fun isShowRawPushNotificationSync(): Boolean {
+        return sharedPrefs.getBoolean("show_raw_push_notification", false)
+    }
+
+    fun isShowRawPushNotification(): Flow<Boolean> = kotlinx.coroutines.flow.flow {
+        emit(sharedPrefs.getBoolean("show_raw_push_notification", false))
+    }
+
+    suspend fun saveShowRawPushNotification(show: Boolean) {
+        sharedPrefs.edit().putBoolean("show_raw_push_notification", show).apply()
     }
 }

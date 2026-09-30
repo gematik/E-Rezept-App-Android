@@ -1,6 +1,7 @@
 @file:Suppress("UnusedPrivateProperty")
 
 import de.gematik.ti.erp.app.tasks.generateRoomSchemaMigrationsFile
+import de.gematik.ti.erp.app.tasks.validateRoomMigrations
 
 plugins {
     alias(libs.plugins.base.kmp.library)
@@ -75,3 +76,12 @@ dependencies {
 
 // add Room db schema migration task
 tasks.generateRoomSchemaMigrationsFile()
+
+// validate that Room database migrations are properly implemented
+tasks.validateRoomMigrations()
+
+// Run migration validation before any compilation task
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    dependsOn(tasks.named(de.gematik.ti.erp.app.utils.TaskNames.validateRoomMigrations))
+}
+

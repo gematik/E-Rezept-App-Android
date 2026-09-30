@@ -38,19 +38,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
+import de.gematik.ti.erp.app.appauthentication.observer.AuthenticationModeAndMethod
+import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
 import de.gematik.ti.erp.app.core.LocalNavController
+import de.gematik.ti.erp.app.database.datastore.featuretoggle.COMM_RES_V3
 import de.gematik.ti.erp.app.mainscreen.navigation.NavigationGraph
+import de.gematik.ti.erp.app.mainscreen.navigation.mainScreenBottomNavigationItems
 import de.gematik.ti.erp.app.mainscreen.presentation.rememberAppController
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenBottomBar
 import de.gematik.ti.erp.app.mainscreen.ui.OrderStateChangeOnSuccessSideEffect
-import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
 import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
-import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
-import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
-import de.gematik.ti.erp.app.settings.navigation.SettingsRoutes
-import de.gematik.ti.erp.app.appauthentication.observer.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
 import de.gematik.ti.erp.app.utils.extensions.LocalUiScopeScaffold
+import org.kodein.di.compose.rememberInstance
 
 @Composable
 fun ApplicationScaffold(
@@ -62,8 +62,10 @@ fun ApplicationScaffold(
 
     val scope = rememberCoroutineScope()
     val appController = rememberAppController()
+    val isFeatureToggleEnabledUseCase by rememberInstance<IsFeatureToggleEnabledUseCase>()
 
     val refreshState by appController.refreshState.collectAsStateWithLifecycle()
+    val isCommResV3Enabled by isFeatureToggleEnabledUseCase(COMM_RES_V3).collectAsStateWithLifecycle(initialValue = false)
 
     val currentRoute by navController.currentBackStackEntryAsState()
     val activeProfile by appController.activeProfile.collectAsStateWithLifecycle()
@@ -83,16 +85,12 @@ fun ApplicationScaffold(
         )
     }
 
-    val bottomRoutes = listOf(
-        PrescriptionRoutes.PrescriptionListScreen.route,
-        PharmacyRoutes.PharmacyStartScreen.route,
-        MessagesRoutes.MessageListScreen.route,
-        SettingsRoutes.SettingsScreen.route
-    )
+    val bottomRoutes = remember(isCommResV3Enabled) {
+        mainScreenBottomNavigationItems(isCommResV3Enabled).map { it.route }
+    }
 
-    val isBottomSheetScreen = remember(currentRoute) {
+    val isBottomSheetScreen = remember(currentRoute, bottomRoutes) {
         currentRoute?.let {
-            // todo: use MainScreenBottomNavigationItems instead of bottomRoutes
             bottomRoutes.contains(it.destination.route)
         } ?: false
     }
@@ -122,7 +120,8 @@ fun ApplicationScaffold(
                 if (isBottomSheetScreen) {
                     MainScreenBottomBar(
                         mainNavController = navController,
-                        unreadOrdersCount = unreadOrdersCount
+                        unreadOrdersCount = unreadOrdersCount,
+                        isCommResV3Enabled = isCommResV3Enabled
                     )
                 }
             }

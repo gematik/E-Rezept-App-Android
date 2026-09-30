@@ -32,12 +32,23 @@ import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.debugsettings.pushnotifications.datasource.DebugPushNotificationsLocalDataSource
 import de.gematik.ti.erp.app.debugsettings.pushnotifications.usecase.EncryptDebugPushNotificationPayloadUseCase
 import de.gematik.ti.erp.app.debugsettings.pushnotifications.usecase.SendFcmMessageUseCase
+import de.gematik.ti.erp.app.profile.model.ProfilePushNotificationSettings
+import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
+import de.gematik.ti.erp.app.pushnotifications.BuildConfig.PUSH_GATEWAY_URL_RU
+import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushKeyChainAdvancer
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushNotificationCryptoService
-import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushNotificationKeyRotationService
 import de.gematik.ti.erp.app.pushnotifications.domain.model.PushNotificationKeyGeneration
-import de.gematik.ti.erp.app.pushnotifications.domain.usecase.GetFcmTokenUseCase
-import de.gematik.ti.erp.app.pushnotifications.domain.usecase.GetFirebaseProjectIdUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.GetPusherChannelsUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.GetPushersUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.InitializeDebugPushKeyChainUseCase
+import de.gematik.ti.erp.app.pushnotifications.domain.usecase.RegisterPushNotificationsForProfileUseCase
+import de.gematik.ti.erp.app.pushnotifications.model.PushChannel
+import de.gematik.ti.erp.app.pushnotifications.model.Pusher
+import de.gematik.ti.erp.app.pushnotifications.provider.FcmTokenProvider
+import de.gematik.ti.erp.app.pushnotifications.provider.FirebaseProjectIdProvider
+import de.gematik.ti.erp.app.pushnotifications.provider.PushApplicationIdProvider
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
+import de.gematik.ti.erp.app.utils.uistate.UiState
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -45,36 +56,54 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.kodein.di.compose.rememberInstance
-import java.time.YearMonth
-import java.time.format.DateTimeFormatter
+import kotlin.coroutines.cancellation.CancellationException
 
 class DebugPushNotificationsViewModel(
-    private val getFcmTokenUseCase: GetFcmTokenUseCase,
-    getFirebaseProjectIdUseCase: GetFirebaseProjectIdUseCase,
+    private val fcmTokenProvider: FcmTokenProvider,
+    firebaseProjectIdProvider: FirebaseProjectIdProvider,
+    pushApplicationIdProvider: PushApplicationIdProvider,
     private val cryptoService: PushNotificationCryptoService,
-    private val keyRotationService: PushNotificationKeyRotationService,
+    private val keyChainAdvancer: PushKeyChainAdvancer,
     private val localDataSource: DebugPushNotificationsLocalDataSource,
+    private val initializeDebugPushKeyChainUseCase: InitializeDebugPushKeyChainUseCase,
     private val encryptDebugPushNotificationPayloadUseCase: EncryptDebugPushNotificationPayloadUseCase,
     private val sendFcmMessageUseCase: SendFcmMessageUseCase,
+    private val getActiveProfileUseCase: GetActiveProfileUseCase,
+    private val getPusherChannelsUseCase: GetPusherChannelsUseCase,
+    private val getPushersUseCase: GetPushersUseCase,
+    private val registerPushNotificationsForProfileUseCase: RegisterPushNotificationsForProfileUseCase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
-    val fcmProjectId: String = getFirebaseProjectIdUseCase()
+    val firebaseProjectId: String = firebaseProjectIdProvider.getProjectId()
+    private val pushApplicationId: String = pushApplicationIdProvider.getPushApplicationId()
     private val json = Json { encodeDefaults = true }
 
-    private val currentMonth: String = YearMonth.now().format(DateTimeFormatter.ofPattern("yyyy-MM"))
     private val _latestKeyGeneration = MutableStateFlow<PushNotificationKeyGeneration?>(null)
     val latestKeyGeneration: StateFlow<PushNotificationKeyGeneration?> = _latestKeyGeneration.asStateFlow()
 
+    private val _oauthToken = MutableStateFlow("")
+    val oauthToken: StateFlow<String> = _oauthToken.asStateFlow()
+
+    private val _failPushGatewayTest = MutableStateFlow(false)
+    val failPushGatewayTest: StateFlow<Boolean> = _failPushGatewayTest.asStateFlow()
+
+    private val _showRawPushNotification = MutableStateFlow(false)
+    val showRawPushNotification: StateFlow<Boolean> = _showRawPushNotification.asStateFlow()
+
+    private val _selectedGatewayUrl = MutableStateFlow(PUSH_GATEWAY_URL_RU)
+    val selectedGatewayUrl: StateFlow<String> = _selectedGatewayUrl.asStateFlow()
+
     init {
         viewModelScope.launch(dispatcher) {
-            keyRotationService.advanceToMonth(currentMonth)
+            initializeDebugPushKeyChainUseCase()
             updateLatestKeyGeneration()
         }
         viewModelScope.launch {
@@ -82,10 +111,38 @@ class DebugPushNotificationsViewModel(
                 _oauthToken.value = token
             }
         }
+        viewModelScope.launch {
+            localDataSource.isFailPushGatewayTest().collect { fail ->
+                _failPushGatewayTest.value = fail
+            }
+        }
+        viewModelScope.launch {
+            localDataSource.isShowRawPushNotification().collect { show ->
+                _showRawPushNotification.value = show
+            }
+        }
+        viewModelScope.launch {
+            localDataSource.pushGatewayUrl().collect { url ->
+                val activeUrl = url.ifBlank { PUSH_GATEWAY_URL_RU }
+                _selectedGatewayUrl.value = activeUrl
+                updateEncryptedCurlCommands(_fcmToken.value.orEmpty())
+            }
+        }
     }
 
     private val _fcmToken = MutableStateFlow<String?>(null)
     val fcmToken: StateFlow<String?> = _fcmToken.asStateFlow()
+    val pushErrorEvent = ComposableEvent<String>()
+    val pushSuccessEvent = ComposableEvent<String>()
+
+    private val _channels = MutableStateFlow<UiState<List<PushChannel>>>(UiState.Empty())
+    val channels: StateFlow<UiState<List<PushChannel>>> = _channels.asStateFlow()
+
+    private val _pushers = MutableStateFlow<UiState<List<Pusher>>>(UiState.Empty())
+    val pushers: StateFlow<UiState<List<Pusher>>> = _pushers.asStateFlow()
+
+    private val _pusherRegistration = MutableStateFlow<UiState<Unit>>(UiState.Empty())
+    val pusherRegistration: StateFlow<UiState<Unit>> = _pusherRegistration.asStateFlow()
 
     private var fetchFcmTokenJob: Job? = null
 
@@ -93,21 +150,84 @@ class DebugPushNotificationsViewModel(
         if (_fcmToken.value != null) return
         if (fetchFcmTokenJob?.isActive == true) return
         fetchFcmTokenJob = viewModelScope.launch {
-            runCatching { getFcmTokenUseCase() }
+            runCatching { fcmTokenProvider.getToken() }
                 .onSuccess { _fcmToken.value = it }
                 .onFailure {
                     Napier.e("Failed to fetch FCM token", it)
-                    fcmErrorEvent.trigger("Failed to fetch FCM token: ${it.message}")
+                    pushErrorEvent.trigger("Failed to fetch FCM token: ${it.message}")
                 }
         }
     }
 
-    private val _oauthToken = MutableStateFlow("")
-    val oauthToken: StateFlow<String> = _oauthToken.asStateFlow()
+    fun refreshChannels() {
+        launchUiStateRequest(
+            state = _channels,
+            errorMessage = "Failed to load push channel status"
+        ) {
+            val activeProfile = getActiveProfileUseCase().first()
+            getPusherChannelsUseCase(activeProfile.id).getOrThrow()
+        }
+    }
+
+    fun refreshPushers() {
+        launchUiStateRequest(
+            state = _pushers,
+            errorMessage = "Failed to load pushers"
+        ) {
+            val activeProfile = getActiveProfileUseCase().first()
+            getPushersUseCase(activeProfile.id).getOrThrow()
+        }
+    }
+
+    fun refreshStatus() {
+        refreshPushers()
+        refreshChannels()
+    }
+
+    fun registerPusher() {
+        launchUiStateRequest(
+            state = _pusherRegistration,
+            errorMessage = "Failed to register pusher",
+            onSuccess = ::refreshStatus
+        ) {
+            val activeProfile = getActiveProfileUseCase().first()
+            registerPushNotificationsForProfileUseCase(
+                activeProfile.id,
+                ProfilePushNotificationSettings()
+            ).getOrThrow()
+        }
+    }
+
+    private fun <T> launchUiStateRequest(
+        state: MutableStateFlow<UiState<T>>,
+        errorMessage: String,
+        onSuccess: () -> Unit = {},
+        request: suspend () -> T
+    ) {
+        if (state.value.isLoading) return
+
+        state.value = UiState.Loading()
+        viewModelScope.launch(dispatcher) {
+            try {
+                state.value = UiState.Data(request())
+                onSuccess()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                Napier.e(errorMessage, error)
+                state.value = UiState.Error(error)
+            }
+        }
+    }
 
     fun updateOauthToken(token: String) {
         _oauthToken.value = token
         viewModelScope.launch { localDataSource.saveOauthToken(token) }
+    }
+
+    fun updateFailPushGatewayTest(fail: Boolean) {
+        _failPushGatewayTest.value = fail
+        viewModelScope.launch { localDataSource.saveFailPushGatewayTest(fail) }
     }
 
     // Encrypted push state
@@ -120,13 +240,15 @@ class DebugPushNotificationsViewModel(
     private val _encryptedCurlCommand = MutableStateFlow("")
     val encryptedCurlCommand: StateFlow<String> = _encryptedCurlCommand.asStateFlow()
 
+    private val _encryptedPushGatewayCurlCommand = MutableStateFlow("")
+    val encryptedPushGatewayCurlCommand: StateFlow<String> = _encryptedPushGatewayCurlCommand.asStateFlow()
+
     private val _isEncryptedSending = MutableStateFlow(false)
     val isEncryptedSending: StateFlow<Boolean> = _isEncryptedSending.asStateFlow()
 
-    val encryptedErrorEvent = ComposableEvent<String>()
-
     fun encryptPayload(plaintext: String, targetToken: String) {
         viewModelScope.launch {
+            withContext(dispatcher) { initializeDebugPushKeyChainUseCase() }
             val encryptedPayload = encryptDebugPushNotificationPayloadUseCase(plaintext.toByteArray(Charsets.UTF_8))
             val cipher = Base64.encodeToString(encryptedPayload.ciphertext, Base64.NO_WRAP)
             val gen = encryptedPayload.keyGeneration
@@ -135,28 +257,75 @@ class DebugPushNotificationsViewModel(
             _decryptedOutput.value = ""
             _latestKeyGeneration.value = gen
 
-            val oauth = _oauthToken.value
-            _encryptedCurlCommand.value = buildEncryptedCurlCommand(
-                projectId = fcmProjectId,
-                oauthToken = oauth.ifBlank { "YOUR_OAUTH2_TOKEN" },
-                fcmToken = targetToken.ifBlank { "YOUR_FCM_TOKEN" },
-                ciphertext = cipher,
-                month = gen.month,
-                keyIdentifier = keyRotationService.keyIdentifier
-            )
+            updateEncryptedCurlCommands(targetToken)
+        }
+    }
+
+    fun updateEncryptedCurlCommands(targetToken: String) {
+        val cipher = _cipherOutput.value.takeIf(String::isNotBlank) ?: return
+        val generation = _latestKeyGeneration.value ?: return
+        val fcmToken = targetToken.ifBlank { "YOUR_FCM_TOKEN" }
+
+        _encryptedCurlCommand.value = DebugPushNotificationCurlCommands.buildEncryptedCurlCommand(
+            projectId = firebaseProjectId,
+            oauthToken = _oauthToken.value.ifBlank { "YOUR_OAUTH2_TOKEN" },
+            fcmToken = fcmToken,
+            ciphertext = cipher,
+            month = generation.month,
+            keyIdentifier = generation.keyIdentifier
+        )
+        _encryptedPushGatewayCurlCommand.value = DebugPushNotificationCurlCommands.buildEncryptedPushGatewayCurlCommand(
+            applicationId = pushApplicationId,
+            fcmToken = fcmToken,
+            ciphertext = cipher,
+            month = generation.month,
+            keyIdentifier = generation.keyIdentifier,
+            gatewayUrl = _selectedGatewayUrl.value
+        )
+    }
+
+    fun updatePushGatewayUrl(url: String) {
+        _selectedGatewayUrl.value = url
+        viewModelScope.launch {
+            localDataSource.savePushGatewayUrl(url)
+            updateEncryptedCurlCommands(_fcmToken.value.orEmpty())
+        }
+    }
+
+    fun setFailPushGatewayTest(fail: Boolean) {
+        _failPushGatewayTest.value = fail
+        viewModelScope.launch {
+            localDataSource.saveFailPushGatewayTest(fail)
+        }
+    }
+
+    fun setShowRawPushNotification(show: Boolean) {
+        _showRawPushNotification.value = show
+        viewModelScope.launch {
+            localDataSource.saveShowRawPushNotification(show)
         }
     }
 
     fun decryptPayload() {
         val cipher = _cipherOutput.value
         viewModelScope.launch {
-            _decryptedOutput.value = try {
+            try {
                 val bytes = Base64.decode(cipher, Base64.NO_WRAP)
-                withContext(dispatcher) {
-                    String(cryptoService.decrypt(bytes), Charsets.UTF_8)
+                val generation = withContext(dispatcher) { latestGeneration() }
+                if (generation == null) {
+                    _decryptedOutput.value = "Error: No debug key chain available"
+                    return@launch
                 }
-            } catch (e: Exception) {
-                "Error: ${e.message}"
+                _decryptedOutput.value = withContext(dispatcher) {
+                    String(
+                        cryptoService.decryptForMonth(bytes, generation.month, generation.keyIdentifier),
+                        Charsets.UTF_8
+                    )
+                }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                _decryptedOutput.value = "Error: ${error.message}"
             }
         }
     }
@@ -165,60 +334,38 @@ class DebugPushNotificationsViewModel(
         val cipher = _cipherOutput.value
         val oauth = _oauthToken.value
         viewModelScope.launch {
-            val month = withContext(dispatcher) { keyRotationService.getLatestGeneration()?.month } ?: return@launch
+            withContext(dispatcher) { initializeDebugPushKeyChainUseCase() }
+            val generation = withContext(dispatcher) { latestGeneration() } ?: return@launch
             _isEncryptedSending.value = true
             try {
-                runCatching {
-                    sendFcmMessageUseCase.invoke(
-                        projectId = fcmProjectId,
-                        oauthToken = oauth,
-                        json = buildEncryptedPayloadJson(
-                            fcmToken = targetToken,
-                            ciphertext = cipher,
-                            timeMessageEncrypted = month,
-                            keyIdentifier = keyRotationService.keyIdentifier
-                        )
+                sendFcmMessageUseCase.invoke(
+                    projectId = firebaseProjectId,
+                    oauthToken = oauth,
+                    json = buildEncryptedPayloadJson(
+                        fcmToken = targetToken,
+                        ciphertext = cipher,
+                        timeMessageEncrypted = generation.month,
+                        keyIdentifier = generation.keyIdentifier
                     )
-                }.onFailure { encryptedErrorEvent.trigger("Failed: ${it.message}") }
+                )
+                pushSuccessEvent.trigger("Encrypted push sent to FCM.")
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                pushErrorEvent.trigger("Failed: ${error.message}")
             } finally {
                 _isEncryptedSending.value = false
             }
         }
     }
 
-    // Plain FCM push state
-    private val _isFcmSending = MutableStateFlow(false)
-    val isFcmSending: StateFlow<Boolean> = _isFcmSending.asStateFlow()
-
-    val fcmErrorEvent = ComposableEvent<String>()
-
-    fun sendFcmPush(targetToken: String, title: String, body: String) {
-        val oauth = _oauthToken.value
-        _isFcmSending.value = true
-        viewModelScope.launch {
-            try {
-                runCatching {
-                    sendFcmMessageUseCase.invoke(
-                        projectId = fcmProjectId,
-                        oauthToken = oauth,
-                        json = buildPlainPayloadJson(
-                            fcmToken = targetToken,
-                            title = title,
-                            body = body
-                        )
-                    )
-                }.onFailure {
-                    fcmErrorEvent.trigger("Failed: ${it.message}")
-                    Napier.e { "Failed: ${it.message}" }
-                }
-            } finally {
-                _isFcmSending.value = false
-            }
-        }
+    private suspend fun updateLatestKeyGeneration() {
+        _latestKeyGeneration.value = latestGeneration()
     }
 
-    private suspend fun updateLatestKeyGeneration() {
-        _latestKeyGeneration.value = keyRotationService.getLatestGeneration()
+    private suspend fun latestGeneration(): PushNotificationKeyGeneration? {
+        val keyId = keyChainAdvancer.knownKeyIdentifiers().firstOrNull() ?: return null
+        return keyChainAdvancer.getLatestGeneration(keyId)
     }
 
     private fun buildEncryptedPayloadJson(
@@ -238,45 +385,6 @@ class DebugPushNotificationsViewModel(
             )
         )
     )
-
-    private fun buildPlainPayloadJson(
-        fcmToken: String,
-        title: String,
-        body: String
-    ): String = json.encodeToString(
-        FcmMessagePayload(
-            message = PlainFcmMessage(
-                token = fcmToken,
-                notification = FcmNotification(title = title, body = body)
-            )
-        )
-    )
-
-    private fun buildEncryptedCurlCommand(
-        projectId: String,
-        oauthToken: String,
-        fcmToken: String,
-        ciphertext: String,
-        month: String,
-        keyIdentifier: String
-    ) = """
-curl -X POST '${SendFcmMessageUseCase.FCM_BASE_URL}v1/projects/$projectId/messages:send' \
-  -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer $oauthToken' \
-  -d '{
-  "message": {
-    "token": "$fcmToken",
-    "android": {
-      "priority": "HIGH"
-    },
-    "data": {
-      "ciphertext": "$ciphertext",
-      "time_message_encrypted": "$month",
-      "key_identifier": "$keyIdentifier"
-    }
-  }
-}'
-    """.trimIndent()
 }
 
 @Serializable
@@ -299,35 +407,38 @@ private data class EncryptedData(
     @SerialName("key_identifier") val keyIdentifier: String
 )
 
-@Serializable
-private data class PlainFcmMessage(
-    val token: String,
-    val notification: FcmNotification
-)
-
-@Serializable
-private data class FcmNotification(val title: String, val body: String)
-
 @Composable
 fun debugPushNotificationsViewModel(): DebugPushNotificationsViewModel {
-    val getFcmTokenUseCase by rememberInstance<GetFcmTokenUseCase>()
-    val getFirebaseProjectIdUseCase by rememberInstance<GetFirebaseProjectIdUseCase>()
+    val fcmTokenProvider by rememberInstance<FcmTokenProvider>()
+    val firebaseProjectIdProvider by rememberInstance<FirebaseProjectIdProvider>()
+    val pushApplicationIdProvider by rememberInstance<PushApplicationIdProvider>()
     val cryptoService by rememberInstance<PushNotificationCryptoService>()
-    val keyRotationService by rememberInstance<PushNotificationKeyRotationService>()
+    val keyChainAdvancer by rememberInstance<PushKeyChainAdvancer>()
     val localDataSource by rememberInstance<DebugPushNotificationsLocalDataSource>()
+    val initializeDebugPushKeyChainUseCase by rememberInstance<InitializeDebugPushKeyChainUseCase>()
     val encryptDebugPushNotificationPayloadUseCase by rememberInstance<EncryptDebugPushNotificationPayloadUseCase>()
     val sendFcmMessageUseCase by rememberInstance<SendFcmMessageUseCase>()
+    val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
+    val getPusherChannelsUseCase by rememberInstance<GetPusherChannelsUseCase>()
+    val getPushersUseCase by rememberInstance<GetPushersUseCase>()
+    val registerPushNotificationsForProfileUseCase by rememberInstance<RegisterPushNotificationsForProfileUseCase>()
     val dispatcher by rememberInstance<CoroutineDispatcher>()
 
     return remember {
         DebugPushNotificationsViewModel(
-            getFcmTokenUseCase = getFcmTokenUseCase,
-            getFirebaseProjectIdUseCase = getFirebaseProjectIdUseCase,
+            fcmTokenProvider = fcmTokenProvider,
+            firebaseProjectIdProvider = firebaseProjectIdProvider,
+            pushApplicationIdProvider = pushApplicationIdProvider,
             cryptoService = cryptoService,
-            keyRotationService = keyRotationService,
+            keyChainAdvancer = keyChainAdvancer,
             localDataSource = localDataSource,
+            initializeDebugPushKeyChainUseCase = initializeDebugPushKeyChainUseCase,
             encryptDebugPushNotificationPayloadUseCase = encryptDebugPushNotificationPayloadUseCase,
             sendFcmMessageUseCase = sendFcmMessageUseCase,
+            getActiveProfileUseCase = getActiveProfileUseCase,
+            getPusherChannelsUseCase = getPusherChannelsUseCase,
+            getPushersUseCase = getPushersUseCase,
+            registerPushNotificationsForProfileUseCase = registerPushNotificationsForProfileUseCase,
             dispatcher = dispatcher
         )
     }

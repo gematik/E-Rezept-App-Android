@@ -29,11 +29,7 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.support.CommunicationParticipantErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.support.DispenseCommunicationPayloadContentErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.support.DispensePrescriptionTypeErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.support.DispenseSupplyOptionsType
-import de.gematik.ti.erp.app.fhir.communication.model.support.ReplyCommunicationPayloadContentErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.support.ReplyCommunicationSupplyOptionsErpModel
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.constant.communication.CommunicationDigaConstants
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants
@@ -103,72 +99,17 @@ enum class FhirCommunicationResourceType {
         /**
          * Converts this payload into an ERP reply communication model.
          */
-        fun toReplyErpModel(): ReplyCommunicationPayloadContentErpModel {
-            val supplyOptionsExt = extensions.findExtensionByUrl(
-                FhirCommunicationConstants.SUPPLY_OPTIONS_TYPE_EXTENSION
-            )
-
-            val supplyOptions = supplyOptionsExt?.let {
-                val onPremise = it.extensions.findExtensionByUrl(FhirCommunicationConstants.EXT_ON_PREMISE)?.valueBoolean ?: false
-                val shipment = it.extensions.findExtensionByUrl(FhirCommunicationConstants.EXT_SHIPMENT)?.valueBoolean ?: false
-                val delivery = it.extensions.findExtensionByUrl(FhirCommunicationConstants.EXT_DELIVERY)?.valueBoolean ?: false
-
-                ReplyCommunicationSupplyOptionsErpModel(
-                    onPremise = onPremise,
-                    shipment = shipment,
-                    delivery = delivery
-                )
-            }
-
-            return ReplyCommunicationPayloadContentErpModel(
-                text = contentString,
-                supplyOptions = supplyOptions
-            )
-        }
+        // TODO CommResV3 currently we save it as plan json string. maybe add parsing here.
+        // adding it will add a huge when statement to db operations.
+        fun toReplyErpModel(): String? = contentString
 
         /**
          * Converts this payload into an ERP dispense communication model.
          */
-        fun toDispenseErpModel(): DispenseCommunicationPayloadContentErpModel {
-            val parsedContent = contentString?.let {
-                try {
-                    SafeJson.value.decodeFromString<DispensePayloadContent>(it)
-                } catch (e: Exception) {
-                    Napier.e("Error parsing dispense payload JSON: ${e.message}")
-                    null
-                }
-            }
-
-            return DispenseCommunicationPayloadContentErpModel(
-                contentString = contentString,
-                supplyOptionsType = DispenseSupplyOptionsType.fromString(parsedContent?.supplyOptionsType),
-                name = parsedContent?.name,
-                address = parsedContent?.address,
-                phone = parsedContent?.phone
-            )
-        }
+        // TODO CommResV3 currently we save it as plan json string. maybe add parsing here.
+        // adding it will add a huge when statement to db operations.
+        fun toDispenseErpModel(): String? = contentString
     }
-
-    /**
-     * JSON-parsed structure of the dispense communication payload content.
-     * This structure is embedded within the content string of the FHIR communication.
-     *
-     * @property version Payload format version.
-     * @property supplyOptionsType Optional supply option code (e.g. on-premise, shipment).
-     * @property name Name of the patient or contact person.
-     * @property address List of address lines.
-     * @property hint Additional user-provided notes.
-     * @property phone Contact phone number.
-     */
-    @Serializable
-    internal data class DispensePayloadContent(
-        @SerialName("version") val version: Int? = null,
-        @SerialName("supplyOptionsType") val supplyOptionsType: String? = null,
-        @SerialName("name") val name: String? = null,
-        @SerialName("address") val address: List<String>? = null,
-        @SerialName("hint") val hint: String? = null,
-        @SerialName("phone") val phone: String? = null
-    )
 
     /**
      * Data class representing the core FHIR Communication resource.
@@ -251,7 +192,7 @@ enum class FhirCommunicationResourceType {
                 received = received,
                 sender = sender?.toErpModel(),
                 recipient = recipient?.firstOrNull()?.toErpModel(),
-                payload = payload?.firstOrNull()?.toReplyErpModel() ?: ReplyCommunicationPayloadContentErpModel(),
+                payload = payload?.firstOrNull()?.toReplyErpModel(),
                 orderId = getOrderId()
             )
         }
@@ -266,7 +207,7 @@ enum class FhirCommunicationResourceType {
                 taskId = taskId,
                 sender = sender?.toErpModel(),
                 recipient = recipient?.firstOrNull()?.toErpModel(),
-                payload = payload?.firstOrNull()?.toDispenseErpModel() ?: DispenseCommunicationPayloadContentErpModel(),
+                payload = payload?.firstOrNull()?.toDispenseErpModel(),
                 prescriptionType = getPrescriptionType(),
                 sent = sent,
                 orderId = getOrderId(),

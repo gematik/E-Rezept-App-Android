@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -60,7 +61,8 @@ import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import kotlinx.datetime.Instant
-import kotlin.collections.map
+
+// TODO CommResV3 design: https://www.figma.com/design/Xg4X8ULc7fwxzkxaCnxW0I/%F0%9F%A4%96-eRezept-Android?node-id=41311-36198&m=dev
 
 class InternalMessageDetailScreen(
     override val navController: NavController,
@@ -73,8 +75,12 @@ class InternalMessageDetailScreen(
 
         val internalMessages by messageDetailScreenController.internalMessages.collectAsStateWithLifecycle()
 
-        val onBack: () -> Unit = remember(navController, messageDetailScreenController) {
-            { messageDetailScreenController.consumeAllMessages { navController.popBackStack() } }
+        LaunchedEffect(internalMessages) {
+            messageDetailScreenController.consumeAllMessages()
+        }
+
+        val onBack: () -> Unit = remember(navController) {
+            { navController.popBackStack() }
         }
         BackHandler { onBack() }
 

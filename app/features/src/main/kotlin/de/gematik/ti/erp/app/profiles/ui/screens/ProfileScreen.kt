@@ -110,6 +110,7 @@ import de.gematik.ti.erp.app.profiles.ui.components.ProfileAvatarSection
 import de.gematik.ti.erp.app.profiles.ui.components.ProfileInsuranceInformationSection
 import de.gematik.ti.erp.app.profiles.ui.components.ProfileNameSection
 import de.gematik.ti.erp.app.profiles.ui.preview.ProfileStatePreviewParameterProvider
+import de.gematik.ti.erp.app.pushnotifications.navigation.PushNotificationsRoutes
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -239,7 +240,7 @@ class ProfileScreen(
             },
             onClickPushNotifications = {
                 combinedProfileState.data?.selectedProfile?.let { profile ->
-                    navController.navigate(ProfileRoutes.ProfilePushNotificationSettingsScreen.path(profileId = profile.id))
+                    navController.navigate(PushNotificationsRoutes.ProfilePushNotificationSettingsScreen.path(profileId = profile.id))
                 }
             },
             onClickChangeInsuranceType = {

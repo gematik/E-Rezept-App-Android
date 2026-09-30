@@ -26,7 +26,6 @@ import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.api.httpErrorState
 import de.gematik.ti.erp.app.fhir.communication.CommunicationDispenseRequest.createCommunicationDispenseRequest
-import de.gematik.ti.erp.app.fhir.communication.model.CommunicationPayload
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants
 import de.gematik.ti.erp.app.pharmacy.mapper.toRedeemOption
 import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
@@ -39,6 +38,7 @@ import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
 import de.gematik.ti.erp.app.debug.repository.CommunicationVersionRepository
+import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestCommunicationPayloadV1ErpModel
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
@@ -113,8 +113,8 @@ class RedeemPrescriptionsOnLoggedInUseCase(
                                 taskId = prescriptionOrderInfo.taskId,
                                 accessCode = prescriptionOrderInfo.accessCode,
                                 recipientId = pharmacy.telematikId,
-                                payloadContent = CommunicationPayload(
-                                    supplyOptionsType = redeemOption.toRedeemOption().type,
+                                payloadContent = DispenseRequestCommunicationPayloadV1ErpModel(
+                                    supplyOptionsType = redeemOption.toRedeemOption(),
                                     name = sanitizeName(contact.name),
                                     address = listOf(contact.street, contact.addressDetail, contact.zip, contact.city),
                                     phone = contact.phone,

@@ -45,7 +45,7 @@ class DefaultCommunicationVersionRepository(
                 CommunicationVersion.V_1_6 -> FhirCommunicationVersions.CommunicationVersion.V_1_6
             }
         } else {
-            FhirCommunicationVersions.CommunicationVersion.V_1_5
+            FhirCommunicationVersions.CommunicationVersion.PRODUCTION_DEFAULT
         }
     }
 }

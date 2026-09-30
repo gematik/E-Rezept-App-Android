@@ -76,5 +76,11 @@
         "text": "**✅ Recetas de testosterona disponibles**\nAhora se pueden recibir y visualizar correctamente las recetas electrónicas (T-Prescriptions). Las recetas electrónicas se utilizan para ciertos medicamentos con requisitos de seguridad especiales.\n\n**⚙️ Ajustes optimizados**\nSe han revisado y aclarado los ajustes del perfil.\n\n**♿ Mayor accesibilidad**\nAhora se pueden reportar las barreras directamente desde la configuración. Los botones, menús, listas y encabezados se han optimizado para su uso con TalkBack. Se ha mejorado el contraste y las animaciones ahora se reproducen solo una vez. El campo de nombre ahora tiene una etiqueta visible permanentemente. También se admiten tamaños de fuente más grandes en las vistas web de la aplicación.",
         "timestamp": "2026-08-18T08:00:00.000Z",
         "version": "1.39"
+    },
+    {
+        "id": "15",
+        "text": "**🗞️ Notificaciones push disponibles**\nAhora se pueden recibir notificaciones push para diversos eventos. Estos incluyen nuevas recetas electrónicas, cambios de estado de recetas electrónicas ya canjeadas o mensajes de la farmacia.",
+        "timestamp": "2026-09-21T08:00:00.000Z",
+        "version": "1.40"
     }
 ]

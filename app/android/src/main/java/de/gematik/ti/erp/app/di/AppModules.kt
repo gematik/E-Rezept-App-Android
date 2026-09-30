@@ -49,7 +49,6 @@ import de.gematik.ti.erp.app.database.datastore.debug.versions.eu.euVersionLocal
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.IsRoomEnabled
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.RoomFeatureToggle
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.featureToggleLocalDataSource
-import de.gematik.ti.erp.app.database.datastore.pushnotification.profilePushNotificationLocalDataSource
 import de.gematik.ti.erp.app.database.datastore.settings.SettingsLocalDataSourceV2
 import de.gematik.ti.erp.app.database.datastore.settings.settingsLocalDataSource
 import de.gematik.ti.erp.app.database.datastore.virtualhealthcard.virtualHealthCardLocalDataSource
@@ -158,7 +157,6 @@ val appModules = DI.Module("appModules") {
         }
     }
     bindSingleton { featureToggleLocalDataSource(instance(), BuildConfigExtension.isInternalDebug) }
-    bindSingleton { profilePushNotificationLocalDataSource(instance()) }
     bindProvider { IsFeatureToggleEnabledUseCase(instance()) }
     bindSingleton<SettingsLocalDataSourceV2> { settingsLocalDataSource(instance()) }
 

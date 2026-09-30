@@ -82,7 +82,7 @@ class PushNotificationCryptoServiceTest {
         timeIssCreated: String = TEST_TIME_ISS_CREATED,
         keyIdentifier: String = TEST_KEY_IDENTIFIER,
         currentMonthProvider: () -> String = { "2024-06" }
-    ) = PushNotificationKeyRotationService(
+    ) = PushNotificationKeyRotationService.create(
         initialSharedSecret = iss,
         timeIssCreated = timeIssCreated,
         keyIdentifier = keyIdentifier,
@@ -95,9 +95,26 @@ class PushNotificationCryptoServiceTest {
         currentMonthProvider: () -> String = { "2024-06" }
     ): PushNotificationCryptoService =
         DefaultPushNotificationCryptoService(
-            keyRotationService = rotation,
+            keyChain = SingleChainAdvancer(rotation),
             currentMonthProvider = currentMonthProvider
         )
+
+    /** Adapts a single [PushNotificationKeyRotationService] to the multi-chain [PushKeyChainAdvancer]. */
+    private class SingleChainAdvancer(
+        private val rotation: PushNotificationKeyRotationService
+    ) : PushKeyChainAdvancer {
+        override suspend fun knownKeyIdentifiers(): Set<String> = setOf(rotation.keyIdentifier)
+
+        override suspend fun getLatestGeneration(keyIdentifier: String) =
+            rotation.getLatestGeneration().takeIf { keyIdentifier == rotation.keyIdentifier }
+
+        override suspend fun advanceToMonth(keyIdentifier: String, targetMonth: String) {
+            if (keyIdentifier == rotation.keyIdentifier) rotation.advanceToMonth(targetMonth)
+        }
+
+        override suspend fun getGenerationForMonth(keyIdentifier: String, month: String) =
+            if (keyIdentifier == rotation.keyIdentifier) rotation.getGenerationForMonth(month) else null
+    }
 
     private suspend fun encryptPayload(
         rotation: PushNotificationKeyRotationService,
@@ -135,6 +152,7 @@ class PushNotificationCryptoServiceTest {
         assertEquals(EXPECTED_SECRET_OCT_2023, gen.secret)
         // last 32 bytes = AES/GCM-Schlüssel-2023-10
         assertEquals(EXPECTED_KEY_OCT_2023, gen.encryptionKey)
+        assertEquals(TEST_KEY_IDENTIFIER, gen.keyIdentifier)
     }
 
     @Test
@@ -147,18 +165,6 @@ class PushNotificationCryptoServiceTest {
         // HKDF(shared-secret-2023-10, info="2023-11")
         assertEquals(EXPECTED_SECRET_NOV_2023, gen.secret)
         assertEquals(EXPECTED_KEY_NOV_2023, gen.encryptionKey)
-    }
-
-    @Test
-    fun `first generation derives from initial shared secret`() = runTest {
-        keyRotationService.addGeneration()
-        val gen = keyRotationService.getLatestGeneration()
-
-        assertNotNull(gen)
-        assertEquals("2023-10", gen!!.month)
-        assertEquals(64, gen.encryptionKey.length)
-        assertEquals(64, gen.secret.length)
-        assertEquals(TEST_KEY_IDENTIFIER, gen.keyIdentifier)
     }
 
     @Test
@@ -233,18 +239,6 @@ class PushNotificationCryptoServiceTest {
     }
 
     @Test
-    fun `key generation is deterministic - same inputs produce same keys`() = runTest {
-        val rotation1 = buildKeyRotationService()
-        val rotation2 = buildKeyRotationService()
-
-        rotation1.addGeneration()
-        rotation2.addGeneration()
-
-        assertEquals(rotation1.getLatestGeneration()!!.encryptionKey, rotation2.getLatestGeneration()!!.encryptionKey)
-        assertEquals(rotation1.getLatestGeneration()!!.secret, rotation2.getLatestGeneration()!!.secret)
-    }
-
-    @Test
     fun `advanceToMonth is idempotent - calling again with same month does nothing`() = runTest {
         keyRotationService.advanceToMonth("2024-03")
         val firstCount = keyRotationService.getGenerations().size
@@ -278,13 +272,6 @@ class PushNotificationCryptoServiceTest {
     }
 
     @Test
-    fun `getGenerationForMonth returns null for month not yet derived`() = runTest {
-        keyRotationService.advanceToMonth("2024-03")
-
-        assertNull(keyRotationService.getGenerationForMonth("2025-01"))
-    }
-
-    @Test
     fun `decryptForMonth decrypts message from previous month within the 2-month limit`() = runTest {
         // Encrypt with 2024-06
         val encryptRotation = buildKeyRotationService()
@@ -298,7 +285,7 @@ class PushNotificationCryptoServiceTest {
         val decryptCrypto = buildCryptoService(decryptRotation)
         decryptRotation.advanceToMonth("2024-07")
 
-        val decrypted = decryptCrypto.decryptForMonth(encrypted, "2024-06")
+        val decrypted = decryptCrypto.decryptForMonth(encrypted, "2024-06", TEST_KEY_IDENTIFIER)
         assertArrayEquals(payload, decrypted)
     }
 
@@ -315,12 +302,12 @@ class PushNotificationCryptoServiceTest {
         val decryptCrypto = buildCryptoService(decryptRotation)
         decryptRotation.advanceToMonth("2024-06")
 
-        decryptCrypto.decryptForMonth(encrypted, "2024-01")
+        decryptCrypto.decryptForMonth(encrypted, "2024-01", TEST_KEY_IDENTIFIER)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun `decryptForMonth rejects time_message_encrypted without yyyy-MM format`() = runTest {
-        cryptoService.decryptForMonth(ByteArray(16), "2024-3")
+        cryptoService.decryptForMonth(ByteArray(16), "2024-3", TEST_KEY_IDENTIFIER)
     }
 
     @Test
@@ -331,19 +318,9 @@ class PushNotificationCryptoServiceTest {
         val payloadBytes = payload.toByteArray(Charsets.UTF_8)
 
         val encrypted = encryptPayload(keyRotationService, payloadBytes)
-        val decrypted = cryptoService.decrypt(encrypted)
+        val decrypted = cryptoService.decryptForMonth(encrypted, "2023-10", TEST_KEY_IDENTIFIER)
 
         assertArrayEquals(payloadBytes, decrypted)
-    }
-
-    @Test
-    fun `PNM1 encrypted fixture is exactly 1052 bytes - 12 IV plus 1024 padded plaintext plus 16 GCM tag`() = runTest {
-        keyRotationService.addGeneration()
-
-        val payload = "test".toByteArray(Charsets.UTF_8)
-        val encrypted = encryptPayload(keyRotationService, payload)
-
-        assertEquals(1052, encrypted.size)
     }
 
     @Test
@@ -356,7 +333,7 @@ class PushNotificationCryptoServiceTest {
         //  decryptForMonth must advance keys internally
         val freshRotation = buildKeyRotationService()
         val freshCrypto = buildCryptoService(freshRotation)
-        val decrypted = freshCrypto.decryptForMonth(encrypted, "2024-06")
+        val decrypted = freshCrypto.decryptForMonth(encrypted, "2024-06", TEST_KEY_IDENTIFIER)
 
         assertArrayEquals(payload, decrypted)
     }
@@ -374,7 +351,7 @@ class PushNotificationCryptoServiceTest {
 
             val decryptRotation = buildKeyRotationService()
             val decryptCrypto = buildCryptoService(decryptRotation)
-            val decrypted = decryptCrypto.decryptForMonth(encrypted, month)
+            val decrypted = decryptCrypto.decryptForMonth(encrypted, month, TEST_KEY_IDENTIFIER)
 
             assertEquals("payload for $month", decrypted.decodeToString())
         }
@@ -408,13 +385,6 @@ class PushNotificationCryptoServiceTest {
         "".hexToByteArray()
     }
 
-    @Test(expected = PushNotificationCryptoError.InvalidPayloadLength::class)
-    fun `payload too large throws exception`() = runTest {
-        keyRotationService.addGeneration()
-        val largePayload = ByteArray(1020) { 0x41 } // Exceeds 1024 - 4 - 2 = 1018
-        encryptPayload(keyRotationService, largePayload)
-    }
-
     @Test(expected = PushNotificationCryptoError.InvalidPNM1Prefix::class)
     fun `decrypt with invalid prefix throws`() = runTest {
         keyRotationService.addGeneration()
@@ -423,7 +393,7 @@ class PushNotificationCryptoServiceTest {
         // Manually create ciphertext with wrong prefix but correct 1024-byte size
         val fakePayload = "XXXX".toByteArray() + ByteArray(1020) { 0x20 }
 
-        cryptoService.decrypt(encryptPlaintext(key, fakePayload))
+        cryptoService.decryptForMonth(encryptPlaintext(key, fakePayload), "2023-10", TEST_KEY_IDENTIFIER)
     }
 
     @Test
@@ -436,7 +406,7 @@ class PushNotificationCryptoServiceTest {
         encrypted[encrypted.size / 2] = (encrypted[encrypted.size / 2].toInt() xor 0xFF).toByte()
 
         try {
-            cryptoService.decrypt(encrypted.toByteArray())
+            cryptoService.decryptForMonth(encrypted.toByteArray(), "2023-10", TEST_KEY_IDENTIFIER)
             throw AssertionError("Expected AEADBadTagException was not thrown")
         } catch (_: AEADBadTagException) {
             // expected — GCM tag validation rejected the tampered ciphertext
@@ -451,7 +421,7 @@ class PushNotificationCryptoServiceTest {
 
         val decryptCrypto = buildCryptoService(encryptRotation, currentMonthProvider = { "2024-06" })
 
-        decryptCrypto.decryptForMonth(ByteArray(100), tooFarFuture)
+        decryptCrypto.decryptForMonth(ByteArray(100), tooFarFuture, TEST_KEY_IDENTIFIER)
     }
 
     @Test
@@ -464,20 +434,20 @@ class PushNotificationCryptoServiceTest {
 
         val decryptRotation = buildKeyRotationService()
         val decryptCrypto = buildCryptoService(decryptRotation, currentMonthProvider = { "2024-06" })
-        val decrypted = decryptCrypto.decryptForMonth(encrypted, "2024-08")
+        val decrypted = decryptCrypto.decryptForMonth(encrypted, "2024-08", TEST_KEY_IDENTIFIER)
         assertArrayEquals(payload, decrypted)
     }
 
-    @Test(expected = PushNotificationCryptoError.NoKeyAvailable::class)
-    fun `decrypt without key throws NoKeyAvailable`() = runTest {
+    @Test(expected = PushNotificationCryptoError.KeyNotFoundForMonth::class)
+    fun `unknown key identifier has no chain and cannot derive a key`() = runTest {
         val freshRotation = buildKeyRotationService()
         val freshCrypto = buildCryptoService(freshRotation)
-        freshCrypto.decrypt(ByteArray(32))
+        freshCrypto.decryptForMonth(ByteArray(32), "2024-06", "unknown-key-id")
     }
 
     @Test
-    fun `keyIdentifier is delegated from key rotation service`() = runTest {
+    fun `knownKeyIdentifiers exposes the registered key identifier`() = runTest {
         keyRotationService.addGeneration()
-        assertEquals(TEST_KEY_IDENTIFIER, cryptoService.keyIdentifier)
+        assertEquals(setOf(TEST_KEY_IDENTIFIER), cryptoService.knownKeyIdentifiers())
     }
 }

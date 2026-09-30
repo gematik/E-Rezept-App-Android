@@ -85,7 +85,8 @@ internal fun ReplyMessage(
                     InfoChip(stringResource(R.string.all_prescriptions_of_order))
                 } else {
                     item.prescriptionsLinked.forEach { pres ->
-                        pres?.name?.let { InfoChip(it) }
+                        val chipText = pres?.name?.takeIf { it.isNotBlank() } ?: pres?.medicationName()
+                        chipText?.let { InfoChip(it) }
                     }
                 }
             }

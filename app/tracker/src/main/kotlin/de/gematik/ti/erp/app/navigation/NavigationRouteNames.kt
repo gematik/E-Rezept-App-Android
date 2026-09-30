@@ -42,6 +42,7 @@ enum class NavigationRouteNames(
     ProfileAuditEventsScreen,
     ProfileEuConsentScreen,
     ProfilePairedDevicesScreen,
+    RegisteredPushDevicesScreen,
     ProfileEditPictureBottomSheetScreen,
     ProfileEditNameBottomSheetScreen,
     ProfileAddNameBottomSheetScreen,
@@ -108,6 +109,7 @@ enum class NavigationRouteNames(
 
     // Messages
     MessageListScreen,
+    CommResV3MessageListScreen,
     OrderMessageDetailScreen,
     UnknownOrderMessageDetailScreen,
     InternalMessageDetailScreen,
