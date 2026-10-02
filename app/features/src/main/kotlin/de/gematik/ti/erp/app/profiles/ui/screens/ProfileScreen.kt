@@ -143,7 +143,6 @@ class ProfileScreen(
         val hasEuRedeemablePrescriptions by profileScreenController.hasEuRedeemablePrescriptions.collectAsStateWithLifecycle()
         val euConsentStatus by profileScreenController.euConsentStatus.collectAsStateWithLifecycle()
         val euRedeemFeatureFlag by profileScreenController.euRedeemFeatureFlag.collectAsStateWithLifecycle()
-        val pushNotificationsFeatureFlag by profileScreenController.pushNotificationsFeatureFlag.collectAsStateWithLifecycle()
         val activity = LocalActivity.current as? BaseActivity
         val isDemoMode = remember { activity?.isDemoMode?.value ?: false }
         val listState = rememberLazyListState()
@@ -185,7 +184,6 @@ class ProfileScreen(
             hasEuRedeemablePrescriptions = hasEuRedeemablePrescriptions,
             euConsentStatus = euConsentStatus,
             euRedeemFeatureFlag = euRedeemFeatureFlag,
-            pushNotificationsFeatureFlag = pushNotificationsFeatureFlag,
             isDemoMode = isDemoMode,
             isKVNRCopied = isKVNRCopied,
             color = color,
@@ -261,7 +259,6 @@ internal fun ProfileScreenScaffold(
     hasEuRedeemablePrescriptions: Boolean,
     euConsentStatus: EuConsentStatus,
     euRedeemFeatureFlag: Boolean,
-    pushNotificationsFeatureFlag: Boolean,
     isDemoMode: Boolean,
     color: Color,
     isKVNRCopied: Boolean,
@@ -328,7 +325,6 @@ internal fun ProfileScreenScaffold(
                         hasEuRedeemablePrescriptions = hasEuRedeemablePrescriptions,
                         euConsentStatus = euConsentStatus,
                         euRedeemFeatureFlag = euRedeemFeatureFlag,
-                        pushNotificationsFeatureFlag = pushNotificationsFeatureFlag,
                         isDemoMode = isDemoMode,
                         isKVNRCopied = isKVNRCopied,
                         keyboardController = keyboardController,
@@ -362,7 +358,6 @@ internal fun ProfileScreenContent(
     hasEuRedeemablePrescriptions: Boolean,
     euConsentStatus: EuConsentStatus,
     euRedeemFeatureFlag: Boolean,
-    pushNotificationsFeatureFlag: Boolean,
     isDemoMode: Boolean,
     color: Color,
     keyboardController: SoftwareKeyboardController?,
@@ -421,7 +416,6 @@ internal fun ProfileScreenContent(
             ProfileMainAreaSection(
                 selectedProfile = selectedProfile,
                 euRedeemFeatureFlag = euRedeemFeatureFlag,
-                pushNotificationsFeatureFlag = pushNotificationsFeatureFlag,
                 hasEuRedeemablePrescriptions = hasEuRedeemablePrescriptions,
                 euConsentStatus = euConsentStatus,
                 isDemoMode = isDemoMode,
@@ -454,7 +448,6 @@ internal fun ProfileScreenContent(
 private fun ProfileMainAreaSection(
     selectedProfile: ProfileErpModel,
     euRedeemFeatureFlag: Boolean,
-    pushNotificationsFeatureFlag: Boolean,
     hasEuRedeemablePrescriptions: Boolean,
     euConsentStatus: EuConsentStatus,
     isDemoMode: Boolean,
@@ -481,13 +474,11 @@ private fun ProfileMainAreaSection(
                 onClick = onClickInvoices
             )
         }
-        if (pushNotificationsFeatureFlag) {
-            ProfileMainAreaRow(
-                icon = Icons.Outlined.NotificationsNone,
-                title = stringResource(R.string.profile_push_notifications),
-                onClick = onClickPushNotifications
-            )
-        }
+        ProfileMainAreaRow(
+            icon = Icons.Outlined.NotificationsNone,
+            title = stringResource(R.string.profile_push_notifications),
+            onClick = onClickPushNotifications
+        )
         if (euRedeemFeatureFlag && hasEuRedeemablePrescriptions) {
             ProfileMainAreaRow(
                 icon = Icons.Rounded.Public,
@@ -678,7 +669,6 @@ fun ProfileScreenPreview(
             hasEuRedeemablePrescriptions = true,
             euConsentStatus = EuConsentStatus.Accepted,
             euRedeemFeatureFlag = true,
-            pushNotificationsFeatureFlag = true,
             isDemoMode = false,
             color = color,
             keyboardController = null,

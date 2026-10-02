@@ -34,7 +34,6 @@ import de.gematik.ti.erp.app.debugsettings.pushnotifications.usecase.EncryptDebu
 import de.gematik.ti.erp.app.debugsettings.pushnotifications.usecase.SendFcmMessageUseCase
 import de.gematik.ti.erp.app.profile.model.ProfilePushNotificationSettings
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
-import de.gematik.ti.erp.app.pushnotifications.BuildConfig.PUSH_GATEWAY_URL_RU
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushKeyChainAdvancer
 import de.gematik.ti.erp.app.pushnotifications.domain.crypto.PushNotificationCryptoService
 import de.gematik.ti.erp.app.pushnotifications.domain.model.PushNotificationKeyGeneration
@@ -47,6 +46,7 @@ import de.gematik.ti.erp.app.pushnotifications.model.Pusher
 import de.gematik.ti.erp.app.pushnotifications.provider.FcmTokenProvider
 import de.gematik.ti.erp.app.pushnotifications.provider.FirebaseProjectIdProvider
 import de.gematik.ti.erp.app.pushnotifications.provider.PushApplicationIdProvider
+import de.gematik.ti.erp.app.pushnotifications.provider.PushGatewayUrlProvider
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import io.github.aakira.napier.Napier
@@ -79,6 +79,7 @@ class DebugPushNotificationsViewModel(
     private val getPusherChannelsUseCase: GetPusherChannelsUseCase,
     private val getPushersUseCase: GetPushersUseCase,
     private val registerPushNotificationsForProfileUseCase: RegisterPushNotificationsForProfileUseCase,
+    private val pushGatewayUrlProvider: PushGatewayUrlProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
@@ -98,7 +99,7 @@ class DebugPushNotificationsViewModel(
     private val _showRawPushNotification = MutableStateFlow(false)
     val showRawPushNotification: StateFlow<Boolean> = _showRawPushNotification.asStateFlow()
 
-    private val _selectedGatewayUrl = MutableStateFlow(PUSH_GATEWAY_URL_RU)
+    private val _selectedGatewayUrl = MutableStateFlow(pushGatewayUrlProvider.getPushGatewayUrl())
     val selectedGatewayUrl: StateFlow<String> = _selectedGatewayUrl.asStateFlow()
 
     init {
@@ -123,7 +124,7 @@ class DebugPushNotificationsViewModel(
         }
         viewModelScope.launch {
             localDataSource.pushGatewayUrl().collect { url ->
-                val activeUrl = url.ifBlank { PUSH_GATEWAY_URL_RU }
+                val activeUrl = url.ifBlank { pushGatewayUrlProvider.getPushGatewayUrl() }
                 _selectedGatewayUrl.value = activeUrl
                 updateEncryptedCurlCommands(_fcmToken.value.orEmpty())
             }
@@ -422,6 +423,7 @@ fun debugPushNotificationsViewModel(): DebugPushNotificationsViewModel {
     val getPusherChannelsUseCase by rememberInstance<GetPusherChannelsUseCase>()
     val getPushersUseCase by rememberInstance<GetPushersUseCase>()
     val registerPushNotificationsForProfileUseCase by rememberInstance<RegisterPushNotificationsForProfileUseCase>()
+    val pushGatewayUrlProvider by rememberInstance<PushGatewayUrlProvider>()
     val dispatcher by rememberInstance<CoroutineDispatcher>()
 
     return remember {
@@ -439,6 +441,7 @@ fun debugPushNotificationsViewModel(): DebugPushNotificationsViewModel {
             getPusherChannelsUseCase = getPusherChannelsUseCase,
             getPushersUseCase = getPushersUseCase,
             registerPushNotificationsForProfileUseCase = registerPushNotificationsForProfileUseCase,
+            pushGatewayUrlProvider = pushGatewayUrlProvider,
             dispatcher = dispatcher
         )
     }
