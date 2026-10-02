@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.debugsettings.di
 
 import android.app.Application
+import de.gematik.ti.erp.app.debugsettings.data.Environment
 import de.gematik.ti.erp.app.debugsettings.data.repository.DebugSettingsRepository
 import de.gematik.ti.erp.app.debugsettings.data.repository.DefaultDebugSettingsRepository
 import de.gematik.ti.erp.app.debugsettings.data.repository.local.DebugSettingsLocalDataSource
@@ -35,7 +36,7 @@ import de.gematik.ti.erp.app.debugsettings.pushnotifications.datasource.DebugPus
 import de.gematik.ti.erp.app.debugsettings.pushnotifications.usecase.EncryptDebugPushNotificationPayloadUseCase
 import de.gematik.ti.erp.app.debugsettings.pushnotifications.usecase.SendFcmMessageUseCase
 import de.gematik.ti.erp.app.debugsettings.usecase.BreakSsoTokenUseCase
-import de.gematik.ti.erp.app.features.BuildConfig
+import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.pushnotifications.BuildConfig.PUSH_GATEWAY_URL_PU
 import de.gematik.ti.erp.app.pushnotifications.BuildConfig.PUSH_GATEWAY_URL_RU
 import de.gematik.ti.erp.app.pushnotifications.provider.PushGatewayUrlProvider
@@ -50,12 +51,20 @@ val debugSettingsModule = DI.Module("debugSettingsModule") {
 
     bindSingleton { DebugPushNotificationsLocalDataSource(instance<Application>()) }
     bindSingleton<PushGatewayUrlProvider>(overrides = true) {
+        val endpointHelper = instance<EndpointHelper>()
         val localDataSource = instance<DebugPushNotificationsLocalDataSource>()
-        val defaultGatewayUrl = when {
-            BuildConfig.DEBUG -> PUSH_GATEWAY_URL_RU
-            else -> PUSH_GATEWAY_URL_PU
+
+        PushGatewayUrlProvider {
+            val debugUrl = localDataSource.getPushGatewayUrlSync()
+            if (!debugUrl.isNullOrBlank()) {
+                debugUrl
+            } else {
+                when (endpointHelper.getCurrentEnvironment()) {
+                    Environment.PU -> PUSH_GATEWAY_URL_PU
+                    else -> PUSH_GATEWAY_URL_RU
+                }
+            }
         }
-        PushGatewayUrlProvider { localDataSource.getPushGatewayUrlSync() ?: defaultGatewayUrl }
     }
     bindProvider { EncryptDebugPushNotificationPayloadUseCase(instance(), instance()) }
     bindProvider { SendFcmMessageUseCase(instance()) }

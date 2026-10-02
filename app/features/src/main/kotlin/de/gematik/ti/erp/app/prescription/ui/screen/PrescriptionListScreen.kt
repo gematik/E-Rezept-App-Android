@@ -74,7 +74,6 @@ import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.core.LocalNow
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.database.datastore.featuretoggle.PUSH_NOTIFICATIONS
 import de.gematik.ti.erp.app.digas.navigation.DigasRoutes
 import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarWrapper
 import de.gematik.ti.erp.app.mainscreen.ui.MultiProfileTopAppBar
@@ -134,8 +133,6 @@ class PrescriptionListScreen(
         val consentController = rememberConsentController()
 
         val isFeatureToggleEnabledUseCase by rememberInstance<IsFeatureToggleEnabledUseCase>()
-        val pushNotificationsEnabled by remember { isFeatureToggleEnabledUseCase(PUSH_NOTIFICATIONS) }
-            .collectAsStateWithLifecycle(initialValue = false)
 
         val pullToRefreshState = pullToRefreshState
         val snackbar = LocalSnackbarScaffold.current
@@ -244,9 +241,9 @@ class PrescriptionListScreen(
         val showPushNotificationOnboardingEvent = remember { ComposableEvent<ProfileErpModel>() }
         var pushNotificationOnboardingProfile by remember { mutableStateOf<ProfileErpModel?>(null) }
 
-        LaunchedEffect(profileData, pushNotificationsEnabled, isDemoMode) {
+        LaunchedEffect(profileData, isDemoMode) {
             profileData.data?.let { activeProfile ->
-                if (pushNotificationsEnabled && !isDemoMode) {
+                if (!isDemoMode) {
                     showPushNotificationOnboardingEvent.trigger(activeProfile)
                 }
             }

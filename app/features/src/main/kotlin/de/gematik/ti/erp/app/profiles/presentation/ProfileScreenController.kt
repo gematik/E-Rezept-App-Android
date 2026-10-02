@@ -32,7 +32,6 @@ import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
 import de.gematik.ti.erp.app.consent.usecase.GetConsentUseCase
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.EU_REDEEM
-import de.gematik.ti.erp.app.database.datastore.featuretoggle.PUSH_NOTIFICATIONS
 import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.profile.model.ProfileErpModel
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
@@ -91,14 +90,6 @@ class ProfileScreenController(
 
     val euRedeemFeatureFlag: StateFlow<Boolean> =
         isFeatureToggleEnabledUseCase(EU_REDEEM)
-            .stateIn(
-                controllerScope,
-                SharingStarted.WhileSubscribed(),
-                false
-            )
-
-    val pushNotificationsFeatureFlag: StateFlow<Boolean> =
-        isFeatureToggleEnabledUseCase(PUSH_NOTIFICATIONS)
             .stateIn(
                 controllerScope,
                 SharingStarted.WhileSubscribed(),

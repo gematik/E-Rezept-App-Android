@@ -36,12 +36,10 @@ fun interface RoomFeatureToggle {
 
 val ROOM_DB = FeatureEntity(name = "Room", isActive = true)
 val EU_REDEEM = FeatureEntity(name = "EuRedeem", isActive = false)
-val PUSH_NOTIFICATIONS = FeatureEntity(name = "PushNotifications", isActive = true)
 val COMM_RES_V3 = FeatureEntity(name = "CommResV3", isActive = false)
 val FEATURE_ENTITIES = setOf(
     ROOM_DB,
     EU_REDEEM,
-    PUSH_NOTIFICATIONS,
     COMM_RES_V3
 )
 
