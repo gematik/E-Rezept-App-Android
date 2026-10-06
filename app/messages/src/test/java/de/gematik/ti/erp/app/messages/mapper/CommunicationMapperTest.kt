@@ -31,6 +31,7 @@ import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPicku
 import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyReservationStatusPayloadErpModel
 import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyTextPayloadErpModel
 import de.gematik.ti.erp.app.communication.model.payload.CommunicationSupplyOptionTypeErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationTypeErpModel
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import kotlinx.datetime.Clock
 import org.junit.Assert.assertEquals
@@ -168,6 +169,32 @@ class CommunicationMapperTest {
         assertEquals("Out for delivery", message.content)
     }
 
+    @Test
+    fun `legacy v1 reply payload is expanded for CommResV3 message timeline`() {
+        val payload = CommunicationReplyPayloadV1ErpModel(
+            version = 1,
+            communicationType = CommunicationTypeErpModel.Text,
+            transactionID = "tx-7",
+            infoText = "Ihre Bestellung ist bereit",
+            url = "https://example.com/tracking",
+            pickUpCodeHR = "HR-123"
+        )
+
+        val orderDetail = OrderUseCaseData.OrderDetail(
+            orderId = "order-1",
+            taskDetailedBundles = emptyList(),
+            sentOn = Clock.System.now(),
+            pharmacy = OrderUseCaseData.Pharmacy(id = "pharmacy-1", name = "Test Pharmacy")
+        )
+
+        val message = listOf(buildModel(payload)).toMessageList(orderDetail).single()
+
+        assertEquals(3, message.payloads.size)
+        assertTrue(message.payloads.any { it is CommunicationReplyTextPayloadErpModel })
+        assertTrue(message.payloads.any { it is CommunicationReplyLinkPayloadErpModel })
+        assertTrue(message.payloads.any { it is CommunicationReplyPickupCodeHRPayloadErpModel })
+    }
+
     // Reproduces the MultiReply scenario: three prescriptions redeemed together, each answered with its own
     // unique reply text (Test_Communications KBV 1_3_2 -> MultiReply -> Reply_Unique).
     private fun buildReply(taskId: String, payload: de.gematik.ti.erp.app.communication.model.payload.CommunicationPayloadErpModel?) =
@@ -293,5 +320,20 @@ class CommunicationMapperTest {
 
         assertEquals(1, messages.size)
         assertEquals("Ihr Medikament ist fertig.", messages.first().content)
+    }
+
+    @Test
+    fun multiReply_samePayloadWithDifferentTransactionIdsOnDifferentTaskIdsIsMergedIntoOneMessage() {
+        val replies = listOf(
+            buildReply("task-1", CommunicationReplyTextPayloadErpModel(transactionID = "tx-1", text = "Alle Medikamente sind fertig zur Abholung.")),
+            buildReply("task-2", CommunicationReplyTextPayloadErpModel(transactionID = "tx-2", text = "Alle Medikamente sind fertig zur Abholung.")),
+            buildReply("task-3", CommunicationReplyTextPayloadErpModel(transactionID = "tx-3", text = "Alle Medikamente sind fertig zur Abholung."))
+        )
+
+        val messages = replies.toMessageList(buildOrderDetail())
+
+        assertEquals(1, messages.size)
+        assertEquals("Alle Medikamente sind fertig zur Abholung.", messages.first().content)
+        assertEquals(setOf("task-1", "task-2", "task-3"), messages.first().taskIds.toSet())
     }
 }

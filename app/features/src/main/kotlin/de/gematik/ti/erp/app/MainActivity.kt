@@ -89,10 +89,13 @@ open class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         catchAllUnCaughtExceptions(this)
 
+        // Process the initial launch intent exactly once.
+        // Subsequent intents (e.g. GID/fast-track callback, NFC, deep links) are handled
+        // exclusively in BaseActivity.onNewIntent so that the auth code is never sent
+        // to the extAuthChannel a second time when the lifecycle re-enters STARTED after
+        // returning from the external health-insurance app.
         lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                intent?.let { intentHandler.propagateIntent(it) }
-            }
+            intent?.let { intentHandler.propagateIntent(it) }
         }
 
         @Requirement(
@@ -176,7 +179,6 @@ open class MainActivity : BaseActivity() {
         when {
             useRealmFallback -> AppReadyContent()
             isDataPorted == true -> AppReadyContent()
-            isDataPorted == false && migrationRequired == false -> AppReadyContent()
             isDataPorted == false && migrationRequired == true -> {
                 DataMigrationScreen(
                     onContinueWithRealmFallback = {

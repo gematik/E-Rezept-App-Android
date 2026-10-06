@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.cardwall.ui.screens
 
 import android.app.Dialog
+import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -224,7 +225,15 @@ class CardWallIntroScreen(
                     dialog.show {
                         DomainsNotVerifiedDialog(
                             onClickSettingsOpen = {
-                                context.openSettingsAsNewActivity(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                // Open the "Open by default" / App Links settings page directly,
+                                // matching the same logic used in CardWallGidHelpScreen.
+                                context.openSettingsAsNewActivity(
+                                    when {
+                                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+                                            Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS
+                                        else -> Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS
+                                    }
+                                )
                                 it.dismiss()
                             },
                             onDismissRequest = { it.dismiss() }

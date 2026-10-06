@@ -145,6 +145,7 @@ play-review = "2.0.2"
 play-app-update = "2.1.0"
 
 # others
+libphonenumber = "9.0.32"
 password-strength = "1.9.0"
 reactive-state = "5.13.0"
 opencsv = "5.12.0"
@@ -285,6 +286,7 @@ di-androidx = { module = "org.kodein.di:kodein-di-framework-android-x", version.
 di = { module = "org.kodein.di:kodein-di", version.ref = "di" }
 
 # google
+libphonenumber = { module = "com.googlecode.libphonenumber:libphonenumber", version.ref = "libphonenumber" }
 barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcode-scanning" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }

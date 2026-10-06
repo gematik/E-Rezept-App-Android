@@ -23,9 +23,9 @@
 package de.gematik.ti.erp.app.messages.presentation
 
 import android.content.Context
-import de.gematik.ti.erp.app.communication.model.InternalMessageErpModel
 import app.cash.turbine.test
 import de.gematik.ti.erp.app.analytics.tracker.Tracker
+import de.gematik.ti.erp.app.communication.model.InternalMessageErpModel
 import de.gematik.ti.erp.app.eurezept.repository.EuRepository
 import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
@@ -37,8 +37,8 @@ import de.gematik.ti.erp.app.messages.domain.usecase.GetExternalInAppMessagesUse
 import de.gematik.ti.erp.app.messages.domain.usecase.GetInternalMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetLatestEuOrderMessageAsInAppMessageUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessagesUseCase
-import de.gematik.ti.erp.app.messages.mapper.OrderToInAppMessageMapper
 import de.gematik.ti.erp.app.messages.mapper.EuOrderToMessagesMapper
+import de.gematik.ti.erp.app.messages.mapper.OrderToInAppMessageMapper
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.mocks.order.model.COMMUNICATION_DATA
@@ -134,7 +134,7 @@ class MessageListControllerTest {
         coEvery { communicationRepository.loadRepliedCommunicationsByProfileId(any()) } returns flowOf(
             emptyList()
         )
-        coEvery { communicationRepository.loadRepliedCommunications(any<List<String>>(), any<String>()) } returns flowOf(
+        coEvery { communicationRepository.loadAllRepliedCommunications(any<List<String>>()) } returns flowOf(
             emptyList()
         )
         coEvery { communicationRepository.loadDispReqCommunications(any()) } returns flowOf(
@@ -180,7 +180,6 @@ class MessageListControllerTest {
         }
         orderToInAppMessageMapper = OrderToInAppMessageMapper(messagesStringProvider)
         getExternalInAppMessagesUseCase = GetExternalInAppMessagesUseCase(
-            communicationRepository = communicationRepository,
             getMessagesUseCase = getMessagesUseCase,
             orderToInAppMessageMapper = orderToInAppMessageMapper,
             dispatcher = dispatcher

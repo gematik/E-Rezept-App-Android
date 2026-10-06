@@ -23,7 +23,9 @@ package de.gematik.ti.erp.app.eurezept.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import de.gematik.ti.erp.app.consent.usecase.RevokeConsentUseCase
 import de.gematik.ti.erp.app.eurezept.domain.usecase.DeleteEuAccessCodeUseCase
+import de.gematik.ti.erp.app.fhir.consent.model.ConsentCategory
 import de.gematik.ti.erp.app.profiles.presentation.GetActiveProfileController
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.extract
@@ -42,7 +44,8 @@ enum class EuAccessCodeDeleteState {
 
 class EuDeleteAccessCodeBottomSheetScreenController(
     private val deleteEuAccessCodeUseCase: DeleteEuAccessCodeUseCase,
-    getActiveProfileUseCase: GetActiveProfileUseCase
+    getActiveProfileUseCase: GetActiveProfileUseCase,
+    private val revokeConsentUseCase: RevokeConsentUseCase
 ) : GetActiveProfileController(getActiveProfileUseCase) {
 
     private val _deleteState = MutableStateFlow(EuAccessCodeDeleteState.Initial)
@@ -51,6 +54,7 @@ class EuDeleteAccessCodeBottomSheetScreenController(
     fun deleteAccessCode() {
         controllerScope.launch {
             activeProfile.extract()?.let { activeProfile ->
+                var deleteSucceeded = false
                 deleteEuAccessCodeUseCase.invoke(
                     activeProfile.id,
                     inProgress = {
@@ -61,9 +65,17 @@ class EuDeleteAccessCodeBottomSheetScreenController(
                         _deleteState.value = EuAccessCodeDeleteState.Error
                     },
                     completed = {
-                        _deleteState.value = EuAccessCodeDeleteState.Success
+                        deleteSucceeded = true
                     }
                 )
+                if (deleteSucceeded) {
+                    // Revoke EU consent after successfully deleting the access code
+                    revokeConsentUseCase.invoke(activeProfile.id, ConsentCategory.EUCONSENT)
+                        .onFailure { error ->
+                            Napier.e(error) { "Error revoking EU consent" }
+                        }
+                    _deleteState.value = EuAccessCodeDeleteState.Success
+                }
             }
         }
     }
@@ -73,10 +85,12 @@ class EuDeleteAccessCodeBottomSheetScreenController(
 internal fun rememberDeleteAccessCodeBottomSheetScreenController(): EuDeleteAccessCodeBottomSheetScreenController {
     val deleteEuAccessCodeUseCase by rememberInstance<DeleteEuAccessCodeUseCase>()
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
+    val revokeConsentUseCase by rememberInstance<RevokeConsentUseCase>()
     return remember {
         EuDeleteAccessCodeBottomSheetScreenController(
             deleteEuAccessCodeUseCase = deleteEuAccessCodeUseCase,
-            getActiveProfileUseCase = getActiveProfileUseCase
+            getActiveProfileUseCase = getActiveProfileUseCase,
+            revokeConsentUseCase = revokeConsentUseCase
         )
     }
 }

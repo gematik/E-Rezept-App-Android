@@ -56,12 +56,20 @@ object CommunicationPayloadParser {
             val jsonObject = SafeJson.value.parseToJsonElement(payloadJson).jsonObject
             val version = jsonObject["version"]?.jsonPrimitive?.content?.toIntOrNull()
 
-            when (version) {
-                1 -> parseVersion1(jsonObject, isRequest)
-                3 -> parseVersion3(jsonObject, isRequest)
-                else -> {
-                    Napier.w("Unsupported communication payload version: $version")
-                    null
+            if (version == 3 ||
+                jsonObject.containsKey("communicationType") ||
+                jsonObject.containsKey("text") ||
+                jsonObject.containsKey("pickupCodeHR") ||
+                jsonObject.containsKey("pickupCodeDMC")
+            ) {
+                parseVersion3(jsonObject, isRequest) ?: parseVersion1(jsonObject, isRequest)
+            } else {
+                when (version) {
+                    1 -> parseVersion1(jsonObject, isRequest)
+                    3 -> parseVersion3(jsonObject, isRequest)
+                    else -> {
+                        parseVersion3(jsonObject, isRequest) ?: parseVersion1(jsonObject, isRequest)
+                    }
                 }
             }
         }.onFailure { e ->
@@ -137,28 +145,48 @@ object CommunicationPayloadParser {
         jsonObject: JsonObject,
         isRequest: Boolean
     ): DeserializationStrategy<CommunicationPayloadErpModel>? {
-        val communicationType = jsonObject["communicationType"]?.jsonPrimitive?.let {
-            runCatching { SafeJson.value.decodeFromJsonElement<CommunicationTypeErpModel>(it) }.getOrNull()
-        }
-        return when (communicationType) {
-            CommunicationTypeErpModel.Order -> selectV3OrderDeserializer(jsonObject)
-            CommunicationTypeErpModel.Text -> {
-                if (isRequest) {
+        val typeStr = jsonObject["communicationType"]?.jsonPrimitive?.content?.lowercase()
+        return when (typeStr) {
+            "order" -> selectV3OrderDeserializer(jsonObject)
+            "text" -> {
+                if (isRequest || jsonObject.containsKey("phone")) {
                     InfoAvailabilityRequestPayloadErpModel.serializer()
                 } else {
                     CommunicationReplyTextPayloadErpModel.serializer()
                 }
             }
 
-            CommunicationTypeErpModel.Link -> CommunicationReplyLinkPayloadErpModel.serializer()
-            CommunicationTypeErpModel.ReservationStatus -> CommunicationReplyReservationStatusPayloadErpModel.serializer()
-            CommunicationTypeErpModel.PickUpCodeHR -> CommunicationReplyPickupCodeHRPayloadErpModel.serializer()
-            CommunicationTypeErpModel.PickUpCodeDMC -> CommunicationReplyPickupCodeDMCPayloadErpModel.serializer()
-            CommunicationTypeErpModel.DeliveryStatus -> CommunicationReplyDeliveryStatusPayloadErpModel.serializer()
-            CommunicationTypeErpModel.PaymentInfo -> CommunicationReplyPaymentInfoPayloadErpModel.serializer()
+            "link" -> CommunicationReplyLinkPayloadErpModel.serializer()
+            "reservationstatus", "reservation_status" -> CommunicationReplyReservationStatusPayloadErpModel.serializer()
+            "pickupcodehr", "pickup_code_hr" -> CommunicationReplyPickupCodeHRPayloadErpModel.serializer()
+            "pickupcodedmc", "pickup_code_dmc" -> CommunicationReplyPickupCodeDMCPayloadErpModel.serializer()
+            "deliverystatus", "delivery_status" -> CommunicationReplyDeliveryStatusPayloadErpModel.serializer()
+            "paymentinfo", "payment_info" -> CommunicationReplyPaymentInfoPayloadErpModel.serializer()
             else -> {
-                Napier.w("Unknown v3 communication type: $communicationType")
-                null
+                val communicationType = jsonObject["communicationType"]?.jsonPrimitive?.let {
+                    runCatching { SafeJson.value.decodeFromJsonElement<CommunicationTypeErpModel>(it) }.getOrNull()
+                }
+                when (communicationType) {
+                    CommunicationTypeErpModel.Order -> selectV3OrderDeserializer(jsonObject)
+                    CommunicationTypeErpModel.Text -> {
+                        if (isRequest || jsonObject.containsKey("phone")) {
+                            InfoAvailabilityRequestPayloadErpModel.serializer()
+                        } else {
+                            CommunicationReplyTextPayloadErpModel.serializer()
+                        }
+                    }
+
+                    CommunicationTypeErpModel.Link -> CommunicationReplyLinkPayloadErpModel.serializer()
+                    CommunicationTypeErpModel.ReservationStatus -> CommunicationReplyReservationStatusPayloadErpModel.serializer()
+                    CommunicationTypeErpModel.PickUpCodeHR -> CommunicationReplyPickupCodeHRPayloadErpModel.serializer()
+                    CommunicationTypeErpModel.PickUpCodeDMC -> CommunicationReplyPickupCodeDMCPayloadErpModel.serializer()
+                    CommunicationTypeErpModel.DeliveryStatus -> CommunicationReplyDeliveryStatusPayloadErpModel.serializer()
+                    CommunicationTypeErpModel.PaymentInfo -> CommunicationReplyPaymentInfoPayloadErpModel.serializer()
+                    else -> {
+                        Napier.w("Unknown v3 communication type: $typeStr")
+                        null
+                    }
+                }
             }
         }
     }

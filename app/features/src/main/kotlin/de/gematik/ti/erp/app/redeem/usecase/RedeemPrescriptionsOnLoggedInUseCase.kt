@@ -25,21 +25,25 @@ package de.gematik.ti.erp.app.redeem.usecase
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.api.httpErrorState
+import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
+import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestCommunicationPayloadV1ErpModel
+import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestCommunicationPayloadV3ErpModel
+import de.gematik.ti.erp.app.database.datastore.featuretoggle.COMM_RES_V3
+import de.gematik.ti.erp.app.debug.repository.CommunicationVersionRepository
 import de.gematik.ti.erp.app.fhir.communication.CommunicationDispenseRequest.createCommunicationDispenseRequest
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants
 import de.gematik.ti.erp.app.pharmacy.mapper.toRedeemOption
 import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
-import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyDetailsErpModel.Companion.toPharmacyErpModel
 import de.gematik.ti.erp.app.pharmacy.model.PrescriptionInOrderErpModel
+import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.prescription.repository.TaskOperationsRepository
 import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
-import de.gematik.ti.erp.app.debug.repository.CommunicationVersionRepository
-import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestCommunicationPayloadV1ErpModel
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
+import de.gematik.ti.erp.app.utils.formatPhoneForBackend
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -47,6 +51,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -65,7 +70,8 @@ class RedeemPrescriptionsOnLoggedInUseCase(
     private val taskOperationsRepository: TaskOperationsRepository,
     private val pharmacyRepository: PharmacyRepository,
     private val communicationVersionRepository: CommunicationVersionRepository,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val isFeatureToggleEnabledUseCase: IsFeatureToggleEnabledUseCase? = null
 ) {
     /**
      * Sanitizes patient/user names to comply with German e-prescription (eRp) API constraints.
@@ -86,6 +92,22 @@ class RedeemPrescriptionsOnLoggedInUseCase(
         }
     }
 
+    /**
+     * Truncates a value to comply with a Communication Payload V3 field's max length.
+     * Unlike [sanitizeName], this does not append an ellipsis, since fields like
+     * postcode/country/phone must not contain extra characters.
+     */
+    private fun truncate(value: String, maxLength: Int): String =
+        if (value.length > maxLength) value.take(maxLength) else value
+
+    /**
+     * Splits a full name into firstname/lastname on the *first* space, e.g.
+     * "Hans muller schmidth" -> ("Hans", "muller schmidth").
+     * If there is no space, the whole name is used as the firstname.
+     */
+    private fun splitName(name: String): Pair<String, String> =
+        ShippingInfoErpModel.splitFullName(name)
+
     operator fun invoke(
         profileId: ProfileIdentifier,
         redeemOption: OrderOptionErpModel,
@@ -103,23 +125,52 @@ class RedeemPrescriptionsOnLoggedInUseCase(
                 val communicationVersion = communicationVersionRepository.getCommunicationVersion()
                 Napier.i(tag = "fhir-parser") { "Communication version used for dispense request: $communicationVersion" }
 
+                val isCommResV3 = isFeatureToggleEnabledUseCase?.invoke(COMM_RES_V3)?.firstOrNull() ?: false
+                val communicationPayloadVersion = if (isCommResV3) "3" else "1"
+
                 prescriptionOrderInfos
                     .map { prescriptionOrderInfo ->
                         async {
                             val (flowTypeCode, flowTypeDisplay) = FhirCommunicationConstants.determineFlowType(prescriptionOrderInfo.taskId)
 
+                            val payloadContent = if (communicationPayloadVersion == "3") {
+                                val firstnameStr = contact.resolvedFirstname().trim().takeUnless { it.isBlank() }
+                                val lastnameStr = contact.resolvedLastname().trim().takeUnless { it.isBlank() }
+                                val country = contact.country.trim().uppercase().takeUnless { it.isBlank() }
+                                val addressStr = contact.street.trim().takeUnless { it.isBlank() }
+                                val postcodeStr = contact.zip.trim().takeUnless { it.isBlank() }
+                                val cityStr = contact.city.trim().takeUnless { it.isBlank() }
+                                val hintStr = contact.deliveryInfo.trim().takeUnless { it.isBlank() }
+                                val mailStr = contact.mail.trim().takeUnless { it.isBlank() }
+                                DispenseRequestCommunicationPayloadV3ErpModel(
+                                    supplyOptionsType = redeemOption.toRedeemOption(),
+                                    firstname = firstnameStr?.let { truncate(it, 45) },
+                                    lastname = lastnameStr?.let { truncate(it, 45) },
+                                    address = addressStr?.let { truncate(it, 100) },
+                                    postcode = postcodeStr?.let { truncate(it, 10) },
+                                    city = cityStr?.let { truncate(it, 100) },
+                                    country = country?.let { truncate(country, 2) },
+                                    hint = hintStr?.let { truncate(it, 100) },
+                                    phone = truncate(contact.phone.formatPhoneForBackend(), 32),
+                                    mail = mailStr?.let { truncate(it, 70) }
+                                )
+                            } else {
+                                DispenseRequestCommunicationPayloadV1ErpModel(
+                                    supplyOptionsType = redeemOption.toRedeemOption(),
+                                    name = sanitizeName(contact.resolvedName()),
+                                    address = listOf(contact.street, contact.addressDetail, contact.zip, contact.city),
+                                    phone = contact.phone.formatPhoneForBackend(),
+                                    hint = contact.deliveryInfo
+                                )
+                            }
+
                             val communicationDispenseRequestJson = createCommunicationDispenseRequest(
                                 orderId = orderId.toString(),
                                 taskId = prescriptionOrderInfo.taskId,
                                 accessCode = prescriptionOrderInfo.accessCode,
+                                communicationPayloadVersion = communicationPayloadVersion,
                                 recipientId = pharmacy.telematikId,
-                                payloadContent = DispenseRequestCommunicationPayloadV1ErpModel(
-                                    supplyOptionsType = redeemOption.toRedeemOption(),
-                                    name = sanitizeName(contact.name),
-                                    address = listOf(contact.street, contact.addressDetail, contact.zip, contact.city),
-                                    phone = contact.phone,
-                                    hint = contact.deliveryInfo
-                                ),
+                                payloadContent = payloadContent,
                                 flowTypeCode = flowTypeCode,
                                 flowTypeDisplay = flowTypeDisplay,
                                 version = communicationVersion

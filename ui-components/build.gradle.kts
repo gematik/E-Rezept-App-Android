@@ -18,6 +18,7 @@ android {
 dependencies {
     implementation(libs.compose.ui)
     implementation(libs.androidx.work)
+    implementation(project(namesPlugin.multiplatform))
     implementation(project(namesPlugin.testTags))
     implementation(project(namesPlugin.utils))
 }

@@ -22,15 +22,19 @@
 
 package de.gematik.ti.erp.app.messages.di
 
+import de.gematik.ti.erp.app.database.datastore.messages.archivedMessagesLocalDataSource
 import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationParser
 import de.gematik.ti.erp.app.messages.domain.model.InternalMessageResources
 import de.gematik.ti.erp.app.messages.domain.model.MessagesStringProvider
 import de.gematik.ti.erp.app.messages.domain.repository.ChangeLogLocalDataSource
+import de.gematik.ti.erp.app.messages.domain.usecase.ArchiveMessageKeysUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.GetArchivedMessageKeysUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetCombinedMessagesAsInAppMessageUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetDispenseMessagesByTaskIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetEuOrderMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetEuOrderTasksUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetExternalInAppMessagesUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.GetHideCompletedUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetInternalMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetLatestEuOrderMessageAsInAppMessageUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessageUsingOrderIdUseCase
@@ -39,25 +43,32 @@ import de.gematik.ti.erp.app.messages.domain.usecase.GetProfileByOrderIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetProfileByTaskIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetRepliedMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetReplyMessagesByTaskIdUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.GetSentReplyMessagesByOrderIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetUnreadMessagesCountUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.MarkAllUnreadMessagesAsReadUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.MarkEuEventsReadUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.SaveLocalCommunicationUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.SendReplyMessageToPharmacyUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.SetCompletedMessageStateUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.SetHideCompletedUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.SetInternalMessageAsReadUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationConsumedStatusUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInternalMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInvoicesByOrderIdAndTaskIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInvoicesByTaskIdUseCase
-import de.gematik.ti.erp.app.messages.mapper.OrderToInAppMessageMapper
 import de.gematik.ti.erp.app.messages.mapper.EuOrderToMessagesMapper
+import de.gematik.ti.erp.app.messages.mapper.OrderToInAppMessageMapper
 import de.gematik.ti.erp.app.messages.presentation.AndroidMessagesStringProvider
+import de.gematik.ti.erp.app.messages.repository.ArchivedMessagesRepository
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
+import de.gematik.ti.erp.app.messages.repository.DefaultArchivedMessagesRepository
 import de.gematik.ti.erp.app.messages.repository.DefaultCommunicationRepository
 import de.gematik.ti.erp.app.messages.repository.DefaultInternalMessagesRepository
 import de.gematik.ti.erp.app.messages.repository.InternalMessagesLocalDataSource
 import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
+import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
 val messagesModule = DI.Module("messagesModule") {
@@ -65,9 +76,11 @@ val messagesModule = DI.Module("messagesModule") {
     bindProvider { GetMessagesUseCase(instance(), instance(), instance(), instance()) }
     bindProvider { GetMessageUsingOrderIdUseCase(instance(), instance(), instance()) }
     bindProvider { GetProfileByOrderIdUseCase(instance()) }
+    bindProvider { GetSentReplyMessagesByOrderIdUseCase(instance()) }
     bindProvider { GetUnreadMessagesCountUseCase(instance(), instance(), instance(), instance()) }
     bindProvider { MarkAllUnreadMessagesAsReadUseCase(instance(), instance(), instance()) }
     bindProvider { SaveLocalCommunicationUseCase(instance()) }
+    bindProvider { SendReplyMessageToPharmacyUseCase(instance(), instance(), instance(), instance()) }
     bindProvider { UpdateCommunicationConsumedStatusUseCase(instance()) }
     bindProvider { UpdateInvoicesByOrderIdAndTaskIdUseCase(instance(), instance()) }
     bindProvider { UpdateInternalMessagesUseCase(instance(), instance(), instance()) }
@@ -76,8 +89,13 @@ val messagesModule = DI.Module("messagesModule") {
     bindProvider { GetInternalMessagesUseCase(instance(), instance()) }
     bindProvider<MessagesStringProvider> { AndroidMessagesStringProvider(instance()) }
     bindProvider { OrderToInAppMessageMapper(instance()) }
-    bindProvider { GetExternalInAppMessagesUseCase(instance(), instance(), instance()) }
+    bindProvider { GetExternalInAppMessagesUseCase(instance(), instance()) }
     bindProvider { GetCombinedMessagesAsInAppMessageUseCase(instance(), instance(), instance()) }
+    bindProvider { GetArchivedMessageKeysUseCase(instance()) }
+    bindProvider { ArchiveMessageKeysUseCase(instance()) }
+    bindProvider { SetCompletedMessageStateUseCase(instance()) }
+    bindProvider { GetHideCompletedUseCase(instance()) }
+    bindProvider { SetHideCompletedUseCase(instance()) }
     bindProvider { SetInternalMessageAsReadUseCase(instance()) }
     bindProvider { CommunicationParser() }
     bindProvider { EuOrderToMessagesMapper(instance(), instance()) }
@@ -106,4 +124,6 @@ val messageRepositoryModule = DI.Module("messageRepositoryModule", allowSilentOv
     }
     bindProvider<InternalMessagesLocalDataSource> { InternalMessagesLocalDataSource(instance()) }
     bindProvider<InternalMessagesRepository> { DefaultInternalMessagesRepository(instance()) }
+    bindSingleton { archivedMessagesLocalDataSource(instance()) }
+    bindSingleton<ArchivedMessagesRepository> { DefaultArchivedMessagesRepository(instance()) }
 }

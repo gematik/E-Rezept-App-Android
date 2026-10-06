@@ -24,6 +24,7 @@ package de.gematik.ti.erp.app.messages.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.messages.domain.model.WELCOME_MESSAGE_ID
 import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.timestate.TimeState
 import kotlinx.datetime.Instant
@@ -38,29 +39,62 @@ const val IN_APP_MESSAGE =
     "Nutzen Sie ab sofort die E-Rezept App, um Ihre Entscheidung zur Organspende im **digitalen Organspenderegister** festzuhalten – sicher und " +
         "#unkompliziert.\u2028\n\nAktuell warten 9.192 Menschen in Deutschland dringend auf ein Organ – jede Entscheidung zählt und kann Leben retten.\n\n"
 
+private const val CHANGE_LOG_OLD =
+    "**✨ App öffnen verbessert**\nDas Entsperren der App funktioniert jetzt schneller.\n\n" +
+        "**📞 Erweiterte Kontaktmöglichkeiten**\nWir haben neue Kontaktoptionen für ausgewählte Versicherungen eingeführt."
+
+private const val CHANGE_LOG_NEW =
+    "**✅ T-Rezepte verfügbar**\nT-Rezepte können jetzt empfangen und korrekt angezeigt werden. " +
+        "T-Rezepte werden für bestimmte Arzneimittel mit besonderen Sicherheitsanforderungen verwendet.\n\n" +
+        "**⚙️ Einstellungen aufgeräumt**\nDie Profileinstellungen wurden überarbeitet und übersichtlicher gestaltet."
+
 internal val inAppPreview = listOf(
     InAppMessage(
-        id = "123",
+        id = WELCOME_MESSAGE_ID,
         from = "Team",
         text = IN_APP_MESSAGE,
-        timeState = TimeState.ShowDate(Instant.parse("2024-11-08T15:20:00Z")),
+        timeState = TimeState.ShowDate(Instant.parse("2023-05-15T15:48:00Z")),
         prescriptionsCount = 0,
-        tag = "Version 1.26.0",
-        isUnread = true,
+        tag = "Herzlich Willkommen!",
+        isUnread = false,
         lastMessage = null,
         messageProfile = CommunicationErpModel.CommunicationProfile.InApp,
         version = "1.26.0"
     ),
     InAppMessage(
-        id = "123",
+        id = "124",
+        from = "Team",
+        text = CHANGE_LOG_OLD,
+        timeState = TimeState.ShowDate(Instant.parse("2025-05-15T15:48:00Z")),
+        prescriptionsCount = 0,
+        tag = "Neuerungen in der App Version 1.36.0",
+        isUnread = false,
+        lastMessage = null,
+        messageProfile = CommunicationErpModel.CommunicationProfile.InApp,
+        version = "1.36.0"
+    ),
+    InAppMessage(
+        id = "125",
         from = "Team",
         text = IN_APP_MESSAGE,
-        timeState = TimeState.ShowDate(Instant.parse("2024-11-08T15:20:00Z")),
+        timeState = TimeState.ShowDate(Instant.parse("2026-08-15T08:00:00Z")),
         prescriptionsCount = 0,
-        tag = "Version 1.27.0",
+        tag = "Neuerungen in der App Version 1.38.0",
         isUnread = true,
         lastMessage = null,
         messageProfile = CommunicationErpModel.CommunicationProfile.InApp,
-        version = "1.27.0"
+        version = "1.38.0"
+    ),
+    InAppMessage(
+        id = "126",
+        from = "Team",
+        text = CHANGE_LOG_NEW,
+        timeState = TimeState.ShowDate(Instant.parse("2026-08-15T08:00:00Z")),
+        prescriptionsCount = 0,
+        tag = "Neuerungen in der App Version 1.39.0",
+        isUnread = true,
+        lastMessage = null,
+        messageProfile = CommunicationErpModel.CommunicationProfile.InApp,
+        version = "1.39.0"
     )
 )

@@ -36,6 +36,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,23 +52,36 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
+import de.gematik.ti.erp.app.pharmacy.ui.components.CountryCallingCodeBottomSheet
+import de.gematik.ti.erp.app.pharmacy.ui.components.CountrySelectionBottomSheet
 import de.gematik.ti.erp.app.pharmacy.ui.components.addressSupplementInputField
 import de.gematik.ti.erp.app.pharmacy.ui.components.cityInputField
+import de.gematik.ti.erp.app.pharmacy.ui.components.countryInputField
 import de.gematik.ti.erp.app.pharmacy.ui.components.deliveryInformationInputField
-import de.gematik.ti.erp.app.pharmacy.ui.components.nameInputField
+import de.gematik.ti.erp.app.pharmacy.ui.components.firstNameInputField
+import de.gematik.ti.erp.app.pharmacy.ui.components.getAvailableCountryCallingCodes
+import de.gematik.ti.erp.app.pharmacy.ui.components.lastNameInputField
+import de.gematik.ti.erp.app.pharmacy.ui.components.mailInputField
+import de.gematik.ti.erp.app.pharmacy.ui.components.parsePhoneToCallingCodeAndNationalNumber
 import de.gematik.ti.erp.app.pharmacy.ui.components.phoneNumberInputField
 import de.gematik.ti.erp.app.pharmacy.ui.components.postalCodeInputField
 import de.gematik.ti.erp.app.pharmacy.ui.components.streetAndNumberInputField
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isEmptyCity
+import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isEmptyCountry
+import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isEmptyFirstName
+import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isEmptyLastName
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isEmptyLine1
-import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isEmptyName
+import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isEmptyMail
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isEmptyPhoneNumber
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isEmptyPostalCode
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidCity
+import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidCountry
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidDeliveryInformation
+import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidFirstName
+import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidLastName
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidLine1
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidLine2
-import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidName
+import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidMail
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidPhoneNumber
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isInvalidPostalCode
 import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isValid
@@ -125,7 +139,25 @@ class RedeemEditShippingContactScreen(
 
                 val orderState by sharedViewModel.selectedOrderState
 
-                var contact by remember(orderState.contact) { mutableStateOf(orderState.contact) }
+                var contact by remember(orderState.contact) {
+                    val initialContact = orderState.contact.let { c ->
+                        var updated = c
+                        if (updated.phone.isEmpty()) {
+                            updated = updated.copy(phone = "+49")
+                        } else if (!updated.phone.startsWith("+")) {
+                            updated = updated.copy(phone = "+49" + updated.phone.removePrefix("0"))
+                        }
+                        if (updated.firstname.isEmpty() && updated.lastname.isEmpty() && updated.name.isNotEmpty()) {
+                            val (first, last) = ShippingInfoErpModel.splitFullName(updated.name)
+                            updated = updated.copy(
+                                firstname = first,
+                                lastname = last
+                            )
+                        }
+                        updated
+                    }
+                    mutableStateOf(initialContact)
+                }
 
                 val shippingContactState = remember(orderState, contact) {
                     sharedViewModel.validateAndGetShippingContactState(contact, selectedOrderOption)
@@ -141,7 +173,21 @@ class RedeemEditShippingContactScreen(
                         listState = listState,
                         onContactChange = { contact = it },
                         onSave = {
-                            sharedViewModel.saveShippingContact(contact)
+                            val trimmedContact = contact.copy(
+                                firstname = contact.firstname.trim(),
+                                lastname = contact.lastname.trim(),
+                                name = contact.name.trim(),
+                                street = contact.street.trim(),
+                                addressDetail = contact.addressDetail.trim(),
+                                zip = contact.zip.trim(),
+                                city = contact.city.trim(),
+                                phone = contact.phone.trim(),
+                                mail = contact.mail.trim(),
+                                deliveryInfo = contact.deliveryInfo.trim()
+                            )
+                            val fullName = listOf(trimmedContact.firstname, trimmedContact.lastname).filter { it.isNotBlank() }.joinToString(" ")
+                            val contactToSave = trimmedContact.copy(name = if (fullName.isNotBlank()) fullName else trimmedContact.name)
+                            sharedViewModel.saveShippingContact(contactToSave)
                             navController.popBackStack()
                         },
                         onShowDialog = { showDialogEvent.trigger() }
@@ -160,6 +206,52 @@ fun RedeemEditShippingContactScreenContent(
     onSave: () -> Unit,
     onShowDialog: () -> Unit
 ) {
+    var showCountryPicker by remember { mutableStateOf(false) }
+    var showCallingCodePicker by remember { mutableStateOf(false) }
+
+    val allCallingCodes = remember { getAvailableCountryCallingCodes() }
+    val (derivedCallingCode, derivedNational) = remember(notNullContact.phone) {
+        parsePhoneToCallingCodeAndNationalNumber(
+            phone = notNullContact.phone,
+            allCallingCodes = allCallingCodes
+        )
+    }
+    var selectedCallingCode by remember { mutableStateOf(derivedCallingCode) }
+    var nationalNumber by remember { mutableStateOf(derivedNational) }
+
+    LaunchedEffect(notNullContact.phone) {
+        val (code, national) = parsePhoneToCallingCodeAndNationalNumber(
+            phone = notNullContact.phone,
+            allCallingCodes = allCallingCodes
+        )
+        selectedCallingCode = code
+        nationalNumber = national
+    }
+
+    CountryCallingCodeBottomSheet(
+        visible = showCallingCodePicker,
+        selectedCallingCode = selectedCallingCode,
+        onDismissRequest = { showCallingCodePicker = false },
+        onCallingCodeSelected = { selected ->
+            selectedCallingCode = selected
+            val cleanNational = nationalNumber.trim().removePrefix("0")
+            val fullPhone = if (cleanNational.isNotEmpty()) {
+                "${selected.displayCallingCode}$cleanNational"
+            } else {
+                selected.displayCallingCode
+            }
+            onContactChange(notNullContact.copy(phone = fullPhone))
+        }
+    )
+
+    CountrySelectionBottomSheet(
+        visible = showCountryPicker,
+        onDismissRequest = { showCountryPicker = false },
+        onCountrySelected = { selectedCountry ->
+            onContactChange(notNullContact.copy(country = selectedCountry.code))
+        }
+    )
+
     AnimatedElevationScaffold(
         navigationMode = NavigationBarMode.Back,
         backLabel = stringResource(R.string.back),
@@ -206,28 +298,79 @@ fun RedeemEditShippingContactScreenContent(
             item { ContactNumberHeader() }
             phoneNumberInputField(
                 listState = listState,
-                value = notNullContact.phone,
+                value = nationalNumber,
+                selectedCallingCode = selectedCallingCode,
                 validationResult = ValidationResult(
                     isEmpty = state.isEmptyPhoneNumber(),
                     isInvalid = state.isInvalidPhoneNumber()
                 ),
-                onValueChange = { phone ->
-                    onContactChange(notNullContact.copy(phone = phone.trim()))
+                onCallingCodeClick = { showCallingCodePicker = true },
+                onValueChange = { input ->
+                    if (input.startsWith("+")) {
+                        val (newCode, newNational) = parsePhoneToCallingCodeAndNationalNumber(
+                            phone = input,
+                            allCallingCodes = allCallingCodes
+                        )
+                        selectedCallingCode = newCode
+                        nationalNumber = newNational
+                        val fullPhone = if (newNational.isNotEmpty()) {
+                            "${newCode.displayCallingCode}$newNational"
+                        } else {
+                            newCode.displayCallingCode
+                        }
+                        onContactChange(notNullContact.copy(phone = fullPhone))
+                    } else {
+                        nationalNumber = input
+                        val cleanNational = input.trim().removePrefix("0")
+                        val fullPhone = if (cleanNational.isNotEmpty()) {
+                            "${selectedCallingCode.displayCallingCode}$cleanNational"
+                        } else {
+                            selectedCallingCode.displayCallingCode
+                        }
+                        onContactChange(notNullContact.copy(phone = fullPhone))
+                    }
+                },
+                onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
+            )
+            mailInputField(
+                listState = listState,
+                value = notNullContact.mail,
+                validationResult = ValidationResult(
+                    isEmpty = state.isEmptyMail(),
+                    isInvalid = state.isInvalidMail()
+                ),
+                onValueChange = { mail ->
+                    onContactChange(notNullContact.copy(mail = mail))
                 },
                 onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
             )
             item { DeliveryAddressHeader() }
 
-            nameInputField(
+            firstNameInputField(
                 listState = listState,
-                value = notNullContact.name,
-                onValueChange = { name ->
-                    onContactChange(notNullContact.copy(name = name))
+                value = notNullContact.firstname,
+                onValueChange = { firstName ->
+                    val fullName = listOf(firstName, notNullContact.lastname).filter { it.isNotBlank() }.joinToString(" ")
+                    onContactChange(notNullContact.copy(firstname = firstName, name = fullName))
                 },
                 onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
                 validationResult = ValidationResult(
-                    isEmpty = state.isEmptyName(),
-                    isInvalid = state.isInvalidName()
+                    isEmpty = state.isEmptyFirstName(),
+                    isInvalid = state.isInvalidFirstName()
+                )
+            )
+
+            lastNameInputField(
+                listState = listState,
+                value = notNullContact.lastname,
+                onValueChange = { lastName ->
+                    val fullName = listOf(notNullContact.firstname, lastName).filter { it.isNotBlank() }.joinToString(" ")
+                    onContactChange(notNullContact.copy(lastname = lastName, name = fullName))
+                },
+                onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
+                validationResult = ValidationResult(
+                    isEmpty = state.isEmptyLastName(),
+                    isInvalid = state.isInvalidLastName()
                 )
             )
 
@@ -281,6 +424,20 @@ fun RedeemEditShippingContactScreenContent(
                     isEmpty = state.isEmptyCity(),
                     isInvalid = state.isInvalidCity()
                 )
+            )
+
+            countryInputField(
+                listState = listState,
+                value = notNullContact.country,
+                onValueChange = { country ->
+                    onContactChange(notNullContact.copy(country = country))
+                },
+                onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
+                validationResult = ValidationResult(
+                    isEmpty = state.isEmptyCountry(),
+                    isInvalid = state.isInvalidCountry()
+                ),
+                onClick = { showCountryPicker = true }
             )
 
             deliveryInformationInputField(

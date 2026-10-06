@@ -249,6 +249,24 @@ internal fun NotAvailableReservationStateMessageCard(
     )
 }
 
+@Composable
+internal fun EmptyMessageCard(
+    time: String
+) {
+    CommResV3MessageCard(
+        cardIcon = Icons.Outlined.Close,
+        cardIconTint = AppTheme.colors.red900,
+        cardIconBackgroundColor = AppTheme.colors.red100,
+        time = time,
+        title = stringResource(R.string.orders_no_message_title),
+        content = {
+            CommResV3TextContent(
+                text = stringResource(R.string.order_message_empty)
+            )
+        }
+    )
+}
+
 // Link
 // CommResV3 design: https://www.figma.com/design/Xg4X8ULc7fwxzkxaCnxW0I/%F0%9F%A4%96-eRezept-Android?node-id=41291-17441&m=dev
 @Composable

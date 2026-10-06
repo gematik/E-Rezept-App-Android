@@ -41,7 +41,9 @@ import de.gematik.ti.erp.app.demomode.model.DemoModeProfile
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfileLinkedCommunication
 import de.gematik.ti.erp.app.eurezept.domain.model.Country
 import de.gematik.ti.erp.app.eurezept.model.EuAccessCodeErpModel
+import de.gematik.ti.erp.app.eurezept.model.EuEventType
 import de.gematik.ti.erp.app.eurezept.model.EuOrderErpModel
+import de.gematik.ti.erp.app.eurezept.model.EuTaskEventErpModel
 import de.gematik.ti.erp.app.fhir.audit.model.FhirAuditEventErpModel
 import de.gematik.ti.erp.app.idp.api.models.PairingData
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
@@ -389,8 +391,60 @@ class DemoModeDataSource(
             )
         )
 
-    val euOrders: MutableStateFlow<MutableList<EuOrderErpModel>> = MutableStateFlow(mutableListOf())
-    val euAccessCodes: MutableStateFlow<MutableList<EuAccessCodeErpModel>> = MutableStateFlow(mutableListOf())
+    private val demoEuAccessCode = EuAccessCodeErpModel(
+        countryCode = "es",
+        accessCode = "EUROPA",
+        createdAt = Clock.System.now().minus(2.hours),
+        validUntil = Clock.System.now().plus(30.days),
+        profileIdentifier = demoProfile01.id
+    )
+
+    private val demoEuOrder = EuOrderErpModel(
+        orderId = "demo-eu-order",
+        countryCode = "es",
+        createdAt = demoEuAccessCode.createdAt,
+        profileId = demoProfile01.id,
+        euAccessCode = demoEuAccessCode,
+        relatedTaskIds = listOf(
+            "110.000.002.345.863.0",
+            "110.000.002.345.863.30"
+        ),
+        events = listOf(
+            EuTaskEventErpModel(
+                id = "demo-eu-event-created",
+                type = EuEventType.ACCESS_CODE_CREATED,
+                taskId = "110.000.002.345.863.0",
+                createdAt = demoEuAccessCode.createdAt,
+                isUnread = true
+            ),
+            EuTaskEventErpModel(
+                id = "demo-eu-event-added",
+                type = EuEventType.TASK_ADDED,
+                taskId = "110.000.002.345.863.30",
+                createdAt = demoEuAccessCode.createdAt.plus(10.minutes),
+                isUnread = true
+            ),
+            EuTaskEventErpModel(
+                id = "demo-eu-event-removed",
+                type = EuEventType.TASK_REMOVED,
+                taskId = "110.000.002.345.863.30",
+                createdAt = demoEuAccessCode.createdAt.plus(20.minutes),
+                isUnread = true
+            ),
+            EuTaskEventErpModel(
+                id = "demo-eu-event-redeemed",
+                type = EuEventType.TASK_REDEEMED,
+                taskId = "110.000.002.345.863.0",
+                createdAt = demoEuAccessCode.createdAt.plus(30.minutes),
+                isUnread = true
+            )
+        )
+    )
+
+    val euOrders: MutableStateFlow<MutableList<EuOrderErpModel>> =
+        MutableStateFlow(mutableListOf(demoEuOrder))
+    val euAccessCodes: MutableStateFlow<MutableList<EuAccessCodeErpModel>> =
+        MutableStateFlow(mutableListOf(demoEuAccessCode))
     val orders: MutableStateFlow<MutableList<EuOrderErpModel>> = MutableStateFlow(mutableListOf())
     val events: MutableStateFlow<MutableList<FhirAuditEventErpModel>> = MutableStateFlow(mutableListOf())
 
@@ -556,6 +610,14 @@ class DemoModeDataSource(
                             "communicationType": "deliveryStatus",
                             "transactionID": "tx-v3-delivery",
                             "deliveryStatus": "inTransport",
+                            "inTransportETA": {
+                                "from": 1735736400,
+                                "to": 1735741800
+                            },
+                            "inTransportPosition": {
+                                "lat": 52.522529939635795,
+                                "long": 13.387595793605172
+                            },
                             "text": "Ihre Botendienst-Lieferung befindet sich jetzt auf dem Weg zu Ihnen."
                         }
                     """.trimIndent(),
@@ -598,7 +660,7 @@ class DemoModeDataSource(
                             "version": 3,
                             "communicationType": "paymentInfo",
                             "transactionID": "tx-v3-payment",
-                            "totalAmount": 14.95,
+                            "totalAmount": 1495,
                             "paymentMethods": [
                                 { "method": "Online", "url": "https://github.com/gematik/E-Rezept-App-Android" }
                             ],

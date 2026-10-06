@@ -23,6 +23,7 @@ package de.gematik.ti.erp.app.messages.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.messages.ui.model.EuOrderMessageUiModel
+import de.gematik.ti.erp.app.messages.ui.preview.EuOrderMessageUiModelPreviewData.previewEuOrderAddedRemovedMessages
 import de.gematik.ti.erp.app.messages.ui.preview.EuOrderMessageUiModelPreviewData.previewEuOrderCreatedMessages
 import de.gematik.ti.erp.app.messages.ui.preview.EuOrderMessageUiModelPreviewData.previewEuOrderCreatedNoAccessCodeMessages
 import de.gematik.ti.erp.app.messages.ui.preview.EuOrderMessageUiModelPreviewData.previewEuOrderRecreatedMessages
@@ -36,7 +37,8 @@ class EuRedeemMessageDetailsPreviewParameterProvider :
             previewEuOrderCreatedMessages,
             previewEuOrderCreatedNoAccessCodeMessages,
             previewEuOrderRecreatedMessages,
-            previewEuOrderRedeemedMessages
+            previewEuOrderRedeemedMessages,
+            previewEuOrderAddedRemovedMessages
         )
 }
 
@@ -44,7 +46,8 @@ val previewsForEuOrderMessageUiModel: List<List<EuOrderMessageUiModel>> = listOf
     previewEuOrderRecreatedMessages,
     previewEuOrderRedeemedMessages,
     previewEuOrderCreatedMessages,
-    previewEuOrderCreatedNoAccessCodeMessages
+    previewEuOrderCreatedNoAccessCodeMessages,
+    previewEuOrderAddedRemovedMessages
 )
 
 // ----------------------------------------------------------------------
@@ -100,6 +103,45 @@ object EuOrderMessageUiModelPreviewData {
             description = "Sie haben einen Code für die Einlösung Ihres Rezeptes in Spanien abgerufen. " +
                 "Spanien kann nicht mehr auf Ihre ausgewählten Rezepte zugreifen.",
             isRevoked = true,
+            isUnread = false
+        )
+    )
+
+    val previewEuOrderAddedRemovedMessages = listOf(
+        EuOrderMessageUiModel.TaskAdded(
+            id = "evt_added_1",
+            underlyingEventIds = listOf(),
+            orderId = "order-111",
+            accessCode = "EUROPA",
+            dateTimeString = "02.05.25 um 18:56 Uhr",
+            timestamp = null,
+            isFirst = false,
+            isLast = false,
+            showButtons = false,
+            taskIds = listOf("123-001"),
+            prescriptionNames = listOf("Gematidolor 100mg"),
+            countryCode = "ES",
+            title = "Rezept hinzugefügt",
+            description = "Sie haben ein Rezept aus der EU Einlösung hinzugefügt.",
+            isRevoked = false,
+            isUnread = false
+        ),
+        EuOrderMessageUiModel.TaskRemoved(
+            id = "evt_removed_1",
+            underlyingEventIds = listOf(),
+            orderId = "order-111",
+            accessCode = "EUROPA",
+            dateTimeString = "02.05.25 um 18:57 Uhr",
+            timestamp = null,
+            isFirst = false,
+            isLast = true,
+            showButtons = false,
+            taskIds = listOf("123-001"),
+            prescriptionNames = listOf("Gematidolor 100mg"),
+            countryCode = "ES",
+            title = "Rezept entfernt",
+            description = "Sie haben ein Rezept aus der EU Einlösung entfernt.",
+            isRevoked = false,
             isUnread = false
         )
     )

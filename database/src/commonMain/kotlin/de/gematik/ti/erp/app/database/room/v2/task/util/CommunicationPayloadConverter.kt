@@ -24,13 +24,62 @@ package de.gematik.ti.erp.app.database.room.v2.task.util
 
 import androidx.room.TypeConverter
 import de.gematik.ti.erp.app.communication.model.payload.CommunicationPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyDeliveryStatusPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyLinkPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPayloadV1ErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPaymentInfoPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPickupCodeDMCPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPickupCodeHRPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyReservationStatusPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyTextPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestCommunicationPayloadV1ErpModel
+import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestCommunicationPayloadV3ErpModel
+import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestDeliveryPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestReservationPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestShipmentPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.InfoAvailabilityRequestPayloadErpModel
 import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationPayloadParser
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 
 class CommunicationPayloadConverter {
     @TypeConverter
     fun fromPayload(payload: CommunicationPayloadErpModel?): String? =
-        payload?.let { SafeJson.value.encodeToString(CommunicationPayloadErpModel.serializer(), it) }
+        payload?.let {
+            when (it) {
+                is CommunicationReplyPayloadV1ErpModel -> SafeJson.value.encodeToString(CommunicationReplyPayloadV1ErpModel.serializer(), it)
+                is DispenseRequestCommunicationPayloadV1ErpModel -> SafeJson.value.encodeToString(
+                    DispenseRequestCommunicationPayloadV1ErpModel.serializer(),
+                    it
+                )
+                is DispenseRequestCommunicationPayloadV3ErpModel -> SafeJson.value.encodeToString(
+                    DispenseRequestCommunicationPayloadV3ErpModel.serializer(),
+                    it
+                )
+                is DispenseRequestReservationPayloadErpModel -> SafeJson.value.encodeToString(DispenseRequestReservationPayloadErpModel.serializer(), it)
+                is DispenseRequestDeliveryPayloadErpModel -> SafeJson.value.encodeToString(DispenseRequestDeliveryPayloadErpModel.serializer(), it)
+                is DispenseRequestShipmentPayloadErpModel -> SafeJson.value.encodeToString(DispenseRequestShipmentPayloadErpModel.serializer(), it)
+                is InfoAvailabilityRequestPayloadErpModel -> SafeJson.value.encodeToString(InfoAvailabilityRequestPayloadErpModel.serializer(), it)
+                is CommunicationReplyTextPayloadErpModel -> SafeJson.value.encodeToString(CommunicationReplyTextPayloadErpModel.serializer(), it)
+                is CommunicationReplyLinkPayloadErpModel -> SafeJson.value.encodeToString(CommunicationReplyLinkPayloadErpModel.serializer(), it)
+                is CommunicationReplyReservationStatusPayloadErpModel -> SafeJson.value.encodeToString(
+                    CommunicationReplyReservationStatusPayloadErpModel.serializer(),
+                    it
+                )
+                is CommunicationReplyPickupCodeHRPayloadErpModel -> SafeJson.value.encodeToString(
+                    CommunicationReplyPickupCodeHRPayloadErpModel.serializer(),
+                    it
+                )
+                is CommunicationReplyPickupCodeDMCPayloadErpModel -> SafeJson.value.encodeToString(
+                    CommunicationReplyPickupCodeDMCPayloadErpModel.serializer(),
+                    it
+                )
+                is CommunicationReplyDeliveryStatusPayloadErpModel -> SafeJson.value.encodeToString(
+                    CommunicationReplyDeliveryStatusPayloadErpModel.serializer(),
+                    it
+                )
+                is CommunicationReplyPaymentInfoPayloadErpModel -> SafeJson.value.encodeToString(CommunicationReplyPaymentInfoPayloadErpModel.serializer(), it)
+            }
+        }
 
     @TypeConverter
     fun toPayload(value: String?): CommunicationPayloadErpModel? =

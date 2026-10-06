@@ -27,7 +27,6 @@ import de.gematik.ti.erp.app.api.ResourcePaging
 import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.database.api.task.TaskLocalDataSource
 import de.gematik.ti.erp.app.fhir.FhirCommunicationBundleErpModel
-import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.communication.model.FhirCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationParser
@@ -132,7 +131,7 @@ class DefaultCommunicationRepository(
                 pharmacyRemoteDataSource.searchPharmacyByTelematikId(telematikId) {
                     // ignore unauthorized here, as we are in a background sync
                 }.onSuccess { json ->
-                    val pharmacyCollection = pharmacyBundleParser.extract(json) as FhirPharmacyErpModelCollection
+                    val pharmacyCollection = pharmacyBundleParser.extract(json)
                     message.pharmacyName = pharmacyCollection.entries.firstOrNull()?.name
                 }
             }
@@ -220,6 +219,9 @@ class DefaultCommunicationRepository(
         // Persist via communication DB API (bridged V1/V2) so it works for Realm and Room
         communicationLocalDataSource.saveLocalCommunication(taskId, pharmacyId, transactionId)
     }
+
+    override suspend fun saveCommunications(communicationModels: List<CommunicationErpModel>): Int =
+        communicationLocalDataSource.saveCommunications(communicationModels)
 
     override suspend fun hasUnreadRepliedMessages(taskIds: List<String>, telematikId: String): Flow<Boolean> =
         communicationLocalDataSource.hasUnreadRepliedMessages(taskIds, telematikId)

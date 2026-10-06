@@ -25,25 +25,29 @@ package de.gematik.ti.erp.app.demomode.repository.pharmacy
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class DemoShippingContactRepository : ShippingContactRepository {
-    override fun shippingContact(): Flow<ShippingInfoErpModel?> {
-        return flowOf(
-            ShippingInfoErpModel(
-                name = "Helga Schmetterling",
-                street = "Schmetterlingweg 1",
-                addressDetail = "2 Stockwerk rechts",
-                zip = "12345",
-                city = "Berlin",
-                phone = "123456789",
-                mail = "",
-                deliveryInfo = "Bitte klingeln"
-            )
+    private val contactState = MutableStateFlow(
+        ShippingInfoErpModel(
+            name = "Helga Schmetterling",
+            firstname = "Helga",
+            lastname = "Schmetterling",
+            street = "Schmetterlingweg 1",
+            addressDetail = "2 Stockwerk rechts",
+            zip = "12345",
+            city = "Berlin",
+            country = "DE",
+            phone = "+49123456789",
+            mail = "",
+            deliveryInfo = "Bitte klingeln"
         )
-    }
+    )
+
+    override fun shippingContact(): Flow<ShippingInfoErpModel?> = contactState.asStateFlow()
 
     override suspend fun saveShippingContact(contact: ShippingInfoErpModel) {
-        // do nothing
+        contactState.value = contact
     }
 }

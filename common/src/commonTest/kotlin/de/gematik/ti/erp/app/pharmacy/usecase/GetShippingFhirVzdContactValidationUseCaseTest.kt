@@ -65,10 +65,11 @@ class GetShippingContactValidationUseCaseTest {
     }
 
     @Test
-    fun `validate empty shipping contact on direct redeem should contain OK`() = runTest {
+    fun `validate empty shipping contact on direct redeem should contain OK when not commResV3`() = runTest {
         val validationState = getShippingContactValidationUseCase(
             contact = emptyShippingContact,
-            selectedOrderOption = OrderOptionErpModel.Pickup
+            selectedOrderOption = OrderOptionErpModel.Pickup,
+            isCommResV3 = false
         )
         assertTrue { validationState == ShippingContactState.ValidShippingContactState.OK }
     }
@@ -175,7 +176,7 @@ class GetShippingContactValidationUseCaseTest {
     @Test
     fun `validate shipping contact with invalid texts (Name, Line1, Line2, City)`() = runTest {
         val invalidTexts = listOf(
-            generateRandomString(51)
+            generateRandomString(101)
         )
 
         invalidTexts.forEach {
@@ -219,7 +220,7 @@ class GetShippingContactValidationUseCaseTest {
     @Test
     fun `validate postal code with invalid text`() = runTest {
         val invalidTexts = listOf(
-            "123456789",
+            "12345678901",
             "aB§123",
             ""
         )
@@ -295,7 +296,7 @@ class GetShippingContactValidationUseCaseTest {
             "info@my-domain.com",
             "It's raining cats and dogs",
             "Alice-Müller",
-            generateRandomString(500)
+            generateRandomString(100)
         )
 
         validtexts.forEach {
@@ -315,7 +316,7 @@ class GetShippingContactValidationUseCaseTest {
     @Test
     fun `validate delivery contact with invalid texts`() = runTest {
         val invalidTexts = listOf(
-            generateRandomString(501)
+            generateRandomString(101)
         )
 
         invalidTexts.forEach {
@@ -335,12 +336,16 @@ class GetShippingContactValidationUseCaseTest {
     private fun generateRandomString(maxLength: Int): String {
         val allowedCharacters = ('a'..'z') + ('A'..'Z') + ('0'..'9') +
             listOf('-', '.', ',', ':', '!', '@', '_', '%', '+', '/', '"', ' ', '\'')
+        // non-whitespace characters so the generated string's effective (trimmed) length stays deterministic
+        val nonWhitespaceCharacters = allowedCharacters.filterNot { it.isWhitespace() }
 
         val stringBuilder = StringBuilder()
 
-        repeat(maxLength) {
-            val randomChar = allowedCharacters.random()
-            stringBuilder.append(randomChar)
+        repeat(maxLength) { index ->
+            // keep the first and last character non-whitespace so trimming never shortens the string,
+            // otherwise a randomly generated leading/trailing space would make the test non-deterministic
+            val pool = if (index == 0 || index == maxLength - 1) nonWhitespaceCharacters else allowedCharacters
+            stringBuilder.append(pool.random())
         }
 
         return stringBuilder.toString()

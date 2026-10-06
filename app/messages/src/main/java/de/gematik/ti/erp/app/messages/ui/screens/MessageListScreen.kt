@@ -34,6 +34,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.messages.model.InAppMessage
+import de.gematik.ti.erp.app.messages.navigation.HandleMessageListRefresh
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
 import de.gematik.ti.erp.app.messages.presentation.rememberMessageListController
 import de.gematik.ti.erp.app.messages.ui.components.MessageListScreenContent
@@ -63,6 +64,10 @@ class MessageListScreen(
             onDispose {
                 messagesController.trackMessageCount()
             }
+        }
+
+        navBackStackEntry.HandleMessageListRefresh {
+            messagesController.retryFetchMessagesList()
         }
 
         MessageListScreenScaffold(

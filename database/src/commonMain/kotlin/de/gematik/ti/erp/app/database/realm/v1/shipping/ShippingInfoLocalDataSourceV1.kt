@@ -25,8 +25,8 @@ import de.gematik.ti.erp.app.database.api.ShippingInfoLocalDataSource
 import de.gematik.ti.erp.app.database.realm.utils.queryFirst
 import de.gematik.ti.erp.app.database.realm.utils.tryWrite
 import de.gematik.ti.erp.app.database.realm.v1.AddressEntityV1
-import de.gematik.ti.erp.app.database.realm.v1.settings.SettingsEntityV1
 import de.gematik.ti.erp.app.database.realm.v1.ShippingContactEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.settings.SettingsEntityV1
 import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
@@ -73,25 +73,40 @@ internal class ShippingInfoLocalDataSourceV1(
         address.apply {
             line1 = contact.street
             line2 = contact.addressDetail
+            additionalAddressInformation = contact.country
             postalCode = contact.zip
             city = contact.city
         }
 
+        val resolvedName = when {
+            contact.name.isNotBlank() -> contact.name
+            contact.firstname.isNotBlank() || contact.lastname.isNotBlank() ->
+                listOf(contact.firstname, contact.lastname).filter { it.isNotBlank() }.joinToString(" ")
+
+            else -> ""
+        }
+
         this.address = address
-        this.name = contact.name
+        this.name = resolvedName
         this.telephoneNumber = contact.phone
         this.mail = contact.mail
         this.deliveryInformation = contact.deliveryInfo
     }
 
-    private fun ShippingContactEntityV1.toErpModel() = ShippingInfoErpModel(
-        name = this.name,
-        street = this.address?.line1 ?: "",
-        addressDetail = this.address?.line2 ?: "",
-        zip = this.address?.postalCode ?: "",
-        city = this.address?.city ?: "",
-        phone = this.telephoneNumber,
-        mail = this.mail,
-        deliveryInfo = this.deliveryInformation
-    )
+    private fun ShippingContactEntityV1.toErpModel(): ShippingInfoErpModel {
+        val (firstname, lastname) = ShippingInfoErpModel.splitFullName(this.name)
+        return ShippingInfoErpModel(
+            name = this.name,
+            firstname = firstname,
+            lastname = lastname,
+            street = this.address?.line1 ?: "",
+            addressDetail = this.address?.line2 ?: "",
+            zip = this.address?.postalCode ?: "",
+            city = this.address?.city ?: "",
+            country = this.address?.additionalAddressInformation?.ifBlank { "" } ?: "",
+            phone = this.telephoneNumber,
+            mail = this.mail,
+            deliveryInfo = this.deliveryInformation
+        )
+    }
 }

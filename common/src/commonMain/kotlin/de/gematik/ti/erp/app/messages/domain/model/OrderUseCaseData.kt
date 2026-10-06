@@ -22,7 +22,8 @@
 
 package de.gematik.ti.erp.app.messages.domain.model
 
-import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyDeliveryStatusPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationSupplyOptionTypeErpModel
 import de.gematik.ti.erp.app.messages.model.LastMessage
 import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.datetime.Instant
@@ -45,7 +46,8 @@ object OrderUseCaseData {
         val pharmacy: Pharmacy,
         val hasUnreadMessages: Boolean,
         val latestCommunicationMessage: LastMessage?,
-        val invoiceInfo: InvoiceInfo = InvoiceInfo()
+        val invoiceInfo: InvoiceInfo = InvoiceInfo(),
+        val supplyOption: CommunicationSupplyOptionTypeErpModel? = null
     )
 
     @Serializable
@@ -54,20 +56,70 @@ object OrderUseCaseData {
         val taskDetailedBundles: List<TaskDetailedBundle>,
         val sentOn: Instant,
         val pharmacy: Pharmacy,
-        val hasUnreadMessages: Boolean = false
+        val hasUnreadMessages: Boolean = false,
+        val requestPayload: CommunicationPayloadErpModel? = null
     )
 
     @Serializable
     data class InvoiceInfo(
         val hasInvoice: Boolean = false,
         val invoiceSentOn: Instant? = null,
-        val medicationName: String? = null
+        val medicationName: String? = null,
+        val consumed: Boolean = true
     )
 
     @Serializable
     data class TaskDetailedBundle(
         val invoiceInfo: InvoiceInfo = InvoiceInfo(),
         val prescription: TaskErpModel?
+    )
+
+    @Serializable
+    sealed interface OrderCardErpModel {
+        val sentOn: Instant
+        val hasSeen: Boolean
+
+        // wenn Replymessages kommt wie kann ich es  in PharmacyReplyCard karte packen,
+        // DispenseRequestCard
+        @Serializable
+        data class DispenseRequestCard(
+            override val sentOn: Instant,
+            val pharmacy: Pharmacy,
+            val tasks: List<TaskErpModel>,
+            val payload: CommunicationPayloadErpModel?,
+            override val hasSeen: Boolean
+        ) : OrderCardErpModel
+
+        @Serializable
+        data class PharmacyReplyCard(
+            val message: Message,
+            val payloads: List<CommunicationPayloadErpModel>,
+            override val sentOn: Instant,
+            override val hasSeen: Boolean
+        ) : OrderCardErpModel
+
+        @Serializable
+        data class UserReplyCard(
+            override val sentOn: Instant,
+            val payload: CommunicationPayloadErpModel,
+            override val hasSeen: Boolean
+        ) : OrderCardErpModel
+
+        @Serializable
+        data class InvoiceCard(
+            override val sentOn: Instant,
+            val invoiceInfo: InvoiceInfo,
+            val tasks: List<TaskErpModel>,
+            override val hasSeen: Boolean
+        ) : OrderCardErpModel
+    }
+
+    @Serializable
+    data class OrderErpModel(
+        val orderId: String,
+        val tasks: List<TaskErpModel>,
+        val pharmacy: Pharmacy,
+        val cards: List<OrderCardErpModel>
     )
 
     @Serializable
@@ -79,11 +131,11 @@ object OrderUseCaseData {
         val pickUpCodeDMC: String?,
         val pickUpCodeHR: String?,
         val link: String?,
-        val deliveryStatusPayload: CommunicationReplyDeliveryStatusPayloadErpModel? = null,
         val consumed: Boolean,
         val prescriptions: List<TaskErpModel?>,
         val taskIds: List<String> = emptyList(),
-        val isTaskIdCountMatching: Boolean = false
+        val isTaskIdCountMatching: Boolean = false,
+        val payloads: List<CommunicationPayloadErpModel> = emptyList()
     ) {
         enum class Type {
             All,

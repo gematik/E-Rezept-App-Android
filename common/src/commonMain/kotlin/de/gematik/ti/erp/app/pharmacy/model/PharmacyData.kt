@@ -26,17 +26,23 @@ import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import de.gematik.ti.erp.app.task.model.TaskErpModel
 import kotlinx.datetime.Instant
 
-fun TaskErpModel.Synced.Prescription.shippingContact() =
-    ShippingInfoErpModel(
+fun TaskErpModel.Synced.Prescription.shippingContact(): ShippingInfoErpModel {
+    val streetName = this.patient?.address?.line1.orEmpty()
+    val houseNumber = this.patient?.address?.line2.orEmpty()
+    val fullStreet = listOf(streetName, houseNumber)
+        .filter { it.isNotBlank() }
+        .joinToString(" ")
+    return ShippingInfoErpModel(
         name = this.patient?.name ?: "",
-        street = this.patient?.address?.line1 ?: "",
-        addressDetail = this.patient?.address?.line2 ?: "",
+        street = fullStreet,
+        addressDetail = "",
         zip = this.patient?.address?.postalCode ?: "",
         city = this.patient?.address?.city ?: "",
         phone = "",
         mail = "",
         deliveryInfo = ""
     )
+}
 
 object OverviewPharmacyData {
     data class OverviewPharmacy(

@@ -50,6 +50,7 @@ dependencies {
     testImplementation(libs.room.testing)
 
     implementation(libs.text.recognition)
+    implementation(libs.libphonenumber)
     implementation(libs.bundles.serialization)
 }
 

@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.debug.repository
 
-import de.gematik.ti.erp.app.debug.model.CommunicationVersion
 import de.gematik.ti.erp.app.database.api.debug.CommunicationVersionLocalDataSource
+import de.gematik.ti.erp.app.debug.model.CommunicationVersion
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions
 import kotlinx.coroutines.flow.first
 

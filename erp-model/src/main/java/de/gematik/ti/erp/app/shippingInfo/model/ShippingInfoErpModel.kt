@@ -27,15 +27,34 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ShippingInfoErpModel(
-    val name: String,
-    val mail: String,
-    val phone: String,
-    val street: String,
-    val addressDetail: String, // e.g., Apt/Floor/Company
-    val city: String,
-    val zip: String,
-    val deliveryInfo: String
+    val name: String = "",
+    val mail: String = "",
+    val phone: String = "",
+    val street: String = "",
+    val addressDetail: String = "", // e.g., Apt/Floor/Company
+    val city: String = "",
+    val zip: String = "",
+    val deliveryInfo: String = "",
+    val firstname: String = "",
+    val lastname: String = "",
+    val country: String = ""
 ) {
+
+    fun resolvedFirstname(): String = firstname.ifBlank {
+        splitFullName(name).first
+    }
+
+    fun resolvedLastname(): String = lastname.ifBlank {
+        splitFullName(name).second
+    }
+
+    fun resolvedName(): String = when {
+        name.isNotBlank() -> name
+        firstname.isNotBlank() || lastname.isNotBlank() ->
+            listOf(firstname, lastname).filter { it.isNotBlank() }.joinToString(" ")
+
+        else -> ""
+    }
 
     fun address() = listOf(
         street,
@@ -53,12 +72,30 @@ data class ShippingInfoErpModel(
     fun isEmpty() = address().isEmpty() && other().isEmpty()
 
     companion object {
+        /**
+         * Splits a full name into (firstname, lastname) on the *first* whitespace, e.g.:
+         * "Hans muller schmidth" -> ("Hans", "muller schmidth")
+         * "Erika Mustermann" -> ("Erika", "Mustermann")
+         * "Cher" -> ("Cher", "")
+         */
+        fun splitFullName(name: String): Pair<String, String> {
+            val trimmed = name.trim()
+            if (trimmed.isEmpty()) return "" to ""
+            val parts = trimmed.split(Regex("\\s+"), limit = 2)
+            val first = parts.firstOrNull().orEmpty()
+            val last = if (parts.size > 1) parts[1].trim() else ""
+            return first to last
+        }
+
         val EmptyShippingInfoErpModel = ShippingInfoErpModel(
             name = "",
+            firstname = "",
+            lastname = "",
             street = "",
             addressDetail = "",
             zip = "",
             city = "",
+            country = "DE",
             phone = "",
             mail = "",
             deliveryInfo = ""

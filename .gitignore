@@ -57,6 +57,13 @@ downloads/
 /.tool-versions
 /.zed/settings.json
 /documentation/HANDOVER_DOC.md
+/.zed/
+/.mcp.json
+/.rules
+/app/android/src/debug/assets/
+/.idx/
+/.vscode/
+/.github/instructions/
 
 Jenkinsfile
 Nightly.Jenkinsfile

@@ -25,6 +25,8 @@ package de.gematik.ti.erp.app.core
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.core.net.toUri
@@ -84,24 +86,44 @@ class IntentHandler(private val context: Context) {
         }
 
         val uri = intent.data ?: return
-        if (uri.scheme != "https") return
+        if (uri.scheme != "https") {
+            Napier.w { "Ignoring intent with non-https scheme: ${uri.scheme}" }
+            return
+        }
         val url = uri.toString()
 
         Napier.d("Received new intent: $url")
 
-        if (!url.isValidUri()) return
+        if (!url.isValidUri()) {
+            Napier.w { "Ignoring intent with invalid URI: $url" }
+            return
+        }
 
         when {
-            url.isExternalAuthAllowed() && URI(url).validateForUniversalLink() -> extAuthChannel.send(
-                GidResultIntent(
-                    uriData = url,
-                    onSuccess = { data -> gidSuccessfulShared.emit(data) }
-                )
-            )
+            url.isExternalAuthAllowed() -> {
+                if (URI(url).validateForUniversalLink()) {
+                    extAuthChannel.send(
+                        GidResultIntent(
+                            uriData = url,
+                            onSuccess = { data -> gidSuccessfulShared.emit(data) }
+                        )
+                    )
+                } else {
+                    // Missing mandatory 'code' and/or 'state' query parameters.
+                    // This typically means the external health-insurance app returned
+                    // an error response or an incomplete redirect URL.
+                    Napier.e {
+                        "Dropping external-auth intent – mandatory 'code'/'state' parameters " +
+                            "missing in URL: $url"
+                    }
+                }
+            }
 
             url.isSharePrescriptionAllowed() -> {
                 shareChannel.send(url)
             }
+
+            else -> Napier.w { "Received https intent that matches no known handler: $url" }
         }
     }
 
@@ -117,11 +139,70 @@ class IntentHandler(private val context: Context) {
     ) {
         try {
             clear() // clear possible cached values
-            context.startActivity(Intent(Intent.ACTION_VIEW, redirect.toString().toUri()))
+            val baseIntent = Intent(Intent.ACTION_VIEW, redirect.toString().toUri()).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            // Try to find the single non-browser app that handles this redirect URI
+            // (e.g. the health-insurance app). Targeting a specific package bypasses
+            // the Android app-chooser entirely.
+            val targetPackage = resolveNonBrowserPackage(baseIntent)
+            if (targetPackage != null) {
+                Napier.d { "Targeting specific package for external auth: $targetPackage" }
+                baseIntent.setPackage(targetPackage)
+            }
+            context.startActivity(baseIntent)
             onSuccess()
         } catch (e: ActivityNotFoundException) {
             Napier.e(e) { "Activity missing, user needs to install the other app" }
             onFailure()
+        }
+    }
+
+    /**
+     * Identifies the single non-browser app that can handle [intent], if exactly one exists.
+     *
+     * Strategy:
+     * 1. Query all activities that can handle [intent].
+     * 2. Query all activities that can handle a plain `https://example.com` URL — these are browsers.
+     * 3. Remove the browser set from the first set.
+     * 4. Return the package name only when exactly **one** non-browser remains, so we never
+     *    silently pick the wrong app when multiple health-insurance apps are installed.
+     */
+    private fun resolveNonBrowserPackage(intent: Intent): String? {
+        val pm = context.packageManager
+
+        @Suppress("DEPRECATION")
+        fun queryActivities(i: Intent) =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                pm.queryIntentActivities(i, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()))
+            } else {
+                pm.queryIntentActivities(i, PackageManager.MATCH_DEFAULT_ONLY)
+            }
+
+        val candidates = queryActivities(intent)
+        if (candidates.isEmpty()) return null
+        if (candidates.size == 1) return candidates.first().activityInfo.packageName
+
+        // Identify browser packages by what handles a generic https URL
+        val browserCheckIntent = Intent(Intent.ACTION_VIEW, "https://example.com".toUri()).apply {
+            addCategory(Intent.CATEGORY_BROWSABLE)
+        }
+        val browserPackages = queryActivities(browserCheckIntent)
+            .map { it.activityInfo.packageName }
+            .toSet()
+
+        val nonBrowserApps = candidates.filter {
+            it.activityInfo.packageName !in browserPackages
+        }
+
+        return if (nonBrowserApps.size == 1) {
+            nonBrowserApps.first().activityInfo.packageName
+        } else {
+            Napier.d {
+                "Cannot auto-select target package: ${nonBrowserApps.size} non-browser " +
+                    "candidates found for ${intent.data}"
+            }
+            null
         }
     }
 

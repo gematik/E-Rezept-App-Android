@@ -23,6 +23,9 @@
 package de.gematik.ti.erp.app.database.room.v2.datasource
 
 import de.gematik.ti.erp.app.communication.model.CommunicationProfileV1
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyTextPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationTypeErpModel
 import de.gematik.ti.erp.app.database.api.task.TaskLocalDataSource
 import de.gematik.ti.erp.app.database.room.v2.invoice.InvoiceDao
 import de.gematik.ti.erp.app.database.room.v2.invoice.InvoiceRoomEntity
@@ -52,8 +55,6 @@ import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskWithRefsD
 import de.gematik.ti.erp.app.database.room.v2.task.prescription.TaskTypeValues
 import de.gematik.ti.erp.app.fhir.FhirCommunicationBundleErpModel
 import de.gematik.ti.erp.app.fhir.FhirTaskDataErpModel
-import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyTextPayloadErpModel
-import de.gematik.ti.erp.app.communication.model.payload.CommunicationTypeErpModel
 import de.gematik.ti.erp.app.fhir.FhirTaskMetaDataErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
@@ -355,12 +356,13 @@ class TaskLocalDataSourceV2Test {
         override suspend fun updateConsumedForGroup(
             orderId: String,
             taskId: String,
+            payload: CommunicationPayloadErpModel?,
             sender: String,
             recipient: String,
             consumed: Boolean
         ): Int {
             val targets = store.communications.values.filter {
-                it.orderId == orderId && it.taskId == taskId && it.telematikId == sender && it.recipient == recipient
+                it.orderId == orderId && it.taskId == taskId && it.payload == payload && it.telematikId == sender && it.recipient == recipient
             }
             targets.forEach {
                 store.putCommunication(it.copy(consumed = consumed))
@@ -394,6 +396,9 @@ class TaskLocalDataSourceV2Test {
 
         override suspend fun getOrderIdByTaskIdAndProfile(taskId: String, profile: CommunicationProfileV1): String? =
             store.communications.values.find { it.taskId == taskId && it.profile == profile && it.orderId.isNotEmpty() }?.orderId
+
+        override suspend fun getTaskIdByOrderId(orderId: String): String? =
+            store.communications.values.firstOrNull { it.orderId == orderId && it.taskId.isNotEmpty() }?.taskId
 
         override fun observeRepliesForOrderIdFromSender(orderId: String, profile: CommunicationProfileV1): Flow<List<ErpCommunicationEntity>> =
             store.communicationFlow.map { list -> list.filter { it.orderId == orderId && it.profile == profile }.sortedByDescending { it.timeStamp } }
@@ -1258,7 +1263,7 @@ class TaskLocalDataSourceV2Test {
             substitutionAllowed = false,
             dosageInstruction = "dosage-1",
             performer = "performer-1",
-            handedOver = de.gematik.ti.erp.app.fhir.temporal.FhirTemporal.Instant(NOW),
+            handedOver = FhirTemporal.Instant(NOW),
             dispensedMedication = emptyList(),
             dispensedDeviceRequest = null,
             euCountryCode = "IT"

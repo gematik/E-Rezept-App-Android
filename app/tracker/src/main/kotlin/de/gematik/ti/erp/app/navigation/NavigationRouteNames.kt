@@ -111,8 +111,10 @@ enum class NavigationRouteNames(
     MessageListScreen,
     CommResV3MessageListScreen,
     OrderMessageDetailScreen,
+    CommResV3OrderMessageDetailScreen,
     UnknownOrderMessageDetailScreen,
     InternalMessageDetailScreen,
+    CommResV3InternalMessageDetailScreen,
     MessageBottomSheetScreen,
 
     // showcase screen

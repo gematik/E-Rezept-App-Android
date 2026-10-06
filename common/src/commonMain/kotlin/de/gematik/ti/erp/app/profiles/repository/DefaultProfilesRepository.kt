@@ -52,21 +52,22 @@ class DefaultProfilesRepository(
 
     override fun profiles(): Flow<List<ProfileErpModel>> =
         profileLocalDataSource.loadProfiles()
-            .map { erpProfiles ->
-                val hasActiveProfile = erpProfiles.any { it.active }
-
-                if (erpProfiles.size == 1 && !hasActiveProfile) {
-                    erpProfiles.map { it.copy(active = true) }
-                } else {
-                    erpProfiles
-                }
-            }
+            .map { it.withRecoveredActiveProfile() }
             .flowOn(dispatcher)
 
     override fun activeProfile(): Flow<ProfileErpModel> =
-        profileLocalDataSource.activeProfile()
-            .mapNotNull { it }
+        profiles()
+            .mapNotNull { profiles -> profiles.firstOrNull { it.active } }
             .flowOn(dispatcher)
+
+    private fun List<ProfileErpModel>.withRecoveredActiveProfile(): List<ProfileErpModel> {
+        val hasActiveProfile = any { it.active }
+        return if (size == 1 && !hasActiveProfile) {
+            map { it.copy(active = true) }
+        } else {
+            this
+        }
+    }
 
     override suspend fun createNewProfile(profileName: String) {
         val randomColor = ProfileColorNames.entries.toTypedArray().random()
