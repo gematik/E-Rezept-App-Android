@@ -49,15 +49,15 @@ class RedeemContactValidationStateTest {
     }
 
     @Test
-    fun `returns NoError for pickup with no name`() {
+    fun `returns MissingPersonalInfo for pickup with no name`() {
         val state = ContactValidationState.Invalid(Pickup, setOf(EmptyName))
-        assertEquals(RedeemContactValidationState.NoError, state.redeemValidationState())
+        assertEquals(MissingPersonalInfo, state.redeemValidationState())
     }
 
     @Test
-    fun `returns NoError for pickup with non-personal error`() {
+    fun `returns MissingDeliveryInfo for pickup with non-personal error`() {
         val state = ContactValidationState.Invalid(Pickup, setOf(InvalidDeliveryInformation))
-        assertEquals(RedeemContactValidationState.NoError, state.redeemValidationState())
+        assertEquals(RedeemContactValidationState.MissingDeliveryInfo, state.redeemValidationState())
     }
 
     @Test

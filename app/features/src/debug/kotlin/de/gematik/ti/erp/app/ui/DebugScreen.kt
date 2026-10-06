@@ -1275,14 +1275,17 @@ private fun FeatureToggles(
         initiallyExpanded = initiallyExpanded
     ) {
         for (feature in featureState) {
+            val isSubToggle = feature.name == "CommResV3SendMessage"
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(if (isSubToggle) Modifier.padding(start = PaddingDefaults.Medium) else Modifier),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = feature.name,
+                    text = if (isSubToggle) "↳ CommResV3 Send Message" else feature.name,
                     modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.body1
+                    style = if (isSubToggle) MaterialTheme.typography.body2 else MaterialTheme.typography.body1
                 )
                 GemSwitch(
                     checked = feature.isActive,

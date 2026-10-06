@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.mainscreen.navigation
 import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -42,6 +43,7 @@ import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.cardunlock.navigation.cardUnlockGraph
 import de.gematik.ti.erp.app.cardwall.navigation.cardWallGraph
 import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.core.LocalApplicationInnerPadding
 import de.gematik.ti.erp.app.core.LocalBottomSheetNavigator
 import de.gematik.ti.erp.app.core.LocalDi
 import de.gematik.ti.erp.app.core.LocalNavController
@@ -100,87 +102,96 @@ fun NavigationGraph(
     val currentActivity = LocalActivity.current as BaseActivity
 
     val mainScreenController = rememberAppController()
-
-    val onboardingSucceeded = mainScreenController.onboardingSucceeded
-    val showMedicationSuccess by currentActivity.pendingNavigationToMedicationNotificationScreen.collectAsStateWithLifecycle()
-
-    val getAndroid13DeprecationUseCase by rememberInstance<GetShouldShowAndroid13DeprecationWarningUseCase>()
-    val showAndroid13DeprecationScreen by produceState(initialValue = false) {
-        getAndroid13DeprecationUseCase().collect { value = it }
-    }
-    val startDestinationScreen = calculateStartDestination(onboardingSucceeded, showMedicationSuccess, showAndroid13DeprecationScreen)
-
-    LaunchedEffect(authRequired, isAuthenticated, showMedicationSuccess, showAndroid13DeprecationScreen) {
-        when {
-            authRequired -> {
-                navHostController.navigate(AppAuthenticationRoutes.AppAuthenticationScreen.path())
-            }
-            isAuthenticated && showAndroid13DeprecationScreen && onboardingSucceeded -> {
-                val nextRoute = if (showMedicationSuccess) {
-                    MedicationPlanRoutes.MedicationPlanNotificationScreen.path()
-                } else {
-                    PrescriptionRoutes.PrescriptionListScreen.path()
-                }
-                navHostController.navigate(AppSecurityRoutes.Android13DeprecationScreen.path(nextRoute = nextRoute))
-            }
-            isAuthenticated && showMedicationSuccess -> {
-                navHostController.navigate(MedicationPlanRoutes.MedicationPlanNotificationScreen.path())
-            }
-        }
-    }
-
-    ObserveDigaFeedbackNavigation(digaPromptFeedback, isAuthenticated) {
-        navHostController.navigate(DigasRoutes.DigaFeedbackPromptScreen.path())
-        onDigaNavigationActivated()
-    }
-
-    NavigationGraphBuilder(
-        bottomSheetNavigator = bottomSheetNavigator,
-        navHostController = navHostController,
-        startDestination = AppSecurityRoutes.subGraphName()
+    CompositionLocalProvider(
+        LocalApplicationInnerPadding provides padding
     ) {
-        appSecurityGraph(navController = navHostController) {
-            navHostController.navigateAndClearStack(route = startDestinationScreen)
+        val onboardingSucceeded = mainScreenController.onboardingSucceeded
+        val showMedicationSuccess by currentActivity.pendingNavigationToMedicationNotificationScreen.collectAsStateWithLifecycle()
+
+        val getAndroid13DeprecationUseCase by rememberInstance<GetShouldShowAndroid13DeprecationWarningUseCase>()
+        val showAndroid13DeprecationScreen by produceState(initialValue = false) {
+            getAndroid13DeprecationUseCase().collect { value = it }
         }
-        onboardingGraph(
-            dependencyInjector = dependencyInjector,
-            navController = navHostController
+        val startDestinationScreen = calculateStartDestination(
+            onboardingSucceeded,
+            showMedicationSuccess,
+            showAndroid13DeprecationScreen
         )
-        pkvGraph(navController = navHostController)
-        prescriptionGraph(navController = navHostController)
-        prescriptionDetailGraph(navController = navHostController)
-        messagesGraph(navController = navHostController)
-        profileGraph(navController = navHostController)
-        pushNotificationsGraph(navController = navHostController)
-        redeemAndPharmacySharedGraph(
-            dependencyInjector = dependencyInjector,
-            navController = navHostController
-        )
-        orderHealthCardGraph(
-            dependencyInjector = dependencyInjector,
-            navController = navHostController
-        )
-        showcaseScreensGraph(navController = navHostController)
-        trackingGraph(navController = navHostController)
-        settingsGraph(navController = navHostController)
-        troubleShootingGraph(navController = navHostController)
-        cardUnlockGraph(
-            dependencyInjector = dependencyInjector,
-            navController = navHostController
-        )
-        medicationPlanGraph(navController = navHostController)
-        cardWallGraph(navController = navHostController)
-        digasGraph(
-            navController = navHostController
-        )
-        appAuthenticationGraph(navController = navHostController)
-        translationGraph(navController = navHostController)
-        composable(MainNavigationScreens.Debug.route) {
-            DebugScreenWrapper(navHostController)
+
+        LaunchedEffect(authRequired, isAuthenticated, showMedicationSuccess, showAndroid13DeprecationScreen) {
+            when {
+                authRequired -> {
+                    navHostController.navigate(AppAuthenticationRoutes.AppAuthenticationScreen.path())
+                }
+
+                isAuthenticated && showAndroid13DeprecationScreen && onboardingSucceeded -> {
+                    val nextRoute = if (showMedicationSuccess) {
+                        MedicationPlanRoutes.MedicationPlanNotificationScreen.path()
+                    } else {
+                        PrescriptionRoutes.PrescriptionListScreen.path()
+                    }
+                    navHostController.navigate(AppSecurityRoutes.Android13DeprecationScreen.path(nextRoute = nextRoute))
+                }
+
+                isAuthenticated && showMedicationSuccess -> {
+                    navHostController.navigate(MedicationPlanRoutes.MedicationPlanNotificationScreen.path())
+                }
+            }
         }
-        euGraph(
-            navController = navHostController
-        )
+
+        ObserveDigaFeedbackNavigation(digaPromptFeedback, isAuthenticated) {
+            navHostController.navigate(DigasRoutes.DigaFeedbackPromptScreen.path())
+            onDigaNavigationActivated()
+        }
+
+        NavigationGraphBuilder(
+            bottomSheetNavigator = bottomSheetNavigator,
+            navHostController = navHostController,
+            startDestination = AppSecurityRoutes.subGraphName()
+        ) {
+            appSecurityGraph(navController = navHostController) {
+                navHostController.navigateAndClearStack(route = startDestinationScreen)
+            }
+            onboardingGraph(
+                dependencyInjector = dependencyInjector,
+                navController = navHostController
+            )
+            pkvGraph(navController = navHostController)
+            prescriptionGraph(navController = navHostController)
+            prescriptionDetailGraph(navController = navHostController)
+            messagesGraph(navController = navHostController)
+            profileGraph(navController = navHostController)
+            pushNotificationsGraph(navController = navHostController)
+            redeemAndPharmacySharedGraph(
+                dependencyInjector = dependencyInjector,
+                navController = navHostController
+            )
+            orderHealthCardGraph(
+                dependencyInjector = dependencyInjector,
+                navController = navHostController
+            )
+            showcaseScreensGraph(navController = navHostController)
+            trackingGraph(navController = navHostController)
+            settingsGraph(navController = navHostController)
+            troubleShootingGraph(navController = navHostController)
+            cardUnlockGraph(
+                dependencyInjector = dependencyInjector,
+                navController = navHostController
+            )
+            medicationPlanGraph(navController = navHostController)
+            cardWallGraph(navController = navHostController)
+            digasGraph(
+                navController = navHostController
+            )
+            appAuthenticationGraph(navController = navHostController)
+            translationGraph(navController = navHostController)
+            composable(MainNavigationScreens.Debug.route) {
+                DebugScreenWrapper(navHostController)
+            }
+            euGraph(
+                navController = navHostController
+            )
+        }
     }
 }
 

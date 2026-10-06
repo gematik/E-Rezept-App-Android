@@ -51,6 +51,9 @@ import kotlinx.serialization.json.JsonElement
 )
 class CommunicationParser : BundleParser {
 
+    fun extractSingle(communication: JsonElement): FhirCommunicationEntryErpModel? =
+        communication.getCommunication()?.let(::mapCommunicationToErpModel)
+
     override fun extract(bundle: JsonElement): FhirCommunicationBundleErpModel? {
         return runCatching {
             val entries = try {

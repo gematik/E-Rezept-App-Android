@@ -39,7 +39,8 @@ object RoomSchemaVersion {
         RoomSchemaMigration(10, "Add embedded medicationProfile to ErpMedicationEntity"),
         RoomSchemaMigration(11, "Force re-mapping of cached invoices and GKV medications"),
         RoomSchemaMigration(12, "Change payload column to structured CommunicationPayloadErpModel"),
-        RoomSchemaMigration(13, "Normalize communications payload column nullability to match migrated Room data")
+        RoomSchemaMigration(13, "Normalize communications payload column nullability to match migrated Room data"),
+        RoomSchemaMigration(14, "Add country column to ShippingInfoEntity")
     )
-    const val ACTUAL = 13
+    const val ACTUAL = 14
 }

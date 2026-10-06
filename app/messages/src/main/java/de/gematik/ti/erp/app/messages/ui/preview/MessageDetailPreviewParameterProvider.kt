@@ -238,6 +238,7 @@ object MessageSheetsPreviewData {
         communicationId = "delivery-123",
         sentOn = time,
         content = "Ihr Bote ist unterwegs.",
+        additionalInfo = "Lieferstatus",
         pickUpCodeDMC = null,
         pickUpCodeHR = null,
         link = null,

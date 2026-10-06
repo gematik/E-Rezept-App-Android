@@ -32,7 +32,7 @@ import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
 val onboardingModule = DI.Module("onboardingModule") {
-    bindProvider { GetOnboardingSucceededUseCase(instance()) }
+    bindProvider { GetOnboardingSucceededUseCase(instance(), instance()) }
     bindProvider { SaveOnboardingDataUseCase(instance(), instance(), instance()) }
     bindProvider { DetermineAuthScenarioUseCase(instance()) }
     bindSingleton {

@@ -268,7 +268,6 @@ class RedeemOrderOverviewScreen(
         ) {
             when {
                 !hasAttemptedRedeem || orderOption == null -> false
-                orderOption == OrderOptionErpModel.Pickup -> !contactValidationState.isValid()
                 else -> !contactValidationState.isValid() || selectedOrderState.contact.isEmpty()
             }
         }

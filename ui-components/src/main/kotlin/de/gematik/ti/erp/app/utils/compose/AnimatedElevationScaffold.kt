@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.utils.compose
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
@@ -222,7 +223,7 @@ fun AnimatedElevationScaffold(
 @Composable
 fun AnimatedElevationScaffold(
     modifier: Modifier = Modifier,
-    topBarTitle: String,
+    topBarTitle: @Composable () -> Unit,
     scaffoldState: ScaffoldState = rememberScaffoldState(),
     topBarColor: Color = MaterialTheme.colors.surface,
     listState: LazyListState = rememberLazyListState(),
@@ -241,13 +242,13 @@ fun AnimatedElevationScaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
+                    Box(
                         modifier = Modifier
                             .padding(top = PaddingDefaults.Medium)
-                            .semanticsHeading(),
-                        text = topBarTitle,
-                        style = AppTheme.typography.h5
-                    )
+                            .semanticsHeading()
+                    ) {
+                        topBarTitle()
+                    }
                 },
                 actions = actions,
                 backgroundColor = topBarColor,
@@ -262,6 +263,38 @@ fun AnimatedElevationScaffold(
         content = { innerPadding ->
             content(applicationPadding?.combineWithInnerScaffold(innerPadding) ?: innerPadding)
         }
+    )
+}
+
+@Composable
+fun AnimatedElevationScaffold(
+    modifier: Modifier = Modifier,
+    topBarTitle: String,
+    scaffoldState: ScaffoldState = rememberScaffoldState(),
+    topBarColor: Color = MaterialTheme.colors.surface,
+    listState: LazyListState = rememberLazyListState(),
+    snackbarHost: @Composable (SnackbarHostState) -> Unit = { SnackbarHost(it) },
+    actions: @Composable RowScope.() -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    applicationPadding: ApplicationInnerPadding? = null,
+    content: @Composable (PaddingValues) -> Unit
+) {
+    AnimatedElevationScaffold(
+        modifier = modifier,
+        topBarTitle = {
+            Text(
+                text = topBarTitle,
+                style = AppTheme.typography.h5
+            )
+        },
+        scaffoldState = scaffoldState,
+        topBarColor = topBarColor,
+        listState = listState,
+        snackbarHost = snackbarHost,
+        actions = actions,
+        bottomBar = bottomBar,
+        applicationPadding = applicationPadding,
+        content = content
     )
 }
 

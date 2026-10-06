@@ -22,9 +22,11 @@
 
 package de.gematik.ti.erp.app.communication.model.payload
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.json.JsonNames
 
 @Serializable
 sealed interface CommunicationPayloadErpModel {
@@ -40,7 +42,7 @@ data class CommunicationReplyPayloadV1ErpModel(
     override val communicationType: CommunicationTypeErpModel? = null,
     @Transient
     override val transactionID: String? = null,
-    val supplyOptionsType: CommunicationSupplyOptionTypeErpModel? = null,
+    val supplyOptionsType: CommunicationSupplyOptionTypeErpModel = CommunicationSupplyOptionTypeErpModel.ON_PREMISE,
     @SerialName("info_text") val infoText: String? = null,
     val url: String? = null,
     val pickUpCodeHR: String? = null,
@@ -54,18 +56,49 @@ data class DispenseRequestCommunicationPayloadV1ErpModel(
     override val communicationType: CommunicationTypeErpModel? = null,
     @Transient
     override val transactionID: String? = null,
-    val supplyOptionsType: CommunicationSupplyOptionTypeErpModel? = null,
+    val supplyOptionsType: CommunicationSupplyOptionTypeErpModel = CommunicationSupplyOptionTypeErpModel.ON_PREMISE,
     val name: String? = null,
     val address: List<String>? = null,
     val hint: String = "",
     val phone: String? = null
 ) : CommunicationPayloadErpModel
 
+/**
+ * Dispense request payload for Communication Payload Version 3 ("v3").
+ *
+ * Differences to [DispenseRequestCommunicationPayloadV1ErpModel]:
+ * - `name` is split into [firstname]/[lastname] (max 45 chars each).
+ * - `address` is a plain street + house number String (3-100 chars) instead of a full
+ *   address array; [postcode] (3-10 chars), [city] (2-100 chars) and [country]
+ *   (ISO-3166-1 alpha-2, e.g. pattern `[A-Z]{2}`) are now separate fields.
+ * - [hint] gets a max length of 100 chars.
+ * - New optional [text] field (max 800 chars).
+ * - [phone] gets a max length of 32 chars.
+ */
+@Serializable
+data class DispenseRequestCommunicationPayloadV3ErpModel(
+    override val version: Int = 3,
+    override val communicationType: CommunicationTypeErpModel = CommunicationTypeErpModel.Order,
+    override val transactionID: String = "",
+    val supplyOptionsType: CommunicationSupplyOptionTypeErpModel = CommunicationSupplyOptionTypeErpModel.ON_PREMISE,
+    val firstname: String? = null,
+    val lastname: String? = null,
+    val address: String? = null,
+    val postcode: String? = null,
+    val city: String? = null,
+    val country: String? = null,
+    val hint: String? = null,
+    val phone: String = "",
+    val text: String? = null,
+    @SerialName("email")
+    val mail: String? = null
+) : CommunicationPayloadErpModel
+
 @Serializable
 data class DispenseRequestReservationPayloadErpModel(
     override val version: Int = 3,
     override val communicationType: CommunicationTypeErpModel = CommunicationTypeErpModel.Order,
-    override val transactionID: String,
+    override val transactionID: String = "",
     val supplyOptionsType: CommunicationSupplyOptionTypeErpModel = CommunicationSupplyOptionTypeErpModel.ON_PREMISE,
 
     val firstname: String? = null,
@@ -76,8 +109,8 @@ data class DispenseRequestReservationPayloadErpModel(
     val country: String? = null,
     val hint: String? = null,
 
-    val phone: String,
-    val text: String,
+    val phone: String = "",
+    val text: String = "",
     @SerialName("email")
     val mail: String? = null
 ) : CommunicationPayloadErpModel
@@ -86,19 +119,19 @@ data class DispenseRequestReservationPayloadErpModel(
 data class DispenseRequestDeliveryPayloadErpModel(
     override val version: Int = 3,
     override val communicationType: CommunicationTypeErpModel = CommunicationTypeErpModel.Order,
-    override val transactionID: String,
+    override val transactionID: String = "",
     val supplyOptionsType: CommunicationSupplyOptionTypeErpModel = CommunicationSupplyOptionTypeErpModel.DELIVERY,
 
-    val firstname: String,
-    val lastname: String,
-    val address: String,
-    val postcode: String,
-    val city: String,
-    val country: String,
+    val firstname: String? = null,
+    val lastname: String? = null,
+    val address: String? = null,
+    val postcode: String? = null,
+    val city: String? = null,
+    val country: String? = null,
     val hint: String? = null,
 
-    val phone: String,
-    val text: String,
+    val phone: String = "",
+    val text: String = "",
     @SerialName("email")
     val mail: String? = null
 ) : CommunicationPayloadErpModel
@@ -107,19 +140,19 @@ data class DispenseRequestDeliveryPayloadErpModel(
 data class DispenseRequestShipmentPayloadErpModel(
     override val version: Int = 3,
     override val communicationType: CommunicationTypeErpModel = CommunicationTypeErpModel.Order,
-    override val transactionID: String,
+    override val transactionID: String = "",
     val supplyOptionsType: CommunicationSupplyOptionTypeErpModel = CommunicationSupplyOptionTypeErpModel.SHIPMENT,
 
-    val firstname: String,
-    val lastname: String,
-    val address: String,
-    val postcode: String,
-    val city: String,
-    val country: String,
+    val firstname: String? = null,
+    val lastname: String? = null,
+    val address: String? = null,
+    val postcode: String? = null,
+    val city: String? = null,
+    val country: String? = null,
     val hint: String? = null,
 
-    val phone: String,
-    val text: String,
+    val phone: String = "",
+    val text: String = "",
     @SerialName("email")
     val mail: String? = null
 ) : CommunicationPayloadErpModel
@@ -128,7 +161,7 @@ data class DispenseRequestShipmentPayloadErpModel(
 data class InfoAvailabilityRequestPayloadErpModel(
     override val version: Int = 3,
     override val communicationType: CommunicationTypeErpModel = CommunicationTypeErpModel.Text,
-    override val transactionID: String,
+    override val transactionID: String = "",
 
     val firstname: String? = null,
     val lastname: String? = null,
@@ -137,8 +170,8 @@ data class InfoAvailabilityRequestPayloadErpModel(
     val city: String? = null,
     val country: String? = null,
 
-    val phone: String,
-    val text: String,
+    val phone: String = "",
+    val text: String = "",
     @SerialName("email")
     val mail: String? = null
 ) : CommunicationPayloadErpModel
@@ -147,47 +180,51 @@ data class InfoAvailabilityRequestPayloadErpModel(
 data class CommunicationReplyTextPayloadErpModel(
     override val version: Int = 3,
     override val communicationType: CommunicationTypeErpModel = CommunicationTypeErpModel.Text,
-    override val transactionID: String,
+    override val transactionID: String = "",
 
-    val text: String
+    val text: String = ""
 ) : CommunicationPayloadErpModel
 
 @Serializable
 data class CommunicationReplyLinkPayloadErpModel(
     override val version: Int = 3,
     override val communicationType: CommunicationTypeErpModel = CommunicationTypeErpModel.Link,
-    override val transactionID: String,
+    override val transactionID: String = "",
 
-    val text: String,
-    val url: String
+    val text: String = "",
+    val url: String = ""
 ) : CommunicationPayloadErpModel
 
 @Serializable
 data class CommunicationReplyReservationStatusPayloadErpModel(
     override val version: Int = 3,
     override val communicationType: CommunicationTypeErpModel = CommunicationTypeErpModel.ReservationStatus,
-    override val transactionID: String,
+    override val transactionID: String = "",
 
-    val readyForCollection: CommunicationAvailabilityResponseErpModel
+    val readyForCollection: CommunicationAvailabilityResponseErpModel = CommunicationAvailabilityResponseErpModel.Unknown
 ) : CommunicationPayloadErpModel
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class CommunicationReplyPickupCodeHRPayloadErpModel(
     override val version: Int = 3,
     override val communicationType: CommunicationTypeErpModel = CommunicationTypeErpModel.PickUpCodeHR,
-    override val transactionID: String,
+    override val transactionID: String = "",
     @SerialName("pickupCodeHR")
-    val pickUpCode: String,
+    @JsonNames("pickupCodeHR", "pickUpCodeHR", "pickUpCode")
+    val pickUpCode: String = "",
     val text: String? = null
 ) : CommunicationPayloadErpModel
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class CommunicationReplyPickupCodeDMCPayloadErpModel(
     override val version: Int = 3,
     override val communicationType: CommunicationTypeErpModel = CommunicationTypeErpModel.PickUpCodeDMC,
-    override val transactionID: String,
+    override val transactionID: String = "",
     @SerialName("pickupCodeDMC")
-    val pickUpCodeDmc: String,
+    @JsonNames("pickupCodeDMC", "pickUpCodeDMC", "pickUpCodeDmc")
+    val pickUpCodeDmc: String = "",
     val text: String? = null
 ) : CommunicationPayloadErpModel
 
@@ -195,8 +232,8 @@ data class CommunicationReplyPickupCodeDMCPayloadErpModel(
 data class CommunicationReplyDeliveryStatusPayloadErpModel(
     override val version: Int = 3,
     override val communicationType: CommunicationTypeErpModel = CommunicationTypeErpModel.DeliveryStatus,
-    override val transactionID: String,
-    val deliveryStatus: CommunicationDeliveryStatusErpModel,
+    override val transactionID: String = "",
+    val deliveryStatus: CommunicationDeliveryStatusErpModel = CommunicationDeliveryStatusErpModel.Unknown,
     val inTransportPosition: InTransportPosition? = null,
     val inTransportETA: InTransportETA? = null,
     val text: String? = null
@@ -206,29 +243,35 @@ data class CommunicationReplyDeliveryStatusPayloadErpModel(
 data class CommunicationReplyPaymentInfoPayloadErpModel(
     override val version: Int = 3,
     override val communicationType: CommunicationTypeErpModel = CommunicationTypeErpModel.PaymentInfo,
-    override val transactionID: String,
-    val paymentMethods: List<PaymentMethod>,
-    val totalAmount: Double,
+    override val transactionID: String = "",
+    val paymentMethods: List<PaymentMethod> = emptyList(),
+    val totalAmount: Double = 0.0,
     val text: String? = null
 ) : CommunicationPayloadErpModel
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class PaymentMethod(
     @SerialName("method")
-    val paymentMethod: String,
+    @JsonNames("method", "paymentMethod")
+    val paymentMethod: String? = null,
     val url: String? = null
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class InTransportPosition(
     @SerialName("lat")
-    val latitude: Double,
+    @JsonNames("lat", "latitude")
+    val latitude: Double? = null,
+
     @SerialName("long")
-    val longitude: Double
+    @JsonNames("long", "longitude", "lng", "lon")
+    val longitude: Double? = null
 )
 
 @Serializable
 data class InTransportETA(
-    val from: Long,
-    val to: Long
+    val from: Long? = null,
+    val to: Long? = null
 )

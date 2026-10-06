@@ -36,3 +36,12 @@ fun String.formatJson(): String {
         this
     }
 }
+
+fun String.formatPhoneForBackend(): String {
+    val clean = filterNot { it.isWhitespace() }
+    return if (clean.startsWith("+49")) {
+        "0049" + clean.removePrefix("+49")
+    } else {
+        clean
+    }
+}

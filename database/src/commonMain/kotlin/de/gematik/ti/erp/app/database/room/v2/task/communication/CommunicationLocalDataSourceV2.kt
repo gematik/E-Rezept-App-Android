@@ -29,6 +29,7 @@ import de.gematik.ti.erp.app.database.room.v2.task.mappers.toErpModel
 import de.gematik.ti.erp.app.fhir.FhirCommunicationBundleErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationPayloadParser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -40,7 +41,6 @@ class CommunicationLocalDataSourceV2(
 ) : CommunicationLocalDataSource {
 
     override suspend fun saveLocalCommunication(taskId: String, pharmacyId: String, transactionId: String) {
-        // TODO CommResV3 CleanUp of Migration: DB Insurance is the wrong name here, should be insurant or profileId
         val insuranceId = dao.getInsuranceIdByTaskId(taskId)
         val task = dao.getTaskByTaskId(taskId) ?: return
         val profileId = task.parentProfileId ?: return
@@ -71,27 +71,30 @@ class CommunicationLocalDataSourceV2(
 
     override suspend fun saveCommunications(entities: FhirCommunicationBundleErpModel): Int {
         if (entities.messages.isEmpty()) return 0
-        val mapped = entities.messages.mapNotNull { message ->
-            val taskId = message.taskId ?: return@mapNotNull null
-            val task = dao.getTaskByTaskId(taskId) ?: return@mapNotNull null
-            val insuranceId = dao.getInsuranceIdByTaskId(taskId) ?: return@mapNotNull null
-            val profileId = task.parentProfileId ?: return@mapNotNull null
+        val mapped = entities.messages.map { message ->
+            val taskId = message.taskId
+                ?: message.orderId?.let { orderId ->
+                    entities.messages.firstOrNull { it.orderId == orderId && !it.taskId.isNullOrEmpty() }?.taskId
+                        ?: dao.getTaskIdByOrderId(orderId)
+                }.orEmpty()
+            val task = if (taskId.isNotEmpty()) dao.getTaskByTaskId(taskId) else null
+            val insuranceId = if (taskId.isNotEmpty()) dao.getInsuranceIdByTaskId(taskId) else null
+            val profileId = task?.parentProfileId ?: insuranceId ?: ""
             when (message) {
                 is FhirReplyCommunicationEntryErpModel -> {
                     val telematikId = message.sender?.identifier ?: ""
                     var orderId = message.orderId?.ifEmpty { null }
-                    if (orderId == null) {
-                        // Check if orderId is in the list we received
+                    if (orderId == null && taskId.isNotEmpty()) {
                         orderId = entities.messages.firstOrNull {
                             it is FhirDispenseCommunicationEntryErpModel &&
                                 it.taskId == taskId &&
                                 !it.orderId.isNullOrEmpty()
                         }?.orderId
                     }
-                    if (orderId == null) {
+                    if (orderId == null && taskId.isNotEmpty()) {
                         orderId = dao.getOrderIdByTaskIdAndProfile(taskId, CommunicationProfileV1.ErxCommunicationDispReq)
                     }
-                    if (orderId == null) {
+                    if (orderId == null && taskId.isNotEmpty()) {
                         orderId = dao.getOrderIdByTaskIdAndTelematikId(taskId, telematikId)
                     }
                     if (orderId == null) {
@@ -104,11 +107,47 @@ class CommunicationLocalDataSourceV2(
                         // order, instead of being persisted with a blank orderId that breaks order lookups.
                         orderId = syntheticOrderId(taskId, telematikId)
                     }
-                    message.toErpCommunicationEntity(task, profileId, orderId, insuranceId)
+                    if (task != null) {
+                        message.toErpCommunicationEntity(task, profileId, orderId, insuranceId)
+                    } else {
+                        ErpCommunicationEntity(
+                            communicationId = message.id,
+                            orderId = orderId ?: "",
+                            taskId = taskId,
+                            profileId = profileId,
+                            telematikId = message.sender?.identifier ?: "",
+                            kvnr = message.recipient?.identifier ?: "",
+                            consumed = false,
+                            payload = message.payload?.let { CommunicationPayloadParser.extract(it, isRequest = false) },
+                            profile = CommunicationProfileV1.ErxCommunicationReply,
+                            recipient = message.recipient?.identifier ?: "",
+                            insuranceId = insuranceId,
+                            timeStamp = message.sent?.value ?: System.now(),
+                            pharmacyName = message.pharmacyName
+                        )
+                    }
                 }
 
                 is FhirDispenseCommunicationEntryErpModel -> {
-                    message.toErpCommunicationEntity(task, profileId, insuranceId)
+                    if (task != null) {
+                        message.toErpCommunicationEntity(task, profileId, insuranceId)
+                    } else {
+                        ErpCommunicationEntity(
+                            communicationId = message.id,
+                            orderId = message.orderId ?: "",
+                            taskId = taskId,
+                            profileId = profileId,
+                            telematikId = message.sender?.identifier ?: "",
+                            kvnr = message.recipient?.identifier ?: "",
+                            consumed = false,
+                            payload = message.payload?.let { CommunicationPayloadParser.extract(it, isRequest = true) },
+                            profile = CommunicationProfileV1.ErxCommunicationDispReq,
+                            recipient = message.recipient?.identifier ?: "",
+                            insuranceId = insuranceId,
+                            timeStamp = message.sent?.value ?: System.now(),
+                            pharmacyName = message.pharmacyName
+                        )
+                    }
                 }
             }
         }

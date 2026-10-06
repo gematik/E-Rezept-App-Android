@@ -24,6 +24,8 @@
 
 package de.gematik.ti.erp.app.messages.ui.components
 
+import de.gematik.ti.erp.app.message.MessageActionButton
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -364,13 +366,15 @@ internal fun CommResV3TextContent(
 
 @Composable
 internal fun CommResV3ClickableTextContent(
-    text: String,
+    leadingText: String,
     pharmacyName: String,
+    trailingText: String,
     onClickPharmacy: () -> Unit
 ) {
     ClickableText(
-        leadingText = text,
+        leadingText = leadingText,
         linkText = pharmacyName,
+        trailingText = trailingText,
         onClick = onClickPharmacy,
         textStyle = AppTheme.typography.body2
     )
@@ -572,7 +576,7 @@ internal fun CommResV3HintContent(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Hinweis der Apotheke:",
+            text = stringResource(R.string.message_card_pharmacy_hint_title),
             style = AppTheme.typography.caption1,
             color = AppTheme.colors.neutral700
         )

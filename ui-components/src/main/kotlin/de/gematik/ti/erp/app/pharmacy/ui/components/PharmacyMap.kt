@@ -49,14 +49,13 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
-import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.pharmacy.model.PositionErpModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.Calendar
 
-internal const val DefaultZoomLevel = 10f
+const val DefaultZoomLevel = 10f
 
 /**
  * This class is a wrapper for the GoogleMap composable.
@@ -196,14 +195,15 @@ class GooglePharmacyMap : PharmacyMap {
             }
         }
 
-        val mapStyleOptions = when {
-            // isTodayEaster() -> MapStyleOptions.loadRawResourceStyle(context, R.raw.maps_easter_style)
-            // isTodayChristmas() -> MapStyleOptions.loadRawResourceStyle(context, R.raw.maps_christmas_style)
-            isSystemInDarkTheme() -> MapStyleOptions.loadRawResourceStyle(context, R.raw.maps_dark_style)
-            else -> null
+        val isDark = isSystemInDarkTheme()
+        val mapStyleOptions = remember(context, isDark) {
+            val resId = context.resources.getIdentifier("maps_dark_style", "raw", context.packageName)
+            if (resId != 0 && isDark) {
+                MapStyleOptions.loadRawResourceStyle(context, resId)
+            } else null
         }
 
-        val mapProperties = remember(properties) {
+        val mapProperties = remember(properties, mapStyleOptions) {
             MapProperties(
                 isBuildingEnabled = properties.isBuildingEnabled,
                 isIndoorEnabled = properties.isIndoorEnabled,

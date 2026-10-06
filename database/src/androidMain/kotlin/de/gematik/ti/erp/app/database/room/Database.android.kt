@@ -185,10 +185,17 @@ fun getDatabaseBuilder(context: Context, databaseName: String = "room.db"): Room
             migrateCommunications12To13(db)
         }
     }
+    // Migration 13->14: Add country column to ShippingInfoEntity
+    val migration_13_14 = object : Migration(13, 14) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE shipping_info ADD COLUMN country TEXT NOT NULL DEFAULT ''")
+        }
+    }
     builder.addMigrations(
         migration_1_2, migration_2_3, migration_3_4, migration_4_5,
         migration_5_6, migration_6_7, migration_7_8, migration_8_9,
-        migration_9_10, migration_10_11, migration_11_12, migration_12_13
+        migration_9_10, migration_10_11, migration_11_12, migration_12_13,
+        migration_13_14
     )
 
     return builder

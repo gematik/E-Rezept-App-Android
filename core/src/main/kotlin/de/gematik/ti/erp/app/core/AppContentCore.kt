@@ -28,16 +28,25 @@ import androidx.activity.ComponentActivity
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.navigation.BottomSheetNavigator
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavHostController
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import org.kodein.di.DI
 
 // Todo: some methods remaining from feature's AppContent.kt . Move all here after refactoring.
+
+val LocalMainBottomBarVisibility =
+    staticCompositionLocalOf<MutableState<Boolean>> { mutableStateOf(true) }
+
+val LocalApplicationInnerPadding =
+    staticCompositionLocalOf<ApplicationInnerPadding?> { null }
 
 val LocalBiometricAuthenticator =
     staticCompositionLocalOf<BiometricAuthenticator> { error("No BiometricAuthenticator provided!") }

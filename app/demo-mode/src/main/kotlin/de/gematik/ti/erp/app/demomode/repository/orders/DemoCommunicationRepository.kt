@@ -36,8 +36,8 @@ import de.gematik.ti.erp.app.demomode.model.DemoModeProfileLinkedCommunication
 import de.gematik.ti.erp.app.demomode.model.toProfile
 import de.gematik.ti.erp.app.demomode.model.toSyncedTaskDataCommunication
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import io.github.aakira.napier.Napier
@@ -61,6 +61,7 @@ import kotlinx.datetime.Instant
 import java.util.UUID
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 
 class DemoCommunicationRepository(
@@ -109,7 +110,7 @@ class DemoCommunicationRepository(
             }
             communications
         }
-        delay(1000) // simulates a network delay of one second
+        delay(1000.milliseconds) // simulates a network delay of one second
         Result.success(Unit)
     }
 
@@ -153,13 +154,13 @@ class DemoCommunicationRepository(
 
     override fun loadDispReqCommunications(orderId: String): Flow<List<CommunicationErpModel>> =
         try {
-            dataSource.communications.mapNotNull { communications ->
+            dataSource.communications.map { communications ->
                 communications
                     .also { Napier.demo { "LoadDispReqCommunications ${it.size}" } }
                     .filter { it.orderId == orderId && it.profile == ErxCommunicationDispReq }
                     .map { it.toSyncedTaskDataCommunication() }
             }.flowOn(dispatcher)
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
             flowOf(emptyList())
         }
 
@@ -208,7 +209,7 @@ class DemoCommunicationRepository(
     override fun loadRepliedCommunications(taskIds: List<String>, telematikId: String): Flow<List<CommunicationErpModel>> =
         try {
             dataSource.communications
-                .mapNotNull { communications ->
+                .map { communications ->
                     communications
                         .filter { it.taskId in taskIds && it.profile == ErxCommunicationReply }
                         .sortedByDescending { it.sentOn }
@@ -255,7 +256,7 @@ class DemoCommunicationRepository(
     override fun unreadMessagesCount(): Flow<Long> =
         dataSource.communications.map { communications ->
             try {
-                (communications.toList() ?: emptyList()) // Ensure it's never null
+                communications.toList() // Ensure it's never null
                     .filter {
                         !it.consumed && it.profile == ErxCommunicationDispReq
                     }
@@ -267,12 +268,12 @@ class DemoCommunicationRepository(
         }
 
     override fun unreadPrescriptionsInAllOrders(profileId: ProfileIdentifier): Flow<Long> =
-        loadOrdersByProfileId(profileId).mapNotNull { communications ->
+        loadOrdersByProfileId(profileId).map { communications ->
             communications.count { it.profileId == profileId && !it.consumed }.toLong()
         }.flowOn(dispatcher)
 
     override fun taskIdsByOrder(orderId: String): Flow<List<String>> =
-        dataSource.communications.mapNotNull { communications ->
+        dataSource.communications.map { communications ->
             communications.filter { it.orderId == orderId && it.profile == ErxCommunicationDispReq }
                 .map { it.taskId }
         }.flowOn(dispatcher)
@@ -343,6 +344,38 @@ class DemoCommunicationRepository(
             }
         }
     }
+
+    override suspend fun saveCommunications(communicationModels: List<CommunicationErpModel>): Int =
+        withContext(dispatcher) {
+            if (communicationModels.isEmpty()) return@withContext 0
+
+            dataSource.communications.update { communications ->
+                (
+                    communications + communicationModels.map { communication ->
+                        DemoModeProfileLinkedCommunication(
+                            profileId = communication.profileId.orEmpty(),
+                            taskId = communication.taskId,
+                            communicationId = communication.communicationId,
+                            orderId = communication.orderId,
+                            profile = communication.profile,
+                            sentOn = communication.timeStamp ?: Clock.System.now(),
+                            sender = communication.senderTelematikId,
+                            recipient = communication.recipient,
+                            payload = communication.payload?.let { payload ->
+                                de.gematik.ti.erp.app.fhir.constant.SafeJson.value.encodeToString(
+                                    de.gematik.ti.erp.app.communication.model.payload.CommunicationPayloadErpModel.serializer(),
+                                    payload
+                                )
+                            },
+                            consumed = communication.consumed,
+                            pharmacyName = communication.pharmacyName
+                        )
+                    }
+                    ).toMutableList()
+            }
+
+            communicationModels.size
+        }
 
     override suspend fun hasUnreadRepliedMessages(taskIds: List<String>, telematikId: String): Flow<Boolean> =
         dataSource.communications.map { communications ->

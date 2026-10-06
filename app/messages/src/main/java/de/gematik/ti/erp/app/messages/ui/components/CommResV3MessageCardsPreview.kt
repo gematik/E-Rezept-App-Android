@@ -34,14 +34,12 @@ import de.gematik.ti.erp.app.communication.model.payload.InTransportETA
 import de.gematik.ti.erp.app.communication.model.payload.InTransportPosition
 import de.gematik.ti.erp.app.communication.model.payload.PaymentMethod
 import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.pharmacy.ui.components.MockMap
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import kotlinx.datetime.Instant
-
-// InternalMessages
-// TODO CommResV3 design: https://www.figma.com/design/Xg4X8ULc7fwxzkxaCnxW0I/%F0%9F%A4%96-eRezept-Android?node-id=41291-17487&m=dev
 
 @LightDarkPreview
 @Composable
@@ -132,6 +130,14 @@ fun CommResV3ReservationStatePreview() {
             SpacerMedium()
             NotAvailableReservationStateMessageCard("18:00 Uhr")
         }
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun CommResV3EmptyCardsPreview() {
+    PreviewTheme {
+        EmptyMessageCard("18:00 Uhr")
     }
 }
 
@@ -229,7 +235,7 @@ fun CommResV3PaymentInfoCardsPreview() {
             PaymentInfoMessageCard(
                 time = "18:00 Uhr",
                 payload = CommunicationReplyPaymentInfoPayloadErpModel(
-                    totalAmount = 24.50,
+                    totalAmount = 2450.0,
                     paymentMethods = listOf(
                         PaymentMethod(
                             paymentMethod = "cash",
@@ -291,6 +297,7 @@ fun CommResV3DeliveryCardsPreview() {
                     ),
                     text = "Ihre Lieferung ist unterwegs."
                 ),
+                pharmacyMap = MockMap(),
                 onClickLocation = {}
             )
         }
@@ -471,6 +478,7 @@ fun DeliveryStatusPreviewCard(
             phoneNumber = phoneNumber,
             mailAddress = mailAddress,
             isPharmacyOpen = isPharmacyOpen,
+            pharmacyMap = MockMap(),
             onClickLocation = {}
         )
     }

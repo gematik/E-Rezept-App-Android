@@ -101,6 +101,9 @@ class CommunicationLocalDataSourceV2Test {
                 ?.orderId
         }
 
+        override suspend fun getTaskIdByOrderId(orderId: String): String? =
+            store.communications.values.firstOrNull { it.orderId == orderId && it.taskId.isNotEmpty() }?.taskId
+
         override fun observeByOrderAndProfile(orderId: String, profile: CommunicationProfileV1): Flow<List<ErpCommunicationEntity>> =
             store.flow.map { list -> list.filter { it.orderId == orderId && it.profile == profile } }
 
@@ -167,12 +170,13 @@ class CommunicationLocalDataSourceV2Test {
         override suspend fun updateConsumedForGroup(
             orderId: String,
             taskId: String,
+            payload: CommunicationPayloadErpModel?,
             sender: String,
             recipient: String,
             consumed: Boolean
         ): Int {
             val targets = store.communications.values.filter {
-                it.orderId == orderId && it.taskId == taskId && it.telematikId == sender && it.recipient == recipient
+                it.orderId == orderId && it.taskId == taskId && it.payload == payload && it.telematikId == sender && it.recipient == recipient
             }
             targets.forEach {
                 store.put(it.copy(consumed = consumed))

@@ -317,6 +317,8 @@ object TestTag {
 
             val PrescriptionListItem by tagName()
             val MessageListItem by tagName()
+            val ReplyMessageInput by tagName()
+            val ReplyMessageSendButton by tagName()
         }
 
         object Messages {

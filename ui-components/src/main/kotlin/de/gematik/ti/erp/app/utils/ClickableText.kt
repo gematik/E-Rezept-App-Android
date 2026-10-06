@@ -55,7 +55,7 @@ fun ClickableText(
         textDecoration = TextDecoration.Underline
     )
 ) {
-    val annotatedString = remember(linkText) {
+    val annotatedString = remember(leadingText, linkText, trailingText, linkTextStyle) {
         buildAnnotatedString {
             leadingText?.let {
                 append(it)

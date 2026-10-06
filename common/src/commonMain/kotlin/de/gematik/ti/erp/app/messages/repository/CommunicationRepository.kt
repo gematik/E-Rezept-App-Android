@@ -64,5 +64,6 @@ interface CommunicationRepository {
     suspend fun setCommunicationStatus(communicationId: String, consumed: Boolean)
     suspend fun updatePharmacyName(communicationId: String, pharmacyName: String)
     suspend fun saveLocalCommunication(taskId: String, pharmacyId: String, transactionId: String)
+    suspend fun saveCommunications(communicationModels: List<CommunicationErpModel>): Int
     suspend fun hasUnreadRepliedMessages(taskIds: List<String>, telematikId: String): Flow<Boolean>
 }

@@ -22,19 +22,19 @@
 
 package de.gematik.ti.erp.app.settings.usecase
 
+import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 
 class GetOnboardingSucceededUseCase(
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val profileRepository: ProfileRepository
 ) {
     operator fun invoke(): Boolean = runBlocking {
-        val isOnboardingShown = settingsRepository.loadSettings().map {
-            it.onboardingShownIn != null
-        }.first()
-        isOnboardingShown
+        val isOnboardingShown = settingsRepository.loadSettings().first().onboardingShownIn != null
+        val hasActiveProfile = profileRepository.profiles().first().any { it.active }
+        isOnboardingShown && hasActiveProfile
     }
 }

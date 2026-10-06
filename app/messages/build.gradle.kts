@@ -23,6 +23,7 @@ dependencies {
     implementation(project(namesPlugin.testTags))
     implementation(project(namesPlugin.tracker))
     implementation(project(namesPlugin.multiplatform))
+    implementation(project(namesPlugin.fhirParser))
     implementation(project(namesPlugin.uiComponents))
     implementation(libs.bundles.animation)
     testImplementation(libs.bundles.corutinestest)

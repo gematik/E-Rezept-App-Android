@@ -50,8 +50,8 @@ import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutesBackStackEntryArguments
 import de.gematik.ti.erp.app.messages.presentation.rememberOrderMessageDetailController
-import de.gematik.ti.erp.app.messages.ui.components.MessageDetailDropdownMenu
 import de.gematik.ti.erp.app.messages.ui.components.MessageDetailContent
+import de.gematik.ti.erp.app.messages.ui.components.MessageDetailDropdownMenu
 import de.gematik.ti.erp.app.messages.ui.preview.MessageOrderDetailPreviewParameterProvider
 import de.gematik.ti.erp.app.messages.ui.preview.OrderMessageDetail
 import de.gematik.ti.erp.app.navigation.Screen

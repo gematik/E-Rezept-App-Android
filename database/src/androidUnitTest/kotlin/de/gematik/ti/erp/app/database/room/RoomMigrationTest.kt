@@ -127,6 +127,10 @@ class RoomMigrationTest {
             tableHasColumn("communications", "payload_structured"),
             "communications should have payload_structured column"
         )
+        assertTrue(
+            tableHasColumn("shipping_info", "country"),
+            "shipping_info should have country column"
+        )
     }
 
     /**

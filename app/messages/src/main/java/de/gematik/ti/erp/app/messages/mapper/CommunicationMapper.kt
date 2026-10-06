@@ -23,10 +23,11 @@
 package de.gematik.ti.erp.app.messages.mapper
 
 import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationPayloadErpModel
 import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyDeliveryStatusPayloadErpModel
 import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyLinkPayloadErpModel
-import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPaymentInfoPayloadErpModel
 import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPayloadV1ErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPaymentInfoPayloadErpModel
 import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPickupCodeDMCPayloadErpModel
 import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPickupCodeHRPayloadErpModel
 import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyReservationStatusPayloadErpModel
@@ -46,10 +47,12 @@ fun CommunicationErpModel.toOrderDetail(
         orderId = orderId,
         taskDetailedBundles = taskDetailedBundles,
         sentOn = timeStamp ?: Clock.System.now(),
-        pharmacy = OrderUseCaseData.Pharmacy(name = pharmacyName ?: "", id = this.recipient)
+        pharmacy = OrderUseCaseData.Pharmacy(name = pharmacyName ?: "", id = this.recipient),
+        requestPayload = payload
     )
 
 fun CommunicationErpModel.toMessage(taskIds: List<String>, isTaskIdCountMatching: Boolean): OrderUseCaseData.Message {
+    val parsedPayload = payload
     val defaultValues = OrderUseCaseData.Message(
         communicationId = communicationId,
         sentOn = timeStamp ?: Clock.System.now(),
@@ -57,14 +60,14 @@ fun CommunicationErpModel.toMessage(taskIds: List<String>, isTaskIdCountMatching
         pickUpCodeDMC = null,
         pickUpCodeHR = null,
         link = null,
-        deliveryStatusPayload = null,
         consumed = consumed,
         prescriptions = emptyList<TaskErpModel?>(),
         taskIds = taskIds,
-        isTaskIdCountMatching = isTaskIdCountMatching
+        isTaskIdCountMatching = isTaskIdCountMatching,
+        payloads = emptyList()
     )
 
-    return when (val parsedPayload = payload) {
+    return when (parsedPayload) {
         null -> {
             Napier.d { "No payload, default message" }
             defaultValues
@@ -94,11 +97,10 @@ fun CommunicationErpModel.toMessage(taskIds: List<String>, isTaskIdCountMatching
             content = parsedPayload.readyForCollection.name
         )
         is CommunicationReplyDeliveryStatusPayloadErpModel -> defaultValues.copy(
-            content = parsedPayload.text?.takeUnless { it.isBlank() } ?: parsedPayload.deliveryStatus.name,
-            deliveryStatusPayload = parsedPayload
+            content = parsedPayload.text?.takeUnless { it.isBlank() } ?: parsedPayload.deliveryStatus.name
         )
         is CommunicationReplyPaymentInfoPayloadErpModel -> defaultValues.copy(
-            content = parsedPayload.text?.takeUnless { it.isBlank() } ?: "Betrag: ${parsedPayload.totalAmount} €",
+            content = parsedPayload.text?.takeUnless { it.isBlank() } ?: "Betrag: ${"%.2f".format(parsedPayload.totalAmount / 100.0).replace(".", ",")} €",
             link = parsedPayload.paymentMethods.firstNotNullOfOrNull { it.url }?.takeIf { isValidUrl(it) }
         )
         else -> defaultValues
@@ -112,9 +114,6 @@ private fun List<CommunicationErpModel>.groupByPayloadAndTaskId(expectedTaskIdCo
 
     // Replies with a null payload carry no information that lets us safely correlate them across tasks,
     // so each is kept as its own message tied to just its own task-id (no merging, no cross-task dedupe).
-    // Replies with a non-null payload that is identical across multiple tasks of the same order (e.g. a
-    // pharmacy sending the same reply text to every redeemed prescription in a MultiReply order) are merged
-    // into a single message listing all the task-ids that share it.
     val (nullPayloadReplies, parsedPayloadReplies) = replies.partition { it.payload == null }
 
     val nullPayloadMessages = nullPayloadReplies.map { communication ->
@@ -124,11 +123,20 @@ private fun List<CommunicationErpModel>.groupByPayloadAndTaskId(expectedTaskIdCo
         )
     }
 
-    val parsedPayloadMessages = parsedPayloadReplies.groupBy { it.payload }.map { (_, communications) ->
+    // Replies with a non-null payload that has equivalent content across multiple tasks of the same order are merged
+    // into a single message listing all the task-ids that share it. Different payloads are kept separate.
+    val parsedPayloadMessages = parsedPayloadReplies.groupBy { it.payload?.toGroupingKey() }.flatMap { (_, communications) ->
         val repliedTaskIds = communications.distinctBy { it.taskId }.map { it.taskId }
-        communications.first().toMessage(
-            taskIds = repliedTaskIds,
-            isTaskIdCountMatching = repliedTaskIds.size == expectedTaskIdCount
+        val payloads = communications
+            .mapNotNull { it.payload }
+            .flatMap(CommunicationPayloadErpModel::toCommResV3Payloads)
+            .distinctBy { it.toGroupingKey() }
+        val representativeCommunication = communications.maxByOrNull { it.timeStamp ?: Instant.DISTANT_PAST } ?: communications.first()
+        listOf(
+            representativeCommunication.toMessage(
+                taskIds = repliedTaskIds,
+                isTaskIdCountMatching = repliedTaskIds.size == expectedTaskIdCount
+            ).copy(payloads = payloads)
         )
     }
 
@@ -159,11 +167,23 @@ fun CommunicationErpModel?.generatePreviewMessage(pharmacyName: String): LastMes
     }
 }
 
+private fun CommunicationPayloadErpModel.toGroupingKey(): Any = when (this) {
+    is CommunicationReplyPayloadV1ErpModel -> listOf(supplyOptionsType, infoText, url, pickUpCodeHR, pickUpCodeDMC)
+    is CommunicationReplyTextPayloadErpModel -> text
+    is CommunicationReplyLinkPayloadErpModel -> listOf(text, url)
+    is CommunicationReplyReservationStatusPayloadErpModel -> readyForCollection
+    is CommunicationReplyPickupCodeHRPayloadErpModel -> listOf(pickUpCode, text)
+    is CommunicationReplyPickupCodeDMCPayloadErpModel -> listOf(pickUpCodeDmc, text)
+    is CommunicationReplyDeliveryStatusPayloadErpModel -> listOf(deliveryStatus, inTransportPosition, inTransportETA, text)
+    is CommunicationReplyPaymentInfoPayloadErpModel -> listOf(paymentMethods, totalAmount, text)
+    else -> this
+}
+
 fun List<CommunicationErpModel>.groupByPayloadForPreview(): List<CommunicationErpModel> {
     val replies = this.filter { it.profile == CommunicationErpModel.CommunicationProfile.ErxCommunicationReply }
     val others = this.filter { it.profile != CommunicationErpModel.CommunicationProfile.ErxCommunicationReply }
 
-    val groupedReplies = replies.groupBy { it.payload }.mapNotNull { (_, communications) ->
+    val groupedReplies = replies.groupBy { it.payload?.toGroupingKey() }.mapNotNull { (_, communications) ->
         communications.maxByOrNull { it.timeStamp ?: Instant.DISTANT_PAST }
     }
 

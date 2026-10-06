@@ -153,8 +153,10 @@ class TrackingScreenMapper {
                 NavigationRouteNames.MessageListScreen -> "orders"
                 NavigationRouteNames.CommResV3MessageListScreen -> "orders:commresv3"
                 NavigationRouteNames.OrderMessageDetailScreen -> "orders:details"
+                NavigationRouteNames.CommResV3OrderMessageDetailScreen -> "orders:commresv3:details"
                 NavigationRouteNames.UnknownOrderMessageDetailScreen -> "orders:details:unknown"
                 NavigationRouteNames.InternalMessageDetailScreen -> "orders:details:internal"
+                NavigationRouteNames.CommResV3InternalMessageDetailScreen -> "orders:commresv3:details:internal"
                 NavigationRouteNames.MessageBottomSheetScreen -> "orders:details:reply"
                 NavigationRouteNames.PharmacyDetailsFromMessageScreen -> "orders:details:selectedPharmacy"
 

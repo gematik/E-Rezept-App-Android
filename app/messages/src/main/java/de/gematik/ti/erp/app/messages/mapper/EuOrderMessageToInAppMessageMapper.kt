@@ -55,7 +55,15 @@ internal fun EuOrderMessageUiModel.toInAppMessage(
 
 private fun EuOrderMessageUiModel.buildMessageText(): String {
     return buildString {
+        prescriptionNames
+            .filter(String::isNotBlank)
+            .joinToString()
+            .takeIf(String::isNotBlank)
+            ?.let {
+                append(it)
+            }
         description?.let {
+            if (isNotEmpty()) append(" • ")
             append(it)
         }
     }

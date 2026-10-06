@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -40,6 +41,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import de.gematik.ti.erp.app.appauthentication.observer.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
+import de.gematik.ti.erp.app.core.LocalMainBottomBarVisibility
 import de.gematik.ti.erp.app.core.LocalNavController
 import de.gematik.ti.erp.app.database.datastore.featuretoggle.COMM_RES_V3
 import de.gematik.ti.erp.app.mainscreen.navigation.NavigationGraph
@@ -72,6 +74,9 @@ fun ApplicationScaffold(
     val orderEventState by appController.orderedEvent.collectAsStateWithLifecycle()
     val isNetworkConnected by appController.isNetworkConnected.collectAsStateWithLifecycle()
 
+    val mainBottomBarVisibility = remember { mutableStateOf(true) }
+    val isMainBottomBarVisible by mainBottomBarVisibility
+
     val snackbarHostState = remember { SnackbarHostState() }
     val unreadOrdersCount by appController.unreadOrders.collectAsStateWithLifecycle()
 
@@ -89,15 +94,16 @@ fun ApplicationScaffold(
         mainScreenBottomNavigationItems(isCommResV3Enabled).map { it.route }
     }
 
-    val isBottomSheetScreen = remember(currentRoute, bottomRoutes) {
+    val isBottomSheetScreen = remember(currentRoute, isMainBottomBarVisible, bottomRoutes) {
         currentRoute?.let {
-            bottomRoutes.contains(it.destination.route)
+            bottomRoutes.contains(it.destination.route) && isMainBottomBarVisible
         } ?: false
     }
 
     CompositionLocalProvider(
         LocalSnackbarScaffold provides snackbarHostState,
-        LocalUiScopeScaffold provides scope
+        LocalUiScopeScaffold provides scope,
+        LocalMainBottomBarVisibility provides mainBottomBarVisibility
     ) {
         val snackbar = LocalSnackbarScaffold.current
         val layoutDirection = LocalLayoutDirection.current

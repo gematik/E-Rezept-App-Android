@@ -22,36 +22,58 @@
 
 package de.gematik.ti.erp.app.communication.model.payload
 
-import kotlinx.serialization.SerialName
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
-@Serializable
+@Serializable(with = CommunicationTypeSerializer::class)
 enum class CommunicationTypeErpModel {
-    @SerialName("order")
     Order,
-
-    @SerialName("text")
     Text,
-
-    @SerialName("link")
     Link,
-
-    @SerialName("reservationStatus")
     ReservationStatus,
-
-    @SerialName("pickUpCodeHR")
     PickUpCodeHR,
-
-    @SerialName("pickUpCodeDMC")
     PickUpCodeDMC,
-
-    @SerialName("deliveryStatus")
     DeliveryStatus,
-
-    @SerialName("paymentInfo")
     PaymentInfo,
-
-    @SerialName("unknown")
     Unknown
     ;
+}
+
+object CommunicationTypeSerializer : KSerializer<CommunicationTypeErpModel> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("CommunicationTypeErpModel", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: CommunicationTypeErpModel) {
+        val serialName = when (value) {
+            CommunicationTypeErpModel.Order -> "order"
+            CommunicationTypeErpModel.Text -> "text"
+            CommunicationTypeErpModel.Link -> "link"
+            CommunicationTypeErpModel.ReservationStatus -> "reservationStatus"
+            CommunicationTypeErpModel.PickUpCodeHR -> "pickUpCodeHR"
+            CommunicationTypeErpModel.PickUpCodeDMC -> "pickUpCodeDMC"
+            CommunicationTypeErpModel.DeliveryStatus -> "deliveryStatus"
+            CommunicationTypeErpModel.PaymentInfo -> "paymentInfo"
+            CommunicationTypeErpModel.Unknown -> "unknown"
+        }
+        encoder.encodeString(serialName)
+    }
+
+    override fun deserialize(decoder: Decoder): CommunicationTypeErpModel {
+        val str = decoder.decodeString().lowercase()
+        return when (str) {
+            "order" -> CommunicationTypeErpModel.Order
+            "text" -> CommunicationTypeErpModel.Text
+            "link" -> CommunicationTypeErpModel.Link
+            "reservationstatus", "reservation_status" -> CommunicationTypeErpModel.ReservationStatus
+            "pickupcodehr", "pickup_code_hr" -> CommunicationTypeErpModel.PickUpCodeHR
+            "pickupcodedmc", "pickup_code_dmc" -> CommunicationTypeErpModel.PickUpCodeDMC
+            "deliverystatus", "delivery_status" -> CommunicationTypeErpModel.DeliveryStatus
+            "paymentinfo", "payment_info" -> CommunicationTypeErpModel.PaymentInfo
+            else -> CommunicationTypeErpModel.Unknown
+        }
+    }
 }

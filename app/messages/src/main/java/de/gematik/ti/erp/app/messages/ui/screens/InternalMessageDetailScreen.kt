@@ -62,8 +62,6 @@ import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import kotlinx.datetime.Instant
 
-// TODO CommResV3 design: https://www.figma.com/design/Xg4X8ULc7fwxzkxaCnxW0I/%F0%9F%A4%96-eRezept-Android?node-id=41311-36198&m=dev
-
 class InternalMessageDetailScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry
@@ -149,9 +147,9 @@ internal fun InternalMessageDetailScreenContent(
                 type = MessageType.IN_APP,
                 message = OrderUseCaseData.Message(
                     content = local.text.orEmpty(),
-                    additionalInfo = local.tag.orEmpty(),
+                    additionalInfo = local.tag,
                     sentOn = Instant.parse(local.timeState.timestamp.toString()),
-                    communicationId = local.id.orEmpty(),
+                    communicationId = local.id,
                     link = null,
                     consumed = true,
                     pickUpCodeDMC = null,

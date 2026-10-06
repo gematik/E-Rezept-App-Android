@@ -42,6 +42,7 @@ object MessagesRoutes : NavigationRoutes {
     const val MESSAGE_NAV_THREAD_START = "MESSAGE_NAV_THREAD_START"
     const val MESSAGE_NAV_THREAD_END = "MESSAGE_NAV_THREAD_END"
     const val MESSAGE_NAV_DETAIL_TITLE = "MESSAGE_NAV_DETAIL_TITLE"
+    const val MESSAGE_LIST_NEEDS_REFRESH = "MESSAGE_LIST_NEEDS_REFRESH"
 
     object MessageListScreen : Routes(NavigationRouteNames.MessageListScreen.name)
 
@@ -49,6 +50,16 @@ object MessagesRoutes : NavigationRoutes {
 
     object OrderMessageDetailScreen : Routes(
         NavigationRouteNames.OrderMessageDetailScreen.name,
+        navArgument(MESSAGE_NAV_ORDER_ID) { type = NavType.StringType }
+    ) {
+        fun path(orderId: String) =
+            path(
+                MESSAGE_NAV_ORDER_ID to orderId
+            )
+    }
+
+    object CommResV3OrderMessageDetailScreen : Routes(
+        NavigationRouteNames.CommResV3OrderMessageDetailScreen.name,
         navArgument(MESSAGE_NAV_ORDER_ID) { type = NavType.StringType }
     ) {
         fun path(orderId: String) =
@@ -101,6 +112,10 @@ object MessagesRoutes : NavigationRoutes {
 
     object InternalMessageDetailScreen : Routes(
         NavigationRouteNames.InternalMessageDetailScreen.name
+    )
+
+    object CommResV3InternalMessageDetailScreen : Routes(
+        NavigationRouteNames.CommResV3InternalMessageDetailScreen.name
     )
 }
 

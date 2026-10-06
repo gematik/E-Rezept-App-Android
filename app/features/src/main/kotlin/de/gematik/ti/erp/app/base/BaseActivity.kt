@@ -51,6 +51,8 @@ import de.gematik.ti.erp.app.OlderSdkDomainVerifier
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.Sdk31DomainVerifier
 import de.gematik.ti.erp.app.analytics.CardCommunicationAnalytics
+import de.gematik.ti.erp.app.appauthentication.observer.AuthenticationModeAndMethod
+import de.gematik.ti.erp.app.appauthentication.observer.InactivityTimeoutObserver
 import de.gematik.ti.erp.app.appupdate.usecase.AppUpdateInfoUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.ChangeAppUpdateFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.CheckVersionUseCase
@@ -76,8 +78,6 @@ import de.gematik.ti.erp.app.medicationplan.MedicationPlanNotificationObserver
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInternalMessagesUseCase
 import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
 import de.gematik.ti.erp.app.timeouts.usecase.GetPauseMetricUseCase
-import de.gematik.ti.erp.app.appauthentication.observer.AuthenticationModeAndMethod
-import de.gematik.ti.erp.app.appauthentication.observer.InactivityTimeoutObserver
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 import de.gematik.ti.erp.app.utils.extensions.SnackbarScaffold
 import io.github.aakira.napier.Napier
@@ -223,6 +223,7 @@ open class BaseActivity :
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
         lifecycleScope.launch {
             intentHandler.propagateIntent(intent)
         }

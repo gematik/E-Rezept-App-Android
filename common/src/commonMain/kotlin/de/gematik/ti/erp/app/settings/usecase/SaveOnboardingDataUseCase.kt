@@ -35,8 +35,8 @@ class SaveOnboardingDataUseCase(
     private val appAuthenticationRepository: AppAuthenticationRepository
 ) {
     suspend operator fun invoke(authenticationMethod: AppAuthenticationMethodErpModel, profileName: String) {
-        settingsRepository.saveOnboardingShownIn(AppVersionErpModel(BuildKonfig.VERSION_NAME, BuildKonfig.VERSION_CODE))
         profileRepository.createNewProfile(profileName = profileName)
+        settingsRepository.saveOnboardingShownIn(AppVersionErpModel(BuildKonfig.VERSION_NAME, BuildKonfig.VERSION_CODE))
         appAuthenticationRepository.initialiseAppAuthenticationWithChosenMethod(
             authenticationMethod
         )

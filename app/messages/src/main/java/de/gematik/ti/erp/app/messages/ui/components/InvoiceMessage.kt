@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.annotatedStringResource
+import de.gematik.ti.erp.app.message.MessageActionButton
 import de.gematik.ti.erp.app.messages.ui.model.InvoiceMessageUiModel
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme

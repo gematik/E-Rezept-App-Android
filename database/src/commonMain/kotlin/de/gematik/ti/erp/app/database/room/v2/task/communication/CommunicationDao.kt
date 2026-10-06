@@ -27,6 +27,7 @@ import androidx.room.Query
 import androidx.room.TypeConverters
 import androidx.room.Upsert
 import de.gematik.ti.erp.app.communication.model.CommunicationProfileV1
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationPayloadErpModel
 import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskEntity
 import de.gematik.ti.erp.app.database.room.v2.task.util.CommunicationPayloadConverter
 import de.gematik.ti.erp.app.database.room.v2.task.util.CommunicationProfileConverter
@@ -54,6 +55,9 @@ interface CommunicationDao {
 
     @Query("SELECT orderId FROM communications WHERE taskId = :taskId AND profile = :profile AND orderId != '' LIMIT 1")
     suspend fun getOrderIdByTaskIdAndProfile(taskId: String, profile: CommunicationProfileV1): String?
+
+    @Query("SELECT DISTINCT taskId FROM communications WHERE orderId = :orderId AND taskId != '' LIMIT 1")
+    suspend fun getTaskIdByOrderId(orderId: String): String?
 
     // Observe by order and profile (e.g., ErxCommunicationDispReq)
     @Query("SELECT * FROM communications WHERE orderId = :orderId AND profile = :profile")
@@ -145,13 +149,14 @@ interface CommunicationDao {
     @Query("SELECT parentProfileId FROM tasks WHERE taskId = :taskId LIMIT 1")
     fun observeParentProfileIdByTaskId(taskId: String): Flow<String?>
 
-    // Update consumed for a group (no recipient column in Room v2 schema)
+    // Update consumed for a group
     @Query(
         """
         UPDATE communications
         SET consumed = :consumed
         WHERE orderId = :orderId
           AND taskId = :taskId
+          AND payload IS :payload
           AND telematikId = :sender
           AND recipient = :recipient
         """
@@ -159,6 +164,7 @@ interface CommunicationDao {
     suspend fun updateConsumedForGroup(
         orderId: String,
         taskId: String,
+        payload: CommunicationPayloadErpModel?,
         sender: String,
         recipient: String,
         consumed: Boolean

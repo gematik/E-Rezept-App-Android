@@ -30,10 +30,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.base.ContextExtensions.getCurrentLocale
+import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessageUsingOrderIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetProfileByOrderIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetRepliedMessagesUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.GetSentReplyMessagesByOrderIdUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.SendReplyMessageToPharmacyUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationConsumedStatusUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationConsumedStatusUseCase.Companion.CommunicationIdentifier
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInvoicesByOrderIdAndTaskIdUseCase
@@ -70,10 +73,12 @@ class OrderMessageDetailController(
     private val orderId: String,
     private val getRepliedMessagesUseCase: GetRepliedMessagesUseCase,
     private val getMessageUsingOrderIdUseCase: GetMessageUsingOrderIdUseCase,
+    private val getSentReplyMessagesByOrderIdUseCase: GetSentReplyMessagesByOrderIdUseCase,
     private val updateCommunicationConsumedStatusUseCase: UpdateCommunicationConsumedStatusUseCase,
     private val updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase,
     private val getPharmacyByTelematikIdUseCase: GetPharmacyByTelematikIdUseCase,
     private val getProfileByOrderIdUseCase: GetProfileByOrderIdUseCase,
+    private val sendReplyMessageToPharmacyUseCase: SendReplyMessageToPharmacyUseCase,
     private val getTranslationConsentUseCase: GetTranslationConsentUseCase,
     private val isTargetLanguageSetUseCase: IsTargetLanguageSetUseCase,
     private val toggleTranslationConsentUseCase: ToggleTranslationConsentUseCase,
@@ -88,12 +93,18 @@ class OrderMessageDetailController(
     private val _pharmacy = MutableStateFlow<UiState<PharmacyDetailsErpModel>>(UiState.Loading())
     private val _profile = MutableStateFlow<ProfileErpModel?>(null)
     private val _translationInProgress = MutableStateFlow<Map<String, Boolean>>(mapOf())
+    private val _draftReplyMessage = MutableStateFlow("")
+    private val _sentReplyMessages = MutableStateFlow<List<CommunicationErpModel>>(emptyList())
+    private val _isSendingReply = MutableStateFlow(false)
 
     val messages = _messages.asStateFlow()
     val order = _order.asStateFlow()
     val pharmacy = _pharmacy.asStateFlow()
     val profile = _profile.asStateFlow()
     val translationInProgress = _translationInProgress.asStateFlow()
+    val draftReplyMessage = _draftReplyMessage.asStateFlow()
+    val sentReplyMessages = _sentReplyMessages.asStateFlow()
+    val isSendingReply = _isSendingReply.asStateFlow()
 
     private val isAppGerman: Boolean = selectedAppLanguage.equals("de", ignoreCase = true)
 
@@ -125,7 +136,41 @@ class OrderMessageDetailController(
     fun init() {
         loadOrdersAndInvoiceMessage()
         loadReplyMessages()
+        loadSentReplyMessages()
         loadProfile()
+    }
+
+    fun updateReplyMessage(message: String) {
+        _draftReplyMessage.value = message
+    }
+
+    fun sendReplyMessage(
+        onSuccess: () -> Unit = {},
+        onError: (Throwable) -> Unit = {}
+    ) {
+        if (_isSendingReply.value) return
+
+        val orderDetail = _order.value.data
+        val profileData = _profile.value
+        val message = _draftReplyMessage.value.trim()
+
+        if (orderDetail == null || profileData == null || message.isBlank()) return
+
+        viewModelScope.launch {
+            _isSendingReply.value = true
+            sendReplyMessageToPharmacyUseCase(
+                profileId = profileData.id,
+                order = orderDetail,
+                message = message
+            ).fold(
+                onSuccess = {
+                    _draftReplyMessage.value = ""
+                    onSuccess()
+                },
+                onFailure = onError
+            )
+            _isSendingReply.value = false
+        }
     }
 
     fun toggleTranslationConsentUseCase() {
@@ -234,6 +279,14 @@ class OrderMessageDetailController(
         }
     }
 
+    private fun loadSentReplyMessages() {
+        viewModelScope.launch {
+            getSentReplyMessagesByOrderIdUseCase(orderId).collect { communications ->
+                _sentReplyMessages.value = communications
+            }
+        }
+    }
+
     private fun getPharmacy(telematikId: String) {
         viewModelScope.launch {
             getPharmacyByTelematikIdUseCase(telematikId).fold(onSuccess = { pharmacy ->
@@ -263,10 +316,12 @@ fun rememberOrderMessageDetailController(
 ): OrderMessageDetailController {
     val getRepliedMessagesUseCase: GetRepliedMessagesUseCase by rememberInstance()
     val getMessageUsingOrderIdUseCase: GetMessageUsingOrderIdUseCase by rememberInstance()
+    val getSentReplyMessagesByOrderIdUseCase: GetSentReplyMessagesByOrderIdUseCase by rememberInstance()
     val updateCommunicationConsumedStatusUseCase: UpdateCommunicationConsumedStatusUseCase by rememberInstance()
     val updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase by rememberInstance()
     val getPharmacyByTelematikIdUseCase by rememberInstance<GetPharmacyByTelematikIdUseCase>()
     val getProfileByOrderIdUseCase by rememberInstance<GetProfileByOrderIdUseCase>()
+    val sendReplyMessageToPharmacyUseCase by rememberInstance<SendReplyMessageToPharmacyUseCase>()
     val getTranslationConsentUseCase by rememberInstance<GetTranslationConsentUseCase>()
     val isTargetLanguageSetUseCase by rememberInstance<IsTargetLanguageSetUseCase>()
     val translateTextUseCase by rememberInstance<TranslateTextUseCase>()
@@ -274,15 +329,17 @@ fun rememberOrderMessageDetailController(
     val downloadedLanguagesUseCase by rememberInstance<DownloadLanguageModelUseCase>()
     val application = LocalContext.current.applicationContext as Application
 
-    return remember(orderId) {
+    val controller = remember(orderId) {
         OrderMessageDetailController(
             orderId = orderId,
             getRepliedMessagesUseCase = getRepliedMessagesUseCase,
             getMessageUsingOrderIdUseCase = getMessageUsingOrderIdUseCase,
+            getSentReplyMessagesByOrderIdUseCase = getSentReplyMessagesByOrderIdUseCase,
             updateCommunicationConsumedStatusUseCase = updateCommunicationConsumedStatusUseCase,
             updateInvoicesByOrderIdAndTaskIdUseCase = updateInvoicesByOrderIdAndTaskIdUseCase,
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
             getProfileByOrderIdUseCase = getProfileByOrderIdUseCase,
+            sendReplyMessageToPharmacyUseCase = sendReplyMessageToPharmacyUseCase,
             translateTextUseCase = translateTextUseCase,
             isTargetLanguageSetUseCase = isTargetLanguageSetUseCase,
             getTranslationConsentUseCase = getTranslationConsentUseCase,
@@ -291,4 +348,6 @@ fun rememberOrderMessageDetailController(
             application = application
         )
     }
+    controller.CancelScopeOnDispose()
+    return controller
 }

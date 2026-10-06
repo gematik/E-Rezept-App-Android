@@ -20,33 +20,33 @@
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
-package de.gematik.ti.erp.app.messages.ui.screens
+package de.gematik.ti.erp.app.messages.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
-import de.gematik.ti.erp.app.database.datastore.featuretoggle.COMM_RES_V3
-import de.gematik.ti.erp.app.navigation.Screen
-import org.kodein.di.compose.rememberInstance
 
-class FeatureToggledOrderMessageDetailScreen(
-    override val navController: NavController,
-    override val navBackStackEntry: NavBackStackEntry
-) : Screen() {
-    @Composable
-    override fun Content() {
-        if (rememberCommResV3Enabled()) {
-            CommResV3OrderMessageDetailScreen(navController, navBackStackEntry).Content()
-        } else {
-            OrderMessageDetailScreen(navController, navBackStackEntry).Content()
-        }
-    }
+internal fun NavController.popBackStackRefreshingMessages() {
+    previousBackStackEntry
+        ?.savedStateHandle
+        ?.set(MessagesRoutes.MESSAGE_LIST_NEEDS_REFRESH, true)
+    popBackStack()
 }
 
 @Composable
-private fun rememberCommResV3Enabled(): Boolean {
-    val isFeatureToggleEnabledUseCase by rememberInstance<IsFeatureToggleEnabledUseCase>()
-    return isFeatureToggleEnabledUseCase(COMM_RES_V3).collectAsStateWithLifecycle(initialValue = false).value
+internal fun NavBackStackEntry.HandleMessageListRefresh(
+    onRefresh: () -> Unit
+) {
+    val shouldRefresh = savedStateHandle
+        .getStateFlow(MessagesRoutes.MESSAGE_LIST_NEEDS_REFRESH, false)
+        .collectAsStateWithLifecycle()
+
+    LaunchedEffect(shouldRefresh.value) {
+        if (shouldRefresh.value) {
+            savedStateHandle[MessagesRoutes.MESSAGE_LIST_NEEDS_REFRESH] = false
+            onRefresh()
+        }
+    }
 }

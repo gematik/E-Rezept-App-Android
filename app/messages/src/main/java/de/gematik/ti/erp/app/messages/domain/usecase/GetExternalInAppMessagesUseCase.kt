@@ -23,54 +23,38 @@
 package de.gematik.ti.erp.app.messages.domain.usecase
 
 import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
-import de.gematik.ti.erp.app.communication.model.getLatestTimestamp
 import de.gematik.ti.erp.app.messages.mapper.OrderToInAppMessageMapper
 import de.gematik.ti.erp.app.messages.model.InAppMessage
-import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.datetime.Instant
 
 class GetExternalInAppMessagesUseCase(
-    private val communicationRepository: CommunicationRepository,
     private val getMessagesUseCase: GetMessagesUseCase,
     private val orderToInAppMessageMapper: OrderToInAppMessageMapper,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     operator fun invoke(): Flow<List<InAppMessage>> =
-        flow {
-            val erpCommunications = getMessagesUseCase.invoke()
-            val orders = erpCommunications.map { communication ->
+        getMessagesUseCase.observe().flatMapLatest { erpCommunications ->
+            val observableOrders = erpCommunications
+                .filter {
+                    it.profile == CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq ||
+                        it.profile == CommunicationErpModel.CommunicationProfile.ErxCommunicationReply
+                }
+                .map(getMessagesUseCase::observeOrder)
 
-                if (communication.profile == CommunicationErpModel.CommunicationProfile.ErxCommunicationDispReq
-                ) {
-                    val latestSentOnDate = communicationRepository
-                        .loadRepliedCommunications(
-                            taskIds = listOf(communication.taskId),
-                            telematikId = communication.recipient.ifEmpty { communication.senderTelematikId }
-                        )
-                        .getLatestTimestamp(communication)
-                    getMessagesUseCase.mapDispenseCommunicationToOrder(
-                        communication = communication,
-                        latestMessageSentOnDate = latestSentOnDate ?: communication.timeStamp ?: Instant.DISTANT_PAST
-                    )
-                } else {
-                    val latestSentOnDate = communicationRepository
-                        .loadRepliedCommunications(
-                            taskIds = listOf(communication.taskId),
-                            telematikId = communication.senderTelematikId.ifEmpty { communication.recipient }
-                        )
-                        .getLatestTimestamp(communication)
-                    getMessagesUseCase.mapReplyCommunicationToOrder(
-                        communication = communication,
-                        latestMessageSentOnDate = latestSentOnDate ?: communication.timeStamp ?: Instant.DISTANT_PAST
-                    )
+            if (observableOrders.isEmpty()) {
+                flowOf(emptyList())
+            } else {
+                combine(observableOrders) { orders ->
+                    orders.map(orderToInAppMessageMapper::map)
+                        .sortedByDescending { it.timeState.timestamp }
                 }
             }
-
-            emit(orders.map(orderToInAppMessageMapper::map))
-        }.flowOn(dispatcher)
+        }.distinctUntilChanged().flowOn(dispatcher)
 }

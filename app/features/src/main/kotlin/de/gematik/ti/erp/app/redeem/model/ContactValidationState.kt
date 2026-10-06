@@ -32,6 +32,9 @@ sealed class ContactValidationState(open val selectedOrderOption: OrderOptionErp
 
     enum class Error {
         EmptyName, InvalidName,
+        EmptyFirstName, InvalidFirstName,
+        EmptyLastName, InvalidLastName,
+        EmptyCountry, InvalidCountry,
         EmptyLine1, InvalidLine1,
         InvalidLine2,
         EmptyPostalCode, InvalidPostalCode,
@@ -49,6 +52,9 @@ sealed class ContactValidationState(open val selectedOrderOption: OrderOptionErp
     fun isPersonalInformationMissing(): Boolean = this is Invalid && errors.any {
         it in setOf(
             Error.EmptyName,
+            Error.EmptyFirstName,
+            Error.EmptyLastName,
+            Error.EmptyCountry,
             Error.EmptyLine1,
             Error.EmptyPostalCode,
             Error.EmptyCity
@@ -76,21 +82,17 @@ sealed class ContactValidationState(open val selectedOrderOption: OrderOptionErp
     companion object {
         // a subset of the [ContactValidationState] to show on the redeem screen
         fun ContactValidationState.redeemValidationState(): RedeemContactValidationState {
-            val option = selectedOrderOption ?: return RedeemContactValidationState.MissingOrderOption
+            if (selectedOrderOption == null) return RedeemContactValidationState.MissingOrderOption
 
             if (this is Valid) {
                 return RedeemContactValidationState.NoError
             }
 
-            return when (option) {
-                OrderOptionErpModel.Pickup -> RedeemContactValidationState.NoError
-
-                OrderOptionErpModel.Delivery, OrderOptionErpModel.Online -> when {
-                    isPersonalInformationMissing() -> RedeemContactValidationState.MissingPersonalInfo
-                    isContactPhoneInformationMissing() -> RedeemContactValidationState.MissingPhone
-                    isDeliveryInformationMissing() -> RedeemContactValidationState.MissingDeliveryInfo
-                    else -> RedeemContactValidationState.NoError
-                }
+            return when {
+                isPersonalInformationMissing() -> RedeemContactValidationState.MissingPersonalInfo
+                isContactPhoneInformationMissing() -> RedeemContactValidationState.MissingPhone
+                isDeliveryInformationMissing() -> RedeemContactValidationState.MissingDeliveryInfo
+                else -> RedeemContactValidationState.NoError
             }
         }
     }

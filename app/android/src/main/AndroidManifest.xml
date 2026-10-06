@@ -12,6 +12,17 @@
             <action android:name="android.intent.action.SENDTO" />
             <data android:scheme="mailto" />
         </intent>
+        <!--
+            Required on Android 11+ so that PackageManager.queryIntentActivities() can
+            discover health-insurance apps that handle the GID/fast-track redirect URI
+            (https://das-e-rezept-fuer-deutschland.de/extauth).
+            Without this entry the query returns only the browser, and the PackageManager-based
+            non-browser targeting in IntentHandler cannot suppress the app chooser.
+        -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
     </queries>
 
     <uses-permission android:name="android.permission.NFC" />

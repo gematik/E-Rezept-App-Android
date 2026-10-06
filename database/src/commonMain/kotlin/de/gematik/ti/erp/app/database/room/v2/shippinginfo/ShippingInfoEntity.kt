@@ -47,6 +47,7 @@ data class ShippingInfoEntity(
     val addressDetail: String, // e.g., Apt/Floor/Company
     val city: String,
     val zip: String,
+    val country: String,
 
     val deliveryInfo: String // e.g., door code / drop-off note
 )

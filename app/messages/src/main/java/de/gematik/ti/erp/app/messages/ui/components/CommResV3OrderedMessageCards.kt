@@ -26,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.datetime.annotatedStringResource
 import de.gematik.ti.erp.app.task.model.TaskErpModel
 
 // Ordered / DispenseRequest
@@ -45,8 +44,9 @@ internal fun OrderedReservationMessageCard(
         title = stringResource(R.string.message_card_ordered_reservation_title),
         content = {
             CommResV3ClickableTextContent(
-                text = annotatedStringResource(R.string.message_card_ordered_reservation_content, pharmacyName).text,
+                leadingText = stringResource(R.string.message_card_ordered_reservation_content_leading_text),
                 pharmacyName = pharmacyName,
+                trailingText = stringResource(R.string.message_card_ordered_reservation_content_trailing_text),
                 onClickPharmacy = onClickPharmacy
             )
         },
@@ -73,8 +73,9 @@ internal fun OrderedShippingMessageCard(
         title = stringResource(R.string.message_card_ordered_shipping_title),
         content = {
             CommResV3ClickableTextContent(
-                text = annotatedStringResource(R.string.message_card_ordered_shipping_content, pharmacyName).text,
+                leadingText = stringResource(R.string.message_card_ordered_reservation_content_leading_text),
                 pharmacyName = pharmacyName,
+                trailingText = stringResource(R.string.message_card_ordered_reservation_content_trailing_text),
                 onClickPharmacy = onClickPharmacy
             )
         },
@@ -101,8 +102,9 @@ internal fun OrderedDeliveryMessageCard(
         title = stringResource(R.string.message_card_ordered_delivery_title),
         content = {
             CommResV3ClickableTextContent(
-                text = annotatedStringResource(R.string.message_card_ordered_delivery_content, pharmacyName).text,
+                leadingText = stringResource(R.string.message_card_ordered_reservation_content_leading_text),
                 pharmacyName = pharmacyName,
+                trailingText = stringResource(R.string.message_card_ordered_reservation_content_trailing_text),
                 onClickPharmacy = onClickPharmacy
             )
         },

@@ -161,6 +161,10 @@ fun OrderedStatusChip(content: String) =
     InfoChip(content = content, backgroundColor = AppTheme.colors.primary100, contentColor = AppTheme.colors.primary900)
 
 @Composable
+fun WaitingStatusChip(content: String) =
+    InfoChip(content = content, backgroundColor = AppTheme.colors.green100, contentColor = AppTheme.colors.green900)
+
+@Composable
 fun ReadyTomorrowStatusChip(content: String) =
     InfoChip(content = content, backgroundColor = AppTheme.colors.green100, contentColor = AppTheme.colors.green900)
 
@@ -521,6 +525,7 @@ fun FigmaStatusChipsPreview() {
     PreviewAppTheme {
         Column {
             OrderedStatusChip(content = "Bestellt • Abholung • 1 Rezept")
+            WaitingStatusChip(content = "Wird verpackt • Abholung • 1 Rezept")
             ReadyTomorrowStatusChip(content = "Morgen abholbereit • Abholung • 1 Rezept")
             ReadyForPickupStatusChip(content = "Abholbereit • Abholung • 1 Rezept")
             NotAvailableStatusChip(content = "Nicht verfügbar • Abholung • 1 Rezept")

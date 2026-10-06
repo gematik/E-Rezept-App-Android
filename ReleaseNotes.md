@@ -1,3 +1,11 @@
+# Release 1.41.0
+
+### ✨ features (3 changes):
+
+- Add communication V3
+- Add EU screens in V3
+- Enhance intent handling for external authentication and improve app link settings
+
 # Release 1.40.0
 
 ### fixed (1 change):

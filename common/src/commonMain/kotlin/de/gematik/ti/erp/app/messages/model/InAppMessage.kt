@@ -23,6 +23,8 @@
 package de.gematik.ti.erp.app.messages.model
 
 import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationSupplyOptionTypeErpModel
+import de.gematik.ti.erp.app.task.model.TaskStatusEnum
 import de.gematik.ti.erp.app.timestate.TimeState
 import io.realm.kotlin.types.annotations.PrimaryKey
 import kotlinx.datetime.Instant
@@ -47,5 +49,18 @@ data class InAppMessage(
     // add for EU
     val threadOrderId: String? = null,
     val threadStart: Instant? = null,
-    val threadEnd: Instant? = null
+    val threadEnd: Instant? = null,
+    val supplyOption: CommunicationSupplyOptionTypeErpModel? = null,
+    val taskStatus: TaskStatusEnum? = null,
+    val orderStatus: InAppMessageStatus? = null
 )
+
+@Serializable
+enum class InAppMessageStatus {
+    PENDING,
+    ORDERED,
+    READY_TOMORROW,
+    READY_FOR_PICKUP,
+    NOT_AVAILABLE,
+    PICKED_UP
+}

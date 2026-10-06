@@ -19,10 +19,10 @@
  *
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
-package de.gematik.ti.erp.app.messages.ui.components
+
+package de.gematik.ti.erp.app.message
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
@@ -34,32 +34,34 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import de.gematik.ti.erp.app.preview.LightDarkPreview
-import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 
 @Composable
-internal fun MessageActionButton(
+fun MessageActionButton(
     text: String,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     tint: Color = AppTheme.colors.primary700,
     onClick: () -> Unit
 ) {
-    val clickableModifier =
-        if (enabled) {
-            modifier
-                .clickable { onClick() }
-                .semantics { role = Role.Button }
-        } else {
-            modifier // no clickable
-        }
+    val clickableModifier = if (enabled) {
+        modifier.clickable(
+            onClickLabel = text,
+            onClick = onClick
+        )
+    } else {
+        modifier
+    }
 
     Row(
-        modifier = clickableModifier,
+        modifier = clickableModifier.semantics {
+            role = Role.Button
+            if (!enabled) disabled()
+        },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -75,25 +77,6 @@ internal fun MessageActionButton(
                 imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
                 contentDescription = null,
                 tint = AppTheme.colors.primary700
-            )
-        }
-    }
-}
-
-@LightDarkPreview
-@Composable
-private fun MessageActionButtonPreview() {
-    PreviewTheme {
-        Column {
-            MessageActionButton(
-                text = "Button",
-                onClick = {}
-            )
-            MessageActionButton(
-                text = "Button",
-                enabled = false,
-                tint = AppTheme.colors.red700,
-                onClick = {}
             )
         }
     }

@@ -22,6 +22,9 @@
 
 package de.gematik.ti.erp.app.fhir.communication.parser
 
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationDeliveryStatusErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyDeliveryStatusPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPickupCodeHRPayloadErpModel
 import de.gematik.ti.erp.app.data.dispense_request_delivery_full_payload_v1
 import de.gematik.ti.erp.app.data.dispense_request_delivery_full_payload_v3
 import de.gematik.ti.erp.app.data.dispense_request_delivery_minimal_payload_v1
@@ -236,5 +239,97 @@ class CommunicationPayloadParserTest {
         val expected = FhirCommunicationPayloadTestData.replyPaymentInfoMinimalPayloadV3
         val actual = CommunicationPayloadParser.extract(reply_payment_info_minimal_payload_v3)
         assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `parses custom pickupCodeHR payload with variant type`() {
+        val json = """
+            {
+              "version": 3,
+              "text": "Some Text to state your request",
+              "transactionID": "ABCD-EFGH-IJKL-MNOP",
+              "communicationType": "pickupCodeHR",
+              "pickupCodeHR": "0815"
+            }
+        """.trimIndent()
+        val actual = CommunicationPayloadParser.extract(json)
+        kotlin.test.assertNotNull(actual)
+        assertEquals("0815", (actual as? CommunicationReplyPickupCodeHRPayloadErpModel)?.pickUpCode)
+    }
+
+    @Test
+    fun `parses custom deliveryStatus payload with position and ETA`() {
+        val json = """
+            {
+              "version": 3,
+              "text": "Some Text to state your request",
+              "transactionID": "ABCD-EFGH-IJKL-MNOP",
+              "communicationType": "deliveryStatus",
+              "deliveryStatus": "inTransport",
+              "inTransportPosition": {
+                "long": 13.387595793605172,
+                "lat": 52.522529939635795
+              },
+              "inTransportETA": {
+                "from": 1735736400,
+                "to": 1735741800
+              }
+            }
+        """.trimIndent()
+        val actual = CommunicationPayloadParser.extract(json)
+        kotlin.test.assertNotNull(actual)
+        assertEquals(CommunicationDeliveryStatusErpModel.InTransport, (actual as? CommunicationReplyDeliveryStatusPayloadErpModel)?.deliveryStatus)
+    }
+
+    @Test
+    fun `parses exact user deliveryStatus payload`() {
+        val json = """
+            {
+              "version": 3,
+              "text": "Some Text to state your request",
+              "transactionID": "ABCD-EFGH-IJKL-MNOP",
+              "communicationType": "deliveryStatus",
+              "deliveryStatus": "inTransport",
+              "inTransportPosition": {
+                "long": 13.387595793605172,
+                "lat": 52.522529939635795
+              },
+              "inTransportETA": {
+                "from": 1735736400,
+                "to": 1735741800
+              }
+            }
+        """.trimIndent()
+        val actual = CommunicationPayloadParser.extract(json)
+        kotlin.test.assertNotNull(actual)
+        val deliveryPayload = actual as? CommunicationReplyDeliveryStatusPayloadErpModel
+        kotlin.test.assertNotNull(deliveryPayload)
+        assertEquals("ABCD-EFGH-IJKL-MNOP", deliveryPayload.transactionID)
+        assertEquals(CommunicationDeliveryStatusErpModel.InTransport, deliveryPayload.deliveryStatus)
+        assertEquals(13.387595793605172, deliveryPayload.inTransportPosition?.longitude)
+        assertEquals(52.522529939635795, deliveryPayload.inTransportPosition?.latitude)
+        assertEquals(1735736400L, deliveryPayload.inTransportETA?.from)
+        assertEquals(1735741800L, deliveryPayload.inTransportETA?.to)
+        assertEquals("Some Text to state your request", deliveryPayload.text)
+    }
+
+    @Test
+    fun `parses exact user pickupCodeHR payload`() {
+        val json = """
+            {
+              "version": 3,
+              "text": "Some Text to state your request",
+              "transactionID": "ABCD-EFGH-IJKL-MNOP",
+              "communicationType": "pickupCodeHR",
+              "pickupCodeHR": "0815"
+            }
+        """.trimIndent()
+        val actual = CommunicationPayloadParser.extract(json)
+        kotlin.test.assertNotNull(actual)
+        val pickupPayload = actual as? CommunicationReplyPickupCodeHRPayloadErpModel
+        kotlin.test.assertNotNull(pickupPayload)
+        assertEquals("ABCD-EFGH-IJKL-MNOP", pickupPayload.transactionID)
+        assertEquals("0815", pickupPayload.pickUpCode)
+        assertEquals("Some Text to state your request", pickupPayload.text)
     }
 }

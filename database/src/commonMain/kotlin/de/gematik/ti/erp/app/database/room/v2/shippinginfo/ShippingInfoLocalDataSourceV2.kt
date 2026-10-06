@@ -47,28 +47,43 @@ class ShippingInfoLocalDataSourceV2(
         dao.deleteById(SINGLETON_ID)
     }
 
-    private fun ShippingInfoEntity.toErp() = ShippingInfoErpModel(
-        name = name,
-        street = street,
-        addressDetail = addressDetail,
-        zip = zip,
-        city = city,
-        phone = phone,
-        mail = mail,
-        deliveryInfo = deliveryInfo
-    )
+    private fun ShippingInfoEntity.toErp(): ShippingInfoErpModel {
+        val (firstname, lastname) = ShippingInfoErpModel.splitFullName(name)
+        return ShippingInfoErpModel(
+            name = name,
+            firstname = firstname,
+            lastname = lastname,
+            street = street,
+            addressDetail = addressDetail,
+            zip = zip,
+            city = city,
+            country = country,
+            phone = phone,
+            mail = mail,
+            deliveryInfo = deliveryInfo
+        )
+    }
 
-    private fun ShippingInfoErpModel.toEntity() = ShippingInfoEntity(
-        id = SINGLETON_ID,
-        name = name,
-        mail = mail,
-        phone = phone,
-        street = street,
-        addressDetail = addressDetail,
-        city = city,
-        zip = zip,
-        deliveryInfo = deliveryInfo
-    )
+    private fun ShippingInfoErpModel.toEntity(): ShippingInfoEntity {
+        val resolvedName = when {
+            name.isNotBlank() -> name
+            firstname.isNotBlank() || lastname.isNotBlank() ->
+                listOf(firstname, lastname).filter { it.isNotBlank() }.joinToString(" ")
+            else -> ""
+        }
+        return ShippingInfoEntity(
+            id = SINGLETON_ID,
+            name = resolvedName,
+            mail = mail,
+            phone = phone,
+            street = street,
+            addressDetail = addressDetail,
+            city = city,
+            zip = zip,
+            country = country,
+            deliveryInfo = deliveryInfo
+        )
+    }
 
     private companion object {
         const val SINGLETON_ID = "shipping-info-singleton"

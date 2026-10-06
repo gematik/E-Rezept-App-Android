@@ -23,6 +23,7 @@
 package de.gematik.ti.erp.app.messages.domain.usecase
 
 import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
+import de.gematik.ti.erp.app.communication.model.payload.InfoAvailabilityRequestPayloadErpModel
 import de.gematik.ti.erp.app.invoice.model.PKVInvoiceErpModel
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
@@ -51,10 +52,15 @@ class GetMessageUsingOrderIdUseCase(
     operator fun invoke(orderId: String): Flow<OrderUseCaseData.OrderDetail?> {
         return communicationRepository.loadDispReqCommunications(orderId)
             .map { communications ->
-                communications.firstOrNull()?.dispenseRequestCommunicationToOrder(
+                val requestCommunication = communications
+                    .sortedBy { it.timeStamp }
+                    .firstOrNull { it.payload !is InfoAvailabilityRequestPayloadErpModel }
+                    ?: communications.minByOrNull { it.timeStamp ?: kotlinx.datetime.Instant.DISTANT_PAST }
+
+                requestCommunication?.dispenseRequestCommunicationToOrder(
                     communicationRepository = communicationRepository,
                     withMedicationNames = true,
-                    pharmacyName = communications.firstOrNull()?.pharmacyName
+                    pharmacyName = requestCommunication.pharmacyName
                 )
             }
             .flatMapLatest { dispenseRequestOrderDetail ->

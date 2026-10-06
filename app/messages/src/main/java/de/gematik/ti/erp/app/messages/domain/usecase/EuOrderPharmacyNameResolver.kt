@@ -85,7 +85,9 @@ internal suspend fun List<EuTaskEventErpModel>.resolveMedicationNames(
     val result = mutableMapOf<String, String>()
     for (taskId in taskIds) {
         val medicationName = when (val task = taskOperationsRepository.loadTaskByTaskId(taskId).firstOrNull()) {
-            is TaskErpModel.Synced.Prescription -> task.medicationName() ?: taskId
+            is TaskErpModel.Synced.Prescription ->
+                task.name?.takeIf { it.isNotBlank() } ?: task.medicationName() ?: taskId
+
             is TaskErpModel.Scanned -> task.name ?: taskId
             else -> taskId
         }

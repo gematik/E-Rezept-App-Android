@@ -32,18 +32,14 @@ class LicenceRuleTest {
     @Test
     fun `lint missing licence header`() {
         val lintErrors =
-            LicenceRule().lint(
-                """
+            listOf(LicenceRule()).lint(
+                text = """
                 /* */
                 
                 package a.b.c
                 
                 import d.e.f
-                """.trimIndent(),
-                text = TODO(),
-                editorConfigOverride = TODO(),
-                userData = TODO(),
-                script = TODO()
+                """.trimIndent()
             )
 
         val expected =
@@ -60,10 +56,10 @@ class LicenceRuleTest {
     @Test
     fun `lint found licence header`() {
         val lintErrors =
-            LicenceRule().lint(
-                """
+            listOf(LicenceRule()).lint(
+                text = """
                 /*
-                 * Copyright 2024, gematik GmbH
+                 * Copyright (Change Date see Readme), gematik GmbH
                  *
                  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
                  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -75,19 +71,19 @@ class LicenceRuleTest {
                  * Unless required by applicable law or agreed to in writing,
                  * software distributed under the Licence is distributed on an "AS IS" basis,
                  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
-                 * In case of changes by gematik find details in the "Readme" file.
+                 * In case of changes by gematik GmbH find details in the "Readme" file.
                  *
                  * See the Licence for the specific language governing permissions and limitations under the Licence.
+                 *
+                 * *******
+                 *
+                 * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
                  */
                 
                 package a.b.c
                 
                 import d.e.f
-                """.trimIndent(),
-                text = TODO(),
-                editorConfigOverride = TODO(),
-                userData = TODO(),
-                script = TODO()
+                """.trimIndent()
             )
 
         assertEquals(emptyList(), lintErrors)
@@ -96,12 +92,12 @@ class LicenceRuleTest {
     @Test
     fun `lint found licence header in wrong position`() {
         val lintErrors =
-            LicenceRule().lint(
-                """
+            listOf(LicenceRule()).lint(
+                text = """
                 /* */
                 
                 /*
-                 * Copyright 2024, gematik GmbH
+                 * Copyright (Change Date see Readme), gematik GmbH
                  *
                  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
                  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -113,22 +109,22 @@ class LicenceRuleTest {
                  * Unless required by applicable law or agreed to in writing,
                  * software distributed under the Licence is distributed on an "AS IS" basis,
                  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
-                 * In case of changes by gematik find details in the "Readme" file.
+                 * In case of changes by gematik GmbH find details in the "Readme" file.
                  *
                  * See the Licence for the specific language governing permissions and limitations under the Licence.
+                 *
+                 * *******
+                 *
+                 * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
                  */
                 
                 package a.b.c
                 
                 import d.e.f
-                """.trimIndent(),
-                text = TODO(),
-                editorConfigOverride = TODO(),
-                userData = TODO(),
-                script = TODO()
+                """.trimIndent()
             )
 
-        val expected = listOf<LintError>(
+        val expected = listOf(
             LintError(
                 1,
                 1,
@@ -148,25 +144,21 @@ class LicenceRuleTest {
     @Test
     fun `format licence header - comment first`() {
         val given =
-            LicenceRule().format(
-                """
+            listOf(LicenceRule()).format(
+                lintedFilePath = null,
+                text = """
                 /* Some comment */
                 
                 package a.b.c
                 
                 import d.e.f
-                """.trimIndent(),
-                text = TODO(),
-                editorConfigOverride = TODO(),
-                userData = TODO(),
-                cb = TODO(),
-                script = TODO()
+                """.trimIndent()
             )
 
         val expected =
             """
             /*
-             * Copyright 2024, gematik GmbH
+             * Copyright (Change Date see Readme), gematik GmbH
              *
              * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
              * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -178,9 +170,13 @@ class LicenceRuleTest {
              * Unless required by applicable law or agreed to in writing,
              * software distributed under the Licence is distributed on an "AS IS" basis,
              * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
-             * In case of changes by gematik find details in the "Readme" file.
+             * In case of changes by gematik GmbH find details in the "Readme" file.
              *
              * See the Licence for the specific language governing permissions and limitations under the Licence.
+             *
+             * *******
+             *
+             * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
              */
             
             /* Some comment */
@@ -196,8 +192,9 @@ class LicenceRuleTest {
     @Test
     fun `format licence header - old placeholder`() {
         val given =
-            LicenceRule().format(
-                """
+            listOf(LicenceRule()).format(
+                lintedFilePath = null,
+                text = """
                 /*
                  * ${'$'}{GEMATIK_COPYRIGHT_STATEMENT}
                  */
@@ -211,7 +208,7 @@ class LicenceRuleTest {
         val expected =
             """
             /*
-             * Copyright 2024, gematik GmbH
+             * Copyright (Change Date see Readme), gematik GmbH
              *
              * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
              * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -223,9 +220,17 @@ class LicenceRuleTest {
              * Unless required by applicable law or agreed to in writing,
              * software distributed under the Licence is distributed on an "AS IS" basis,
              * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
-             * In case of changes by gematik find details in the "Readme" file.
+             * In case of changes by gematik GmbH find details in the "Readme" file.
              *
              * See the Licence for the specific language governing permissions and limitations under the Licence.
+             *
+             * *******
+             *
+             * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
+             */
+
+            /*
+             * ${'$'}{GEMATIK_COPYRIGHT_STATEMENT}
              */
 
             package a.b.c
@@ -238,8 +243,9 @@ class LicenceRuleTest {
 
     @Test
     fun `format licence header - package first`() {
-        val given = LicenceRule().format(
-            """
+        val given = listOf(LicenceRule()).format(
+            lintedFilePath = null,
+            text = """
             package a.b.c
             
             import d.e.f
@@ -251,7 +257,7 @@ class LicenceRuleTest {
         val expected =
             """
             /*
-             * Copyright 2024, gematik GmbH
+             * Copyright (Change Date see Readme), gematik GmbH
              *
              * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
              * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -263,9 +269,13 @@ class LicenceRuleTest {
              * Unless required by applicable law or agreed to in writing,
              * software distributed under the Licence is distributed on an "AS IS" basis,
              * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
-             * In case of changes by gematik find details in the "Readme" file.
+             * In case of changes by gematik GmbH find details in the "Readme" file.
              *
              * See the Licence for the specific language governing permissions and limitations under the Licence.
+             *
+             * *******
+             *
+             * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
              */
             
             package a.b.c
@@ -281,12 +291,13 @@ class LicenceRuleTest {
     @Test
     fun `format licence header - wrong position`() {
         val given =
-            LicenceRule().format(
-                """
+            listOf(LicenceRule()).format(
+                lintedFilePath = null,
+                text = """
                 package a.b.c
                 
                 /*
-                 * Copyright 2024, gematik GmbH
+                 * Copyright (Change Date see Readme), gematik GmbH
                  *
                  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
                  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -298,9 +309,13 @@ class LicenceRuleTest {
                  * Unless required by applicable law or agreed to in writing,
                  * software distributed under the Licence is distributed on an "AS IS" basis,
                  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
-                 * In case of changes by gematik find details in the "Readme" file.
+                 * In case of changes by gematik GmbH find details in the "Readme" file.
                  *
                  * See the Licence for the specific language governing permissions and limitations under the Licence.
+                 *
+                 * *******
+                 *
+                 * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
                  */
                 
                 import d.e.f
@@ -310,7 +325,7 @@ class LicenceRuleTest {
         val expected =
             """
             /*
-             * Copyright 2024, gematik GmbH
+             * Copyright (Change Date see Readme), gematik GmbH
              *
              * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
              * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -322,9 +337,13 @@ class LicenceRuleTest {
              * Unless required by applicable law or agreed to in writing,
              * software distributed under the Licence is distributed on an "AS IS" basis,
              * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
-             * In case of changes by gematik find details in the "Readme" file.
+             * In case of changes by gematik GmbH find details in the "Readme" file.
              *
              * See the Licence for the specific language governing permissions and limitations under the Licence.
+             *
+             * *******
+             *
+             * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
              */
             
             package a.b.c
@@ -338,10 +357,11 @@ class LicenceRuleTest {
     @Test
     fun `format licence header - script - expect same output`() {
         val given =
-            LicenceRule().format(
-                """
+            listOf(LicenceRule()).format(
+                lintedFilePath = null,
+                text = """
                 /*
-                 * Copyright 2024, gematik GmbH
+                 * Copyright (Change Date see Readme), gematik GmbH
                  *
                  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
                  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -353,10 +373,14 @@ class LicenceRuleTest {
                  * Unless required by applicable law or agreed to in writing,
                  * software distributed under the Licence is distributed on an "AS IS" basis,
                  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
-                 * In case of changes by gematik find details in the "Readme" file.
+                 * In case of changes by gematik GmbH find details in the "Readme" file.
                  *
                  * See the Licence for the specific language governing permissions and limitations under the Licence.
-                 */    
+                 *
+                 * *******
+                 *
+                 * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
+                 */
                 
                 import a.b.c
     
@@ -368,7 +392,7 @@ class LicenceRuleTest {
         val expected =
             """
             /*
-             * Copyright 2024, gematik GmbH
+             * Copyright (Change Date see Readme), gematik GmbH
              *
              * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
              * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -380,13 +404,17 @@ class LicenceRuleTest {
              * Unless required by applicable law or agreed to in writing,
              * software distributed under the Licence is distributed on an "AS IS" basis,
              * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
-             * In case of changes by gematik find details in the "Readme" file.
+             * In case of changes by gematik GmbH find details in the "Readme" file.
              *
              * See the Licence for the specific language governing permissions and limitations under the Licence.
-             */    
-                
+             *
+             * *******
+             *
+             * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
+             */
+            
             import a.b.c
-
+            
             abc {}
             """.trimIndent()
 

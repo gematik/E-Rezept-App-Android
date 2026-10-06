@@ -38,6 +38,12 @@ sealed interface ShippingContactState {
     sealed interface ShippingContactError {
         data object EmptyName : ShippingContactError
         data object InvalidName : ShippingContactError
+        data object EmptyFirstName : ShippingContactError
+        data object InvalidFirstName : ShippingContactError
+        data object EmptyLastName : ShippingContactError
+        data object InvalidLastName : ShippingContactError
+        data object EmptyCountry : ShippingContactError
+        data object InvalidCountry : ShippingContactError
         data object EmptyLine1 : ShippingContactError
         data object InvalidLine1 : ShippingContactError
         data object InvalidLine2 : ShippingContactError
@@ -57,19 +63,32 @@ sealed interface ShippingContactState {
 class GetShippingContactValidationUseCase {
     @Suppress("TooManyFunctions")
     companion object {
-        private const val MAX_TEXT_LENGTH = 50
-        private const val MAX_HINT_TEXT_LENGTH = 500
-        private const val MAX_PHONE_LENGTH = 25
+        private const val MAX_TEXT_LENGTH = 100
+        private const val MAX_NAME_PART_LENGTH = 45
+        private const val MAX_HINT_TEXT_LENGTH = 100
+        private const val MAX_PHONE_LENGTH = 31
         private const val MIN_PHONE_LENGTH = 1
+        private const val MAX_MAIL_LENGTH = 70
 
-        private const val MAX_POSTAL_CODE_LENGTH = 8
+        private const val MIN_STREET_LENGTH = 3
+        private const val MAX_STREET_LENGTH = 100
+
+        private const val MIN_CITY_LENGTH = 2
+        private const val MAX_CITY_LENGTH = 100
+
+        private const val MIN_POSTAL_CODE_LENGTH = 3
+        private const val MAX_POSTAL_CODE_LENGTH = 10
 
         // allows letters from any language, numbers and some restricted symbols
         val textRegex = Regex("[\\p{L}0-9\\-.,:!@_%+'/\"\\s]{1,$MAX_TEXT_LENGTH}$")
+        val streetRegex = Regex("[\\p{L}0-9\\-.,:!@_%+'/\"\\s]{$MIN_STREET_LENGTH,$MAX_STREET_LENGTH}$")
+        val cityRegex = Regex("[\\p{L}0-9\\-.,:!@_%+'/\"\\s]{$MIN_CITY_LENGTH,$MAX_CITY_LENGTH}$")
         private val hintRegex = Regex("[\\p{L}0-9\\-.,:!@_%+?'/\"\\s]{1,$MAX_HINT_TEXT_LENGTH}$")
 
-        val postalCodeRegex = Regex("^[a-zA-Z0-9\\s]{1,$MAX_POSTAL_CODE_LENGTH}$")
-        val phoneNumberRegex = Regex("^[0-9\\-+'/\"\\s]{$MIN_PHONE_LENGTH,$MAX_PHONE_LENGTH}$")
+        val postalCodeRegex = Regex("^[a-zA-Z0-9\\s\\-]{$MIN_POSTAL_CODE_LENGTH,$MAX_POSTAL_CODE_LENGTH}$")
+        val phoneNumberRegex = Regex("^\\+?[0-9\\-'/\"\\s]{$MIN_PHONE_LENGTH,$MAX_PHONE_LENGTH}$")
+        val countryRegex = Regex("^[A-Z]{2}$")
+        val namePartRegex = Regex("^[\\p{L}0-9\\-.,'\\s]{1,$MAX_NAME_PART_LENGTH}$")
 
         val mailRegex = Regex(
             "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{1,}\$"
@@ -82,6 +101,30 @@ class GetShippingContactValidationUseCase {
         fun ShippingContactState.isInvalidPhoneNumber(): Boolean =
             this is ShippingContactState.InvalidShippingContactState &&
                 this.errorList.contains(ShippingContactState.ShippingContactError.InvalidPhoneNumber)
+
+        fun ShippingContactState.isEmptyFirstName(): Boolean =
+            this is ShippingContactState.InvalidShippingContactState &&
+                this.errorList.contains(ShippingContactState.ShippingContactError.EmptyFirstName)
+
+        fun ShippingContactState.isInvalidFirstName(): Boolean =
+            this is ShippingContactState.InvalidShippingContactState &&
+                this.errorList.contains(ShippingContactState.ShippingContactError.InvalidFirstName)
+
+        fun ShippingContactState.isEmptyLastName(): Boolean =
+            this is ShippingContactState.InvalidShippingContactState &&
+                this.errorList.contains(ShippingContactState.ShippingContactError.EmptyLastName)
+
+        fun ShippingContactState.isInvalidLastName(): Boolean =
+            this is ShippingContactState.InvalidShippingContactState &&
+                this.errorList.contains(ShippingContactState.ShippingContactError.InvalidLastName)
+
+        fun ShippingContactState.isEmptyCountry(): Boolean =
+            this is ShippingContactState.InvalidShippingContactState &&
+                this.errorList.contains(ShippingContactState.ShippingContactError.EmptyCountry)
+
+        fun ShippingContactState.isInvalidCountry(): Boolean =
+            this is ShippingContactState.InvalidShippingContactState &&
+                this.errorList.contains(ShippingContactState.ShippingContactError.InvalidCountry)
 
         fun ShippingContactState.isEmptyMail(): Boolean = this is ShippingContactState.InvalidShippingContactState &&
             this.errorList.contains(ShippingContactState.ShippingContactError.EmptyPhoneNumber) &&
@@ -125,6 +168,9 @@ class GetShippingContactValidationUseCase {
 
         fun ShippingContactState.isContactInformationMissing(): Boolean = this.isEmptyPhoneNumber() ||
             this.isEmptyName() ||
+            this.isEmptyFirstName() ||
+            this.isEmptyLastName() ||
+            this.isEmptyCountry() ||
             this.isEmptyLine1() ||
             this.isEmptyPostalCode() ||
             this.isEmptyCity()
@@ -139,47 +185,68 @@ class GetShippingContactValidationUseCase {
     )
     operator fun invoke(
         contact: ShippingInfoErpModel,
-        selectedOrderOption: OrderOptionErpModel?
+        selectedOrderOption: OrderOptionErpModel?,
+        isCommResV3: Boolean = true
     ): ShippingContactState {
         val errors = mutableListOf<ShippingContactState.ShippingContactError>()
-        if (selectedOrderOption == OrderOptionErpModel.Pickup &&
-            contact.isEmpty()
-        ) {
+        val isPickup = selectedOrderOption == OrderOptionErpModel.Pickup
+        val isPhoneMandatory = isCommResV3 || !isPickup
+
+        if (!isCommResV3 && isPickup && contact.isEmpty()) {
             return ShippingContactState.ValidShippingContactState.OK
         } else {
-            checkContactName(
-                contact.name,
-                onNameIsEmpty = { errors.add(it) },
-                onNameIsInvalid = { errors.add(it) }
-            )
+            if (contact.firstname.isNotEmpty() || contact.lastname.isNotEmpty()) {
+                checkFirstName(
+                    contact.firstname,
+                    onFirstNameIsEmpty = { if (!isPickup) errors.add(it) },
+                    onFirstNameIsInvalid = { errors.add(it) }
+                )
+                checkLastName(
+                    contact.lastname,
+                    onLastNameIsEmpty = { if (!isPickup) errors.add(it) },
+                    onLastNameIsInvalid = { errors.add(it) }
+                )
+            } else {
+                checkContactName(
+                    contact.name,
+                    onNameIsEmpty = { if (!isPickup) errors.add(it) },
+                    onNameIsInvalid = { errors.add(it) }
+                )
+            }
+            if (contact.country.isNotEmpty()) {
+                checkCountry(contact.country, onCountryIsEmpty = { errors.add(it) }, onCountryIsInvalid = { errors.add(it) })
+            }
             checkContactLine1(
                 contact.street,
-                onLine1IsEmpty = { errors.add(it) },
+                onLine1IsEmpty = { if (!isPickup) errors.add(it) },
                 onLine1IsInvalid = { errors.add(it) }
             )
             checkContactLine2(contact.addressDetail, onLine2IsInvalid = { errors.add(it) })
             checkContactPostalCode(
                 contact.zip,
-                onPostalCodeIsEmpty = { errors.add(it) },
+                onPostalCodeIsEmpty = { if (!isPickup) errors.add(it) },
                 onPostalCodeIsInvalid = { errors.add(it) }
             )
             checkContactCity(
                 contact.city,
-                onCityIsEmpty = { errors.add(it) },
+                onCityIsEmpty = { if (!isPickup) errors.add(it) },
                 onCityIsInvalid = { errors.add(it) }
             )
+            val cleanPhone = contact.phone.filterNot { it.isWhitespace() }
+            val isPhoneEmpty = cleanPhone.isBlank() || cleanPhone.matches(Regex("^\\+\\d{1,4}$"))
+
             checkPhoneNumber(
                 contact.phone,
-                selectedOrderOption == OrderOptionErpModel.Pickup,
+                isMandatory = isPhoneMandatory && (!isPickup || contact.mail.isEmpty()),
                 onPhoneNumberIsEmpty = { errors.add(it) },
                 onPhoneNumberIsInvalid = { errors.add(it) }
             )
 
             checkMailAddress(
                 contact.mail,
-                selectedOrderOption == OrderOptionErpModel.Pickup,
+                isPickupServiceSelected = isPickup,
                 onMailIsEmpty = {
-                    if (contact.phone.isEmpty()) {
+                    if (isPhoneEmpty && !isPickup) {
                         errors.add(it)
                     }
                 },
@@ -197,14 +264,53 @@ class GetShippingContactValidationUseCase {
         }
     }
 
+    private fun checkFirstName(
+        firstName: String,
+        onFirstNameIsEmpty: (ShippingContactState.ShippingContactError) -> Unit,
+        onFirstNameIsInvalid: (ShippingContactState.ShippingContactError) -> Unit
+    ) {
+        val t = firstName.trim()
+        when {
+            t.isEmpty() -> onFirstNameIsEmpty(ShippingContactState.ShippingContactError.EmptyFirstName)
+            t.length > MAX_NAME_PART_LENGTH || !t.matches(namePartRegex) ->
+                onFirstNameIsInvalid(ShippingContactState.ShippingContactError.InvalidFirstName)
+        }
+    }
+
+    private fun checkLastName(
+        lastName: String,
+        onLastNameIsEmpty: (ShippingContactState.ShippingContactError) -> Unit,
+        onLastNameIsInvalid: (ShippingContactState.ShippingContactError) -> Unit
+    ) {
+        val t = lastName.trim()
+        when {
+            t.isEmpty() -> onLastNameIsEmpty(ShippingContactState.ShippingContactError.EmptyLastName)
+            t.length > MAX_NAME_PART_LENGTH || !t.matches(namePartRegex) ->
+                onLastNameIsInvalid(ShippingContactState.ShippingContactError.InvalidLastName)
+        }
+    }
+
+    private fun checkCountry(
+        country: String,
+        onCountryIsEmpty: (ShippingContactState.ShippingContactError) -> Unit,
+        onCountryIsInvalid: (ShippingContactState.ShippingContactError) -> Unit
+    ) {
+        val t = country.trim()
+        when {
+            t.isEmpty() -> onCountryIsEmpty(ShippingContactState.ShippingContactError.EmptyCountry)
+            !t.matches(countryRegex) -> onCountryIsInvalid(ShippingContactState.ShippingContactError.InvalidCountry)
+        }
+    }
+
     private fun checkContactName(
         name: String,
         onNameIsEmpty: (ShippingContactState.ShippingContactError) -> Unit,
         onNameIsInvalid: (ShippingContactState.ShippingContactError) -> Unit
     ) {
+        val t = name.trim()
         when {
-            name.isEmpty() -> onNameIsEmpty(ShippingContactState.ShippingContactError.EmptyName)
-            name.length > MAX_TEXT_LENGTH -> onNameIsInvalid(ShippingContactState.ShippingContactError.InvalidName)
+            t.isEmpty() -> onNameIsEmpty(ShippingContactState.ShippingContactError.EmptyName)
+            t.length > MAX_TEXT_LENGTH || !t.matches(textRegex) -> onNameIsInvalid(ShippingContactState.ShippingContactError.InvalidName)
         }
     }
 
@@ -213,9 +319,11 @@ class GetShippingContactValidationUseCase {
         onLine1IsEmpty: (ShippingContactState.ShippingContactError) -> Unit,
         onLine1IsInvalid: (ShippingContactState.ShippingContactError) -> Unit
     ) {
+        val t = line1.trim()
         when {
-            line1.isEmpty() -> onLine1IsEmpty(ShippingContactState.ShippingContactError.EmptyLine1)
-            line1.length > MAX_TEXT_LENGTH -> onLine1IsInvalid(ShippingContactState.ShippingContactError.InvalidLine1)
+            t.isEmpty() -> onLine1IsEmpty(ShippingContactState.ShippingContactError.EmptyLine1)
+            t.length < MIN_STREET_LENGTH || t.length > MAX_STREET_LENGTH || !t.matches(streetRegex) ->
+                onLine1IsInvalid(ShippingContactState.ShippingContactError.InvalidLine1)
         }
     }
 
@@ -223,7 +331,8 @@ class GetShippingContactValidationUseCase {
         line2: String,
         onLine2IsInvalid: (ShippingContactState.ShippingContactError) -> Unit
     ) {
-        if (line2.isNotEmpty() && line2.length > MAX_TEXT_LENGTH) {
+        val t = line2.trim()
+        if (t.isNotEmpty() && (t.length > MAX_TEXT_LENGTH || !t.matches(textRegex))) {
             onLine2IsInvalid(ShippingContactState.ShippingContactError.InvalidLine2)
         }
     }
@@ -233,9 +342,11 @@ class GetShippingContactValidationUseCase {
         onPostalCodeIsEmpty: (ShippingContactState.ShippingContactError) -> Unit,
         onPostalCodeIsInvalid: (ShippingContactState.ShippingContactError) -> Unit
     ) {
+        val t = postalCode.trim()
         when {
-            postalCode.isEmpty() -> onPostalCodeIsEmpty(ShippingContactState.ShippingContactError.EmptyPostalCode)
-            !postalCode.matches(postalCodeRegex) -> onPostalCodeIsInvalid(
+            t.isEmpty() -> onPostalCodeIsEmpty(ShippingContactState.ShippingContactError.EmptyPostalCode)
+            t.length < MIN_POSTAL_CODE_LENGTH || t.length > MAX_POSTAL_CODE_LENGTH ||
+                !t.matches(postalCodeRegex) -> onPostalCodeIsInvalid(
                 ShippingContactState.ShippingContactError.InvalidPostalCode
             )
         }
@@ -246,25 +357,29 @@ class GetShippingContactValidationUseCase {
         onCityIsEmpty: (ShippingContactState.ShippingContactError) -> Unit,
         onCityIsInvalid: (ShippingContactState.ShippingContactError) -> Unit
     ) {
+        val t = city.trim()
         when {
-            city.isEmpty() -> onCityIsEmpty(ShippingContactState.ShippingContactError.EmptyCity)
-            city.length > MAX_TEXT_LENGTH -> onCityIsInvalid(ShippingContactState.ShippingContactError.InvalidCity)
+            t.isEmpty() -> onCityIsEmpty(ShippingContactState.ShippingContactError.EmptyCity)
+            t.length < MIN_CITY_LENGTH || t.length > MAX_CITY_LENGTH || !t.matches(cityRegex) ->
+                onCityIsInvalid(ShippingContactState.ShippingContactError.InvalidCity)
         }
     }
 
     private fun checkPhoneNumber(
         phoneNumber: String,
-        isPickupServiceSelected: Boolean,
+        isMandatory: Boolean,
         onPhoneNumberIsEmpty: (ShippingContactState.ShippingContactError) -> Unit,
         onPhoneNumberIsInvalid: (ShippingContactState.ShippingContactError) -> Unit
     ) {
+        val cleanPhone = phoneNumber.filterNot { it.isWhitespace() }
+        val isOnlyCallingCode = cleanPhone.isBlank() || cleanPhone.matches(Regex("^\\+\\d{1,4}$"))
         when {
-            phoneNumber.isEmpty() && !isPickupServiceSelected -> onPhoneNumberIsEmpty(
+            (phoneNumber.isEmpty() || isOnlyCallingCode) && isMandatory -> onPhoneNumberIsEmpty(
                 ShippingContactState.ShippingContactError.EmptyPhoneNumber
             )
 
-            phoneNumber.isNotEmpty() &&
-                !phoneNumber.matches(phoneNumberRegex) -> onPhoneNumberIsInvalid(
+            phoneNumber.isNotEmpty() && !isOnlyCallingCode &&
+                (cleanPhone.length > MAX_PHONE_LENGTH || !phoneNumber.matches(phoneNumberRegex)) -> onPhoneNumberIsInvalid(
                 ShippingContactState.ShippingContactError.InvalidPhoneNumber
             )
         }
@@ -276,12 +391,13 @@ class GetShippingContactValidationUseCase {
         onMailIsEmpty: (ShippingContactState.ShippingContactError) -> Unit,
         onMailIsInvalid: (ShippingContactState.ShippingContactError) -> Unit
     ) {
+        val t = mail.trim()
         when {
-            mail.isEmpty() && !isPickupServiceSelected -> onMailIsEmpty(
+            t.isEmpty() && !isPickupServiceSelected -> onMailIsEmpty(
                 ShippingContactState.ShippingContactError.EmptyMail
             )
 
-            mail.isNotEmpty() && !mail.matches(mailRegex) -> onMailIsInvalid(
+            t.isNotEmpty() && (t.length > MAX_MAIL_LENGTH || !t.matches(mailRegex)) -> onMailIsInvalid(
                 ShippingContactState.ShippingContactError.InvalidMail
             )
         }
@@ -291,7 +407,8 @@ class GetShippingContactValidationUseCase {
         deliveryInformation: String,
         onDeliveryInformationIsInvalid: (ShippingContactState.ShippingContactError) -> Unit
     ) {
-        if (deliveryInformation.isNotEmpty() && deliveryInformation.length > MAX_HINT_TEXT_LENGTH) {
+        val t = deliveryInformation.trim()
+        if (t.isNotEmpty() && t.length > MAX_HINT_TEXT_LENGTH) {
             onDeliveryInformationIsInvalid(ShippingContactState.ShippingContactError.InvalidDeliveryInformation)
         }
     }

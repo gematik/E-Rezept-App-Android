@@ -36,11 +36,13 @@ fun interface RoomFeatureToggle {
 
 val ROOM_DB = FeatureEntity(name = "Room", isActive = true)
 val EU_REDEEM = FeatureEntity(name = "EuRedeem", isActive = false)
-val COMM_RES_V3 = FeatureEntity(name = "CommResV3", isActive = false)
+val COMM_RES_V3 = FeatureEntity(name = "CommResV3", isActive = true)
+val COMM_RES_V3_SEND_MESSAGE = FeatureEntity(name = "CommResV3SendMessage", isActive = false)
 val FEATURE_ENTITIES = setOf(
     ROOM_DB,
     EU_REDEEM,
-    COMM_RES_V3
+    COMM_RES_V3,
+    COMM_RES_V3_SEND_MESSAGE
 )
 
 class FeatureToggleLocalDataSource(

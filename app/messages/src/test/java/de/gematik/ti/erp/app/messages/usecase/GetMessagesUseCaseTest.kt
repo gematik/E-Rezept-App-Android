@@ -37,6 +37,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -98,7 +99,7 @@ class GetMessagesUseCaseTest {
             )
         )
         // no replied messages
-        coEvery { communicationRepository.loadRepliedCommunications(any<List<String>>(), any<String>()) } returns flowOf(emptyList())
+        coEvery { communicationRepository.loadAllRepliedCommunications(any<List<String>>()) } returns flowOf(emptyList())
         coEvery { communicationRepository.loadRepliedCommunicationsByProfileId(any()) } returns flowOf(emptyList())
 
         // every order returns a communication specific to the order and task
@@ -141,7 +142,7 @@ class GetMessagesUseCaseTest {
     @Test
     fun `only request messages are available`() {
         testScope.runTest {
-            val result = usecaseUnderTest.invoke()
+            val result = usecaseUnderTest.observe().first()
             assert(result.isNotEmpty())
             val expected = listOf(
                 COMMUNICATION_DATA.copy(
@@ -165,7 +166,7 @@ class GetMessagesUseCaseTest {
         coEvery { communicationRepository.hasUnreadRepliedMessages(listOf("task-id-2"), "recipient") } returns flowOf(true)
 
         // replied messages are present for both tasks in different orders
-        coEvery { communicationRepository.loadRepliedCommunications(listOf("task-id-1"), "recipient") } returns flowOf(
+        coEvery { communicationRepository.loadAllRepliedCommunications(listOf("task-id-1")) } returns flowOf(
             listOf(
                 communicationDataReply(
                     taskId = "task-id-1",
@@ -175,7 +176,7 @@ class GetMessagesUseCaseTest {
                 )
             )
         )
-        coEvery { communicationRepository.loadRepliedCommunications(listOf("task-id-2"), "recipient") } returns flowOf(
+        coEvery { communicationRepository.loadAllRepliedCommunications(listOf("task-id-2")) } returns flowOf(
             listOf(
                 communicationDataReply(
                     taskId = "task-id-2",
@@ -186,7 +187,7 @@ class GetMessagesUseCaseTest {
             )
         )
         testScope.runTest {
-            val result = usecaseUnderTest.invoke()
+            val result = usecaseUnderTest.observe().first()
             assert(result.isNotEmpty())
             val expected = listOf(
                 COMMUNICATION_DATA.copy(

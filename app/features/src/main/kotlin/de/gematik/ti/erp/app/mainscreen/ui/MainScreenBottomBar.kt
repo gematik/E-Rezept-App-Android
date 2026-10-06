@@ -137,11 +137,33 @@ internal fun MainScreenBottomBar(
                                     )
                                 }
 
-                            MessagesRoutes.CommResV3MessageListScreen -> Icon(
-                                Icons.Rounded.RoundedChatBubbleOutline,
-                                contentDescription = null,
-                                modifier = Modifier.size(SizeDefaults.triple)
-                            )
+                            MessagesRoutes.CommResV3MessageListScreen ->
+                                if (unreadOrdersCount > 0) {
+                                    BadgedBox(
+                                        badge = {
+                                            Badge(
+                                                modifier = Modifier.offset(
+                                                    x = BottomBarBadgeOffsetX.dp,
+                                                    y = BottomBarBadgeOffsetY.dp
+                                                ),
+                                                backgroundColor = AppTheme.colors.red700,
+                                                contentColor = AppTheme.colors.neutral000
+                                            ) { Text(unreadOrdersCount.toString()) }
+                                        }
+                                    ) {
+                                        Icon(
+                                            Icons.Rounded.RoundedChatBubbleOutline,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SizeDefaults.triple)
+                                        )
+                                    }
+                                } else {
+                                    Icon(
+                                        Icons.Rounded.RoundedChatBubbleOutline,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SizeDefaults.triple)
+                                    )
+                                }
 
                             SettingsRoutes.SettingsScreen -> Icon(
                                 Icons.Outlined.Settings,

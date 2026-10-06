@@ -32,6 +32,8 @@ import de.gematik.ti.erp.app.messages.domain.usecase.GetInternalMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessageUsingOrderIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetProfileByOrderIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetRepliedMessagesUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.GetSentReplyMessagesByOrderIdUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.SendReplyMessageToPharmacyUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.SetInternalMessageAsReadUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationConsumedStatusUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInvoicesByOrderIdAndTaskIdUseCase
@@ -119,6 +121,8 @@ class OrderMessageDetailControllerTest {
     private lateinit var updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase
     private lateinit var getPharmacyByTelematikIdUseCase: GetPharmacyByTelematikIdUseCase
     private lateinit var getProfileByOrderIdUseCase: GetProfileByOrderIdUseCase
+    private lateinit var getSentReplyMessagesByOrderIdUseCase: GetSentReplyMessagesByOrderIdUseCase
+    private lateinit var sendReplyMessageToPharmacyUseCase: SendReplyMessageToPharmacyUseCase
     private lateinit var getTranslationConsentUseCase: GetTranslationConsentUseCase
     private lateinit var translateTextUseCase: TranslateTextUseCase
     private lateinit var isTargetLanguageSetUseCase: IsTargetLanguageSetUseCase
@@ -136,15 +140,19 @@ class OrderMessageDetailControllerTest {
             dispatcher = dispatcher
         )
 
-        getRepliedMessagesUseCase = GetRepliedMessagesUseCase(
-            communicationRepository = communicationRepository,
-            dispatcher = dispatcher
+        getRepliedMessagesUseCase = spyk(
+            GetRepliedMessagesUseCase(
+                communicationRepository = communicationRepository,
+                dispatcher = dispatcher
+            )
         )
-        getMessageUsingOrderIdUseCase = GetMessageUsingOrderIdUseCase(
-            communicationRepository = communicationRepository,
-            invoiceRepository = invoiceRepository,
-            pharmacyRepository = pharmacyRepository,
-            dispatcher = dispatcher
+        getMessageUsingOrderIdUseCase = spyk(
+            GetMessageUsingOrderIdUseCase(
+                communicationRepository = communicationRepository,
+                invoiceRepository = invoiceRepository,
+                pharmacyRepository = pharmacyRepository,
+                dispatcher = dispatcher
+            )
         )
         updateCommunicationConsumedStatusUseCase = spyk(
             UpdateCommunicationConsumedStatusUseCase(
@@ -165,6 +173,11 @@ class OrderMessageDetailControllerTest {
             communicationRepository = communicationRepository,
             dispatcher = dispatcher
         )
+        getSentReplyMessagesByOrderIdUseCase = GetSentReplyMessagesByOrderIdUseCase(
+            communicationRepository = communicationRepository,
+            dispatcher = dispatcher
+        )
+        sendReplyMessageToPharmacyUseCase = mockk()
 
         translateTextUseCase = TranslateTextUseCase(
             modelManager = mockk<TranslationModelManager>(relaxed = true),
@@ -193,10 +206,14 @@ class OrderMessageDetailControllerTest {
         every { communicationRepository.hasUnreadDispenseMessage(any(), any()) } returns flowOf(
             false
         )
+        every { communicationRepository.loadDispReqCommunications(ORDER_ID) } returns flowOf(emptyList())
+        every { communicationRepository.loadDispReqCommunications(any<String>()) } returns flowOf(emptyList())
+        every { communicationRepository.loadRepliedCommunications(any<String>()) } returns flowOf(emptyList())
         every { invoiceRepository.invoiceByTaskId(TASK_ID) } returns flowOf(null)
         every { communicationRepository.taskIdsByOrder(ORDER_ID) } returns flowOf(listOf(TASK_ID))
         every { communicationRepository.loadScannedByTaskId(TASK_ID) } returns flowOf(null)
         coEvery { communicationRepository.profileByOrderId(ORDER_ID) } returns flowOf(MOCK_PROFILE)
+        coEvery { sendReplyMessageToPharmacyUseCase(any(), any(), any()) } returns Result.success(Unit)
         coEvery { pharmacyRepository.findLocalPharmacyByTelematikId(any()) } returns null
         coEvery { pharmacyRepository.searchPharmacyByTelematikId(any()) } returns Result.failure(Exception())
         coEvery { communicationRepository.updatePharmacyName(any(), any()) } returns Unit
@@ -215,10 +232,12 @@ class OrderMessageDetailControllerTest {
             orderId = ORDER_ID,
             getRepliedMessagesUseCase = getRepliedMessagesUseCase,
             getMessageUsingOrderIdUseCase = getMessageUsingOrderIdUseCase,
+            getSentReplyMessagesByOrderIdUseCase = getSentReplyMessagesByOrderIdUseCase,
             updateCommunicationConsumedStatusUseCase = updateCommunicationConsumedStatusUseCase,
             updateInvoicesByOrderIdAndTaskIdUseCase = updateInvoicesByOrderIdAndTaskIdUseCase,
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
             getProfileByOrderIdUseCase = getProfileByOrderIdUseCase,
+            sendReplyMessageToPharmacyUseCase = sendReplyMessageToPharmacyUseCase,
             getTranslationConsentUseCase = getTranslationConsentUseCase,
             isTargetLanguageSetUseCase = isTargetLanguageSetUseCase,
             translateTextUseCase = translateTextUseCase,
@@ -242,7 +261,7 @@ class OrderMessageDetailControllerTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `when orderId is not provided`() {
+    fun `when no order communication is found`() {
         testScope.runTest {
             controllerUnderTest.init()
             advanceUntilIdle()
@@ -250,8 +269,8 @@ class OrderMessageDetailControllerTest {
             val orderStateResult = controllerUnderTest.order.first()
             val pharmacyStateResult = controllerUnderTest.pharmacy.first()
             assert(messagesResult.isLoadingState)
-            assert(orderStateResult.isErrorState)
-            assert(pharmacyStateResult.isEmptyState)
+            assert(orderStateResult.isEmptyState)
+            assert(pharmacyStateResult.isLoadingState)
         }
     }
 
@@ -316,7 +335,15 @@ class OrderMessageDetailControllerTest {
         every { communicationRepository.loadRepliedCommunications(any<String>(), any<String>()) } returns flowOf(
             emptyList()
         )
-        every { communicationRepository.loadRepliedCommunications(ORDER_ID) } returns flowOf(emptyList())
+        every { communicationRepository.loadRepliedCommunications(ORDER_ID, any()) } returns flowOf(
+            emptyList()
+        )
+        every { communicationRepository.loadRepliedCommunications(any() as String) } returns flowOf(
+            emptyList()
+        )
+        every { communicationRepository.loadRepliedCommunications(ORDER_ID) } returns flowOf(
+            emptyList()
+        )
         every { communicationRepository.loadDispReqCommunications(ORDER_ID) } returns flowOf(
             emptyList()
         )
@@ -341,9 +368,6 @@ class OrderMessageDetailControllerTest {
     fun `when orderId is provided and use cases throw errors`() {
         every { getRepliedMessagesUseCase(ORDER_ID, "") } throws IllegalArgumentException("Messages error")
         every { getMessageUsingOrderIdUseCase(ORDER_ID) } throws IllegalArgumentException("Order error")
-        coEvery {
-            pharmacyRepository.searchPharmacyByTelematikId(any())
-        } throws IllegalArgumentException("Pharmacy error")
 
         testScope.runTest {
             controllerUnderTest.init()
@@ -468,5 +492,41 @@ class OrderMessageDetailControllerTest {
 
         val inProgressDuring = controllerUnderTest.translationInProgress.value[communicationId]
         assertNotNull(inProgressDuring)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `sendReplyMessage clears draft after successful send`() = testScope.runTest {
+        coEvery { pharmacyRepository.searchPharmacyByTelematikId(any()) } returns Result.success(
+            FhirPharmacyErpModelCollection(
+                PharmacyVzdService.FHIRVZD,
+                1,
+                "",
+                listOf(PHARMACY_DATA_FHIR)
+            )
+        )
+        every { communicationRepository.loadRepliedCommunications(any<String>(), any<String>()) } returns flowOf(
+            listOf(COMMUNICATION_DATA_WITH_TASK_ID_ERP)
+        )
+        every { communicationRepository.loadDispReqCommunications(ORDER_ID) } returns flowOf(
+            listOf(COMMUNICATION_DATA_WITH_TASK_ID_ERP.copy(pharmacyName = "Apotheke Adelheid Ulmendorfer TEST-ONLY"))
+        )
+        every { communicationRepository.loadSyncedByTaskId(TASK_ID) } returns flowOf(MOCK_SYNCED_TASK_DATA_01_NEW)
+
+        controllerUnderTest.init()
+        advanceUntilIdle()
+
+        controllerUnderTest.updateReplyMessage("Eine Antwort an die Apotheke")
+        controllerUnderTest.sendReplyMessage()
+        advanceUntilIdle()
+
+        assertEquals("", controllerUnderTest.draftReplyMessage.value)
+        coVerify(exactly = 1) {
+            sendReplyMessageToPharmacyUseCase(
+                profileId = MOCK_PROFILE.id,
+                order = ORDER_DETAIL,
+                message = "Eine Antwort an die Apotheke"
+            )
+        }
     }
 }

@@ -49,16 +49,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.LocalContentColor
-import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -67,6 +66,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.takeOrElse
@@ -482,7 +482,8 @@ fun InputField(
     isError: Boolean = false,
     errorText: @Composable (() -> Unit)? = null,
     singleLine: Boolean = true,
-    keyBoardType: KeyboardType? = null
+    keyBoardType: KeyboardType? = null,
+    leadingIcon: @Composable (() -> Unit)? = null
 ) {
     val initialValue = rememberSaveable { value }
     val undoDescription = stringResource(R.string.onb_undo_description)
@@ -493,7 +494,12 @@ fun InputField(
                 onValueChange(it)
             },
             modifier = modifier
-                .heightIn(min = 56.dp),
+                .heightIn(min = 56.dp)
+                .onFocusChanged { focusState ->
+                    if (!focusState.isFocused) {
+                        onValueChange(value.trim())
+                    }
+                },
             singleLine = singleLine,
             keyboardOptions = KeyboardOptions(
                 autoCorrect = true,
@@ -509,6 +515,7 @@ fun InputField(
             shape = RoundedCornerShape(8.dp),
             colors = colors,
             isError = isError,
+            leadingIcon = leadingIcon,
             trailingIcon = if (initialValue != value) {
                 {
                     IconButton(

@@ -22,12 +22,17 @@
 
 package de.gematik.ti.erp.app.database.room.v2.task.util
 
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationDeliveryStatusErpModel
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyDeliveryStatusPayloadErpModel
 import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyLinkPayloadErpModel
 import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPayloadV1ErpModel
 import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyPickupCodeHRPayloadErpModel
 import de.gematik.ti.erp.app.communication.model.payload.CommunicationReplyTextPayloadErpModel
 import de.gematik.ti.erp.app.communication.model.payload.CommunicationSupplyOptionTypeErpModel
 import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestDeliveryPayloadErpModel
+import de.gematik.ti.erp.app.communication.model.payload.InTransportETA
+import de.gematik.ti.erp.app.communication.model.payload.InTransportPosition
+import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationPayloadParser
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -184,5 +189,130 @@ class CommunicationPayloadConverterTest {
 
         val deserialized = converter.toPayload(serialized)
         assertEquals(payload, deserialized)
+    }
+
+    @Test
+    fun v3DeliveryStatusPayload_roundTripsCorrectly() {
+        val payload = CommunicationReplyDeliveryStatusPayloadErpModel(
+            transactionID = "ABCD-EFGH-IJKL-MNOP",
+            deliveryStatus = CommunicationDeliveryStatusErpModel.InTransport,
+            inTransportPosition = InTransportPosition(latitude = 52.522529939635795, longitude = 13.387595793605172),
+            inTransportETA = InTransportETA(from = 1735736400, to = 1735741800),
+            text = "Some Text to state your request"
+        )
+
+        val serialized = converter.fromPayload(payload)
+        assertNotNull(serialized)
+
+        val deserialized = converter.toPayload(serialized)
+        assertEquals(payload, deserialized)
+    }
+
+    @Test
+    fun v3DeliveryStatusPayloadJson_roundTripsCorrectly() {
+        val json = """
+            {
+              "version": 3,
+              "text": "Some Text to state your request",
+              "transactionID": "ABCD-EFGH-IJKL-MNOP",
+              "communicationType": "deliveryStatus",
+              "deliveryStatus": "inTransport",
+              "inTransportPosition": {
+                "long": 13.387595793605172,
+                "lat": 52.522529939635795
+              },
+              "inTransportETA": {
+                "from": 1735736400,
+                "to": 1735741800
+              }
+            }
+        """.trimIndent()
+        val payload = converter.toPayload(json) as? CommunicationReplyDeliveryStatusPayloadErpModel
+        assertNotNull(payload)
+        assertNotNull(payload.inTransportPosition)
+        assertEquals(52.522529939635795, payload.inTransportPosition?.latitude)
+        assertEquals(13.387595793605172, payload.inTransportPosition?.longitude)
+
+        val serialized = converter.fromPayload(payload)
+        assertNotNull(serialized)
+        val deserialized = converter.toPayload(serialized)
+        assertEquals(payload, deserialized)
+    }
+
+    @Test
+    fun v3DeliveryStatusPayloadJson_alternativePositionKeys() {
+        val keys = listOf("long", "lng", "lon", "longitude")
+        for (key in keys) {
+            val json = """
+                {
+                  "version": 3,
+                  "text": "Some Text to state your request",
+                  "transactionID": "ABCD-EFGH-IJKL-MNOP",
+                  "communicationType": "deliveryStatus",
+                  "deliveryStatus": "inTransport",
+                  "inTransportPosition": {
+                    "$key": 13.387595793605172,
+                    "lat": 52.522529939635795
+                  }
+                }
+            """.trimIndent()
+            val payload = converter.toPayload(json) as? CommunicationReplyDeliveryStatusPayloadErpModel
+            assertNotNull(payload, "Failed for key $key")
+            assertNotNull(payload.inTransportPosition, "inTransportPosition null for key $key")
+            assertEquals(52.522529939635795, payload.inTransportPosition?.latitude, "latitude mismatch for key $key")
+            assertEquals(13.387595793605172, payload.inTransportPosition?.longitude, "longitude mismatch for key $key")
+        }
+    }
+
+    @Test
+    fun v3PickupCodeHRPayloadJson_roundTripsCorrectly() {
+        val json = """
+            {
+              "version": 3,
+              "text": "Some Text to state your request",
+              "transactionID": "ABCD-EFGH-IJKL-MNOP",
+              "communicationType": "pickupCodeHR",
+              "pickupCodeHR": "0815"
+            }
+        """.trimIndent()
+        val payload = converter.toPayload(json)
+        assertNotNull(payload)
+        val serialized = converter.fromPayload(payload)
+        assertNotNull(serialized)
+        val deserialized = converter.toPayload(serialized)
+        assertEquals(payload, deserialized)
+    }
+
+    @Test
+    fun v3DeliveryStatusPayload_fullPipeline_endToEnd() {
+        val json = """
+            {
+              "version": 3,
+              "text": "Some Text to state your request",
+              "transactionID": "ABCD-EFGH-IJKL-MNOP",
+              "communicationType": "deliveryStatus",
+              "deliveryStatus": "inTransport",
+              "inTransportPosition": {
+                "long": 13.387595793605172,
+                "lat": 52.522529939635795
+              },
+              "inTransportETA": {
+                "from": 1735736400,
+                "to": 1735741800
+              }
+            }
+        """.trimIndent()
+
+        val parsedPayload = CommunicationPayloadParser.extract(json, isRequest = false)
+        assertNotNull(parsedPayload)
+        val deliveryStatusPayload = parsedPayload as? CommunicationReplyDeliveryStatusPayloadErpModel
+        assertNotNull(deliveryStatusPayload)
+
+        val dbString = converter.fromPayload(deliveryStatusPayload)
+        assertNotNull(dbString)
+
+        val fromDbPayload = converter.toPayload(dbString)
+        assertNotNull(fromDbPayload)
+        assertEquals(deliveryStatusPayload, fromDbPayload)
     }
 }

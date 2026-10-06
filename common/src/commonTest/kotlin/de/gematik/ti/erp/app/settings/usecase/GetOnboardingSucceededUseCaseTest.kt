@@ -22,13 +22,17 @@
 
 package de.gematik.ti.erp.app.settings.usecase
 
+import de.gematik.ti.erp.app.profile.model.ProfileErpModel
+import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.settings.model.AppVersionErpModel
 import de.gematik.ti.erp.app.settings.model.SettingsErpModel
 import de.gematik.ti.erp.app.settings.model.ThemeMode
 import de.gematik.ti.erp.app.settings.repository.DefaultSettingsRepository
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -43,11 +47,15 @@ class GetOnboardingSucceededUseCaseTest {
     @MockK(relaxed = true)
     private lateinit var settingsRepository: DefaultSettingsRepository
 
+    @MockK(relaxed = true)
+    private lateinit var profileRepository: ProfileRepository
+
     @Before
     fun setup() {
         MockKAnnotations.init(this)
+        every { profileRepository.profiles() } returns flowOf(emptyList())
 
-        getOnboardingSucceededUseCase = GetOnboardingSucceededUseCase(settingsRepository)
+        getOnboardingSucceededUseCase = GetOnboardingSucceededUseCase(settingsRepository, profileRepository)
     }
 
     @Test
@@ -67,7 +75,29 @@ class GetOnboardingSucceededUseCaseTest {
                 )
             )
         }
+        val activeProfile = mockk<ProfileErpModel>(relaxed = true)
+        every { activeProfile.active } returns true
+        every { profileRepository.profiles() } returns flowOf(listOf(activeProfile))
         assertTrue { getOnboardingSucceededUseCase() }
+    }
+
+    @Test
+    fun `onboarding shown without an active profile should answer false`() = runTest {
+        coEvery { settingsRepository.loadSettings() } returns flowOf(
+            SettingsErpModel(
+                latestAppVersion = AppVersionErpModel("", 0),
+                onboardingShownIn = AppVersionErpModel("", 0),
+                welcomeDrawerShown = true,
+                theme = ThemeMode.SYSTEM,
+                zoomEnabled = false,
+                userHasAcceptedInsecureDevice = false,
+                userHasAcceptedIntegrityNotOk = false,
+                trackingAllowed = false,
+                screenShotsAllowed = false
+            )
+        )
+        every { profileRepository.profiles() } returns flowOf(emptyList())
+        assertFalse { getOnboardingSucceededUseCase() }
     }
 
     @Test

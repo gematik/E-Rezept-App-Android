@@ -24,18 +24,28 @@ package de.gematik.ti.erp.app.redeem.usecase
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.pharmacy.model.OrderOptionErpModel
+import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.CityRegex
+import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.CountryRegex
 import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.HintRegex
+import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.MAX_MAIL_LENGTH
 import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.MailRegex
-import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.PhoneRegex
+import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.NamePartRegex
 import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.PostalCodeRegex
+import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.StreetRegex
 import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.TextRegex
+import de.gematik.ti.erp.app.redeem.model.ContactValidationRules.isValidE164Phone
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.EmptyCity
+import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.EmptyFirstName
+import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.EmptyLastName
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.EmptyMail
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.EmptyName
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.EmptyPhoneNumber
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.EmptyPostalCode
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.InvalidCity
+import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.InvalidCountry
+import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.InvalidFirstName
+import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.InvalidLastName
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.InvalidLine1
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.InvalidLine2
 import de.gematik.ti.erp.app.redeem.model.ContactValidationState.Error.InvalidMail
@@ -52,37 +62,80 @@ import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 class ValidateContactUseCase {
     operator fun invoke(
         contact: ShippingInfoErpModel,
-        selectedOrderOption: OrderOptionErpModel?
+        selectedOrderOption: OrderOptionErpModel?,
+        isCommResV3: Boolean = true
     ): ContactValidationState {
-        if (selectedOrderOption == OrderOptionErpModel.Pickup && !contact.address().isEmpty()) {
+        val isPickup = selectedOrderOption == OrderOptionErpModel.Pickup
+        val isPhoneMandatory = isCommResV3 || !isPickup
+
+        if (!isCommResV3 && isPickup && !contact.address().isEmpty()) {
             return ContactValidationState.Valid(selectedOrderOption)
         }
 
         val errors = buildSet {
-            validate(contact.name.isEmpty(), EmptyName)
-            validate(contact.name.isNotEmpty() && !contact.name.matches(TextRegex), InvalidName)
+            val trimmedFirstname = contact.firstname.trim()
+            val trimmedLastname = contact.lastname.trim()
+            val trimmedName = contact.name.trim()
+            val trimmedCountry = contact.country.trim()
+            val trimmedStreet = contact.street.trim()
+            val trimmedAddressDetail = contact.addressDetail.trim()
+            val trimmedZip = contact.zip.trim()
+            val trimmedCity = contact.city.trim()
+            val trimmedMail = contact.mail.trim()
+            val trimmedDeliveryInfo = contact.deliveryInfo.trim()
 
-            validate(contact.street.isEmpty(), ContactValidationState.Error.EmptyLine1)
-            validate(contact.street.isNotEmpty() && !contact.street.matches(TextRegex), InvalidLine1)
+            if (trimmedFirstname.isNotEmpty() || trimmedLastname.isNotEmpty()) {
+                if (!isPickup) {
+                    validate(trimmedFirstname.isEmpty(), EmptyFirstName)
+                    validate(trimmedLastname.isEmpty(), EmptyLastName)
+                }
+                validate(trimmedFirstname.isNotEmpty() && !trimmedFirstname.matches(NamePartRegex), InvalidFirstName)
+                validate(trimmedLastname.isNotEmpty() && !trimmedLastname.matches(NamePartRegex), InvalidLastName)
+            } else {
+                if (!isPickup) {
+                    validate(trimmedName.isEmpty(), EmptyName)
+                }
+                validate(trimmedName.isNotEmpty() && !trimmedName.matches(TextRegex), InvalidName)
+            }
 
-            validate(contact.addressDetail.isNotEmpty() && !contact.addressDetail.matches(TextRegex), InvalidLine2)
+            if (trimmedCountry.isNotEmpty()) {
+                validate(!trimmedCountry.matches(CountryRegex), InvalidCountry)
+            }
 
-            validate(contact.zip.isEmpty(), EmptyPostalCode)
-            validate(contact.zip.isNotEmpty() && !contact.zip.matches(PostalCodeRegex), InvalidPostalCode)
+            validate(trimmedStreet.isEmpty() && !isPickup, ContactValidationState.Error.EmptyLine1)
+            validate(trimmedStreet.isNotEmpty() && !trimmedStreet.matches(StreetRegex), InvalidLine1)
 
-            validate(contact.city.isEmpty(), EmptyCity)
-            validate(contact.city.isNotEmpty() && !contact.city.matches(TextRegex), InvalidCity)
+            validate(trimmedAddressDetail.isNotEmpty() && !trimmedAddressDetail.matches(TextRegex), InvalidLine2)
 
-            if (selectedOrderOption != OrderOptionErpModel.Pickup) {
-                validate(contact.phone.isEmpty(), EmptyPhoneNumber)
-                validate(contact.phone.isNotEmpty() && !contact.phone.matches(PhoneRegex), InvalidPhoneNumber)
+            validate(trimmedZip.isEmpty() && !isPickup, EmptyPostalCode)
+            validate(trimmedZip.isNotEmpty() && !trimmedZip.matches(PostalCodeRegex), InvalidPostalCode)
 
-                validate(contact.mail.isEmpty() && contact.phone.isEmpty(), EmptyMail)
-                validate(contact.mail.isNotEmpty() && !contact.mail.matches(MailRegex), InvalidMail)
+            validate(trimmedCity.isEmpty() && !isPickup, EmptyCity)
+            validate(trimmedCity.isNotEmpty() && !trimmedCity.matches(CityRegex), InvalidCity)
+
+            val cleanPhone = contact.phone.filterNot { it.isWhitespace() }
+            val isPhoneEmpty = cleanPhone.isBlank() || cleanPhone.matches(Regex("^\\+\\d{1,4}$"))
+
+            if (isPhoneMandatory) {
+                if (isPickup) {
+                    val isMailEmpty = trimmedMail.isEmpty()
+                    validate(isPhoneEmpty && isMailEmpty, EmptyPhoneNumber)
+                    validate(!isPhoneEmpty && !isValidE164Phone(contact.phone), InvalidPhoneNumber)
+                    validate(!isMailEmpty && (trimmedMail.length > MAX_MAIL_LENGTH || !trimmedMail.matches(MailRegex)), InvalidMail)
+                } else {
+                    validate(isPhoneEmpty, EmptyPhoneNumber)
+                    validate(!isPhoneEmpty && !isValidE164Phone(contact.phone), InvalidPhoneNumber)
+
+                    validate(trimmedMail.isEmpty() && isPhoneEmpty, EmptyMail)
+                    validate(trimmedMail.isNotEmpty() && (trimmedMail.length > MAX_MAIL_LENGTH || !trimmedMail.matches(MailRegex)), InvalidMail)
+                }
+            } else {
+                validate(!isPhoneEmpty && !isValidE164Phone(contact.phone), InvalidPhoneNumber)
+                validate(trimmedMail.isNotEmpty() && (trimmedMail.length > MAX_MAIL_LENGTH || !trimmedMail.matches(MailRegex)), InvalidMail)
             }
 
             validate(
-                contact.deliveryInfo.isNotEmpty() && !contact.deliveryInfo.matches(HintRegex),
+                trimmedDeliveryInfo.isNotEmpty() && !trimmedDeliveryInfo.matches(HintRegex),
                 ContactValidationState.Error.InvalidDeliveryInformation
             )
         }

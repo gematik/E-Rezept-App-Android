@@ -52,7 +52,7 @@ internal fun PaymentInfoMessageCard(
         isPaymentRequired = isPaymentRequired,
         paymentSummaryTitle = if (!isPaymentRequired) stringResource(R.string.message_card_payment_free_label) else null,
         paymentSummaryText = if (isPaymentRequired) {
-            stringResource(R.string.invoice_details_cost, "%.2f".format(payload.totalAmount).replace(".", ","))
+            stringResource(R.string.invoice_details_cost, "%.2f".format(payload.totalAmount / 100.0).replace(".", ","))
         } else {
             stringResource(R.string.message_card_payment_free_amount)
         },
@@ -110,8 +110,11 @@ internal fun PaymentMessageCard(
 private fun PaymentMethod.toPaymentMethodTileOrNull(
     onClickPaymentMethod: (String) -> Unit
 ): PaymentMethodTile? {
-    val url = url ?: return null
-    val normalizedMethod = paymentMethod.lowercase()
+    val method = paymentMethod ?: return null
+    val normalizedMethod = method.lowercase()
+    val isCash = normalizedMethod == "cash"
+    val resolvedUrl = url ?: if (isCash) "" else return null
+
     val (label, type) = when (normalizedMethod) {
         "paypal" -> stringResource(R.string.message_card_payment_method_paypal) to PaymentMethodTileType.PayPal
         "cash" -> stringResource(R.string.message_card_payment_method_cash) to PaymentMethodTileType.Cash
@@ -119,12 +122,12 @@ private fun PaymentMethod.toPaymentMethodTileOrNull(
         "creditcard", "credit card", "mastercard", "maestro", "visa" -> stringResource(R.string.message_card_payment_method_creditcard) to
             PaymentMethodTileType.Creditcard
 
-        else -> paymentMethod to PaymentMethodTileType.Unknown
+        else -> method to PaymentMethodTileType.Unknown
     }
 
     return PaymentMethodTile(
         label = label,
         type = type,
-        onClick = { onClickPaymentMethod(url) }
+        onClick = { if (resolvedUrl.isNotEmpty()) onClickPaymentMethod(resolvedUrl) }
     )
 }

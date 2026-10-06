@@ -42,9 +42,10 @@ object MainNavigationScreens {
 fun mainScreenBottomNavigationItems(isCommResV3Enabled: Boolean): List<Routes> = buildList {
     add(PrescriptionRoutes.PrescriptionListScreen)
     add(PharmacyRoutes.PharmacyStartScreen)
-    add(MessagesRoutes.MessageListScreen)
     if (isCommResV3Enabled) {
         add(MessagesRoutes.CommResV3MessageListScreen)
+    } else {
+        add(MessagesRoutes.MessageListScreen)
     }
     add(SettingsRoutes.SettingsScreen)
 }

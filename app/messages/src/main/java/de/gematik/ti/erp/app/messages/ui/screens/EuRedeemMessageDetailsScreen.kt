@@ -22,8 +22,9 @@
 
 package de.gematik.ti.erp.app.messages.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -31,16 +32,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
+
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -51,10 +55,9 @@ import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.eurezept.navigation.EuRoutes
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutesBackStackEntryArguments
 import de.gematik.ti.erp.app.messages.presentation.rememberEuRedeemMessageDetailsController
-import de.gematik.ti.erp.app.messages.ui.components.InfoChip
-import de.gematik.ti.erp.app.messages.ui.components.MessageActionButton
+import de.gematik.ti.erp.app.message.MessageActionButton
+import de.gematik.ti.erp.app.message.MessageEventCard
 import de.gematik.ti.erp.app.messages.ui.components.MessagePrescriptionDividerWithTitle
-import de.gematik.ti.erp.app.messages.ui.components.MessageTimeline
 import de.gematik.ti.erp.app.messages.ui.model.EuOrderMessageUiModel
 import de.gematik.ti.erp.app.messages.ui.preview.EuRedeemMessageDetailsPreviewParameterProvider
 import de.gematik.ti.erp.app.messages.ui.preview.MessagePreviewMocks.MOCK_SYNCED_TASK_DATA_01
@@ -63,11 +66,12 @@ import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRo
 import de.gematik.ti.erp.app.task.model.TaskErpModel
 import de.gematik.ti.erp.app.preview.LightPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
-import de.gematik.ti.erp.app.semantics.semanticsHeading
+
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
-import de.gematik.ti.erp.app.utils.SpacerTiny
+
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
@@ -156,7 +160,9 @@ private fun EuRedeemMessageContent(
     onBack: () -> Unit
 ) {
     AnimatedElevationScaffold(
-        modifier = Modifier.testTag(""),
+        modifier = Modifier
+            .testTag("")
+            .background(AppTheme.colors.neutral100),
         backLabel = stringResource(R.string.back),
         closeLabel = stringResource(R.string.cancel),
         topBarTitle = euPharmacyName ?: stringResource(R.string.eu_messages_list_latest_title),
@@ -185,18 +191,13 @@ private fun EuRedeemMessageContent(
                     markEventsAsRead(it)
                 }
                 LazyColumn(
-                    modifier = Modifier.testTag(EuMessageDetails),
+                    modifier = Modifier
+                        .padding(top = SizeDefaults.triple)
+                        .testTag(EuMessageDetails),
                     contentPadding = padding,
+                    verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium),
                     state = listState
                 ) {
-                    item {
-                        SpacerMedium()
-                        Text(
-                            stringResource(R.string.messages_history_title),
-                            style = AppTheme.typography.h6,
-                            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium).semanticsHeading()
-                        )
-                    }
                     items(items) {
                         EuOrderMessage(
                             item = it,
@@ -217,7 +218,11 @@ private fun EuRedeemMessageContent(
                                 PrescriptionListForMessages(
                                     items = tasks.map { it.taskId },
                                     onName = { taskId ->
-                                        tasks.find { it.taskId == taskId }?.medicationName().orEmpty()
+                                        tasks.find { it.taskId == taskId }?.let { task ->
+                                            task.name?.takeIf { it.isNotBlank() }
+                                                ?: task.medicationName()
+                                                ?: ""
+                                        }.orEmpty()
                                     }
                                 ) { taskId ->
                                     onPrescriptionClick(taskId)
@@ -275,66 +280,65 @@ private fun EuOrderMessage(
     onShowCode: (String) -> Unit,
     onRevokeAccess: (String) -> Unit
 ) {
-    MessageTimeline(
-        drawFilledTop = !item.isFirst,
-        drawFilledBottom = !item.isLast,
-        isClickable = false,
-        timestamp = {
-            Text(
-                text = item.dateTimeString,
-                style = AppTheme.typography.subtitle2
-            )
-        },
-        content = {
-            FlowRow(
-                modifier = Modifier.padding(
-                    top = PaddingDefaults.Small,
-                    bottom = PaddingDefaults.Tiny
-                )
-            ) {
-                item.prescriptionNames.forEach { InfoChip(it) }
-            }
-            // Title
-            if (item.title.isNotBlank()) {
-                val title = when (item is EuOrderMessageUiModel.AccessCodeCreated) {
-                    true -> item.title + " " + item.flagEmoji
-                    false -> item.title
-                }
+    val title = when (item) {
+        is EuOrderMessageUiModel.AccessCodeCreated -> "${item.title} ${item.flagEmoji}"
+        else -> item.title
+    }
+    val canRevealMedicationName = item is EuOrderMessageUiModel.TaskAdded ||
+        item is EuOrderMessageUiModel.TaskRemoved ||
+        item is EuOrderMessageUiModel.TaskRedeemed
+    val icon = when (item) {
+        is EuOrderMessageUiModel.TaskRemoved -> Icons.Default.Close
+        is EuOrderMessageUiModel.TaskAdded -> Icons.Default.Add
+        is EuOrderMessageUiModel.TaskRedeemed -> Icons.Default.Check
+        else -> Icons.Default.Public
+    }
+    val iconBackground = when (item) {
+        is EuOrderMessageUiModel.TaskRemoved -> AppTheme.colors.red100
+        is EuOrderMessageUiModel.TaskRedeemed -> AppTheme.colors.green100
+        else -> AppTheme.colors.primary100
+    }
+    val iconTint = when (item) {
+        is EuOrderMessageUiModel.TaskRemoved -> AppTheme.colors.red700
+        is EuOrderMessageUiModel.TaskRedeemed -> AppTheme.colors.green700
+        else -> AppTheme.colors.primary700
+    }
 
-                Text(
-                    modifier = Modifier.semantics { contentDescription = item.title },
-                    text = title,
-                    style = AppTheme.typography.subtitle1
-
-                )
-            }
-
-            // Description
-            item.description?.let {
-                SpacerTiny()
-                Text(
-                    text = it,
-                    style = AppTheme.typography.body2
-                )
-            }
-
-            if (item.isRevoked) {
-                SpacerTiny()
-                MessageActionButton(
-                    text = stringResource(R.string.eu_messages_code_revoked_button_text),
-                    enabled = false,
-                    tint = AppTheme.colors.red700
-                ) {}
-            } else if (item.showButtons) {
-                SpacerTiny()
-                MessageActionButton(stringResource(R.string.eu_messages_show_code_button_text)) {
-                    onShowCode(item.accessCode)
-                }
-                SpacerTiny()
-                MessageActionButton(stringResource(R.string.eu_messages_revoke_code_button_text)) {
-                    onRevokeAccess(item.accessCode)
+    MessageEventCard(
+        timestamp = item.dateTimeString,
+        title = title,
+        titleContentDescription = item.title,
+        description = item.description,
+        icon = icon,
+        iconBackground = iconBackground,
+        iconTint = iconTint,
+        medicationNames = item.prescriptionNames,
+        revealMedicationNamesOnLongPress = canRevealMedicationName,
+        medicationLabel = stringResource(R.string.pres_details_medication),
+        onLongPressLabel = stringResource(R.string.a11y_messages_reveal_medication),
+        actionContent = when {
+            item.isRevoked -> {
+                {
+                    MessageActionButton(
+                        text = stringResource(R.string.eu_messages_code_revoked_button_text),
+                        enabled = false,
+                        tint = AppTheme.colors.red700
+                    ) {}
                 }
             }
+
+            item.showButtons -> {
+                {
+                    MessageActionButton(stringResource(R.string.eu_messages_show_code_button_text)) {
+                        onShowCode(item.accessCode)
+                    }
+                    MessageActionButton(stringResource(R.string.eu_messages_revoke_code_button_text)) {
+                        onRevokeAccess(item.accessCode)
+                    }
+                }
+            }
+
+            else -> null
         }
     )
 }
