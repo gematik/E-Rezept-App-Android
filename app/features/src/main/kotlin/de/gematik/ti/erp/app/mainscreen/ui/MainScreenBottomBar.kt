@@ -49,7 +49,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.R
-import de.gematik.ti.erp.app.mainscreen.navigation.mainScreenBottomNavigationItems
+import de.gematik.ti.erp.app.mainscreen.navigation.MainScreenBottomNavigationItems
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
 import de.gematik.ti.erp.app.navigation.navigateAndClearStack
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
@@ -67,19 +67,16 @@ private const val BottomBarBadgeOffsetY = 5
 @Composable
 internal fun MainScreenBottomBar(
     mainNavController: NavController,
-    unreadOrdersCount: Long,
-    isCommResV3Enabled: Boolean
+    unreadOrdersCount: Long
 ) {
     val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-
-    val bottomNavigationItems = mainScreenBottomNavigationItems(isCommResV3Enabled)
 
     BottomNavigation(
         backgroundColor = MaterialTheme.colors.surface,
         extraContent = {}
     ) {
-        bottomNavigationItems.forEach { screen ->
+        MainScreenBottomNavigationItems.forEach { screen ->
             BottomNavigationItem(
                 modifier = Modifier.testTag(
                     when (screen) {

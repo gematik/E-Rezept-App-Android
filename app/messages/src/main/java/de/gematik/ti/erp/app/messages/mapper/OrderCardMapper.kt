@@ -102,7 +102,7 @@ fun OrderUseCaseData.OrderDetail.toCommResV3OrderModel(
                 )
             }
         }
-    }.sortedWith(compareBy<OrderUseCaseData.OrderCardErpModel>({ it.sentOn }, { it.renderOrder() }))
+    }.sortedWith(compareBy({ it.sentOn }, { it.renderOrder() }))
 
     return OrderUseCaseData.OrderErpModel(
         orderId = orderId,

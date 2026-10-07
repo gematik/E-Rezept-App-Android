@@ -56,7 +56,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 private const val DOWNLOAD_WAIT_TIME_SECONDS = 10L
@@ -102,7 +101,7 @@ class RedeemDigaController(
         telematikId: String?,
         taskId: String,
         context: Context,
-        orderId: UUID = orderID()
+        orderId: String = orderID()
     ) {
         controllerScope.launch {
             runCatching {
@@ -111,7 +110,7 @@ class RedeemDigaController(
                         profileId = profileId,
                         telematikId = telematikId,
                         taskId = taskId,
-                        orderId = orderId.toString(),
+                        orderId = orderId,
                         lifecycleHooks = RedeemDigaUseCase.RedeemDigaProgressState(
                             onRedeemStartState = { _isRedeeming.value = true },
                             onTelematikIdObtained = { },

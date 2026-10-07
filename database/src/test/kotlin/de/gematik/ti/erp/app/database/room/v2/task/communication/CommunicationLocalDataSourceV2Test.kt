@@ -29,6 +29,10 @@ import de.gematik.ti.erp.app.communication.model.payload.CommunicationSupplyOpti
 import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestCommunicationPayloadV1ErpModel
 import de.gematik.ti.erp.app.database.api.CommunicationLocalDataSource
 import de.gematik.ti.erp.app.database.room.v2.task.prescription.ErpTaskEntity
+import de.gematik.ti.erp.app.fhir.FhirCommunicationBundleErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.support.CommunicationParticipantErpModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -103,6 +107,9 @@ class CommunicationLocalDataSourceV2Test {
 
         override suspend fun getTaskIdByOrderId(orderId: String): String? =
             store.communications.values.firstOrNull { it.orderId == orderId && it.taskId.isNotEmpty() }?.taskId
+
+        override suspend fun getOrderIdByTransactionId(transactionId: String, profile: CommunicationProfileV1): String? =
+            store.communications.values.firstOrNull { it.orderId == transactionId && it.profile == profile }?.orderId
 
         override fun observeByOrderAndProfile(orderId: String, profile: CommunicationProfileV1): Flow<List<ErpCommunicationEntity>> =
             store.flow.map { list -> list.filter { it.orderId == orderId && it.profile == profile } }
@@ -445,4 +452,93 @@ class CommunicationLocalDataSourceV2Test {
         assertNotNull(saved)
         assertEquals("task-orphan:pharmacy-999", saved.orderId)
     }
+
+    @Test
+    fun saveCommunications_replyWithoutOrderId_isLinkedByTransactionIdBeforeTaskIdLookups() = runTest {
+        val (sut, store) = buildSut()
+        // Two orders for the same task: the taskId based lookup would pick "order-other"
+        store.putAll(
+            listOf(
+                entity("dispreq-other", orderId = "order-other", taskId = "task-1"),
+                entity("dispreq-1", orderId = "order-1", taskId = "task-1")
+            )
+        )
+
+        sut.saveCommunications(replyBundle(taskId = "task-1", transactionId = "order-1"))
+
+        assertEquals("order-1", store.communications["reply-1"]?.orderId)
+    }
+
+    @Test
+    fun saveCommunications_replyWithoutOrderIdAndTaskId_isLinkedByTransactionIdAndGetsTaskIdOfOrder() = runTest {
+        val (sut, store) = buildSut()
+        store.put(entity("dispreq-1", orderId = "order-1", taskId = "task-1"))
+
+        sut.saveCommunications(replyBundle(taskId = null, transactionId = "order-1"))
+
+        val saved = store.communications["reply-1"]
+        assertNotNull(saved)
+        assertEquals("order-1", saved.orderId)
+        assertEquals("task-1", saved.taskId)
+    }
+
+    @Test
+    fun saveCommunications_replyWithoutOrderId_isLinkedByTransactionIdOfDispenseRequestInSameBundle() = runTest {
+        val (sut, store) = buildSut()
+        val dispenseRequest = FhirDispenseCommunicationEntryErpModel(
+            id = "dispreq-1",
+            profile = "dispense-profile",
+            taskId = "task-1",
+            sender = CommunicationParticipantErpModel("patient-1"),
+            recipient = CommunicationParticipantErpModel("pharmacy-1"),
+            sent = null,
+            orderId = "order-1",
+            payload = """{"version":3,"communicationType":"order","transactionID":"order-1","supplyOptionsType":"delivery","phone":"123"}"""
+        )
+        val reply = replyBundle(taskId = null, transactionId = "order-1").messages
+        val bundle = FhirCommunicationBundleErpModel(total = 2, messages = listOf(dispenseRequest) + reply)
+
+        sut.saveCommunications(bundle)
+
+        val saved = store.communications["reply-1"]
+        assertNotNull(saved)
+        assertEquals("order-1", saved.orderId)
+        assertEquals("task-1", saved.taskId)
+    }
+
+    @Test
+    fun saveCommunications_replyWithUnknownTransactionId_fallsBackToTaskIdLookup() = runTest {
+        val (sut, store) = buildSut()
+        store.put(entity("dispreq-1", orderId = "order-1", taskId = "task-1"))
+
+        sut.saveCommunications(replyBundle(taskId = "task-1", transactionId = "unknown-transaction"))
+
+        assertEquals("order-1", store.communications["reply-1"]?.orderId)
+    }
+
+    @Test
+    fun saveCommunications_replyWithUnknownTransactionIdAndNoOrder_fallsBackToSyntheticOrderId() = runTest {
+        val (sut, store) = buildSut()
+
+        sut.saveCommunications(replyBundle(taskId = "task-1", transactionId = "unknown-transaction"))
+
+        assertEquals("task-1:pharmacy-1", store.communications["reply-1"]?.orderId)
+    }
+
+    private fun replyBundle(taskId: String?, transactionId: String) = FhirCommunicationBundleErpModel(
+        total = 1,
+        messages = listOf(
+            FhirReplyCommunicationEntryErpModel(
+                id = "reply-1",
+                profile = "reply-profile",
+                taskId = taskId,
+                sender = CommunicationParticipantErpModel("pharmacy-1"),
+                recipient = CommunicationParticipantErpModel("patient-1"),
+                orderId = null,
+                sent = null,
+                received = null,
+                payload = """{"version":3,"communicationType":"text","transactionID":"$transactionId","text":"Ready for pickup"}"""
+            )
+        )
+    )
 }

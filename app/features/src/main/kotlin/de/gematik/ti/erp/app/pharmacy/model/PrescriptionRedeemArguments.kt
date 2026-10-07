@@ -27,11 +27,11 @@ import de.gematik.ti.erp.app.shippingInfo.model.ShippingInfoErpModel
 import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 
-internal fun orderID(): UUID = UUID.randomUUID()
+internal fun orderID(): String = UUID.randomUUID().toString()
 
 sealed class PrescriptionRedeemArguments(
     open val profile: ProfileErpModel? = null,
-    open val orderId: UUID,
+    open val orderId: String,
     open val prescriptionOrderInfos: List<PrescriptionInOrderErpModel>,
     open val redeemOption: OrderOptionErpModel,
     open val pharmacy: PharmacyDetailsErpModel,
@@ -47,7 +47,7 @@ sealed class PrescriptionRedeemArguments(
     // arguments required to redeem a prescription for a logged in user
     data class LoggedInUserRedemptionArguments(
         override val profile: ProfileErpModel,
-        override val orderId: UUID,
+        override val orderId: String,
         override val prescriptionOrderInfos: List<PrescriptionInOrderErpModel>,
         override val redeemOption: OrderOptionErpModel,
         override val pharmacy: PharmacyDetailsErpModel,
@@ -55,7 +55,7 @@ sealed class PrescriptionRedeemArguments(
     ) : PrescriptionRedeemArguments(profile, orderId, prescriptionOrderInfos, redeemOption, pharmacy, contact)
 
     companion object {
-        fun UUID.from(
+        fun String.from(
             profile: ProfileErpModel,
             order: OrderStateErpModel,
             redeemOption: OrderOptionErpModel,

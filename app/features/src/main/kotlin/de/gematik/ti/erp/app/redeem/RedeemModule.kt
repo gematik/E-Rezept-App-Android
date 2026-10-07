@@ -53,8 +53,7 @@ val redeemModule = DI.Module("redeemModule") {
         RedeemPrescriptionsOnLoggedInUseCase(
             taskOperationsRepository = instance(),
             pharmacyRepository = instance(),
-            communicationVersionRepository = instance(),
-            isFeatureToggleEnabledUseCase = instance()
+            communicationVersionRepository = instance()
         )
     }
     bindProvider { HasEuRedeemablePrescriptionsUseCase(instance()) }

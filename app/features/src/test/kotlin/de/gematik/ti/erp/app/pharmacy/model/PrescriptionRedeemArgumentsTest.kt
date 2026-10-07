@@ -20,28 +20,19 @@
  * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
-package de.gematik.ti.erp.app.mainscreen.navigation
+package de.gematik.ti.erp.app.pharmacy.model
 
-import android.os.Parcelable
-import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
-import de.gematik.ti.erp.app.navigation.Routes
-import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
-import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
-import de.gematik.ti.erp.app.settings.navigation.SettingsRoutes
-import kotlinx.parcelize.Parcelize
-import kotlinx.serialization.Serializable
+import java.util.UUID
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-@Parcelize
-@Serializable
-data class TaskIds(val ids: List<String>) : Parcelable, List<String> by ids
+class PrescriptionRedeemArgumentsTest {
 
-object MainNavigationScreens {
-    object Debug : Routes("debug")
+    @Test
+    fun `order ID is a 36-character UUID string`() {
+        val orderId = orderID()
+
+        assertEquals(36, orderId.length)
+        assertEquals(orderId, UUID.fromString(orderId).toString())
+    }
 }
-
-val MainScreenBottomNavigationItems: List<Routes> = listOf(
-    PrescriptionRoutes.PrescriptionListScreen,
-    PharmacyRoutes.PharmacyStartScreen,
-    MessagesRoutes.CommResV3MessageListScreen,
-    SettingsRoutes.SettingsScreen
-)

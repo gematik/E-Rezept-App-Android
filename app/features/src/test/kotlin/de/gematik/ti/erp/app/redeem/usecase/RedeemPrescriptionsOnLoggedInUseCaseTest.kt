@@ -22,8 +22,6 @@
 
 package de.gematik.ti.erp.app.redeem.usecase
 
-import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
-import de.gematik.ti.erp.app.database.datastore.featuretoggle.COMM_RES_V3
 import de.gematik.ti.erp.app.debug.repository.CommunicationVersionRepository
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions
 import de.gematik.ti.erp.app.mocks.profile.model.MODEL_PROFILE
@@ -39,7 +37,6 @@ import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -61,7 +58,6 @@ class RedeemPrescriptionsOnLoggedInUseCaseTest {
     private val taskOperationsRepository: TaskOperationsRepository = mockk()
     private val pharmacyRepository: PharmacyRepository = mockk()
     private val communicationVersionRepository: CommunicationVersionRepository = mockk()
-    private val isFeatureToggleEnabledUseCase: IsFeatureToggleEnabledUseCase = mockk()
 
     private val dispatcher = StandardTestDispatcher()
 
@@ -90,8 +86,6 @@ class RedeemPrescriptionsOnLoggedInUseCaseTest {
 
     @Test
     fun `v3 payload uses country selected from shipping contact instead of hardcoded DE`() = runTest(dispatcher) {
-        coEvery { isFeatureToggleEnabledUseCase.invoke(COMM_RES_V3) } returns flowOf(true)
-
         val capturedCommunication = slot<JsonElement>()
         coEvery {
             taskOperationsRepository.redeem(
@@ -105,8 +99,7 @@ class RedeemPrescriptionsOnLoggedInUseCaseTest {
             taskOperationsRepository = taskOperationsRepository,
             pharmacyRepository = pharmacyRepository,
             communicationVersionRepository = communicationVersionRepository,
-            dispatcher = dispatcher,
-            isFeatureToggleEnabledUseCase = isFeatureToggleEnabledUseCase
+            dispatcher = dispatcher
         )
 
         val contactWithAustria = testContact.copy(country = "AT")
@@ -114,7 +107,7 @@ class RedeemPrescriptionsOnLoggedInUseCaseTest {
         useCase.invoke(
             profileId = MODEL_PROFILE.id,
             redeemOption = OrderOptionErpModel.Delivery,
-            orderId = UUID.randomUUID(),
+            orderId = UUID.randomUUID().toString(),
             prescriptionOrderInfos = listOf(testPrescription),
             contact = contactWithAustria,
             pharmacy = testPharmacy
@@ -129,8 +122,6 @@ class RedeemPrescriptionsOnLoggedInUseCaseTest {
 
     @Test
     fun `v3 payload sends null when country is blank`() = runTest(dispatcher) {
-        coEvery { isFeatureToggleEnabledUseCase.invoke(COMM_RES_V3) } returns flowOf(true)
-
         val capturedCommunication = slot<JsonElement>()
         coEvery {
             taskOperationsRepository.redeem(
@@ -144,8 +135,7 @@ class RedeemPrescriptionsOnLoggedInUseCaseTest {
             taskOperationsRepository = taskOperationsRepository,
             pharmacyRepository = pharmacyRepository,
             communicationVersionRepository = communicationVersionRepository,
-            dispatcher = dispatcher,
-            isFeatureToggleEnabledUseCase = isFeatureToggleEnabledUseCase
+            dispatcher = dispatcher
         )
 
         val contactWithEmptyCountry = testContact.copy(country = "")
@@ -153,7 +143,7 @@ class RedeemPrescriptionsOnLoggedInUseCaseTest {
         useCase.invoke(
             profileId = MODEL_PROFILE.id,
             redeemOption = OrderOptionErpModel.Delivery,
-            orderId = UUID.randomUUID(),
+            orderId = UUID.randomUUID().toString(),
             prescriptionOrderInfos = listOf(testPrescription),
             contact = contactWithEmptyCountry,
             pharmacy = testPharmacy
@@ -166,8 +156,6 @@ class RedeemPrescriptionsOnLoggedInUseCaseTest {
 
     @Test
     fun `v3 payload splits multi-part name into first word as firstname and rest as lastname`() = runTest(dispatcher) {
-        coEvery { isFeatureToggleEnabledUseCase.invoke(COMM_RES_V3) } returns flowOf(true)
-
         val capturedCommunication = slot<JsonElement>()
         coEvery {
             taskOperationsRepository.redeem(
@@ -181,8 +169,7 @@ class RedeemPrescriptionsOnLoggedInUseCaseTest {
             taskOperationsRepository = taskOperationsRepository,
             pharmacyRepository = pharmacyRepository,
             communicationVersionRepository = communicationVersionRepository,
-            dispatcher = dispatcher,
-            isFeatureToggleEnabledUseCase = isFeatureToggleEnabledUseCase
+            dispatcher = dispatcher
         )
 
         val contactWithMultiPartName = testContact.copy(
@@ -194,7 +181,7 @@ class RedeemPrescriptionsOnLoggedInUseCaseTest {
         useCase.invoke(
             profileId = MODEL_PROFILE.id,
             redeemOption = OrderOptionErpModel.Delivery,
-            orderId = UUID.randomUUID(),
+            orderId = UUID.randomUUID().toString(),
             prescriptionOrderInfos = listOf(testPrescription),
             contact = contactWithMultiPartName,
             pharmacy = testPharmacy
@@ -208,8 +195,6 @@ class RedeemPrescriptionsOnLoggedInUseCaseTest {
 
     @Test
     fun `v3 payload formats phone number by removing spaces and replacing +49 with 0049`() = runTest(dispatcher) {
-        coEvery { isFeatureToggleEnabledUseCase.invoke(COMM_RES_V3) } returns flowOf(true)
-
         val capturedCommunication = slot<JsonElement>()
         coEvery {
             taskOperationsRepository.redeem(
@@ -223,8 +208,7 @@ class RedeemPrescriptionsOnLoggedInUseCaseTest {
             taskOperationsRepository = taskOperationsRepository,
             pharmacyRepository = pharmacyRepository,
             communicationVersionRepository = communicationVersionRepository,
-            dispatcher = dispatcher,
-            isFeatureToggleEnabledUseCase = isFeatureToggleEnabledUseCase
+            dispatcher = dispatcher
         )
 
         val contactWithFormattedPhone = testContact.copy(phone = "+49 160 94858168")
@@ -232,7 +216,7 @@ class RedeemPrescriptionsOnLoggedInUseCaseTest {
         useCase.invoke(
             profileId = MODEL_PROFILE.id,
             redeemOption = OrderOptionErpModel.Delivery,
-            orderId = UUID.randomUUID(),
+            orderId = UUID.randomUUID().toString(),
             prescriptionOrderInfos = listOf(testPrescription),
             contact = contactWithFormattedPhone,
             pharmacy = testPharmacy

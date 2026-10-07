@@ -32,20 +32,7 @@ import org.junit.Test
 class MainScreenNavigationScreensTest {
 
     @Test
-    fun `should keep legacy messages button when CommResV3 is disabled`() {
-        assertEquals(
-            listOf(
-                PrescriptionRoutes.PrescriptionListScreen,
-                PharmacyRoutes.PharmacyStartScreen,
-                MessagesRoutes.MessageListScreen,
-                SettingsRoutes.SettingsScreen
-            ),
-            mainScreenBottomNavigationItems(isCommResV3Enabled = false)
-        )
-    }
-
-    @Test
-    fun `should replace legacy messages button with CommResV3 button when CommResV3 is enabled`() {
+    fun `bottom navigation uses CommResV3 messages screen`() {
         assertEquals(
             listOf(
                 PrescriptionRoutes.PrescriptionListScreen,
@@ -53,7 +40,7 @@ class MainScreenNavigationScreensTest {
                 MessagesRoutes.CommResV3MessageListScreen,
                 SettingsRoutes.SettingsScreen
             ),
-            mainScreenBottomNavigationItems(isCommResV3Enabled = true)
+            MainScreenBottomNavigationItems
         )
     }
 }

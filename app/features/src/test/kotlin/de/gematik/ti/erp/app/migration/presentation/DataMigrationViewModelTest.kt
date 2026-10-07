@@ -29,6 +29,7 @@ import de.gematik.ti.erp.app.migration.usecase.ClearMigratedPharmacyAndShippingI
 import de.gematik.ti.erp.app.migration.usecase.CompleteMigrationUseCase
 import de.gematik.ti.erp.app.migration.usecase.StartMigrationUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -119,6 +120,33 @@ class DataMigrationViewModelTest {
         advanceUntilIdle()
         coVerify(exactly = 1) { clearMigratedPharmacyAndShippingInfoUseCase.invoke() }
         coVerify(exactly = 1) { completeMigrationUseCase.invoke() }
+
+        collectionJob.cancel()
+    }
+
+    @Test
+    fun `failed migration recovery does not crash or complete migration`() = runTest(dispatcher) {
+        val error = IllegalStateException("recoverable")
+        val recoveryError = IllegalStateException("database unavailable")
+        coEvery { clearMigratedPharmacyAndShippingInfoUseCase.invoke() } throws recoveryError
+        val viewModel = DataMigrationViewModel(
+            dataMigrator = dataMigrator,
+            startMigrationUseCase = startMigrationUseCase,
+            completeMigrationUseCase = completeMigrationUseCase,
+            clearMigratedPharmacyAndShippingInfoUseCase = clearMigratedPharmacyAndShippingInfoUseCase
+        )
+        val collectionJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {}
+        }
+
+        progress.value = MigrationProgress(error = error to MigrationStep.SHIPPING_INFO)
+        advanceUntilIdle()
+
+        viewModel.recoverMigrationFailure()
+
+        advanceUntilIdle()
+        coVerify(exactly = 1) { clearMigratedPharmacyAndShippingInfoUseCase.invoke() }
+        coVerify(exactly = 0) { completeMigrationUseCase.invoke() }
 
         collectionJob.cancel()
     }
