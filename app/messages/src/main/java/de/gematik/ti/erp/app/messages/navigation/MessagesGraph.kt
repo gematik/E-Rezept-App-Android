@@ -40,7 +40,7 @@ import de.gematik.ti.erp.app.navigation.slideInDown
 import de.gematik.ti.erp.app.navigation.slideOutUp
 
 fun NavGraphBuilder.messagesGraph(
-    startDestination: String = MessagesRoutes.MessageListScreen.route,
+    startDestination: String = MessagesRoutes.CommResV3MessageListScreen.route,
     navController: NavController
 ) {
     navigation(

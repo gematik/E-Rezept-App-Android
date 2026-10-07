@@ -141,7 +141,7 @@ class RedeemPrescriptionListControllerTest {
                 // results within the state
                 val prescriptionResultState = (emittedState as RedeemedPrescriptionState.OrderCompleted).results.values.first()
                 assert(prescriptionResultState is BaseRedeemState.Success)
-                assertEquals(orderId.toString(), emittedState.orderId)
+                assertEquals(orderId, emittedState.orderId)
 
                 cancelAndIgnoreRemainingEvents()
             }
@@ -372,7 +372,7 @@ class RedeemPrescriptionListControllerTest {
     }
 
     companion object {
-        private val orderId = UUID.randomUUID()
+        private val orderId = UUID.randomUUID().toString()
 
         private const val telematikId = "9-2.58.00000040"
         private const val taskId = "active-synced-task-id-1"

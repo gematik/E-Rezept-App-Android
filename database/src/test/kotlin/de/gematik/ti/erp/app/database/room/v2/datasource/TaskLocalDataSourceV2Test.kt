@@ -400,6 +400,9 @@ class TaskLocalDataSourceV2Test {
         override suspend fun getTaskIdByOrderId(orderId: String): String? =
             store.communications.values.firstOrNull { it.orderId == orderId && it.taskId.isNotEmpty() }?.taskId
 
+        override suspend fun getOrderIdByTransactionId(transactionId: String, profile: CommunicationProfileV1): String? =
+            store.communications.values.firstOrNull { it.orderId == transactionId && it.profile == profile }?.orderId
+
         override fun observeRepliesForOrderIdFromSender(orderId: String, profile: CommunicationProfileV1): Flow<List<ErpCommunicationEntity>> =
             store.communicationFlow.map { list -> list.filter { it.orderId == orderId && it.profile == profile }.sortedByDescending { it.timeStamp } }
 

@@ -33,9 +33,10 @@ import de.gematik.ti.erp.app.migration.usecase.CompleteMigrationUseCase
 import de.gematik.ti.erp.app.migration.usecase.StartMigrationUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
@@ -48,17 +49,25 @@ class DataMigrationViewModel(
     private val clearMigratedPharmacyAndShippingInfoUseCase: ClearMigratedPharmacyAndShippingInfoUseCase
 ) : Controller() {
 
-    val uiState: StateFlow<UiState<MigrationProgress>> = dataMigrator.progress
-        .map { progress ->
-            progress.error?.let { error ->
-                if (error.second == MigrationStep.SHIPPING_INFO || error.second == MigrationStep.PHARMACY) {
-                    UiState.Data(progress)
-                } else {
-                    UiState.Error(error = error.first, progress)
-                }
-            } ?: UiState.Loading(progress)
+    // set when `recoverMigrationFailure()` could not recover the migration; the app's data state is then undefined
+    // and the user must reinstall the app
+    private val unrecoverableFailure = MutableStateFlow<Throwable?>(null)
+
+    val uiState: StateFlow<UiState<MigrationProgress>> = combine(
+        dataMigrator.progress,
+        unrecoverableFailure
+    ) { progress, unrecoverable ->
+        unrecoverable?.let {
+            return@combine UiState.Error(error = it, data = progress)
         }
-        .stateIn(controllerScope, SharingStarted.WhileSubscribed(), UiState.Loading())
+        progress.error?.let { error ->
+            if (error.second == MigrationStep.SHIPPING_INFO || error.second == MigrationStep.PHARMACY) {
+                UiState.Data(progress)
+            } else {
+                UiState.Error(error = error.first, progress)
+            }
+        } ?: UiState.Loading(progress)
+    }.stateIn(controllerScope, SharingStarted.WhileSubscribed(), UiState.Loading())
 
     init {
         startMigration()
@@ -89,8 +98,14 @@ class DataMigrationViewModel(
         controllerScope.launch {
             uiState.value.data?.error?.second?.let { migrationStep ->
                 if (migrationStep == MigrationStep.SHIPPING_INFO || migrationStep == MigrationStep.PHARMACY) {
-                    clearMigratedPharmacyAndShippingInfoUseCase()
-                    completeMigrationUseCase()
+                    runCatching {
+                        clearMigratedPharmacyAndShippingInfoUseCase()
+                        completeMigrationUseCase()
+                    }.onFailure { error ->
+                        Napier.e(error) { "Migration recovery failed" }
+                        // recovery failed and the app's data state is now unknown; the user must reinstall
+                        unrecoverableFailure.value = error
+                    }
                 }
             }
         }

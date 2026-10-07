@@ -25,10 +25,8 @@ package de.gematik.ti.erp.app.redeem.usecase
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.api.httpErrorState
-import de.gematik.ti.erp.app.base.usecase.IsFeatureToggleEnabledUseCase
 import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestCommunicationPayloadV1ErpModel
 import de.gematik.ti.erp.app.communication.model.payload.DispenseRequestCommunicationPayloadV3ErpModel
-import de.gematik.ti.erp.app.database.datastore.featuretoggle.COMM_RES_V3
 import de.gematik.ti.erp.app.debug.repository.CommunicationVersionRepository
 import de.gematik.ti.erp.app.fhir.communication.CommunicationDispenseRequest.createCommunicationDispenseRequest
 import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants
@@ -51,12 +49,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.cancellable
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.UUID
 
 /**
  * 1. Inform the UI on the process start
@@ -70,8 +66,7 @@ class RedeemPrescriptionsOnLoggedInUseCase(
     private val taskOperationsRepository: TaskOperationsRepository,
     private val pharmacyRepository: PharmacyRepository,
     private val communicationVersionRepository: CommunicationVersionRepository,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val isFeatureToggleEnabledUseCase: IsFeatureToggleEnabledUseCase? = null
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     /**
      * Sanitizes patient/user names to comply with German e-prescription (eRp) API constraints.
@@ -100,18 +95,10 @@ class RedeemPrescriptionsOnLoggedInUseCase(
     private fun truncate(value: String, maxLength: Int): String =
         if (value.length > maxLength) value.take(maxLength) else value
 
-    /**
-     * Splits a full name into firstname/lastname on the *first* space, e.g.
-     * "Hans muller schmidth" -> ("Hans", "muller schmidth").
-     * If there is no space, the whole name is used as the firstname.
-     */
-    private fun splitName(name: String): Pair<String, String> =
-        ShippingInfoErpModel.splitFullName(name)
-
     operator fun invoke(
         profileId: ProfileIdentifier,
         redeemOption: OrderOptionErpModel,
-        orderId: UUID,
+        orderId: String,
         prescriptionOrderInfos: List<PrescriptionInOrderErpModel>,
         contact: ShippingInfoErpModel,
         pharmacy: PharmacyDetailsErpModel,
@@ -125,8 +112,7 @@ class RedeemPrescriptionsOnLoggedInUseCase(
                 val communicationVersion = communicationVersionRepository.getCommunicationVersion()
                 Napier.i(tag = "fhir-parser") { "Communication version used for dispense request: $communicationVersion" }
 
-                val isCommResV3 = isFeatureToggleEnabledUseCase?.invoke(COMM_RES_V3)?.firstOrNull() ?: false
-                val communicationPayloadVersion = if (isCommResV3) "3" else "1"
+                val communicationPayloadVersion = "3"
 
                 prescriptionOrderInfos
                     .map { prescriptionOrderInfo ->
@@ -143,6 +129,7 @@ class RedeemPrescriptionsOnLoggedInUseCase(
                                 val hintStr = contact.deliveryInfo.trim().takeUnless { it.isBlank() }
                                 val mailStr = contact.mail.trim().takeUnless { it.isBlank() }
                                 DispenseRequestCommunicationPayloadV3ErpModel(
+                                    transactionID = orderId,
                                     supplyOptionsType = redeemOption.toRedeemOption(),
                                     firstname = firstnameStr?.let { truncate(it, 45) },
                                     lastname = lastnameStr?.let { truncate(it, 45) },
@@ -165,7 +152,7 @@ class RedeemPrescriptionsOnLoggedInUseCase(
                             }
 
                             val communicationDispenseRequestJson = createCommunicationDispenseRequest(
-                                orderId = orderId.toString(),
+                                orderId = orderId,
                                 taskId = prescriptionOrderInfo.taskId,
                                 accessCode = prescriptionOrderInfo.accessCode,
                                 communicationPayloadVersion = communicationPayloadVersion,
@@ -213,6 +200,6 @@ class RedeemPrescriptionsOnLoggedInUseCase(
                     }
             }.also { emit(it) }
         }
-            .map { RedeemedPrescriptionState.OrderCompleted(orderId = orderId.toString(), results = it) }
+            .map { RedeemedPrescriptionState.OrderCompleted(orderId = orderId, results = it) }
             .cancellable()
 }

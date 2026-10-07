@@ -40,7 +40,6 @@ class FeatureToggleDefaultsTest {
         assertEquals(FEATURE_ENTITIES, serializer.defaultValue.classes)
         assertTrue(featureStateByName.getValue(ROOM_DB.name).isActive)
         assertFalse(featureStateByName.getValue(EU_REDEEM.name).isActive)
-        assertTrue(featureStateByName.getValue(PUSH_NOTIFICATIONS.name).isActive)
         assertFalse(featureStateByName.getValue(COMM_RES_V3_SEND_MESSAGE.name).isActive)
     }
 
@@ -57,8 +56,21 @@ class FeatureToggleDefaultsTest {
 
         assertFalse(featureStateByName.getValue(ROOM_DB.name).isActive)
         assertFalse(featureStateByName.getValue(EU_REDEEM.name).isActive)
-        assertTrue(featureStateByName.getValue(PUSH_NOTIFICATIONS.name).isActive)
         assertFalse(featureStateByName.getValue(COMM_RES_V3_SEND_MESSAGE.name).isActive)
+    }
+
+    @Test
+    fun `migration removes deprecated comm res v3 toggle from existing installations`() = runTest {
+        val migration = FeatureToggleDataMigration()
+        val currentData = FeatureEntitySchema(
+            classes = FEATURE_ENTITIES + FeatureEntity(name = "CommResV3", isActive = false)
+        )
+
+        assertTrue(migration.shouldMigrate(currentData))
+
+        val migratedSchema = migration.migrate(currentData)
+
+        assertFalse(migratedSchema.classes.any { it.name == "CommResV3" })
     }
 
     private object NoOpDataStoreCryptography : DataStoreCryptography {

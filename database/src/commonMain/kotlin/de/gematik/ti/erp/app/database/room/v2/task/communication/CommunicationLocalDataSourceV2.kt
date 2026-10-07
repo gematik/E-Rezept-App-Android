@@ -23,10 +23,12 @@ package de.gematik.ti.erp.app.database.room.v2.task.communication
 
 import de.gematik.ti.erp.app.communication.model.CommunicationErpModel
 import de.gematik.ti.erp.app.communication.model.CommunicationProfileV1
+import de.gematik.ti.erp.app.communication.model.payload.CommunicationPayloadErpModel
 import de.gematik.ti.erp.app.database.api.CommunicationLocalDataSource
 import de.gematik.ti.erp.app.database.room.v2.task.mappers.toErpCommunicationEntity
 import de.gematik.ti.erp.app.database.room.v2.task.mappers.toErpModel
 import de.gematik.ti.erp.app.fhir.FhirCommunicationBundleErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.FhirCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationPayloadParser
@@ -69,91 +71,141 @@ class CommunicationLocalDataSourceV2(
         return mapped.size
     }
 
+    /**
+     * Persists all communications of a synced FHIR bundle.
+     *
+     * Every communication has to be linked to an order (via `orderId`) and, where possible, to a task, because
+     * the messages UI loads conversations by order. The server does not always send an OrderID (e.g. for replies
+     * of some pharmacy systems), so the ids are resolved here with the following fallbacks:
+     *
+     * - Dispense requests (sent by the user): see [toDispenseRequestEntity].
+     * - Replies (sent by the pharmacy): see [toReplyEntity] and [resolveReplyOrderId].
+     *
+     * @return the number of persisted communications
+     */
     override suspend fun saveCommunications(entities: FhirCommunicationBundleErpModel): Int {
         if (entities.messages.isEmpty()) return 0
+        val batch = SyncBatch(entities.messages)
         val mapped = entities.messages.map { message ->
-            val taskId = message.taskId
-                ?: message.orderId?.let { orderId ->
-                    entities.messages.firstOrNull { it.orderId == orderId && !it.taskId.isNullOrEmpty() }?.taskId
-                        ?: dao.getTaskIdByOrderId(orderId)
-                }.orEmpty()
-            val task = if (taskId.isNotEmpty()) dao.getTaskByTaskId(taskId) else null
-            val insuranceId = if (taskId.isNotEmpty()) dao.getInsuranceIdByTaskId(taskId) else null
-            val profileId = task?.parentProfileId ?: insuranceId ?: ""
             when (message) {
-                is FhirReplyCommunicationEntryErpModel -> {
-                    val telematikId = message.sender?.identifier ?: ""
-                    var orderId = message.orderId?.ifEmpty { null }
-                    if (orderId == null && taskId.isNotEmpty()) {
-                        orderId = entities.messages.firstOrNull {
-                            it is FhirDispenseCommunicationEntryErpModel &&
-                                it.taskId == taskId &&
-                                !it.orderId.isNullOrEmpty()
-                        }?.orderId
-                    }
-                    if (orderId == null && taskId.isNotEmpty()) {
-                        orderId = dao.getOrderIdByTaskIdAndProfile(taskId, CommunicationProfileV1.ErxCommunicationDispReq)
-                    }
-                    if (orderId == null && taskId.isNotEmpty()) {
-                        orderId = dao.getOrderIdByTaskIdAndTelematikId(taskId, telematikId)
-                    }
-                    if (orderId == null) {
-                        // No real OrderID could be resolved - this happens e.g. when the
-                        // corresponding dispense-request was created (and later removed server-side)
-                        // on a different device before this device ever synced. Fall back to a stable,
-                        // deterministic synthetic orderId built from taskId+telematikId (the same key
-                        // already used by getOrderIdByTaskIdAndTelematikId above) so that all replies
-                        // for the same task from the same pharmacy keep being grouped into one openable
-                        // order, instead of being persisted with a blank orderId that breaks order lookups.
-                        orderId = syntheticOrderId(taskId, telematikId)
-                    }
-                    if (task != null) {
-                        message.toErpCommunicationEntity(task, profileId, orderId, insuranceId)
-                    } else {
-                        ErpCommunicationEntity(
-                            communicationId = message.id,
-                            orderId = orderId ?: "",
-                            taskId = taskId,
-                            profileId = profileId,
-                            telematikId = message.sender?.identifier ?: "",
-                            kvnr = message.recipient?.identifier ?: "",
-                            consumed = false,
-                            payload = message.payload?.let { CommunicationPayloadParser.extract(it, isRequest = false) },
-                            profile = CommunicationProfileV1.ErxCommunicationReply,
-                            recipient = message.recipient?.identifier ?: "",
-                            insuranceId = insuranceId,
-                            timeStamp = message.sent?.value ?: System.now(),
-                            pharmacyName = message.pharmacyName
-                        )
-                    }
-                }
-
-                is FhirDispenseCommunicationEntryErpModel -> {
-                    if (task != null) {
-                        message.toErpCommunicationEntity(task, profileId, insuranceId)
-                    } else {
-                        ErpCommunicationEntity(
-                            communicationId = message.id,
-                            orderId = message.orderId ?: "",
-                            taskId = taskId,
-                            profileId = profileId,
-                            telematikId = message.sender?.identifier ?: "",
-                            kvnr = message.recipient?.identifier ?: "",
-                            consumed = false,
-                            payload = message.payload?.let { CommunicationPayloadParser.extract(it, isRequest = true) },
-                            profile = CommunicationProfileV1.ErxCommunicationDispReq,
-                            recipient = message.recipient?.identifier ?: "",
-                            insuranceId = insuranceId,
-                            timeStamp = message.sent?.value ?: System.now(),
-                            pharmacyName = message.pharmacyName
-                        )
-                    }
-                }
+                is FhirReplyCommunicationEntryErpModel -> message.toReplyEntity(batch)
+                is FhirDispenseCommunicationEntryErpModel -> message.toDispenseRequestEntity(batch)
             }
         }
         dao.upsertAll(mapped)
         return mapped.size
     }
+
+    /**
+     * Maps a pharmacy reply to its entity.
+     *
+     * 1. The order is resolved first from the OrderID or the transactionID ([resolveOrderIdByTransactionId]).
+     * 2. The task is then resolved, using that order if the reply does not reference a task itself.
+     * 3. If no order is known yet, the task based fallbacks of [resolveReplyOrderId] are used.
+     */
+    private suspend fun FhirReplyCommunicationEntryErpModel.toReplyEntity(batch: SyncBatch): ErpCommunicationEntity {
+        val payload = payload?.let { CommunicationPayloadParser.extract(it, isRequest = false) }
+        val knownOrderId = orderId?.ifEmpty { null } ?: resolveOrderIdByTransactionId(payload?.transactionID, batch)
+        val task = resolveTaskContext(resolveTaskId(knownOrderId, batch))
+        val telematikId = sender?.identifier.orEmpty()
+        val orderId = knownOrderId ?: resolveReplyOrderId(task.taskId, telematikId, batch)
+
+        return toEntity(
+            task = task,
+            orderId = orderId,
+            profile = CommunicationProfileV1.ErxCommunicationReply,
+            payload = payload
+        )
+    }
+
+    /**
+     * Maps a dispense request to its entity. Dispense requests are created by the app and always carry
+     * their OrderID, so only the task may need to be resolved (via that order).
+     */
+    private suspend fun FhirDispenseCommunicationEntryErpModel.toDispenseRequestEntity(batch: SyncBatch): ErpCommunicationEntity =
+        toEntity(
+            task = resolveTaskContext(resolveTaskId(orderId, batch)),
+            orderId = orderId.orEmpty(),
+            profile = CommunicationProfileV1.ErxCommunicationDispReq,
+            payload = payload?.let { CommunicationPayloadParser.extract(it, isRequest = true) }
+        )
+
+    /**
+     * Resolves the order of a reply that has no OrderID through its [transactionId].
+     *
+     * Dispense requests are sent with `transactionID = orderId`, so a reply carrying the same transactionID
+     * belongs to that order. The current sync batch is checked first, then the dispense requests already stored.
+     * Blank transactionIDs are ignored, since they would match every other communication without one.
+     *
+     * @return the orderId of the matching dispense request, or null if there is none
+     */
+    private suspend fun resolveOrderIdByTransactionId(transactionId: String?, batch: SyncBatch): String? {
+        if (transactionId.isNullOrBlank()) return null
+        return batch.dispenseRequestOrderIdsByTransactionId[transactionId]
+            ?: dao.getOrderIdByTransactionId(transactionId, CommunicationProfileV1.ErxCommunicationDispReq)
+    }
+
+    /**
+     * Resolves the order of a reply that could not be linked by OrderID or transactionID, in this order:
+     *
+     * 1. a dispense request for the same task in the current sync batch
+     * 2. a stored dispense request for the same task
+     * 3. any stored communication for the same task and pharmacy
+     * 4. [syntheticOrderId] - happens e.g. when the dispense request was created (and later removed
+     *    server-side) on a different device before this device ever synced. The synthetic id is stable, so
+     *    all replies for the same task from the same pharmacy are still grouped into one openable order,
+     *    instead of being persisted with a blank orderId that breaks order lookups.
+     */
+    private suspend fun resolveReplyOrderId(taskId: String, telematikId: String, batch: SyncBatch): String {
+        if (taskId.isEmpty()) return syntheticOrderId(taskId, telematikId)
+        return batch.dispenseRequestOrderIdForTask(taskId)
+            ?: dao.getOrderIdByTaskIdAndProfile(taskId, CommunicationProfileV1.ErxCommunicationDispReq)
+            ?: dao.getOrderIdByTaskIdAndTelematikId(taskId, telematikId)
+            ?: syntheticOrderId(taskId, telematikId)
+    }
+
+    /**
+     * Returns the taskId of this communication. If it references no task, the task is taken from another
+     * communication of [orderId] - first from the current sync batch, then from the database.
+     *
+     * @return the taskId, or an empty string if it cannot be resolved
+     */
+    private suspend fun FhirCommunicationEntryErpModel.resolveTaskId(orderId: String?, batch: SyncBatch): String =
+        taskId
+            ?: orderId?.let { batch.taskIdForOrder(it) ?: dao.getTaskIdByOrderId(it) }
+            ?: ""
+
+    /**
+     * Loads the profile and insurance the communication of [taskId] belongs to.
+     * Without a task (empty [taskId]) both stay unknown.
+     */
+    private suspend fun resolveTaskContext(taskId: String): TaskContext {
+        if (taskId.isEmpty()) return TaskContext(taskId = taskId, profileId = "", insuranceId = null)
+        val insuranceId = dao.getInsuranceIdByTaskId(taskId)
+        val profileId = dao.getTaskByTaskId(taskId)?.parentProfileId ?: insuranceId ?: ""
+        return TaskContext(taskId = taskId, profileId = profileId, insuranceId = insuranceId)
+    }
+
+    private fun FhirCommunicationEntryErpModel.toEntity(
+        task: TaskContext,
+        orderId: String,
+        profile: CommunicationProfileV1,
+        payload: CommunicationPayloadErpModel?
+    ) = ErpCommunicationEntity(
+        communicationId = id,
+        orderId = orderId,
+        taskId = task.taskId,
+        profileId = task.profileId,
+        telematikId = sender?.identifier.orEmpty(),
+        kvnr = recipient?.identifier.orEmpty(),
+        consumed = false,
+        payload = payload,
+        profile = profile,
+        recipient = recipient?.identifier.orEmpty(),
+        insuranceId = task.insuranceId,
+        timeStamp = sent?.value ?: System.now(),
+        pharmacyName = pharmacyName
+    )
 
     override fun loadDispReqCommunications(orderId: String): Flow<List<CommunicationErpModel>> {
         return dao.observeByOrderAndProfile(orderId, CommunicationProfileV1.ErxCommunicationDispReq)
@@ -279,6 +331,43 @@ class CommunicationLocalDataSourceV2(
             dao.observeUnreadRepliesCountFromSender(taskIds, telematikId, CommunicationProfileV1.ErxCommunicationReply)
         }
         return flow.map { it > 0 }
+    }
+
+    /** The task a communication belongs to, together with the profile and insurance resolved from it. */
+    private data class TaskContext(
+        val taskId: String,
+        val profileId: String,
+        val insuranceId: String?
+    )
+
+    /**
+     * The communications of one sync. Communications of the same order often arrive together, so the batch
+     * is searched before the database when resolving order and task ids.
+     */
+    private class SyncBatch(private val messages: List<FhirCommunicationEntryErpModel>) {
+
+        /** OrderIds of the dispense requests in this batch, keyed by their (non blank) payload transactionID. */
+        val dispenseRequestOrderIdsByTransactionId: Map<String, String> by lazy {
+            messages
+                .filterIsInstance<FhirDispenseCommunicationEntryErpModel>()
+                .mapNotNull { dispenseRequest ->
+                    val orderId = dispenseRequest.orderId?.ifEmpty { null } ?: return@mapNotNull null
+                    val transactionId = dispenseRequest.payload
+                        ?.let { CommunicationPayloadParser.extract(it, isRequest = true)?.transactionID }
+                        ?.takeUnless { it.isBlank() }
+                        ?: return@mapNotNull null
+                    transactionId to orderId
+                }
+                .toMap()
+        }
+
+        fun taskIdForOrder(orderId: String): String? =
+            messages.firstOrNull { it.orderId == orderId && !it.taskId.isNullOrEmpty() }?.taskId
+
+        fun dispenseRequestOrderIdForTask(taskId: String): String? =
+            messages.firstOrNull {
+                it is FhirDispenseCommunicationEntryErpModel && it.taskId == taskId && !it.orderId.isNullOrEmpty()
+            }?.orderId
     }
 
     private companion object {

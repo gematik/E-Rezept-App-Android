@@ -1,3 +1,10 @@
+# Release 1.41.1
+
+### ✨ fixed (2 changes):
+
+- Add transaction id for dispense request
+- Make communication version 3 screen as default communication screen without feature flag
+
 # Release 1.41.0
 
 ### ✨ features (3 changes):

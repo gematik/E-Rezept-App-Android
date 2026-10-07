@@ -54,7 +54,7 @@ class UncaughtException(
             traceLines.joinToString("\n")
         }
 
-        val rootCause = generateSequence(throwable) { it.cause }.lastOrNull()
+        val rootCause = findRootCause(throwable)
         val rootCauseMsg = rootCause?.localizedMessage ?: "None"
         val rootCauseClass = rootCause?.javaClass?.name ?: "None"
 
@@ -106,7 +106,7 @@ class UncaughtException(
         json.put("file", firstFrame?.fileName ?: "unknown")
         json.put("line", firstFrame?.lineNumber ?: -1)
 
-        json.put("rootCause", generateSequence(throwable) { it.cause }.lastOrNull()?.toString() ?: "None")
+        json.put("rootCause", findRootCause(throwable)?.toString() ?: "None")
 
         if (metadata.isNotEmpty()) {
             val metaJson = JSONObject()
@@ -120,19 +120,67 @@ class UncaughtException(
     }
 
     private fun buildCauseChain(throwable: Throwable): String {
-        return generateSequence(throwable.cause) { it.cause }
-            .joinToString(" → ") {
-                "${it::class.java.simpleName}: ${it.localizedMessage ?: "no message"}"
-            }.ifEmpty { "None" }
+        val causeChain = StringBuilder()
+        var cause = throwable.cause
+
+        while (cause != null) {
+            if (causeChain.isNotEmpty()) {
+                causeChain.append(" → ")
+            }
+            causeChain.append(cause::class.java.simpleName)
+            causeChain.append(": ")
+            causeChain.append(cause.localizedMessage ?: "no message")
+            cause = cause.cause
+        }
+
+        return causeChain.toString().ifEmpty { "None" }
     }
 
-    private fun formatMetadata(meta: Map<String, Any?>, indent: String = "  "): String =
-        meta.entries.joinToString("\n") { (k, v) ->
-            val value = when (v) {
-                is Map<*, *> -> "\n$indent  " + formatMetadata(v as Map<String, Any?>, "$indent  ")
-                is Collection<*> -> v.joinToString(", ")
-                else -> v.toString()
-            }
-            "$indent$k: $value"
+    private fun findRootCause(throwable: Throwable): Throwable? {
+        var rootCause: Throwable? = throwable
+        while (rootCause?.cause != null) {
+            rootCause = rootCause.cause
         }
+        return rootCause
+    }
+
+    private fun formatMetadata(meta: Map<*, *>, indent: String = "  "): String {
+        val formattedMetadata = StringBuilder()
+
+        for ((key, value) in meta) {
+            if (formattedMetadata.isNotEmpty()) {
+                formattedMetadata.append('\n')
+            }
+
+            appendMetadataEntry(formattedMetadata, key, value, indent)
+        }
+
+        return formattedMetadata.toString()
+    }
+
+    private fun appendMetadataEntry(builder: StringBuilder, key: Any?, value: Any?, indent: String) {
+        builder.append(indent)
+        builder.append(key)
+        builder.append(": ")
+
+        when (value) {
+            is Map<*, *> -> {
+                builder.append('\n')
+                builder.append(formatMetadata(value, "$indent  "))
+            }
+            is Collection<*> -> appendCollection(builder, value)
+            else -> builder.append(value)
+        }
+    }
+
+    private fun appendCollection(builder: StringBuilder, values: Collection<*>) {
+        var isFirstValue = true
+        for (item in values) {
+            if (!isFirstValue) {
+                builder.append(", ")
+            }
+            builder.append(item)
+            isFirstValue = false
+        }
+    }
 }

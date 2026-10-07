@@ -59,6 +59,10 @@ interface CommunicationDao {
     @Query("SELECT DISTINCT taskId FROM communications WHERE orderId = :orderId AND taskId != '' LIMIT 1")
     suspend fun getTaskIdByOrderId(orderId: String): String?
 
+    // Dispense requests are sent with transactionID = orderId, so a reply's transactionID is matched against orderId
+    @Query("SELECT orderId FROM communications WHERE orderId = :transactionId AND profile = :profile LIMIT 1")
+    suspend fun getOrderIdByTransactionId(transactionId: String, profile: CommunicationProfileV1): String?
+
     // Observe by order and profile (e.g., ErxCommunicationDispReq)
     @Query("SELECT * FROM communications WHERE orderId = :orderId AND profile = :profile")
     fun observeByOrderAndProfile(orderId: String, profile: CommunicationProfileV1): Flow<List<ErpCommunicationEntity>>
